@@ -75,7 +75,7 @@
 					<mx:Label text="Please specify" paddingLeft="6">
 						<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 					</mx:Label>
-					<mx:TextInput width="500" id="otherOrganism" change="{checkSetupCompleteness();}" maxChars="200">
+					<mx:TextInput width="500" id="otherOrganism" change="{pickOrganism();checkSetupCompleteness();}" maxChars="200">
 						<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 					</mx:TextInput>				
 				</mx:HBox>
@@ -130,7 +130,7 @@
 					<mx:Label text="Please specify" paddingLeft="6">
 						<mx:visible>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other'}</mx:visible>
 					</mx:Label>
-					<mx:TextInput width="500" id="otherOrganism1" change="{checkSetupCompleteness();}" maxChars="200">
+					<mx:TextInput width="500" id="otherOrganism1" change="{pickOrganism();checkSetupCompleteness();}" maxChars="200">
 						<mx:visible>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other'}</mx:visible>
 					</mx:TextInput>				
 				</mx:HBox>
@@ -737,6 +737,31 @@
 				}
 			}
 			
+			public function getDisplayOrganism():Object {
+				if (currentState == 'AdminExternalExperimentState' || currentState == 'AdminExternalMicroarrayState') {
+					return this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null ? this.sampleOrganismCombo1.selectedItem.@display : '';				
+				} else if (currentState == 'ExternalExperimentState' || currentState == 'ExternalMicroarrayState') {
+					return this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null ? this.sampleOrganismCombo.selectedItem.@display : '';				
+				} else {
+					return '';
+				}
+			}
+			
+			public function getOtherOrganism():String {
+				var otherOrganism:String = "";
+				if (currentState == 'AdminExternalExperimentState' || currentState == 'AdminExternalMicroarrayState') {
+					if (this.sampleOrganismCombo1 != null && this.sampleOrganismCombo1.selectedItem != null && this.sampleOrganismCombo1.selectedItem.@display == 'Other') {
+						otherOrganism = this.otherOrganism1.text;
+					}				
+				} else if (currentState == 'ExternalExperimentState' || currentState == 'ExternalMicroarrayState') {
+					if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other') {
+						otherOrganism = this.otherOrganism.text;
+					}				
+				}
+				
+				return otherOrganism;
+			}
+			
 			private function postSetupCompleteness(isComplete:Boolean):void {
 				if (parentDocument == null) {
 					return;
@@ -879,6 +904,11 @@
 			
 			private function pickOrganism():void {
 				
+				// Clear other organism if non 'Other' selected
+				if (this.getDisplayOrganism() != 'Other') {
+					parentDocument.samplesView.propagateOtherOrganism("");
+				}			
+
 				parentDocument.samplesView.initializeSamplesGrid();
 				
 				/*
@@ -887,6 +917,9 @@
 				}
 				*/
 				parentDocument.samplesView.propagateOrganism(this.getIdOrganism());
+				if (this.getDisplayOrganism() == 'Other') {
+					parentDocument.samplesView.propagateOtherOrganism(this.getOtherOrganism());
+				}
 				
 				checkSetupCompleteness();
 				

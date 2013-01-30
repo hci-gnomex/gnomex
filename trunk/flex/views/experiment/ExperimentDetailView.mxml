@@ -683,7 +683,7 @@
 				this.qc260Col.visible = false;
 				this.qcConcCol.visible = false;
 				this.qcRINCol.visible = false;
-				this.qcStatusCol.visible = true;
+				this.qcStatusCol.visible = false;
 				
 			} else if (currentState == 'ExternalMicroarrayState') {
 				sampleTypeCol.visible = true;
@@ -702,7 +702,7 @@
 				this.qc260Col.visible = false;
 				this.qcConcCol.visible = false;
 				this.qcRINCol.visible = false;
-				this.qcStatusCol.visible = true;
+				this.qcStatusCol.visible = false;
 
 			} else {
   
@@ -738,7 +738,7 @@
 					this.qc260Col.visible = true;
 					this.qcConcCol.visible = true;
 					this.qcRINCol.visible = true;
-					this.qcStatusCol.visible = true;
+					this.qcStatusCol.visible = currentState == 'QCState';
 				} else if (isCapSeqState()) {
 					concentrationCol.visible = false; 
 					sampleTypeCol.visible = true;

@@ -109,7 +109,7 @@ public class RequestParser implements Serializable {
     
     for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
       Element sampleNode = (Element)i.next();
-      this.initializeSample(sampleNode, sess);      
+      this.initializeSample(requestNode, sampleNode, sess);      
     }
     
     
@@ -344,7 +344,7 @@ public class RequestParser implements Serializable {
     }
   }
   
-  private void initializeSample(Element n, Session sess) throws Exception {
+  private void initializeSample(Element requestNode, Element n, Session sess) throws Exception {
     boolean isNewSample = false;
     Sample sample = null;
     
@@ -359,7 +359,18 @@ public class RequestParser implements Serializable {
     
     PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
     initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
-        
+    
+    if (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y")) {
+      // the request create screen doesn't do the idOrganism at the request level so skip.
+      if (requestNode.getAttributeValue("idOrganism") != null && requestNode.getAttributeValue("idOrganism").toString().length() > 0) {
+        sample.setIdOrganism(new Integer(requestNode.getAttributeValue("idOrganism")));
+        if (requestNode.getAttributeValue("otherOrganism") != null) {
+          sample.setOtherOrganism(requestNode.getAttributeValue("otherOrganism"));
+        } else {
+          sample.setOtherOrganism("");
+        }
+      }
+    }
   }
   
  
