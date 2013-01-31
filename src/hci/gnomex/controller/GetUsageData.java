@@ -274,6 +274,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         }
         
         
+        //Get a list of analysis types
+        List analysisTypes = sess.createQuery("Select at.analysisType from AnalysisType at").list();
         
         // Get experiment count
         int rank = 0;
@@ -384,7 +386,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           mapDiskSpace(summaryRows, diskSpaceMap);
         }
         
-        addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true);
+        addEntryDiskSpaceNodes(summaryDiskSpaceNode, diskSpaceMap, true, true, analysisTypes);
 
         buf = new StringBuffer();
         BigDecimal totalExperimentDiskSpace = null;
@@ -442,7 +444,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           totalDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
         }
         
-        addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false);
+        addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false, analysisTypes);
         summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace != null ? totalDiskSpace.toString() : "0");      
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace != null ? totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace != null ? totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
@@ -475,7 +477,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           summaryRows = sess.createQuery(queryBuf.toString()).list();
           BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
           mapDiskSpace(summaryRows, diskSpaceMap);
-          addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true);
+          addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true, analysisTypes);
 
           totalDiskSpace = experimentFileSize != null ? experimentFileSize.add(analysisFileSize != null ? analysisFileSize : new BigDecimal(0)) : new BigDecimal(0);
           summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
@@ -878,7 +880,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   }
 
   
-  private void addEntryDiskSpaceNodes(Element parentNode, Map diskSpaceMap, boolean mapToLab, boolean sort) {
+  private void addEntryDiskSpaceNodes(Element parentNode, Map diskSpaceMap, boolean mapToLab, boolean sort, List analysisTypes) {
     // Sort by disk space
     Set diskSpaceInfos = sortDiskSpaceMap(diskSpaceMap, sort);
     
@@ -917,6 +919,13 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       entryNode.setAttribute("diskSpaceMB", fileSizeMB.toString());
       entryNode.setAttribute("diskSpaceGB", fileSizeGB.toString());
       entryNode.setAttribute("rank", Integer.valueOf(rank).toString());
+      
+      if(!mapToLab && analysisTypes.contains(label)){
+        entryNode.setAttribute("isAnalysis", "Y");
+      }
+      else if(!mapToLab && !analysisTypes.contains(label)){
+        entryNode.setAttribute("isAnalysis", "N");
+      }
       
       rank++;
       
