@@ -554,7 +554,7 @@
 							addColumn = true;
 						}
 						
-						if (col.dataField == '@multiplexGroupNumber') {
+						if (col.dataField == '@multiplexGroupNumber' && this.allowMultiPlexGroupNumber) {
 							addColumn = true;
 						}
 						if (addColumn) {
