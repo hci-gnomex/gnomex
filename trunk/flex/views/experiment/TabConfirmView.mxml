@@ -70,7 +70,7 @@
 				avgInsertSizeBox.includeInLayout = true;
 				capLibDesignBox.includeInLayout = false;
 				capLibDesignBox.visible = false;
-				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' - ' + parentDocument.request.@avgInsertSizeTo;
+				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' to ' + parentDocument.request.@avgInsertSizeTo + " bp";
 				
 			}
 			else{
