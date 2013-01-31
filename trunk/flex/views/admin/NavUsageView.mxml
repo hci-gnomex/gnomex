@@ -5,6 +5,7 @@
 		   creationPolicy="all" show="init()" 
 		   cornerRadius="8"   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 		   paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
+
 	<mx:states>
 		<mx:State name="UserState">
 		</mx:State>
@@ -223,6 +224,27 @@
 				linkbutton5.enabled = true;
 				getUsageData.send();
 			}
+		}
+		
+		protected function analysisCategories_changeHandler(event:Event):void{
+			var explodeRadii:Array = new Array();
+			var arrPos:int = 0;
+			for each(var wedge:XML in diskSpaceByTypeChart.dataProvider){
+				if(analysisCategories.selected == false){
+					explodeRadii[arrPos] = 0;
+					arrPos++;
+					continue;
+				}
+				if(wedge.@isAnalysis != null && wedge.@isAnalysis == 'Y'){
+					explodeRadii[arrPos] = 0.07;
+				}
+				else{
+					explodeRadii[arrPos] = 0;
+				}
+				arrPos++;
+			}
+			
+			diskSpaceByTypeSeries.perWedgeExplodeRadius = explodeRadii;
 		}
 
 		
@@ -551,13 +573,17 @@
                     <mx:HBox width="100%">
 						<mx:Label text="Disk Space by Category (GB)" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByType.@diskSpaceGB) + ' GB'}" fontWeight="bold"/> 
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByType.@diskSpaceGB) + ' GB'}" fontWeight="bold"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Highlight Analysis Categories" fontWeight="bold"/>
+						<mx:CheckBox id="analysisCategories" selected="false" change="analysisCategories_changeHandler(event)"/>
 					</mx:HBox>
 					<mx:PieChart  name="Disk Space" id="diskSpaceByTypeChart" 
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:series>
 							<mx:PieSeries 
-								field="@diskSpaceGB" labelField="@labelFull"
+								field="@diskSpaceGB" labelField="@labelFull" id="diskSpaceByTypeSeries"
 								nameField="@label" labelPosition="callout"
 								/>
 						</mx:series>
