@@ -116,6 +116,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                propertiesXML;
   
   private String                serverName;
+  private String                visibility;
   
   
   public void validate() {
@@ -230,6 +231,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       propertiesXML = request.getParameter("propertiesXML");    
     }
     
+    if(request.getParameter("visibility") != null && !request.getParameter("visibility").equals("")){
+      visibility = request.getParameter("visibility");
+    }
+    
     serverName = request.getServerName();
     
     if (request.getParameter("isBatchMode") != null && request.getParameter("isBatchMode").equals("Y")) {
@@ -266,11 +271,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       if (isNewAnalysis) {
         analysis = analysisScreen;
         
-        PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-        String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_ANALYSIS);
-        if (defaultVisibility != null && defaultVisibility.length() > 0) {
-          analysis.setCodeVisibility(defaultVisibility);
-          if(defaultVisibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+        if (visibility != null && visibility.length() > 0) {
+          analysis.setCodeVisibility(visibility);
+          if(visibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
             if (analysis.getIdLab() != null) {
               Lab lab = (Lab)sess.load(Lab.class, analysis.getIdLab());
               Hibernate.initialize(lab.getInstitutions());

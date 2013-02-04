@@ -139,6 +139,7 @@
 			private var numPlates:int;
 			private var startRow:int;
 			private var specifiedFieldList:Dictionary;
+			private var allowMultiPlexGroupNumber:Boolean;
 			private var fullHeight:int;
 			private var fullWidth:int;
 			
@@ -165,10 +166,11 @@
 				return displayText;
 			}			
 
-			public function init(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary = null):void {
+			public function init(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary = null, allowMultiPlexGroupNumber:Boolean = false):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
+				this.allowMultiPlexGroupNumber = allowMultiPlexGroupNumber;
 				this.startRow = 0;
 
 				// We need to know what example sample sheet link to show
@@ -287,6 +289,7 @@
 					// Make sure there is an initial row
 					tabSamplesView.addSample();
 				}
+				tabSamplesView.setMultiplexGroupNumberImported(false);
 				for each (var ssRowItem:XML in ssRowList) {				
 					if(hasColNames.selected && ssRowCount==1) {
 						// Skip row 1 if it consists of column names
@@ -304,6 +307,9 @@
 						var ssColumnForThisField:int = node.@selectedSSColumn;
 						ssColumnForThisField--;
 						if(ssColumnForThisField >= 0) {
+							if (thisDataField == "multiplexGroupNumber" && this.allowMultiPlexGroupNumber) {
+								tabSamplesView.setMultiplexGroupNumberImported(true);
+							}
 							var ssColList:XMLList = ssRowItem.Column;
 							if(ssColumnForThisField >= ssColList.length()) {
 								continue;	// Skip this column if it doesn't exist.
@@ -446,6 +452,8 @@
 				if (tabSamplesView.hasPlates()) {
 					tabSamplesView.fillPlates();
 				}
+				
+				tabSamplesView.propagateBarcode();
 				sampleGridDataRows.refresh();
 				if(sampleGroupingCollection != null) {
 					sampleGroupingCollection.refresh(false);
@@ -526,9 +534,6 @@
 
 					// Build the contents of the columns selection list
 					for each(var col:AdvancedDataGridColumn in this.tabSamplesView.samplesGrid.columns) {
-						if (col.dataField != null && col.dataField == '@multiplexGroupNumberDisplay') {
-							continue;
-						}
 						if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
 							continue;
 						}
@@ -542,10 +547,17 @@
 						if(col is AdvancedDataGridColumnWithType) {
 							fieldType = AdvancedDataGridColumnWithType(col).propertyType;
 						}
+						var addColumn:Boolean = false;
 						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
 							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))
 							|| fieldType == "URL" || fieldType == "MOPTION") {
-							
+							addColumn = true;
+						}
+						
+						if (col.dataField == '@multiplexGroupNumber') {
+							addColumn = true;
+						}
+						if (addColumn) {
 							var selectedSSColumn:String = "0";
 							
 							// If the sample sheet column header exactly matches the sample view column

@@ -52,13 +52,27 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     }
     this.zipEntryName = PropertyDictionaryHelper.parseAnalysisZipEntryName(baseDir, fileName);  
     
+    
     String ext = "";
-    String[] fileParts = file.getName().split("\\.");
-    if (fileParts != null && fileParts.length >= 2) {
-      ext = fileParts[fileParts.length - 1];
+ 
+    //first scan DataTrack types, some are xxx.vcf.gz or xxx.vcf.gz.tbi
+    //Nix
+    for (String t: Constants.DATATRACK_FILE_EXTENSIONS){
+    	if (fileName.endsWith(t)){
+    		ext = t.substring(1);
+    		//watch out for .bam.bai
+    		if (ext.equals("bam.bai")) ext = "bai";
+    		break;
+    	}
+    }
+    //any found? if not then do as before
+    if (ext.equals("")){
+    	String[] fileParts = file.getName().split("\\.");
+        if (fileParts != null && fileParts.length >= 2) {
+          ext = fileParts[fileParts.length - 1];
+        }
     }
     type = ext;
-    
     
   }
   

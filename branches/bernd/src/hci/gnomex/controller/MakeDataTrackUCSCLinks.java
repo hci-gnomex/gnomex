@@ -143,10 +143,15 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 
-			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.tbi, xxx.useq (will be converted if autoConvert is true))
+			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
 			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
+			if (link == null) {
+			  throw new Exception ("No files to link?!");
+			}
 			File[] filesToLink = link.getFilesToLink();
-			if (filesToLink== null)  throw new Exception ("No files to link?!");
+			if (filesToLink == null) {
+			  throw new Exception ("No files to link?!");
+			}
 
 			// When new .bw/.bb files are created, add analysis files and then link via data
 			// track file to the data track.
@@ -174,7 +179,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 			File dir = new File (urlLinkDir, randomWord);
 			dir.mkdir();
 
-			//for each file, there might be two for xxx.bam and xxx.bai files, xxx.vcf.gz and xxx.vcf.tbi, possibly two for converted useq files, plus/minus strands, otherwise just one.
+			//for each file, there might be two for xxx.bam and xxx.bai files, xxx.vcf.gz and xxx.vcf.gz.tbi, possibly two for converted useq files, plus/minus strands, otherwise just one.
 			String customHttpLink = null;
 			String toEncode = null;
 			for (File f: filesToLink){
@@ -185,7 +190,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 				DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
 				//is it a bam index xxx.bai or vcf index? If so then skip after making soft link.
-				if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.tbi")) continue;
+				if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.gz.tbi")) continue;
 
 				//stranded?
 				String strand = "";

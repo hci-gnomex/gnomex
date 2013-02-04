@@ -345,7 +345,6 @@
 			output="${build.dir}/${flexapp.name}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
-      		<!--<source-path path-element="${hciflex.dir}"/> -->
 			<compiler.debug>true</compiler.debug>			
 		</mxmlc>
 		<html-wrapper 
@@ -841,7 +840,7 @@
 	<!-- build opensource tomcat                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-build-opensource-tomcat" depends="init, -prebuild-opensource">
+	<target name="build-opensource-tomcat" depends="init, -prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+   build opensource (tomcat)                           +</echo>
@@ -979,7 +978,7 @@
 		</subant>
 		
 		<!-- build tomcat web app -->
-		<subant target="-build-opensource-tomcat">
+		<subant target="build-opensource-tomcat">
 			   <property name="basedir" value="${basedir}"/>
 			   <property name="dist.dir" value="${dist.dir}"/>
 			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>

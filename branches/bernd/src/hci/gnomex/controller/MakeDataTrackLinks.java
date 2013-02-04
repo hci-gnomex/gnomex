@@ -133,7 +133,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
       String ucscGenomeBuildName = gv.getUcscName();
 
-      //pull all files and if needed auto convert xxx.useq to xxx.bb/.bw, index vcf
+      //pull all files and if needed auto convert xxx.useq to xxx.bb/.bw
       UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
       File[] filesToLink = link.getFilesToLink();
       if (filesToLink== null)  throw new Exception ("No files to link?!");
@@ -166,7 +166,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
         //is it a bam index xxx.bai? If so then skip after making soft link.
-        if (dataTrackString.endsWith(".bai") || dataTrackString.endsWith(".vcf.tbi")) continue;
+        if (dataTrackString.endsWith(".bai") || dataTrackString.endsWith(".vcf.gz.tbi")) continue;
 
         //make URL to link
         int index = dataTrackString.indexOf(Constants.URL_LINK_DIR_NAME);

@@ -155,7 +155,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.codeBioanalyzerChipType, ");
       queryBuf.append("    s.qualFragmentSizeFrom, ");
       queryBuf.append("    s.qualFragmentSizeTo, ");
-      queryBuf.append("    s.idSampleType ");
+      queryBuf.append("    s.idSampleType, ");
+      queryBuf.append("    rc.type ");
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       queryBuf.append("      , ");
       queryBuf.append("    ls.labelingDate, ");
@@ -251,6 +252,7 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
       queryBuf.append(" JOIN         wi.sample s ");     
+      queryBuf.append(" JOIN         req.requestCategory as rc ");
       queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
     } else if (level == LABELED_SAMPLE_LEVEL) {
       queryBuf.append(" JOIN         wi.request as req ");

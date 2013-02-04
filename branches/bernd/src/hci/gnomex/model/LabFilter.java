@@ -18,6 +18,7 @@ public class LabFilter extends DetailObject {
   private Integer         idLab;
   private Integer         idInstitution;
   private Integer         idCoreFacility;
+  private String          isExternal;
   private SecurityAdvisor secAdvisor;
   private boolean         isUnbounded = false;
 
@@ -114,6 +115,11 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" lab.idLab =");
       queryBuf.append(idLab);
     } 
+    // Search by pricing (external academic or external commercial)
+    if (this.isExternal != null && this.isExternal.equals("Y")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" (lab.isExternalPricing = 'Y' OR lab.isExternalPricingCommercial = 'Y') ");
+    }
   }
   
   private void addInstitutionCriteria() {
@@ -294,6 +300,14 @@ public class LabFilter extends DetailObject {
 
   public void setIdCoreFacility(Integer idCoreFacility) {
     this.idCoreFacility = idCoreFacility;
+  }
+
+  public String getIsExternal() {
+    return isExternal;
+  }
+
+  public void setIsExternal(String isExternal) {
+    this.isExternal = isExternal;
   }
  
 

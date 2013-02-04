@@ -4,8 +4,8 @@ Installing GNomEx_$VERSION
 System Requirements
 --------------------
 - Java 6 (http://java.sun.com/)
-- Apache Tomcat server 5.5 (http://tomcat.apache.org/download-55.cgi)
-- OpenEJB 3.1.4 (http://www.apache.org/dist/openejb/3.1.4/openejb.war)
+- Apache Tomcat server 5.5 (http://archive.apache.org/dist/tomcat/tomcat-5/)
+- OpenEJB 3.1.4 (http://tomee.apache.org/apache-openejb-3.1.4.html)
 - MySQL database server (http://mysql.com)
 - MySQL JDBC driver (http://mysql.com, download mysql-connector-java-5.1.7.zip)
 - Adobe Flash Player 10+ (http://get.adobe.com/flashplayer/)
@@ -39,7 +39,7 @@ Install Instructions
 	 g. Copy the /path/to/GNomEx_$VERSION/gnomex/dist/gnomex_realm.jar into /path/to/tomcat/server/lib
 	 
 4. Install Apache OpenEJB 3.1.4
-     a. Download and install the openejb.war (http://www.apache.org/dist/openejb/3.1.4/openejb.war by copying 
+     a. Download and install the openejb.war (available in .zip or .tar.gz formats at http://tomee.apache.org/apache-openejb-3.1.4.html) by copying 
         it to /path/to/tomcat/webapps.  (NOTE:  file must be called openejb.war.)
      b. Restart Tomcat
      c. Run the installer servlet at http://127.0.0.1:8080/openejb/installer (and press the install button). 

@@ -265,6 +265,7 @@
         	}
         	this.initializeBarcodes();
         }
+		
         public function propagateBarcode():void {
         	if (parentDocument == null || parentDocument.currentState == "SolexaLaneAmendState" || parentDocument.isEditState()) {
         		return;

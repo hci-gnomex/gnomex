@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" height="330"
+	title="Add Analysis" height="410"
 	xmlns:util="views.util.*" 
 	xmlns:renderers="views.renderers.*" 
 	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
@@ -110,6 +110,16 @@
 			}
 			callGetLab();
 			
+			var defaultVisibility:String = parentApplication.getProperty(parentApplication.PROPERTY_DEFAULT_VISIBILITY_ANALYSIS);
+			if (defaultVisibility != null && defaultVisibility.length > 0) {
+				for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+					if (item.@value == defaultVisibility) {
+						this.visibilityCombo.selectedItem = item;
+						break;
+					}
+				}			
+			}
+			
 			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
 				onOrganismRefreshed);		                                  
 			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
@@ -185,6 +195,7 @@
 			
 			params.idAnalysis = 0;
 			params.idLab = labCombo.selectedItem.@idLab;
+			params.visibility = visibilityCombo.selectedItem.@value;
 			if(parentApplication.navAnalysisView.currentState == 'AdminState') {
 				params.idAppUser = ownerCombo.selectedItem.@idAppUser;
 			}
@@ -243,13 +254,19 @@
 				newAnalysisGroupName.text != '' && 
 				analysisName.text != '' && 
 				organismCombo.selectedItem != null && 
-				organismCombo.selectedItem.@value != ""; 
+				organismCombo.selectedItem.@value != "" &&
+				institutionNote.visible == false &&
+				visibilityCombo.selectedItem != null &&
+				visibilityCombo.selectedItem.@value != ""; 
 				
 			} else {
 				isComplete = labCombo.selectedItem != null && 
 				analysisName.text != '' && 
 				organismCombo.selectedItem != null  && 
-				organismCombo.selectedItem.@value != ""; 
+				organismCombo.selectedItem.@value != "" &&
+				institutionNote.visible == false &&
+				visibilityCombo.selectedItem != null &&
+				visibilityCombo.selectedItem.@value != ""; 
 			}
 			this.saveButton.enabled = isComplete;
 			return isComplete;
@@ -387,7 +404,6 @@
 <mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
 <mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
 <mx:XMLListCollection id="genomeBuilds"/>
-	<mx:VBox width="100%"  verticalGap="15" horizontalGap="10">
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:VBox verticalGap="0">
@@ -492,13 +508,22 @@
 						<mx:DataGridColumn dataField="@display"/>
 					</mx:columns>
 				</mx:DataGrid>	
-			</mx:HBox>			
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
+				<mx:Label text="Visibility" width="118"/>
+				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281"></mx:ComboBox>							        					
+			</mx:HBox>
+			<mx:Text id="institutionNote" paddingLeft="30" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
+				<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
+			</mx:Text>
 		</mx:VBox>
 		<mx:ControlBar width="451" horizontalAlign="right">
-			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 		</mx:ControlBar>				
-	</mx:VBox>
+
 
 	
 	
@@ -511,8 +536,6 @@
 			<mx:AddChild relativeTo="{analysisGroupBox}" position="lastChild">
 				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>
 			</mx:AddChild>
-			<mx:SetProperty target="{saveButton}" name="enabled" value="true">
-			</mx:SetProperty>
 			<mx:RemoveChild target="{hbox1}"/>
 		
 		</mx:State>

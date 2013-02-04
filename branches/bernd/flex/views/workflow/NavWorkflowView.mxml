@@ -79,7 +79,7 @@
 				if (rcGAII == null || rcGAII.@isActive == 'N') {
 					if (navBar.contains(solexaTab)) {
 						navBar.removeChild(solexaTab);
-						combinedQCTabItems.splice(4, 1);
+						combinedQCTabItems.splice(5, 1);
 					}
 				}
 				qcWorklistInit = false;
@@ -163,10 +163,14 @@
 						windowTitle = "Illumina MiSeq ";
 						break;
 					case 3:
+						filterType = "MICROARRAY";
+						windowTitle = "MicroArray ";
+						break;
+					case 4:
 						filterType = "QC";
 						windowTitle = "";
 						break;
-					case 4:
+					case 5:
 						filterType = "SEQQC";
 						windowTitle = "GAIIX ";
 						break;
@@ -266,8 +270,10 @@
 				   ico="{parentApplication.iconHiSeq}" />
 		<mx:Object label="Illumina MiSeq"
 				   ico="{parentApplication.iconMiSeq}" />
-		<mx:Object label="Sample Quality"
+		<mx:Object label="MicroArray"
 				   ico="{parentApplication.iconMicroarray}" />
+		<mx:Object label="Sample Quality"
+				   ico="{parentApplication.iconQC}" />
 		<mx:Object label="GAIIX"
 				   ico="{parentApplication.iconSolexa}" />
 	</mx:Array>

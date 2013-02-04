@@ -897,6 +897,7 @@
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
 			public var PROPERTY_DEFAULT_VISIBILITY_DATATRACK :String      = "default_visibility_datatrack";
+			public var PROPERTY_DEFAULT_VISIBILITY_ANALYSIS :String      = 	"default_visibility_analysis";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
 			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";

@@ -649,14 +649,12 @@
 			if (currentState == "internalWorkAuthState") {
 				if (ba.@accountNumberActivity.toString().length > 0) {
 					this.au.text = "1";
-					this.au.enabled = false;
 					this.auBox.visible = true;
 					this.auBox.includeInLayout = true;
 					this.project.text = "";
 					this.project.enabled = false;
 				} else {
 					this.au.text = "";
-					this.au.enabled = false;
 					this.auBox.visible = false;
 					this.auBox.includeInLayout = false;
 					this.project.enabled = true;
@@ -664,7 +662,6 @@
 				ba.@accountNumberAu = this.au.text;
 				ba.@accountNumberProject = this.project.text;
 			} else {
-				this.au.enabled = true;
 				this.auBox.visible = true;
 				this.auBox.includeInLayout = true;
 			}
@@ -773,9 +770,9 @@
 						<mx:TextInput id="account" width="62" maxChars="5" text="{ba.@accountNumberAccount}" focusOut="{ba.@accountNumberAccount = account.text}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="0" id="auBox">
+					<mx:VBox verticalGap="0" id="auBox" visible="false" includeInLayout="false">
 						<mx:Label text="A/U"/>
-						<mx:TextInput id="au" width="47" maxChars="1" text="{ba.@accountNumberAu}" focusOut="{ba.@accountNumberAu = au.text}"/>
+						<mx:Label id="au" width="47" text="{ba.@accountNumberAu}"/>
 						<mx:Label text="1 digit" styleName="labelSmall"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">

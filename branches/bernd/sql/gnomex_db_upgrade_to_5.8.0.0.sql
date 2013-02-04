@@ -48,6 +48,10 @@ alter table BillingItem add
     REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+-- New column for requestCategory
+alter table gnomex.RequestCategory add refrainFromAutoDelete char(1);
+update RequestCategory set refrainFromAutoDelete='Y';
     
 -- Add new column to GenomeBuild table and populate known fields
 
@@ -72,3 +76,11 @@ UPDATE gnomex.GenomeBuild set IGVName='danRer5' WHERE idGenomeBuild = 7;
 UPDATE gnomex.GenomeBuild set IGVName='danRer6' WHERE idGenomeBuild = 6;
 UPDATE gnomex.GenomeBuild set IGVName='danRer7' WHERE idGenomeBuild = 12;
 
+
+ -- Create any missing root DataTrackFolders 
+insert into gnomex.DataTrackFolder (idGenomeBuild, name) 
+select idGenomeBuild, genomeBuildName 
+from GenomeBuild where idGenomeBuild not in 
+(select gb.idGenomeBuild from GenomeBuild gb
+join DataTrackFolder folder on folder.idGenomeBuild = gb.idGenomeBuild
+where folder.idParentDataTrackFolder is null);

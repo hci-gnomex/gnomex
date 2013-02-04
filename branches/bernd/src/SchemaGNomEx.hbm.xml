@@ -1304,6 +1304,7 @@
 		<property name="coordAuthority" column="coordAuthority" type="string"/>
 		<property name="coordSource" column="coordSource" type="string"/>
 		<property name="ucscName" column="ucscName" type="string"/>
+		<property name="igvName" column="igvName" type="string"/>
 		<property name="dataPath" column="dataPath" type="string"/>
 	    <set name="segments" table="Segment" lazy="true" cascade="none" order-by="sortOrder">
 		    <key column="idGenomeBuild"/>

@@ -186,65 +186,79 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 			}
 
 
-			// Add the analysis file
-			DataTrackFile dtFile = new DataTrackFile();
-			dtFile.setIdAnalysisFile(idAnalysisFile);
-			dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
-			sess.save(dtFile);
-
-			// If we are linking a .bw/.bb, .bai/.bam, or .vcf.gz/.vcf.tbi see if we have linked to its pair.
-			// If not, fill in idAnalysisFileOther, so that the pair is linked as
-			// well.
+			// If we are linking a .bw/.bb, .bai/.bam, or .vcf.gz/.vcf.gz.tbi see if we have linked to its pair.
+			// If not, fill in idAnalysisFileOther, so that the pair is linked as well.
 			if (idAnalysisFileOther == null) {
 
 				boolean lookForBam = false;
 				boolean lookForBai = false;
 				boolean lookForBigWig = false;
+				boolean lookForUSeq = false;
 				boolean lookForVCF = false;
 				boolean lookForVCFTBI = false;
 
-				String baseFileName = fetchBaseName(analysisFile.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
+				String baseFileName = fetchBaseName(analysisFile.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);			
 
 				String fileName = analysisFile.getFileName().toUpperCase();
 				if (fileName.endsWith(".BAI")) lookForBam = true;
 				else if (fileName.endsWith(".BAM")) lookForBai = true;
 				else if (fileName.endsWith(".USEQ")) lookForBigWig = true;
+				else if (fileName.endsWith(".BW") || fileName.endsWith(".BB")  ) lookForUSeq = true;
 				else if (fileName.endsWith(".VCF.GZ")) lookForVCFTBI = true;
-				else if (fileName.endsWith(".VCF.TBI")) lookForVCF = true;
+				else if (fileName.endsWith(".VCF.GZ.TBI")) lookForVCF = true;	
 
 				for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
 					AnalysisFile af = (AnalysisFile)i.next();
-
 					String afBaseFileName = fetchBaseName(af.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
-					
+
 					//do the baseNames match?
-					String afBaseFileNameUpperCase = afBaseFileName.toUpperCase();
-					if (baseFileName.toUpperCase().equals(afBaseFileNameUpperCase)) {
-						if (lookForBai && afBaseFileNameUpperCase.endsWith(".BAI")) {
+					String afFileNameUpperCase = af.getFileName().toUpperCase();
+					if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {						
+						if (lookForBai && afFileNameUpperCase.endsWith(".BAI")) {
 							idAnalysisFileOther = af.getIdAnalysisFile();
-						} else if (lookForBam && afBaseFileNameUpperCase.endsWith(".BAM")) {
+						} else if (lookForBam && afFileNameUpperCase.endsWith(".BAM")) {
 							idAnalysisFileOther = af.getIdAnalysisFile();
-						} else if (lookForBigWig && (afBaseFileNameUpperCase.endsWith(".BW") || afBaseFileNameUpperCase.endsWith(".BB"))) {
+						} else if (lookForBigWig && (afFileNameUpperCase.endsWith(".BW") || afFileNameUpperCase.endsWith(".BB"))) {
 							idAnalysisFileOther = af.getIdAnalysisFile();
-						} else if (lookForVCFTBI && afBaseFileNameUpperCase.endsWith(".VCF.TBI")) {
+						} else if (lookForUSeq && (afFileNameUpperCase.endsWith(".USEQ") || afFileNameUpperCase.endsWith(".USEQ"))) {
 							idAnalysisFileOther = af.getIdAnalysisFile();
-						} else if (lookForVCF && afBaseFileNameUpperCase.endsWith(".VCF.GZ")) {
+						} else if (lookForVCFTBI && afFileNameUpperCase.endsWith(".VCF.GZ.TBI")) {
+							idAnalysisFileOther = af.getIdAnalysisFile();
+						} else if (lookForVCF && afFileNameUpperCase.endsWith(".VCF.GZ")) {
 							idAnalysisFileOther = af.getIdAnalysisFile();
 						}
 					}
 				}
 			} 
 
-
-			// If this is a file pair, add the other analysis file
-			if (idAnalysisFileOther != null) {
-				DataTrackFile dtFileOther = new DataTrackFile();
-				dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
-				dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
-				sess.save(dtFileOther);
+			//is it a paired file set? then must have other
+			String afFileNameUpper = analysisFile.getFileName().toUpperCase(); 
+			boolean saveDataTrack = true;
+			if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
+				if (idAnalysisFileOther == null){
+					//not sure if this makes this invalid so using boolean
+					addInvalidField("bamv", "Missing indexed file or file index?!  Please add either a matching xxx.bam or xxx.bai; or add a xxx.vcf.gz or xxx.vcf.gz.tbi.");
+					saveDataTrack = false;
+				}
 			}
-			sess.flush();
 
+			if (saveDataTrack){
+
+				//Create datatrack
+				DataTrackFile dtFile = new DataTrackFile();
+				dtFile.setIdAnalysisFile(idAnalysisFile);
+				dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
+				sess.save(dtFile);
+
+				// If this is a file pair, add the other analysis file
+				if (idAnalysisFileOther != null) {			
+					DataTrackFile dtFileOther = new DataTrackFile();
+					dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
+					dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
+					sess.save(dtFileOther);
+				}
+				sess.flush();
+			}
 
 			// If this is a new data track, add it to the folder
 			if (this.isValid()) {
