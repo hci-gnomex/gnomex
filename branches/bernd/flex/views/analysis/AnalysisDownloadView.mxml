@@ -170,8 +170,11 @@
 			}
 			
 			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
-				selectedFileList = new XMLListCollection(selectedFiles);					
-				
+				selectedFileList = new XMLListCollection(selectedFiles);
+				downloadFilesUsingFDTFromGlobalList();
+			}
+			
+			private function downloadFilesUsingFDTFromGlobalList():void {
 				if (selectedFileList.length == 0) {
 					mx.controls.Alert.show("Please select the files to download.");
 				} else {
@@ -266,7 +269,7 @@
 			private function onAlternateDownloadFiles(event:CloseEvent):void {
 				if (event.detail==Alert.OK) {
 					if (parentApplication.isFDTSupported) {
-						parentDocument.downloadFilesUsingFDT();
+						downloadFilesUsingFDTFromGlobalList();
 					} else {
 						parentDocument.showAlternateDownloadPage();	
 					}

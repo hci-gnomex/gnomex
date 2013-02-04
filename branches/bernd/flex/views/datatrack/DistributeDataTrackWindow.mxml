@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 				width="482" height="488" showCloseButton="true" 
+				xmlns:util="views.util.*"
 				title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
 	
 
@@ -1531,7 +1532,7 @@
 
 	
 	<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-		<mx:Tree width="100%" height="100%" 
+		<util:Tree width="100%" height="100%" 
 				 dataProvider="{getDataTrackList.lastResult}" 
 				 showRoot="false" 
 				 id="browseTree" 
@@ -1550,7 +1551,7 @@
 				 dragDrop="onDragDrop(event);" 
 				 itemRenderer="views.renderers.TreeNodeRenderer"
 				 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true">
-		</mx:Tree>
+		</util:Tree>
     </mx:VBox>
 	
 	<mx:ControlBar width="100%" verticalAlign="bottom">				

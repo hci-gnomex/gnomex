@@ -164,7 +164,7 @@
 						break;
 					case 3:
 						filterType = "MICROARRAY";
-						windowTitle = "MicroArray ";
+						windowTitle = "Microarray ";
 						break;
 					case 4:
 						filterType = "QC";
@@ -270,7 +270,7 @@
 				   ico="{parentApplication.iconHiSeq}" />
 		<mx:Object label="Illumina MiSeq"
 				   ico="{parentApplication.iconMiSeq}" />
-		<mx:Object label="MicroArray"
+		<mx:Object label="Microarray"
 				   ico="{parentApplication.iconMicroarray}" />
 		<mx:Object label="Sample Quality"
 				   ico="{parentApplication.iconQC}" />

@@ -70,7 +70,7 @@
 				avgInsertSizeBox.includeInLayout = true;
 				capLibDesignBox.includeInLayout = false;
 				capLibDesignBox.visible = false;
-				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' - ' + parentDocument.request.@avgInsertSizeTo;
+				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' to ' + parentDocument.request.@avgInsertSizeTo + " bp";
 				
 			}
 			else{
@@ -373,6 +373,11 @@
 						col.visible = false;
 					}
 				} 
+			}
+			
+			// externals never show organism column in sample
+			if (parentDocument.request.@isExternal == "Y") {
+				this.sampleOrganismConfirmColumn.visible = false;
 			}
 			otherOrganismCol.visible = sampleOrganismConfirmColumn.visible;
   						 

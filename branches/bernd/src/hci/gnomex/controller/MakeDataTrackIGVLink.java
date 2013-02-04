@@ -241,7 +241,9 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
-				StringBuilder sbo = new StringBuilder(htmlPath + "igv_registry_$$.txt");
+				String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
+				
+				StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
 		     
 				xmlResult = "<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>";
 				setResponsePage(SUCCESS_JSP);

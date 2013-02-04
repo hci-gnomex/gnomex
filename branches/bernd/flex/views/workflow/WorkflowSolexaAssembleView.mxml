@@ -787,29 +787,39 @@
 	 	
     	private function promptForRemove():void {
 			var ids:Dictionary = getSelectedWorkItemIds();
+			var requestCount:Dictionary = new Dictionary();
 			var numIds:int = 0;
-			var numbers:String = "";
-			var doAppend:Boolean = true;
 			for (var key:* in ids) {
 				var item:XML = ids[key];
-				numIds++;
-				if (doAppend) {
-					if (numbers.length > 0) {
-						numbers += ", ";
-					}
-					numbers += item.@laneNumber.toString(); 
-					if (numbers.length >= 1000) {
-						numbers += ", ...";
-						doAppend = false;
-					}
+				var cnt:int = 0;
+				var k1:String = item.@requestNumber.toString();
+				if (requestCount[k1] != null) {
+					cnt = requestCount[k1];
+					delete requestCount[k1];
 				}
+				cnt++;
+				requestCount[k1] = cnt;
+				numIds++;
 			}
 			
 			if (numIds < 1) {
 				Alert.show("Please select item(s) to remove", "Select Item");
 				return;
 			}
-    		var warningMessage:String = "Are you sure you want to remove the following " + numIds + " work items from the work list?  (" + numbers + ")";
+			
+			var a:Array = new Array();
+			for (var ks:* in requestCount) {
+				a.push(ks);
+			}
+			a.sort();
+			
+			var countString:String = "";
+			for (var i:int = 0; i < a.length; i++) {
+				var key1:String = a[i];
+				var cnt1:int = requestCount[key1];
+				countString += "    " + key1 + " (" + cnt1.toString() + " samples)\n";
+			}
+    		var warningMessage:String = "Are you sure you want to remove the following " + numIds + " work items from the work list?\n" + countString;
 			Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForRemove);
     	}
     	

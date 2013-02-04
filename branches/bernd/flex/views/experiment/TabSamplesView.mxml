@@ -1108,6 +1108,13 @@
 				}
 			}
 		}
+		
+		public function propagateOtherOrganism(otherOrganism:String):void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherOrganism = otherOrganism;
+			}
+		}
+
 		public function propagateSeqRunType(idSeqRunType:String):void {
 			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 				for each (var sample:Object in parentDocument.samples) {
@@ -1398,6 +1405,7 @@
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
+			this.sampleOrganismColumn.visible = !isExternal;
 			this.preppedByCoreCol.visible = !isExternal;
 			this.otherSamplePrepMethodCol.visible = !isExternal;
 			this.seqLibProtocolCol.visible = !isExternal;
@@ -1459,7 +1467,6 @@
 				idSeqRunTypeCol.visible = !parentDocument.isEditState() && !isExternal; 
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
-				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
@@ -1571,7 +1578,6 @@
 				idSeqRunTypeCol.visible = false; 
 				concentrationUnitColumn.visible = !isExternal;
 				concentrationUnitColumn.editable = false;
-				sampleOrganismColumn.visible = true;
 				sampleOrganismColumn.editable = !isExternal;
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = !parentDocument.isEditState();
@@ -1593,7 +1599,6 @@
 					}
 				}
 			}
-  						
         }
 		private function refreshHybsGrid():void {
  		    parentDocument.hybsView.hybsGrid.invalidateList();

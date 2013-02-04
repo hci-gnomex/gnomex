@@ -57,24 +57,21 @@ update RequestCategory set refrainFromAutoDelete='Y';
 
 ALTER TABLE gnomex.GenomeBuild add column igvName VARCHAR(50) NULL;
 
-UPDATE gnomex.GenomeBuild set IGVName='tair8' WHERE idGenomeBuild = 9;
-UPDATE gnomex.GenomeBuild set IGVName='WS220' WHERE idGenomeBuild = 30;
-UPDATE gnomex.GenomeBuild set IGVName='ce6' WHERE idGenomeBuild = 5;
-UPDATE gnomex.GenomeBuild set IGVName='galGal3' WHERE idGenomeBuild = 20;
-UPDATE gnomex.GenomeBuild set IGVName='dm3' WHERE idGenomeBuild = 18;
-UPDATE gnomex.GenomeBuild set IGVName='hg17' WHERE idGenomeBuild = 21;
-UPDATE gnomex.GenomeBuild set IGVName='hg18' WHERE idGenomeBuild = 2;
-UPDATE gnomex.GenomeBuild set IGVName='hg19' WHERE idGenomeBuild = 8;
-UPDATE gnomex.GenomeBuild set IGVName='mm10' WHERE idGenomeBuild = 44;
-UPDATE gnomex.GenomeBuild set IGVName='mm9' WHERE idGenomeBuild = 4;
-UPDATE gnomex.GenomeBuild set IGVName='mm8' WHERE idGenomeBuild = 3;
-UPDATE gnomex.GenomeBuild set IGVName='rn5' WHERE idGenomeBuild = 33;
-UPDATE gnomex.GenomeBuild set IGVName='rn4' WHERE idGenomeBuild = 22;
-UPDATE gnomex.GenomeBuild set IGVName='xenTro2' WHERE idGenomeBuild = 27;
-UPDATE gnomex.GenomeBuild set IGVName='sacCer2' WHERE idGenomeBuild = 23;
-UPDATE gnomex.GenomeBuild set IGVName='danRer5' WHERE idGenomeBuild = 7;
-UPDATE gnomex.GenomeBuild set IGVName='danRer6' WHERE idGenomeBuild = 6;
-UPDATE gnomex.GenomeBuild set IGVName='danRer7' WHERE idGenomeBuild = 12;
+UPDATE gnomex.GenomeBuild set IGVName='tair8' WHERE idGenomeBuild = 401;
+UPDATE gnomex.GenomeBuild set IGVName='ce6' WHERE idGenomeBuild = 1204;
+UPDATE gnomex.GenomeBuild set IGVName='galGal3' WHERE idGenomeBuild = 3100;
+UPDATE gnomex.GenomeBuild set IGVName='dm3' WHERE idGenomeBuild = 1901;
+UPDATE gnomex.GenomeBuild set IGVName='hg17' WHERE idGenomeBuild = 3404;
+UPDATE gnomex.GenomeBuild set IGVName='hg18' WHERE idGenomeBuild = 3405;
+UPDATE gnomex.GenomeBuild set IGVName='hg19' WHERE idGenomeBuild = 6202;
+UPDATE gnomex.GenomeBuild set IGVName='mm9' WHERE idGenomeBuild = 3806;
+UPDATE gnomex.GenomeBuild set IGVName='mm8' WHERE idGenomeBuild = 3804;
+UPDATE gnomex.GenomeBuild set IGVName='rn4' WHERE idGenomeBuild = 5202;
+UPDATE gnomex.GenomeBuild set IGVName='xenTro2' WHERE idGenomeBuild = 6201;
+UPDATE gnomex.GenomeBuild set IGVName='sacCer2' WHERE idGenomeBuild = 5306;
+UPDATE gnomex.GenomeBuild set IGVName='danRer5' WHERE idGenomeBuild = 2700;
+UPDATE gnomex.GenomeBuild set IGVName='danRer6' WHERE idGenomeBuild = 2701;
+UPDATE gnomex.GenomeBuild set IGVName='danRer7' WHERE idGenomeBuild = 2702;
 
 
  -- Create any missing root DataTrackFolders 
