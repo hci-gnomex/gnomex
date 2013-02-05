@@ -83,7 +83,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   public static final String SUMMARY_UPLOADS_BY_LAB = "SummaryUploadsByLab";
   public static final String SUMMARY_DISK_SPACE_BY_LAB = "SummaryDiskSpaceByLab";
   public static final String SUMMARY_DISK_SPACE_BY_YEAR = "SummaryDiskSpaceByYear";
-  public static final String SUMMARY_DISK_SPACE_BY_TYPE = "SummaryDiskSpaceByType";
+  public static final String SUMMARY_DISK_SPACE_BY_EXPERIMENT = "SummaryDiskSpaceByExperiment";
+  public static final String SUMMARY_DISK_SPACE_BY_ANALYSIS = "SummaryDiskSpaceByAnalysis";
+  public static final String TOTAL_DISK_SPACE = "TotalDiskSpace";
   public static final String SUMMARY_DOWNLOADS_BY_LAB = "SummaryDownloadsByLab";
   public static final String SUMMARY_EXPERIMENTS_BY_LAB = "SummaryExperimentsByLab";
   public static final String SUMMARY_ANALYSIS_BY_LAB = "SummaryAnalysisByLab";
@@ -135,8 +137,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       doc.getRootElement().addContent(summaryDiskSpaceByYearNode);
 
       
-      Element summaryDiskSpaceByTypeNode = new Element(SUMMARY_DISK_SPACE_BY_TYPE);
-      doc.getRootElement().addContent(summaryDiskSpaceByTypeNode);
+      Element summaryDiskSpaceByExperimentNode = new Element(SUMMARY_DISK_SPACE_BY_EXPERIMENT);
+      doc.getRootElement().addContent(summaryDiskSpaceByExperimentNode);
+      
+      Element summaryDiskSpaceByAnalysisNode = new Element(SUMMARY_DISK_SPACE_BY_ANALYSIS);
+      doc.getRootElement().addContent(summaryDiskSpaceByAnalysisNode);
+      
+      Element totalDiskSpaceNode = new Element(TOTAL_DISK_SPACE);
+      doc.getRootElement().addContent(totalDiskSpaceNode);
       
       Element summaryDownloadsNode = new Element(SUMMARY_DOWNLOADS_BY_LAB);
       doc.getRootElement().addContent(summaryDownloadsNode);
@@ -472,8 +480,16 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           }
           BigDecimal experimentFileSize = (BigDecimal)sess.createQuery(queryBuf.toString()).uniqueResult();
           mapDiskSpace(summaryRows, diskSpaceMap);
+          addEntryDiskSpaceNodes(summaryDiskSpaceByExperimentNode, diskSpaceMap, false, true, analysisTypes);
+          if(experimentFileSize == null){
+            experimentFileSize = new BigDecimal(0);
+          }
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpace",   experimentFileSize.toString());      
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceMB", experimentFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceGB", experimentFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
           // Now add the analysis disk space
+          diskSpaceMap = new TreeMap();
           queryBuf = new StringBuffer("SELECT at.analysisType, sum(af.fileSize) ");
           queryBuf.append(" FROM Analysis a, AnalysisType at ");
           queryBuf.append(" JOIN a.files as af ");
@@ -484,17 +500,21 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           summaryRows = sess.createQuery(queryBuf.toString()).list();
           BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
           mapDiskSpace(summaryRows, diskSpaceMap);
-          addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true, analysisTypes);
-          if(experimentFileSize == null){
-            experimentFileSize = new BigDecimal(0);
-          }
+          addEntryDiskSpaceNodes(summaryDiskSpaceByAnalysisNode, diskSpaceMap, false, true, analysisTypes);
+
           if(analysisFileSize == null){
             analysisFileSize = new BigDecimal(0);
           }
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpace",   analysisFileSize.toString());      
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceMB", analysisFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceGB", analysisFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          
           totalDiskSpace = experimentFileSize.add(analysisFileSize);
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          totalDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+          totalDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          totalDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          
+          
         }
         
         
