@@ -236,54 +236,6 @@
 				getData();
 			}
 		}
-		
-		protected function analysisCategories_changeHandler(event:Event):void{
-			var explodeRadii:Array = new Array();
-			var arrPos:int = 0;
-			experimentCategories.selected = false;
-			for each(var wedge:XML in diskSpaceByTypeChart.dataProvider){
-				if(analysisCategories.selected == false){
-					explodeRadii[arrPos] = 0;
-					arrPos++;
-					continue;
-				}
-				if(wedge.@isAnalysis != null && wedge.@isAnalysis == 'Y'){
-					explodeRadii[arrPos] = 0.07;
-				}
-				else{
-					explodeRadii[arrPos] = 0;
-				}
-				arrPos++;
-			}
-			
-			diskSpaceByTypeSeries.perWedgeExplodeRadius = explodeRadii;
-		}
-		
-		protected function experimentCategories_changeHandler(event:Event):void{
-			var explodeRadii:Array = new Array();
-			var arrPos:int = 0;
-			analysisCategories.selected = false;
-			for each(var wedge:XML in diskSpaceByTypeChart.dataProvider){
-				if(experimentCategories.selected == false){
-					explodeRadii[arrPos] = 0;
-					arrPos++;
-					continue;
-				}
-				if(wedge.@isAnalysis != null && wedge.@isAnalysis == 'N'){
-					explodeRadii[arrPos] = 0.07;
-				}
-				else{
-					explodeRadii[arrPos] = 0;
-				}
-				arrPos++;
-			}
-			
-			diskSpaceByTypeSeries.perWedgeExplodeRadius = explodeRadii;
-		}
-
-		
-
-
 
 
 	]]></mx:Script> 
@@ -610,25 +562,34 @@
                     <mx:HBox width="100%">
 						<mx:Label text="Disk Space by Category (GB)" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
-						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByType.@diskSpaceGB) + ' GB'}" fontWeight="bold"/>
+						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.TotalDiskSpace.@diskSpaceGB) + ' GB'}" fontWeight="bold"/>
+					</mx:HBox>
+					<mx:Spacer height="20"/>
+					<mx:HBox width="100%">
+						<mx:Label text="{'Analysis (' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByAnalysis.@diskSpaceGB) + ' GB):'}" fontWeight="bold" textAlign="right" width="100%"/>
+						<mx:Spacer width="100%"/>
+						<mx:Label text="{'Experiment (' + numberFormatter.format(getUsageData.lastResult.SummaryDiskSpaceByExperiment.@diskSpaceGB) + ' GB):'}" fontWeight="bold" textAlign="left" width="100%"/>
 					</mx:HBox>
 					<mx:HBox width="100%">
-						<mx:Label text="Highlight Analysis Categories" fontWeight="bold"/>
-						<mx:CheckBox id="analysisCategories" selected="false" change="analysisCategories_changeHandler(event)"/>
+						<mx:PieChart  name="Disk Space" id="diskSpaceByAnalysisChart" scaleX="0.9" scaleY="0.9" 
+									  dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByAnalysis.Entry}" showDataTips="true" width="100%" height="100%">
+							<mx:series>
+								<mx:PieSeries 
+									field="@diskSpaceGB" labelField="@labelFull" id="diskSpaceByAnalysisSeries"
+									nameField="@label" labelPosition="inside" displayName="Analysis"
+									/>
+							</mx:series>
+						</mx:PieChart>
+						<mx:PieChart  name="Disk Space" id="diskSpaceByExperimentChart" scaleX="0.90" scaleY="0.90" 
+									  dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByExperiment.Entry}" showDataTips="true" width="100%" height="100%">
+							<mx:series>
+								<mx:PieSeries 
+									field="@diskSpaceGB" labelField="@labelFull" id="diskSpaceByExperimentSeries"
+									nameField="@label" labelPosition="inside" displayName="Experiment"
+									/>
+							</mx:series>
+						</mx:PieChart>
 					</mx:HBox>
-					<mx:HBox width="100%">
-						<mx:Label text="Highlight Experiment Categories" fontWeight="bold"/>
-						<mx:CheckBox id="experimentCategories" selected="false" change="experimentCategories_changeHandler(event)"/>
-					</mx:HBox>
-					<mx:PieChart  name="Disk Space" id="diskSpaceByTypeChart" 
-									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
-						<mx:series>
-							<mx:PieSeries 
-								field="@diskSpaceGB" labelField="@labelFull" id="diskSpaceByTypeSeries"
-								nameField="@label" labelPosition="callout"
-								/>
-						</mx:series>
-					</mx:PieChart>
 				</mx:VBox>
 
 				<mx:VBox id="experimentsByTypePanel" width="100%" height="100%" styleName="form" 
@@ -657,15 +618,16 @@
 						<mx:Spacer width="100%"/>
 						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
-					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart" scaleX="1.5" scaleY="1.5"  
+					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart"  
 								  dataProvider="{getUsageData.lastResult.SummarySeqExperimentsByApp.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:series>
 							<mx:PieSeries 
 								field="@experimentCount" labelField="@labelFull"
-								nameField="@label" labelPosition="callout"
+								nameField="@label" labelPosition="none"
 								/>
 						</mx:series>
 					</mx:PieChart>
+					<mx:Legend dataProvider="{seqExperimentsByAppChart}" direction="horizontal"/>
 				</mx:VBox>	
 				
 				<mx:VBox id="analysisByTypePanel" width="100%" height="100%" styleName="form" 
