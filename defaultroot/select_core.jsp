@@ -40,6 +40,15 @@ try {
   } 
  
   facilities = CoreFacility.getActiveCoreFacilities(sess);
+  if ( facilities.size() == 1 ){
+    CoreFacility facility = (CoreFacility) facilities.get(0);
+    int idFacility = facility.getIdCoreFacility();
+    %>
+    <script>
+      window.location.href = "register_user.jsp?idFacility=" + <%=idFacility%>;
+    </script>
+    <%
+  }
   
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
