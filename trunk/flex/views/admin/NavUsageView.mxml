@@ -38,14 +38,6 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get usage data', event)"
 		method="POST"   
 		useProxy="false">
-		<mx:request>
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@idCoreFacility : ""}</idCoreFacility>
-			<asOfLast6Months>{asOfLast6Months.selected ? 'Y' : 'N'}</asOfLast6Months>
-			<asOfLastYear>{asOfLastYear.selected ? 'Y' : 'N'}</asOfLastYear>
-			<asOfLast2Years>{asOfLast2Years.selected ? 'Y' : 'N'}</asOfLast2Years>
-			<endRank>{endRank}</endRank>
-			<currentView>{theTab.selectedChild.label}</currentView>
-		</mx:request>
 	</mx:HTTPService>
 
 	
@@ -84,7 +76,7 @@
 			coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
 			
 			if (currentState != "DisabledState" && !coreFacilityCombo.visible) {
-				getUsageData.send();
+				getData();
 			}
 			
 			if(coreFacilityCombo.visible){
@@ -102,6 +94,25 @@
 		}
 
 		public function checkDirty():void {
+		}
+		
+		private function getData():void{
+			var params:Object = new Object();
+			params.asOfLast6Months = asOfLast6Months.selected ? 'Y' :'N';
+			params.asOfLastYear = asOfLastYear.selected ? 'Y' : 'N';
+			params.asOfLast2Years = asOfLast2Years.selected ? 'Y' : 'N';
+			params.endRank = endRank;
+			params.currentView = theTab.selectedChild.label;
+			params.idCoreFacility = "";
+			
+			if(coreFacilityCombo.visible && coreFacilityCombo.selectedItem != null){
+				params.idCoreFacility = coreFacilityCombo.selectedItem.@idCoreFacility;
+			}
+			else if(!coreFacilityCombo.visible && parentApplication.coreFacilitiesICanManage.length() == 1){
+				params.idCoreFacility = parentApplication.coreFacilitiesICanManage[0].@idCoreFacility;
+			}
+			
+			getUsageData.send(params);
 		}
 
 		
@@ -137,11 +148,11 @@
 		
 		private function changeInterval():void {
 			endRank = radiogroupInterval.selectedValue;
-			getUsageData.send();
+			getData();
 		}
 		
 		private function changeAsOf():void {
-			getUsageData.send();
+			getData();
 		}
 		
 		private function showActivityByWeekDataTip(hitItem:mx.charts.HitData):String {
@@ -204,7 +215,7 @@
 				linkbutton5.enabled = false;
 			} else {
 				coreFacilityCombo.selectedIndex = 0;
-				getUsageData.send();
+				getData();
 			}
 		}
 		
@@ -222,13 +233,14 @@
 				linkbutton3.enabled = true;
 				linkbutton4.enabled = true;
 				linkbutton5.enabled = true;
-				getUsageData.send();
+				getData();
 			}
 		}
 		
 		protected function analysisCategories_changeHandler(event:Event):void{
 			var explodeRadii:Array = new Array();
 			var arrPos:int = 0;
+			experimentCategories.selected = false;
 			for each(var wedge:XML in diskSpaceByTypeChart.dataProvider){
 				if(analysisCategories.selected == false){
 					explodeRadii[arrPos] = 0;
@@ -236,6 +248,28 @@
 					continue;
 				}
 				if(wedge.@isAnalysis != null && wedge.@isAnalysis == 'Y'){
+					explodeRadii[arrPos] = 0.07;
+				}
+				else{
+					explodeRadii[arrPos] = 0;
+				}
+				arrPos++;
+			}
+			
+			diskSpaceByTypeSeries.perWedgeExplodeRadius = explodeRadii;
+		}
+		
+		protected function experimentCategories_changeHandler(event:Event):void{
+			var explodeRadii:Array = new Array();
+			var arrPos:int = 0;
+			analysisCategories.selected = false;
+			for each(var wedge:XML in diskSpaceByTypeChart.dataProvider){
+				if(experimentCategories.selected == false){
+					explodeRadii[arrPos] = 0;
+					arrPos++;
+					continue;
+				}
+				if(wedge.@isAnalysis != null && wedge.@isAnalysis == 'N'){
 					explodeRadii[arrPos] = 0.07;
 				}
 				else{
@@ -578,6 +612,10 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Highlight Analysis Categories" fontWeight="bold"/>
 						<mx:CheckBox id="analysisCategories" selected="false" change="analysisCategories_changeHandler(event)"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="Highlight Experiment Categories" fontWeight="bold"/>
+						<mx:CheckBox id="experimentCategories" selected="false" change="experimentCategories_changeHandler(event)"/>
 					</mx:HBox>
 					<mx:PieChart  name="Disk Space" id="diskSpaceByTypeChart" 
 									 dataProvider="{getUsageData.lastResult.SummaryDiskSpaceByType.Entry}" showDataTips="true" width="100%" height="100%">
