@@ -298,13 +298,16 @@
 			</mx:HBox>
 			<mx:TabNavigator id="theTab" styleName="form" width="100%" height="100%" change="{onTabChange()}">
 				<mx:VBox label="Experiments" id="experimentTab" height="100%" width="100%" color="#000000">
-					<mx:ComboBox width="200" selectedIndex="1"
-								 dataProvider="{coreFacilities}"
-								 labelField="@display"
-								 includeInLayout="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
-								 visible="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
-								 change="{enableLinkButtons()}"
-								 id="coreFacilityCombo"/>
+					<mx:HBox paddingLeft="4" paddingRight="4" horizontalAlign="center" width="100%">
+						<mx:ComboBox width="200" selectedIndex="1"
+									 dataProvider="{coreFacilities}"
+									 labelField="@display" prompt="Pick core facility..."
+									 includeInLayout="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
+									 visible="{coreFacilities.length > 1 &amp;&amp; (parentApplication.isAdminState || parentApplication.isSuperAdmin) &amp;&amp; parentApplication.coreFacilitiesICanManage.length() > 1}"
+									 change="{enableLinkButtons()}"
+									 id="coreFacilityCombo"/>
+						
+					</mx:HBox>
 					
 					<mx:Label text="Lab Activity" fontWeight="bold" paddingTop="10" paddingLeft="4" id="label1"/>
 					<mx:LinkButton label="Experiments" textDecoration="underline" click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton1"/>
