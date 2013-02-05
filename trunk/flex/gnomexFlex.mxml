@@ -3105,10 +3105,6 @@
 			      	paddingTop="6" 
 			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
 						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
-									   label="Home" visible="false" 
-									   click="{theViews.selectedChild = homeView}"
-									   icon="@Embed(source='assets/house.png')"/>
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
 			                
 						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12"  />
@@ -3128,6 +3124,10 @@
 					  <mx:Spacer width="100%"/>
 				        
 				        <mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
+							<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
+										   label="Home" visible="false" 
+										   click="{theViews.selectedChild = homeView}"
+										   icon="@Embed(source='assets/house.png')"/>
 				        	<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
 							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
 							<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
