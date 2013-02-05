@@ -2092,6 +2092,39 @@
       <key column="idDiskUsageByMonth"/>
       <one-to-many class="hci.gnomex.model.BillingItem" />
     </set>    
-  </class>  
+  </class>
+  
+  <!-- Bernd additions -->
+  <!-- hci.gnomex.model.Notification -->  
+	<class name="hci.gnomex.model.Notification" table="Notification">
+		<id name="idNotification" column="idNotification" type="integer">
+			<generator class="native" />
+		</id>
+				
+		<property name="sourceType" 				column="sourceType" 					type="string" />
+		<property name="message" 					column="message"						type="string" />
+		<property name="date" 						column="date" 							type="java.util.Date" />
+		<property name="idUserTarget" 				column="idUserTarget" 					type="integer" />
+		<property name="idLabTarget" 				column="idLabTarget" 					type="integer" />
+		
+	    <many-to-one name="userTarget" 			column="idAppUser" 			class="hci.gnomex.model.AppUser" 		cascade="none" 	insert="false" 	update="false" />
+	    <many-to-one name="labTarget" 			column="idLab" 				class="hci.gnomex.model.Lab" 			cascade="none" 	insert="false" 	update="false" />
+	</class>
 	
+	<!-- hci.gnomex.model.NewsItem -->
+	<class name="hci.gnomex.model.NewsItem" table="NewsItem">
+		<id name="idNewsItem" column="idNewsItem" type="integer">
+			<generator class="native" />
+		</id>
+		
+		<property name="date"						column="date"							type="java.util.Date" />
+		<property name="message"					column="message"						type="string" />
+		<property name="idSubmitter"				column="idSubmitter"					type="integer" />
+		<property name="idCoreSender"				column="idCoreSender"					type="integer" />
+		<property name="idCoreTarget"				column="idCoreTarget"					type="integer" />
+		
+		<many-to-one  name="submitter" 			column="idAppUser" 			class="hci.gnomex.model.AppUser" 		cascade="none" 	insert="false" 	update="false" />
+		<many-to-one name="coreSender"			column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
+		<many-to-one name="coreTarget"			column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
+	</class>
 </hibernate-mapping>

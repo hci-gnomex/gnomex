@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+<!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:db="views.dashboard.*" 
-				title="Metrix Server Status" 
-				width="500" height="370"
+				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
 				creationComplete="init()">   
 
 	<mx:HTTPService 
@@ -17,20 +17,6 @@
 		
 	</mx:HTTPService>
 
-	
-<mx:Style>
-	.connected {
-		fontWeight: bold;
-		color: green;
-	}
-	
-	.disconnected {
-		fontWeight: bold;
-		color: red;
-	}
-	
-</mx:Style>				
-	
 	<mx:XMLListCollection id="MIList" source="{metrixInterface.lastResult.Summary}"/> 
 
 <mx:Script>
@@ -101,10 +87,10 @@
 				filterXLC();
 			 	
 				if(MIList.length == 0){
-					titleContainer.label = "No active runs";
+					mainTitle.text = "No active runs";
 					refreshTimer.delay = 60000;
 				}else{
-					titleContainer.label = "Current Active Sequencing Machines";
+					mainTitle.text = "Current Active Sequencing Machines";
 					refreshTimer.delay = 600000;
 				}
 
@@ -148,6 +134,7 @@
 			
 			if(state == 1){				// Running
 				// Default barcolor is green
+				bar.setStyle("barColor", "#4BAD2F"); // Green
 				bar.label = cur + " / " + tot + " Cycles";
 				bar.mode = "manual";
 			}else if(state == 2){		// Finished
@@ -157,6 +144,9 @@
 				bar.setStyle("barColor", "#EB1515"); // Red
 				bar.label="Error! Please visit machine "+ instrument;
 			}else if(state == 4){ 		// Turn
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
 				bar.setStyle("barColor", "#F5E505"); // Yellow
 				bar.label="Please turn flowcell " + event.currentTarget.getRepeaterItem().flowcellID;
 			}else if(state == 5){ 		// Init
@@ -175,6 +165,7 @@
 			MIList.refresh();
 		}
 		
+		// Filter to show which run states need to be shown in the control / XMLListCollection 
 		private function state_filterFunc(item:XML):Boolean {
 			if(item.runState == "1"){
 				return true;
@@ -206,7 +197,7 @@
 		<mx:HRule width="100%" />
 			
 			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1" visible="true">
-				<mx:Label id="mainTitle" text="Current Active Sequencing Machines" fontSize="18" />
+				<mx:Label id="mainTitle" fontSize="18" />
 			</mx:HBox>
 		
 			<mx:VBox id="main" width="100%">
@@ -215,7 +206,7 @@
 						<mx:HBox id="runProgress" width="100%">
 							<mx:Label id="seqMachine" text="Instrument: {repStatus.currentItem.instrument}" />
 							
-							<mx:ProgressBar id="progress" width="70%" labelPlacement="center" 
+							<mx:ProgressBar id="progress" width="70%" labelPlacement="center"
 											creationComplete="repeatHandler(event, event.currentTarget.getRepeaterItem().currentCycle, event.currentTarget.getRepeaterItem().totalCycle, event.currentTarget.getRepeaterItem().runState, event.currentTarget.getRepeaterItem().instrument);" />
 						</mx:HBox>
 						<mx:HBox id="runInfo" width="100%">
@@ -232,4 +223,4 @@
 				</mx:Repeater>
 			</mx:VBox>
 	</mx:VBox>
-</mx:TitleWindow>
+</mx:Canvas>

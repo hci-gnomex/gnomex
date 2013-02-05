@@ -43,6 +43,6 @@
 	<classpathentry kind="lib" path="libEnv/commons-lang-1.0.1.jar"/>
 	<classpathentry kind="lib" path="libEnv/hci_utils.jar"/>
 	<classpathentry kind="lib" path="C:/Orion/orion.jar"/>
-	<classpathentry kind="lib" path="lib/metrixClient-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/metrixClient-1.2.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>

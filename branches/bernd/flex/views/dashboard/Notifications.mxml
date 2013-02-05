@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
+				xmlns:db="views.dashboard.*"  
+				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
+				creationComplete="init()">   
+
+	 
+
+<mx:Script>
+	<![CDATA[
+		
+		// Imports
+		import flash.events.TimerEvent;
+		import flash.utils.Timer;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.ProgressBar;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
+		
+		// Variables
+		
+		public function init():void {
+
+		}
+		
+		public function refreshData(e:TimerEvent):void{
+		
+		}
+		
+	/*	private function onGetNotificationInterface(event:ResultEvent):void {
+			if(event.result.name() == "NotificationCollection"){
+				
+				filterXLC();
+
+			} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Notification Interface.");
+			}
+		}
+	*/	
+		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
+		{
+
+		}
+		
+		private function filterXLC():void {
+//			MIList.filterFunction = news_filterFunc;
+//			MIList.refresh();
+		}
+		
+		//private function notification_filterFunc(item:XML):Boolean {
+
+//		}
+		
+	]]>
+</mx:Script>
+	
+	<mx:VBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Label id="mainTitle" text="Notifications" fontSize="18" />
+		</mx:HBox>
+		<mx:HRule width="100%" />
+					
+			<mx:VBox id="main" width="100%">
+				<mx:Repeater id="repStatus" dataProvider="" count="3">
+								
+				</mx:Repeater>
+			</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>

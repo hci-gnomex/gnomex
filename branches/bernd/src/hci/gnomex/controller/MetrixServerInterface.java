@@ -69,7 +69,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 	        String host = dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_HOST);
 	        int port = Integer.parseInt(dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_PORT));
 
-	        if(host == "" || dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_PORT) == ""){
+	        if(Integer.parseInt(dh.getPropertyDictionary(PropertyDictionary.METRIX_SERVER_PORT)) < 1025){
 	        	this.addInvalidField("Invalid configuration.", "Invalid configuration details for MetrixServer. Please check the dictionary properties.");
 	            setResponsePage(this.ERROR_JSP);
 	        }
@@ -86,9 +86,10 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 				nki.objects.Command sendCommand = new nki.objects.Command();
 				
 				// Set a value for command
-				sendCommand.setCommandString("XML");
-				sendCommand.setCommandDetail("12"); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
+				sendCommand.setFormat("XML");
+				sendCommand.setState(12); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
 				sendCommand.setCommand("FETCH");
+				sendCommand.setMode("CALL");
 				oos.writeObject(sendCommand);
 				oos.flush();
 				
@@ -105,10 +106,6 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 						}
 					}
 
-					if(serverAnswer instanceof HashMap){	// Answer is a Summary with single runInfo
-						
-					}
-			
 					if(serverAnswer instanceof SummaryCollection){
 						SummaryCollection sc = (SummaryCollection) serverAnswer;
 						//metrixLogger.log(Level.INFO, "[CLIENT] The server answered with a SummaryCollection.");
@@ -121,6 +118,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 
 					if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
 						srvResp = (String) serverAnswer;
+						//System.out.println("ANSWER " + srvResp);
 						log.info("Server replied with XML");
 						listen = false;
 					}

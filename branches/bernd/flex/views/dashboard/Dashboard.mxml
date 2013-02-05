@@ -8,32 +8,40 @@
 	
 	<mx:Script>
 		<![CDATA[
-			
+			public function init():void {
+
+			}
 		]]> 
 	</mx:Script>
 	<mx:HBox y="50" horizontalAlign="center" width="100%">
-		<mx:Label height="106" fontSize="33" text="GNomEx Hub" />
+		<mx:Label height="106" fontSize="33" text="GNomEx Dashboard" />
 	</mx:HBox>
 
 	<mx:Grid id="DashboardGrid" x="0" y="156" width="100%" height="85%" horizontalAlign="center"
 			 horizontalGap="8" verticalGap="6">
 		
-		<mx:GridRow width="90%" height="40%" fontSize="22">
+		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
 			<mx:GridItem horizontalAlign="center">
-				<mx:Label text="News" />
+				<db:News>
+					
+				</db:News>
 			</mx:GridItem>
-			<mx:GridItem width="378" horizontalAlign="center">
-				<mx:Label text="Notifications" />
+			<mx:GridItem horizontalAlign="center">
+				<db:Notifications>
+					
+				</db:Notifications>
 			</mx:GridItem>
 		</mx:GridRow>
-		<mx:GridRow width="90%" height="40%">
+		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
 			<mx:GridItem horizontalAlign="center" borderStyle="outset" borderThickness="1">
-				<db:RunStatusHub>
+				<db:RunStatusHub id="runMonitor">
 					
 				</db:RunStatusHub>
 			</mx:GridItem>
 			<mx:GridItem horizontalAlign="center">
-				<mx:Label text="FAQ" />
+				<db:FAQ>
+					
+				</db:FAQ>
 			</mx:GridItem>
 		</mx:GridRow>
 	</mx:Grid>
