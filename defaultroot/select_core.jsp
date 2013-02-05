@@ -71,23 +71,23 @@ try {
   </div>
 
   
-  <div class="boxWide">
+  <div class="boxSuperWide">
     <h3>Select Core Facility</h3>
     
     <div id="coreFacilityDiv"><div class="col1"><div class="left">
-      <table border=0 width="425" class="facilities">
+      <table border="0" width="600" class="facilities">
         
         <%
           Iterator facilityIter = facilities.iterator();
           while (facilityIter.hasNext()) {
             CoreFacility facility = (CoreFacility) facilityIter.next();
         %>
-        <tr>
-          <td width="240">
-            <a href="register_user.jsp?idFacility=<%=facility.getIdCoreFacility()%>"><%=facility.getDisplay()%></a>
+        <tr height="40">
+          <td width="250">
+            <a class="button" href="register_user.jsp?idFacility=<%=facility.getIdCoreFacility()%>"><%=facility.getDisplay()%></a>
           </td>
           
-          <td width="185">
+          <td width="450">
             <%
               if (facility.getDescription() != null) {%>
                   <%=facility.getDescription()%>

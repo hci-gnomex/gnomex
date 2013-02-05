@@ -119,6 +119,16 @@ a.other {
 	color: #696969;
 }
 
+.boxSuperWide {
+	background-color: #ececd9;  
+	border: 1px solid #8B8970;
+	overflow: hidden;
+	padding: 10px;
+	width: 700px;
+	float: center;
+	color: #696969;
+}
+
 .empty {
 	clear:both;
 	float:left;
