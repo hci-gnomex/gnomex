@@ -72,6 +72,7 @@ public class GetPlateWells extends GNomExCommand implements Serializable {
               if ( request != null ) {
                 node.setAttribute("submitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
                 node.setAttribute("submitter", request.getOwnerName());
+                node.setAttribute("requestNumber", request.getNumber());
               }
             }
           }
