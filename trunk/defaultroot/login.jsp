@@ -206,7 +206,7 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
       
       
       <div class="bottomPanel">
-        <div class="col1Wide"><note class="inline"><i>For guest access to public data:</i></note></div>
+        <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div>
         <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
       </div>
       
