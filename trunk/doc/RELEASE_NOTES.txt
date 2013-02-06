@@ -1,6 +1,72 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.8 (Feb 4, 2012)
+-------------------
+* Search will not return any results when I type in an analysis' name	Ben Spigle
+* Analysis disappears when default Visibility is Institution	Tarik Courdy
+* .bw analysis files on disk but not in db not returned	Ben Spigle
+* When new collaborator is added to lab, it is not reflected in dropdown	Tarik Courdy
+* Expansion not visible for bottom annotation without scrolling	Tarik Courdy
+* Data Track URL Annotation ignores Alias	Tarik Courdy
+* FDT logging not working (since last deploy back in late nov)	Tony Di Sera
+* Deleting annotation has no warning when has value on Analysis or Data Track	Tarik Courdy
+* Usage chart for Files by Type showing Experiments as its own category	Tarik Courdy
+* Annotations report - Last name of submitter is repeated, show first name and last name instead	Ben Spigle
+* Investigate GNomEx slowness on loading completed or pending billing items on billing view.	Megan Bowler
+* Show order number instead of idRequest on plate editor	Megan Bowler
+* Disk Usage not filtering by core facility	Tarik Courdy
+* Allow core facility Admins to edit the core facility for other admins for their core.	Megan Bowler
+* Don't allow an order in processing to have status changed back to submitted	Megan Bowler
+* Core facility admin logged in looks like Super Admin on welcome screen	Ben Spigle
+* Figure out XML Reflection error for Bernd	Tony Di Sera
+* Rename folders broken	Tarik Courdy
+* BST showing 'restricted access' for GNomEx experiments even though user is admin in BST and super admin in GNomEx.	Ben Spigle
+* Can't seem to save mods to the Description field of 9716R	Tarik Courdy
+* Switch from normal to FDT download aborts	Ben Spigle
+* Fix build script so that hciFlex2 folder not required	Tony Di Sera
+* #199 Show a message that folders can be deleted/organized in organize files window	Megan Bowler
+* #4 Newly added protocol not reflected in dropdowns	Tarik Courdy
+* Actionscript error after moving file to folder after FDT Upload	Tarik Courdy
+* Investigate Register Files bug	Ben Spigle
+* When experiment gets revision (###R1), a folder with revision is created	Ben Spigle
+* #246 Flex plugin frequently crashing, experiment with many data files.	Megan Bowler
+* Break Sample Quality on Workflow QC Worklist tab into Sample Quality and MicroArray	Ben Spigle
+* Illumina experiments not completing	Ben Spigle
+* Wrong gel billing item for HiSeq	Ben Spigle
+* Avg insert size range fields should show if application has min and max defined, even if request doesn't have any values entered	Ben Spigle
+* Experiment folders duplicated on Files tab	Ben Spigle
+* Investigate why codeApplication changed to APP###	Ben Spigle
+* #241 User signup fields empty after verification failure	Megan Bowler
+* Problems with printable request form	Ben Spigle
+* #5 Auto-email invoice not being sent after split account	Tarik Courdy
+* Missing "root" data track folders under genome build (fix in sql script and populate script)	Tony Di Sera
+* upgrade to 5.7 gets sql errors	Tarik Courdy
+* Support repository serving to IGV browser	Timothy Mosbruger
+* Topics grouping for GNomEx	Robb Cundick
+* Add drop-down for Create New Project	Tarik Courdy
+* Deselect Description Annotation	Tarik Courdy
+* Do conversions from useq to bigwig and vcf in batch cron job	David Nix
+* External Experiments - Show organism on info tab and take off as sample annotation	Ben Spigle
+* External Experiments - Remove organism, organism other, and QC Status from samples grid	Ben Spigle
+* 272 - Restrict new Annotations to a unique name	Robb Cundick
+* Add option to download .fasta files to be generated from .abi files	Megan Bowler
+* Add ability to print the chromatogram detail screen.	Megan Bowler
+* Add hint by billing account dropdown - If empty because experiment type and submitter not selected	Ben Spigle
+* Can't save a Lab that has an apostrophe in the name	Ben Spigle
+* Backup JIRA databases on hci-scrum in cron job. Backup Wiki database on hci-bio-wiki	Tony Di Sera
+* Cluster gen multi-select delete	Ben Spigle
+* New signup screen with preset Core Facility checked	Megan Bowler
+* Improve Login screen	Megan Bowler
+* Reorganize layout of Group Detail Window	Tony Di Sera
+* 'Other' Organism should be listed at top of dropdown	Megan Bowler
+* Make the application (experiment type tab on Config Exp.Platform window) wrap so that all text is shown	Tarik Courdy
+* AU field on Submit Work Auth window	Tarik Courdy
+* Support VCF Files for Data Tracks	David Nix
+* Sample sheet import should permit index tag group to be imported	Ben Spigle
+* Disk usage charges	Ben Spigle
+* Group detail - Show label at top of view to indicate if lab group is external	Tony Di Sera
+
 
 5.7 (Dec 6, 2012)
 ---------------------
