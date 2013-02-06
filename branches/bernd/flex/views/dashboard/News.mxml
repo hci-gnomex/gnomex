@@ -28,7 +28,6 @@
 		import mx.utils.ObjectUtil;
 		
 		// Variables
-		
 		public function init():void {
 
 		}
@@ -73,6 +72,11 @@
 			// TODO Auto-generated method stub
 			
 		}
+		
+		public function showAddNewsItem():void {
+			var AddNewsItemWindow:AddNewsItem = AddNewsItem(PopUpManager.createPopUp(root, AddNewsItem, true));
+			PopUpManager.centerPopUp(AddNewsItemWindow);
+		}  
 		
 	]]>
 </mx:Script>

@@ -8,14 +8,15 @@ public class NewsItem extends HibernateDetailObject {
   
   private Integer			idNewsItem;
   private String			message;
+  private String 			title;
   private java.util.Date	date;
   private Integer			idSubmitter;
   private Integer			idCoreSender;
   private Integer			idCoreTarget;
 
-  private Integer			submitter;
-  private Integer			coreSender;
-  private Integer			coreTarget;  
+  private Integer			appUser;
+  private Integer			coreFacilitySender;
+  private Integer			coreFacilityTarget;  
   
   public Integer getIdNewsItem(){
 	 return idNewsItem;
@@ -24,7 +25,6 @@ public class NewsItem extends HibernateDetailObject {
   public void setIdNewsItem(Integer idNewsItem){
 	  this.idNewsItem = idNewsItem;
   }
-  
     
   public String getMessage(){
 	  return message;
@@ -66,28 +66,36 @@ public class NewsItem extends HibernateDetailObject {
 	  this.idCoreTarget = coreTarget;
   }
   
-  public Integer getSubmitter(){
-	  return submitter;
+  public Integer getAppUser(){
+	  return appUser;
   }
   
-  public void setSubmitter(Integer submitter){
-	  this.submitter = submitter;
+  public void setAppUser(Integer appUser){
+	  this.appUser = appUser;
   }
   
-  public Integer getCoreTarget(){
-	  return coreTarget;
+  public Integer getCoreFacilityTarget(){
+	  return coreFacilityTarget;
   }
   
-  public void setCoreTarget(Integer idCoreTarget){
-	  this.idCoreTarget = idCoreTarget;
+  public void setCoreFacilityTarget(Integer coreFacilityTarget){
+	  this.coreFacilityTarget = coreFacilityTarget;
   }
   
-  public Integer getCoreSender(){
-	  return coreSender;
+  public Integer getCoreFacilitySender(){
+	  return coreFacilitySender;
   }
   
-  public void setCoreSender(Integer coreSender){
-	  this.coreSender = coreTarget;
+  public void setCoreFacilitySender(Integer coreFacilitySender){
+	  this.coreFacilitySender = coreFacilityTarget;
   }
-  
+
+public String getTitle() {
+	return title;
+}
+
+public void setTitle(String title) {
+	this.title = title;
+}
+
 }

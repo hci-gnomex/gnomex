@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				layout="vertical" horizontalAlign="right" verticalGap="10"  creationPolicy="all" 
+				title="Add News Item" styleName="loginWindow"
+				borderThickness="4"  titleStyleName="loginTitleStyle" height="693" width="703">	
+
+    <mx:HTTPService 
+	    id="saveNewsItem"	    
+	    url="SaveNewsItem.gx"
+	    resultFormat="e4x"
+	    result="succeeded(event)"
+	    fault="parentApplication.onFailHttpRequest('Save Newsitem Failed', event)"
+	    showBusyCursor="true"
+		destination="saveNewsItem"
+	    useProxy="false">
+    </mx:HTTPService> 	
+
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
+	
+    <mx:Script>            
+        <![CDATA[
+	    	import mx.collections.Sort;
+	    	import mx.collections.XMLListCollection;
+	    	import mx.controls.Alert;
+	    	import mx.events.CloseEvent;
+	    	import mx.events.ValidationResultEvent;
+	    	import mx.managers.CursorManager;
+	    	import mx.managers.PopUpManager;
+	    	import mx.rpc.events.FaultEvent;
+	    	import mx.rpc.events.ResultEvent;
+	    	import mx.utils.ArrayUtil;
+
+			public function init():void {
+
+			}
+			
+			private function saveNewsItem():void {
+				var params:Object = new Object();
+				
+				if () { // FORM CHECKS!
+						
+					Alert.show("Please fix errors (red) before continuing");
+					return;
+				}	
+				else {
+					
+					params.newsItemXMLString = parentApplication.navExperimentView.selectedProject.toXMLString();
+					params.parseEntries = 'Y';
+					saveProject.send(params);
+					saveNewsItem.send();
+				}			
+			}	
+			
+			private function corefacilityFilter_changeHandler(event:Event){
+				
+			}
+			
+			private function succeeded(event:ResultEvent):void {
+					
+			}
+			
+		]]>
+    </mx:Script>   
+    
+	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="5%" paddingRight="5%">
+		<mx:HBox>
+	  		<mx:Label fontWeight="bold" text="Title: "/>
+	  		<mx:TextInput id="titleInput" width="633" />
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label fontWeight="bold" text="Recipient Core Facility: "/>
+			<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="1" /> 
+		</mx:HBox>
+
+		<mx:Label fontWeight="bold" text="Message: "/>
+		<mx:TextArea id="messageInput" width="100%" height="535"/>
+		
+		<mx:HBox width="100%">
+			<mx:Button id="cancelButton" label="Cancel" click="cancelNewsItem()" />
+			<mx:Spacer width="100%"/>
+			<mx:Button id="saveButton" label="Save" click="saveNewsItem()" />
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>

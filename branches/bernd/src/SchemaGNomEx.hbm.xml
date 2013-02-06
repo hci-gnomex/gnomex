@@ -2117,14 +2117,16 @@
 			<generator class="native" />
 		</id>
 		
-		<property name="date"						column="date"							type="java.util.Date" />
-		<property name="message"					column="message"						type="string" />
-		<property name="idSubmitter"				column="idSubmitter"					type="integer" />
-		<property name="idCoreSender"				column="idCoreSender"					type="integer" />
-		<property name="idCoreTarget"				column="idCoreTarget"					type="integer" />
+		<property name="date"						column="date"				type="java.util.Date" />
+		<property name="message"					column="message"			type="string" />
+		<property name="title"						column="title"				type="string" />
+		<property name="idSubmitter"				column="idSubmitter"		type="integer" />
+		<many-to-one  name="appUser" 				column="idAppUser" 			class="hci.gnomex.model.AppUser" 		cascade="none" 	insert="false" 	update="false" />
 		
-		<many-to-one  name="submitter" 			column="idAppUser" 			class="hci.gnomex.model.AppUser" 		cascade="none" 	insert="false" 	update="false" />
-		<many-to-one name="coreSender"			column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
-		<many-to-one name="coreTarget"			column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
+		<property name="idCoreSender"				column="idCoreSender"		type="integer" />
+		<many-to-one name="coreFacilitySender"		column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
+	
+		<property name="idCoreTarget"				column="idCoreTarget"		type="integer" />
+		<many-to-one name="coreFacilityTarget"		column="idCoreFacility" 	class="hci.gnomex.model.CoreFacility"   cascade="none" 	insert="false" 	update="false" />
 	</class>
 </hibernate-mapping>

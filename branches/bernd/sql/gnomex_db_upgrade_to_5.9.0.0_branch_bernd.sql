@@ -15,11 +15,12 @@ ALTER TABLE `gnomex`.`RequestCategory` ADD refrainFromAutoDelete VARCHAR(50);
 DROP TABLE IF EXISTS `gnomex`.`NewsItem`;
 CREATE TABLE `gnomex`.`NewsItem` (
 	`idNewsItem` INT(10) NOT NULL AUTO_INCREMENT,
-	`date` DATETIME NULL,
 	`idSubmitter` INT(10) NOT NULL,
 	`idCoreSender` INT(10) NOT NULL,
-	`message` VARCHAR(4000) NOT NULL,
 	`idCoreTarget` INT(10) NULL,
+	`title` VARCHAR(200) NOT NULL,
+	`message` VARCHAR(4000) NOT NULL,
+	`date` DATETIME NULL,
       PRIMARY KEY (`idNewsItem`),
     CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
        REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -38,13 +39,13 @@ ENGINE = INNODB;
 
 -- New table to hold notification items in
 DROP TABLE IF EXISTS `gnomex`.`Notification`;
-CREATE TABLE `gnomex`.`Notifications` (
+CREATE TABLE `gnomex`.`Notification` (
 	`idNotification` INT(10) NOT NULL AUTO_INCREMENT,
+	`idUserTarget` INT(10) NOT NULL,
+	`idLabTarget` INT(10) NULL,
 	`sourceType` VARCHAR(20) NOT NULL,
 	`message` VARCHAR(250) NULL,
 	`date` DATETIME NULL,
-	`idUserTarget` INT(10) NOT NULL,
-	`idLabTarget` INT(10) NULL,
 	   PRIMARY KEY (`idNotification`),
 	CONSTRAINT `FK_Notification_UserTarget` FOREIGN KEY `FK_Notification_UserTarget` (`idUserTarget`)
 		REFERENCES `gnomex`.`AppUser` (`idAppUser`)
