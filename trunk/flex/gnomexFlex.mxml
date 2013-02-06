@@ -2713,6 +2713,15 @@
 			}  else if (label == "Annotation Report") {
 				navReportView.reportName = "Annotation Report";
 				theViews.selectedChild = navReportView;
+				if (navReportView.isInitialized) {
+					navReportView.init();
+				}
+			}  else if (label == "Project/Experiment Report") {
+				navReportView.reportName = "Project/Experiment Report";
+				theViews.selectedChild = navReportView;
+				if (navReportView.isInitialized) {
+					navReportView.init();
+				}
 			} else if (label == "New Experiment Order") {
 				// When beginning a new order always load a new request.
 				this.submitRequestView.request = null;
@@ -2837,6 +2846,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 	
 	</mx:XMLList>
@@ -2852,6 +2862,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -2881,6 +2892,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -2908,6 +2920,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -2933,6 +2946,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -2967,6 +2981,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -2998,6 +3013,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -3049,6 +3065,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
 	</mx:XMLList>
