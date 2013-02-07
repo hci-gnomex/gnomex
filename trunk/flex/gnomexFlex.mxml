@@ -850,6 +850,8 @@
 			
 			private var properties:Object;
 			
+			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
+
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
 			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
 			public  var TYPE_QC:String            = 'QC';
@@ -935,6 +937,14 @@
 			private function init():void {
 				getLaunchProperties.send();
 			} 
+			
+			public function resetAlertButtons():void {
+				Alert.yesLabel = "Yes";
+				Alert.noLabel = "No";
+				Alert.cancelLabel = "Cancel";
+				Alert.okLabel = "Ok";
+				Alert.buttonWidth = ALERT_DEFAULT_BUTTON_WIDTH;
+			}
 			
 			private function onGetLaunchProperties(event:ResultEvent):void {
 				if (getLaunchProperties.lastResult.name() == 'LaunchProperties') {
