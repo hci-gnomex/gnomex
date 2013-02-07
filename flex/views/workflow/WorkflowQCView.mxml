@@ -73,6 +73,7 @@
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkListQC.send();
+			setWorklistFilter("", "Combined Sample Quality");
         }
 			
 		public function setWorklistFilter(filterType:String, windowTitle:String):void {
@@ -81,6 +82,7 @@
 			workList.filterFunction = filterWorkListByExpType;
 			requestNumberCombo.selectedIndex = 0;
 			workList.refresh();
+			refreshRequestNumbers();
 		}
  
 		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
@@ -222,6 +224,8 @@
         		}
         	}
         	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
+			requestNumberCombo.dataProvider = requestNumbers;
+			requestNumberCombo.dropdown.dataProvider = requestNumbers;
         }
         
         private function filterWorkList(item:Object):Boolean {
