@@ -472,7 +472,7 @@
 					var parms:URLVariables = new URLVariables();
 					parms.mode =  "zip";
 					var progressWindow:DownloadProgressView = new DownloadProgressView();
-					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, this.downloadButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
 			}    
 			
