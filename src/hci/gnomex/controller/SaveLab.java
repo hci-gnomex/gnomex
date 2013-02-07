@@ -246,6 +246,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
       
       accountParser.parse(sess);
+      /* commented out since users were unable to save labs with errors in accounts in other core facilitie4s.
+       * There is a front end warning for this.
       Boolean containsErrors = false;
       for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
         String idBillingAccountString = (String)i.next();
@@ -267,7 +269,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
         this.addInvalidField("Account Chartfield Errors", "There are problems with your billing account chartfield(s)");
         this.setResponsePage(this.ERROR_JSP);
       }
-      
+      */
 
       if (isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
