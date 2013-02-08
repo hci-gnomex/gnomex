@@ -819,6 +819,17 @@ Accordion {
 	disabledColor: #FFFFFF;
 }
 
+.gradientBackground 
+{  
+	borderStyle: applicationControlBar; 
+	fillColors: #463B40, #463B40;
+	fillAlphas: .5, 1; 
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	highlightAlphas: 0, 0;
+}
+
 MenuBar {
 	backgroundAlpha: 0;
 	borderStyle: none;
