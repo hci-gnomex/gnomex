@@ -7,7 +7,9 @@
 		 title="{'View Chromatogram ' + selectedIdChromatogram}"
 		 xmlns:util="views.util.*" >
 	
-	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%">
+	<mx:VBox width="100%" id="vbox1">
+		
+	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%" >
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" 
 				  styleName="titleLabel" 
@@ -18,7 +20,7 @@
 		<mx:LinkButton label="Back" 
 					   click="{parentDocument.chromatViews.selectedIndex = 0}" 
 					   textDecoration="underline" 
-					   icon="@Embed(source='../../assets/arrow_left.png')"/>	
+					   icon="@Embed(source='../../assets/arrow_left.png')" id="linkbutton1"/>	
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton label="Create Fasta file"
 					   paddingRight="1"
@@ -36,6 +38,8 @@
 					   visible="{this.isInit}"
 					   includeInLayout="{this.isInit}"/>
 	</mx:HBox>
+		
+	</mx:VBox>
 	
 	<mx:HTTPService  
 		id="getChromatogram" 
@@ -52,8 +56,9 @@
 			<includeQualArray>{'Y'}</includeQualArray>
 			<includeTrace>{'Y'}</includeTrace>
 		</mx:request>
-	</mx:HTTPService> 
+	</mx:HTTPService>
 	
+
 	<mx:Script> 
 		<![CDATA[
 			import flash.events.MouseEvent;
@@ -1104,7 +1109,16 @@
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
 			<mx:SetProperty name="height" value="600"/>
 			<mx:SetProperty name="width" value="1000"/>
-			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{redoLabel}"/>
+			<mx:RemoveChild target="{titleLabel}"/>
+			<mx:SetStyle target="{headerBox}" name="paddingTop"/>
+			<mx:SetStyle target="{printButton}" name="fontSize" value="10"/>
+			<mx:SetStyle target="{fastaButton}" name="fontSize" value="10"/>
+			<mx:SetProperty target="{vbox1}" name="styleName" value="selectedAccordionHeader"/>
+			<mx:SetStyle target="{vbox1}" name="borderStyle" value="applicationControlBar"/>
+			<mx:SetProperty target="{headerBox}" name="styleName" value="gradientBackground"/>
+			
 		</mx:State>
 	</mx:states>
 	
