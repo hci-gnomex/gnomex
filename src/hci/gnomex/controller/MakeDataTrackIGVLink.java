@@ -107,7 +107,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			prefix.append("\t");
 		}
 		
-		path += "/" + folder.getName();
+		path += "/" + DataTrackUtil.stripBadURLChars(folder.getName(),"_");
 		
 		//Create StringBuilder
 		StringBuilder xmlResult = new StringBuilder("");
@@ -360,15 +360,18 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 			
 		
-			//If the user is an admin or is a member of datatrack lab, allow autoconvert
+			//disallow AUTOCONVERT!!!!
 			UCSCLinkFiles link;
-			if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.isOwner(dataTrack.getIdAppUser()) || 
-					secAdvisor.isGroupIAmMemberOf(dataTrack.getIdLab()) || secAdvisor.isGroupICollaborateWith(dataTrack.getIdLab())) {
-				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
-				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
-			} else {
-				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
-			}
+			link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
+			
+//			//If the user is an admin or is a member of datatrack lab, allow autoconvert
+//			if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.isOwner(dataTrack.getIdAppUser()) || 
+//					secAdvisor.isGroupIAmMemberOf(dataTrack.getIdLab()) || secAdvisor.isGroupICollaborateWith(dataTrack.getIdLab())) {
+//				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
+//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
+//			} else {
+//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
+//			}
 			
 			
 			//'link' will be null if the user can read the track, doesn't own the track and the bw has not yet been created.
