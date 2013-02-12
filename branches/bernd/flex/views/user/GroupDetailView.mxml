@@ -473,11 +473,6 @@
 					}
 				}
 				
-				if(warningMessage != ""){
-					var alert:Alert = Alert.show(warningMessage, "Please fix the errors with the following billing accounts");
-					return;
-				} 
-				
 				for each(var ba:Object in allApprovedAccounts) { 
 						if(ba.@isPO == "Y") {
 							if (!this.isChartFieldBlank(ba)) {
@@ -514,6 +509,10 @@
 				var allAccounts:XMLListCollection = allApprovedAccounts;
 				allAccounts.addAll(pendingBillingAccounts);
 				for each(var ba:Object in allAccounts) {
+					// skip if billing account in core facility they can't see.
+					if (!parentApplication.isCoreFacilityIManage(ba.@idCoreFacility)) {
+						continue;
+					}
 					var errors:ArrayCollection = new ArrayCollection;
 					for each(var cf:Object in labCoreFacilitiesIManage){
 						if(cf.@idCoreFacility == ba.@idCoreFacility){

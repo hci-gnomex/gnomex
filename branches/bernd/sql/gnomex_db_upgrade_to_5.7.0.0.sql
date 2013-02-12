@@ -37,7 +37,6 @@ alter table Request add constraint FK_Request_Institution
 
 -- Create PropertyPlatformApplication from PlatformApplication table
 -- and then delete PlatformApplication   
-CREATE TABLE PropertyPlatformApplication LIKE PlatformApplication;
 
 INSERT INTO PropertyPlatformApplication SELECT * FROM PlatformApplication;
 
@@ -56,7 +55,7 @@ ALTER TABLE Sample DROP CONSTRAINT FK_Sample_SeqLibProtocol;
 alter table Sample add constraint FK_Sample_SeqLibProtocol 
     foreign key (idSeqLibProtocol) references SeqLibProtocol(idSeqLibProtocol) on delete set null;
     
-ALTER TABLE SeqLibProtocolApplication DROP CONSTRAINT FK_SeqLibProtocolApplication_SeqLibProtocol;
+
 alter table SeqLibProtocolApplication add constraint FK_SeqLibProtocolApplication_SeqLibProtocol 
     foreign key (idSeqLibProtocol) references SeqLibProtocol(idSeqLibProtocol) on delete cascade;          
      
@@ -68,7 +67,7 @@ ALTER TABLE RequestCategoryApplication DROP foreign key FK_RequestCategoryApplic
 alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_ScanProtocol 
     foreign key (idScanProtocolDefault) references ScanProtocol(idScanProtocol) on delete set null;
 
-ALTER TABLE SampleTypeApplication DROP foreign key FK_SampleTypeMicroarrayCategory_ScanProtocol;
+
 alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_ScanProtocol 
     foreign key (idScanProtocolDefault) references ScanProtocol(idScanProtocol) on delete set null;
     
@@ -80,11 +79,10 @@ ALTER TABLE RequestCategoryApplication DROP foreign key FK_RequestCategoryApplic
 alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_LabelingProtocol 
     foreign key (idLabelingProtocolDefault) references LabelingProtocol(idLabelingProtocol) on delete set null;
 
-ALTER TABLE SampleTypeApplication DROP foreign key FK_SampleTypeMicroarrayCategory_LabelingProtocol;
 alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_LabelingProtocol 
     foreign key (idLabelingProtocolDefault) references LabelingProtocol(idLabelingProtocol) on delete set null;
     
-ALTER TABLE SampleTypeApplication DROP foreign key FK_SampleTypeMicroarrayCategory_HybProtocol;
+
 alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_HybProtocol 
     foreign key (idHybProtocolDefault) references HybProtocol(idHybProtocol) on delete set null;
     
@@ -104,7 +102,7 @@ ALTER TABLE RequestCategoryApplication DROP foreign key FK_RequestCategoryApplic
 alter table RequestCategoryApplication add constraint FK_RequestCategoryApplication_FeatureExtractionProtocol 
     foreign key (idFeatureExtractionProtocolDefault) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;    
     
-ALTER TABLE SampleTypeApplication DROP foreign key FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol;
+
 alter table SampleTypeApplication add constraint FK_SampleTypeMicroarrayCategory_FeatureExtractionProtocol 
     foreign key (idFeatureExtractionProtocolDefault) references FeatureExtractionProtocol(idFeatureExtractionProtocol) on delete set null;
 

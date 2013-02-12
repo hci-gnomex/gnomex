@@ -83,7 +83,9 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   public static final String SUMMARY_UPLOADS_BY_LAB = "SummaryUploadsByLab";
   public static final String SUMMARY_DISK_SPACE_BY_LAB = "SummaryDiskSpaceByLab";
   public static final String SUMMARY_DISK_SPACE_BY_YEAR = "SummaryDiskSpaceByYear";
-  public static final String SUMMARY_DISK_SPACE_BY_TYPE = "SummaryDiskSpaceByType";
+  public static final String SUMMARY_DISK_SPACE_BY_EXPERIMENT = "SummaryDiskSpaceByExperiment";
+  public static final String SUMMARY_DISK_SPACE_BY_ANALYSIS = "SummaryDiskSpaceByAnalysis";
+  public static final String TOTAL_DISK_SPACE = "TotalDiskSpace";
   public static final String SUMMARY_DOWNLOADS_BY_LAB = "SummaryDownloadsByLab";
   public static final String SUMMARY_EXPERIMENTS_BY_LAB = "SummaryExperimentsByLab";
   public static final String SUMMARY_ANALYSIS_BY_LAB = "SummaryAnalysisByLab";
@@ -91,6 +93,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
   public static final String SUMMARY_EXPERIMENTS_BY_TYPE = "SummaryExperimentsByType";
   public static final String SUMMARY_SEQ_EXPERIMENTS_BY_APP = "SummarySeqExperimentsByApp";
   public static final String SUMMARY_ANALYSIS_BY_TYPE = "SummaryAnalysisByType";
+  
+  public static final String ANALYSIS_VIEW = "Analysis";
+  public static final String EXPERIMENTS_VIEW = "Experiments";
+  public static final String FILES_VIEW = "Files";
   
   public void validate() {
   }
@@ -135,8 +141,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       doc.getRootElement().addContent(summaryDiskSpaceByYearNode);
 
       
-      Element summaryDiskSpaceByTypeNode = new Element(SUMMARY_DISK_SPACE_BY_TYPE);
-      doc.getRootElement().addContent(summaryDiskSpaceByTypeNode);
+      Element summaryDiskSpaceByExperimentNode = new Element(SUMMARY_DISK_SPACE_BY_EXPERIMENT);
+      doc.getRootElement().addContent(summaryDiskSpaceByExperimentNode);
+      
+      Element summaryDiskSpaceByAnalysisNode = new Element(SUMMARY_DISK_SPACE_BY_ANALYSIS);
+      doc.getRootElement().addContent(summaryDiskSpaceByAnalysisNode);
+      
+      Element totalDiskSpaceNode = new Element(TOTAL_DISK_SPACE);
+      doc.getRootElement().addContent(totalDiskSpaceNode);
       
       Element summaryDownloadsNode = new Element(SUMMARY_DOWNLOADS_BY_LAB);
       doc.getRootElement().addContent(summaryDownloadsNode);
@@ -284,7 +296,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         Integer totalExperiments = null;
         Integer totalAnalysisCount = null;
 
-        if(currentView.equals("Experiments") || currentView.equals("Files")){
+        if(currentView.equals(EXPERIMENTS_VIEW) || currentView.equals(FILES_VIEW)){
           buf = new StringBuffer();
           buf.append("SELECT r.idLab, count(*) from Request r ");
           if (idCoreFacility != null) {
@@ -306,7 +318,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
      
         
         // Get analysis count
-        if(currentView.equals("Analysis") || currentView.equals("Files")){
+        if(currentView.equals(ANALYSIS_VIEW) || currentView.equals(FILES_VIEW)){
           rank = 0;
           totalCount = 0;
           summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
@@ -317,7 +329,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
         
         //Get total upload and download counts
-        if(currentView.equals("Files")){
+        if(currentView.equals(FILES_VIEW)){
           //Upload count ordered by lab and count
           rank = 0;
           buf = new StringBuffer();
@@ -367,7 +379,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         buf = new StringBuffer();
         BigDecimal totalDiskSpace = new BigDecimal(0);
         
-        if(currentView.equals("Experiments") || currentView.equals("Files")){
+        if(currentView.equals(EXPERIMENTS_VIEW) || currentView.equals(FILES_VIEW)){
           buf.append("SELECT r.idLab, sum(ef.fileSize) ");
           buf.append("FROM Request r ");
           buf.append("JOIN r.files as ef  ");
@@ -381,7 +393,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         }
         
         // Add in total file size for analysis by lab
-        if(currentView.equals("Analysis") || currentView.equals("Files")){
+        if(currentView.equals(ANALYSIS_VIEW) || currentView.equals(FILES_VIEW)){
           summaryRows = sess.createQuery("SELECT a.idLab, sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by a.idLab").list();
           mapDiskSpace(summaryRows, diskSpaceMap);
         }
@@ -391,7 +403,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         buf = new StringBuffer();
         BigDecimal totalExperimentDiskSpace = null;
         BigDecimal totalAnalysisDiskSpace = null;
-        if(currentView.equals("Experiments") || currentView.equals("Files")){
+        if(currentView.equals(EXPERIMENTS_VIEW) || currentView.equals(FILES_VIEW)){
           buf.append("SELECT  sum(ef.fileSize) ");
           buf.append("FROM Request r ");
           buf.append("JOIN r.files as ef ");
@@ -402,7 +414,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           totalExperimentDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
         }
         
-        if(currentView.equals("Analysis") || currentView.equals("Files")){
+        if(currentView.equals(ANALYSIS_VIEW) || currentView.equals(FILES_VIEW)){
           totalAnalysisDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
         }
         
@@ -419,7 +431,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         diskSpaceMap = new TreeMap();
         buf = new StringBuffer();
         
-        if(currentView.equals("Experiments")){
+        if(currentView.equals(EXPERIMENTS_VIEW)){
           buf.append("SELECT year(r.createDate), sum(ef.fileSize) ");
           buf.append("FROM Request r ");
           buf.append("JOIN r.files as ef ");
@@ -438,7 +450,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           totalDiskSpace = (BigDecimal)sess.createQuery(buf.toString()).uniqueResult();
         }
         
-        if(currentView.equals("Analysis")){
+        if(currentView.equals(ANALYSIS_VIEW)){
           summaryRows = sess.createQuery("SELECT year(a.createDate), sum(af.fileSize) from Analysis a join a.files as af  where af.fileSize is not NULL group by year(a.createDate) ").list();
           mapDiskSpace(summaryRows, diskSpaceMap);
           totalDiskSpace = (BigDecimal)sess.createQuery("SELECT   sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
@@ -453,20 +465,35 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get disk space by analysis vs. experiment
         //
-        if(currentView.equals("Files")){
+        if(currentView.equals(FILES_VIEW)){
           diskSpaceMap = new TreeMap();
           StringBuffer queryBuf = new StringBuffer("SELECT rc.requestCategory, sum(ef.fileSize) ");
           queryBuf.append(" FROM Request r, RequestCategory rc ");
           queryBuf.append(" JOIN r.files as ef ");
           queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+          if(idCoreFacility != null){
+            queryBuf.append(" AND rc.idCoreFacility = " + idCoreFacility + " ");
+          }
           queryBuf.append(" AND ef.fileSize is not NULL ");
           queryBuf.append(" GROUP BY rc.requestCategory");
           queryBuf.append(" ORDER BY rc.requestCategory ");
           summaryRows = sess.createQuery(queryBuf.toString()).list();
-          BigDecimal experimentFileSize = (BigDecimal)sess.createQuery("SELECT sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL").uniqueResult();
+          queryBuf = new StringBuffer("SELECT sum(ef.fileSize) from Request r join r.files as ef where ef.fileSize is not NULL ");
+          if(idCoreFacility != null){
+            queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          BigDecimal experimentFileSize = (BigDecimal)sess.createQuery(queryBuf.toString()).uniqueResult();
           mapDiskSpace(summaryRows, diskSpaceMap);
+          addEntryDiskSpaceNodes(summaryDiskSpaceByExperimentNode, diskSpaceMap, false, true, analysisTypes);
+          if(experimentFileSize == null){
+            experimentFileSize = new BigDecimal(0);
+          }
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpace",   experimentFileSize.toString());      
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceMB", experimentFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceGB", experimentFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
           // Now add the analysis disk space
+          diskSpaceMap = new TreeMap();
           queryBuf = new StringBuffer("SELECT at.analysisType, sum(af.fileSize) ");
           queryBuf.append(" FROM Analysis a, AnalysisType at ");
           queryBuf.append(" JOIN a.files as af ");
@@ -477,12 +504,21 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           summaryRows = sess.createQuery(queryBuf.toString()).list();
           BigDecimal analysisFileSize   = (BigDecimal)sess.createQuery("SELECT sum(af.fileSize) from Analysis a join a.files as af where af.fileSize is not NULL").uniqueResult();
           mapDiskSpace(summaryRows, diskSpaceMap);
-          addEntryDiskSpaceNodes(summaryDiskSpaceByTypeNode, diskSpaceMap, false, true, analysisTypes);
+          addEntryDiskSpaceNodes(summaryDiskSpaceByAnalysisNode, diskSpaceMap, false, true, analysisTypes);
 
-          totalDiskSpace = experimentFileSize != null ? experimentFileSize.add(analysisFileSize != null ? analysisFileSize : new BigDecimal(0)) : new BigDecimal(0);
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
-          summaryDiskSpaceByTypeNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          if(analysisFileSize == null){
+            analysisFileSize = new BigDecimal(0);
+          }
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpace",   analysisFileSize.toString());      
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceMB", analysisFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceGB", analysisFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          
+          totalDiskSpace = experimentFileSize.add(analysisFileSize);
+          totalDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+          totalDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
+          totalDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
+          
+          
         }
         
         
@@ -505,7 +541,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
 
         // Tally counts by week
-        if(!currentView.equals("Files")){
+        if(!currentView.equals(FILES_VIEW)){
           tallyWeeklyActivity(sess);
           addWeeklyActivityNodes(summaryWeeklyActivityNode);
         }
@@ -515,7 +551,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         // Get # of experiments by experiment platform
         //
         StringBuffer queryBuf = new StringBuffer();
-        if(currentView.equals("Experiments") || currentView.equals("Files")){
+        if(currentView.equals(EXPERIMENTS_VIEW) || currentView.equals(FILES_VIEW)){
           queryBuf = new StringBuffer("SELECT rc.requestCategory, count(*) ");
           queryBuf.append(" FROM Request r, RequestCategory rc ");
           queryBuf.append(" WHERE r.codeRequestCategory = rc.codeRequestCategory ");
@@ -525,6 +561,13 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           queryBuf.append(" GROUP BY rc.requestCategory");
           queryBuf.append(" ORDER BY count(*) desc ");
           summaryRows = sess.createQuery(queryBuf.toString()).list();
+          
+          queryBuf = new StringBuffer("SELECT count(*) FROM Request r, RequestCategory rc WHERE r.codeRequestCategory = rc.codeRequestCategory ");
+          if(idCoreFacility != null){
+            queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          
+          totalExperiments = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
           addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
           summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
         }
@@ -532,7 +575,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get # of next gen seq experiments by application
         //
-        if(currentView.equals("Experiments")){
+        if(currentView.equals(EXPERIMENTS_VIEW)){
           queryBuf = new StringBuffer("SELECT app.application, count(*) ");
           queryBuf.append(" FROM Request r, Application app, RequestCategory rc ");
           queryBuf.append(" WHERE r.codeApplication = app.codeApplication ");
@@ -544,6 +587,11 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           queryBuf.append(" GROUP BY app.application");
           queryBuf.append(" ORDER BY count(*) desc ");
           summaryRows = sess.createQuery(queryBuf.toString()).list();
+          queryBuf = new StringBuffer("SELECT count(*) FROM Request r, Application app, RequestCategory rc WHERE r.codeApplication = app.codeApplication AND r.codeRequestCategory = rc.codeRequestCategory AND rc.type = 'ILLUMINA'");
+          if(idCoreFacility != null){
+            queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
+          }
+          totalExperiments = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
           rank = 0;
           totalCount = 0;
           addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
@@ -555,7 +603,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         // Get # of analysis by analysis type
         //
-        if (currentView.equals("Analysis") || currentView.equals("Files")){
+        if (currentView.equals(ANALYSIS_VIEW) || currentView.equals(FILES_VIEW)){
           queryBuf = new StringBuffer("SELECT at.analysisType, count(*) ");
           queryBuf.append(" FROM Analysis a, AnalysisType at ");
           queryBuf.append(" WHERE a.idAnalysisType = at.idAnalysisType ");
@@ -604,7 +652,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     List summaryRows;
     StringBuffer buf = new StringBuffer();
     // Tally experiment count by week
-    if(currentView.equals("Experiments")){
+    if(currentView.equals(EXPERIMENTS_VIEW)){
       buf.append("SELECT r.createDate, count(*) ");
       buf.append("FROM Request r ");
       if (idCoreFacility != null) {
@@ -631,7 +679,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     
     
     // Tally analysis count by week
-    if(currentView.equals("Analysis")){
+    if(currentView.equals(ANALYSIS_VIEW)){
       summaryRows = sess.createQuery("SELECT a.createDate, count(*) from Analysis a group by a.createDate order by a.createDate").list();
       for(Iterator i = summaryRows.iterator(); i.hasNext();) {
         Object[] rows = (Object[])i.next();
@@ -652,7 +700,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         
     // Tally upload count by week
     buf = new StringBuffer();
-    if(currentView.equals("Experiments")){
+    if(currentView.equals(EXPERIMENTS_VIEW)){
       buf.append("SELECT tl.startDateTime, tl.fileName ");
       buf.append("FROM TransferLog tl ");
       buf.append("JOIN tl.request as r ");
@@ -664,7 +712,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("GROUP BY tl.startDateTime, tl.fileName ");
       buf.append("ORDER BY tl.startDateTime, tl.fileName");
     }
-    if(currentView.equals("Analysis")){
+    if(currentView.equals(ANALYSIS_VIEW)){
       buf.append("SELECT tl.startDateTime, tl.fileName ");
       buf.append("FROM TransferLog tl ");
       buf.append("WHERE transferType = 'upload' ");
@@ -725,7 +773,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
      
     // Tally download count by week
     buf = new StringBuffer();
-    if(currentView.equals("Experiments")){
+    if(currentView.equals(EXPERIMENTS_VIEW)){
       buf.append("SELECT tl.startDateTime, count(tl.fileName) ");
       buf.append("FROM TransferLog tl ");
       buf.append("JOIN tl.request as r ");
@@ -737,7 +785,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("GROUP BY tl.startDateTime ");
       buf.append("ORDER BY tl.startDateTime, count(tl.fileName) ");
     }
-    if(currentView.equals("Analysis")){
+    if(currentView.equals(ANALYSIS_VIEW)){
       buf.append("SELECT tl.startDateTime, count(tl.fileName) ");
       buf.append("FROM TransferLog tl ");
       buf.append("WHERE transferType = 'download' ");
@@ -785,10 +833,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       entryNode.setAttribute("label", label);
       entryNode.setAttribute("dataTip", ai.dataTip);
       entryNode.setAttribute("weekNumber", weekNumber.toString());
-      if(currentView.equals("Experiments") || currentView.equals("Files")){
+      if(currentView.equals(EXPERIMENTS_VIEW) || currentView.equals(FILES_VIEW)){
         entryNode.setAttribute("experimentCount", Integer.valueOf(ai.experimentCount).toString());
       }
-      if(currentView.equals("Analysis") || currentView.equals("Files")){
+      if(currentView.equals(ANALYSIS_VIEW) || currentView.equals(FILES_VIEW)){
         entryNode.setAttribute("analysisCount", Integer.valueOf(ai.analysisCount).toString());
       }
       entryNode.setAttribute("uploadCount", Integer.valueOf(ai.uploadCount).toString());

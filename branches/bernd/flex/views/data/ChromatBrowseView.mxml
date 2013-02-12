@@ -447,7 +447,12 @@
 					
 				} else if (estimatedSize >= parentApplication.MAX_DOWNLOAD_SIZE) {
 					message =  
-						"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\nYou must unselect some files or click on the 'Download large files' link to download files individually."
+						"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\n"
+					if (parentApplication.isFDTSupported) {
+						message += "Please choose FDT Download instead";
+					} else {
+						message += "You must unselect some files or click on the 'Download large files' link to download files individually."; 
+					}
 					title = "Total download size exceeds maximum size"; 
 					Alert.show( message, title);
 					
@@ -467,7 +472,7 @@
 					var parms:URLVariables = new URLVariables();
 					parms.mode =  "zip";
 					var progressWindow:DownloadProgressView = new DownloadProgressView();
-					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, parentDocument.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+					progressWindow.init(this, this.DOWNLOAD_FILES_URL, parms, this.downloadButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
 			}    
 			
@@ -986,6 +991,7 @@
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
 						   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+						   id = "linkButtonDownloadFDT"
 						   label="FDT Download"  
 						   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 			</mx:AddChild>

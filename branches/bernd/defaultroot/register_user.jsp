@@ -10,7 +10,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <link rel="stylesheet" href="css/login.css?v1.0" type="text/css" />
-  <title>Create a new GNomEx account</title>
+  <title>Sign up for a GNomEx account</title>
   
 <script  type="text/javascript" language="JavaScript">
   function setFocus()
@@ -183,7 +183,7 @@ try {
     <form name="theform" method="POST" action="PublicSaveSelfRegisteredAppUser.gx" >
 
   <div class="boxWide">
-    <h3>Create a new account</h3>
+    <h3>Sign up for an account</h3>
 
       <div class="col1"><div class="right">First name</div></div>
       <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName" value="<%=firstName%>"  ></div>

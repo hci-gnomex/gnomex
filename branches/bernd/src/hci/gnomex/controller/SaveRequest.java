@@ -2221,16 +2221,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }      
     }
     
-    String directoryName = rootDir + "/" + req.getNumber();
+    String baseRequestNumber = Request.getBaseRequestNumber(req.getNumber());
+    String directoryName = rootDir + "/" + baseRequestNumber;
     
-    success = (new File(directoryName)).mkdir();
-    if (!success) {
-      log.error("Unable to create directory " + directoryName);      
+    if (!new File(directoryName).exists()) {
+      success = (new File(directoryName)).mkdir();
+      if (!success) {
+        log.error("Unable to create directory " + directoryName);      
+      }
     }
     
-    success = new File(directoryName + File.separator + qcDirectory).mkdir();
-    if(!success){
-      log.error("Unable to create directory " + directoryName);
+    String qcDirectoryName = directoryName + File.separator + qcDirectory;
+    
+    if (!new File(qcDirectoryName).exists()) {
+      success = (new File(qcDirectoryName)).mkdir();
+      if (!success) {
+        log.error("Unable to create directory " + qcDirectoryName);      
+      }
     }
     
     
@@ -2238,11 +2245,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       for(Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
         Hybridization hyb = (Hybridization)i.next();
         String hybDirectoryName = directoryName + "/" + hyb.getNumber();
-        success = (new File(hybDirectoryName)).mkdir();
-        if (!success) {
-          log.error("Unable to create directory " + hybDirectoryName);      
-        }
-        
+        if (!new File(hybDirectoryName).exists()) {
+          success = (new File(hybDirectoryName)).mkdir();
+          if (!success) {
+            log.error("Unable to create directory " + hybDirectoryName);      
+          }
+        }        
       }      
     }
    

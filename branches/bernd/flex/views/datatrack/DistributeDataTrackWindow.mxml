@@ -503,12 +503,10 @@
 			// expand out to first folder level for all organisms, genome build.
 			browseTree.expandItem(getDataTrackList.lastResult, true);
 			for each(var organism:Object in getDataTrackList.lastResult..Organism) {
-				if (organism.@isPopulated == "Y") {
-					browseTree.expandItem(organism, true);  	
-					
-					for each(var gb:Object in organism.GenomeBuild) {
-						browseTree.expandItem(gb, true);
-					}
+				browseTree.expandItem(organism, true);  	
+				
+				for each(var gb:Object in organism.GenomeBuild) {
+					browseTree.expandItem(gb, true);
 				}
 			}
 			callLater(selectTreeItem);
@@ -1532,9 +1530,8 @@
 
 	
 	<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="0" >
-		<util:Tree width="100%" height="100%" 
-				 dataProvider="{getDataTrackList.lastResult}" 
-				 showRoot="false" 
+		<mx:Tree width="100%" height="100%" 
+				 dataProvider="{getDataTrackList.lastResult..Organism}" 
 				 id="browseTree" 
 				 itemRollOver="setLastTreeItem(event)"
 				 click="onTreeClick();"
@@ -1551,7 +1548,7 @@
 				 dragDrop="onDragDrop(event);" 
 				 itemRenderer="views.renderers.TreeNodeRenderer"
 				 iconFunction="getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true">
-		</util:Tree>
+		</mx:Tree>
     </mx:VBox>
 	
 	<mx:ControlBar width="100%" verticalAlign="bottom">				

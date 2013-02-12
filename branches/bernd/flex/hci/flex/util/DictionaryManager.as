@@ -13,9 +13,9 @@ package hci.flex.util
 	public class DictionaryManager
 	{
 	
-		private var service:HTTPService;
-		private var manageDictionaryCommand:String; 
-		private var xmlMetaData:Object = null;
+		protected var service:HTTPService;
+		protected var manageDictionaryCommand:String; 
+		protected var xmlMetaData:Object = null;
 				
 		[Bindable]
 		public var xml:Object = null;	
@@ -60,9 +60,14 @@ package hci.flex.util
         
         public function httpResult(event:ResultEvent):void {
            var call:Object = event.token;
-    	   if (event.message.body.toString().indexOf("ERROR") != -1) {
+		   if (event.message.body.toString().indexOf("<ERROR message=") != -1) {
         		var errXml:XML = new XML(event.message.body.toString());
-        		Alert.show(errXml.ERROR.@message.toString(),"Error");
+				if (errXml.ERROR.hasOwnProperty("@message")) {
+					Alert.show(errXml.ERROR.@message.toString(),"Error");
+				} else {
+					Alert.show("An error occurred when loading the dictionaries.");
+				}
+				return;
         	} else {
         		if (call.action == "load") {       
         			if (call.className == null || call.className == "") {

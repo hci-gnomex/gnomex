@@ -170,7 +170,7 @@
 							break;
 						}      				
 					}
-					if (!exists) {
+					if (!exists && sc.@forSample == 'Y') {
 						
 						var node:XML = new XML("<PropertyEntry/>");
 						node.@idProperty = sc.@value;

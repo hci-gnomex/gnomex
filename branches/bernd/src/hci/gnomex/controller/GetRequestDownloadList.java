@@ -207,10 +207,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
         Integer idCoreFacility = (Integer)row[31];
-
-        String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
        
-        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumberBase; 
+        String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
+        
+        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber; 
         
         // Now read the request directory to identify all its subdirectories
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);

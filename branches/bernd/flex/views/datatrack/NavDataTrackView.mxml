@@ -185,7 +185,6 @@
 	useProxy="false">
 	<mx:request>
 		<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
-		<launchIGV>{launchIGVString}</launchIGV>
 	</mx:request>
 </mx:HTTPService> 
 
@@ -962,9 +961,16 @@
 			Alert.show("Creating an IGV data repository containing all user-visible datatracks affiliated with IGV-supported genome builds. " + 
 			"If there are unconverted USeq files, this can take a significant amount of time.  When finished, a URL link will be displayed. " +
 			"Paste the link into IGV's Data Registry URL field.  If new data tracks are added, a new repository must be created, but the " +
-			"link will remain valid");
+			"link will remain valid.\n\nDo you wish to continue?", "IGV Warning", Alert.YES | Alert.NO, this, onIGVLinkPrompt);
+		} else {
+			makeIGVLink.send();
 		}
-		makeIGVLink.send();
+	}
+	
+	private function onIGVLinkPrompt(event:CloseEvent):void {
+		if (event.detail == Alert.YES) {
+			makeIGVLink.send();
+		}
 	}
 	
 	private function onMakeIGVLink(event:ResultEvent):void {

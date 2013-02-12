@@ -7,7 +7,9 @@
 		 title="{'View Chromatogram ' + selectedIdChromatogram}"
 		 xmlns:util="views.util.*" >
 	
-	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%">
+	<mx:VBox width="100%" id="vbox1">
+		
+	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%" >
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" 
 				  styleName="titleLabel" 
@@ -18,7 +20,7 @@
 		<mx:LinkButton label="Back" 
 					   click="{parentDocument.chromatViews.selectedIndex = 0}" 
 					   textDecoration="underline" 
-					   icon="@Embed(source='../../assets/arrow_left.png')"/>	
+					   icon="@Embed(source='../../assets/arrow_left.png')" id="linkbutton1"/>	
 		<mx:Spacer width="100%"/>
 		<mx:LinkButton label="Create Fasta file"
 					   paddingRight="1"
@@ -36,6 +38,8 @@
 					   visible="{this.isInit}"
 					   includeInLayout="{this.isInit}"/>
 	</mx:HBox>
+		
+	</mx:VBox>
 	
 	<mx:HTTPService  
 		id="getChromatogram" 
@@ -52,8 +56,9 @@
 			<includeQualArray>{'Y'}</includeQualArray>
 			<includeTrace>{'Y'}</includeTrace>
 		</mx:request>
-	</mx:HTTPService> 
+	</mx:HTTPService>
 	
+
 	<mx:Script> 
 		<![CDATA[
 			import flash.events.MouseEvent;
@@ -497,132 +502,132 @@
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="File name" fontWeight="bold"/>
+							<mx:Label text="File name" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
-						<mx:GridItem paddingRight="10">
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}"/>
+						<mx:GridItem paddingRight="10" >
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@displayName}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Sample Name" fontWeight="bold"/>
+							<mx:Label text="Sample Name" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@sampleName}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@sampleName}" width="100%"/>
 						</mx:GridItem>
 						
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Plate Well" fontWeight="bold"/>
+							<mx:Label text="Plate Well" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem  horizontalScrollPolicy="off" >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@wellRowCol + ' - ' + getChromatogram.lastResult.Chromatogram.@idPlateWell}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@wellRowCol + ' - ' + getChromatogram.lastResult.Chromatogram.@idPlateWell}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Submitter" fontWeight="bold"/>
+							<mx:Label text="Submitter" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@user}" width="100%"/>
 						</mx:GridItem>
 						
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Order #" fontWeight="bold"/>
+							<mx:Label text="Order #" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@requestNumber}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@requestNumber}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow  >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Run Name" fontWeight="bold"/>
+							<mx:Label text="Run Name" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runName}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runName}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Plate Name" fontWeight="bold"/>
+							<mx:Label text="Plate Name" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@plateName}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@plateName}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Run Start" fontWeight="bold"/>
+							<mx:Label text="Run Start" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStart}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStart}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Run Stop" fontWeight="bold"/>
+							<mx:Label text="Run Stop" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStop}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@runStop}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow  >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Instr. Model" fontWeight="bold"/>
+							<mx:Label text="Instr. Model" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrModel}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrModel}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Instr. Name" fontWeight="bold"/>
+							<mx:Label text="Instr. Name" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrName}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@instrName}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow  >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Lane" fontWeight="bold"/>
+							<mx:Label text="Lane" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@lane}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@lane}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Number of Lanes" fontWeight="bold"/>
+							<mx:Label text="Number of Lanes" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@numberOfLanes}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@numberOfLanes}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Spacing" fontWeight="bold"/>
+							<mx:Label text="Spacing" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@spacing}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@spacing}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Signal Strengths" fontWeight="bold"/>
+							<mx:Label text="Signal Strengths" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@signalStrengths}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@signalStrengths}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Mobility" fontWeight="bold"/>
+							<mx:Label text="Mobility" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@mobility}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@mobility}" width="100%"/>
 						</mx:GridItem>
 						<mx:GridItem horizontalAlign="right" paddingRight="5">
-							<mx:Label text="Comments" fontWeight="bold"/>
+							<mx:Label text="Comments" fontWeight="bold" width="100%" textAlign="right"/>
 						</mx:GridItem>
 						<mx:GridItem >
-							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@comments}"/>
+							<mx:Label text="{getChromatogram.lastResult.Chromatogram.@comments}" width="100%"/>
 						</mx:GridItem>
 					</mx:GridRow>
 				</mx:Grid>
@@ -730,59 +735,59 @@
 					</mx:HBox>
 					
 					<!-- Information grid -->
-					<mx:Grid  minHeight="0"  paddingBottom="10" paddingLeft="125" horizontalGap="1" verticalGap="1">
+					<mx:Grid  minHeight="0" paddingBottom="10" paddingLeft="125" horizontalGap="1" verticalGap="1">
 						
 						<mx:GridRow >
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Read Length" fontWeight="bold"/>
+								<mx:Label text="Read Length" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem width="100">
-								<mx:Label text="{getChromatogram.lastResult.Chromatogram.@readLength}"/>
+								<mx:Label text="{getChromatogram.lastResult.Chromatogram.@readLength}" width="100%"/>
 							</mx:GridItem>
 						</mx:GridRow>
 						
 						<mx:GridRow >
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Trimmed Length" fontWeight="bold"/>
+								<mx:Label text="Trimmed Length" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Trim.@trimLength}"/>
+								<mx:Label text="{getChromatogram.lastResult..Trim.@trimLength}" width="100%"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Trimmed Pos." fontWeight="bold"/>
+								<mx:Label text="Trimmed Pos." fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Trim.@trimPos}"/>
+								<mx:Label text="{getChromatogram.lastResult..Trim.@trimPos}" width="100%"/>
 							</mx:GridItem>
 						</mx:GridRow>
 						
 						<mx:GridRow  >
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Q20" fontWeight="bold"/>
+								<mx:Label text="Q20" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Quality.@q20}"/>
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q20}" width="100%"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Q20/Length" fontWeight="bold"/>
+								<mx:Label text="Q20/Length" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Quality.@q20_len}"/>
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q20_len}" width="100%"/>
 							</mx:GridItem>
 						</mx:GridRow>
 						
 						<mx:GridRow  >
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Q40" fontWeight="bold"/>
+								<mx:Label text="Q40" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Quality.@q40}"/>
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q40}" width="100%"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" paddingRight="5">
-								<mx:Label text="Q40/Length" fontWeight="bold"/>
+								<mx:Label text="Q40/Length" fontWeight="bold" width="100%" textAlign="right"/>
 							</mx:GridItem>
 							<mx:GridItem >
-								<mx:Label text="{getChromatogram.lastResult..Quality.@q40_len}"/>
+								<mx:Label text="{getChromatogram.lastResult..Quality.@q40_len}" width="100%"/>
 							</mx:GridItem>
 						</mx:GridRow>
 						
@@ -1104,7 +1109,16 @@
 			<mx:SetEventHandler name="mouseDownOutside" handler="mouseDownOutsideHandler(event)"/>
 			<mx:SetProperty name="height" value="600"/>
 			<mx:SetProperty name="width" value="1000"/>
-			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{linkbutton1}"/>
+			<mx:RemoveChild target="{redoLabel}"/>
+			<mx:RemoveChild target="{titleLabel}"/>
+			<mx:SetStyle target="{headerBox}" name="paddingTop"/>
+			<mx:SetStyle target="{printButton}" name="fontSize" value="10"/>
+			<mx:SetStyle target="{fastaButton}" name="fontSize" value="10"/>
+			<mx:SetProperty target="{vbox1}" name="styleName" value="selectedAccordionHeader"/>
+			<mx:SetStyle target="{vbox1}" name="borderStyle" value="applicationControlBar"/>
+			<mx:SetProperty target="{headerBox}" name="styleName" value="gradientBackground"/>
+			
 		</mx:State>
 	</mx:states>
 	

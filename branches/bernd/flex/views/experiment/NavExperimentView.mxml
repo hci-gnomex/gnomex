@@ -1306,6 +1306,8 @@
 	        appUserSort.compareFunction = this.sortAppUsers;
 	        appUsers.sort = appUserSort;
 	        appUsers.refresh();
+			
+			this.browseUserCombo.dropdown.dataProvider = appUsers;
 	        
 	        this.browseUserCombo.selectedIndex = 0;
 		}	    
@@ -1487,6 +1489,10 @@
 			selectedRequestNumber=null;
 			getProjectRequestList.send(getBrowseParameters());
 			getMembersOfLab();			
+		}
+		else{
+			browseUserCombo.dataProvider = new XMLListCollection;
+			browseUserCombo.dropdown.dataProvider = new XMLListCollection;
 		}
 	}
 		

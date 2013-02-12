@@ -27,7 +27,7 @@
 	import mx.controls.Alert;
 	import mx.events.ListEvent;
 	
-	private var isInitialized:Boolean = false;
+	public var isInitialized:Boolean = false;
 	public var ignoreToggle:Boolean = false;
 	
 	
@@ -45,6 +45,8 @@
 		}
 		if (reportName == "Annotation Report") {
 			callLater(showAnnotationReport);
+		} else if (reportName == "Project/Experiment Report") {
+			callLater(showProjectExperimentReport);
 		}
 		
 		isInitialized = true;
@@ -52,6 +54,10 @@
 	
 	public function showAnnotationReport():void {
 		theViews.selectedChild = annotationReportView;		
+	}
+	
+	public function showProjectExperimentReport():void {
+		theViews.selectedChild = projectExperimentReportView;		
 	}
 	
 	private function initData():void {
@@ -172,6 +178,42 @@
 		}		
 	}
 
+	
+	private function runProjectExperimentReport():void {
+		if (browseProjectExperimentLabCombo.selectedItem == null || browseProjectExperimentLabCombo.selectedItem.@idLab == '' ) {
+			Alert.show( "Run project/experiment report for all lab groups?",
+				"Warning",
+				(Alert.YES | Alert.NO), this, 
+				onProjectExperimentPromptToContinue,						
+				parentApplication.iconWarning);	
+		} else {
+			runProjectExperimentReportImpl();
+		}
+	}
+	private function onProjectExperimentPromptToContinue(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			runProjectExperimentReportImpl();
+		}
+	}	
+	
+	private function runProjectExperimentReportImpl():void {
+		// Place the ids of the selected proeperties in a comma separated list.
+		var idProperties:String = "";
+		for each(var property:Object in properties) {
+			if (property.@isSelected == "true") {
+				if (idProperties.length > 0) {
+					idProperties += ",";
+				}
+				idProperties += property.@idProperty;
+			}
+		}
+		
+		// Call the backend servlet that generates the excel spreadsheet
+		var showUrl:URLRequest = new URLRequest('ShowProjectExperimentReport.gx' +			
+			'?idLab=' +  (this.browseProjectExperimentLabCombo.selectedItem != null ? this.browseProjectExperimentLabCombo.selectedItem.@idLab : ""));
+		navigateToURL(showUrl, '_blank');
+		
+	}
 
 ]]>
 </mx:Script>
@@ -261,6 +303,31 @@
 							   icon="@Embed(source='../../assets/arrow_right.png')" 
 							   disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
 				</mx:ControlBar>
+			</mx:VBox>
+			
+			<mx:VBox styleName="panelBox"  id="projectExperimentReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+				<mx:Text styleName="titleLabel" text="Project/Experiment Report"/>
+				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+					<mx:HBox width="100%">
+						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+												  labelField="@name" 
+												  prompt="All Labs..."
+												  width="200" 
+												  id="browseProjectExperimentLabCombo">
+						</renderers:FilterComboBox>
+						
+					</mx:HBox>
+					
+					<mx:ControlBar width="100%">
+						<mx:Spacer width="100%"/>
+						<mx:Button label="Run" 
+								   click="{runProjectExperimentReport()}"
+								   enabled="true" 
+								   icon="@Embed(source='../../assets/arrow_right.png')" 
+								   disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+					</mx:ControlBar>
+				</mx:VBox>
 			</mx:VBox>
 			
 		</mx:ViewStack>

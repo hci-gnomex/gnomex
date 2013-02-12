@@ -10,6 +10,8 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackUtil;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,9 +25,18 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.TransactionException;
+
 import java.io.BufferedWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -35,7 +46,7 @@ import java.net.URL;
 
 
 /**Used for making html url links formatted for IGV and softlinked to GNomEx files.*/
-public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable {
+public class MakeDataTrackIGVLink extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackIGVLink.class);
 	private String dataTrackFileServerWebContext;
@@ -44,14 +55,49 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 	private String analysisBaseDir;
 	private String dataTrackFileServerURL;
 	private String serverName;
+	private SecurityAdvisor secAdvisor;
+	private Session sess;
+	private String username;
 	private static final String IGV_LINK_PATH = "IGVLinks";
 	
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
 	public void validate() {}
 
-	public void loadCommand(HttpServletRequest request, HttpSession session) {
-		serverName = request.getServerName();
+	protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+	  log.error("Get not implemented");
+	}
+	
+  protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+
+		serverName = req.getServerName();
+		
+		try {
+      sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+      
+      // Get the dictionary helper
+      //DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      
+      username = req.getUserPrincipal().getName();
+      
+      // Get security advisor
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      if (secAdvisor == null) {
+        System.out.println("MakeDataTrackIGVLink:  Warning - unable to find existing session. Creating security advisor.");
+        secAdvisor = SecurityAdvisor.create(sess, username);
+      }
+  
+  		execute(res);
+		} catch(Exception ex) {
+		  log.error("MakeDataTrackIGVLink -- Unhandled exception", ex);
+		} finally {
+		  if (sess != null) {
+		    try {
+		      HibernateSession.closeSession();
+		    } catch(Exception ex1) {
+		    }
+		  }
+		}
 	}
 	
 	private String linkContents(String path,DataTrackFolder folder,int depth, Session sess) throws Exception {
@@ -61,7 +107,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			prefix.append("\t");
 		}
 		
-		path += "/" + folder.getName();
+		path += "/" + DataTrackUtil.stripBadURLChars(folder.getName(),"_");
 		
 		//Create StringBuilder
 		StringBuilder xmlResult = new StringBuilder("");
@@ -75,7 +121,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		for (DataTrack dt: dts) {
 			//If one of the datatracks is readable by the user, create folder and links
 			
-			if (getSecAdvisor().canRead(dt)) {
+			if (secAdvisor.canRead(dt)) {
 				File dir = new File(path);
 				dir.mkdirs();
 				
@@ -109,9 +155,8 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		
 	}
 
-	public Command execute() throws RollBackCommandException {
+	public void execute(HttpServletResponse res) throws RollBackCommandException {
 		try {
-			Session sess = getSecAdvisor().getHibernateSession(getUsername());
 			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
 			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
 			dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);      
@@ -124,10 +169,10 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			//existing path still work.  This will be nice if we set up a cron job that automatically populates these directories
 			//If the user doesn't have a directory, a new random string will be created.
 			File linkDir = checkIGVLinkDirectory(baseDir,dataTrackFileServerWebContext);
-			String linkPath = this.checkForIGVUserFolderExistence(linkDir, getUsername());
+			String linkPath = this.checkForIGVUserFolderExistence(linkDir, username);
 	
 			if (linkPath == null) {
-				linkPath = UUID.randomUUID().toString() + getUsername();
+				linkPath = UUID.randomUUID().toString() + username;
 			}
 			
 			//Create the users' data directory
@@ -161,14 +206,14 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 							bw2.write(broadAnnData.toString());
 							bw2.close();
 						} catch (IOException ex) {
-							addInvalidField("IOError","Could not read from the Broad repository file: " + broadMatch.group(1));
+							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + broadMatch.group(1));
 						}
 						
 					}
 				}
 				br.close();
 			} catch (IOException ioex) {
-				addInvalidField("IOError","Could not read from the Broad repository");
+				log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository");
 			}
 			
 			/*****************************************************************
@@ -179,7 +224,9 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 	
 			//Grab the list of available GNomEx genomes
 			boolean permissionForAny = false; //If the user own something, report IGV Link
-			List<Integer> genomeIndexList = sess.createQuery("SELECT idGenomeBuild from GenomeBuild").list();
+			String queryString = "SELECT idGenomeBuild from GenomeBuild where igvName is not null";
+			Query query = sess.createQuery(queryString);
+			List<Integer> genomeIndexList = query.list();
 			
 			for(Iterator<Integer> i = genomeIndexList.iterator(); i.hasNext();) {
 				//Grab genome build, check if data exists and if IGV supports it.  If no data or no IGV support, skip to next genome
@@ -197,7 +244,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		        for (DataTrackFolder folder: dataTrackFolders) {
 		        	if (folder.getIdParentDataTrackFolder() == null)  {
 		        		if (found) {
-		        			addInvalidField("IOError","Found two parental folders???? "  + gb.getGenomeBuildName());
+		        		  log.error("MakeDataTrackIGVLink -- Found two parental folders???? "  + gb.getGenomeBuildName());
 		        		} else {
 		        			rootFolder = folder;
 		        			found = true;
@@ -205,7 +252,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		        	}
 		        }
 		        if (!found) {
-		        	addInvalidField("IOError","Found no parental folders???? "  + gb.getGenomeBuildName());
+		          log.error("MakeDataTrackIGVLink -- Found no parental folders???? "  + gb.getGenomeBuildName());
 		        } else {		
 					
 					//Create data repository
@@ -222,7 +269,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 						//Create repository
 						StringBuilder dataSetContents = new StringBuilder("");
 						dataSetContents.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-						dataSetContents.append("<Global name=\"" + getUsername() + "\" version=\"1\">\n");
+						dataSetContents.append("<Global name=\"" + username + "\" version=\"1\">\n");
 						dataSetContents.append(result);
 						dataSetContents.append("</Global>\n");
 						File xmlFile = new File(dir,igvGenomeBuildName + "_dataset.xml");
@@ -244,12 +291,12 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 				String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
 				
 				StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
-		     
-				xmlResult = "<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>";
-				setResponsePage(SUCCESS_JSP);
+				
+	      res.setContentType("application/xml");
+	      res.getOutputStream().println("<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>");
 
 			} else {
-				addInvalidField("insufficient permission", "No data tracks associated with this user!");
+				log.error("MakeDataTrackIGVLink -- No data tracks associated with this user!");
 			}
 
 		}catch (Exception e){
@@ -258,10 +305,9 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
-				getSecAdvisor().closeHibernateSession();        
+				secAdvisor.closeHibernateSession();        
 			} catch(Exception e) {}
 		}
-		return this;
 	}
 	
 	private String checkForIGVUserFolderExistence(File igvLinkDir, String username) throws Exception{
@@ -310,23 +356,22 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 	private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, StringBuilder prefix) throws Exception {
 		StringBuilder sb = new StringBuilder("");
 		try {
-			//load dataTrack
-			//DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));      
-			sess = getSecAdvisor().getHibernateSession(getUsername());
-			
 			
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 			
 		
-			//If the user is an admin or is a member of datatrack lab, allow autoconvert
+			//disallow AUTOCONVERT!!!!
 			UCSCLinkFiles link;
-			if (getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || getSecAdvisor().isOwner(dataTrack.getIdAppUser()) || 
-					getSecAdvisor().isGroupIAmMemberOf(dataTrack.getIdLab()) || getSecAdvisor().isGroupICollaborateWith(dataTrack.getIdLab())) {
-				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
-				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
-			} else {
-				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
-			}
+			link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
+			
+//			//If the user is an admin or is a member of datatrack lab, allow autoconvert
+//			if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.isOwner(dataTrack.getIdAppUser()) || 
+//					secAdvisor.isGroupIAmMemberOf(dataTrack.getIdLab()) || secAdvisor.isGroupICollaborateWith(dataTrack.getIdLab())) {
+//				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
+//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
+//			} else {
+//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
+//			}
 			
 			
 			//'link' will be null if the user can read the track, doesn't own the track and the bw has not yet been created.
@@ -338,8 +383,7 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 
 				// When new .bw/.bb files are created, add analysis files and then link via data
 				// track file to the data track.
-				MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
-
+			  MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
 				//for each file, there might be two for xxx.bam and xxx.bai files, vcf files, possibly two for converted useq files, plus/minus strands, otherwise just one.
 				ArrayList<String> names = new ArrayList<String>();
@@ -391,6 +435,4 @@ public class MakeDataTrackIGVLink extends GNomExCommand implements Serializable 
 		name.replaceAll(",", "_");
 		return name;
 	}
-
-	
 }

@@ -11,14 +11,15 @@ h1 {
 
 table.facilities {
 	font-weight: normal;
-	font-size: 10pt;
+	font-size: 11pt;
 	color: #696969;
 }
 
 
+
 h3 {
 	font-weight: bold;
-	font-size: 11pt;
+	font-size: 12pt;
 	color: #696969;
 	padding-bottom: 5px;
 	margin-bottom: 5px;
@@ -49,7 +50,7 @@ a.login {
 }
   
 a.button {
-	font-size: 10pt;
+	font-size: 11pt;
 	cursor: hand; 
 	cursor: pointer;
 	color: blue;
@@ -85,7 +86,7 @@ a.other {
 	background-color: #ececd9;
 	overflow: auto;
 	padding: 10px;
-	width: 360px;
+	width: 400px;
 	float: center;
 	color: #696969;
 	border: 1px solid #8B8970;
@@ -114,7 +115,17 @@ a.other {
 	border: 1px solid #8B8970;
 	overflow: hidden;
 	padding: 10px;
-	width: 435px;
+	width: 500px;
+	float: center;
+	color: #696969;
+}
+
+.boxSuperWide {
+	background-color: #ececd9;  
+	border: 1px solid #8B8970;
+	overflow: hidden;
+	padding: 10px;
+	width: 700px;
 	float: center;
 	color: #696969;
 }
@@ -152,7 +163,7 @@ a.other {
 .col1Wide {
 	clear:both;
 	float:left;
-	width: 180px;
+	width: 220px;
 	padding-top: 2px;
 	margin-top: 2px;
 	padding-right: 2px;
@@ -172,27 +183,26 @@ a.other {
 	padding-top: 5px;
 	margin-top: 5px;
 	padding-bottom: 1px;
-	margin-bottom: 0px;
-	width: 330px;
+	margin-bottom: 1px;
+	width: 340px;
 	float: center;
 }
 
 note {
 	padding: 2px;
 	padding-bottom: 4px;
-	font-size: 8pt;
+	font-size: 10pt;
 	font-style: italic;
 }
 
 note.inline {
 	float: right;
 	padding-right: 2px;
-	margin-right: 5px;
+	margin-right: 2px;
 	padding-top: 2px;
 	margin-top: 2px;
 	color: #696969;
-	font-size: 8pt;
-	font-style: italic;
+
 }
 
 note.centered {
@@ -203,6 +213,8 @@ note.centered {
 	padding-left: 12px;
 	margin-left: 12px;
 	padding-bottom: 0px;
+	padding-top: 2px;
+	margin-top: 2px;
 }
 
 .topPanel {
@@ -217,7 +229,6 @@ note.centered {
 .bottomPanel {
 	float: bottom;
 	clear: both;
-	font-size: 10pt;
 	padding-top: 10px;
 	margin-top: 5px;
 }
@@ -234,12 +245,16 @@ note.centered {
 	float: right;
 	padding-top: 2px;
 	margin-top: 2px;
+	padding-bottom: 4px;
+	margin-bottom: 4px;
 	padding-right: 20px;
+	font-size: 11pt;
 }
 
 input.submit {
 	font-size: 11pt;
-	color: #696969;
+	font-weight: bold;
+	color: #2B3856;
 	width: 70px;
 	height: 34px;
 	vertical-align: middle;
