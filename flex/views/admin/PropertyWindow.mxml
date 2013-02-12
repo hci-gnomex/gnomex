@@ -683,9 +683,6 @@
 					</mx:itemRenderer>
 					
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn dataField="@appliesToOrganism" width="80" headerText="Organism" wordWrap="true"/>
-				<mx:AdvancedDataGridColumn dataField="@appliesToAnalysisType" width="80" visible="{showAnalysisAnnotations.selected}" headerText="Analysis Type" wordWrap="true"/>
-				<mx:AdvancedDataGridColumn dataField="@appliesToPlatform" width="150" visible="{showSampleAnnotations.selected}" headerText="Platform" wordWrap="true"/>
 			</mx:columns>
 		</mx:AdvancedDataGrid>
   </mx:VBox>	
