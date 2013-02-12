@@ -36,6 +36,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
   private Integer    idRequest;
   private Integer    idAppUser;
   private Integer    idBillingAccount;
+  private String     isExternal;
 
   
   
@@ -64,10 +65,14 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       this.addInvalidField("idAppUser", "idAppUser is required");
     }
 
+    if (request.getParameter("isExternal") != null && !request.getParameter("isExternal").equals("")) {
+      isExternal = request.getParameter("isExternal");
+    } else {
+      isExternal = "N";
+    }
+
     if (request.getParameter("idBillingAccount") != null && !request.getParameter("idBillingAccount").equals("")) {
       idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
-    } else {
-      this.addInvalidField("idBillingAccount", "idBillingAccount is required");
     }
 
     
@@ -87,9 +92,31 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
       
+      Boolean changeBilling = true;
+      if (this.isValid()) {
+        if (this.isExternal.equals("Y") || request.getIdLab().equals(project.getIdLab())) {
+          changeBilling = false;
+        } else {
+          if (idBillingAccount == null) {
+            this.addInvalidField("idBillingAccount", "idBillingAccount is required");
+            setResponsePage(this.ERROR_JSP);
+          }
+        }
+      }
+      
       if (this.isValid() && 
           !this.getSecAdvisor().canUpdate(request)) {
         this.addInvalidField("Insufficient permissions", "You do not have update permissions on experiment " + request.getNumber() + ".");
+        setResponsePage(this.ERROR_JSP);
+      }
+      
+      String reqExternal = "N";
+      if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+        reqExternal = "Y";
+      }
+
+      if (this.isValid() && !this.isExternal.equals(reqExternal)) {
+        this.addInvalidField("IsExternal", "Is external flag incorrect on request");
         setResponsePage(this.ERROR_JSP);
       }
       
@@ -99,33 +126,35 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         request.setIdProject(idProject);       
         request.setIdLab(project.getIdLab());
         request.setIdAppUser(idAppUser);
-        request.setIdBillingAccount(idBillingAccount);
-          
-        // Change the account on the billing items.
-        int reassignCount =  0;
-        int unassignedCount = 0;
-        for(Iterator ib = request.getBillingItems().iterator(); ib.hasNext();) {
-          BillingItem bi = (BillingItem)ib.next();
-          if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-            bi.setIdBillingAccount(request.getIdBillingAccount());   
-            bi.resetInvoiceForBillingItem(sess);
-            reassignCount++;
-          } else  {
-            unassignedCount++;
+        if (changeBilling) {
+          request.setIdBillingAccount(idBillingAccount);
+            
+          // Change the account on the billing items.
+          int reassignCount =  0;
+          int unassignedCount = 0;
+          for(Iterator ib = request.getBillingItems().iterator(); ib.hasNext();) {
+            BillingItem bi = (BillingItem)ib.next();
+            if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+              bi.setIdBillingAccount(request.getIdBillingAccount());   
+              bi.resetInvoiceForBillingItem(sess);
+              reassignCount++;
+            } else  {
+              unassignedCount++;
+            }
+          }
+          if (unassignedCount > 0) {
+            billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+          } 
+          if (billingAccountMessage.length() > 0) {
+            billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+          } else {
+            billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+          }
+          if (reassignCount > 0) {
+            sess.flush();
           }
         }
-        if (unassignedCount > 0) {
-          billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-        } 
-        if (billingAccountMessage.length() > 0) {
-          billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-        } else {
-          billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-        }
-        if (reassignCount > 0) {
-          sess.flush();
-        }
-
+        
         sess.save(request);
         sess.flush();
 
