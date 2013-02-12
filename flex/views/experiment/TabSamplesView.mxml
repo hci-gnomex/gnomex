@@ -2140,13 +2140,13 @@
 	
 	<mx:states>
 		<mx:State name="SamplesEditState" >
-			<mx:RemoveChild target="{topBox}"/>
+			<mx:RemoveChild target="{textarea1}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
 			<mx:RemoveChild target="{addSampleButton}"/>
 		</mx:State>
 
 		<mx:State name="SamplesAdminState">
-			<mx:RemoveChild target="{topBox}"/>
+			<mx:RemoveChild target="{textarea1}"/>
 		</mx:State>
 
 
