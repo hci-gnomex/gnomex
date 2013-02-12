@@ -407,6 +407,7 @@
 			public function updateProperties(event:Event):void{
 				parentApplication.dictionaryManager.call("reload", "");
 				parentApplication.getPropertyList.send();
+				// Will work when called from AnalysisEditView or AnalysisDetailView.  Beware
 				parentDocument.refreshAnalysis();
 			}
 		]]>

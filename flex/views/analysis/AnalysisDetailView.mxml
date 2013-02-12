@@ -372,6 +372,11 @@
 				return true;
 			}
 			
+			public function refreshAnalysis():void {
+				// refresh analysis after annotation change
+				refreshSavedAnalysis(analysis.@idAnalysis);
+			}
+
 		]]>
 	</mx:Script>
 	
