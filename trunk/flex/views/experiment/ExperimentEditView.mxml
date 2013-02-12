@@ -3960,7 +3960,12 @@
 		private function checkAmendSetupCompleteness():void {
 			var isComplete:Boolean = false;
 			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
-				
+				if(this.browseTree.selectedItem.@hasQcWorkItems == 'Y' && currentState == "SolexaBaseAmendState"){
+					Alert.show('There are still samples waiting for Sample Quality to complete. ' +
+								'Please contact the core facility to complete the QC workflow step on these samples. ' +
+								'Then you can proceed with turning this QC experiment order into an Illumina experiment order.');
+					return;
+				}
 				if (this.getAmendRequestCategory() != null && this.getAmendRequestCategory() != "") {
 					isComplete = true;
 				}
