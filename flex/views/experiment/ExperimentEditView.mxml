@@ -886,7 +886,7 @@
 			}
 			
 		}
-		
+			
 		private function nextTab():void {
 			theTab.selectedIndex++;
 		}
@@ -963,6 +963,7 @@
 			
 			if (theTab.contains(notesView)) {
 				notesView.setAnalysisVisibility();
+				notesView.setExternalNoteVisibility();
 			}
 			
 			if (theTab.contains(confirmView)) {
@@ -1995,7 +1996,8 @@
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
 			notesView.setAnalysisVisibility();
-			
+			notesView.setExternalNoteVisibility();
+
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
 			// Make sure we render the annotation tab because
@@ -4908,12 +4910,12 @@
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
 					       <mx:Text text="Experiment" width="100"  fontWeight="normal"/>
-					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="400"  fontWeight="normal"/>
+					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
 					   </mx:HBox>
 					
-					<mx:HBox verticalGap="0" horizontalGap="0" width="500">
+					<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 					    <mx:Spacer width="100"/>
-					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="400"/>
+					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
 					 </mx:HBox>
 
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
@@ -4936,7 +4938,7 @@
 												  labelField="@name" 
 												  close="this.dirty.setDirty();refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
-												  width="400" 
+												  width="500" 
 												  dataProvider="{parentApplication.submitRequestLabList.source}" >
 						</renderers:FilterComboBox>
 					</mx:HBox>					
@@ -4947,7 +4949,7 @@
 									 change="this.dirty.setDirty()"
 									 dataProvider="{projects}" 
 									 enabled="true"
-									 width="400"/>
+									 width="500"/>
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
@@ -4967,7 +4969,7 @@
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 
 									 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
-									 width="400"/>
+									 width="500"/>
 					</mx:HBox>
 						
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
@@ -5037,7 +5039,7 @@
 			<mx:AddChild relativeTo="{this.completedBox}" position="after">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
 					<mx:Text  width="100" text="Status" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="400" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -5066,7 +5068,7 @@
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Container" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="400" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
