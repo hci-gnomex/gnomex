@@ -663,8 +663,41 @@
 			reactionPlateCol.visible = false;
 			redoFlagCol.visible = false;
 			
+			// can't do this in state stuff because of external stuff below.
+			this.noteToCoreFacilityBox.visible = true;
+			this.noteToCoreFacilityBox.includeInLayout = true;
+			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState()) {
+				this.noteToBioBox.visible = false;
+				this.noteToBioBox.includeInLayout = false;
+			} else {
+				this.noteToBioBox.visible = true;
+				this.noteToBioBox.includeInLayout = true;
+			}
 			
+			// hide bio and core notes for external experiments unless populated.
+			if (this.selectedExperiment.@isExternal == "Y") {
+				if (this.noteToCoreFacilityBox.visible) {
+					if (this.selectedExperiment.@corePrepInstructions == null || this.selectedExperiment.@corePrepInstructions == "") {
+						this.noteToCoreFacilityBox.visible = false;
+						this.noteToCoreFacilityBox.includeInLayout = false;
+					}
+				}
+				if (this.noteToBioBox.visible) {
+					if (this.selectedExperiment.@analysisInstructions == null || this.selectedExperiment.@analysisInstructions == "") {
+						this.noteToBioBox.visible = false;
+						this.noteToBioBox.includeInLayout = false;
+					}
+				}
+			}
 
+			// Make description bigger if possible
+			if (!this.noteToCoreFacilityBox.visible && !this.noteToBioBox.visible) {
+				this.bioAndCoreNoteVBox.visible = false;
+				this.bioAndCoreNoteVBox.includeInLayout = false;
+			} else {
+				this.bioAndCoreNoteVBox.visible = true;
+				this.bioAndCoreNoteVBox.includeInLayout = true;
+			}
 			
 			if (currentState == 'ExternalSeqState') {
 				sampleTypeCol.visible = true;
@@ -1115,15 +1148,15 @@
 
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="Experiment"  width="100" />
-							<mx:TextInput editable="false" text="{requestCategoryName}" width="400"  backgroundColor="#FFFFFF"/>
+							<mx:TextInput editable="false" text="{requestCategoryName}" width="570"  backgroundColor="#FFFFFF"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="400" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="570" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
 							<mx:Label text="Organism"  width="100" />
-							<mx:TextInput editable="false" text="{this.selectedExperiment.@organismName}" width="400"  backgroundColor="#FFFFFF"/>
+							<mx:TextInput editable="false" text="{this.selectedExperiment.@organismName}" width="500"  backgroundColor="#FFFFFF"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="nameBox">
 							<mx:Label text="Name" width="100"/>
@@ -1131,11 +1164,11 @@
 						</mx:HBox>
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="Lab group"  width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@labName}" width="400"/>
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@labName}" width="500"/>
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="400" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="500" />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
 							<mx:Label text="Submitter Email" width="100" />
@@ -1157,12 +1190,12 @@
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle">
 							<mx:Label width="100" text="Completed" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="400" />
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="500" />
 						</mx:HBox>
 						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false">					
 							<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 								<mx:Text id="designAndInsertLabel" width="100" />
-								<mx:TextInput editable="false" backgroundColor="#FFFFFF" id="designAndInsertText" width="400" />
+								<mx:TextInput editable="false" backgroundColor="#FFFFFF" id="designAndInsertText" width="500" />
 							</mx:HBox>
 						</mx:HBox>
 
@@ -1193,19 +1226,21 @@
 											borderThicknessRight="0" borderThicknessLeft="0" 
 											borderThicknessBottom="0" borderThickness="0" 
 											borderThicknessTop="0" height="100%" minHeight="50"/>
-						<mx:Spacer height="4" />
-						<mx:HBox width="100%" height="100%" >
-		  					<mx:VBox verticalGap="0" width="100%" height="100%">
-	  							<mx:Label text="Notes for Core Facility" />
-								<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
-							</mx:VBox>
-							<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
-									 visible="true"  
-									 includeInLayout="true">
-								<mx:Label text="Notes for Bioinformatics Group"  />
-								<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
-							</mx:VBox>
-						</mx:HBox>
+						<mx:VBox width="100%" height="100%" id="bioAndCoreNoteVBox">
+							<mx:Spacer height="4" />
+							<mx:HBox width="100%" height="100%" >
+			  					<mx:VBox verticalGap="0" width="100%" height="100%" id="noteToCoreFacilityBox" visible="true" includeInLayout="true">
+		  							<mx:Label text="Notes for Core Facility" />
+									<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
+								</mx:VBox>
+								<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
+										 visible="true"  
+										 includeInLayout="true">
+									<mx:Label text="Notes for Bioinformatics Group"  />
+									<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
+								</mx:VBox>
+							</mx:HBox>
+						</mx:VBox>
 					</mx:VBox>
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
 					<mx:HBox width="100%" horizontalGap="2" paddingTop="4" id="hbox1">
@@ -1576,8 +1611,6 @@
 		</mx:AddChild>
 	</mx:State>
 	<mx:State name="QCState">		
-		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
-		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
 	</mx:State>
 	<mx:State name="SolexaState">
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
@@ -1680,11 +1713,9 @@
 		<mx:AddChild relativeTo="{this.nameBox}" position="after">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
 				<mx:Text  width="100" text="Status" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="400" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="500" />
 			</mx:HBox>
 		</mx:AddChild>
-		<mx:SetProperty target="{noteToBioBox}" name="visible" value="false"/>
-		<mx:SetProperty target="{noteToBioBox}" name="includeInLayout" value="false"/>
 	</mx:State>
 	<mx:State name="BaseSeqChromoState" basedOn="BaseSeqState">
 		<mx:AddChild relativeTo="{theTab}" position="lastChild">
@@ -1702,7 +1733,7 @@
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Container" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@containerType}" width="400" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@containerType}" width="500" />
 			</mx:HBox>
 		</mx:AddChild>
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
@@ -1710,7 +1741,7 @@
 				<mx:Text  width="100" text="Drop Off Loc." />
 				<mx:TextInput id="sampleDropOffLocationText" editable="false" backgroundColor="#FFFFFF" 
 							  text="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry.(@value == this.selectedExperiment.@idSampleDropOffLocation).@display}" 
-							  width="400" />
+							  width="500" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
@@ -1718,7 +1749,7 @@
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Primers" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@primerList}" width="400" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@primerList}" width="500" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
@@ -1726,7 +1757,7 @@
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Assays" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@assayList}" width="400" />
+				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@assayList}" width="500" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
