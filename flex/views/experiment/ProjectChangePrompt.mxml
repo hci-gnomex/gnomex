@@ -35,18 +35,32 @@
 	private var currentOwnerId:String;	
 		
 	[Bindable]
+	private var changeBilling:Boolean;
+		
+	[Bindable]
 	private var appUsersForLab:XMLListCollection;
 	private var appUserSort:Sort;
 		
 	private var navExperimentView:NavExperimentView;
 		
 		
-	public	function init(navExperimentView:NavExperimentView, message:String, idLab:String, currentOwnerId:String, idBillingAccount:String):void {
+	public	function init(navExperimentView:NavExperimentView, message:String, oldIdLab:String, idLab:String, currentOwnerId:String, idBillingAccount:String, isExternal:String):void {
 		this.navExperimentView = navExperimentView;
 		this.message.text = message;
 		this.idLab = idLab;
 		this.currentOwnerId = currentOwnerId;
 		this.idBillingAccount = idBillingAccount;
+		if (isExternal != null && isExternal == "Y") {
+			// External requests don't have billing accounts
+			changeBilling = false;
+		} else {
+			// if not changing lab then keep old billing.
+			if (oldIdLab != idLab) {
+				changeBilling = true;
+			} else {
+				changeBilling = false;
+			}
+		}
 		
 		var params:Object = new Object();
 		params.idLab = idLab;
@@ -109,7 +123,7 @@
 				Alert.show("Please select the experiment owner.");
 				return;        		
 			} 
-			if (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedIndex == 0) {
+			if (changeBilling && (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedIndex == 0)) {
 				requestEditBillingAccountCombo.setFocus();
 				Alert.show("Please select the experiment billing account.");
 				return;        		
@@ -132,7 +146,7 @@
 			<mx:Label text="Owner" width="50"/>
 			<util:ComboBoxDatProvChangeFix  width="409" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
 		</mx:HBox>	
-		<mx:HBox width="100%">
+		<mx:HBox width="100%" visible="{changeBilling}" includeInLayout="{changeBilling}">
 			<mx:Label text="Account" width="50"/>
 			<mx:ComboBox id="requestEditBillingAccountCombo"
 						 labelField="@accountName" width="409"
