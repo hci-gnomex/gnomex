@@ -274,7 +274,7 @@
 		private var pricingList:XMLListCollection = new XMLListCollection();
 
         [Bindable]
-        private var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
+        internal var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
 
         [Bindable]
         private var billingPeriods:XMLListCollection = new XMLListCollection();
@@ -311,6 +311,9 @@
 		
 		private var refreshBillingTimer:Timer;
         
+		private var coreCommentsWindow:CoreCommentsWindow = null;
+		
+		
         private function init():void {
 			refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
 			refreshBillingTimer.addEventListener(TimerEvent.TIMER, onRefreshBillingTimerTimer);
@@ -561,7 +564,16 @@
 			} else {
 				this.dirty.resetDirty();
 				this.getBillingRequestList.send();
+				refreshCommentsWindow();
 			}
+		}
+		private function refreshCommentsWindow():void{
+			if (coreCommentsWindow == null ) {
+				return;
+			}
+			coreCommentsWindow.parentView = this;
+			coreCommentsWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
+			coreCommentsWindow.update();
 		}
 		
 		private function refreshBillingItemsByRequestNumber():void {
@@ -1471,6 +1483,23 @@
             usageWindow.setFocus();
             usageWindow.billingPeriods = this.billingPeriods; 				
 		}
+		
+		public function showNotesToCoreWindow():void {
+			
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod .@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	
+			} 
+			
+			coreCommentsWindow = CoreCommentsWindow(mx.managers.PopUpManager.createPopUp(this, CoreCommentsWindow, false));
+			mx.managers.PopUpManager.centerPopUp(coreCommentsWindow);
+			coreCommentsWindow.setFocus();
+			coreCommentsWindow.parentView = this;
+			coreCommentsWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
+			coreCommentsWindow.update();
+			coreCommentsWindow.positionWindow();
+		}
 		public function showBillingGLInterface():void {
 			/*
 			if (billingPeriodCombo.selectedItem == null ||
@@ -2120,6 +2149,8 @@
 				this.showBillingGLInterface();
 			} else if (label == 'Refresh') {
 				refresh();
+			} else if (label == 'Notes to Core') {
+				showNotesToCoreWindow();
 			}
 
 		}
@@ -2185,6 +2216,7 @@
 							<menuitem label="Invoice Report" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
+							<menuitem label="Notes to Core"  />
 						</menuitem>
 						<menuitem label="Refresh"  icon="iconRefresh" />
 					</mx:XMLList>
@@ -2214,6 +2246,7 @@
 							<menuitem label="Invoice Report" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
+							<menuitem label="Notes to Core"  />
 						</menuitem>
 						<menuitem label="Refresh"  icon="iconRefresh" />
 					</mx:XMLList>
