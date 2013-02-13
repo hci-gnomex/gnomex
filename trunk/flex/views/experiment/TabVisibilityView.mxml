@@ -2,7 +2,7 @@
 <mx:Canvas label="Visibility" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*"  enabled="true"
-	 width="100%" height="100%" show="init()" >
+	 width="100%" height="100%" show="init()" xmlns:renderers="views.renderers.*" >
 	<mx:states>
 		<mx:State name="EditState">
 			<mx:SetProperty name="enabled" value="true"/>
@@ -48,7 +48,7 @@
 		private var idInstitution:Object;
 		
 		[Bindable]
-		private var possibleCollaborators:PromptXMLListCollection;
+		private var possibleCollaborators:XMLListCollection;
 
 		[Bindable]
 		private var possibleInstitutions:PromptXMLListCollection;
@@ -95,7 +95,8 @@
 				    " idAppUser=''" +
 				    " displayName=''"  +
 					"/>");
-				possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
+				possibleCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 				this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
@@ -219,8 +220,12 @@
 		<mx:VBox width="100%" height="100%" verticalGap="0">
 			<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;" height="30" width="310"/>
 			<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<mx:ComboBox width="250" dataProvider="{possibleCollaborators}" id="collaboratorCombo" labelField="@displayName">			       	
-				</mx:ComboBox>
+				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
+										  labelField="@displayName" 
+										  prompt="Collaborator to add..."
+										  width="250"  
+										  id="collaboratorCombo">
+				</renderers:FilterComboBox>
 				<mx:Button 
 					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
 					icon="@Embed(source='../../assets/add.png')" 
