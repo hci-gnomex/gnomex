@@ -2271,6 +2271,7 @@ CREATE TABLE `gnomex`.`Step` (
   `codeStep` VARCHAR(10) NOT NULL,
   `step` VARCHAR(50) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeStep`)
 )
 ENGINE = INNODB;
