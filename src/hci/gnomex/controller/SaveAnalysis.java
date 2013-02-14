@@ -589,10 +589,17 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         this.saveAnalysisProperties(sess, analysis);
         
+        // Create the analysis directory
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+        String analysisDir = getAnalysisDirectory(baseDir, analysis);
+        File ad = new File(analysisDir);
+        if (!ad.exists()) {
+          ad.mkdirs();
+        }
+        
         String filePathInfo = "";
         if (isBatchMode) {
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-          filePathInfo = " filePath=\"" + getAnalysisDirectory(baseDir, analysis) + "\"";
+          filePathInfo = " filePath=\"" + analysisDir + "\"";
         }
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo + "/>";
       
