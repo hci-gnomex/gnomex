@@ -1414,6 +1414,7 @@
 			seqPrepStatus.visible = isEditState && !isExternal && parentDocument.isSolexaState();
         	
 			showCCNumberCheckbox.visible =  !isExternal;
+			showCCNumberCheckbox.includeInLayout =  !isExternal;
 			showCCNumberCheckbox.width = isExternal ? 0 : 250;
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 			
