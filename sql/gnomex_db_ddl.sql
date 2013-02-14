@@ -2875,6 +2875,22 @@ CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`PriceCategoryStep`;
+CREATE TABLE `gnomex`.`PriceCategoryStep` (
+  idPriceCategory INT(10),
+  codeStep VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idPriceCategory`, codeStep),
+  CONSTRAINT `FK_PriceCategoryStep_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PriceCategoryStep_Step` FOREIGN KEY  (`codeStep`)
+    REFERENCES `gnomex`.`Step` (`codeStep`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------
