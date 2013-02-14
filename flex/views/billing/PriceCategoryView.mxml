@@ -3,8 +3,9 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
 	xmlns:hci="hci.flex.controls.*"
+	xmlns:renderers="views.renderers.*" 
 	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
-	width="568" height="338" defaultButton="{saveButton}">
+	width="568" height="538" defaultButton="{saveButton}">
    
    <mx:HTTPService             
     id="savePriceCategory" 
@@ -88,6 +89,7 @@
 		    	params.codeBillingChargeKind = this.chargeKindCombo.selectedItem.@value;
 	    	}
 	    	params.pluginClassName = this.pluginClassName.text;
+			params.stepsXMLString = "<steps>" + priceCategorySteps.toXMLString() + "</steps>";
 
 			savePriceCategory.send(params);		
 		}	
@@ -101,8 +103,24 @@
 			}			
 		}			
 		
+		private function addStep():void {
+			var node:XML = new XML("<Step " +
+				" codeStep='" + stepCombo.selectedItem.@value + "'" +
+				" step='" + stepCombo.selectedItem.@display + "'" +
+				"/>");
+			priceCategorySteps.addItem(node);
+			stepCombo.selectedIndex = -1;
+		}
+		
+		private function removeStep():void {
+			if (stepGrid.selectedIndex != -1) {
+				priceCategorySteps.removeItemAt(stepGrid.selectedIndex);
+			}
+		}
 	]]>
 </mx:Script>
+<mx:XMLListCollection id="priceCategorySteps" source="{priceCategory.steps.Step}"/>
+<mx:XMLListCollection id="steps" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Step').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 <mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10">
     <mx:HBox width="100%">
     	<mx:Label text="Name:" width="80"/>
@@ -145,6 +163,27 @@
     	<mx:Label text="Plugin Class:" width="80"/>
     	<mx:TextInput id="pluginClassName" width="100%" text="{priceCategory.@pluginClassName}"/>
     </mx:HBox>    
+
+	<mx:VBox verticalGap="1" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+		<mx:Label text="Steps"/>
+		<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
+			<renderers:FilterComboBox dataProvider="{steps}" 
+									  labelField="@display" 
+									  prompt="Step to add..."
+									  width="350"
+									  id="stepCombo">
+			</renderers:FilterComboBox>
+			<mx:Button click="addStep()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25" >
+				<mx:enabled>{stepCombo.selectedItem != null &amp;&amp; stepCombo.selectedItem.@value != '' ? true : false}</mx:enabled>
+			</mx:Button>
+			<mx:Button click="removeStep()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{stepGrid.selectedItem != null}" width="25"/>
+		</mx:HBox>
+		<mx:DataGrid id="stepGrid" width="100%" dataProvider="{priceCategorySteps}" height="100%" showHeaders="false">
+			<mx:columns>
+				<mx:DataGridColumn dataField="@step" headerText="Step"/>
+			</mx:columns>
+		</mx:DataGrid>			   	
+	</mx:VBox>
 
 </mx:VBox>
 	<mx:ControlBar horizontalAlign="right">

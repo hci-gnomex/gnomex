@@ -9,6 +9,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -19,6 +20,7 @@ import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -93,7 +95,8 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     if (workItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
-        
+        Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
+
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
           
@@ -165,7 +168,18 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
             
 
             Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
+            if (autoCompleteMap.containsKey(request.getIdRequest())) {
+              BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
+              // If same request has workitems of different steps then they have to manually complete billing items.
+              if (!auto.getCodeStep().equals(workItem.getCodeStepNext())) {
+                auto.setSkip();
+              }
+            } else {
+              BillingItemAutoComplete auto = new BillingItemAutoComplete(sess, workItem.getCodeStepNext(), request);
+              autoCompleteMap.put(request.getIdRequest(), auto);
+            }
             
+
             if(isStepQualityControl) {
               // If this is a QC request, check to see if all QC has been performed on
               // all samples.  If so, set complete date on request
@@ -200,7 +214,25 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               }
             }
           }
-          
+
+          // auto complete the billing items.
+          for(Integer key : autoCompleteMap.keySet()) {
+            BillingItemAutoComplete auto = autoCompleteMap.get(key);
+            if (auto.getSkip()) {
+              continue;
+            }
+
+            Integer completedQty = 0;
+            for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
+              Sample sample = (Sample)i.next();
+              if (sample.getQualDate() != null) {
+                completedQty++;
+              }
+            }
+            
+            auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
+          }
+
           sess.flush();
           
           parser.resetIsDirty();
@@ -235,8 +267,6 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     
     return this;
   }
-  
-
   
   private void sendConfirmationEmail(Session sess, Request request, boolean isStepQualityControl) throws NamingException, MessagingException {
     
