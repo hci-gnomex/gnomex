@@ -2,13 +2,17 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
+import hci.gnomex.model.Step;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabMemberParser;
+import hci.gnomex.utility.PriceCategoryStepParser;
 import hci.gnomex.utility.PriceCriteriaParser;
 
 import java.io.Serializable;
@@ -40,9 +44,10 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SavePriceCategory.class);
   
 
-  private PriceCategory         priceCategoryScreen;
-  private Integer               idPriceSheet;
-  private boolean              isNewPriceCategory = false;
+  private PriceCategory           priceCategoryScreen;
+  private Integer                 idPriceSheet;
+  private boolean                 isNewPriceCategory = false;
+  private PriceCategoryStepParser stepParser;
   
   
   public void validate() {
@@ -61,7 +66,20 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
     if (priceCategoryScreen.getIdPriceCategory() == null || priceCategoryScreen.getIdPriceCategory().intValue() == 0) {
       isNewPriceCategory = true;
     }
-   
+
+    String stepsXMLString = "";
+    if (request.getParameter("stepsXMLString") != null && !request.getParameter("stepsXMLString").equals("")) {
+      stepsXMLString = request.getParameter("stepsXMLString");
+    }
+    StringReader reader = new StringReader(stepsXMLString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      Document stepsDoc = sax.build(reader);
+      stepParser = new PriceCategoryStepParser(stepsDoc);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse stepsXMLString", je );
+      this.addInvalidField( "stepsXMLString", "Invalid stepsXMLString");
+    }
 
   }
 
@@ -117,6 +135,16 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
           
         }
  
+        // Modify associated comlpetion steps
+        stepParser.parse(sess);
+        TreeSet steps = new TreeSet(new StepComparator());
+        for(Iterator i = stepParser.getStepMap().keySet().iterator(); i.hasNext();) {
+          String codeStep = (String)i.next();
+          Step step = (Step)stepParser.getStepMap().get(codeStep);     
+          steps.add(step);
+        }
+        priceCategory.setSteps(steps);
+        sess.flush();
         
         this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"/>";
       
@@ -153,4 +181,13 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
     
   }
 
+  private class StepComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      Step u1 = (Step)o1;
+      Step u2 = (Step)o2;
+
+      return u1.getCodeStep().compareTo(u2.getCodeStep());
+
+    }
+  }
 }

@@ -7,9 +7,11 @@ import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -96,6 +98,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     if (workItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
+        Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
@@ -128,6 +131,16 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
                 SequenceLane lane = (SequenceLane)i1.next();
                 
                 Request request = (Request)sess.load(Request.class, lane.getIdRequest());
+                if (autoCompleteMap.containsKey(request.getIdRequest())) {
+                  BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
+                  // If same request has workitems of different steps then they have to manually complete billing items.
+                  if (!auto.getCodeStep().equals(workItem.getCodeStepNext())) {
+                    auto.setSkip();
+                  }
+                } else {
+                  BillingItemAutoComplete auto = new BillingItemAutoComplete(sess, workItem.getCodeStepNext(), request);
+                  autoCompleteMap.put(request.getIdRequest(), auto);
+                }
                 
                 // Keep track of requests to send out a confirmation email (just once per request)
                 // (Send email if at least one sequence lane has been completed pipeline.)
@@ -151,7 +164,26 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             }
             
           }
-          
+
+          // auto complete the billing items.
+          for(Integer key : autoCompleteMap.keySet()) {
+            BillingItemAutoComplete auto = autoCompleteMap.get(key);
+            if (auto.getSkip()) {
+              continue;
+            }
+
+            Integer completedQty = 0;
+            Map<Integer, FlowCellChannel> channels = auto.getRequest().getFlowCellChannels();
+            for(Integer chKey : channels.keySet()) {
+              FlowCellChannel channel = channels.get(chKey);
+              if (channel.getPipelineDate() != null) {
+                completedQty++;
+              }
+            }
+            
+            auto.completeItems(channels.size(), completedQty);
+          }
+
           sess.flush();
           
           parser.resetIsDirty();

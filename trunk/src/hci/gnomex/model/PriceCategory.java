@@ -18,6 +18,7 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   private String   dictionaryClassNameFilter2;
   private String   isActive;
   private Set      prices = new TreeSet();
+  private Set      steps;
   
   public String getDisplay() {
     String display = this.getNonNullString(getName());
@@ -118,6 +119,13 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   
   public void setPrices(Set prices) {
     this.prices = prices;
+  }
+
+  public Set getSteps() {
+    return steps;
+  }
+  public void setSteps(Set steps) {
+    this.steps = steps;
   }
 
 

@@ -125,6 +125,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
               }
 
               priceCat.excludeMethodFromXML("getPrices");
+              priceCat.excludeMethodFromXML("getSteps");
 
               Element categoryNode = priceCat.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
               priceSheetNode.addContent(categoryNode);

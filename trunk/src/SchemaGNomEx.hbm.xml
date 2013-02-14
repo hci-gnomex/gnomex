@@ -1520,7 +1520,15 @@
 			<key column="idPriceCategory"/>
 			<one-to-many class="hci.gnomex.model.Price" />
 		</set>
-		
+	  <set name="steps" table="PriceCategoryStep" inverse="false" lazy="true" cascade="all" >
+      <key>
+        <column name="idPriceCategory" not-null="true" />
+      </key>
+      <many-to-many entity-name="hci.gnomex.model.Step">
+        <column name="codeStep" not-null="true" />
+      </many-to-many>
+    </set>
+	
 	</class>
 	
   <!-- hci.gnomex.model.Price -->
