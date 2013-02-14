@@ -166,13 +166,15 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
           
-          Request req = (Request)sess.load(Request.class, idRequest);
-          hasQcWorkItems = false;
-          for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
-            WorkItem wi = (WorkItem)j.next();
-            if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
-              hasQcWorkItems = true;
-              break;
+          if(idRequest != -2){
+            Request req = (Request)sess.load(Request.class, idRequest);
+            hasQcWorkItems = false;
+            for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
+              WorkItem wi = (WorkItem)j.next();
+              if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
+                hasQcWorkItems = true;
+                break;
+              }
             }
           }
           
