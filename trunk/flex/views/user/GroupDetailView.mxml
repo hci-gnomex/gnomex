@@ -513,6 +513,9 @@
 					if (!parentApplication.isCoreFacilityIManage(ba.@idCoreFacility)) {
 						continue;
 					}
+					if (!ba.hasOwnProperty("@isDirty") || ba.@isDirty != 'Y') {
+						continue;
+					}
 					var errors:ArrayCollection = new ArrayCollection;
 					for each(var cf:Object in labCoreFacilitiesIManage){
 						if(cf.@idCoreFacility == ba.@idCoreFacility){
