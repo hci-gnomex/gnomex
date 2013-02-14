@@ -3714,7 +3714,7 @@
 				
 				if (this.isSolexaEditState()) {
 					this.requestApplicationComboBox.selectedItem = null;
-					for each(var p1:Object in applicationCollection) {
+					for each(var p1:Object in filteredAppList) {
 						if (p1.@value == request.@codeApplication) {
 							requestApplicationComboBox.selectedItem = p1;
 							break;
@@ -4577,7 +4577,6 @@
 			} 
 		]]>
 	</mx:Script>
-	<mx:XMLListCollection id="applicationCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@display != '' &amp;&amp; @isActive != 'N')}"/>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
 	<mx:XMLListCollection id="selectedAssaysCollection"/>
 	
@@ -5214,8 +5213,8 @@
 			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
 					<mx:Text text="Application" width="100" id="labelApplication"/>
-					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570">							
-						<mx:dataProvider>{applicationCollection}</mx:dataProvider>
+					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" enabled="{parentApplication.isAdminState ? true : false}">							
+						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
