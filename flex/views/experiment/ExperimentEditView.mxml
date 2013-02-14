@@ -2530,6 +2530,11 @@
 				if (ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') {
 					errorMessage += "Owner must be specified.\n\n";
 				} 
+				if (this.isSolexaEditState()) {
+					if (this.requestApplicationComboBox.selectedItem == null || this.requestApplicationComboBox.selectedItem.@value == '') {
+						errorMessage += "Application must be specified.\n\n";
+					}
+				}
 
 			}
 			
@@ -3707,6 +3712,16 @@
 		        	}
 		        }
 				
+				if (this.isSolexaEditState()) {
+					this.requestApplicationComboBox.selectedItem = null;
+					for each(var p1:Object in applicationCollection) {
+						if (p1.@value == request.@codeApplication) {
+							requestApplicationComboBox.selectedItem = p1;
+							break;
+						}
+					}
+				}
+				
 				if (request.hasOwnProperty("@isExternal") && request.@isExternal == "Y") {
 					for each(var organism:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry) {
 						if (organism.@value == request.@idOrganism) {
@@ -4551,8 +4566,18 @@
 					this.otherOrganism.text = "";
 				}
 			} 
+			
+			private function pickApplication():void {
+				if (this.requestApplicationComboBox != null && this.requestApplicationComboBox.selectedItem != null) {
+					request.@codeApplication =  this.requestApplicationComboBox.selectedItem.@value;
+				} else {
+					// should never happen
+					request.@codeApplication = "";
+				}
+			} 
 		]]>
 	</mx:Script>
+	<mx:XMLListCollection id="applicationCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@display != '' &amp;&amp; @isActive != 'N')}"/>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
 	<mx:XMLListCollection id="selectedAssaysCollection"/>
 	
@@ -4918,7 +4943,7 @@
 					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
 					   </mx:HBox>
 					
-					<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+					<mx:HBox verticalGap="0" horizontalGap="0" width="100%" id="experimentCategoryHBox">
 					    <mx:Spacer width="100"/>
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
 					 </mx:HBox>
@@ -5186,6 +5211,15 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
+			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
+					<mx:Text text="Application" width="100" id="labelApplication"/>
+					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570">							
+						<mx:dataProvider>{applicationCollection}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{experimentCategoryHBox}" />
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
 			<mx:RemoveChild target="{lanesView}"/>			
