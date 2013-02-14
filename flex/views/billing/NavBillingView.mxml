@@ -274,7 +274,7 @@
 		private var pricingList:XMLListCollection = new XMLListCollection();
 
         [Bindable]
-        internal var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
+        public var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
 
         [Bindable]
         private var billingPeriods:XMLListCollection = new XMLListCollection();
