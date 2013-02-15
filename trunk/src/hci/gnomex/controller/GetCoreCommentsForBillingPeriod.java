@@ -52,24 +52,6 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
     HashMap errors = this.loadDetailObject(request, billingItemFilter);
     this.addInvalidFields(errors);
     
-    /*if (request.getParameter("idBillingPeriod") != null) {
-      idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
-    } else {
-      this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
-    }
-
-    if (request.getParameter("idCoreFacility") != null) {
-      idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
-    } else {
-      this.addInvalidField("idCoreFacility", "idCoreFacility is required");
-    }
-
-    secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
-    if (secAdvisor == null) {
-      this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
-    }*/
-
-
   }
 
   public Command execute() throws RollBackCommandException {
@@ -85,7 +67,6 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
 
 
       // Get all requests with non-blank core comments from the current billing period
-//      StringBuffer queryBuf = this.getCommentQuery();
       StringBuffer queryBuf = billingItemFilter.getCoreCommentsQuery();
 
       List rows = sess.createQuery(queryBuf.toString()).list();
@@ -96,7 +77,8 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
 
         String number                   = (String)row[0];
         String name                     = (String)row[1];
-        String corePrepInstructions    = (String)row[2];
+        String codeBillingStatus        = (String)row[2];
+        String corePrepInstructions     = (String)row[3];
 
         
         Element node = new Element("Request");
@@ -105,6 +87,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
         node.setAttribute("number", toString(number));
         node.setAttribute("corePrepInstructions", toString(corePrepInstructions));
         node.setAttribute("billingPeriod", toString(billingPeriod));
+        node.setAttribute("billingStatus", dh.getBillingStatus(codeBillingStatus));
 
         doc.getRootElement().addContent(node);
 
@@ -144,50 +127,6 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
 
     return this;
   }
-
-  /*public StringBuffer getCommentQuery() {
-    StringBuffer queryBuf = new StringBuffer();
-
-    queryBuf.append(" SELECT DISTINCT ");
-    //    queryBuf.append(" req.idRequest, ");
-    queryBuf.append(" req.number, ");
-    queryBuf.append(" req.name, ");
-    //    queryBuf.append(" req.description, ");
-    //    queryBuf.append(" req.idSampleDropOffLocation, ");
-    //    queryBuf.append(" req.codeRequestStatus, ");
-    //    queryBuf.append(" req.codeRequestCategory, ");
-    //    queryBuf.append(" req.createDate, ");
-    //    queryBuf.append(" submitter.firstName, ");
-    //    queryBuf.append(" submitter.lastName, ");
-    //    queryBuf.append(" lab.firstName, ");
-    //    queryBuf.append(" lab.lastName, ");
-    //    queryBuf.append(" req.idAppUser, ");
-    //    queryBuf.append(" req.idLab, ");
-    //    queryBuf.append(" req.idCoreFacility, ");
-    queryBuf.append(" req.corePrepInstructions ");
-
-    queryBuf.append(" FROM        Request as req ");
-    queryBuf.append(" JOIN        req.billingItems as bi ");
-    queryBuf.append(" JOIN        bi.BillingPeriod as bp ");
-
-    // Billing period
-    queryBuf.append(" WHERE ");
-    queryBuf.append(" bp.idBillingPeriod = ");
-    queryBuf.append(idBillingPeriod);
-    // Core Facility
-    queryBuf.append(" AND ");
-    queryBuf.append(" req.idCoreFacility = ");
-    queryBuf.append(idCoreFacility);
-    // Non-blank core facility notes
-    queryBuf.append(" AND ");
-    queryBuf.append(" req.corePrepInstructions != ''");
-
-    queryBuf.append(" GROUP BY ");
-    queryBuf.append(" req.number ");
-    queryBuf.append(" order by number ");
-
-    return queryBuf;
-  }*/
 
   public void validate() {
     if (isValid()) {
