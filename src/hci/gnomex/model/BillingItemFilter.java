@@ -314,6 +314,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.name, ");
+    queryBuf.append("        bi.codeBillingStatus, ");
     queryBuf.append("        req.corePrepInstructions ");
     
     queryBuf.append(" FROM        Request as req ");
@@ -325,7 +326,7 @@ public class BillingItemFilter extends DetailObject {
     
     this.addSecurityCriteria();
     
-    queryBuf.append(" order by req.number ");
+    queryBuf.append(" order by bi.codeBillingStatus, req.number ");
     
     return queryBuf;
     
