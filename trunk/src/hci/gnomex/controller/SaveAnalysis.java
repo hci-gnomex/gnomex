@@ -824,7 +824,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdAppUser(analysisScreen.getIdAppUser());
   }
   
-  private static String getAnalysisDirectory(String baseDir, Analysis analysis) {
+  public static String getAnalysisDirectory(String baseDir, Analysis analysis) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(analysis.getCreateDate());
     
