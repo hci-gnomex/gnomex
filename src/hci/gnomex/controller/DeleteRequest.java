@@ -17,8 +17,12 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -41,6 +45,8 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
   
   
   private Integer      idRequest = null;
+  private String       serverName;
+  private String       baseDir;
   
  
   
@@ -55,6 +61,8 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idRequest", "idRequest is required.");
    }
+   
+   serverName = request.getServerName();
 
   }
 
@@ -64,6 +72,8 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
     
       Request req = (Request)sess.load(Request.class, idRequest);
+      
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, req.getIdCoreFacility());
     
       if (this.getSecAdvisor().canDelete(req)) {
         
@@ -182,6 +192,16 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           sess.delete(ec);
         }
         sess.flush();
+        
+        //Delete files from filesystem
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+        String createYear = formatter.format(req.getCreateDate());
+        if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+          baseDir += "/";
+        }
+        String directoryName = baseDir + createYear + "/" + req.getNumber().replace("R1", "R"); 
+        removeExperimentFiles(directoryName);
+        
 
         
         //
@@ -220,6 +240,34 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void removeExperimentFiles(String folderName) throws IOException{
+    File f = new File(folderName);
+    String [] folderContents = f.list();
+    
+    if(folderContents.length == 0){
+      if (!f.delete()) {
+        log.error("Unable to remove " + f.getName() + " from file system");
+      } 
+      return;
+    }
+    
+    for(int i = 0; i < folderContents.length; i++){
+      File child = new File(folderName + "/" + folderContents[i]);
+      if(child.isDirectory()){
+        removeExperimentFiles(child.getCanonicalPath());
+      }
+      else{
+        if (!child.delete()) {
+          log.error("Unable to remove " + child.getName() + " from file system");
+        } 
+      }
+    }
+    
+    if (!f.delete()) {
+      log.error("Unable to remove " + f.getName() + " from file system");
+    } 
   }
   
  
