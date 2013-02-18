@@ -5,8 +5,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProjectRequestFilter;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.Step;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -41,6 +44,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private Element              requestNode = null;
   private String               listKind = "ProjectRequestList";
   private String               showMyLabsAlways = "N";
+  private Boolean              hasQcWorkItems = false;
   
   
   private int                  experimentCount = 0;
@@ -161,6 +165,18 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
+          
+          if(idRequest != -2){
+            Request req = (Request)sess.load(Request.class, idRequest);
+            hasQcWorkItems = false;
+            for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
+              WorkItem wi = (WorkItem)j.next();
+              if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
+                hasQcWorkItems = true;
+                break;
+              }
+            }
+          }
           
           if (idLab.intValue() != prevIdLab.intValue()) {
             // Keep track of which of users labs are in results set
@@ -361,6 +377,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("isSelected",             "N");
     requestNode.setAttribute("analysisNames",          analysisNames != null ? analysisNames.toString() : "");
     requestNode.setAttribute("idInstitution",          row[31] == null ? "" : ((Integer)row[31]).toString());
+    requestNode.setAttribute("hasQcWorkItems",         hasQcWorkItems == true ? "Y" : "N");
     
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");

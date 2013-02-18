@@ -2271,6 +2271,7 @@ CREATE TABLE `gnomex`.`Step` (
   `codeStep` VARCHAR(10) NOT NULL,
   `step` VARCHAR(50) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeStep`)
 )
 ENGINE = INNODB;
@@ -2871,6 +2872,22 @@ CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
   `isRequired` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idOtherAccountFieldsConfiguration`),
   UNIQUE KEY `UN_OtherAccountFieldsConfiguration` (fieldName)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`PriceCategoryStep`;
+CREATE TABLE `gnomex`.`PriceCategoryStep` (
+  idPriceCategory INT(10),
+  codeStep VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`idPriceCategory`, codeStep),
+  CONSTRAINT `FK_PriceCategoryStep_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_PriceCategoryStep_Step` FOREIGN KEY  (`codeStep`)
+    REFERENCES `gnomex`.`Step` (`codeStep`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 

@@ -886,7 +886,7 @@
 			}
 			
 		}
-		
+			
 		private function nextTab():void {
 			theTab.selectedIndex++;
 		}
@@ -963,6 +963,7 @@
 			
 			if (theTab.contains(notesView)) {
 				notesView.setAnalysisVisibility();
+				notesView.setExternalNoteVisibility();
 			}
 			
 			if (theTab.contains(confirmView)) {
@@ -1995,7 +1996,8 @@
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
 			notesView.setAnalysisVisibility();
-			
+			notesView.setExternalNoteVisibility();
+
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
 			// Make sure we render the annotation tab because
@@ -2528,6 +2530,11 @@
 				if (ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') {
 					errorMessage += "Owner must be specified.\n\n";
 				} 
+				if (this.isSolexaEditState()) {
+					if (this.requestApplicationComboBox.selectedItem == null || this.requestApplicationComboBox.selectedItem.@value == '') {
+						errorMessage += "Application must be specified.\n\n";
+					}
+				}
 
 			}
 			
@@ -3705,6 +3712,16 @@
 		        	}
 		        }
 				
+				if (this.isSolexaEditState()) {
+					this.requestApplicationComboBox.selectedItem = null;
+					for each(var p1:Object in filteredAppList) {
+						if (p1.@value == request.@codeApplication) {
+							requestApplicationComboBox.selectedItem = p1;
+							break;
+						}
+					}
+				}
+				
 				if (request.hasOwnProperty("@isExternal") && request.@isExternal == "Y") {
 					for each(var organism:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry) {
 						if (organism.@value == request.@idOrganism) {
@@ -3958,7 +3975,12 @@
 		private function checkAmendSetupCompleteness():void {
 			var isComplete:Boolean = false;
 			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
-				
+				if(this.browseTree.selectedItem.@hasQcWorkItems == 'Y' && currentState == "SolexaBaseAmendState"){
+					Alert.show('There are still samples waiting for Sample Quality to complete. ' +
+								'Please contact the core facility to complete the QC workflow step on these samples. ' +
+								'Then you can proceed with turning this QC experiment order into an Illumina experiment order.');
+					return;
+				}
 				if (this.getAmendRequestCategory() != null && this.getAmendRequestCategory() != "") {
 					isComplete = true;
 				}
@@ -4544,6 +4566,15 @@
 					this.otherOrganism.text = "";
 				}
 			} 
+			
+			private function pickApplication():void {
+				if (this.requestApplicationComboBox != null && this.requestApplicationComboBox.selectedItem != null) {
+					request.@codeApplication =  this.requestApplicationComboBox.selectedItem.@value;
+				} else {
+					// should never happen
+					request.@codeApplication = "";
+				}
+			} 
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4908,12 +4939,12 @@
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
 					       <mx:Text text="Experiment" width="100"  fontWeight="normal"/>
-					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="400"  fontWeight="normal"/>
+					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
 					   </mx:HBox>
 					
-					<mx:HBox verticalGap="0" horizontalGap="0" width="500">
+					<mx:HBox verticalGap="0" horizontalGap="0" width="100%" id="experimentCategoryHBox">
 					    <mx:Spacer width="100"/>
-					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="400"/>
+					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
 					 </mx:HBox>
 
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
@@ -4936,7 +4967,7 @@
 												  labelField="@name" 
 												  close="this.dirty.setDirty();refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
-												  width="400" 
+												  width="500" 
 												  dataProvider="{parentApplication.submitRequestLabList.source}" >
 						</renderers:FilterComboBox>
 					</mx:HBox>					
@@ -4947,7 +4978,7 @@
 									 change="this.dirty.setDirty()"
 									 dataProvider="{projects}" 
 									 enabled="true"
-									 width="400"/>
+									 width="500"/>
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
@@ -4967,7 +4998,7 @@
 									 change="this.dirty.setDirty();" 
 									 dataProvider="{appUsersForLab}" 
 									 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
-									 width="400"/>
+									 width="500"/>
 					</mx:HBox>
 						
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
@@ -5037,7 +5068,7 @@
 			<mx:AddChild relativeTo="{this.completedBox}" position="after">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
 					<mx:Text  width="100" text="Status" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="400" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -5066,7 +5097,7 @@
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Container" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="400" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
@@ -5179,6 +5210,15 @@
             	<experiment:TabLanesView id="lanesView">            		
             	</experiment:TabLanesView>
             </mx:AddChild>
+			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
+					<mx:Text text="Application" width="100" id="labelApplication"/>
+					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" enabled="{parentApplication.isAdminState ? true : false}">							
+						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{experimentCategoryHBox}" />
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
 			<mx:RemoveChild target="{lanesView}"/>			

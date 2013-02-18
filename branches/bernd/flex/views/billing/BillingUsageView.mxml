@@ -28,7 +28,7 @@
 
 	<mx:HBox width="100%" paddingTop="2" paddingBottom="2">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
-			<mx:Label text="For biling periods:  "/>
+			<mx:Label text="For billing periods:  "/>
 			<mx:ComboBox id="billingPeriodStartCombo" 
 				dataProvider="{billingPeriods}"
 				labelField="@display"

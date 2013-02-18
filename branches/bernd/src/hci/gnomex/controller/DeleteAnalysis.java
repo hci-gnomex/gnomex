@@ -12,6 +12,8 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
   private Integer      idAnalysis = null;
   private String       serverName;
   private String       baseDir;
+  private String       analysisFolderPath;
  
   
   
@@ -75,7 +78,10 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
           AnalysisFile af = (AnalysisFile)i.next();
           SaveAnalysis.removeAnalysisFileFromFileSystem(baseDir, analysis, af);
         }
-        SaveAnalysis.removeAnalysisDirectoryFromFileSystem(baseDir, analysis);
+        analysisFolderPath = SaveAnalysis.getAnalysisDirectory(baseDir, analysis);
+        removeUnregisteredFiles(analysisFolderPath);
+        
+        //SaveAnalysis.removeAnalysisDirectoryFromFileSystem(baseDir, analysis);
         
         
         // Remove transfer logs associated with Analysis
@@ -128,6 +134,34 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void removeUnregisteredFiles(String folderName) throws IOException{
+    File f = new File(folderName);
+    String [] folderContents = f.list();
+    
+    if(folderContents.length == 0){
+      if (!f.delete()) {
+        log.error("Unable to remove " + f.getName() + " from file system");
+      } 
+      return;
+    }
+    
+    for(int i = 0; i < folderContents.length; i++){
+      File child = new File(folderName + "/" + folderContents[i]);
+      if(child.isDirectory()){
+        removeUnregisteredFiles(child.getCanonicalPath());
+      }
+      else{
+        if (!child.delete()) {
+          log.error("Unable to remove " + child.getName() + " from file system");
+        } 
+      }
+    }
+    
+    if (!f.delete()) {
+      log.error("Unable to remove " + f.getName() + " from file system");
+    } 
   }
   
  

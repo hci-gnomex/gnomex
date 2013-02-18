@@ -1414,6 +1414,7 @@
 			seqPrepStatus.visible = isEditState && !isExternal && parentDocument.isSolexaState();
         	
 			showCCNumberCheckbox.visible =  !isExternal;
+			showCCNumberCheckbox.includeInLayout =  !isExternal;
 			showCCNumberCheckbox.width = isExternal ? 0 : 250;
         	sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 			
@@ -2140,13 +2141,13 @@
 	
 	<mx:states>
 		<mx:State name="SamplesEditState" >
-			<mx:RemoveChild target="{topBox}"/>
+			<mx:RemoveChild target="{textarea1}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
 			<mx:RemoveChild target="{addSampleButton}"/>
 		</mx:State>
 
 		<mx:State name="SamplesAdminState">
-			<mx:RemoveChild target="{topBox}"/>
+			<mx:RemoveChild target="{textarea1}"/>
 		</mx:State>
 
 

@@ -1388,27 +1388,27 @@ VALUES ('AK', 'Alaska', 'Y'),
   ('WV', 'West Virginia', 'Y'),
   ('WY', 'Wyoming', 'Y');
 
-INSERT INTO `gnomex`.`Step`(`codeStep`, `step`, `isActive`)
-VALUES ('COMPLETE', 'Complete', 'Y'),
-  ('EXT', 'Scan/Feature Extraction', 'Y'),
-  ('HYB', 'Hybridization', 'Y'),
-  ('LABEL', 'Labeling', 'Y'),
-  ('QC', 'Quality Control', 'Y'),
-  ('SEQASSEM', 'Illumina GAIIx Seq Prep', 'Y'),
-  ('SEQPIPE', 'Illumina GAIIx Data Pipeline', 'Y'),
-  ('SEQPREP', 'Illumina GAIIx Library Prep', 'Y'),
-  ('SEQQC', 'Illumina GAIIx Quality Control', 'Y'),
-  ('SEQRUN', 'Illumina GAIIx Sequencing Run', 'N'),
-  ('HSEQASSEM', 'Illumina HiSeq Seq Prep', 'Y'),
-  ('HSEQPIPE', 'Illumina HiSeq 2000 Data Pipeline', 'Y'),
-  ('HSEQPREP', 'Illumina HiSeq 2000 Library Prep', 'Y'),
-  ('HSEQQC', 'Illumina HiSeq 2000 Quality Control', 'Y'),
-  ('HSEQRUN', 'Illumina HiSeq 2000 Sequencing Run', 'N'),
-  ('MISEQASSEM', 'Illumina MiSeq Seq Prep', 'Y'),
-  ('MISEQPIPE', 'Illumina MiSeq Data Pipeline', 'Y'),
-  ('MISEQPREP', 'Illumina MiSeq Library Prep', 'Y'),
-  ('MISEQQC', 'Illumina MiSeq Quality Control', 'Y'),
-  ('STOP', 'Stop/Failed', 'Y');
+INSERT INTO `gnomex`.`Step`(`codeStep`, `step`, `isActive`, sortOrder)
+VALUES ('COMPLETE', 'Complete', 'Y', null),
+  ('EXT', 'Scan/Feature Extraction', 'Y', 4),
+  ('HYB', 'Hybridization', 'Y', 3),
+  ('LABEL', 'Labeling', 'Y', 2),
+  ('QC', 'Quality Control', 'Y', 1),
+  ('SEQASSEM', 'Illumina GAIIx Seq Prep', 'Y', 3),
+  ('SEQPIPE', 'Illumina GAIIx Data Pipeline', 'Y', 4),
+  ('SEQPREP', 'Illumina GAIIx Library Prep', 'Y', 2),
+  ('SEQQC', 'Illumina GAIIx Quality Control', 'Y', 1),
+  ('SEQRUN', 'Illumina GAIIx Sequencing Run', 'N', null),
+  ('HSEQASSEM', 'Illumina HiSeq Seq Prep', 'Y', 3),
+  ('HSEQPIPE', 'Illumina HiSeq 2000 Data Pipeline', 'Y', 4),
+  ('HSEQPREP', 'Illumina HiSeq 2000 Library Prep', 'Y', 2),
+  ('HSEQQC', 'Illumina HiSeq 2000 Quality Control', 'Y', 1),
+  ('HSEQRUN', 'Illumina HiSeq 2000 Sequencing Run', 'N', null),
+  ('MISEQASSEM', 'Illumina MiSeq Seq Prep', 'Y', 3),
+  ('MISEQPIPE', 'Illumina MiSeq Data Pipeline', 'Y', 4),
+  ('MISEQPREP', 'Illumina MiSeq Library Prep', 'Y', 2),
+  ('MISEQQC', 'Illumina MiSeq Quality Control', 'Y', 1),
+  ('STOP', 'Stop/Failed', 'Y', null);
 
 
 INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`)

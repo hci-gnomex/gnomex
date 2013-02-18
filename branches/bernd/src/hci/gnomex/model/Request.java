@@ -696,6 +696,7 @@ public class Request extends HibernateDetailObject {
     this.excludeMethodFromXML("getChromatograms");
     this.excludeMethodFromXML("getPlateWells");
     this.excludeMethodFromXML("getAssays");
+    this.excludeMethodFromXML("getFlowCellChannels");
   }
   
   public String getOwnerName() {
@@ -1209,4 +1210,14 @@ public class Request extends HibernateDetailObject {
     }
     return redoSamples.toString();
   }  
+  public Map<Integer, FlowCellChannel> getFlowCellChannels() {
+    Map<Integer, FlowCellChannel> channels = new HashMap<Integer, FlowCellChannel>();
+    for(SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
+      if (!channels.containsKey(lane.getIdFlowCellChannel())) {
+        channels.put(lane.getIdFlowCellChannel(), lane.getFlowCellChannel());
+      }
+    }
+    
+    return channels;
+  }
 }

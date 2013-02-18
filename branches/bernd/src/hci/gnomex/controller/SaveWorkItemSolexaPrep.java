@@ -10,6 +10,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MolarityCalculator;
@@ -19,6 +20,7 @@ import hci.gnomex.utility.WorkItemSolexaPrepParser;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -91,7 +93,8 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-        
+        Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
+
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
           
@@ -117,7 +120,17 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
                 
                 Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
-                
+                if (autoCompleteMap.containsKey(request.getIdRequest())) {
+                  BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
+                  // If same request has workitems of different steps then they have to manually complete billing items.
+                  if (!auto.getCodeStep().equals(workItem.getCodeStepNext())) {
+                    auto.setSkip();
+                  }
+                } else {
+                  BillingItemAutoComplete auto = new BillingItemAutoComplete(sess, workItem.getCodeStepNext(), request);
+                  autoCompleteMap.put(request.getIdRequest(), auto);
+                }
+
                 // Create a cluster gen work item for every unprocessed seq lane of the sample.
                 for(Iterator i1 = request.getSequenceLanes().iterator(); i1.hasNext();) {
                   SequenceLane lane = (SequenceLane)i1.next();
@@ -162,7 +175,25 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             
                         
           }
-          
+
+          // auto complete the billing items.
+          for(Integer key : autoCompleteMap.keySet()) {
+            BillingItemAutoComplete auto = autoCompleteMap.get(key);
+            if (auto.getSkip()) {
+              continue;
+            }
+
+            Integer completedQty = 0;
+            for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
+              Sample sample = (Sample)i.next();
+              if (sample.getSeqPrepDate() != null) {
+                completedQty++;
+              }
+            }
+            
+            auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
+          }
+
           sess.flush();
           
           parser.resetIsDirty();
@@ -198,6 +229,28 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
     return this;
   }
   
-  
+  private void mapRequest(Request request, WorkItem workItem, Map<Integer, Request> requestMap, Map<Integer, List<String>> requestStepMap) {
+    if (!requestMap.containsKey(request.getIdRequest())) {
+      requestMap.put(request.getIdRequest(), request);
+    }
+    List<String> steps;
+    if (requestStepMap.containsKey(request.getIdRequest())) {
+      steps = requestStepMap.get(request.getIdRequest());
+    } else {
+      steps = new ArrayList<String>();
+      requestStepMap.put(request.getIdRequest(), steps);
+    }
+    Boolean found = false;
+    for(String step : steps) {
+      if (step.equals(workItem.getCodeStepNext())) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      steps.add(workItem.getCodeStepNext());
+    }
+  }
+
 
 }

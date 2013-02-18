@@ -60,8 +60,9 @@ public class GetPriceCategory extends GNomExCommand implements Serializable {
         } else {
           priceCategory = (PriceCategory)sess.get(PriceCategory.class, idPriceCategory);
           Hibernate.initialize(priceCategory.getPrices());
+          Hibernate.initialize(priceCategory.getSteps());
         }
-
+        
       
         Document doc = new Document(new Element("PriceCategoryList"));
         Element priceCategoryNode = priceCategory.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();

@@ -116,6 +116,7 @@
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -264,13 +265,55 @@
 
 			
 			private function clickPopulateFieldsButton():void {
+				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
+				var sampleGridDataRows:XMLListCollection = null;
+				var sampleGroupingCollection:GroupingCollection = null;
+				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
+					if(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source is GroupingCollection) {
+						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+						sampleGridDataRows = XMLListCollection(sampleGroupingCollection.source);
+					} else {
+						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+					}
+				} else {
+					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+				}
+				var ssRowLen:int = ssRowList.length();
+				if(hasColNames.selected) {
+					ssRowLen--;
+				}
+
+				if (tabSamplesView.isEditState && ssRowLen != sampleGridDataRows.length) {
+					// In edit state we don't add samples.  Warn them if length is different.
+					var message:String = "";
+					if (ssRowLen < sampleGridDataRows.length) {
+						message = "The specified sample sheet has fewer rows than there are samples.  If you continue only the rows available will be imported.  Please verify you have chosen the correct sample sheet.  Do you wish to continue?";
+					} else if (ssRowLen > sampleGridDataRows.length) {
+						message = "The specified sample sheet has more rows than there are samples.  The excess rows in the sample sheet will be ignored.  Please verify you have chosen the correct sample sheet.  Do you wish to continue?";
+					}
+					Alert.show(message, "Row/Sample Mismatch", Alert.YES | Alert.NO, this, clickPopulateWarningHandler);
+				} else {
+					clickPopulateFieldsButtonAfterWarning();
+				}
+			}
+			
+			private function clickPopulateWarningHandler(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					clickPopulateFieldsButtonAfterWarning();
+				} else {
+					Alert.show("Sample Sheet Upload Aborted", "Abort");
+					PopUpManager.removePopUp(this)
+				}
+			}		
+			
+			private function clickPopulateFieldsButtonAfterWarning():void {
+				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
 				if (tabSamplesView.hasPlates()) {
 					var plateIdx:int = startRow / 96;
 				}
 
 				reportText.text = formatColumns("Row", "SS Col", "Grid Col", "Status");			
 				
-				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
 				var ssRowCount:int = 1;
 				var sampleGridDataRowsCount:int = startRow;
 				var sampleGridDataRows:XMLListCollection = null;
@@ -444,6 +487,9 @@
 									// add sample failed.
 									break;
 								}
+							} else {
+								// Do not continue with extra fields.
+								break;
 							}
 						}
 					}

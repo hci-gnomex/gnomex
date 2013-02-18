@@ -1216,7 +1216,7 @@
 			PopUpManager.centerPopUp(changePrompt);
 			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 				" to project " + dropProject.@projectName + "?";
-			changePrompt.init(this, message, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount);			
+			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal);			
 		}
 		
 		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String):void {
@@ -1229,8 +1229,11 @@
 	            params.idRequest = dragRequest.@idRequest;
 				params.idProject = dropProject.@idProject;
 				params.idAppUser = idOwner;
-				params.idBillingAccount = idBillingAccount;
-	                  		
+				params.isExternal = dragRequest.@isExternal;
+				if (dragRequest.@isExternal == null || dragRequest.@isExternal != "Y") {
+					params.idBillingAccount = idBillingAccount;
+				}
+				
            		saveRequestProject.send(params);
             } else {
 				dropProject = null;  

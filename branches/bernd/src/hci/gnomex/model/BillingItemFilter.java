@@ -307,6 +307,30 @@ public class BillingItemFilter extends DetailObject {
     return queryBuf;
   }   
   
+  public StringBuffer getCoreCommentsQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append("        req.number, ");
+    queryBuf.append("        req.name, ");
+    queryBuf.append("        bi.codeBillingStatus, ");
+    queryBuf.append("        req.corePrepInstructions ");
+    
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.billingItems as bi ");
+    
+    addRequestCriteria();
+    addBillingItemCriteria();
+    addCommentsCriteria();
+    
+    this.addSecurityCriteria();
+    
+    queryBuf.append(" order by bi.codeBillingStatus, req.number ");
+    
+    return queryBuf;
+    
+  }
   
   private void addSecurityCriteria() {
     if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -412,7 +436,12 @@ public class BillingItemFilter extends DetailObject {
     
   }  
   
+  private void addCommentsCriteria() {
 
+      this.addWhereOrAnd();
+      queryBuf.append(" req.corePrepInstructions != '' ");
+      
+  } 
   
   protected boolean addWhereOrAnd() {
     if (addWhere) {
