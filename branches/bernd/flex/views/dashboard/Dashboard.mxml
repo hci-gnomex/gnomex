@@ -22,26 +22,18 @@
 		
 		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
 			<mx:GridItem horizontalAlign="center">
-				<db:News>
-					
-				</db:News>
+				<db:News id="newsHub">
 			</mx:GridItem>
 			<mx:GridItem horizontalAlign="center">
 				<db:Notifications>
-					
-				</db:Notifications>
 			</mx:GridItem>
 		</mx:GridRow>
 		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
-			<mx:GridItem horizontalAlign="center" borderStyle="outset" borderThickness="1">
-				<db:RunStatusHub id="runMonitor">
-					
-				</db:RunStatusHub>
+			<mx:GridItem horizontalAlign="center">
+				<db:RunStatusHub id="runMonitor" includeInLayout="{parentApplication.isSuperAdmin}" />
 			</mx:GridItem>
 			<mx:GridItem horizontalAlign="center">
-				<db:FAQ>
-					
-				</db:FAQ>
+				<db:FAQ />
 			</mx:GridItem>
 		</mx:GridRow>
 	</mx:Grid>

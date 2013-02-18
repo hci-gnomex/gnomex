@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
-				xmlns:db="views.dashboard.*" 
-				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
-				creationComplete="init()">   
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*"
+		   width="500" height="370" backgroundAlpha="1"
+		   cornerRadius="12" creationComplete="init()">   
 
 	<mx:HTTPService 
 		id="metrixInterface" 
@@ -61,6 +61,9 @@
 		[Bindable]
 		private var refreshTimer:Timer = new Timer(600000);
 		
+		[Bindable]
+		private var filterState:int = 1;
+		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
 			metrixInterface.send();
@@ -87,14 +90,13 @@
 				filterXLC();
 			 	
 				if(MIList.length == 0){
-					mainTitle.text = "No active runs";
+					mainTitle.text = "No runs retrieved";
 					refreshTimer.delay = 60000;
 				}else{
-					mainTitle.text = "Current Active Sequencing Machines";
+					mainTitle.text = "Run Information";
 					refreshTimer.delay = 600000;
 				}
 
-				
 			// Set counts for global status counters
 				// activeRuns
 				if(metrixInterface.lastResult.@active != ""){
@@ -137,18 +139,33 @@
 				bar.setStyle("barColor", "#4BAD2F"); // Green
 				bar.label = cur + " / " + tot + " Cycles";
 				bar.mode = "manual";
+				bar.indeterminate=false;
 			}else if(state == 2){		// Finished
-				bar.setStyle("barColor", "#0F4EEE"); // Blue
-				bar.label = event.currentTarget.getRepeaterItem().runId + " has finished";
+			//	bar.setStyle("barColor", "#0F4EEE"); // Blue
+				bar.setStyle("barColor", "#7A9BF0");
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
+				bar.indeterminate=false;
+				//bar.label = event.currentTarget.getRepeaterItem().runId + " has finished";
+				bar.label = "Finished";
+				bar.setProgress(cur,tot);
 			}else if(state == 3){		// Error
 				bar.setStyle("barColor", "#EB1515"); // Red
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
+				bar.indeterminate=false;
 				bar.label="Error! Please visit machine "+ instrument;
+				bar.setProgress(cur,tot);
 			}else if(state == 4){ 		// Turn
 				cur = 100;
 				tot = 100;
 				bar.mode = "manual";
+				bar.indeterminate=false;
 				bar.setStyle("barColor", "#F5E505"); // Yellow
 				bar.label="Please turn flowcell " + event.currentTarget.getRepeaterItem().flowcellID;
+				bar.setProgress(cur,tot);
 			}else if(state == 5){ 		// Init
 				bar.setStyle("barColor", "#FC8D1E"); // Orange
 				bar.indeterminate=true;
@@ -167,15 +184,17 @@
 		
 		// Filter to show which run states need to be shown in the control / XMLListCollection 
 		private function state_filterFunc(item:XML):Boolean {
-			if(item.runState == "1"){
-				return true;
-			}else if(item.runState == "4"){
-				return true;
-			}else if(item.runState == "5"){
+			
+			if(item.runState == filterState){
 				return true;
 			}else{
 				return false;
 			}
+		}
+		
+		private function changeState(state:int):void{
+			filterState = state;
+			metrixInterface.send();
 		}
 		
 	]]>
@@ -186,13 +205,13 @@
 			<mx:LinkButton id="reload" icon="@Embed('../../assets/refresh.png')" disabledIcon="@Embed('../../assets/refresh_disable.png')"  enabled="{conStatus ? false : true}" click="init();" toolTip="Reload" fontWeight="normal" textDecoration="underline"/>
 			<mx:Label id="conLabel" />
 			<mx:VRule />
-			<mx:Label id="numActiveRuns" text="Active: {activeRuns}" />
+			<mx:LinkButton id="numActiveRuns" label="Active: {activeRuns}" click="changeState(1)"/>
 			<mx:VRule />
-			<mx:Label id="numFinishedRuns" text="Finished: {finishedRuns}" />
+			<mx:LinkButton id="numFinishedRuns" label="Finished: {finishedRuns}" click="changeState(2)" />
 			<mx:VRule />
-			<mx:Label id="numErrorRuns" text="Halted: {haltedRuns}" />
+			<mx:LinkButton id="numErrorRuns" label="Halted: {haltedRuns}" click="changeState(3)" />
 			<mx:VRule />
-			<mx:Label id="numTurnRuns" text="Turn: {turnRuns}"/>
+			<mx:LinkButton id="numTurnRuns" label="Turn: {turnRuns}" click="changeState(4)" />
 		</mx:HBox>
 		<mx:HRule width="100%" />
 			
@@ -204,20 +223,27 @@
 				<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
 					<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%">
 						<mx:HBox id="runProgress" width="100%">
-							<mx:Label id="seqMachine" text="Instrument: {repStatus.currentItem.instrument}" />
+							<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />
+							<mx:Label id="seqMachineVal" text="{repStatus.currentItem.instrument}" />
 							
 							<mx:ProgressBar id="progress" width="70%" labelPlacement="center"
 											creationComplete="repeatHandler(event, event.currentTarget.getRepeaterItem().currentCycle, event.currentTarget.getRepeaterItem().totalCycle, event.currentTarget.getRepeaterItem().runState, event.currentTarget.getRepeaterItem().instrument);" />
 						</mx:HBox>
 						<mx:HBox id="runInfo" width="100%">
-							<mx:Label id="runId" text="Name: {repStatus.currentItem.runId}" /> <!-- Run identifier -->
-							<mx:VRule height="20" />
-							<mx:Label id="runType" text="Type: {repStatus.currentItem.runType}" />	<!-- Single End / Paired End-->
+							<mx:Label id="runId" fontWeight="bold" text="Name: "/>
+							<mx:Label id="runIdVal" text="{repStatus.currentItem.runId}" /><!-- Run identifier -->
+							<mx:VRule height="12" />
+							<mx:Label id="runType" fontWeight="bold" text="Type: " />
+							<mx:Label id="runTypeVal" text="{repStatus.currentItem.runType}" /><!-- Single End / Paired End-->
 						</mx:HBox>
 						<mx:HBox width="100%">
-							<mx:Label id="runDate" text="Start date: {repStatus.currentItem.runDate}" /> <!-- Start date of run -->
-							<mx:VRule height="20" />
-							<mx:Label id="lastUpdate" text="Last Update: {repStatus.currentItem.lastUpdated}" />  <!-- Last update of run -->
+							<mx:Label id="runDate" fontWeight="bold" text="Start date: " />
+							<mx:Label id="runDateVal" text="{repStatus.currentItem.runDate}"/> <!-- Start date of run -->
+							<mx:VRule height="12" />
+							<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
+							<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
+							<mx:Spacer width="100%" /> 
+							<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" />
 						</mx:HBox>
 					</mx:VBox>					
 				</mx:Repeater>

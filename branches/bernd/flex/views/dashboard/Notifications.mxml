@@ -67,7 +67,7 @@
 </mx:Script>
 	
 	<mx:VBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:HBox width="100%" horizontalAlign="center">
+		<mx:HBox width="100%" paddingLeft="200" horizontalGap="155"  paddingTop="5">
 			<mx:Label id="mainTitle" text="Notifications" fontSize="18" />
 		</mx:HBox>
 		<mx:HRule width="100%" />

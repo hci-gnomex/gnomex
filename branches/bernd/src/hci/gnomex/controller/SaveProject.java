@@ -42,7 +42,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
   private Document   projectDoc;
   
   private Project    project;
-  private boolean   isNewProject = false;
+  private boolean    isNewProject = false;
   private String     parseEntries = "N";
   
   
