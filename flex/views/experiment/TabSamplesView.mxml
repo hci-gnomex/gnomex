@@ -986,7 +986,7 @@
 				parentDocument.confirmView.enabled = isComplete;
 			} else if (parentDocument.isFragAnalState()) {
 				parentDocument.confirmView.enabled = isComplete;
-			} else {
+			} else if (!parentDocument.isEditState()) {
     			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
     				parentDocument.visibilityView.enabled = isComplete;
     			} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {

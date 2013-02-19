@@ -88,6 +88,7 @@
 		  	<key-property name="idAppUser" column="idAppUser" type="integer"/>
 	   	</composite-id>
 		<property name="canUploadData" column="canUploadData" type="string"/>
+    <property name="canUpdate" column="canUpdate" type="string"/>
    </class>	
 	
 	
@@ -803,6 +804,7 @@
 		  	<key-property name="idAppUser" column="idAppUser" type="integer"/>
 	   	</composite-id>
 		<property name="canUploadData" column="canUploadData" type="string"/>
+    <property name="canUpdate" column="canUpDate" type="string"/>
     </class>	
 	
 	

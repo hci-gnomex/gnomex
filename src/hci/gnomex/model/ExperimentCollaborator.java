@@ -14,6 +14,7 @@ public class ExperimentCollaborator extends HibernateDetailObject {
   private Integer        idAppUser;
   private Integer        idRequest;
   private String         canUploadData;
+  private String         canUpdate;
   
   public Integer getIdAppUser() {
     return idAppUser;
@@ -32,6 +33,12 @@ public class ExperimentCollaborator extends HibernateDetailObject {
   }
   public void setCanUploadData(String canUploadData) {
     this.canUploadData = canUploadData;
+  }
+  public String getCanUpdate() {
+    return canUpdate;
+  }
+  public void setCanUpdate(String canUpdate) {
+    this.canUpdate = canUpdate;
   }
   
   /* Override equals() to handle dual key */

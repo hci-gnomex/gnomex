@@ -14,7 +14,8 @@ import org.jdom.Element;
 public class AnalysisCollaboratorParser extends DetailObject implements Serializable {
   
   protected Document    doc;
-  protected HashMap     collaboratorMap = new HashMap();
+  protected HashMap     collaboratorUploadMap = new HashMap();
+  protected HashMap     collaboratorUpdateMap = new HashMap();
   
   public AnalysisCollaboratorParser(Document doc) {
     this.doc = doc;
@@ -32,14 +33,20 @@ public class AnalysisCollaboratorParser extends DetailObject implements Serializ
       String idAppUserString = node.getAttributeValue("idAppUser");
       Integer idAppUser = Integer.valueOf(idAppUserString);
       String canUploadData = node.getAttributeValue("canUploadData");
+      String canUpdate = node.getAttributeValue("canUpdate");
 
-      collaboratorMap.put(idAppUser, canUploadData);
+      collaboratorUploadMap.put(idAppUser, canUploadData);
+      collaboratorUpdateMap.put(idAppUser, canUpdate);
     }
   }
 
   
-  public HashMap getCollaboratorMap() {
-    return collaboratorMap;
+  public HashMap getCollaboratorUploadMap() {
+    return collaboratorUploadMap;
+  }
+  
+  public HashMap getCollaboratorUpdateMap() {
+    return collaboratorUpdateMap;
   }
 
 }

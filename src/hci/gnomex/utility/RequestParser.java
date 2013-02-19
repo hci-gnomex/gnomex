@@ -48,7 +48,8 @@ public class RequestParser implements Serializable {
   private Map             sampleMap = new HashMap();
   private Map             propertiesToApplyMap = new TreeMap();
   private Map             seqLibTreatmentMap = new HashMap();
-  private Map             collaboratorMap = new HashMap();
+  private Map             collaboratorUploadMap = new HashMap();
+  private Map             collaboratorUpdateMap = new HashMap();
   private Map             sampleAnnotationMap = new HashMap();
   private boolean        showTreatments = false;
   private Map             sampleTreatmentMap = new HashMap();
@@ -82,7 +83,8 @@ public class RequestParser implements Serializable {
     sampleMap = new HashMap();
     propertiesToApplyMap = new TreeMap();
     seqLibTreatmentMap = new HashMap();
-    collaboratorMap = new HashMap();
+    collaboratorUploadMap = new HashMap();
+    collaboratorUpdateMap = new HashMap();
     sampleAnnotationMap = new HashMap();
     showTreatments = false;
     sampleTreatmentMap = new HashMap();
@@ -320,7 +322,8 @@ public class RequestParser implements Serializable {
     if (n.getChild("collaborators") != null) {
       for (Iterator i1 = n.getChild("collaborators").getChildren("ExperimentCollaborator").iterator(); i1.hasNext();) {
         Element collaboratorNode = (Element)i1.next();
-        this.collaboratorMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));        
+        this.collaboratorUploadMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));        
+        this.collaboratorUpdateMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUpdate"));        
       }
     }
     
@@ -970,8 +973,12 @@ public class RequestParser implements Serializable {
     return seqLibTreatmentMap;
   }
   
-  public Map getCollaboratorMap() {
-    return collaboratorMap;
+  public Map getCollaboratorUploadMap() {
+    return collaboratorUploadMap;
+  }
+  
+  public Map getCollaboratorUpdateMap() {
+    return collaboratorUpdateMap;
   }
   
   public boolean getShowTreatments() {

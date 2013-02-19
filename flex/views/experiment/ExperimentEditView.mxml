@@ -339,6 +339,9 @@
 
 		public var numCapSeqPlates:int = 0;
 		
+		[Bindable]
+		private var labList:XMLListCollection = null;
+		
 		private function init():void {
 			
 	 		// If this is the first time this instance
@@ -667,7 +670,7 @@
 		}
 		private function getBillingAccountName():void {
 			var billingAccount:Object = null;
-			for each(var lab:Object in parentApplication.promptedSubmitRequestLabList) {
+			for each(var lab:Object in parentApplication.labList) {
 				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
 					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
 						billingAccount = ba;
@@ -2140,8 +2143,12 @@
 			}
 			
 			if (theTab.contains(visibilityView)) {
-				this.visibilityView.currentState = "EditState";	
-				this.visibilityView.enabled = true;
+				if (request.@canUpdateVisibility == 'Y') {
+					this.visibilityView.currentState = "EditState";	
+					this.visibilityView.enabled = true;
+				} else {
+					this.visibilityView.enabled = false;
+				}
 			}
 
 			this.getRequestCategoryName();
@@ -2287,13 +2294,30 @@
 		private function initializeControlsImpl():void {
 			
 			if (isEditState()) {
+				labList = new XMLListCollection();
+				var selectedItem:Object = null;
 				for each(var l:Object in parentApplication.promptedSubmitRequestLabList) {
+					labList.addItem(l);
 					if (l.@idLab == request.@idLab) {
-						requestEditLabCombo.selectedItem = l;
+						selectedItem = l;
 						refreshLab();
 						break;
 					}
 				}
+				if (selectedItem != null) {
+					requestEditLabCombo.enabled = true;
+					requestEditLabCombo.selectedItem = l;
+				} else {
+					requestEditLabCombo.enabled = false;
+					for each(var l1:Object in parentApplication.labList) {
+						if (l1.@idLab == request.@idLab) {
+							labList.addItem(l1);
+							break;
+						}
+					}
+					requestEditLabCombo.selectedIndex = 1;
+				}
+				refreshLab();
 				if (isCapSeqState()) {
 					for each(var d:Object in this.filteredSampleDropOffLocationList) {
 						if (d.@value == request.@idSampleDropOffLocation) {
@@ -2362,6 +2386,11 @@
 			if (isEditState()) {
 				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
 				visibilityView.privacyExpirationPicker.text = request.@privacyExpirationDate;
+				if (request.@canUpdateVisibility != 'Y') {
+					this.visibilityView.enabled = false;
+				} else {
+					this.visibilityView.enabled = true;
+				}
 			} else {
 			}
 			
@@ -3705,12 +3734,21 @@
 		        }
 		        
 		        requestEditProjectCombo.selectedItem = null;
+				projects = new XMLListCollection(getLab.lastResult..Lab.projects.Project);
 		        for each(var p:Object in projects) {
 		        	if (p.@idProject == request.@idProject) {
 		        		requestEditProjectCombo.selectedItem = p;
 		        		break;
 		        	}
 		        }
+				if (requestEditProjectCombo.selectedItem == null && request.hasOwnProperty("@idProject") && request.@idProject != null && request.@idProject != '') {
+					var proj:XML = new XML("<Project name='" + request.@projectName + "' display='" + request.@projectName + "' idProject = '" + request.@idProject + "' />");
+					projects.addItem(proj);
+					requestEditProjectCombo.selectedIndex = 1;
+					requestEditProjectCombo.enabled = false;
+				} else {
+					requestEditProjectCombo.enabled = true;
+				}
 				
 				if (this.isSolexaEditState()) {
 					this.requestApplicationComboBox.selectedItem = null;
@@ -3750,6 +3788,15 @@
 						ownerCombo.selectedItem = a;
 						break;
 					}
+				}
+				if ((ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') && request.hasOwnProperty("@idAppUser") && request.@idAppUser != null && request.@idAppUser != '') {
+					var ownerNode:XML = new XML("<AppUser idAppUser='" + request.@idAppUser + "' displayName='" + request.@ownerName + "' />");
+					appUsersForLab.addItem(ownerNode);
+					appUsersForLab.refresh();
+					ownerCombo.selectedItem = ownerNode;
+					ownerCombo.enabled = false;
+				} else {
+					ownerCombo.enabled = true;
 				}
 			}			
 
@@ -4597,7 +4644,7 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
-  	<mx:XMLListCollection id="projects" source="{getLab.lastResult..Lab.projects.Project}" />
+  	<mx:XMLListCollection id="projects" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 		
@@ -4968,7 +5015,7 @@
 												  close="this.dirty.setDirty();refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 												  width="500" 
-												  dataProvider="{parentApplication.submitRequestLabList.source}" >
+												  dataProvider="{labList}" >
 						</renderers:FilterComboBox>
 					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
