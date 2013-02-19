@@ -27,7 +27,7 @@
 		}
 		
 		public function assignSlideNumbers(slideProductCombo:mx.controls.ComboBox):void {
-			if (slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
+			if (slideProductCombo == null || slideProductCombo.selectedItem == null || slideProductCombo.selectedItem.@idSlideProduct == '') {
 				return;
 			}
 			if (slideProductCombo.selectedItem.@arraysPerSlide == '' ||
