@@ -512,6 +512,11 @@
 			//refresh();
 		}
 
+		public function refreshRequestTab():void {
+			this.billingTabNavigator.selectedChild = this.requestTab;
+			refresh();
+		}
+		
 		public function refresh():void {
 			if (dirty.isDirty()) {
 				Alert.show( "Unsaved changes will be discarded.  Proceed anyway?",
@@ -1136,8 +1141,8 @@
        			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
        			 	 " idPrice='" + dragNode.@idPrice + "'" +
        			 	 " idRequest='" + dropRequestNode.@idRequest + "'" +
-       			 	 " idBillingAccount='" + dropNode.@idBillingAccount + "'" +
-       			 	 " idLab='" + dropNode.@idLab + "'" +
+       			 	 " idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
+       			 	 " idLab='" + dropRequestNode.@idLab + "'" +
        			 	 " percentagePrice='1'" +
        			 	 " percentageDisplay='100%'" +
 					 " splitType='%'" +
@@ -2009,7 +2014,7 @@
 			}
 			requestNumberText.text = "";
 			invoiceNumberLookupText.text = "";
-			refresh();					
+			refreshRequestTab();					
 		}	
 		
 		public function onEdit():void {
@@ -2224,12 +2229,12 @@
 				<mx:Spacer width="100%"/>
 				<mx:HBox verticalGap="0" verticalAlign="middle" horizontalGap="0">
 				<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
-				<mx:TextInput id="requestNumberText" enter="refresh()" width="75" backgroundColor="#FFFFFF">
+				<mx:TextInput id="requestNumberText" enter="refreshRequestTab()" width="75" backgroundColor="#FFFFFF">
 				</mx:TextInput>			   	
 				</mx:HBox>
 				<mx:HBox verticalGap="0" horizontalAlign="left" verticalAlign="middle" horizontalGap="0">
 				<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
-				<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refresh()" backgroundColor="#FFFFFF">
+				<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refreshRequestTab()" backgroundColor="#FFFFFF">
 				</mx:TextInput>			   	
 				</mx:HBox>
 
@@ -2257,7 +2262,7 @@
 			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
 				    <mx:Label text="Core Facility"/>
 				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
-							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()"/>
+							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()"/>
 			    </mx:VBox>
 		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 					<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">
@@ -2270,7 +2275,7 @@
 							<mx:ComboBox id="labCombo" 
 										 labelField="@name"
 										 dataProvider="{parentApplication.promptedLabList}"
-										 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refresh()">
+										 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()">
 							</mx:ComboBox>				   
 						</mx:VBox>
 					</mx:HBox>
@@ -2289,7 +2294,7 @@
 						</mx:HBox>
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
-							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refresh()">
+							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()">
 						</mx:ComboBox>
 						
 					</mx:VBox>
@@ -2304,7 +2309,7 @@
         		paddingTop="2" styleName="navTabNavigator" 
         		paddingLeft="4" paddingRight="4" paddingBottom="4"
  				change="{onBillingTabChange()}" dropShadowEnabled="false" >
-        		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" >
+        		<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" id="requestTab" >
         			<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
 						<mx:LinkButton label="Completed" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Completed&quot;)" id="jumpCompleted"/>
@@ -2414,7 +2419,7 @@
 					<mx:HBox width="100%">
 						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontFamily="Verdana" fontSize="11"/>
 						<mx:Spacer width="100%"/>
-						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refresh()" paddingLeft="8" paddingRight="0">
+						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 						</mx:CheckBox>
 					</mx:HBox>
