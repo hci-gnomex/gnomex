@@ -536,7 +536,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (collaboratorParser != null) {
           for (Iterator i1 = analysis.getCollaborators().iterator(); i1.hasNext();) {
             AnalysisCollaborator ac = (AnalysisCollaborator)i1.next();
-            if (!collaboratorParser.getCollaboratorMap().containsKey(ac.getIdAppUser())) {
+            if (!collaboratorParser.getCollaboratorUploadMap().containsKey(ac.getIdAppUser())) {
               sess.delete(ac);
             }
           }
@@ -545,9 +545,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         // Add/update collaborators
         if (collaboratorParser != null) {
           Set collaborators = new TreeSet();
-          for(Iterator i = collaboratorParser.getCollaboratorMap().keySet().iterator(); i.hasNext();) {
+          for(Iterator i = collaboratorParser.getCollaboratorUploadMap().keySet().iterator(); i.hasNext();) {
             Integer idAppUser = (Integer)i.next();
-            String canUploadData = (String)collaboratorParser.getCollaboratorMap().get(idAppUser);
+            String canUploadData = (String)collaboratorParser.getCollaboratorUploadMap().get(idAppUser);
+            String canUpdate = (String)collaboratorParser.getCollaboratorUpdateMap().get(idAppUser);
             
             // TODO (performance):  Would be better if app user was cached.
             AnalysisCollaborator collaborator = (AnalysisCollaborator)sess.createQuery("SELECT ac from AnalysisCollaborator ac where idAnalysis = " + analysis.getIdAnalysis() + " and idAppUser = " + idAppUser).uniqueResult();
@@ -558,10 +559,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
               collaborator.setIdAppUser(idAppUser);
               collaborator.setIdAnalysis(analysis.getIdAnalysis());
               collaborator.setCanUploadData(canUploadData);
+              collaborator.setCanUpdate(canUpdate);
               sess.save(collaborator);
             } else {
               // If the collaborator does exist, just update the upload permission flag.
               collaborator.setCanUploadData(canUploadData);
+              collaborator.setCanUpdate(canUpdate);
             }
           }
           sess.flush();          

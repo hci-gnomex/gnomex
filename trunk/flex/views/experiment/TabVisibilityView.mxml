@@ -250,6 +250,12 @@
 										   dataField="@canUploadData" 
 										   editorDataField="selected" sortable="false"
 										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
+						<mx:DataGridColumn headerText="Can Update Request" 
+										   width="125" 
+										   editable="true"                        	
+										   dataField="@canUpdate" 
+										   editorDataField="selected" sortable="false"
+										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
 					</mx:columns>
 				</mx:DataGrid>		   		
 			</mx:HBox>

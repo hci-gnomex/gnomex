@@ -772,6 +772,7 @@
 					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
 					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
 					" canUploadData='N' " +
+					" canUpdate='N' " +
 					"/>");
 				this.collaborators.addItem(node);
 			}
@@ -863,12 +864,26 @@
 							}
 						}						
 					}
+					if (currentOwnerNotFound && analysis.hasOwnProperty("@idAppUser") && analysis.@idAppUser != null && analysis.@idAppUser != '') {
+						var ownerNode:XML = new XML("<AppUser idAppUser='" + analysis.@idAppUser + "' displayName='" + analysis.@ownerName + "' />");
+						appUsersForLab.addItem(ownerNode);
+						appUsersForLab.refresh();
+						ownerCombo.selectedItem = ownerNode;
+						ownerCombo.enabled = false;
+						currentOwnerNotFound = false;
+					} else {
+						ownerCombo.enabled = true;
+					}
 					if(currentOwnerNotFound) {	
 						var changePrompt:OwnerChangePrompt = OwnerChangePrompt(PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true));
 						PopUpManager.centerPopUp(changePrompt);
 						changePrompt.init(this, analysis.@idAnalysis, analysis.@idLab);
 						//Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");				
 					}
+				}
+				
+				if (analysis.@canUpdateVisibility != 'Y') {
+					this.visibilityTab.enabled = false;
 				}
 			}
 			
@@ -1258,7 +1273,7 @@
 		
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
-      <mx:HBox label="Visibility" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+      <mx:HBox id="visibilityTab" label="Visibility" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	
 		<mx:VBox  width="100%" height="100%"  paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 			<mx:HBox horizontalGap="0" id="hbox1">
@@ -1326,6 +1341,12 @@
 										   dataField="@canUploadData" 
 										   editorDataField="selected" sortable="false"
 										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
+						<mx:DataGridColumn headerText="Can Update Analysis" 
+										   width="130" 
+										   editable="true"                        	
+										   dataField="@canUpdate" 
+										   editorDataField="selected" sortable="false"
+										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
 					</mx:columns>
 				</mx:DataGrid>		   		
 			</mx:HBox>
