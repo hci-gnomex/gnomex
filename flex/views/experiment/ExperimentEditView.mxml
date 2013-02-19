@@ -2035,7 +2035,7 @@
 				samplesView.clearSamplesButton.visible = false;
 			}
 			
-			if (requestCategory.@type == 'ILLUMINA') {
+			if (requestCategory.@type == parentApplication.TYPE_ILLUMINA) {
 				currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
 
 				this.annotationView.checkSecurity();			
@@ -2062,7 +2062,7 @@
 				this.propertyEntries.refresh();
 
 
-			} else if (request.@codeRequestCategory == 'QC') {
+			} else if (requestCategory.@type == parentApplication.TYPE_QC) {
 				currentState = 'QCEditState';
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
 					samplesView.currentState = 'QCSamplesAdminState';						
@@ -2104,7 +2104,7 @@
 				cherryPlateList = this.request.cherryPlateList.Plate;
 				samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				this.samplesView.showHideColumns();				
-			} else {
+			} else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 				
 				currentState = 'MicroarrayEditState';
 				if(this.filteredMicroarrayAppList != null) {
