@@ -32,6 +32,7 @@ public class Step extends DictionaryEntry implements Serializable {
   private String codeStep;
   private String step;
   private String isActive;
+  private Integer sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getStep());
@@ -70,6 +71,14 @@ public class Step extends DictionaryEntry implements Serializable {
   
   public void setIsActive(String isActive) {
     this.isActive = isActive;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 
 }

@@ -385,6 +385,7 @@
 						   id="downloadLink" 
 						   textDecoration="underline" icon="@Embed(source='../../assets/download.png')" 
 						   textAlign="left"/>
+			
 		</mx:HBox>
 		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 

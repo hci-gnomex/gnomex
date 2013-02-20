@@ -19,6 +19,7 @@ import org.jdom.Element;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
 import hci.framework.model.FieldFormatter;
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.USeqUtilities;
 import hci.gnomex.utility.DictionaryHelper;
@@ -827,4 +828,20 @@ public class DataTrack extends DetailObject implements Serializable, Owned {
   public void setDataTrackFiles(Set dataTrackFiles) {
     this.dataTrackFiles = dataTrackFiles;
   }
+  
+  
+  /*
+   * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" analysis.
+   * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.
+   */
+  public Element appendBasicXML(SecurityAdvisor secAdvisor, Element parentNode) throws UnknownPermissionException {
+    Element dtNode = new Element("DataTrack");
+    dtNode.setAttribute("idDataTrack", this.getIdDataTrack().toString());
+    dtNode.setAttribute("label", this.getNumber() + " " + (secAdvisor.canRead(this) ? (this.getName() != null ? this.getName() : "") : "(Not authorized)"));
+    dtNode.setAttribute("codeVisibility", this.getCodeVisibility());
+    dtNode.setAttribute("number", this.getNumber());
+    parentNode.addContent(dtNode);
+    return dtNode;
+  }
+
 }

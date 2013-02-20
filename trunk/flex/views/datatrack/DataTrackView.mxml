@@ -95,18 +95,8 @@
 <mx:XMLListCollection id="possibleCollaborators" source="{getDataTrack.lastResult.PossibleCollaborators.AppUser}"/>
 <mx:XMLListCollection id="possibleInstitutions" source="{getDataTrack.lastResult.PossibleInstitutions.Institution}"/>
 <mx:XMLListCollection id="dataTrackProperties" source="{getDataTrack.lastResult..PropertyEntry}"/>
-<mx:XMLListCollection id="sortedTopics"
-					  source="{getDataTrack.lastResult.topics.Topic}">
-	<mx:sort>
-		<mx:Sort>
-			<mx:fields>
-				<mx:SortField id="sortField"
-							  name="@name"
-							  caseInsensitive="true" />
-			</mx:fields>
-		</mx:Sort>
-	</mx:sort>
-</mx:XMLListCollection>
+<mx:XMLListCollection id="relatedObjects" source="{getDataTrack.lastResult..relatedObjects.Analysis}"/>
+<mx:XMLListCollection id="relatedTopics" source="{getDataTrack.lastResult..relatedTopics.Topic}"/>
 	
 <mx:Script>	
 <![CDATA[
@@ -122,6 +112,7 @@
 	
 	import views.util.CheckBoxRequiredIndicator;
 	import views.util.TextInputRequiredIndicator;
+	import mx.collections.Sort;
 	
 	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
 	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";  
@@ -150,14 +141,15 @@
 		if (getDataTrack.lastResult.name() == "DataTrack") {		
 			if(parentApplication.isTopicsSupported) {
 				var topics:XMLList = getDataTrack.lastResult.topics.Topic;
-				if(topics == null || topics.length() == 0) {
-					// If topics enabled but none returned then hide the topics tab
-					if (theTab.contains(this.topicsTab)) {
-						theTab.removeChild(topicsTab);
+				
+				// If we don't have any related objects or topics, hide the tab.
+				if(relatedObjects.length == 0 && relatedTopics.length == 0) {
+					if (theTab.contains(this.relatedObjectsTab)) {
+						theTab.removeChild(relatedObjectsTab);
 					}					
-				} else if (topics != null && topics.length() > 0) {	
-					if (!theTab.contains(this.topicsTab)) {
-						theTab.addChild(topicsTab);
+				} else {	
+					if (!theTab.contains(this.relatedObjectsTab)) {
+						theTab.addChild(relatedObjectsTab);
 					}					
 				}				
 			}			
@@ -264,8 +256,8 @@
 	
 	private function checkTopicsVisibility():void {
 		if(!parentApplication.isTopicsSupported) {
-			if (theTab.contains(this.topicsTab)) {
-				theTab.removeChild(topicsTab);
+			if (theTab.contains(this.relatedObjectsTab)) {
+				theTab.removeChild(relatedObjectsTab);
 			}				
 		}	
 	}	
@@ -841,6 +833,30 @@
 		webLinksView.setUserLink(topicNumber);
 	}
 	
+	private function onDoubleClickRelatedObjects():void {
+		var selectedItem:Object = this.relatedObjectsTree.selectedItem;
+		showRelatedObject(selectedItem);
+	}
+	private function onDoubleClickRelatedTopic():void {
+		var selectedItem:Object = this.relatedTopicsTree.selectedItem;
+		showRelatedObject(selectedItem);
+		
+	}
+	private function showRelatedObject(selectedItem:Object):void {
+		if (selectedItem.name() == "Experiments") {
+			parentApplication.showExperimentsForNumber(selectedItem.@number);
+		} else if (selectedItem.name() == "Analysis" && getDataTrack.lastResult.@idDataTrack != selectedItem.@idAnalysis) {
+			parentApplication.showAnalysisForNumber(selectedItem.@number);
+		} else if (selectedItem.name() == "DataTrack") {
+			parentApplication.showDataTrackForNumber(selectedItem.@number);
+		} else if (selectedItem.name() == "Topic") {
+			parentApplication.showTopicForNumber(selectedItem.@idTopic);
+		} else if (selectedItem.name() == "Request" ) {
+			parentApplication.showExperimentById(selectedItem.@idRequest);
+		}				
+	}
+
+	
 ]]>
 </mx:Script>
 
@@ -1088,20 +1104,40 @@
 				
 			</mx:VBox>
 		</mx:VBox>
-		<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
-			<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
-				<mx:Repeater id="topicRepeater" dataProvider="{sortedTopics}">
-					<mx:HBox horizontalGap="6" width="100%">
-						<mx:LinkButton label="{topicRepeater.currentItem.@name}" 
-									   paddingTop="0" paddingBottom="2" 
-									   textDecoration="underline"
-									   icon="{parentApplication.iconTopic}"
-									   click="{parentApplication.showTopicForNumber(event.currentTarget.getRepeaterItem().@idTopic)}" >
-						</mx:LinkButton>
+		<mx:VBox id="relatedObjectsTab" verticalGap="0" width="100%" height="100%" label="Related Data">
+			
+			<mx:HBox width="100%" height="100%" horizontalGap="0"  label="Related Data">
+				<mx:VBox visible="{relatedObjects.length &gt; 0}" includeInLayout="{relatedObjects.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4">
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:Label text="Analyses and Experiments" styleName="formLabel"/>
 					</mx:HBox>
-				</mx:Repeater>
-			</mx:VBox>
-		</mx:HBox>			
+					<mx:Tree id="relatedObjectsTree" width="100%" height="100%" dataProvider="{relatedObjects}"  
+							 showRoot="false" labelField="@label"  
+							 doubleClickEnabled="true"
+							 itemDoubleClick="onDoubleClickRelatedObjects()"
+							 iconFunction="parentApplication.getTreeIcon">							
+					</mx:Tree> 
+				</mx:VBox> 
+				<mx:VBox visible="{relatedTopics.length &gt; 0}" includeInLayout="{relatedTopics.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4">
+					<mx:Label text="Topics"  styleName="formLabel"/>
+					<mx:Tree id="relatedTopicsTree" width="100%" height="100%" dataProvider="{relatedTopics}"  
+							 showRoot="false" labelField="@label"  
+							 doubleClickEnabled="true"
+							 itemDoubleClick="onDoubleClickRelatedTopic()"
+							 iconFunction="parentApplication.getTreeIcon">							
+					</mx:Tree> 
+				</mx:VBox> 
+				
+			</mx:HBox>			
+
+			<mx:HBox verticalAlign="middle" width="100%">
+				<mx:Spacer width="100%"/>
+				<mx:TextArea height="18" styleName="instructionBox" width="230" id="textarea1" >
+					<mx:htmlText><![CDATA[Double-click on any entry to pull up details.]]></mx:htmlText>
+				</mx:TextArea>
+			</mx:HBox>
+			
+		</mx:VBox>
 	</mx:TabNavigator>
 	<mx:ControlBar horizontalAlign="right" width="100%">	
 		<mx:HBox width="100%" visible="{getDataTrack.lastResult.@canWrite == 'Y'}" includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}" >

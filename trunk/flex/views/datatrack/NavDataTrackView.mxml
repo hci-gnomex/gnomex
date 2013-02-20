@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Data Tracks" width="100%" height="100%" 
-		   xmlns:views="views.*"  
+		   xmlns:views="views.*"  backgroundColor="#FFFFFF"
 		   xmlns:datatrack="views.datatrack.*"
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
@@ -298,12 +298,14 @@
 
 	
 	public function init():void {
-		if (refreshItem != null) {
-			refreshDataTrackForItem();
-		} else if (dataTrackNumber != "") {
-			refreshDataTrackForLookup();
-		} else {
-			getDataTrackList.send();
+		if (!isInitialized) {
+			if (refreshItem != null) {
+				refreshDataTrackForItem();
+			} else if (dataTrackNumber != "") {
+				refreshDataTrackForLookup();
+			} else {
+				getDataTrackList.send();
+			}
 		}
 		checkSecurity();
 		
@@ -1694,7 +1696,7 @@
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox"
 			 width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset" id="vbox2">
+			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset" id="vbox2" borderColor="#979DA2" dropShadowEnabled="false">
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="2">
 				<mx:Image source="assets/datatrack.jpg"/>
@@ -1946,7 +1948,7 @@
 		
 		 
 		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
-			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27">			    	
+			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27" dropShadowEnabled="false">			    	
 			</mx:Panel>
 			
 			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">

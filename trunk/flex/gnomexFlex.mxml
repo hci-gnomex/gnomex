@@ -2421,7 +2421,7 @@
 					if(itemIcon != null && itemIcon.length > 0) {
 						return IconUtility.getClass(item, itemIcon, 16, 16);
 					}
-				}
+				} 
 				if (item.name() == "Lab" || item.name() == "BillingLab") {
 					return this.iconGroup;
 				} else if (item.name() == "Project" || item.name() == "AnalysisGroup" || item.name() == "ProjectRequestList" || item.name() == "ProtocolList" || item.name() == "AnalysisGroupList" || item.name() == "Status" || item.name() == "Protocols" ) {
@@ -2434,6 +2434,20 @@
 					return this.iconCategory;
 				} else if (item.name() == "BillingItem") {
 				    return iconBilling;
+				} else if (item.name() == "DataTrack") {
+					return getDataTrackTreeIcon(item);
+				} else if (item.name() == "Topic") {		
+					if (item.@codeVisibility == "MEM") {
+						return iconTopicMember;
+					} else if (item.@codeVisibility == "MEMCOL") {
+						return iconTopicMember;
+					} else if (item.@codeVisibility == "OWNER") {
+						return iconTopicOwner;
+					} else if (item.@codeVisibility == "INST") {
+						return iconTopicInstitution;
+					} else {
+						return iconTopicPublic;
+					}			
 				} else if (item.name() == "PriceSheet") {
 				    return iconPriceSheet;
 				} else if (item.name() == "PriceCategory" ) {
@@ -2459,25 +2473,7 @@
 						return this.iconSlide;
 					}
 				}
-				/*
-				else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "SOLEXA") {
-					return this.iconSolexa;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "HISEQ") {
-					return this.iconHiSeq;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AFFY") {
-					return this.iconMicroarrayAffy;
-				}else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AGIL") {
-					return this.iconMicroarray;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@codeRequestCategory == "AGIL1") {
-					return this.iconMicroarraySingleColor;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_QC) {
-					return this.iconQC;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_MICROARRAY) {
-					return this.iconMicroarray;
-				} else if ((item.name() == "Request" || item.name() == "RequestNode") && item.@type == TYPE_ILLUMINA) {
-					return this.iconSolexa;
-				}
-				*/
+				
 				else if (item.name() == "RequestDownload") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
@@ -2516,6 +2512,10 @@
 					return this.iconFlask;
 				} else if (item.name() == "Item") {
 					return iconGreenBullet;
+				} else if (item.name() == "SequenceLane") {
+					return iconGreenBullet;
+				} else if (item.name() == "Hybridization") {
+					return iconRedBullet;
 				} else {
 					return null;
 				}
@@ -2696,7 +2696,7 @@
 				navAnalysisView.showNewAnalysisWindow();
 			} else if (label == "Add Services to Experiment Order") {
 				theViews.selectedChild = amendRequestView;
-			} else if (label == "Post Experiment Data To Repository") {
+			} else if (label == "Post Experiment Data To Repository" || label == "Post Experiment Data") {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 					this.submitRequestView.startNewRequest();
@@ -3169,7 +3169,7 @@
 					  <mx:MenuBar  height="40"   width="100%"  id="mainMenu"   
 								   click="onMenuClick(event)"
 								   itemClick="{onMenuSelect(event)}"  
-								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}" styleName="NavMenuBar" buttonMode="true"
+								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}"  buttonMode="true"
 								   useHandCursor="true" >
 						  
 					  </mx:MenuBar> 

@@ -1196,6 +1196,17 @@ public class Request extends HibernateDetailObject {
     return redoSamples.toString();
   }
   
+
+  public boolean isLibPrepByCore() {
+    if (this.getSamples().size() > 0) {
+      Sample sample = (Sample)this.getSamples().iterator().next();
+      return sample.getSeqPrepByCore() == null || sample.getSeqPrepByCore().equals("Y");
+    } else {
+      return true;
+    }
+  }
+  
+
   public Map<Integer, FlowCellChannel> getFlowCellChannels() {
     Map<Integer, FlowCellChannel> channels = new HashMap<Integer, FlowCellChannel>();
     for(SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
@@ -1205,5 +1216,22 @@ public class Request extends HibernateDetailObject {
     }
     
     return channels;
+  }
+  
+  /*
+   * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" experiment.
+   * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.
+   */
+
+  public Element appendBasicXML(SecurityAdvisor secAdvisor, Element parentNode) throws UnknownPermissionException {
+    Element requestNode = new Element("Request");
+    requestNode.setAttribute("idRequest", this.getIdRequest().toString());
+    requestNode.setAttribute("label", this.getNumber() + " " + (secAdvisor.canRead(this) ? (this.getName() != null ? this.getName() : "") : "(Not authorized)"));
+    requestNode.setAttribute("codeVisibility", this.getCodeVisibility());
+    requestNode.setAttribute("number", this.getNumber());
+    requestNode.setAttribute("icon", this.getRequestCategory().getIcon());
+    requestNode.setAttribute("icon", this.getRequestCategory().getIcon());
+    parentNode.addContent(requestNode);
+    return requestNode;
   }
 }
