@@ -52,7 +52,8 @@
 		private var seqLibTreatments:String;
 		[Bindable]
 		private var visibilityName:String;
-		
+		[Bindable]
+		private var relatedDataTitle:String = "Related Data";
 		
 		[Bindable]
 		public var selectedExperiment:Object;
@@ -108,23 +109,6 @@
 		public function setupForm(selectedExperiment:Object):void {
 			this.selectedExperiment = selectedExperiment;
 			
-			if(!parentApplication.isTopicsSupported) {
-				if (theTab.contains(this.topicsTab)) {
-					theTab.removeChild(topicsTab);
-				}				
-			} else {
-				var topics:XMLList = this.selectedExperiment.topics.Topic;
-				if(topics == null || topics.length() == 0) {
-					// If topics enabled but none returned then hide the topics tab
-					if (theTab.contains(this.topicsTab)) {
-						theTab.removeChild(topicsTab);
-					}					
-				} else if (topics != null && topics.length() > 0) {	
-					if (!theTab.contains(this.topicsTab)) {
-						theTab.addChild(topicsTab);
-					}					
-				}					
-			}
 			
 			var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 			if(selectedExperiment.@captureLibDesignId != ""){
@@ -147,6 +131,16 @@
 			else{
 				libDesignAndInsertBox.visible = false;
 				libDesignAndInsertBox.includeInLayout = false;
+			}
+			if (relatedAnalysis.length == 0 && relatedTopics.length == 0) {
+				if (theTab.contains(this.relatedEntriesTab)) {
+					theTab.removeChild(relatedEntriesTab);
+				}
+			} else {
+				if (!theTab.contains(this.relatedEntriesTab)) {
+					theTab.addChild(relatedEntriesTab);
+				}
+
 			}
 				
 			if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
@@ -221,9 +215,9 @@
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
 				if (this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
-					parentDocument.analysisButton.enabled = true;
+					analysisButton.enabled = true;
 				} else {
-					parentDocument.analysisButton.enabled = false;
+					analysisButton.enabled = false;
 				} 
 			}
 			
@@ -264,8 +258,30 @@
 			
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.
-			this.refreshDownloadList();				
+			this.refreshDownloadList();	
+			if (relatedAnalysis.length > 0) {
+				callLater( this.relatedAnalysisTree.expandChildrenOf, [ relatedAnalysis[0], true]); 				
+			} 
+			if (relatedTopics.length > 0) {
+				callLater( this.relatedTopicsTree.expandChildrenOf, [ relatedTopics[0], true]); 
+			}
+			
+			// Workflow progress
+			callLater(setWorkflowStatus);
 	
+		}
+		
+		private function setWorkflowStatus():void {
+			var x:int = 0;
+			for each(var progressInfo:Object in selectedExperiment.workflowStatus.Progress) {
+				this.workflowProgressBar[x].setProgress(progressInfo.@stepNumber, selectedExperiment.workflowStatus.@numberOfSteps);	
+				x++;
+			} 
+			
+			workflowProgressBox.visible = x > 0 ? true : false;
+			workflowProgressBox.includeInLayout = x > 0 ? true : false;
+			
+			
 		}
 		
 		public function initializeBarcoding():void {
@@ -868,6 +884,27 @@
         public function showRelatedAnalysis():void {
         	parentApplication.showAnalysisForExperiment(this.selectedExperiment);
         }
+		
+		private function onDoubleClickRelatedAnalysis():void {
+			var selectedItem:Object = this.relatedAnalysisTree.selectedItem;
+			showRelatedObject(selectedItem);
+		}
+		private function onDoubleClickRelatedTopic():void {
+			var selectedItem:Object = this.relatedTopicsTree.selectedItem;
+			showRelatedObject(selectedItem);
+		}
+		
+		private function showRelatedObject(selectedItem:Object):void {
+			if (selectedItem.name() == "Analysis") {
+				parentApplication.showAnalysisForNumber(selectedItem.@number);
+			} else if (selectedItem.name() == "DataTrack") {
+				parentApplication.showDataTrackForNumber(selectedItem.@number);
+			} else if (selectedItem.name() == "Topic") {
+				parentApplication.showTopicForNumber(selectedItem.@idTopic);
+			} else if (selectedItem.name() == "Request" && selectedExperiment.@idRequest != selectedItem.@idRequest) {
+				parentApplication.showExperimentById(selectedItem.@idRequest);
+			}			
+		}
 
 		// Get all options (include inactive)
 		public function getPropertyOptions(idProperty:String):XMLList {
@@ -1128,6 +1165,8 @@
 <mx:XMLListCollection id="samples" source="{selectedExperiment.samples.Sample}"/>
 <mx:XMLListCollection id="assays" source="{selectedExperiment.assays.Assay}"/>
 <mx:XMLListCollection id="primers" source="{selectedExperiment.primers.Primer}"/>
+<mx:XMLListCollection id="relatedAnalysis" source="{this.selectedExperiment.relatedObjects..Analysis}"/>
+<mx:XMLListCollection id="relatedTopics" source="{this.selectedExperiment.relatedTopics..Topic}"/>
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 <mx:XMLListCollection id="sortedTopics"
 					  source="{this.selectedExperiment.topics.Topic}">
@@ -1144,79 +1183,118 @@
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-					<mx:VBox verticalGap="6" label="Info" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
-
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="Experiment"  width="100" />
-							<mx:TextInput editable="false" text="{requestCategoryName}" width="570"  backgroundColor="#FFFFFF"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Label width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{experimentCategoryName}" width="570" />
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
-							<mx:Label text="Organism"  width="100" />
-							<mx:TextInput editable="false" text="{this.selectedExperiment.@organismName}" width="500"  backgroundColor="#FFFFFF"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="nameBox">
-							<mx:Label text="Name" width="100"/>
-							<mx:TextInput text="{this.selectedExperiment.@name}" editable="false" backgroundColor="0xffffff"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="Lab group"  width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@labName}" width="500"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@submitterName}" width="500" />
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
-							<mx:Label text="Submitter Email" width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@email}" width="200"/>
-							<mx:Label text="Submitter Phone" paddingLeft="10" width="110"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@phone}" width="200"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@createDate}" width="200"/>
-							<mx:Label text="Last modified" width="110"  paddingLeft="10"/>
-							<mx:Text  text="{this.selectedExperiment.@lastModifyDate}"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-							<mx:Text  width="100" text="Visibility" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{visibilityName}" width="200" />
-							<mx:Label text="{'Owned by'}" paddingLeft="10" width="110"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@ownerName}" width="200" />
-						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle">
-							<mx:Label width="100" text="Completed" />
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.selectedExperiment.@completedDate}" width="500" />
-						</mx:HBox>
-						<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false">					
-							<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-								<mx:Text id="designAndInsertLabel" width="100" />
-								<mx:TextInput editable="false" backgroundColor="#FFFFFF" id="designAndInsertText" width="500" />
+				<mx:VBox label="Info" paddingLeft="4" verticalGap="10"> 
+					<mx:HBox horizontalGap="0">
+						<mx:VBox verticalGap="2" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
+							
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{requestCategoryName}" width="280"/>
 							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label width="100" />
+								<mx:Text   text="{experimentCategoryName}" width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
+								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
+								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingTop="10">
+								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{this.selectedExperiment.@createDate}" width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle" 
+									 visible="{selectedExperiment.@isExternal == 'Y' ? false : true}"
+									 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
+								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="right"/>
+								<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
+							</mx:HBox>
+							<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
+								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+									<mx:Text id="designAndInsertLabel" width="100" />
+									<mx:Text  id="designAndInsertText" width="500" />
+								</mx:HBox>
+							</mx:HBox>
+							
+						</mx:VBox>
+						
+						<mx:VBox width="300" borderStyle="none" verticalGap="2">
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text   text="{this.selectedExperiment.@labName}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0">
+								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{this.selectedExperiment.@submitterName}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
+								<mx:Label text="Email" width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text    text="{this.selectedExperiment.@email}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0">
+								<mx:Label text="Phone" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{this.selectedExperiment.@phone}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Text  width="100" text="Visibility"  styleName="formLabel" textAlign="right"/>
+								<mx:Text  text="{visibilityName}" width="200"/>
+							</mx:HBox>
+							
+						</mx:VBox>
+					</mx:HBox>
+					<mx:VBox id="headerBox" width="100%" paddingLeft="4">
+						<mx:HBox id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
+							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="right"/>
+							<mx:Tile horizontalGap="0" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
+								<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+									<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
+												   paddingLeft="1" paddingRight="1"
+												   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
+								</mx:Repeater>
+							</mx:Tile>
+							
 						</mx:HBox>
-
-						<mx:VBox id="headerBox" width="100%">
-							<mx:HBox width="100%" id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
-								<mx:Label text="Materials &amp; Methods"  id="label1"/>
-								<mx:Tile horizontalGap="0" width="100%" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-									<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-										<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
-													   paddingLeft="1" paddingRight="1"
-													   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
-									</mx:Repeater>
-								</mx:Tile>
+					</mx:VBox>            
+					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="10">
+						<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
+							<mx:HBox width="100%" >
+								<mx:Text width="100" text="Order Status" styleName="formLabel"  textAlign="right"/>
 								
 							</mx:HBox>
-						</mx:VBox>            
-					</mx:VBox>
+							<mx:HBox  verticalGap="0">
+								<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
+									<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="100" fontSize="9"/>
+								</mx:Repeater>
+							</mx:HBox>
+							<mx:VBox >
+								<mx:Repeater id="workflowProgressRepeater" dataProvider="{selectedExperiment.workflowStatus.Progress}" >
+									<mx:HBox horizontalGap="0" verticalAlign="middle">
+										<mx:ProgressBar id="workflowProgressBar" labelPlacement="right" width="{100 * selectedExperiment.workflowStatus.@numberOfSteps}" maximum="{selectedExperiment.workflowStatus.@numberOfSteps}" mode="manual" label="" themeColor="#2C9D11" paddingRight="0" paddingLeft="4"/>
+										<mx:Text  text="{workflowProgressRepeater.currentItem.@title}" fontSize="9" paddingLeft="0" fontStyle="italic"/>
+									</mx:HBox>
+								</mx:Repeater>
+							</mx:VBox>
+						</mx:VBox>
+						
+					</mx:HBox>
+					
+				</mx:VBox>
 				
 					<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 						<mx:Spacer height="4"/>
-						<mx:Label text="Description"/>
+						<mx:Label text="Description" styleName="formLabel"/>
 						<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 											id="overallDescript" width="100%" 
 											htmlText="{this.selectedExperiment.@description}" 
@@ -1225,18 +1303,18 @@
 											roundedBottomCorners="false" paddingBottom="0" 
 											borderThicknessRight="0" borderThicknessLeft="0" 
 											borderThicknessBottom="0" borderThickness="0" 
-											borderThicknessTop="0" height="100%" minHeight="50"/>
+											borderThicknessTop="0" height="100%" minHeight="50" styleName="readOnly"/>
 						<mx:VBox width="100%" height="100%" id="bioAndCoreNoteVBox">
 							<mx:Spacer height="4" />
 							<mx:HBox width="100%" height="100%" >
 			  					<mx:VBox verticalGap="0" width="100%" height="100%" id="noteToCoreFacilityBox" visible="true" includeInLayout="true">
-		  							<mx:Label text="Notes for Core Facility" />
+		  							<mx:Label text="Notes for Core Facility"  styleName="formLabel"/>
 									<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 								</mx:VBox>
 								<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
 										 visible="true"  
 										 includeInLayout="true">
-									<mx:Label text="Notes for Bioinformatics Group"  />
+									<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
 									<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
 								</mx:VBox>
 							</mx:HBox>
@@ -1424,21 +1502,46 @@
 				
 				<experiment:ExperimentDownloadView id="filesView" uploadButtonsVisible="{this.selectedExperiment.@canUploadData == 'Y'}" request="{this.selectedExperiment}" >
 				</experiment:ExperimentDownloadView>
-				
-				<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
-					<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
-						<mx:Repeater id="topicRepeater" dataProvider="{sortedTopics}">
-							<mx:HBox horizontalGap="6" width="100%">
-								<mx:LinkButton label="{topicRepeater.currentItem.@name}" 
-											   paddingTop="0" paddingBottom="2" 
-											   textDecoration="underline"
-											   icon="{parentApplication.iconTopic}"
-											   click="{parentApplication.showTopicForNumber(event.currentTarget.getRepeaterItem().@idTopic)}" >
+				 
+
+				<mx:VBox id="relatedEntriesTab" verticalGap="0" width="100%" height="100%" label="{relatedDataTitle}">
+					<mx:HBox width="100%" height="100%" horizontalGap="0" >
+						
+						<mx:VBox visible="{relatedAnalysis.length &gt; 0}" includeInLayout="{relatedAnalysis.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="0" paddingBottom="0">
+							<mx:HBox width="100%" verticalAlign="middle">
+								<mx:Label text="Analyses and Data Tracks" styleName="formLabel"/>
+								<mx:LinkButton label="Browse Analyses" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+											   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" 
+											   id="analysisButton" click="showRelatedAnalysis()" textAlign="left" 
+											   fontSize="10">
 								</mx:LinkButton>
 							</mx:HBox>
-						</mx:Repeater>
-					</mx:VBox>
-				</mx:HBox>						   
+							<mx:Tree id="relatedAnalysisTree" width="100%" height="100%" dataProvider="{relatedAnalysis}"  
+									 showRoot="false" labelField="@label"  
+									 doubleClickEnabled="true"
+									 itemDoubleClick="onDoubleClickRelatedAnalysis()"
+									 iconFunction="parentApplication.getTreeIcon">							
+							</mx:Tree> 
+						</mx:VBox> 
+						<mx:VBox visible="{relatedTopics.length &gt; 0}" includeInLayout="{relatedTopics.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4" verticalGap="0">
+							<mx:Label text="Topics"  styleName="formLabel"/>
+							<mx:Tree id="relatedTopicsTree" width="100%" height="100%" dataProvider="{relatedTopics}"  
+									 showRoot="false" labelField="@label"  
+									 doubleClickEnabled="true"
+									 itemDoubleClick="onDoubleClickRelatedTopic()"
+									 iconFunction="parentApplication.getTreeIcon">							
+							</mx:Tree> 
+						</mx:VBox> 
+					</mx:HBox>						   
+					
+					<mx:HBox verticalAlign="middle" width="100%">
+						<mx:Spacer width="100%"/>
+						<mx:TextArea height="18" styleName="instructionBox" width="230" id="textarea1" >
+							<mx:htmlText><![CDATA[Double-click on any entry to pull up details.]]></mx:htmlText>
+						</mx:TextArea>
+					</mx:HBox>
+
+				</mx:VBox>
 			</mx:TabNavigator>
 			
 	

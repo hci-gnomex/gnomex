@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Analysis" width="100%" height="100%" 
-		   xmlns:views="views.*" 
+		   xmlns:views="views.*"  backgroundColor="#FFFFFF"
 		   xmlns:analysis="views.analysis.*" 
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
@@ -1061,8 +1061,8 @@
 	<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
-	<mx:VBox   width="100%" height="100%" verticalGap="3">
-		<mx:VBox styleName="panelBox" width="100%" id="vbox1" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false">
+	<mx:VBox   width="100%" height="100%" verticalGap="2">
+		<mx:VBox styleName="panelBox" width="100%" id="vbox1" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false" borderColor="#979DA2">
 			<mx:VBox id="filterBox"  verticalGap="0" width="100%">
 				<mx:HBox horizontalGap="14" verticalAlign="middle" width="100%" id="hbox4">
 					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="10"  width="95"/>

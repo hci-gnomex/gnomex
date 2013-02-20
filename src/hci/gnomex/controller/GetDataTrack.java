@@ -2,25 +2,34 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.Topic;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.hibernate.Session;
 
 
 
@@ -68,6 +77,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       // TODO: GENOPUB Need to send in analysis file data path?  
       if (this.getSecAdvisor().canRead(dataTrack)) {
         Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), baseDir, analysisBaseDir);
+        this.appendRelatedNodes(this.getSecAdvisor(), sess, dataTrack, doc.getRootElement());
         org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
         setResponsePage(this.SUCCESS_JSP);
@@ -109,5 +119,62 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     }
     return dt;
   }
+  
+ /*
+  * Append related analysis and experiments.  Append parent topics (and contents).
+  */
+  @SuppressWarnings("unchecked")
+  private static void appendRelatedNodes(SecurityAdvisor secAdvisor, Session sess, DataTrack dataTrack, Element node) throws Exception {
+    Element relatedNode = new Element("relatedObjects");
+    relatedNode.setAttribute("label", "Related Items");
+    node.addContent(relatedNode);
+    
+    // Hash analysis and experiments
+    TreeMap<Integer, Analysis> analysisMap = new TreeMap<Integer, Analysis>();  
+    TreeMap<Integer, TreeMap<Integer, Request>> analysisToRequestMap = new TreeMap<Integer, TreeMap<Integer, Request>>();  
+    for (DataTrackFile dtFile : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
+      
+      Analysis a = dtFile.getAnalysisFile().getAnalysis();
+      analysisMap.put(a.getIdAnalysis(), a);
+      
+      TreeMap<Integer, Request> requestMap = analysisToRequestMap.get(a.getIdAnalysis());
+      if (requestMap == null) {
+        requestMap = new TreeMap<Integer, Request>();
+        analysisToRequestMap.put(a.getIdAnalysis(), requestMap);
+      }
+
+      for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)a.getExperimentItems()) {
+        Request request = null;
+        if (x.getSequenceLane() != null) {
+          request = x.getSequenceLane().getRequest();
+        } else if( x.getHybridization() != null) {
+          request = x.getHybridization().getLabeledSampleChannel1().getRequest();
+        }
+        requestMap.put(request.getIdRequest(), request);
+      }
+
+    }
+
+    // Create analysis and experiment nodes.
+    for (Integer idAnalysis : analysisMap.keySet()) {
+      Analysis analysis  = analysisMap.get(idAnalysis);
+      
+      Element analysisNode = analysis.appendBasicXML(secAdvisor, relatedNode);
+      
+      TreeMap<Integer, Request> requestMap = analysisToRequestMap.get(idAnalysis);
+      for (Integer idRequest : requestMap.keySet()) {
+        Request request = requestMap.get(idRequest);
+        request.appendBasicXML(secAdvisor, analysisNode);
+      }
+    }
+ 
+    // Append the parent topics (and the contents of the topic) XML 
+    Element relatedTopicNode = new Element("relatedTopics");
+    relatedTopicNode.setAttribute("label", "Related Topics");
+    node.addContent(relatedTopicNode);
+    
+    Topic.appendParentTopicsXML(secAdvisor, relatedTopicNode, dataTrack.getTopics());
+  }
+
 
 }

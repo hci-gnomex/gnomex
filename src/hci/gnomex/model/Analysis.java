@@ -1,5 +1,6 @@
 package hci.gnomex.model;
 
+import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.hibernate3utils.HibernateDetailObject;
@@ -453,6 +454,20 @@ public class Analysis extends HibernateDetailObject {
     root.setAttribute("idSubmitter", this.getNonNullString(this.getIdSubmitter()));
 
     return doc;
+  }
+  
+  /*
+   * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" analysis.
+   * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.
+   */
+  public Element appendBasicXML(SecurityAdvisor secAdvisor, Element parentNode) throws UnknownPermissionException {
+    Element analysisNode = new Element("Analysis");
+    analysisNode.setAttribute("idAnalysis", this.getIdAnalysis().toString());
+    analysisNode.setAttribute("label", this.getNumber() + " " + (secAdvisor.canRead(this) ? (this.getName() != null ? this.getName() : "") : "(Not authorized)"));
+    analysisNode.setAttribute("codeVisibility", this.getCodeVisibility());
+    analysisNode.setAttribute("number", this.getNumber());
+    parentNode.addContent(analysisNode);
+    return analysisNode;
   }
 
 }

@@ -323,5 +323,36 @@ public class Topic extends DetailObject implements Serializable {
 
    }
    
+   /*
+    *  An analysis, experiment, or data track can be part of many topics.  This convenience method
+    *  allows the caller to send in the list of parent topics and it will generate XML nodes showing the
+    *  topic with its contents.  This methods is used the GetAnalysis, GetRequest, and GetDataTrack to
+    *  fill in the XML structure for "related" topics.
+    */
+   public static void appendParentTopicsXML(SecurityAdvisor secAdvisor, Element parentNode, Set topics) throws UnknownPermissionException {
+     
+     for (Topic topic : (Set<Topic>)topics) {
+       Element topicNode = new Element("Topic");
+       topicNode.setAttribute("idTopic", topic.getIdTopic().toString());
+       topicNode.setAttribute("label", (secAdvisor.canRead(topic) ? (topic.getName() != null ? topic.getName() : "") : "(Not authorized)"));
+       topicNode.setAttribute("codeVisibility", topic.getCodeVisibility());
+       parentNode.addContent(topicNode);
+       
+       for (Request r : (Set<Request>)topic.getRequests()) {
+         Element rNode = new Element("Request");
+         r.appendBasicXML(secAdvisor, topicNode);
+       }
+       for (Analysis a : (Set<Analysis>)topic.getAnalyses()) {
+         Element aNode = new Element("Analysis");
+         a.appendBasicXML(secAdvisor, topicNode);
+       }
+       for (DataTrack dt : (Set<DataTrack>)topic.getDataTracks()) {
+         
+         Element dtNode = new Element("DataTrack");
+         dt.appendBasicXML(secAdvisor, topicNode);
+       }
+     }     
+   }
+   
 
 }

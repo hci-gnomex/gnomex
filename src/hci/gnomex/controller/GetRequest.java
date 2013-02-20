@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -37,6 +38,8 @@ import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Assay;
@@ -61,6 +64,7 @@ import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
+import hci.gnomex.model.WorkItem;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -129,20 +133,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request = (Request)sess.get(Request.class, idRequest);
       } else {
         request = GetRequest.getRequestFromRequestNumber(sess, requestNumber);
-        /*
-        String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-        StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
-        List requests = (List)sess.createQuery(buf.toString()).list();
-        if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
-        	// If nothing returned then try with "R" appended
-        	requestNumberBase = requestNumberBase + "R";
-            buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
-            requests = (List)sess.createQuery(buf.toString()).list();
-        }
-        if (requests.size() > 0) {
-          request = (Request)requests.get(0);
-        }
-        */
       }      
       if (request != null) {
         // Make sure user has permission to view request
@@ -178,6 +168,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
          
           request.excludeMethodFromXML("getBillingItems");
+          request.excludeMethodFromXML("getTopics");
           
           // If user can write the request, show collaborators. 
           if (this.getSecAdvisor().canUpdate(request)) {
@@ -689,6 +680,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.addContent(platesNode);
 
           }
+          
+          // Append related analysis and data tracks and topics
+          if (!newRequest) {
+            appendRelatedNodes(this.getSecAdvisor(), sess, request, requestNode);
+          }
+          
+          // Append workflow progress info
+          if (!newRequest) {
+            appendWorkflowStatusNodes(request, requestNode);
+          }
         
           doc.getRootElement().addContent(requestNode);
         
@@ -751,6 +752,113 @@ public class GetRequest extends GNomExCommand implements Serializable {
     return request;
   }
   
+  
+  @SuppressWarnings("unchecked")
+  private static void appendWorkflowStatusNodes(Request request, Element requestNode) throws Exception {
+    if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+      return;
+    }
+    Element statusNode = new Element("workflowStatus");
+    requestNode.addContent(statusNode);
+    if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+      if (request.isLibPrepByCore()) {
+        appendStepNode(statusNode, "Submitted");
+        appendStepNode(statusNode, "Sample QC");
+        appendStepNode(statusNode, "Library Prep");
+        appendStepNode(statusNode, "Sequencing");
+        appendStepNode(statusNode, "Data Pipeline");
+        statusNode.setAttribute("numberOfSteps", "5");
+      } else {
+        appendStepNode(statusNode, "Submitted");
+        appendStepNode(statusNode, "Library QC");
+        appendStepNode(statusNode, "Sequencing");
+        appendStepNode(statusNode, "Data Pipeline");
+        statusNode.setAttribute("numberOfSteps", "4");
+      }        
+    } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
+      appendStepNode(statusNode, "Submitted");
+      appendStepNode(statusNode, "Sample QC");
+      appendStepNode(statusNode, "Labeling");
+      appendStepNode(statusNode, "Hybridization");
+      appendStepNode(statusNode, "Extraction");
+      statusNode.setAttribute("numberOfSteps", "5");
+    } else if (request.getRequestCategory().getType().equals(RequestCategory.TYPE_QC)) {
+      appendStepNode(statusNode, "Submitted");
+      appendStepNode(statusNode, "Sample QC");    
+      statusNode.setAttribute("numberOfSteps", "2");
+    } else {
+      return;
+    }
+    
+
+    TreeMap<String, Integer> workflowStepHash = new TreeMap<String, Integer>();
+    for (Sample sample : (Set<Sample>)request.getSamples()) {
+      String stepNumber = sample.getWorkflowStep();
+      Integer count = workflowStepHash.get(stepNumber);
+      if (count == null) {
+        count = new Integer(1);
+      } else {
+        count = new Integer(count.intValue() + 1);
+      }
+      workflowStepHash.put(stepNumber, count);
+    } 
+    
+    for (String workflowStep : workflowStepHash.keySet()) {
+      Element stepNode = new Element("Progress");
+      Integer count = workflowStepHash.get(workflowStep);
+
+      boolean partial = false;
+      if (workflowStep.contains(",")) {
+        partial = true;
+        String tokens[] = workflowStep.split(",");
+        workflowStep = tokens[0];
+      }
+      stepNode.setAttribute("stepNumber", workflowStep);
+      stepNode.setAttribute("title", count.toString() + (count.intValue() > 1 ? " Samples" : " Sample") + (partial ? " (partial progress)" : "") );
+      stepNode.setAttribute("partial", partial ? "Y" : "N");
+      statusNode.addContent(stepNode);
+    }
+    
+  }
+  
+ 
+  
+  private static void appendStepNode(Element statusNode, String name) {
+    Element node1 = new Element("Step");
+    node1.setAttribute("name", name);
+    statusNode.addContent(node1);
+  }
+
+  /*
+   * Append related experiments, data tracks, and topics.
+   */
+   @SuppressWarnings("unchecked")
+  private static void appendRelatedNodes(SecurityAdvisor secAdvisor, Session sess, Request request, Element node) throws Exception {
+    Element relatedNode = new Element("relatedObjects");
+    relatedNode.setAttribute("label", "Related Items");
+    node.addContent(relatedNode);
+    HashMap<Integer, Integer> analysisHash = new HashMap<Integer, Integer>();   
+    for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)request.getAnalysisExperimentItems()) {
+      if (!analysisHash.containsKey(x.getAnalysis().getIdAnalysis())) {
+        Element analysisNode = x.getAnalysis().appendBasicXML(secAdvisor, relatedNode);
+        
+        if (x.getAnalysis().getFiles().size() > 0) {
+          GetAnalysis.appendDataTrackNodes(secAdvisor, sess, x.getAnalysis(), analysisNode);          
+        }
+
+        analysisHash.put(x.getAnalysis().getIdAnalysis(), null);
+      }
+    }
+    
+    // Append the parent topics (and the contents of the topic) XML 
+    Element relatedTopicNode = new Element("relatedTopics");
+    relatedTopicNode.setAttribute("label", "Related Topics");
+    node.addContent(relatedTopicNode);
+    Topic.appendParentTopicsXML(secAdvisor, relatedTopicNode, request.getTopics());
+
+  }
+
+  
   private void flagPlateInfo(boolean isNewRequest, Request request, Element requestNode) {
     
     boolean onReactionPlate = false;
@@ -803,6 +911,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         }
     }
   }
+  
 
 
 }

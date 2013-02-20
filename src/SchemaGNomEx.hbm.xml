@@ -872,6 +872,11 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PlateWell"/>
 		</set>    
+		<set name="sequenceLanes" table="SequenceLane" lazy="true" cascade="none" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
+		
   </class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
@@ -1907,6 +1912,7 @@
 		</id>
 		<property name="step" column="step" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.SubmissionInstruction -->
