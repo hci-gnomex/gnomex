@@ -823,12 +823,13 @@ Accordion {
 {  
 	borderStyle: applicationControlBar; 
 	fillColors: #463B40, #463B40;
-	fillAlphas: .5, 1; 
+	fillAlphas: .1, 1; 
 	borderColor: #B7BABC;
 	color: #FFFFFF;
 	textRollOverColor: #FFFFFF;
 	highlightAlphas: 0, 0;
 }
+
 
 MenuBar {
 	backgroundAlpha: 0;
@@ -840,10 +841,13 @@ MenuBar {
 	fontSize: 12;
 	fontWeight: normal;
 	borderColor: #7e7e7e;
-	highlightAlphas: 0.1, .1;
-	disabledColor: #000000;
-	errorColor: #000000;
-	selectionColor: #000000;
+	highlightAlphas: 0, .5;
+	disabledColor: #071002;
+	errorColor: #ACE788;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	fontStyle: normal;
+
 }
 
 
@@ -853,11 +857,14 @@ MenuBar {
 	borderColor: #7B877B;
 	fillAlphas: 1, 1;
 	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
-	rollOverColor: #5FE2EE;
 	color: #ffffff;
 	fontFamily: Verdana;
 	fontSize: 12;
-	selectionColor: #5FE2EE;
+	disabledColor: #ACE788;
+	errorColor: #ACE788;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	highlightAlphas: 0,0;
 	
 }
 
@@ -899,4 +906,18 @@ MenuBar.linkMenuBar1
 {
 	fontFamily: Arial;
 	fontSize: 14;
+}
+.formLabel
+{
+	color: #324B7A;
+	fontStyle: italic;
+	fontWeight: bold;
+}
+
+RichTextEditor.readOnly {
+	textAreaStyleName: rteTextAreaStyles;
+}
+
+.rteTextAreaStyles {
+	backgroundColor: #FFFFFF;
 }
