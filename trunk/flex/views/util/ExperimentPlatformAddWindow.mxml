@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="370" height="168" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="470" height="168" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
 
     <mx:HTTPService 
     id="saveExperimentPlatform" 
@@ -106,7 +106,7 @@
 		
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
 			<mx:Text text="Code Request Category" width="130"/>
-			<mx:TextInput id="codeRequestCategoryField" width="100%" backgroundColor="#FFFFFF" borderColor="#898F93"/>
+			<mx:TextInput id="codeRequestCategoryField" width="50" backgroundColor="#FFFFFF" borderColor="#898F93" maxChars="8"/>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
