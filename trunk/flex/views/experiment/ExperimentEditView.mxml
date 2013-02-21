@@ -496,6 +496,13 @@
 			concentrationValidator.negativeError = "cannot be negative.";
 			concentrationValidator.precisionError = "has too many digits beyond the decimal point.";
 		}
+			
+		public function refreshFilteredProjects():void{
+			parentApplication.getProjectList.send();
+			filteredProjectList = new XMLListCollection(parentApplication.getProjectList.lastResult.Project);
+			filteredProjectList.filterFunction = filterProject;	
+			filteredProjectList.refresh();
+		}
 		
 		private function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
