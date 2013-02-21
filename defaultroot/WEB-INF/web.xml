@@ -119,6 +119,13 @@
 		</servlet-class>
 	</servlet>
 
+  <servlet>
+    <servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.DownloadAnalysisSingleFileServlet
+    </servlet-class>
+  </servlet>
+
 	<servlet>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<servlet-class>
@@ -311,6 +318,11 @@
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
 		<url-pattern>DownloadSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+    <url-pattern>DownloadAnalysisSingleFileServlet.gx</url-pattern>
+  </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
