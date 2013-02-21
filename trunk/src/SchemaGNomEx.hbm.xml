@@ -970,6 +970,9 @@
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
+    <property name="emailAddress" column="emailAddress" type="string"/>
+    <property name="ipAddress" column="ipAddress" type="string"/>
+    <property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 		
 	<!-- hci.gnomex.model.WorkItem -->
