@@ -271,10 +271,13 @@
 					previous = currentNum;
 				}
 				
+				var parms:URLVariables = new URLVariables;
+				parms.idAnalysis = idAnalysisList;
+				parms.emailAddress = parentApplication.guestEmailAddress;
 				var url:URLRequest = new URLRequest('ShowAnalysisDownloadForm' + 
 					(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-					'.gx?idAnalysis=' + 
-					idAnalysisList);
+					'.gx');
+				url.data = parms;
 				navigateToURL(url, '_blank');					
 			}
 			
