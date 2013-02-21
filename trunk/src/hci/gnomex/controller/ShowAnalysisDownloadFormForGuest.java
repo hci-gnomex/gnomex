@@ -31,6 +31,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
   private Integer          idAnalysis;
   private String           serverName;
   private String           baseURL;
+  private String           emailAddress;
   
   private DictionaryHelper dictionaryHelper;
   
@@ -51,6 +52,11 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
       this.addInvalidField("idAnalysis", "idAnalysis is required");
     }
     
+    emailAddress = "";
+    if (request.getParameter("emailAddress") != null) {
+      emailAddress = request.getParameter("emailAddress");
+    }    
+
     serverName = request.getServerName();
     
     baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + request.getContextPath();
@@ -83,7 +89,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
           
           // Format an HTML page with the download links for this analysis
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-          Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis,secAdvisor, baseDir, baseURL);
+          Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis,secAdvisor, baseDir, baseURL, emailAddress);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding(true);

@@ -38,6 +38,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
   private String                          fileName = null;
   private String                          dir = null;
   private String                          view = "N";
+  private String                          emailAddress = "";
   
   
   public void init() {
@@ -51,6 +52,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     idAnalysis = null;
     fileName = null;
     dir = null;
+    emailAddress = "";
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -82,6 +84,10 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     // Get the fileName parameter
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
       fileName = req.getParameter("fileName");
+    }
+    // Get the email address parameter
+    if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
+      emailAddress = req.getParameter("emailAddress");
     }
     
     // Get the dir parameter
@@ -126,7 +132,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         }
         
-        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getWritableHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
         baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(req.getServerName());
@@ -197,7 +203,10 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           xferLog.setPerformCompression("Y");
           xferLog.setIdAnalysis(analysis.getIdAnalysis());
           xferLog.setIdLab(analysis.getIdLab());
-          
+          xferLog.setEmailAddress(emailAddress);
+          xferLog.setIpAddress(GNomExCommand.getRemoteIP(req));
+          xferLog.setIdAppUser(secAdvisor.getIdAppUser());
+
           
           
           in = new FileInputStream(analysisFd.getFileName());
