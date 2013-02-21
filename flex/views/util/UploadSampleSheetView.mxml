@@ -596,7 +596,7 @@
 						var addColumn:Boolean = false;
 						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
 							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))
-							|| fieldType == "URL" || fieldType == "MOPTION") {
+							|| this.specifiedFieldList == null && col.visible && !col.editable && col.dataField != null && (fieldType == 'URL' || fieldType == 'MOPTION')) {
 							addColumn = true;
 						}
 						
