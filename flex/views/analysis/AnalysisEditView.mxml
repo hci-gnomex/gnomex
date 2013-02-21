@@ -4,6 +4,7 @@
 		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
 		  xmlns:analysis="views.analysis.*"
+		  xmlns:renderers="views.renderers.*"
 		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
 	
 	<mx:HTTPService  
@@ -137,7 +138,7 @@
 			public var rowCountMessage:String = new String();
 			
 			[Bindable]
-			private var possibleCollaborators:PromptXMLListCollection;
+			private var possibleCollaborators:XMLListCollection;
 			[Bindable]
 			private var possibleInstitutions:PromptXMLListCollection;
 			[Bindable]
@@ -807,7 +808,8 @@
 						" idAppUser=''" +
 						" displayName=''"  +
 						"/>");
-					possibleCollaborators = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y')));
+					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
+					possibleCollaborators.addItemAt(emptyNode, 0);
 					possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
 					
 					this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
@@ -1315,8 +1317,12 @@
 			
 			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>
 			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<mx:ComboBox width="200" dataProvider="{possibleCollaborators}" id="collaboratorCombo" labelField="@displayName">			       	
-				</mx:ComboBox>
+				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
+										  labelField="@displayName" 
+										  prompt="Collaborator to add..."
+										  width="250"  
+										  id="collaboratorCombo">
+				</renderers:FilterComboBox>
 				<mx:Button 
 					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
 					icon="@Embed(source='../../assets/add.png')" 
