@@ -1199,7 +1199,6 @@
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
-			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 			<mx:RemoveChild target="{spacer2}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="20"/>

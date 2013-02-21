@@ -12,11 +12,14 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.Iterator;
@@ -61,6 +64,10 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
     serverName = req.getServerName();
 
+    String emailAddress = "";
+    if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
+      emailAddress = req.getParameter("emailAddress");
+    }
 
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -172,6 +179,9 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
                 System.out.println("Error. Unable to create softlinks directory.");
                 return;
               }
+              
+              // Write file with info for the TransferLoggerMain daemon
+              UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req);
               
               // change ownership to HCI_fdt user
               String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);

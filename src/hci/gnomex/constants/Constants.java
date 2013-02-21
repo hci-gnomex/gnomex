@@ -76,6 +76,8 @@ public class Constants {
 
   public static final Pattern HTML_BRACKETS = Pattern.compile("<[^>]+>");
 
+  public static final String FDT_DOWNLOAD_INFO_FILE_NAME = "fdtDownloadInfoFile.txt";
+  
   /*Keep lower case.*/
   public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
     ".bam.bai",    //this must precede ".bam"  and ".bai"                                                   

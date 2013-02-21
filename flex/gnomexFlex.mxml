@@ -906,6 +906,7 @@
 			public var PROPERTY_FISCAL_YEAR_BREAK_MONTH :String           = "fiscal_year_break_month";
 			public var PROPERTY_FISCAL_YEAR_BREAK_DAY :String             = "fiscal_year_break_day";
 			public var PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT :String    = "account_number_account_default";
+			public var PROPERTY_GUEST_DOWNLOAD_TERMS :String              = "guest_download_terms";
 
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 
@@ -933,6 +934,8 @@
 			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
 			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
 
+			// email address entered when guest downloads files.
+			public var guestEmailAddress:String = "";	
 			
 			private function init():void {
 				getLaunchProperties.send();

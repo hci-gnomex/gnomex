@@ -28,3 +28,17 @@ CREATE TABLE `gnomex`.`PriceCategoryStep` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+-- new columns for collaborator update permission
+alter table RequestCollaborator add canUpdate char(1) null;
+alter table AnalysisCollaborator add canUpdate char(1) null;
+
+
+-- new columns for transfer log
+alter table TransferLog add emailAddress varchar(1000) null;
+alter table TransferLog add ipAddress varchar(50) null;
+alter table TransferLog add idAppUser int(10) null;
+
+-- property to enable guest download terms.
+INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
+('guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N');

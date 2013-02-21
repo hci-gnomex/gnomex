@@ -2444,6 +2444,9 @@ CREATE TABLE `gnomex`.`TransferLog` (
   `idAnalysis` INT(10)  NULL ,
   `idRequest` INT(10)  NULL ,
   `idLab` INT(10)  NULL ,
+  `emailAddress` VARCHAR(1000) NULL,
+  `ipAddress` VARCHAR(50) NULL,
+  `idAppUser` INT(10)  NULL ,
   PRIMARY KEY (`idTransferLog`),
   CONSTRAINT `FK_TransferLog_Request` FOREIGN KEY `FK_TransferLog_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
