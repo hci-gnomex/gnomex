@@ -4,12 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.hibernate.Session;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.FastDataTransferDownloadAnalysisServlet;
 import hci.gnomex.controller.GNomExCommand;
+import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 
 public class UploadDownloadHelper {
