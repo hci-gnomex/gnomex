@@ -283,7 +283,7 @@
 					if (parentApplication.isFDTSupported) {
 						downloadFilesUsingFDTFromGlobalList();
 					} else {
-						parentDocument.showAlternateDownloadPage();	
+						showAlternateDownloadPage(selectedFileList.source);	
 					}
 				} 		
 			}

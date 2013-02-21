@@ -86,7 +86,7 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
       
       List directoryKeys   = (List)requestMap.get(requestNumber);
       
-      Request request = findRequest(sess, requestNumber);
+      Request request = DownloadResultsServlet.findRequest(sess, requestNumber);
       
       Element requestNode = new Element("RequestDirectory");
       requestNode.setAttribute("number", requestNumber);
@@ -332,14 +332,6 @@ public class GetExpandedFileList extends GNomExCommand implements Serializable {
     }
   }
   
-  public Request findRequest(Session sess, String requestNumber) {
-    Request request = null;
-    List requests = sess.createQuery("SELECT req from Request req where req.number = '" + requestNumber + "'").list();
-    if (requests.size() == 1) {
-      request = (Request)requests.get(0);
-    }
-    return request;    
-  }
 
 
 }
