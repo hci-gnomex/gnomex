@@ -11,6 +11,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -235,7 +236,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        UploadDownloadHelper.getFileNamesToDownload(sess, serverName, baseDirFlowCell, experiment.getKey(folder), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, folder, requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), null);
         
         if (i.hasNext()) {
@@ -264,7 +265,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         Map fileMap = new HashMap();
         List requestNumbers = new ArrayList<String>();
         boolean flattenSubDirs = true;
-        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
+        UploadDownloadHelper.getFileNamesToDownload(sess, serverName, baseDirFlowCell, fcKey, requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG), flattenSubDirs);
         addDownloadTable(baseURL, maindiv, flowCell.getNumber(), requestMap, directoryMap, experiment.getNumber(), experiment.getIdRequest(), flowCell.getIdFlowCell());
         
       }
