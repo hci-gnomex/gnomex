@@ -2,8 +2,11 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="500" height="370" backgroundAlpha="1"
-		   cornerRadius="12" creationComplete="init()">   
+		   width="500" height="430" backgroundAlpha="1"
+		   cornerRadius="12" creationComplete="init()"
+		   includeInLayout="{parentApplication.isSuperAdmin}"
+		   horizontalScrollPolicy="off"
+		   verticalScrollPolicy="off">   
 
 	<mx:HTTPService 
 		id="metrixInterface" 
@@ -25,9 +28,9 @@
 		// Imports
 		import flash.events.TimerEvent;
 		import flash.utils.Timer;
-		
 		import mx.collections.ArrayCollection;
 		import mx.collections.Sort;
+		import mx.collections.SortField;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.controls.ProgressBar;
@@ -61,43 +64,34 @@
 		[Bindable]
 		private var refreshTimer:Timer = new Timer(600000);
 		
-		[Bindable]
-		private var filterState:int = 1;
-		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
 			metrixInterface.send();
 			
 			// Set Connection status default
-			conLabel.text = "Disconnected";
-			conLabel.setStyle("fontWeight", "bold");
-			conLabel.setStyle("color", "red");
+			mainTitle.setStyle("fontWeight", "bold");
+			mainTitle.setStyle("color", "red");
 			conStatus = false;
 		}
 		
 		public function refreshData(e:TimerEvent):void{
 			metrixInterface.send();
 			refreshTimer.removeEventListener(TimerEvent.TIMER, refreshData);
-		}
+		}		
 		
 		private function onGetMetrixInterface(event:ResultEvent):void {
 			if(event.result.name() == "SummaryCollection"){
-				conLabel.text = "Connected";
-				conLabel.setStyle("fontWeight","bold");
-				conLabel.setStyle("color","green");
+				mainTitle.setStyle("fontWeight","bold");
+				mainTitle.setStyle("color","green");
 				conStatus = true;
 				
-				filterXLC();
-			 	
 				if(MIList.length == 0){
-					mainTitle.text = "No runs retrieved";
 					refreshTimer.delay = 60000;
 				}else{
-					mainTitle.text = "Run Information";
 					refreshTimer.delay = 600000;
 				}
-
-			// Set counts for global status counters
+				
+				// Set counts for global status counters
 				// activeRuns
 				if(metrixInterface.lastResult.@active != ""){
 					activeRuns = metrixInterface.lastResult.@active;
@@ -121,132 +115,44 @@
 				// Set timer -- Polling with dynamic interval.
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
-		} else {
+			} else {
 				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
 			}
 		}
-		
-		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
-		{
-			var cur:Number = Number(current);
-			var tot:Number = Number(total);
-			var state:int = int(stateArg);
-			
-			var bar:ProgressBar = progress[event.target.instanceIndex];
-			
-			if(state == 1){				// Running
-				// Default barcolor is green
-				bar.setStyle("barColor", "#4BAD2F"); // Green
-				bar.label = cur + " / " + tot + " Cycles";
-				bar.mode = "manual";
-				bar.indeterminate=false;
-			}else if(state == 2){		// Finished
-			//	bar.setStyle("barColor", "#0F4EEE"); // Blue
-				bar.setStyle("barColor", "#7A9BF0");
-				cur = 100;
-				tot = 100;
-				bar.mode = "manual";
-				bar.indeterminate=false;
-				//bar.label = event.currentTarget.getRepeaterItem().runId + " has finished";
-				bar.label = "Finished";
-				bar.setProgress(cur,tot);
-			}else if(state == 3){		// Error
-				bar.setStyle("barColor", "#EB1515"); // Red
-				cur = 100;
-				tot = 100;
-				bar.mode = "manual";
-				bar.indeterminate=false;
-				bar.label="Error! Please visit machine "+ instrument;
-				bar.setProgress(cur,tot);
-			}else if(state == 4){ 		// Turn
-				cur = 100;
-				tot = 100;
-				bar.mode = "manual";
-				bar.indeterminate=false;
-				bar.setStyle("barColor", "#F5E505"); // Yellow
-				bar.label="Please turn flowcell " + event.currentTarget.getRepeaterItem().flowcellID;
-				bar.setProgress(cur,tot);
-			}else if(state == 5){ 		// Init
-				bar.setStyle("barColor", "#FC8D1E"); // Orange
-				bar.indeterminate=true;
-				bar.setStyle("indeterminateMoveInterval", "60");
-				bar.label="Initializing... Template phase";
-				bar.mode="event";
-			}
-			
-			bar.setProgress(cur,tot);
-		}
-		
-		private function filterXLC():void {
-			MIList.filterFunction = state_filterFunc;
-			MIList.refresh();
-		}
-		
-		// Filter to show which run states need to be shown in the control / XMLListCollection 
-		private function state_filterFunc(item:XML):Boolean {
-			
-			if(item.runState == filterState){
-				return true;
-			}else{
-				return false;
-			}
-		}
-		
-		private function changeState(state:int):void{
-			filterState = state;
-			metrixInterface.send();
-		}
-		
 	]]>
 </mx:Script>
-	
-	<mx:VBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:HBox width="100%" height="20" horizontalAlign="center">
-			<mx:LinkButton id="reload" icon="@Embed('../../assets/refresh.png')" disabledIcon="@Embed('../../assets/refresh_disable.png')"  enabled="{conStatus ? false : true}" click="init();" toolTip="Reload" fontWeight="normal" textDecoration="underline"/>
-			<mx:Label id="conLabel" />
-			<mx:VRule />
-			<mx:LinkButton id="numActiveRuns" label="Active: {activeRuns}" click="changeState(1)"/>
-			<mx:VRule />
-			<mx:LinkButton id="numFinishedRuns" label="Finished: {finishedRuns}" click="changeState(2)" />
-			<mx:VRule />
-			<mx:LinkButton id="numErrorRuns" label="Halted: {haltedRuns}" click="changeState(3)" />
-			<mx:VRule />
-			<mx:LinkButton id="numTurnRuns" label="Turn: {turnRuns}" click="changeState(4)" />
-		</mx:HBox>
-		<mx:HRule width="100%" />
-			
-			<mx:HBox id="titleContainer" width="100%" horizontalAlign="center" borderStyle="solid" borderThickness="1" visible="true">
-				<mx:Label id="mainTitle" fontSize="18" />
+	<mx:VBox width="100%" height="100%">
+		<mx:VBox width="90%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+			<mx:HBox width="497" horizontalAlign="center" paddingTop="5">
+				<mx:Label id="mainTitle" text="Sequencer Status" fontSize="18" />
 			</mx:HBox>
-		
-			<mx:VBox id="main" width="100%">
-				<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
-					<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%">
-						<mx:HBox id="runProgress" width="100%">
-							<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />
-							<mx:Label id="seqMachineVal" text="{repStatus.currentItem.instrument}" />
-							
-							<mx:ProgressBar id="progress" width="70%" labelPlacement="center"
-											creationComplete="repeatHandler(event, event.currentTarget.getRepeaterItem().currentCycle, event.currentTarget.getRepeaterItem().totalCycle, event.currentTarget.getRepeaterItem().runState, event.currentTarget.getRepeaterItem().instrument);" />
-						</mx:HBox>
-						<mx:HBox id="runInfo" width="100%">
-							<mx:Label id="runId" fontWeight="bold" text="Name: "/>
-							<mx:Label id="runIdVal" text="{repStatus.currentItem.runId}" /><!-- Run identifier -->
-							<mx:VRule height="12" />
-							<mx:Label id="runType" fontWeight="bold" text="Type: " />
-							<mx:Label id="runTypeVal" text="{repStatus.currentItem.runType}" /><!-- Single End / Paired End-->
-						</mx:HBox>
-						<mx:HBox width="100%">
-							<mx:Label id="runDate" fontWeight="bold" text="Start date: " />
-							<mx:Label id="runDateVal" text="{repStatus.currentItem.runDate}"/> <!-- Start date of run -->
-							<mx:VRule height="12" />
-							<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
-							<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
-							<mx:Spacer width="100%" /> 
-							<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" />
-						</mx:HBox>
-					</mx:VBox>					
-				</mx:Repeater>
+		</mx:VBox>
+		<mx:TabNavigator width="90%" height="90%" verticalGap="5" id="notificationTabs" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" backgroundColor="#DEDEDE">
+			<mx:VBox verticalGap="6" label="Recent" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<db:RunStatusTab filterState="0" />
+				</mx:HBox>
 			</mx:VBox>
+			<mx:VBox verticalGap="6" label="Active ({activeRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<db:RunStatusTab filterState="1" />
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox verticalGap="6" label="Halted ({haltedRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isSuperAdmin}" enabled="{haltedRuns != '0'}">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<db:RunStatusTab filterState="3" />
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox verticalGap="6" label="Finished ({finishedRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isBillingAdmin}" enabled="{finishedRuns != '0'}" >
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<db:RunStatusTab filterState="2" />
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox verticalGap="6" label="Turn ({turnRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isBillingAdmin}" enabled="{turnRuns != '0'}" >
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<db:RunStatusTab filterState="4" />
+				</mx:HBox>
+			</mx:VBox>
+		</mx:TabNavigator>
 	</mx:VBox>
 </mx:Canvas>

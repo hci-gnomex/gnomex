@@ -21,10 +21,9 @@
 	xmlns:login="views.login.*"
 	xmlns:reporting="views.reporting.*"
 	xmlns:report="views.report.*"
+	xmlns:dashboard="views.dashboard.*"
 	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
 	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
-
-
 
     <mx:Fade id="fadeOut" duration="100"/>
     <mx:Fade id="fadeIn" duration="100"/>	
@@ -2778,6 +2777,8 @@
 				PopUpManager.centerPopUp(projectDetailWindow);
 			} else if (label == "Experiment Overview") {
 				theViews.selectedChild = experimentOverview;
+			} else if (label == "Dashboard") { 
+				theViews.selectedChild = homeDashboard;
 			}
 			
 		
@@ -2835,6 +2836,7 @@
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Experiment Overview" icon="iconFlask" />
+			<menuitem label="Dashboard" icon="iconPage" />
 		</menuitem>
 
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -2861,12 +2863,11 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
-	
+		
 	</mx:XMLList>
 	
 	<mx:XMLList id="billingAdminMenu">
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
+		<menuitem label="Experiments"  icon="iconFlask"  />
 		
 		<menuitem label="Billing" icon="iconBilling"   />
 		
@@ -2949,7 +2950,7 @@
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
-		
+<!--		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
@@ -2961,6 +2962,7 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
+-->		
 		
 	</mx:XMLList>
 
@@ -2996,7 +2998,6 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
-		
 	</mx:XMLList>
 	
 	<mx:XMLList id="userMenu">
@@ -3008,14 +3009,15 @@
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Experiment Overview" icon="iconFlask"/>		</menuitem>
+		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
-		
+
+<!--		
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
@@ -3028,7 +3030,7 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
-		
+-->
 	</mx:XMLList>
 
 	<mx:XMLList id="userNoBioinformaticsMenu">
@@ -3202,6 +3204,10 @@
 			
 						<reporting:ExperimentOverview id="experimentOverview" width="100%" height="100%" backgroundAlpha="1.0">
 						</reporting:ExperimentOverview>	
+						
+						<dashboard:Dashboard id="homeDashboard" label="Dashboard" icon="@Embed('assets/house.png')" backgroundAlpha="1.0">
+							
+						</dashboard:Dashboard>
 						
 					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">

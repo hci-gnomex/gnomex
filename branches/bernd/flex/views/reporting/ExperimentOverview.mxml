@@ -397,9 +397,5 @@
 			</mx:columns>
 			
 		</mx:AdvancedDataGrid>
-		<db:RunStatusHub>
-			
-		</db:RunStatusHub>
 	</mx:VBox>
-
 </mx:Canvas>

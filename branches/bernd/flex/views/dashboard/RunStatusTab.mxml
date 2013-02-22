@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*"
+		   width="480" height="340" backgroundAlpha="1"
+		   cornerRadius="12" creationComplete="init()"
+		   horizontalScrollPolicy="off"
+		   verticalScrollPolicy="off">   
+
+	<mx:HTTPService 
+		id="metrixInterface" 
+		url="MetrixServerInterface.gx"
+		resultFormat="e4x"
+		destination="MetrixServerInterface"
+		showBusyCursor="true"
+		result="onGetMetrixInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get metrix interface result', event)"
+		useProxy="false">
+		
+	</mx:HTTPService>
+
+	<mx:XMLListCollection id="MIList" source="{metrixInterface.lastResult.Summary}"/> 
+
+<mx:Script>
+	<![CDATA[
+		
+		// Imports
+		import flash.events.TimerEvent;
+		import flash.utils.Timer;
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.ProgressBar;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
+		
+		// Variables
+		[Bindable]
+		private var refreshTimer:Timer = new Timer(600000);
+		
+		[Bindable]
+		public var filterState:int = 1;
+		
+		public function init():void {
+			// Retrieve initial SummaryCollection from MetrixServer using controller.
+			metrixInterface.send();
+		}
+		
+		public function refreshData(e:TimerEvent):void{
+			metrixInterface.send();
+			refreshTimer.removeEventListener(TimerEvent.TIMER, refreshData);
+		}
+		
+		private function onGetMetrixInterface(event:ResultEvent):void {
+			if(event.result.name() == "SummaryCollection"){
+				
+				filterXLC();
+			 	
+				if(MIList.length == 0){
+//					mainTitle.text = "No runs retrieved";
+					refreshTimer.delay = 60000;
+				}else{
+					refreshTimer.delay = 600000;
+				}
+
+				// Set timer -- Polling with dynamic interval.
+				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
+				refreshTimer.start();
+		} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+			}
+		}
+		
+		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
+		{
+			var cur:Number = Number(current);
+			var tot:Number = Number(total);
+			var state:int = int(stateArg);
+			
+			var bar:ProgressBar = progress[event.target.instanceIndex];
+			
+			if(state == 1){				// Running
+				// Default barcolor is green
+//				mainTitle.text = "Active Runs";
+				bar.setStyle("barColor", "#4BAD2F"); // Green
+				bar.label = cur + " / " + tot + " Cycles";
+				bar.mode = "manual";
+				bar.indeterminate=false;
+			}else if(state == 2){		// Finished
+//				mainTitle.text = "Finished Runs";
+				bar.setStyle("barColor", "#7A9BF0");
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
+				bar.indeterminate=false;
+				//bar.label = event.currentTarget.getRepeaterItem().runId + " has finished";
+				bar.label = "Finished";
+				bar.setProgress(cur,tot);
+			}else if(state == 3){		// Error
+//				mainTitle.text = "Runs with errors";
+				bar.setStyle("barColor", "#EB1515"); // Red
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
+				bar.indeterminate=false;
+				bar.label="Error! Please review metrics";
+				bar.setProgress(cur,tot);
+			}else if(state == 4){ 		// Turn
+//				mainTitle.text = "Runs that need to be turned";
+				cur = 100;
+				tot = 100;
+				bar.mode = "manual";
+				bar.indeterminate=false;
+				bar.setStyle("barColor", "#F5E505"); // Yellow
+				bar.label="Please turn flowcell " + event.currentTarget.getRepeaterItem().flowcellID;
+				bar.setProgress(cur,tot);
+			}else if(state == 5){ 		// Init
+//				mainTitle.text = "Initializing Runs";
+				bar.setStyle("barColor", "#FC8D1E"); // Orange
+				bar.indeterminate=true;
+				bar.setStyle("indeterminateMoveInterval", "60");
+				bar.label="Initializing... Template phase";
+				bar.mode="event";
+			}
+			
+			bar.setProgress(cur,tot);
+		}
+		
+		private function filterXLC():void {
+			MIList.filterFunction = state_filterFunc;
+			var dateSort:Sort = new Sort();
+			dateSort.fields = [new SortField('runDate', true, false)];	// Set sort properties
+			dateSort.reverse();											// Reverse the sort list
+			MIList.sort = dateSort;										// Apply sort
+			MIList.refresh();
+		}
+		
+		// Filter to show which run states need to be shown in the control / XMLListCollection 
+		private function state_filterFunc(item:XML):Boolean {
+			
+			if(filterState == 0){
+				return true;
+			}
+			
+			// Include runs with state 5 (Initializing) in Active tab.
+			if(((item.runState == 1) || (item.runState == 5)) && filterState == 1){		
+				return true;
+			}
+			
+			if(item.runState == filterState){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		private function changeState(state:int):void{
+			filterState = state;
+			metrixInterface.send();
+		}
+		
+	]]>
+</mx:Script>
+	
+	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
+		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
+			<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
+				<mx:HBox id="runProgress" width="100%">
+					<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />
+					<mx:Label id="seqMachineVal" text="{repStatus.currentItem.instrument}" />
+					
+					<mx:ProgressBar id="progress" width="70%" labelPlacement="center"
+									creationComplete="repeatHandler(event, event.currentTarget.getRepeaterItem().currentCycle,
+																	event.currentTarget.getRepeaterItem().totalCycle, 
+																	event.currentTarget.getRepeaterItem().runState, 
+																	event.currentTarget.getRepeaterItem().instrument);" />
+				</mx:HBox>
+				<mx:HBox id="runInfo" width="100%">
+					<mx:Label id="runId" fontWeight="bold" text="Name: "/>
+					<mx:Label id="runIdVal" text="{repStatus.currentItem.runId}" /><!-- Run identifier -->
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label id="runType" fontWeight="bold" text="Type: " />
+					<mx:Label id="runTypeVal" text="{repStatus.currentItem.runType}" /><!-- Single End / Paired End-->
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label id="runDate" fontWeight="bold" text="Start date: " />
+					<mx:Label id="runDateVal" text="{repStatus.currentItem.runDate}"/> <!-- Start date of run -->
+					<mx:VRule height="12" />
+					<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
+					<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
+					<mx:Spacer width="10%" /> 
+					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" />
+				</mx:HBox>
+			</mx:VBox>					
+		</mx:Repeater>
+	</mx:VBox>
+</mx:Canvas>

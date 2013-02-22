@@ -22,10 +22,10 @@
 		
 		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
 			<mx:GridItem horizontalAlign="center">
-				<db:News id="newsHub">
+				<db:News id="newsHub" />
 			</mx:GridItem>
 			<mx:GridItem horizontalAlign="center">
-				<db:Notifications>
+				<db:NotificationHub />
 			</mx:GridItem>
 		</mx:GridRow>
 		<mx:GridRow width="90%" height="40%" horizontalAlign="center">

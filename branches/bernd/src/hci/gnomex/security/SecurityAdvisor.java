@@ -76,6 +76,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_MANAGE_GENOMICS_CORE                    = "canManageGenomicsCore";
   
   public static final String          CAN_MANAGE_DASHBOARD                        = "canManageDashboard";
+  public static final String		  CAN_RECEIVE_ADMIN_NOTIFICATION			  = "canReceiveAdminNotification";
+  public static final String		  CAN_RECEIVE_BILLING_NOTIFICATION			  = "canReceiveBillingNotification";
+  public static final String		  CAN_RECEIVE_WORKFLOW_NOTIFICATION			  = "canReceiveWorkflowNotification";
   
   public static final String          CAN_PARTICIPATE_IN_GROUPS                   = "canParticipateInGroups";            
   public static final String          CAN_SUBMIT_REQUESTS                         = "canSubmitRequests";            
