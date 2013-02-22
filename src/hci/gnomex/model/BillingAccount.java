@@ -32,6 +32,7 @@ public class BillingAccount extends HibernateDetailObject {
   private BigDecimal totalDollarAmount;
   private String     orderFormFileType;
   private byte []    purchaseOrderForm;
+  private Long       orderFormFileSize;
   private Date       startDate;
   private String     shortAcct;
   private Integer    idCoreFacility;
@@ -486,6 +487,14 @@ public class BillingAccount extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getExcludedMethodsMap");
     this.excludeMethodFromXML("getUsers");
+  }
+
+  public Long getOrderFormFileSize() {
+    return orderFormFileSize;
+  }
+
+  public void setOrderFormFileSize(Long orderFormFileSize) {
+    this.orderFormFileSize = orderFormFileSize;
   }
  
 }
