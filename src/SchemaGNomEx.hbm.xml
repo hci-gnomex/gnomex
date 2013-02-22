@@ -199,6 +199,7 @@
 		<property name="totalDollarAmount" column="totalDollarAmount" type="big_decimal"/>
 		<property name="orderFormFileType" column="orderFormFileType" type="string"/>
 		<property name="purchaseOrderForm" column="purchaseOrderForm" type="binary"/>
+		<property name="orderFormFileSize" column="orderFormFileSize" type="long"/>
 		<property name="shortAcct" column="shortAcct" type="string"/>
     <property name="startDate" column="startDate" type="date"/>
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
