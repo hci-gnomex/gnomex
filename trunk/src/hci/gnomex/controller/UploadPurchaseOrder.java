@@ -78,10 +78,10 @@ public class UploadPurchaseOrder extends HttpServlet {
           }
         }
       }
-      
       BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, idBillingAccount);
       ba.setPurchaseOrderForm(blob);
       ba.setOrderFormFileType(fileType.toLowerCase());
+      ba.setOrderFormFileSize(new Long(file.length()));
       sess.update(ba);
       sess.flush();
 
