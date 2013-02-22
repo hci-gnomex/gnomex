@@ -3,7 +3,6 @@ package hci.gnomex.daemon;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
-import hci.gnomex.controller.GetExpandedFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
@@ -19,6 +18,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -636,7 +636,7 @@ public class RegisterFiles extends TimerTask {
       Map requestMap = new TreeMap();
       Map directoryMap = new TreeMap();
       List requestNumbers = new ArrayList<String>();
-      GetExpandedFileList.getFileNamesToDownload(sess, serverName, null, Request.getKey(requestNumber, createDate, folderName, idCoreFacility), requestNumbers, requestMap, directoryMap, flowCellDirFlag);
+      UploadDownloadHelper.getFileNamesToDownload(sess, serverName, null, Request.getKey(requestNumber, createDate, folderName, idCoreFacility), requestNumbers, requestMap, directoryMap, flowCellDirFlag);
       List directoryKeys   = (List)requestMap.get(baseRequestNumber);
       if (directoryKeys != null) {
         for(Iterator i2 = directoryKeys.iterator(); i2.hasNext();) {

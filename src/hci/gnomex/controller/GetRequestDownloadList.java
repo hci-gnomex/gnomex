@@ -15,6 +15,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -548,7 +549,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     Map requestMap = new TreeMap();
     Map directoryMap = new TreeMap();
     List requestNumbers = new ArrayList<String>();
-    GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+    UploadDownloadHelper.getFileNamesToDownload(sess, serverName, baseDirFlowCell, key, requestNumbers, requestMap, directoryMap, dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
     List directoryKeys   = (List)requestMap.get(requestNumber);
     if (directoryKeys != null) {
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {

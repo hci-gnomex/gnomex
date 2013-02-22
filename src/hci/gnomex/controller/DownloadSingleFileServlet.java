@@ -8,6 +8,7 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -211,7 +212,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           }
           keys.append(fcKey);
         }
-        GetExpandedFileList.getFileNamesToDownload(sess, serverName, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
+        UploadDownloadHelper.getFileNamesToDownload(sess, serverName, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
         
         
         
