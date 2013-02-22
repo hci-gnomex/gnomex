@@ -42,11 +42,15 @@ public class GetPurchaseOrderForm extends HttpServlet {
 
       if(fileType.equals(".pdf")){
         res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + ".pdf");
+        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + fileType);
       }
       else if(fileType.equals(".doc")){
         res.setHeader("Content-Type", "application/msword");
-        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + ".doc");
+        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + fileType);
+      }
+      else if(fileType.equals(".docx")){
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + fileType);
       }
       else if(fileType.equals(".txt")){
         res.setHeader("Content-Type", "text/plain");
@@ -56,17 +60,23 @@ public class GetPurchaseOrderForm extends HttpServlet {
       }
       else if(fileType.equals(".zip")){
         res.setHeader("Content-Type", "application/zip");
-        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + ".zip");
+        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + fileType);
       }
       else if(fileType.equals(".xls")){
         res.setHeader("Content-Type", "application/msexcel");
-        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + ".xls");
+        res.setHeader("Content-Disposition", "inline; filename=BillingAccount" + idBillingAccount + fileType);
       }
 
-      while(in.read(output , 0, 1024) != -1){
-        out.write(output, 0, 1024);
+      long totalRead = 0;
+      while(totalRead != ba.getOrderFormFileSize()){
+        int amountRead = in.read(output, 0, 1024);
+        if(amountRead != -1){
+          out.write(output, 0, amountRead);
+        }
+        totalRead += new Long(amountRead);
       }
-      res.setContentLength((int)output.length);   
+ 
+      res.setContentLength((int)output.length);
       out.flush(); 
       out.close();
 
