@@ -19,27 +19,43 @@
     method="POST"
     useProxy="false">
   </mx:HTTPService>
+	
+  <mx:HTTPService  
+	id="deleteAnalysis" 
+	url="DeleteAnalysis.gx"
+	destination="deleteAnalysis"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onDeleteAnalysis(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+	method="POST"
+	useProxy="false">
+	</mx:HTTPService>
 
 
 
   
  <mx:Script>
  	<![CDATA[
+ 	import hci.flex.controls.DropdownLabel;
+ 	
  	import mx.collections.ArrayCollection;
+ 	import mx.containers.TitleWindow;
  	import mx.core.IContainer;
+ 	import mx.core.IFlexDisplayObject;
+ 	import mx.managers.PopUpManager;
  	import mx.rpc.events.ResultEvent;
-    import mx.managers.PopUpManager;
-	import mx.containers.TitleWindow;
-	import views.analysis.AnalysisGroupWindow;
-	import mx.core.IFlexDisplayObject;
-	import hci.flex.controls.DropdownLabel;
-	import views.util.GNomExStringUtil; 
+ 	
+ 	import views.analysis.AnalysisGroupWindow;
+ 	import views.util.GNomExStringUtil; 
 
 
     [Bindable]
     public var selectedAnalysis:Object;
     
     private var selectedIdAnalysis:int;
+		
+	private var analysisToDelete:XMLListCollection = new XMLListCollection;
 
 
         
@@ -136,6 +152,21 @@
 		filterList();
 		
 
+	}
+		
+	private function save():void{
+		dirtyAnalysisGroupList.resetDirty();
+		var params:Object = new Object;
+		for each(var analysis:XML in analysisToDelete){
+			params.idAnalysis = analysis.@idAnalysis;
+			deleteAnalysis.send(params);
+		}
+		analysisToDelete = new XMLListCollection;
+		
+	}
+		
+	private function onDeleteAnalysis(event:ResultEvent):void{
+		
 	}
 	
 	public function refreshFilterView():void {
@@ -284,6 +315,14 @@
 	public function formatDescriptionField(item:Object, col:DataGridColumn):String {
 		return GNomExStringUtil.stripHTMLText(item.@description);
 	}
+		
+	private function removeAnalysis():void {
+		this.dirtyAnalysisGroupList.setDirty();
+		for each(var item:Object in analysisList.selectedItems) {
+			browseList.removeItemAt(browseList.getItemIndex(item));
+			analysisToDelete.addItem(item);
+		}
+	}
  	]]>
  	
  </mx:Script>
@@ -330,13 +369,25 @@
 		        
 	<mx:VBox width="100%" height="100%" styleName="formTabBody"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">
 		<mx:ViewStack id="theViews"  paddingTop="0" width="100%" height="100%"  paddingLeft="0">
-		       <mx:VBox id="experimentListView" width="100%" height="100%" 
+		       <mx:VBox id="experimentListView" width="100%" height="100%"
 		       	label="Analysis" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+				   <mx:HBox>
+					   <mx:LinkButton icon="@Embed(source='../../assets/segment_new.png')"
+									  click="{parentDocument.showNewAnalysisWindow()}"
+									  styleName="linkMenuButton"
+									  disabledIcon="@Embed(source='../../assets/segment_new_disable.png')" label="New" textAlign="left">
+					   </mx:LinkButton>
+					   <mx:LinkButton icon="@Embed(source='../../assets/segment_remove.png')"
+									  disabledIcon="@Embed(source='../../assets/segment_remove_disable.png')"
+									  enabled="{analysisList.selectedItem != null}"  
+									  click="removeAnalysis()"
+									  styleName="linkMenuButton" label="Remove"/>
+				   </mx:HBox>
 			       <mx:DataGrid  id="analysisList" 
 			       	dataProvider="{browseList}"  
 			       	width="100%" height="100%" 
 			       	itemDoubleClick="onAnalysisRowSelected()" 
-			       	doubleClickEnabled="true"> 
+			       	doubleClickEnabled="true" allowMultipleSelection="true"> 
 			         <mx:columns>
 			            <mx:DataGridColumn  width="14" headerText="#"  sortCompareFunction="sortAnalysisNumber">
 			                <mx:itemRenderer>
@@ -379,8 +430,12 @@
 	<mx:ControlBar width="100%" height="34" >
 		<mx:HBox height="100%" verticalAlign="bottom" width="100%" horizontalAlign="left" horizontalGap="0">
 			<mx:ViewStack  id="buttonStack"  width="100%" >
-	            <mx:HBox horizontalAlign="left" id="browseButtonView" horizontalGap="2" width="100%" height="100%">
- 					<mx:Button  visible="false"/>
+	            <mx:HBox horizontalAlign="right" id="browseButtonView" horizontalGap="2" width="100%" height="100%" verticalAlign="middle">
+					<util:DirtyNote id="dirtyAnalysisGroupList"/>
+					<mx:Button id="saveAnalysisGroupListButton" label="Save" 
+							   icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" 
+							   click="save()"  toolTip="Save analysis group list">
+					</mx:Button>
  	            </mx:HBox>
 	            <mx:HBox  verticalAlign="middle"  horizontalAlign="right" id="browseProjectButtonView">
 	            </mx:HBox>

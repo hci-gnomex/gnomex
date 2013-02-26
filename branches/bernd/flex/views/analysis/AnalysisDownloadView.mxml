@@ -69,11 +69,11 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.analysis.DownloadProgressView;
+			import views.experiment.DownloadProgressView;
 			import views.renderers.CheckBoxGroupedItem;
 			import views.util.FileUtil;
+			import views.util.GuestDownloadTermsWindow;
 			
-			public var downloadProgressWindow:DownloadProgressView;
 			private var downloadWindow:AnalysisDownloadWindow;
 			
 			[Bindable]
@@ -98,7 +98,6 @@
 			
 			private var estimatedDownloadSize:Number;
 			
-			private const DOWNLOAD_FOLDERS_URL:String  = "DownloadAnalysisFolderServlet.gx"; 
 			private const DOWNLOAD_FILES_URL:String    = "DownloadAnalysisFileServlet.gx"; 
 			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-analysis";  
 			
@@ -191,6 +190,11 @@
 				var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
 				url.contentType = "text/xml";
 				url.method = URLRequestMethod.GET;
+				var parms:URLVariables = new URLVariables();
+				if (parentApplication.guestEmailAddress != null) {
+					parms.emailAddress = parentApplication.guestEmailAddress;
+				}
+				url.data = parms;
 				navigateToURL(url, '_self');					
 			}
 			
@@ -238,6 +242,9 @@
 				if (event.detail==Alert.YES) {
 					var parms:URLVariables = new URLVariables();
 					parms.mode =  "zip";
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
 					var progressWindow:DownloadProgressView = new DownloadProgressView();
 					progressWindow.init(parentApplication.theBody, this.DOWNLOAD_FILES_URL, parms, downloadWindow.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
@@ -264,10 +271,13 @@
 					previous = currentNum;
 				}
 				
+				var parms:URLVariables = new URLVariables;
+				parms.idAnalysis = idAnalysisList;
+				parms.emailAddress = parentApplication.guestEmailAddress;
 				var url:URLRequest = new URLRequest('ShowAnalysisDownloadForm' + 
 					(parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-					'.gx?idAnalysis=' + 
-					idAnalysisList);
+					'.gx');
+				url.data = parms;
 				navigateToURL(url, '_blank');					
 			}
 			
@@ -276,7 +286,7 @@
 					if (parentApplication.isFDTSupported) {
 						downloadFilesUsingFDTFromGlobalList();
 					} else {
-						parentDocument.showAlternateDownloadPage();	
+						showAlternateDownloadPage(selectedFileList.source);	
 					}
 				} 		
 			}
@@ -321,7 +331,27 @@
 				uploadWindow.init(analysis);
 			}
 			
-			public function showDownloadWindow():void {
+			private function showDownloadWindow():void {
+				if (this.browseParameters != null) {
+					var downloadTerms:String = parentApplication.getProperty(parentApplication.PROPERTY_GUEST_DOWNLOAD_TERMS);
+					if (parentApplication.isGuestMode() && downloadTerms != null && downloadTerms != '' && (parentApplication.guestEmailAddress == null || parentApplication.guestEmailAddress == '')) {
+						var termsWindow:GuestDownloadTermsWindow = GuestDownloadTermsWindow(PopUpManager.createPopUp(parentApplication.mainArea, GuestDownloadTermsWindow, true));
+						termsWindow.addEventListener(CloseEvent.CLOSE, checkGuestDownloadTerms);
+						PopUpManager.centerPopUp(termsWindow);
+					} else {
+						showDownloadWindowAfterGuestPrompt();
+					}
+				}
+			}
+			
+			public function checkGuestDownloadTerms(e:CloseEvent):void {
+				if (e.detail == 1) {
+					parentApplication.guestEmailAddress = e.target.emailAddress;
+					showDownloadWindowAfterGuestPrompt();
+				}
+			}
+			
+			public function showDownloadWindowAfterGuestPrompt():void {
 				if (this.browseParameters != null) {	  
 					downloadWindow = AnalysisDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, AnalysisDownloadWindow, true));
 					downloadWindow.downloadView = this;

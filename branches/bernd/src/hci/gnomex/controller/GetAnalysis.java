@@ -1,9 +1,12 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -18,7 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +40,7 @@ import org.jdom.output.XMLOutputter;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
+import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.AppUser;
@@ -44,6 +50,7 @@ import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
+import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
@@ -52,6 +59,7 @@ import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
 
 
@@ -199,16 +207,15 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         }
 
         
-        // Get the DataTracks that are linked to this Analysis via its files
-        if (a.getFiles().size() > 0) {
-          appendDataTrackNodes(sess, a, aNode);
-        }
 
         // Add properties
         Element pNode = getProperties(dh, a);
         aNode.addContent(pNode);
 
         doc.getRootElement().addContent(aNode);
+        
+        // Append related nodes
+        this.appendRelatedNodes(this.getSecAdvisor(), sess, a, aNode);
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
@@ -263,7 +270,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     return analysis;
   }
   
-  private void appendDataTrackNodes(Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
+  public static void appendDataTrackNodes(SecurityAdvisor secAdvisor, Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
    
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT dt, af FROM DataTrack dt ");
@@ -278,10 +285,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       }
     }
     queryBuf.append(")");
-    Element dtParentNode = new Element("DataTrackList");
-    aNode.addContent(dtParentNode);
+    
     List dataTracks = (List)sess.createQuery(queryBuf.toString()).list();
-    dtParentNode.setAttribute("count", Integer.valueOf(dataTracks.size()).toString());
+    aNode.setAttribute("dataTrackCount", Integer.valueOf(dataTracks.size()).toString());
 
     for (Iterator i = dataTracks.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -289,14 +295,14 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       AnalysisFile afFile = (AnalysisFile)row[1];
       
       Element dtNode = new Element("DataTrack");
-      dtParentNode.addContent(dtNode);
+      aNode.addContent(dtNode);
       dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
       dtNode.setAttribute("idDataTrackFolder", dt.getIdDataTrackFolder().toString());
       dtNode.setAttribute("number", dt.getNumber());
-      dtNode.setAttribute("name", this.getSecAdvisor().canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)");
+      dtNode.setAttribute("name", secAdvisor.canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)");
       dtNode.setAttribute("createdBy", dt.getCreatedBy() != null ? dt.getCreatedBy() : "");
       dtNode.setAttribute("idAnalysisFile", afFile.getIdAnalysisFile().toString());
-      dtNode.setAttribute("label", dt.getNumber() + " " + dt.getName());
+      dtNode.setAttribute("label", dt.getNumber() + " " + (secAdvisor.canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)"));
       dtNode.setAttribute("fileName", afFile.getQualifiedFileName() != null ? afFile.getQualifiedFileName() : "");
       dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
     }
@@ -471,6 +477,82 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   public HttpServletResponse setResponseState(HttpServletResponse response) {
     response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     return response;
+  }
+  
+  /*
+   * Append related experiments, data tracks, and topics.
+   */
+   @SuppressWarnings("unchecked")
+  private static void appendRelatedNodes(SecurityAdvisor secAdvisor, Session sess, Analysis analysis, Element node) throws Exception {
+    Element relatedNode = new Element("relatedObjects");
+    relatedNode.setAttribute("label", "Related Items");
+    node.addContent(relatedNode);
+
+    
+    // Hash experiments, and linked sequence lanes and hybs
+    TreeMap<Integer, Element> requestNodeMap = new TreeMap<Integer, Element>();  
+    TreeMap<Integer, TreeSet<SequenceLane>> laneMap = new TreeMap<Integer, TreeSet<SequenceLane>>();
+    TreeMap<Integer, TreeSet<Hybridization>> hybMap = new TreeMap<Integer, TreeSet<Hybridization>>();
+    for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)analysis.getExperimentItems()) {
+      Request request = null;
+      if (x.getSequenceLane() != null) {
+        request = x.getSequenceLane().getRequest();
+        TreeSet<SequenceLane> lanes = laneMap.get(request.getIdRequest());
+        if (lanes == null) {
+          lanes = new TreeSet<SequenceLane>(new SequenceLaneNumberComparator());
+          laneMap.put(request.getIdRequest(), lanes);
+        }
+        lanes.add(x.getSequenceLane());
+      } else if( x.getHybridization() != null) {
+        request = x.getHybridization().getLabeledSampleChannel1().getRequest();
+        TreeSet<Hybridization> hybs = hybMap.get(request.getIdRequest());
+        if (hybs == null) {
+          hybs = new TreeSet<Hybridization>(new HybNumberComparator());
+          hybMap.put(request.getIdRequest(), hybs);
+        }
+        hybs.add(x.getHybridization());
+      }
+      Element requestNode = requestNodeMap.get(request.getIdRequest());
+      if (requestNode == null) {
+        requestNode = request.appendBasicXML(secAdvisor, relatedNode);
+        requestNodeMap.put(request.getIdRequest(), requestNode);
+      }
+    }
+    
+    
+    // Append experiments, and seq lanes that connect to analysis or hybs that connect to analysis
+    for (Integer idRequest : requestNodeMap.keySet()) {
+      Element requestNode = requestNodeMap.get(idRequest);
+      if (laneMap.containsKey(idRequest)) {
+        for (SequenceLane lane : laneMap.get(idRequest)) {
+          Element laneNode = new Element("SequenceLane");
+          laneNode.setAttribute("idSequenceLane", lane.getIdSequenceLane().toString());
+          laneNode.setAttribute("label", "Seq Lane " + lane.getNumber());
+          laneNode.setAttribute("number", lane.getNumber());
+          requestNode.addContent(laneNode);          
+        }
+      } else if (hybMap.containsKey(idRequest)) {
+        for (Hybridization hyb : hybMap.get(idRequest)) {
+          Element hybNode = new Element("Hybridization");
+          hybNode.setAttribute("idHybridization", hyb.getIdHybridization().toString());
+          hybNode.setAttribute("label", "Hyb " + hyb.getNumber());
+          hybNode.setAttribute("number", hyb.getNumber());
+          requestNode.addContent(hybNode);      
+        }
+      }
+    }
+    
+    // Append data tracks
+    if (analysis.getFiles().size() > 0) {
+      GetAnalysis.appendDataTrackNodes(secAdvisor, sess, analysis, relatedNode);
+    }
+
+    // Append the parent topics (and the contents of the topic) XML 
+    Element relatedTopicNode = new Element("relatedTopics");
+    relatedTopicNode.setAttribute("label", "Related Topics");
+    node.addContent(relatedTopicNode);
+    Topic.appendParentTopicsXML(secAdvisor, relatedTopicNode, analysis.getTopics());
+
   }
 
 }

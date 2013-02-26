@@ -1026,7 +1026,7 @@
 								 labelField="@name" 
 								 prompt="Select a lab..."
 								 width="400"
-								 close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();" 
+								 close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();parentDocument.refreshFilteredProjects();" 
 								 id="labCombo">
 					</renderers:FilterComboBox>
 				</mx:HBox>

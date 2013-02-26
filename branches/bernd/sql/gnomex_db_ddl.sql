@@ -318,6 +318,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `totalDollarAmount` DECIMAL(12,2) NULL,
   `purchaseOrderForm` LONGBLOB NULL,
   `orderFormFileType` VARCHAR(10) NULL,
+  `orderFormFileSize` BIGINT NULL,
   `shortAcct` VARCHAR(10) NULL,
   `startDate` DATETIME NULL,
   `idCoreFacility` INT(10) NULL,
@@ -2444,6 +2445,9 @@ CREATE TABLE `gnomex`.`TransferLog` (
   `idAnalysis` INT(10)  NULL ,
   `idRequest` INT(10)  NULL ,
   `idLab` INT(10)  NULL ,
+  `emailAddress` VARCHAR(1000) NULL,
+  `ipAddress` VARCHAR(50) NULL,
+  `idAppUser` INT(10)  NULL ,
   PRIMARY KEY (`idTransferLog`),
   CONSTRAINT `FK_TransferLog_Request` FOREIGN KEY `FK_TransferLog_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)

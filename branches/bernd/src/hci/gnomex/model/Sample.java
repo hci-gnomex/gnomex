@@ -74,6 +74,7 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private Set         wells;
+  private Set         sequenceLanes;
   
   private Set        sequenceLanes;
   private Set        workItems;
@@ -756,7 +757,109 @@ public class Sample extends HibernateDetailObject {
     return rxnPlateNames;
     
   }
-
+  public String getWorkflowStep() {
+ 
+    String step = "1";
+    if (RequestCategory.isIlluminaRequestCategory(getRequest().getCodeRequestCategory())) {
+      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 5 : 4;
+      TreeMap<String, String> laneStatusMap = getLaneWorkflowStep(lastStep);
+      if (this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y")) {
+        if (laneStatusMap.size() > 0) {
+          step = laneStatusMap.lastKey();
+          if (laneStatusMap.size() > 1) {
+            step += ",partial";
+          }
+        } else if (this.getSeqPrepDate() != null) {
+          step = new Integer(lastStep - 2).toString();
+        } else if (this.getQualDate() != null) {
+          step = new Integer(lastStep - 3).toString();
+        } else {
+          step = new Integer(lastStep - 4).toString();
+        }      
+        
+      } else {
+        if (laneStatusMap.size() > 0) {
+          step = laneStatusMap.lastKey();
+          if (laneStatusMap.size() > 1) {
+            step += ",partial";
+          }
+        } else if (this.getSeqPrepDate() != null) {
+          step = new Integer(lastStep - 2).toString();
+        } else {
+          step = new Integer(lastStep - 3).toString();
+        }      
+        
+      }
+    } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
+      int lastStep = 4;
+      TreeMap<String, String> hybStatusMap = getHybWorkflowStep(4);
+      if (hybStatusMap.size() > 0) {
+        step = hybStatusMap.lastKey();
+        if (hybStatusMap.size() > 1) {
+          step += ",partial";
+        }
+      } else if (this.getQualDate() != null) {
+          step = new Integer(lastStep - 2).toString();
+        } else {
+          step = new Integer(lastStep - 3).toString();
+        }
+    } else if (request.getRequestCategory().getType().equals(RequestCategory.TYPE_QC)) {
+      if (this.getQualDate() != null) {
+        step = "2";
+      } else {
+        step = "1";
+      }
+    } else {
+      step = "1";
+    }
+    
+    return step;
+  }
+  
+  private TreeMap<String, String> getLaneWorkflowStep(int lastStep) {
+    TreeMap<String, String> stepMap = new TreeMap();
+    for (SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
+        
+        if (lane.getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
+          stepMap.put(new Integer(lastStep).toString(), null);
+        } else if (lane.getPipelineStatus().equals(Constants.STATUS_TERMINATED)) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getLastCycleStatus().equals(Constants.STATUS_COMPLETED)) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getLastCycleStatus().equals(Constants.STATUS_TERMINATED)) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getFirstCycleStatus().equals(Constants.STATUS_TERMINATED)) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getFlowCellChannelFirstCycleDate() != null) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getFlowCellChannelStartDate() != null) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } else if (lane.getFlowCellChannel() != null) {
+          stepMap.put(new Integer(lastStep - 1).toString(), null);
+        } 
+    }
+    return stepMap;
+    
+  }
+  
+  private TreeMap<String, String> getHybWorkflowStep(int lastStep) {
+    TreeMap<String, String> stepMap = new TreeMap<String, String>();
+    for (LabeledSample ls : (Set<LabeledSample>)this.getLabeledSamples()) {
+      for (Hybridization hyb : (Set<Hybridization>)request.getHybridizations()) {
+        if ((hyb.getLabeledSampleChannel1().getIdLabeledSample().equals(ls.getIdLabeledSample())) ||
+            (hyb.getLabeledSampleChannel2() != null && hyb.getLabeledSampleChannel2().getIdLabeledSample().equals(ls.getIdLabeledSample()))) {
+          if (hyb.getExtractionDate() != null) {
+            stepMap.put(new Integer(lastStep).toString(), null);
+          } else if (hyb.getHybDate() != null) {
+            stepMap.put(new Integer(lastStep - 1).toString(), null);
+          } else if (ls.getLabelingDate() != null) {
+            stepMap.put(new Integer(lastStep - 2).toString(), null);
+          }   
+        }
+      }
+    }
+    return stepMap;
+  }
 
   public Set getSequenceLanes() {
     return sequenceLanes;
@@ -773,6 +876,8 @@ public class Sample extends HibernateDetailObject {
   public void setWorkItems(Set workItems) {
     this.workItems = workItems;
   }
+
+
 }
   
   

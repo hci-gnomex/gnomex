@@ -30,13 +30,13 @@
 			import mx.events.CollectionEventKind;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
 			
 			import views.analysis.AnalysisEditView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
 			import views.util.WebLinksView;
-			import mx.utils.StringUtil;
 			
 			[Bindable]
 			private var isGuest:Boolean = true;
@@ -72,23 +72,17 @@
 				this.currentState = '';						
 				this.analysis = theAnalysis;
 				
-				if(!parentApplication.isTopicsSupported) {
-					if (theTab.contains(this.topicsTab)) {
-						theTab.removeChild(topicsTab);
-					}				
+				if (relatedExperiments.length == 0 && relatedTopics.length == 0 && relatedDataTracks.length == 0) {
+					if (theTab.contains(this.relatedEntriesTab)) {
+						theTab.removeChild(relatedEntriesTab);
+					}
 				} else {
-					var topics:XMLList = this.analysis.topics.Topic;
-					if(topics == null || topics.length() == 0) {
-						// If topics enabled but none returned then hide the topics tab
-						if (theTab.contains(this.topicsTab)) {
-							theTab.removeChild(topicsTab);
-						}					
-					} else if (topics != null && topics.length() > 0) {	
-						if (!theTab.contains(this.topicsTab)) {
-							theTab.addChild(topicsTab);
-						}					
-					}				
+					if (!theTab.contains(this.relatedEntriesTab)) {
+						theTab.addChild(relatedEntriesTab);
+					}
+					
 				}
+
 				
 				getAnalysisTypeName();
 				getAnalysisProtocolName();
@@ -116,6 +110,16 @@
 					isGuest = true;
 				} else {
 					isGuest = false;
+				}
+				
+				if (relatedExperiments.length > 0) {
+					callLater( this.relatedExperimentsTree.expandChildrenOf, [ relatedExperiments[0], true]); 				
+				} 
+				if (relatedDataTracks.length > 0) {
+					callLater( this.relatedDataTracksTree.expandChildrenOf, [ relatedDataTracks[0], true]); 				
+				} 
+				if (relatedTopics.length > 0) {
+					callLater( this.relatedTopicsTree.expandChildrenOf, [ relatedTopics[0], true]); 
 				}
 				
 			}
@@ -377,11 +381,43 @@
 				refreshSavedAnalysis(analysis.@idAnalysis);
 			}
 
+			
+			
+			private function onDoubleClickRelatedExperiments():void {
+				var selectedItem:Object = this.relatedExperimentsTree.selectedItem;
+				showRelatedObject(selectedItem);
+			}
+			private function onDoubleClickRelatedDataTracks():void {
+				var selectedItem:Object = this.relatedDataTracksTree.selectedItem;
+				showRelatedObject(selectedItem);
+			}
+			private function onDoubleClickRelatedTopic():void {
+				var selectedItem:Object = this.relatedTopicsTree.selectedItem;
+				showRelatedObject(selectedItem);
+				
+			}
+			private function showRelatedObject(selectedItem:Object):void {
+				if (selectedItem.name() == "Experiments") {
+					parentApplication.showExperimentsForNumber(selectedItem.@number);
+				} else if (selectedItem.name() == "Analysis" && analysis.@idAnalysis != selectedItem.@idAnalysis) {
+					parentApplication.showAnalysisForNumber(selectedItem.@number);
+				} else if (selectedItem.name() == "DataTrack") {
+					parentApplication.showDataTrackForNumber(selectedItem.@number);
+				} else if (selectedItem.name() == "Topic") {
+					parentApplication.showTopicForNumber(selectedItem.@idTopic);
+				} else if (selectedItem.name() == "Request" ) {
+					parentApplication.showExperimentById(selectedItem.@idRequest);
+				}				
+			}
+
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
 	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}" filterFunction="filterPropertiesWithValues"/>
+	<mx:XMLListCollection id="relatedExperiments" source="{this.analysis.relatedObjects..Request}"/>
+	<mx:XMLListCollection id="relatedDataTracks" source="{this.analysis.relatedObjects..DataTrack}"/>
+	<mx:XMLListCollection id="relatedTopics" source="{this.analysis.relatedTopics..Topic}"/>
 	<mx:XMLListCollection id="sortedTopics"
 						  source="{analysis.topics.Topic}">
 		<mx:sort>
@@ -427,67 +463,72 @@
 	
 		<mx:TabNavigator id="theTab" styleName="form"  change="{onTabChange()}" width="100%" height="100%" >
 			<mx:HBox width="100%" horizontalGap="5" label="Info"  paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" >
-					<mx:VBox verticalGap="4" width="350" height="100%">
+					<mx:VBox verticalGap="4" width="330" height="100%">
 						
 						<mx:HBox horizontalGap="0" width="100%">
-							<mx:Label text="Name"  width="98" fontWeight="normal">
-							</mx:Label>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{analysis.@name}" width="100%"  />
-						</mx:HBox>
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Label text="Lab Group"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@labName}" width="100%"/>
-						</mx:HBox>
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Label text="Submitted by"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@submitterName}" width="100%"/> 
+							<mx:Text text="Name"  width="110"  styleName="formLabel" textAlign="right">
+							</mx:Text>
+							<mx:Text text="{analysis.@name}" width="218"  />
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Submit Date"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@createDate}" width="100%"/>
-						</mx:HBox> 
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Label text="Owned by"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@ownerName}" width="100%"/> 
-						</mx:HBox>						
-						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Analysis Groups"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@analysisGroupNames}" width="100%"/>
+							<mx:Text text="Analysis Type"  width="110"  styleName="formLabel" textAlign="right"/>
+							<mx:Text text="{analysisTypeName}" width="218" />
 						</mx:HBox>
-						
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Visibility"  width="98" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{visibilityName}" width="100%"/>
+							<mx:Text text="Analysis Protocol"  width="110"  styleName="formLabel" textAlign="right"/>
+							<mx:Text   text="{analysisProtocolName}" width="218" />
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+							<mx:Text text="Organism"  width="110"  styleName="formLabel" textAlign="right"/>
+							<mx:Text text="{organismName}" width="218" />
+						</mx:HBox>
+						<mx:VBox verticalGap="0" width="100%">
+							<mx:Text text="Genome Builds"  width="110" styleName="formLabel" textAlign="right"/>
+							<mx:VBox paddingLeft="30" width="100%">
+								<mx:DataGrid id="genomeBuildGrid" width="298" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]" >
+									<mx:columns>
+										<mx:DataGridColumn dataField="@display"/>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:VBox>
+						</mx:VBox>
+						<mx:Spacer height="100%"/>
+						<mx:HBox verticalGap="0" horizontalGap="0">
+							<mx:Text text="Analysis Groups"  width="110"  styleName="formLabel" textAlign="right"/>
+							<mx:Text  text="{analysis.@analysisGroupNames}" width="218"/>
 						</mx:HBox>
 						
 					</mx:VBox>
 					
 					
-					<mx:VBox verticalGap="4" width="300" height="100%">
-						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Analysis Type"  width="100" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysisTypeName}" width="100%" />
+					<mx:VBox verticalGap="4" width="280" height="100%">
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text text="Lab Group"  width="98" styleName="formLabel" textAlign="right"/>
+							<mx:Text  text="{analysis.@labName}" width="180"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text text="Owned by"  width="98"  styleName="formLabel" textAlign="right"/>
+							<mx:Text  text="{analysis.@ownerName}" width="180"/> 
+						</mx:HBox>
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text text="Created by"  width="98"  styleName="formLabel" textAlign="right"/>
+							<mx:Text text="{analysis.@submitterName}" width="180"/> 
 						</mx:HBox>
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Analysis Protocol"  width="100" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{analysisProtocolName}" width="100%" />
-						</mx:HBox>
+							<mx:Text text="Create Date"  width="98"  styleName="formLabel" textAlign="right"/>
+							<mx:Text text="{analysis.@createDate}" width="180"/>
+						</mx:HBox> 
+						
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
-							<mx:Label text="Organism"  width="100" fontWeight="normal"/>
-							<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{organismName}" width="100%" />
+							<mx:Text text="Visibility"  width="98" styleName="formLabel" textAlign="right"/>
+							<mx:Text  text="{visibilityName}" width="180"/>
 						</mx:HBox>
-						<mx:Label text="Genome Builds"  width="111" fontWeight="normal"/>
-						<mx:DataGrid id="genomeBuildGrid" width="100%" height="46" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]">
-							<mx:columns>
-								<mx:DataGridColumn dataField="@display"/>
-							</mx:columns>
-						</mx:DataGrid>	
 					</mx:VBox>
 					
 				
 			</mx:HBox>
 			
-			<mx:HBox width="100%" horizontalGap="0" label="Description" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
+			<mx:HBox width="100%" horizontalGap="0" label="Description" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"  backgroundColor="#FFFFFF" backgroundAlpha="0.0">
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 									id="overallDescript" width="100%" 
 									htmlText="{analysis.@description}" 
@@ -496,7 +537,7 @@
 									roundedBottomCorners="false" paddingBottom="0" 
 									borderThicknessRight="0" borderThicknessLeft="0" 
 									borderThicknessBottom="0" borderThickness="0" 
-									borderThicknessTop="0" height="100%" minHeight="50"/>
+									borderThicknessTop="0" height="100%" minHeight="50" backgroundColor="#FFFFFF" styleName="readOnly"/>
 			</mx:HBox>
 			
 			<analysis:TabProperties id="analysisProperties" label="Annotations" editable="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" properties="{properties}">
@@ -551,38 +592,52 @@
 				</mx:ViewStack>
 			</mx:VBox>
 			
-			<mx:HBox width="100%" horizontalGap="0" label="Data Tracks"  >
-				<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
-					<mx:Repeater id="dataTrackRepeater" dataProvider="{analysis.DataTrackList.DataTrack}">
-						<mx:HBox horizontalGap="6" width="100%">
-							<mx:LinkButton label="{dataTrackRepeater.currentItem.@label}" 
-										   paddingTop="0" paddingBottom="2" 
-										   textDecoration="underline"
-										   icon="{dataTrackRepeater.currentItem.@codeVisibility == 'PUBLIC' ? parentApplication.iconDataTrackPublic : dataTrackRepeater.currentItem.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : dataTrackRepeater.currentItem.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackMember}"
-										   click="{parentApplication.showDataTrackViewForItem(event.currentTarget.getRepeaterItem(), event.currentTarget.getRepeaterItem())}" >
-							</mx:LinkButton>
-							<mx:Text width="100%" text="{dataTrackRepeater.currentItem.@fileName}"/>
+			<mx:VBox id="relatedEntriesTab" verticalGap="0" width="100%" height="100%" label="Related Data">
+				<mx:HBox height="100%" width="100%" horizontalGap="0"  label="Related Data">
+					<mx:VBox visible="{relatedExperiments.length &gt; 0}" includeInLayout="{relatedExperiments.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4">
+						<mx:HBox width="100%" verticalAlign="middle">
+							<mx:Label text="Experiments" styleName="formLabel"/>
 						</mx:HBox>
-					</mx:Repeater>
-				</mx:VBox>
-			</mx:HBox>
+						<mx:Tree id="relatedExperimentsTree" width="100%" height="100%" dataProvider="{relatedExperiments}"  
+								 showRoot="false" labelField="@label"  
+								 doubleClickEnabled="true"
+								 itemDoubleClick="onDoubleClickRelatedExperiments()"
+								 iconFunction="parentApplication.getTreeIcon">							
+						</mx:Tree> 
+					</mx:VBox> 
+					<mx:VBox visible="{relatedDataTracks.length &gt; 0}" includeInLayout="{relatedDataTracks.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4">
+						<mx:HBox width="100%" verticalAlign="middle">
+							<mx:Label text="DataTracks" styleName="formLabel"/>
+						</mx:HBox>
+						<mx:Tree id="relatedDataTracksTree" width="100%" height="100%" dataProvider="{relatedDataTracks}"  
+								 showRoot="false" labelField="@label"  
+								 doubleClickEnabled="true"
+								 itemDoubleClick="onDoubleClickRelatedDataTracks()"
+								 iconFunction="parentApplication.getTreeIcon">							
+						</mx:Tree> 
+					</mx:VBox> 
+					<mx:VBox visible="{relatedTopics.length &gt; 0}" includeInLayout="{relatedTopics.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="0" paddingTop="4">
+						<mx:Label text="Topics"  styleName="formLabel"/>
+						<mx:Tree id="relatedTopicsTree" width="100%" height="100%" dataProvider="{relatedTopics}"  
+								 showRoot="false" labelField="@label"  
+								 doubleClickEnabled="true"
+								 itemDoubleClick="onDoubleClickRelatedTopic()"
+								 iconFunction="parentApplication.getTreeIcon">							
+						</mx:Tree> 
+					</mx:VBox> 
+				</mx:HBox>						   
+
+				<mx:HBox verticalAlign="middle" width="100%">
+					<mx:Spacer width="100%"/>
+					<mx:TextArea height="18" styleName="instructionBox" width="230" id="textarea1" >
+						<mx:htmlText><![CDATA[Double-click on any entry to pull up details.]]></mx:htmlText>
+					</mx:TextArea>
+				</mx:HBox>
+				
+			</mx:VBox>
 
 			<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{analysis.@canUploadData == 'Y'}" />
 			
-			<mx:HBox width="100%" horizontalGap="0" id="topicsTab" label="Topics">
-				<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
-					<mx:Repeater id="topicRepeater" dataProvider="{sortedTopics}">
-						<mx:HBox horizontalGap="6" width="100%">
-							<mx:LinkButton label="{topicRepeater.currentItem.@name}" 
-										   paddingTop="0" paddingBottom="2" 
-										   textDecoration="underline"
-										   icon="{parentApplication.iconTopic}"
-										   click="{parentApplication.showTopicForNumber(event.currentTarget.getRepeaterItem().@idTopic)}" >
-							</mx:LinkButton>
-						</mx:HBox>
-					</mx:Repeater>
-				</mx:VBox>
-			</mx:HBox>
 			
 		</mx:TabNavigator>
 		

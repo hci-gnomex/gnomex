@@ -55,7 +55,6 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     
     serverName = req.getServerName();
 
-    
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
@@ -91,6 +90,13 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
       archiveHelper.setMode(req.getParameter("mode"));
     }
     
+    String emailAddress = "";
+    if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
+      emailAddress = req.getParameter("emailAddress");
+    }
+    
+    String ipAddress = GNomExCommand.getRemoteIP(req);
+    
     SecurityAdvisor secAdvisor = null;
     try {
       
@@ -104,7 +110,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getWritableHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));
@@ -171,6 +177,9 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
             xferLog.setPerformCompression("Y");
             xferLog.setIdAnalysis(analysis.getIdAnalysis());
             xferLog.setIdLab(analysis.getIdLab());
+            xferLog.setEmailAddress(emailAddress);
+            xferLog.setIpAddress(ipAddress);
+            xferLog.setIdAppUser(secAdvisor.getIdAppUser());
             
             
             // Since we use the request number to determine if user has permission to read the data, match sure

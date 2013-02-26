@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
@@ -9,6 +10,9 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +68,9 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
       HashMap filePartMap  = parseFileName(transferLog.getFileName(), fdtDirectory);
       String number        = (String)filePartMap.get("number");
       String baseFilePath  = (String)filePartMap.get("baseFilePath");
+      String emailAddress  = (String)filePartMap.get("emailAddress");
+      String ipAddress     = (String)filePartMap.get("ipAddress");
+      Integer idAppUser    = (Integer)filePartMap.get("idAppUser");
 
       
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
@@ -97,6 +104,9 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
         transferLog.setIdAnalysis(idAnalysis);
         transferLog.setIdRequest(idRequest);
         transferLog.setPerformCompression("N");
+        transferLog.setEmailAddress(emailAddress);
+        transferLog.setIpAddress(ipAddress);
+        transferLog.setIdAppUser(idAppUser);
         
         // If we can't rely on the start date time, use the request or analysis completed 
         // (or created) date for the start time
@@ -171,6 +181,30 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
     }
     filePartMap.put("number", number);
     filePartMap.put("baseFilePath", baseFilePath);
+    
+    // Get the info file.
+    File info = new File (fdt_directory + uuid + File.separator + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
+    if (info.exists()) {
+      FileReader fr = new FileReader(info);
+      BufferedReader br = new BufferedReader(fr);
+      String emailAddress = br.readLine();
+      String ipAddress = br.readLine();
+      String idAppUserString = br.readLine();
+      if (emailAddress != null) {
+        filePartMap.put("emailAddress", emailAddress);
+      }
+      if (ipAddress != null) {
+        filePartMap.put("ipAddress", ipAddress);
+      }
+      if (idAppUserString != null) {
+        Integer idAppUser = null;
+        try {
+          idAppUser = Integer.parseInt(idAppUserString);
+          filePartMap.put("idAppUser", idAppUser);
+        } catch (NumberFormatException ex) {
+        }
+      }
+    }
     return filePartMap;
   }
 

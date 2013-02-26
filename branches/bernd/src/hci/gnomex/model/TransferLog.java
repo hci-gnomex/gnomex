@@ -28,6 +28,9 @@ public class TransferLog extends HibernateDetailObject {
   private Integer          idLab;
   private Lab              lab;
   private Request          request;
+  private String           emailAddress;
+  private String           ipAddress;
+  private Integer          idAppUser;
   
   public Integer getIdTransferLog() {
     return idTransferLog;
@@ -107,4 +110,22 @@ public class TransferLog extends HibernateDetailObject {
   public void setRequest(Request request) {
     this.request = request;
   } 
+  public String getEmailAddress() {
+    return emailAddress;
+  }
+  public void setEmailAddress(String address) {
+    this.emailAddress = address;
+  }
+  public String getIpAddress() {
+    return ipAddress;
+  }
+  public void setIpAddress(String address) {
+    this.ipAddress = address;
+  }
+  public Integer getIdAppUser() {
+    return idAppUser;
+  }
+  public void setIdAppUser(Integer id) {
+    this.idAppUser = id;
+  }
 }

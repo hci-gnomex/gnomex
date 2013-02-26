@@ -103,6 +103,14 @@ public abstract class GNomExCommand extends Command implements Serializable {
     return (SecurityAdvisor)this.getSecurityAdvisor();
   }
   
+  public static String getRemoteIP(HttpServletRequest request) {
+    String xff = request.getHeader("X-Forwarded-For");
+    if (xff != null) {
+        return xff.split("[\\s,]+")[0];
+    }
+    return request.getRemoteAddr();
+  }
+  
   public String getAppURL(HttpServletRequest request) throws Exception {
     boolean isLocalHost = request.getServerName().equalsIgnoreCase("localhost") || request.getServerName().equals("127.0.0.1")  || InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress();
     return "http"+ (isLocalHost ? "://" : "s://") + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();    

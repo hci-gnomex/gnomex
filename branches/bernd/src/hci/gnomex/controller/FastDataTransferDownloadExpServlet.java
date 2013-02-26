@@ -10,6 +10,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.UploadDownloadHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,6 +60,10 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
     serverName = req.getServerName();
 
+    String emailAddress = "";
+    if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
+      emailAddress = req.getParameter("emailAddress");
+    }
 
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -181,6 +186,8 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
                 System.out.println("Error. Unable to create softlinks directory.");
                 return;
               } 
+              
+              UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req);
               
               // change ownership to HCI_fdt user
               String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);

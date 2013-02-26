@@ -243,13 +243,21 @@ public class GetLab extends GNomExCommand implements Serializable {
   }
   
   private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {
-    // Show only collaborators under this lab
+    // Show all the members, collaborators, and mgr under this lab
     // if the user can submit requests
     Element possibleCollaboratorsNode = new Element("possibleCollaborators");
     labNode.addContent(possibleCollaboratorsNode);
     
     TreeMap appUsers = new TreeMap();
+    for(Iterator i2 = theLab.getMembers().iterator(); i2.hasNext();) {
+      AppUser u = (AppUser)i2.next();
+      appUsers.put(u.getDisplayName(), u);
+    }
     for(Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
+      AppUser u = (AppUser)i2.next();
+      appUsers.put(u.getDisplayName(), u);
+    }
+    for(Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
       AppUser u = (AppUser)i2.next();
       appUsers.put(u.getDisplayName(), u);
     }

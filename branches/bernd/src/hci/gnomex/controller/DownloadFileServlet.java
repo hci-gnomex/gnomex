@@ -85,6 +85,13 @@ public class DownloadFileServlet extends HttpServlet {
       archiveHelper.setMode(req.getParameter("mode"));
     }
     
+    String emailAddress = "";
+    if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
+      emailAddress = req.getParameter("emailAddress");
+    }
+    
+    String ipAddress = GNomExCommand.getRemoteIP(req);
+ 
     //  Get cached file descriptor parser
     parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
@@ -105,7 +112,7 @@ public class DownloadFileServlet extends HttpServlet {
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         
         
-        Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+        Session sess = secAdvisor.getWritableHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         
         archiveHelper.setTempDir(dh.getPropertyDictionary(PropertyDictionary.TEMP_DIRECTORY));
@@ -166,7 +173,10 @@ public class DownloadFileServlet extends HttpServlet {
             xferLog.setPerformCompression("Y");
             xferLog.setIdRequest(request.getIdRequest());
             xferLog.setIdLab(request.getIdLab());
-
+            xferLog.setEmailAddress(emailAddress);
+            xferLog.setIpAddress(ipAddress);
+            xferLog.setIdAppUser(secAdvisor.getIdAppUser());
+ 
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.

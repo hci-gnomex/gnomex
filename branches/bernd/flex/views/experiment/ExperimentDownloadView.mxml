@@ -69,8 +69,8 @@
 			import views.experiment.DownloadProgressView;
 			import views.renderers.CheckBoxGroupedItem;
 			import views.util.FileUtil;
+			import views.util.GuestDownloadTermsWindow;
 			
-			public var downloadProgressWindow:DownloadProgressView;
 			private var downloadWindow:ExperimentDownloadWindow;
 			
 			[Bindable]
@@ -95,7 +95,6 @@
 			
 			private var estimatedDownloadSize:Number;
 			
-			private const DOWNLOAD_FOLDERS_URL:String  = "DownloadResultsServlet.gx"; 
 			private const DOWNLOAD_FILES_URL:String    = "DownloadFileServlet.gx"; 
 			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
 			
@@ -223,6 +222,9 @@
 				if (event.detail==Alert.YES) {
 					var parms:URLVariables = new URLVariables();
 					parms.mode =  "zip";
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
 					var progressWindow:DownloadProgressView = new DownloadProgressView();
 					progressWindow.init(parentApplication.theBody, this.DOWNLOAD_FILES_URL, parms, downloadWindow.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
@@ -276,10 +278,14 @@
 			}
 			
 			public function showFastDataTransferDownloadPage():void {
-				var paramStr:String =  selectedFileList.toXMLString();			
 				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
 				url.contentType = "text/xml";
 				url.method = URLRequestMethod.GET;
+				var parms:URLVariables = new URLVariables();
+				if (parentApplication.guestEmailAddress != null) {
+					parms.emailAddress = parentApplication.guestEmailAddress;
+				}
+				url.data = parms;
 				navigateToURL(url, '_self');						
 			}
 			
@@ -331,6 +337,26 @@
 			}
 			
 			public function showDownloadWindow():void {
+				if (this.browseParameters != null) {
+					var downloadTerms:String = parentApplication.getProperty(parentApplication.PROPERTY_GUEST_DOWNLOAD_TERMS);
+					if (parentApplication.isGuestMode() && downloadTerms != null && downloadTerms != '' && (parentApplication.guestEmailAddress == null || parentApplication.guestEmailAddress == '')) {
+						var termsWindow:GuestDownloadTermsWindow = GuestDownloadTermsWindow(PopUpManager.createPopUp(parentApplication.mainArea, GuestDownloadTermsWindow, true));
+						termsWindow.addEventListener(CloseEvent.CLOSE, checkGuestDownloadTerms);
+						PopUpManager.centerPopUp(termsWindow);
+					} else {
+						showDownloadWindowAfterGuestPrompt();
+					}
+				}
+			}
+			
+			public function checkGuestDownloadTerms(e:CloseEvent):void {
+				if (e.detail == 1) {
+					parentApplication.guestEmailAddress = e.target.emailAddress;
+					showDownloadWindowAfterGuestPrompt();
+				}
+			}
+
+			public function showDownloadWindowAfterGuestPrompt():void {
 				if (this.browseParameters != null) {	  
 					downloadWindow = ExperimentDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentDownloadWindow, true));
 					downloadWindow.downloadView = this;
@@ -385,6 +411,7 @@
 						   id="downloadLink" 
 						   textDecoration="underline" icon="@Embed(source='../../assets/download.png')" 
 						   textAlign="left"/>
+			
 		</mx:HBox>
 		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>
 		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 

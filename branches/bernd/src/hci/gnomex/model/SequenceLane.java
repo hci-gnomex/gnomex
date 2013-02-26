@@ -316,6 +316,7 @@ public class SequenceLane extends HibernateDetailObject {
       return "Ready for Sample QC";
     }
   }
+  
 
   public String getWorkflowStatusAbbreviated() {
     if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {

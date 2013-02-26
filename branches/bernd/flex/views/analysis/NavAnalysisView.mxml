@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Analysis" width="100%" height="100%" 
-		   xmlns:views="views.*" 
+		   xmlns:views="views.*"  backgroundColor="#FFFFFF"
 		   xmlns:analysis="views.analysis.*" 
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
@@ -111,6 +111,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+			import mx.controls.List;
 			import mx.controls.Menu;
 			import mx.controls.TextArea;
 			import mx.controls.treeClasses.TreeItemRenderer;
@@ -130,6 +131,7 @@
 			public var showEditView:Boolean = false;
 			public var addAnalysisGroup:XML = null;
 			public var removeIdAnalysisGroup:String = null;
+			private var selectedTreeItems:ArrayCollection;
 			
 			[Bindable]
 			public var selectedAnalysis:Object;
@@ -145,7 +147,7 @@
 			
 			private var dropProject:Object;
 			private var dragRequest:Object;
-			
+
 			[Bindable]
 			public var selectedIdAnalysisGroup:String;
 			
@@ -483,6 +485,9 @@
 			
 			
 			private function onBrowseTree():void {
+				if(browseTree.selectedItems.length != 1){
+					return;
+				}
 				setResultsCount();
 				
 				browseView.dirtyAnalysisGroup.resetDirty();
@@ -523,7 +528,7 @@
 						getAnalysisGroup.send();
 						
 					} else {
-						browseView.titleLabel.text =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;;
+						browseView.titleLabel.text =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;
 						selectedIdAnalysisGroup = null;
 						if (browseView.theViews.contains(browseView.analysisGroupView)) {
 							browseView.theViews.removeChild(browseView.analysisGroupView);
@@ -545,7 +550,7 @@
 				
 			}
 			
-			
+
 			
 			public function refreshAnalysisNumbers(analysisList:XMLListCollection):void {
 				analysisNumbers.removeAll();
@@ -677,7 +682,7 @@
 						analysisEditView.setExecValidateAndSaveAnalysis();
 						addAnalysisGroup = null;
 					}
-				} else {
+				} else{
 					analysisViews.selectedChild = analysisDetailView;				
 					analysisDetailView.setupForm(this.selectedAnalysis);
 					analysisDetailView.updateUploadFormAnalysisObj();
@@ -845,6 +850,9 @@
 				for each(var lab:Object in labList) {
 					lab.@isSelected = 'false';
 				}
+				if(browseLabCombo.selectedItem == null){
+					return;
+				}
 				
 				if (browseLabCombo.selectedItem != null) {
 					this.labKeys = browseLabCombo.selectedItem.@idLab;
@@ -873,38 +881,74 @@
 			
 			
 			public function promptToDelete():void {
-				if (selectedAnalysis != null && selectedAnalysis.DataTrackList.@count > 0) {
-					Alert.show("This analysis has associated data tracks.  Do you want to delete the analysis and delete any associated data tracks?",
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDelete);
-					
-				} else if (selectedAnalysis != null) {
-					Alert.show("Delete analysis " + selectedAnalysis.@name + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDelete);
-					
-				} else if (selectedAnalysisGroup != null) {
-					Alert.show("Delete analysis group " + selectedAnalysisGroup.@name + "?", 
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDelete);
+				var message:String = "The following items will be deleted: \n";
+				var analysisWithDataTracks:ArrayCollection = new ArrayCollection;
+				var analysisGroupSelected:Boolean = false;
+				for each(var item:XML in browseTree.selectedItems){
+					if (item.name() == 'Analysis' && item.DataTrackList.@count > 0) {
+						message += "*" + item.@name + ", ";
+					}
+					else if(item.name() == 'AnalysisGroup'){
+						analysisGroupSelected = true;
+						message += item.@name + ", ";
+					}
+					else{
+						message += item.@name + ", ";
+					}
+
 					
 				}
+				message = message.substring(0, message.lastIndexOf(","));
+				
+				if(message.search('*') != -1){
+					message += "\n\nThe analysis denoted with an '*' have associated data tracks. Both the analysis and the associated data tracks will be deleted.";
+				}
+				
+				if(analysisGroupSelected){
+					message += "\n\nOne or more analysis groups have been selected.  Any analysis contained within the group will also be deleted.";
+				}
+				message += "\nContinue?"
+				Alert.show(message, "Warning", (Alert.YES | Alert.NO), this, onPromptToDelete);
+				
+
 			}
 			
 			
-			public function onPromptToDelete(event:CloseEvent):void {
-				if (event.detail==Alert.YES) {
-					var params:Object = new Object();
-					if (selectedAnalysis != null) {
-						params.idAnalysis = selectedAnalysis.@idAnalysis;
+			public function onPromptToDelete(event:CloseEvent):void {				
+				if(event.detail==Alert.YES){
+					selectedTreeItems = new ArrayCollection(browseTree.selectedItems);
+					for each(var item:XML in selectedTreeItems){
+						if(item.name() == "AnalysisGroup" && item.children().length() > 0){
+							for each(var child:XML in item.children()){
+								if(!selectedTreeItems.contains(child)){
+									selectedTreeItems.addItem(child);
+								}
+							}
+							selectedTreeItems.removeItemAt(selectedTreeItems.getItemIndex(item));
+							selectedTreeItems.addItem(item);
+						}
+					}
+					deleteSelectedItems();
+				}
+				
+			}
+			
+			private function deleteSelectedItems():void{
+				var params:Object = new Object();
+				if(selectedTreeItems.length != 0){
+					var item:XML = XML(selectedTreeItems.removeItemAt(0));
+					if(item.name() == "Analysis"){
+						params.idAnalysis = item.@idAnalysis;
 						deleteAnalysis.send(params);
-					} else if (selectedAnalysisGroup != null) {
-						params.idAnalysisGroup = selectedAnalysisGroup.@idAnalysisGroup;
+					}
+					else if(item.name() == "AnalysisGroup"){
+						params.idAnalysisGroup = item.@idAnalysisGroup;
 						deleteAnalysisGroup.send(params);
 					}
+				}
+				else{
+					this.refreshAnalysis();
+					return;
 				}
 			}
 			
@@ -913,7 +957,7 @@
 					selectedAnalysisGroup = null;
 					selectedIdAnalysisGroup = null;
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
-					this.refreshAnalysis();
+					deleteSelectedItems();
 					analysisViews.selectedChild = browseView;
 				} else {
 					Alert.show(deleteAnalysis.lastResult..ACTMESSAGE.@TEXT);
@@ -926,14 +970,19 @@
 					selectedAnalysisGroup = null;
 					selectedIdAnalysisGroup = null;
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
-					this.refreshAnalysis();
+					deleteSelectedItems();
 					analysisViews.selectedChild = browseView;
 				} else {
 					Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
 			
+
+			
 			private function browseTreeDrop(e:DragEvent):void {
+				if(browseTree.selectedItems.length > 1){
+					Alert.show("Sorry, you may only move one analysis item at a time");
+				}
 				e.preventDefault();
 				browseTree.hideDropFeedback(e);
 				var obj:Object = e.dragSource.dataForFormat("treeItems");
@@ -1061,8 +1110,8 @@
 	<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
-	<mx:VBox   width="100%" height="100%" verticalGap="3">
-		<mx:VBox styleName="panelBox" width="100%" id="vbox1" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false">
+	<mx:VBox   width="100%" height="100%" verticalGap="2">
+		<mx:VBox styleName="panelBox" width="100%" id="vbox1" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" dropShadowEnabled="false" borderColor="#979DA2">
 			<mx:VBox id="filterBox"  verticalGap="0" width="100%">
 				<mx:HBox horizontalGap="14" verticalAlign="middle" width="100%" id="hbox4">
 					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="10"  width="95"/>
@@ -1107,12 +1156,12 @@
 					</mx:HBox>
 					<mx:Spacer width="100%" id="spacer2"/>
 					<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="linkbutton1"/>
-
+					
 					
 					
 					
 				</mx:HBox>
-
+				
 			</mx:VBox>
 		</mx:VBox>
 		<mx:HDividedBox height="100%" width="100%"> 
@@ -1143,7 +1192,7 @@
 								 iconFunction="parentApplication.getTreeIcon" 
 								 backgroundAlpha="1"
 								 dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
-								 dragEnabled="true" 
+								 dragEnabled="true" allowMultipleSelection="true"
 								 dropEnabled="true"></mx:Tree>
 						
 					</mx:VBox>
@@ -1199,7 +1248,6 @@
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
-			<mx:AddChild relativeTo="{linkbutton1}" position="before" target="{hbox3}"/>
 			<mx:RemoveChild target="{spacer2}"/>
 			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="20"/>
@@ -1218,7 +1266,7 @@
 												  id="browseLabCombo">
 						</renderers:FilterComboBox>
 					</mx:HBox>
-
+					
 					<mx:HBox horizontalGap="1" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle" id="vbox2">
 						<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
 						<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="550"/>

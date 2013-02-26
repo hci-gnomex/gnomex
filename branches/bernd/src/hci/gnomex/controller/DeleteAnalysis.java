@@ -121,7 +121,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteRequest ", e);
+      log.error("An exception has occurred in DeleteAnalysis ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
@@ -138,6 +138,9 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
   
   private void removeUnregisteredFiles(String folderName) throws IOException{
     File f = new File(folderName);
+    if(!f.exists()){
+      return;
+    }
     String [] folderContents = f.list();
     
     if(folderContents.length == 0){

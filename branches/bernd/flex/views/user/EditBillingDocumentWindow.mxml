@@ -82,7 +82,7 @@
 			private function uploadPDF():void{
 				fileRef.addEventListener(Event.SELECT, selectHandler);
 				fileRef.addEventListener(Event.COMPLETE, completeHandler);
-				fileRef.browse(new Array(new FileFilter("(*.pdf, *.doc, *.txt, *.html, *.zip, *.xls)", "*.pdf; *.doc; *.txt; *.html; *.zip; *.xls")));
+				fileRef.browse(new Array(new FileFilter("(*.pdf, *.doc, *.docx, *.txt, *.html, *.zip, *.xls)", "*.pdf; *.doc; *.docx; *.txt; *.html; *.zip; *.xls")));
 			}
 			
 			private function onGetUploadPurchaseOrderURL(event:ResultEvent):void{

@@ -199,6 +199,7 @@
 		<property name="totalDollarAmount" column="totalDollarAmount" type="big_decimal"/>
 		<property name="orderFormFileType" column="orderFormFileType" type="string"/>
 		<property name="purchaseOrderForm" column="purchaseOrderForm" type="binary"/>
+		<property name="orderFormFileSize" column="orderFormFileSize" type="long"/>
 		<property name="shortAcct" column="shortAcct" type="string"/>
     <property name="startDate" column="startDate" type="date"/>
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
@@ -892,6 +893,11 @@
 		</set>
 		
 		
+		<set name="sequenceLanes" table="SequenceLane" lazy="true" cascade="none" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.SequenceLane" />
+		</set>
+		
   </class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
@@ -989,6 +995,9 @@
 		<property name="idLab" column="idLab" type="integer"/>
 		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
 		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
+    <property name="emailAddress" column="emailAddress" type="string"/>
+    <property name="ipAddress" column="ipAddress" type="string"/>
+    <property name="idAppUser" column="idAppUser" type="integer"/>
 	</class>
 		
 	<!-- hci.gnomex.model.WorkItem -->
@@ -1931,6 +1940,7 @@
 		</id>
 		<property name="step" column="step" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.SubmissionInstruction -->

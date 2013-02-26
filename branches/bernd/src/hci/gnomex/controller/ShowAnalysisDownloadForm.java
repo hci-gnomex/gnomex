@@ -12,6 +12,8 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
   private Integer          idAnalysis;
   private String           serverName;
   private String           baseURL;
+  private String           emailAddress;
 
   private boolean         createdSecurityAdvisor = false;
   private SecurityAdvisor  secAdvisor = null;
@@ -58,6 +61,11 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     } else {
       this.addInvalidField("idAnalysis", "idAnalysis is required");
     }
+    
+    emailAddress = "";
+    if (request.getParameter("emailAddress") != null) {
+      emailAddress = request.getParameter("emailAddress");
+    }    
     
     serverName = request.getServerName();
     
@@ -91,7 +99,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 
           // Format an HTML page with links to download the files
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-          Document doc = formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL);
+          Document doc = formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL, emailAddress);
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           out.setOmitEncoding(true);
@@ -147,7 +155,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
    * Format an HTML page showing download links for each of the files of this analysis
    * 
    */
-  public static Document formatDownloadHTML(Analysis analysis, SecurityAdvisor secAdvisor, String baseDir, String baseURL) throws UnknownPermissionException {
+  public static Document formatDownloadHTML(Analysis analysis, SecurityAdvisor secAdvisor, String baseDir, String baseURL, String emailAddress) throws UnknownPermissionException {
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -220,7 +228,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
         boolean flattenSubDirs = true;
         
         GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(folder), analysisNumbers, analysisMap, directoryMap, flattenSubDirs);
-        addDownloadTable(baseURL, maindiv, folder, analysisMap, directoryMap, analysis.getNumber(), analysis.getIdAnalysis());
+        addDownloadTable(baseURL, maindiv, folder, analysisMap, directoryMap, analysis.getNumber(), analysis.getIdAnalysis(), emailAddress);
         
         if (i.hasNext()) {
           br = new Element("br");
@@ -288,7 +296,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     
   }
   
-  private static void addDownloadTable(String baseURL, Element maindiv, String folder, Map analysisMap, Map directoryMap, String analysisNumber, Integer idAnalysis) {
+  private static void addDownloadTable(String baseURL, Element maindiv, String folder, Map analysisMap, Map directoryMap, String analysisNumber, Integer idAnalysis, String emailAddress) {
     Element tableNode = new Element("table");
     maindiv.addContent(tableNode);
     Element caption = new Element("caption");
@@ -307,7 +315,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
           AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i2.next();
           fd.setQualifiedFilePath(dirTokens[0]);
           
-          recurseAddFileRow(baseURL, tableNode, fd, idAnalysis);
+          recurseAddFileRow(baseURL, tableNode, fd, idAnalysis, emailAddress);
           
         }
       }
@@ -353,17 +361,24 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
     }
   }
   
-  private static void recurseAddFileRow(String baseURL, Element tableNode, AnalysisFileDescriptor fd, Integer idAnalysis) {
+  private static void recurseAddFileRow(String baseURL, Element tableNode, AnalysisFileDescriptor fd, Integer idAnalysis, String emailAddress) {
     if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
         AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
-        recurseAddFileRow(baseURL, tableNode, childFd, idAnalysis);
+        recurseAddFileRow(baseURL, tableNode, childFd, idAnalysis, emailAddress);
       }      
     } else {
       String dirParm = fd.getQualifiedFilePath() != null && !fd.getQualifiedFilePath().equals("") ? "&dir=" + fd.getQualifiedFilePath() : "";
 
+      String emailParm = "";
+      try {
+        emailParm = "&emailAddress=" + URLEncoder.encode(emailAddress, "UTF-8");
+      } catch(UnsupportedEncodingException ex) {
+        log.error("Unable to encode email address", ex);
+      }
+      
       Element downloadLink = new Element("A");
-      downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName() + dirParm);
+      downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName() + emailParm + dirParm);
       downloadLink.addContent(fd.getDisplayName());
       
       tableNode.addContent(makeRow(downloadLink, "", fd.getFileSizeText()));

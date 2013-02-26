@@ -57,14 +57,6 @@
 		</init-param>
 	</servlet>
 
-
-	<servlet>
-		<servlet-name>DownloadResultsServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.DownloadResultsServlet
-		</servlet-class>
-	</servlet>
-	
 	<servlet>
 		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
 		<servlet-class>
@@ -83,14 +75,6 @@
 		<servlet-name>DownloadABIRunFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadABIRunFileServlet
-		</servlet-class>
-	</servlet>
-	
-
-	<servlet>
-		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.DownloadAnalysisFolderServlet
 		</servlet-class>
 	</servlet>
 
@@ -139,17 +123,17 @@
 		</servlet-class>
 	</servlet>
 
+  <servlet>
+    <servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.DownloadAnalysisSingleFileServlet
+    </servlet-class>
+  </servlet>
+
 	<servlet>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadAnalysisFileServlet
-		</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.DownloadAnalysisSingleFileServlet
 		</servlet-class>
 	</servlet>
 
@@ -288,11 +272,6 @@
 		<servlet-name>ExperimentQueue</servlet-name>
 		<url-pattern>/ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
-	
-	<servlet-mapping>
-		<servlet-name>DownloadResultsServlet</servlet-name>
-		<url-pattern>/DownloadResultsServlet.gx</url-pattern>
-	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
@@ -307,11 +286,6 @@
 	<servlet-mapping>
 		<servlet-name>DownloadABIRunFileServlet</servlet-name>
 		<url-pattern>/DownloadABIRunFileServlet.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>DownloadAnalysisFolderServlet</servlet-name>
-		<url-pattern>/DownloadAnalysisFolderServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
@@ -348,15 +322,15 @@
 		<servlet-name>DownloadSingleFileServlet</servlet-name>
 		<url-pattern>/DownloadSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
+    <url-pattern>/DownloadAnalysisSingleFileServlet.gx</url-pattern>
+  </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<url-pattern>/DownloadAnalysisFileServlet.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>DownloadAnalysisSingleFileServlet</servlet-name>
-		<url-pattern>/DownloadAnalysisSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
