@@ -13,11 +13,10 @@ public class NewsItem extends HibernateDetailObject {
   private Integer			idSubmitter;
   private Integer			idCoreSender;
   private Integer			idCoreTarget;
-
-  /*private Integer			appUser;
+  private Integer			appUser;
   private Integer			coreFacilitySender;
   private Integer			coreFacilityTarget;  
-  */
+  
   public Integer getIdNewsItem(){
 	 return idNewsItem;
   }
@@ -65,7 +64,15 @@ public class NewsItem extends HibernateDetailObject {
   public void setIdCoreTarget(Integer coreTarget){
 	  this.idCoreTarget = coreTarget;
   }
-/*  
+
+  public String getTitle() {
+	  return title;	
+  }
+
+  public void setTitle(String title) {
+	  this.title = title;
+  }
+  
   public Integer getAppUser(){
 	  return appUser;
   }
@@ -89,13 +96,6 @@ public class NewsItem extends HibernateDetailObject {
   public void setCoreFacilitySender(Integer coreFacilitySender){
 	  this.coreFacilitySender = coreFacilityTarget;
   }
-*/
-public String getTitle() {
-	return title;
-}
 
-public void setTitle(String title) {
-	this.title = title;
-}
-
+  
 }

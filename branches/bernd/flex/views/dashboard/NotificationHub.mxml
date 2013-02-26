@@ -4,9 +4,25 @@
 				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
 				creationComplete="init()" horizontalScrollPolicy="off">   
 
-	 
+	<mx:HTTPService 
+		id="notificationInterface" 
+		url="GetNotification.gx"
+		resultFormat="e4x"
+		destination="NotificationInterface"
+		showBusyCursor="true"
+		result="onGetNotificationInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get notification interface result', event)"
+		useProxy="false">	 
+	</mx:HTTPService>
 
+	<mx:XMLListCollection id="userXML" source="{notificationInterface.lastResult.user}"/>
+	<mx:XMLListCollection id="workflowXML" source="{notificationInterface.lastResult.workflow}"/>
+	<mx:XMLListCollection id="adminXML" source="{notificationInterface.lastResult.admin}"/>
+	<mx:XMLListCollection id="billingXML" source="{notificationInterface.lastResult.billing}"/>
+	<mx:XMLListCollection id="directXML" source="{notificationInterface.lastResult.direct}"/>
+		
 <mx:Script>
+
 	<![CDATA[
 		import flash.events.TimerEvent;
 		import flash.utils.Timer;
@@ -28,33 +44,58 @@
 		import mx.rpc.events.ResultEvent;
 		import mx.utils.ObjectUtil;
 		
-		// Variables
-		
 		public function init():void {
+			// Control visibility options - IncludeInLayout
+			Alert.show("Sending the notification interface from HUB!!");
+			notificationInterface.send();
+			var check:Boolean = false;
+			
+			if(userXML.length == 0){
+				userTab.includeInLayout=false;
+				check = true;
+			}
 
-		}
-		
-		public function refreshData(e:TimerEvent):void{
-		
-		}
-		
-	/*	private function onGetNotificationInterface(event:ResultEvent):void {
-			if(event.result.name() == "NotificationCollection"){
-				
-				filterXLC();
-
-			} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Notification Interface.");
+			if(workflowXML.length == 0){
+				workflowTab.includeInLayout=false;
+				check = true;
+			}
+			
+			if(adminXML.length == 0){
+				adminTab.includeInLayout=false;
+				check = true;
+			}
+			
+			if(billingXML.length == 0){
+				billingTab.includeInLayout=false;
+				check = true;
+			}
+			
+			if(!check){
+				// Show empty message.
+				// No notifications at this time.
 			}
 		}
-	*/	
+		
+		private function onGetNotificationInterface(event:ResultEvent):void {
+			if(event.result.name() == "NotificationCollection"){
+				Alert.show(mx.utils.ObjectUtil.toString(workflowXML));
+				//				filterXLC();
+			} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
+			}
+		}
+		
+		public function splitXML():void{
+						
+		}
+		
 		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
 		{
 
 		}
 		
 		private function filterXLC():void {
-//			MIList.filterFunction = news_filterFunc;
+//			MIList.filterFunction = notification_filterFunc;
 //			MIList.refresh();
 		}
 		
@@ -77,28 +118,28 @@
 			</mx:HBox>
 		</mx:VBox>
 		<mx:TabNavigator width="500" height="90%" verticalGap="5" id="notificationTabs" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChange(event)" backgroundColor="#DEDEDE">
-			<mx:VBox verticalGap="6" label="User" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1"  enabled="{!parentApplication.isSuperAdmin}">
+			<mx:VBox id="userTab" verticalGap="6" label="User" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
 				
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 					<mx:Label text="User notifications"  width="178" />
 				</mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Workflow" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" enabled="{!parentApplication.isSuperAdmin}">
+			<mx:VBox id="workflowTab" verticalGap="6" label="Workflow" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
 				
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 					<mx:Label text="Workflow notifications"  width="169" />
 				</mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Admin" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isSuperAdmin}">
+			<mx:VBox id="adminTab" verticalGap="6" label="Admin" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
 				
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 					<mx:Label text="Admin notifications"  width="183" />
 				</mx:HBox>
 				
 			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Billing" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isBillingAdmin}" >
+			<mx:VBox id="billingTab" verticalGap="6" label="Billing" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1">
 				
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 					<mx:Label text="Billing notifications"  width="183" />

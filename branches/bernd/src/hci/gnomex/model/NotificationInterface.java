@@ -6,9 +6,7 @@ import java.sql.Date;
 
 import hci.hibernate3utils.HibernateDetailObject;
 
-
-
-public class NotificationOverview extends HibernateDetailObject {
+public class NotificationInterface extends HibernateDetailObject {
 
 	private static final long serialVersionUID = 42L;
 	// Criteria / Argumented mx:request variables

@@ -20,6 +20,7 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.NewsItem;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
@@ -949,6 +950,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canUpdate = true;
         }
         
+    }else if (object instanceof Notification){
+    	
     }
 
     return canUpdate;
@@ -1465,6 +1468,35 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
           if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
         	  globalPermissionMap.put(new Permission(CAN_MANAGE_DASHBOARD), null);  
+          }
+      }
+      
+      // Can receive admin notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_ADMIN_NOTIFICATION), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+          if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_ADMIN_NOTIFICATION), null);  
+          }
+      }
+      
+      // Can receive billing notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);	  
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    	  if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);  
+          }
+      } else if (appUser.getCodeUserPermissionKind().equals(CAN_MANAGE_BILLING)) {
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);
+      }
+      
+      // Can receive workflow notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_WORKFLOW_NOTIFICATION), null);
+      } else if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    	  if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_WORKFLOW_NOTIFICATION), null);  
           }
       }
       

@@ -12,71 +12,71 @@ public class Notification extends HibernateDetailObject {
   private java.util.Date	date;
   private Integer			idUserTarget;
   private Integer			idLabTarget;
-  private Integer			userTarget;
-  private Integer			labTarget;
+  private String			type;
+  private Integer			expID;	
   
-  public Integer getIdNotification(){
+	public Integer getIdNotification(){
 	 return idNotification;
-  }
+	}
+	
+	public void setIdNotification(Integer idNotification){
+	 this.idNotification = idNotification;
+	}
+	
+	public String getSourceType(){
+	 return sourceType;
+	}
+	
+	public void setSourceType(String sourceType){
+	 this.sourceType = sourceType;
+	}
+	
+	public String getMessage(){
+	 return message;
+	}
+	
+	public void setMessage(String message){
+	 this.message = message;
+	}
+	
+	public java.util.Date getDate(){
+	 return date;
+	}
+	
+	public void setDate(java.util.Date date){
+	 this.date = date;
+	}
+	
+	public Integer getIdUserTarget(){
+	 return idUserTarget;
+	}
+	
+	public void setIdUserTarget(Integer idUserTarget){
+	 this.idUserTarget = idUserTarget;
+	}
+	
+	public Integer getIdLabTarget(){
+	 return idLabTarget;
+	}
+	
+	public void setIdLabTarget(Integer idLabTarget){
+	 this.idLabTarget = idLabTarget;
+	}
   
-  public void setIdNotification(Integer idNotification){
-	  this.idNotification = idNotification;
-  }
-  
-  public String getSourceType(){
-	  return sourceType;
-  }
-  
-  public void setSourceType(String sourceType){
-	  this.sourceType = sourceType;
-  }
-  
-  public String getMessage(){
-	  return message;
-  }
-  
-  public void setMessage(String message){
-	  this.message = message;
-  }
-  
-  public java.util.Date getDate(){
-	  return date;
-  }
-  
-  public void setDate(java.util.Date date){
-	  this.date = date;
-  }
-  
-  public Integer getIdUserTarget(){
-	  return idUserTarget;
-  }
-  
-  public void setIdUserTarget(Integer idUserTarget){
-	  this.idUserTarget = idUserTarget;
-  }
-
-  public Integer getUserTarget(){
-	  return userTarget;
-  }
-  
-  public void setUserTarget(Integer userTarget){
-	  this.userTarget = userTarget;
-  }
-  
-  public Integer getIdLabTarget(){
-	  return idLabTarget;
-  }
-  
-  public void setIdLabTarget(Integer idLabTarget){
-	  this.idLabTarget = idLabTarget;
-  }
-  
-  public Integer getLabTarget(){
-	  return labTarget;
-  }
-  
-  public void setLabTarget(Integer labTarget){
-	  this.labTarget = labTarget;
-  }
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public Integer getExpID() {
+		return expID;
+	}
+	
+	public void setExpID(Integer expID) {
+		this.expID = expID;
+	}
     
 }
