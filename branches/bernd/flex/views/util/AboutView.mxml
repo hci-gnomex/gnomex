@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="744" height="520"  
+				layout="vertical" width="760" height="520"  
 				xmlns:views="views.*"
 				initialize="init()"
 				showCloseButton="true" 
@@ -37,9 +37,7 @@
 			<mx:Text text="Contact Info" fontWeight="bold" fontSize="12" paddingBottom="0" fontFamily="Verdana" color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To report software bugs and/or provide feedback:" width="340"/>
-			</mx:HBox>
-			<mx:HBox>
+				<mx:Text text="To report software bugs and/or provide feedback:"/>
 				<mx:LinkButton paddingLeft="12" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="0"/>
 			</mx:HBox>
 		</mx:VBox>

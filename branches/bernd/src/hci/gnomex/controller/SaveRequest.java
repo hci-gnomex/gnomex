@@ -702,17 +702,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Delete any collaborators that were removed
         for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
           ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
-          if (!requestParser.getCollaboratorMap().containsKey(ec.getIdAppUser())) {
+          if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
             sess.delete(ec);
           }
         }
         
         // Add/update collaborators
         Set collaborators = new TreeSet();
-        for(Iterator i = requestParser.getCollaboratorMap().keySet().iterator(); i.hasNext();) {
+        for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
           Integer idAppUser = Integer.parseInt(key);
-          String canUploadData = (String)requestParser.getCollaboratorMap().get(key);
+          String canUploadData = (String)requestParser.getCollaboratorUploadMap().get(key);
+          String canUpdate = (String)requestParser.getCollaboratorUpdateMap().get(key);
           
           // TODO (performance):  Would be better if app user was cached.
           ExperimentCollaborator collaborator = (ExperimentCollaborator)sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
@@ -723,10 +724,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             collaborator.setIdAppUser(idAppUser);
             collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
             collaborator.setCanUploadData(canUploadData);
+            collaborator.setCanUpdate(canUpdate);
             sess.save(collaborator);
           } else {
             // If the collaborator does exist, just update the upload permission flag.
             collaborator.setCanUploadData(canUploadData);
+            collaborator.setCanUpdate(canUpdate);
           }
         }
         sess.flush();

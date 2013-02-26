@@ -772,7 +772,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // Owner of request
         else if (isGroupIAmMemberOf(req.getIdLab()) && isOwner(req.getIdAppUser())) {
           canUpdate = true;
-        } 
+        // Collaborator with update
+        } else if (this.isCollaboratorUpdater(req)) {
+          canUpdate = true;
+        }
       } 
     }
     //
@@ -795,7 +798,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         //  Owner of analysis
         else if (isGroupIAmMemberOf(a.getIdLab()) && isOwner(a.getIdAppUser())) {
           canUpdate = true;
-        } 
+        // Collaborator with update
+        }  else if (this.isCollaboratorUpdater(a)) {
+          canUpdate = true;
+        }
         
       } 
     }   
@@ -1122,7 +1128,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        canUpload = canUpdate(req) || isCollaboratorUploader(req);
+        // Assumes if canUpdate and isCollaboratorUpdater then CollaboraterUpdater is why they can update.
+        canUpload = (canUpdate(req) && !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
       } 
     }
     //
@@ -1130,7 +1137,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     else if (object instanceof Analysis) {
       Analysis analysis = (Analysis)object;
-      canUpload = canUpdate(analysis) || isCollaboratorUploader(analysis);
+      // Assumes if canUpdate and isCollaboratorUpdater then CollaboraterUpdater is why they can update.
+      canUpload = (canUpdate(analysis) && !isCollaboratorUpdater(analysis)) || isCollaboratorUploader(analysis);
     }   
     return canUpload;
   }
@@ -1353,10 +1361,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canUpload;
   }
   
+  private boolean isCollaboratorUpdater(Request req) {
+    // First, check to see if the user is a specified as a collaborator
+    // on this request.
+    boolean canUpdate = false;
+    for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+      ExperimentCollaborator collaborator = (ExperimentCollaborator)i.next();
+      if (isLoggedInUser(collaborator.getIdAppUser())) {
+        if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
+          canUpdate = true;
+        }
+        break;
+      }
+    }  
+    return canUpdate;
+  }
   
   private boolean isCollaboratorUploader(Analysis analysis) {
     // First, check to see if the user is a specified as a collaborator
-    // on this request.
+    // on this object.
     boolean canUpload = false;
     for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
       AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
@@ -1368,6 +1391,22 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }  
     return canUpload;
+  }
+  
+  private boolean isCollaboratorUpdater(Analysis analysis) {
+    // First, check to see if the user is a specified as a collaborator
+    // on this object.
+    boolean canUpdate = false;
+    for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
+      AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
+      if (isLoggedInUser(collaborator.getIdAppUser())) {
+        if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
+          canUpdate = true;
+        }
+        break;
+      }
+    }  
+    return canUpdate;
   }
   
   public void scrub(DetailObject object) throws UnknownPermissionException {
