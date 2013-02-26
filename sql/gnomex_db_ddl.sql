@@ -309,7 +309,9 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `accountNumberAu` VARCHAR(10) NULL,
   `accountNumberYear` VARCHAR(10) NULL,
   `idFundingAgency` INT(10) NULL,
+  `idCreditCardCompany` INT(10) NULL,
   `isPO` CHAR(1) NULL,
+  `isCreditCard` CHAR(1) NULL,
   `isApproved` CHAR(1) NULL,
   `approvedDate` DATETIME NULL,
   `createDate` DATETIME NULL,
@@ -334,6 +336,10 @@ CREATE TABLE `gnomex`.`BillingAccount` (
     REFERENCES `gnomex`.`FundingAgency` (`idFundingAgency`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingAccount_CreditCardCompany` FOREIGN KEY `FK_BillingAccount_CreditCardCompany` (`idCreditCardCompany`)
+    REFERENCES `gnomex`.`CreditCardCompany` (`idCreditCardCompany`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,    
   CONSTRAINT `FK_BillingAccount_CoreFacility` FOREIGN KEY `FK_BillingAccount_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
@@ -348,6 +354,16 @@ CREATE TABLE `gnomex`.`BillingChargeKind` (
   `billingChargeKind` VARCHAR(100) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`codeBillingChargeKind`)
+)
+ENGINE = INNODB;
+
+-- Add CreditCardCompany dictionary
+CREATE TABLE gnomex.CreditCardCompany (
+   idCreditCardCompany INT(10),
+   name varchar(100),
+   isActive varchar(1),
+   sortOrder INT(10),
+   PRIMARY KEY (idCreditCardCompany)
 )
 ENGINE = INNODB;
 
