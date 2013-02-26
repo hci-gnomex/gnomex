@@ -463,8 +463,11 @@
 	
 		<mx:TabNavigator id="theTab" styleName="form"  change="{onTabChange()}" width="100%" height="100%" >
 			<mx:HBox width="100%" horizontalGap="5" label="Info"  paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" >
-					<mx:VBox verticalGap="4" width="330" height="100%">
-						
+					<mx:VBox verticalGap="6" width="330" height="100%">
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text text="Lab Group"  width="110" styleName="formLabel" textAlign="right"/>
+							<mx:Text  text="{analysis.@labName}" width="218"/>
+						</mx:HBox>
 						<mx:HBox horizontalGap="0" width="100%">
 							<mx:Text text="Name"  width="110"  styleName="formLabel" textAlign="right">
 							</mx:Text>
@@ -501,11 +504,8 @@
 					</mx:VBox>
 					
 					
-					<mx:VBox verticalGap="4" width="280" height="100%">
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Text text="Lab Group"  width="98" styleName="formLabel" textAlign="right"/>
-							<mx:Text  text="{analysis.@labName}" width="180"/>
-						</mx:HBox>
+					<mx:VBox verticalGap="6" width="280" height="100%">
+
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 							<mx:Text text="Owned by"  width="98"  styleName="formLabel" textAlign="right"/>
 							<mx:Text  text="{analysis.@ownerName}" width="180"/> 
