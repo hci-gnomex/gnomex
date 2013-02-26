@@ -1185,8 +1185,16 @@
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 				<mx:VBox label="Info" paddingLeft="4" verticalGap="10"> 
 					<mx:HBox horizontalGap="0">
-						<mx:VBox verticalGap="2" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
+						<mx:VBox verticalGap="6" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Text   text="{this.selectedExperiment.@labName}" width="280"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
+								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
+							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="right"/>
 								<mx:Text  text="{requestCategoryName}" width="280"/>
@@ -1198,10 +1206,6 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
 								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="right"/>
 								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
-							</mx:HBox>
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
-								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right"/>
-								<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingTop="10">
 								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="right"/>
@@ -1226,11 +1230,7 @@
 							
 						</mx:VBox>
 						
-						<mx:VBox width="300" borderStyle="none" verticalGap="2">
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right"/>
-								<mx:Text   text="{this.selectedExperiment.@labName}" width="200"/>
-							</mx:HBox>
+						<mx:VBox width="300" borderStyle="none" verticalGap="6">
 							<mx:HBox verticalGap="0" horizontalGap="0">
 								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="right"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
@@ -1270,7 +1270,7 @@
 					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="10">
 						<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 							<mx:HBox width="100%" >
-								<mx:Text width="100" text="Order Status" styleName="formLabel"  textAlign="right"/>
+								<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="right"/>
 								
 							</mx:HBox>
 							<mx:HBox  verticalGap="0">
