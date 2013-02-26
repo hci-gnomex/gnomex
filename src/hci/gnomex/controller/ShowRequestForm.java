@@ -243,29 +243,35 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
             maindiv.addContent(new Element ("BR"));
 
-            Element experimentNote = new Element("H5");
-            experimentNote.addContent("Experiment Description");
-            maindiv.addContent(experimentNote);
+            // Show description for external experiments
+            if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
+              Element experimentNote = new Element("H5");
+              experimentNote.addContent("Experiment Description");
+              maindiv.addContent(experimentNote);
 
-            Element description = new Element("H6");
-            description.addContent(request.getDescription());
-            maindiv.addContent(description);
+              Element description = new Element("H6");
+              description.addContent(request.getDescription());
+              maindiv.addContent(description);              
+            } else {
+              // Show core facility and bioinformatics notes for internal experiments
+              Element sequenceNote = new Element("H5");
+              sequenceNote.addContent("Notes for Core facility");
+              maindiv.addContent(sequenceNote);
 
-            Element sequenceNote = new Element("H5");
-            sequenceNote.addContent("Notes for Core facility");
-            maindiv.addContent(sequenceNote);
+              Element coreInstruction = new Element("H6");
+              coreInstruction.addContent(request.getCorePrepInstructions());
+              maindiv.addContent(coreInstruction);
 
-            Element coreInstruction = new Element("H6");
-            coreInstruction.addContent(request.getCorePrepInstructions());
-            maindiv.addContent(coreInstruction);
+              Element analysisNote = new Element("H5");
+              analysisNote.addContent("Notes for Bioinformatics Core");
+              maindiv.addContent(analysisNote);
 
-            Element analysisNote = new Element("H5");
-            analysisNote.addContent("Notes for Bioinformatics Core");
-            maindiv.addContent(analysisNote);
+              Element analysisInstruction = new Element("H6");
+              analysisInstruction.addContent(request.getAnalysisInstructions());
+              maindiv.addContent(analysisInstruction);
+              
+            }
 
-            Element analysisInstruction = new Element("H6");
-            analysisInstruction.addContent(request.getAnalysisInstructions());
-            maindiv.addContent(analysisInstruction);
 
             if(request.getAvgInsertSizeFrom() != null && !request.getAvgInsertSizeFrom().equals("")){
               Element avgInsertSize = new Element("H5");
