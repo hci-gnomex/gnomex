@@ -2103,7 +2103,7 @@
 			emailWindow.labNode = labNode;
 			emailWindow.idCoreFacility = this.getSelectedCoreFacilityId();
 			emailWindow.currentState = "getEmailState";
-			emailWindow.emailText.text = labNode.@contactEmail;
+			emailWindow.emailText.text = labNode.@billingNotificationEmail;
 			emailWindow.setFocus();
 			emailWindow.emailText.setFocus();
 			emailWindow.addEventListener(CloseEvent.CLOSE, refreshAfterEmailSent);

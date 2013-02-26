@@ -315,7 +315,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     
     li = this.executionLogger.startLogItem("Send email");
     if (send) {
-      MailUtil.send(lab.getContactEmail(), 
+      MailUtil.send(lab.getBillingNotificationEmail(), 
           emailFormatter.getCCList(sess, serverName),
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 

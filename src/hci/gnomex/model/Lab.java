@@ -25,6 +25,8 @@ public class Lab extends HibernateDetailObject {
   private String  isCcsgMember;
   private String  isActive;
   private String  excludeUsage;
+  private String  billingContactEmail;
+  private String  includePiInBillingEmails;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -111,6 +113,23 @@ public class Lab extends HibernateDetailObject {
     this.idLab = idLab;
   }
   
+  
+  public String getBillingContactEmail() {
+    return billingContactEmail;
+  }
+  
+  public void setBillingContactEmail(String billingContactEmail) {
+    this.billingContactEmail = billingContactEmail;
+  }
+  
+  
+  public String getIncludePiInBillingEmails() {
+    return includePiInBillingEmails;
+  }
+  
+  public void setIncludePiInBillingEmails(String includePiInBillingEmails) {
+    this.includePiInBillingEmails = includePiInBillingEmails;
+  }
   
   public String getName() {
     String name = "";
@@ -361,4 +380,32 @@ public class Lab extends HibernateDetailObject {
     this.excludeUsage = excludeUsage;
   }
 
+  // Includes PI email if requested.
+  public String getBillingNotificationEmail() {
+    return formatBillingNotificationEmail(getIncludePiInBillingEmails(), getContactEmail(), getBillingContactEmail());
+  }
+  
+  // Always inclused PI
+  public String getWorkAuthSubmitEmail() {
+    return formatBillingNotificationEmail("Y", getContactEmail(), getBillingContactEmail());
+  }
+  
+  public static String formatBillingNotificationEmail(String includePiInBillingEmails, String contactEmail, String billingContactEmail) {
+    String email = "";
+    if (billingContactEmail != null) {
+      email = billingContactEmail;
+    }
+    String piEmail = "";
+    if (includePiInBillingEmails != null && includePiInBillingEmails.equals("Y") && contactEmail != null) {
+      piEmail = contactEmail;
+    }
+    if (piEmail.length() > 0) {
+      if (email.length() > 0) {
+        email += ",";
+      }
+      email += piEmail;
+    }
+    
+    return email;
+  }
 }

@@ -1046,6 +1046,8 @@ CREATE TABLE `gnomex`.`Lab` (
   `isExternalPricingCommercial` CHAR(1) NULL,
   `isActive` VARCHAR(1) NULL,
   `excludeUsage` VARCHAR(1) NULL,
+  `billingContactEmail` VARCHAR(200) NULL,
+  `includePiInBillingEmails` CHAR(1) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
