@@ -232,8 +232,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       }
       
       // Email lab contact email address(es)
-      if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
-        String contactEmail = lab.getContactEmail();
+      if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
+        String contactEmail = lab.getWorkAuthSubmitEmail();
         if (testEmail) {
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }

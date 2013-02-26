@@ -77,3 +77,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`prope
 alter table SeqLibProtocol add adapterSequence5Prime varchar(500) null;
 alter table SeqLibProtocol add adapterSequence3Prime varchar(500) null;
 
+-- new columns on lab
+alter table Lab add billingContactEmail varchar(200) null;
+alter table Lab add includePiInBillingEmails char(1) null;
+update Lab set includePiInBillingEmails='Y';
