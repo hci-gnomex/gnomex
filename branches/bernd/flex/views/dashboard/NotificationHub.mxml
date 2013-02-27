@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
-				xmlns:db="views.dashboard.*"  
-				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
-				creationComplete="init()" horizontalScrollPolicy="off">   
-
+		   xmlns:db="views.dashboard.*"  
+		   width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
+		   creationComplete="init()" horizontalScrollPolicy="off">   
+	
 	<mx:HTTPService 
 		id="notificationInterface" 
 		url="GetNotification.gx"
@@ -14,103 +14,103 @@
 		fault="parentApplication.onFailHttpRequest('Unable to get notification interface result', event)"
 		useProxy="false">	 
 	</mx:HTTPService>
-
+	
 	<mx:XMLListCollection id="userXML" source="{notificationInterface.lastResult.user}"/>
 	<mx:XMLListCollection id="workflowXML" source="{notificationInterface.lastResult.workflow}"/>
 	<mx:XMLListCollection id="adminXML" source="{notificationInterface.lastResult.admin}"/>
 	<mx:XMLListCollection id="billingXML" source="{notificationInterface.lastResult.billing}"/>
 	<mx:XMLListCollection id="directXML" source="{notificationInterface.lastResult.direct}"/>
-		
-<mx:Script>
+	
+	<mx:Script>
 
-	<![CDATA[
-		import flash.events.TimerEvent;
-		import flash.utils.Timer;
-		
-		import mx.collections.ArrayCollection;
-		import mx.collections.Sort;
-		import mx.collections.XMLListCollection;
-		import mx.controls.Alert;
-		import mx.controls.ProgressBar;
-		import mx.events.CloseEvent;
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.events.DragEvent;
-		import mx.events.FlexEvent;
-		import mx.events.IndexChangedEvent;
-		import mx.events.ListEvent;
-		import mx.managers.DragManager;
-		import mx.managers.PopUpManager;
-		import mx.rpc.events.ResultEvent;
-		import mx.utils.ObjectUtil;
-		
-		public function init():void {
-			// Control visibility options - IncludeInLayout
-			Alert.show("Sending the notification interface from HUB!!");
-			notificationInterface.send();
-			var check:Boolean = false;
+		<![CDATA[
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
 			
-			if(userXML.length == 0){
-				userTab.includeInLayout=false;
-				check = true;
-			}
-
-			if(workflowXML.length == 0){
-				workflowTab.includeInLayout=false;
-				check = true;
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.ProgressBar;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ListEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			public function init():void {
+				// Control visibility options - IncludeInLayout
+				Alert.show("Sending the notification interface from HUB!!");
+				notificationInterface.send();
+				var check:Boolean = false;
+				
+				if(userXML.length == 0){
+					userTab.includeInLayout=false;
+					check = true;
+				}
+				
+				if(workflowXML.length == 0){
+					workflowTab.includeInLayout=false;
+					check = true;
+				}
+				
+				if(adminXML.length == 0){
+					adminTab.includeInLayout=false;
+					check = true;
+				}
+				
+				if(billingXML.length == 0){
+					billingTab.includeInLayout=false;
+					check = true;
+				}
+				
+				if(!check){
+					// Show empty message.
+					// No notifications at this time.
+				}
 			}
 			
-			if(adminXML.length == 0){
-				adminTab.includeInLayout=false;
-				check = true;
+			private function onGetNotificationInterface(event:ResultEvent):void {
+				if(event.result.name() == "NotificationCollection"){
+					Alert.show(mx.utils.ObjectUtil.toString(workflowXML));
+					//				filterXLC();
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
+				}
 			}
 			
-			if(billingXML.length == 0){
-				billingTab.includeInLayout=false;
-				check = true;
+			public function splitXML():void{
+				
 			}
 			
-			if(!check){
-				// Show empty message.
-				// No notifications at this time.
+			public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
+			{
+				
 			}
-		}
-		
-		private function onGetNotificationInterface(event:ResultEvent):void {
-			if(event.result.name() == "NotificationCollection"){
-				Alert.show(mx.utils.ObjectUtil.toString(workflowXML));
-				//				filterXLC();
-			} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
-			}
-		}
-		
-		public function splitXML():void{
-						
-		}
-		
-		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
-		{
-
-		}
-		
-		private function filterXLC():void {
-//			MIList.filterFunction = notification_filterFunc;
-//			MIList.refresh();
-		}
-		
-		//private function notification_filterFunc(item:XML):Boolean {
-
-//		}
-		
-		protected function tabChange(event:IndexChangedEvent):void
-		{
-			// TODO Auto-generated method stub
 			
-		}
-		
-	]]>
-</mx:Script>
+			private function filterXLC():void {
+				//			MIList.filterFunction = notification_filterFunc;
+				//			MIList.refresh();
+			}
+			
+			//private function notification_filterFunc(item:XML):Boolean {
+			
+			//		}
+			
+			protected function tabChange(event:IndexChangedEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+	</mx:Script>
 	<mx:VBox>
 		<mx:VBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 			<mx:HBox width="100%" horizontalAlign="center" paddingTop="5">
@@ -150,5 +150,5 @@
 	</mx:VBox>
 	
 	
-
+	
 </mx:Canvas>

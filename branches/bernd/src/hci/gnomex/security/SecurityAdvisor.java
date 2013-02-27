@@ -103,7 +103,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isGNomExExternalUser = false;
   private boolean                     isUniversityOnlyUser = false;
   private boolean                     isLabManager = false;
-  private boolean                     isReadOnlySession = false;
   
   // version info
   private String                       version;
@@ -773,10 +772,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // Owner of request
         else if (isGroupIAmMemberOf(req.getIdLab()) && isOwner(req.getIdAppUser())) {
           canUpdate = true;
-        // Collaborator with update
-        } else if (this.isCollaboratorUpdater(req)) {
-          canUpdate = true;
-        }
+        } 
       } 
     }
     //
@@ -799,10 +795,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         //  Owner of analysis
         else if (isGroupIAmMemberOf(a.getIdLab()) && isOwner(a.getIdAppUser())) {
           canUpdate = true;
-        // Collaborator with update
-        }  else if (this.isCollaboratorUpdater(a)) {
-          canUpdate = true;
-        }
+        } 
         
       } 
     }   
@@ -957,8 +950,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canUpdate = true;
         }
         
-    }else if (object instanceof Notification){
-    	
     }
 
     return canUpdate;
@@ -1129,8 +1120,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       // University GNomEx users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        // Assumes if canUpdate and isCollaboratorUpdater then CollaboraterUpdater is why they can update.
-        canUpload = (canUpdate(req) && !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
+        canUpload = canUpdate(req) || isCollaboratorUploader(req);
       } 
     }
     //
@@ -1138,8 +1128,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     //
     else if (object instanceof Analysis) {
       Analysis analysis = (Analysis)object;
-      // Assumes if canUpdate and isCollaboratorUpdater then CollaboraterUpdater is why they can update.
-      canUpload = (canUpdate(analysis) && !isCollaboratorUpdater(analysis)) || isCollaboratorUploader(analysis);
+      canUpload = canUpdate(analysis) || isCollaboratorUploader(analysis);
     }   
     return canUpload;
   }
@@ -1362,25 +1351,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return canUpload;
   }
   
-  private boolean isCollaboratorUpdater(Request req) {
-    // First, check to see if the user is a specified as a collaborator
-    // on this request.
-    boolean canUpdate = false;
-    for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
-      ExperimentCollaborator collaborator = (ExperimentCollaborator)i.next();
-      if (isLoggedInUser(collaborator.getIdAppUser())) {
-        if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
-          canUpdate = true;
-        }
-        break;
-      }
-    }  
-    return canUpdate;
-  }
   
   private boolean isCollaboratorUploader(Analysis analysis) {
     // First, check to see if the user is a specified as a collaborator
-    // on this object.
+    // on this request.
     boolean canUpload = false;
     for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
       AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
@@ -1392,22 +1366,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }  
     return canUpload;
-  }
-  
-  private boolean isCollaboratorUpdater(Analysis analysis) {
-    // First, check to see if the user is a specified as a collaborator
-    // on this object.
-    boolean canUpdate = false;
-    for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
-      AnalysisCollaborator collaborator = (AnalysisCollaborator)i.next();
-      if (isLoggedInUser(collaborator.getIdAppUser())) {
-        if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
-          canUpdate = true;
-        }
-        break;
-      }
-    }  
-    return canUpdate;
   }
   
   public void scrub(DetailObject object) throws UnknownPermissionException {
@@ -1510,7 +1468,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         	  globalPermissionMap.put(new Permission(CAN_MANAGE_DASHBOARD), null);  
           }
       }
-      
+
       // Can receive admin notifications
       if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
     	  globalPermissionMap.put(new Permission(CAN_RECEIVE_ADMIN_NOTIFICATION), null);
@@ -1538,7 +1496,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     	  if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
         	  globalPermissionMap.put(new Permission(CAN_RECEIVE_WORKFLOW_NOTIFICATION), null);  
           }
-      }
+      }      
       
       // Can administer users
       if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
@@ -2761,13 +2719,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public Session getReadOnlyHibernateSession(String userName) throws Exception{
     Session sess = null;
     sess = HibernateGuestSession.currentGuestSession(userName);    
-    isReadOnlySession = true;
     return sess;
   }
   
   public void closeReadOnlyHibernateSession() throws Exception{
     HibernateGuestSession.closeGuestSession();
-    isReadOnlySession = false;
   }
   
 
@@ -2776,27 +2732,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     if (this.isGuest()) {
       sess = HibernateGuestSession.currentGuestSession(userName);
-      isReadOnlySession = true;
     } else {
       sess = HibernateSession.currentSession(userName);
-      isReadOnlySession = false;
     }
-    return sess;
-  }
-  
-  public Session getWritableHibernateSession(String userName) throws Exception {
-    Session sess = HibernateSession.currentSession(userName);
-    isReadOnlySession = false;
     return sess;
   }
   
   public void closeHibernateSession() throws Exception{
-    if (this.isReadOnlySession) {
+    if (this.isGuest()) {
       HibernateGuestSession.closeGuestSession();
     } else {
       HibernateSession.closeSession();
     }
-    this.isReadOnlySession = false;
   }
 
   

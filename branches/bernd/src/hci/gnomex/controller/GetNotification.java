@@ -11,8 +11,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,11 +31,11 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   private Integer workflowCoreFacility = null;
   
   public void validate() {
+	  
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 	
-	System.out.println("LoadCommand of GetNotification");
     filter = new NotificationFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     if(request.getParameter("workflowCoreFacility") != null){
@@ -125,7 +123,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
                   for(Iterator i = rows.iterator(); i.hasNext();) {
                     Object[] row = (Object[])i.next();
                     x = new Element("workflow");
-                    
+
                     x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
                     x.setAttribute("count", 	row[1] == null ? "" : ((Integer)row[1]).toString());
                     

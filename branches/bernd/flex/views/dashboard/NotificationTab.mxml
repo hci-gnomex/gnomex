@@ -6,7 +6,7 @@
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
-
+	
 	<mx:HTTPService 
 		id="notificationInterface" 
 		url="GetNotification.gx"
@@ -22,91 +22,91 @@
 		</mx:request>
 		
 	</mx:HTTPService>
-
+	
 	<mx:XMLListCollection id="MIList" source="{notificationInterface.lastResult.NotificationCollection}"/>
 	
-<mx:Script>
-	<![CDATA[
-		
-		// Imports
-		import flash.events.TimerEvent;
-		import flash.utils.Timer;
-		
-		import mx.collections.ArrayCollection;
-		import mx.collections.Sort;
-		import mx.collections.SortField;
-		import mx.collections.XMLListCollection;
-		import mx.controls.Alert;
-		import mx.events.CloseEvent;
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.events.DragEvent;
-		import mx.events.FlexEvent;
-		import mx.events.ListEvent;
-		import mx.managers.DragManager;
-		import mx.managers.PopUpManager;
-		import mx.rpc.events.ResultEvent;
-		import mx.utils.ObjectUtil;
-		
-		// Variables
-	
-		[Bindable]
-		public var notificationState:int = 1;
-		
+	<mx:Script>
+		<![CDATA[
 			
-		public function init():void {
-			Alert.show("Sending the notification interface!");
-			notificationInterface.send();
-			// Retrieve initial SummaryCollection from MetrixServer using controller.
-			//metrixInterface.send();
+			// Imports
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
 			
-			// 1. Retreive based on notificationType
-			// 2. Populate:
-			// 		2 - 1. Date
-			//		2 - 2. Message
-			// 		2 - 3. Link?
-			// 3. 	
-		}
-		
-		private function onGetNotificationInterface(event:ResultEvent):void {
-			if(event.result.name() == "NotificationCollection"){
-				Alert.show(mx.utils.ObjectUtil.toString(MIList));
-//				filterXLC();
-		} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			// Variables
+			
+			[Bindable]
+			public var notificationState:int = 1;
+			
+			
+			public function init():void {
+				Alert.show("Sending the notification interface!");
+				notificationInterface.send();
+				// Retrieve initial SummaryCollection from MetrixServer using controller.
+				//metrixInterface.send();
+				
+				// 1. Retreive based on notificationType
+				// 2. Populate:
+				// 		2 - 1. Date
+				//		2 - 2. Message
+				// 		2 - 3. Link?
+				// 3. 	
 			}
-		}
-		
-		public function repeatHandler():void
-		{
 			
-		}
-		
-		private function filterXLC():void {
-//			MIList.filterFunction = state_filterFunc;
-			var dateSort:Sort = new Sort();
-			dateSort.fields = [new SortField('date', true, false)];		// Set sort properties - sort on date.
-			dateSort.reverse();											// Reverse the sort list
-		}
-		
-		// Filter to show which run states need to be shown in the control / XMLListCollection 
-		private function state_filterFunc(item:XML):Boolean {
-			// Filter here based on user state and tab state.
-		}
-		
-		private function changeState(state:int):void{
-			notificationState = state;
-//			metrixInterface.send();
-		}
-		
-	]]>
-</mx:Script>
+			private function onGetNotificationInterface(event:ResultEvent):void {
+				if(event.result.name() == "NotificationCollection"){
+					Alert.show(mx.utils.ObjectUtil.toString(MIList));
+					//				filterXLC();
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
+				}
+			}
+			
+			public function repeatHandler():void
+			{
+				
+			}
+			
+			private function filterXLC():void {
+				//			MIList.filterFunction = state_filterFunc;
+				var dateSort:Sort = new Sort();
+				dateSort.fields = [new SortField('date', true, false)];		// Set sort properties - sort on date.
+				dateSort.reverse();											// Reverse the sort list
+			}
+			
+			// Filter to show which run states need to be shown in the control / XMLListCollection 
+			private function state_filterFunc(item:XML):Boolean {
+				// Filter here based on user state and tab state.
+			}
+			
+			private function changeState(state:int):void{
+				notificationState = state;
+				//			metrixInterface.send();
+			}
+			
+		]]>
+	</mx:Script>
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
 		<mx:Repeater id="repStatus" dataProvider="" count="3">
 			<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
 				<mx:HBox id="notificationItem" width="100%">
-
+					
 				</mx:HBox>
 			</mx:VBox>					
 		</mx:Repeater>

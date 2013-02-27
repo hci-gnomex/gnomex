@@ -74,11 +74,9 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private Set         wells;
-  private Set         sequenceLanes;
   
-  private Set        sequenceLanes;
   private Set        workItems;
-  
+  private Set		 sequenceLanes;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   

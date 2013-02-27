@@ -29,7 +29,6 @@
 	<!--
 		Create additional controller to query and process the getWorkItemList calls more effectively.
 		Generate one single query that returns the results in a similar fashion as a concurrent service call to getWorkItemList.gx does.
-		
 	-->
 		
 	<mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>

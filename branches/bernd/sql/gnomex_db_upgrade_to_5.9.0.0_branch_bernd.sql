@@ -21,7 +21,19 @@ CREATE TABLE `gnomex`.`NewsItem` (
 	`title` VARCHAR(200) NOT NULL,
 	`message` VARCHAR(4000) NOT NULL,
 	`date` DATETIME NULL,
-      PRIMARY KEY (`idNewsItem`)
+      PRIMARY KEY (`idNewsItem`),
+    CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
+       REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+       ON DELETE NO ACTION
+       ON UPDATE NO ACTION,
+    CONSTRAINT `FK_NewsItem_CoreSender` FOREIGN KEY `FK_NewsItem_CoreSender` (`idCoreSender`)
+       REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+       ON DELETE NO ACTION
+       ON UPDATE NO ACTION,
+    CONSTRAINT `FK_NewsItem_CoreTarget` FOREIGN KEY `FK_NewsItem_CoreTarget` (`idCoreTarget`)
+       REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+       ON DELETE NO ACTION
+       ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -32,13 +44,16 @@ CREATE TABLE `gnomex`.`Notification` (
 	`idUserTarget` INT(10) NOT NULL,
 	`idLabTarget` INT(10) NULL,
 	`sourceType` VARCHAR(20) NOT NULL,
-	`type`  VARCHAR(20) NULL,
 	`message` VARCHAR(250) NULL,
 	`date` DATETIME NULL,
-	`codeStep` VARCHAR(20) NULL,
-	`codeStepFull` VARCHAR(50) NULL,
-	`workflowCount` INT(10) NULL,
-	`expID` INT(10) NULL,
-	 PRIMARY KEY (`idNotification`)
+	   PRIMARY KEY (`idNotification`),
+	CONSTRAINT `FK_Notification_UserTarget` FOREIGN KEY `FK_Notification_UserTarget` (`idUserTarget`)
+		REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT `FK_Notification_LabTarget` FOREIGN KEY `FK_Notification_LabTarget` (`idLabTarget`)
+		REFERENCES `gnomex`.`Lab` (`idLab`)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
