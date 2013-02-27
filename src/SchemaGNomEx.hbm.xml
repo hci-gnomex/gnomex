@@ -744,7 +744,9 @@
     	<property name="codeRequestStatus" column="codeRequestStatus" type="string"/>
     	<many-to-one name="requestStatus" column="codeRequestStatus" class="hci.gnomex.model.RequestStatus" cascade="none" insert="false" update="false" />
 		<property name="idSubmitter" column="idSubmitter" type="integer"/>
-		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />    	
+		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" /> 
+    <property name="numberIScanChips" column="numberIScanChips" type="integer"/>    
+    <property name="idIScanChip" column="idIScanChip" type="integer"/>
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />
@@ -1222,6 +1224,18 @@
     <property name="isActive" column="isActive" type="string"/>
   </class>
   
+  <!-- hci.gnomex.model.IScanChip -->
+  <class name="hci.gnomex.model.IScanChip" table="IScanChip">
+    <id name="idIScanChip" column="idIScanChip" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="name" column="name" type="string"/>
+    <property name="costPerSample" column="costPerSample" type="big_decimal"/>
+    <property name="samplesPerChip" column="samplesPerChip" type="integer"/>
+    <property name="markersPerSample" column="markersPerSample" type="string"/>
+    <property name="catalogNumber" column="catalogNumber" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
   	
 	<!-- hci.gnomex.model.Primer -->
 	<class name="hci.gnomex.model.Primer" table="Primer">

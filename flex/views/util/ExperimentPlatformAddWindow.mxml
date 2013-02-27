@@ -31,7 +31,7 @@
 		public var parentWindow:views.util.ExperimentPlatformWindow = null;
 		
 		private function init():void{
-			var platformTypeString:String = "<label></label><label>Next Generation Sequencing</label><label>Microarray</label><label>Sample Quality</label><label>Capillary Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label>"
+			var platformTypeString:String = "<label></label><label>Next Generation Sequencing</label><label>Microarray</label><label>Sample Quality</label><label>Capillary Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label><label>iScan</label>"
 			platformTypes = new XMLList(platformTypeString);
 		}
 		
@@ -93,6 +93,8 @@
 				platformTypeCode = parentApplication.TYPE_CHERRY_PICK;
 			} else if(typeCombo.selectedLabel == "Capillary Sequencing"){
 				platformTypeCode = parentApplication.TYPE_CAP_SEQ;
+			} else if(typeCombo.selectedLabel == "iScan"){
+				platformTypeCode = parentApplication.TYPE_ISCAN;
 			}
 		}
 		

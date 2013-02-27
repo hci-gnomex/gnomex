@@ -49,6 +49,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isMitSeq = "N";
   private String                isFragAnal = "N";
   private String                isCherryPick = "N";
+  private String                isIScan = "N";
   private String                isExternalOnly = "N";
   private String                showEmptyProjectFolders = "N";
   
@@ -86,6 +87,7 @@ public class ProjectRequestFilter extends DetailObject {
         (isMitSeq != null && isMitSeq.equalsIgnoreCase("Y")) ||
         (isFragAnal != null && isFragAnal.equalsIgnoreCase("Y")) ||
         (isCherryPick != null && isCherryPick.equalsIgnoreCase("Y")) ||
+        (isIScan != null && isIScan.equalsIgnoreCase("Y")) ||
         (projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
         (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
         (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
@@ -498,6 +500,12 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY);
       queryBuf.append("'");
+    } else if (isIScan.equals("Y")) {
+      // Search for iScan requests
+      this.addWhereOrAnd();
+      queryBuf.append(" req.codeRequestCategory = '");
+      queryBuf.append(RequestCategory.ISCAN_REQUEST_CATEGORY);
+      queryBuf.append("'");
     }   
 
     // Close paren for showing empty folders or
@@ -907,6 +915,14 @@ public class ProjectRequestFilter extends DetailObject {
     this.isCherryPick = isCherryPick;
   }
 
+  public String getIsIScan() {
+    return isIScan;
+  }
+
+
+  public void setIsIScan(String isIScan) {
+    this.isIScan = isIScan;
+  }
 
   public String getLastThreeMonths() {
     return lastThreeMonths;

@@ -50,11 +50,13 @@ import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Primer;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
@@ -209,6 +211,15 @@ public class GetRequest extends GNomExCommand implements Serializable {
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
           requestNode.setAttribute("requestStatus", requestStatus);
           
+          IScanChip iScanChip = null;
+          if(request.getIdIScanChip() != null  && request.getIdIScanChip() != 0){
+            iScanChip = (IScanChip) sess.load(IScanChip.class, request.getIdIScanChip());
+            if ( iScanChip != null ) {
+              requestNode.setAttribute("iScanChipName", iScanChip.getName()!=null ? iScanChip.getName() : "");
+            }
+          }
+          
+          
           String accountNumberDisplay = "";
           
           if(request.getBillingAccount() != null) {
@@ -295,11 +306,29 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }
+            // If iscan request:
+            if ( request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY ) ) {
+              boolean isForIScan = false;
+              if (prop.getPlatformApplications() != null) {
+                for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+                  PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+                  if ( pa.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY )) {
+                    isForIScan = true;
+                    break;
+                  }   
+                }
+
+              }
+              if ( !isForIScan ) {
+                continue;
+              }
+            }
             
             peNode.setAttribute("idProperty", prop.getIdProperty().toString());
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
-            peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null ? "true" : "false");
+            peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null || 
+                                              (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY )) ? "true" : "false");
             peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
@@ -680,6 +709,55 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.addContent(platesNode);
 
           }
+
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)
+              && request.getSamples().size() > 0) {
+            
+            TreeMap<String, String> sourcePlates = new TreeMap<String, String>();
+            
+            String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
+            Query plateQuery = sess.createQuery(plateQueryString);
+            plateQuery.setParameterList("ids", sampleIds);
+            
+            List wells = plateQuery.list();
+            if (wells.size() > 0) {
+              // has plates, so it's not tubes.
+              requestNode.setAttribute("containerType", "PLATE");
+            
+              // augment samples for plates.
+              List samples = requestNode.getChild("samples").getChildren("Sample");
+              for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+                Element sampleNode = (Element)i1.next();
+                for (Iterator i2 = wells.iterator(); i2.hasNext();) {
+                  PlateWell pw = (PlateWell)i2.next();
+                  if (pw.getIdSample().toString().equals(sampleNode.getAttributeValue("idSample"))) {
+                    sampleNode.setAttribute("wellName", pw.getWellName());
+                    sampleNode.setAttribute("idPlateWell", pw.getIdPlateWell().toString());
+                    sampleNode.setAttribute("idPlate", pw.getIdPlate().toString());
+                    sampleNode.setAttribute("plateName", pw.getPlate().getLabel());
+                    sourcePlates.put(pw.getPlate().getLabel(), pw.getPlate().getLabel());
+                  }
+                }
+              }
+              // Sort samples by plate and well
+              ArrayList sampleArray = new ArrayList(samples);
+              requestNode.getChild("samples").setContent(null);
+              Collections.sort(sampleArray, new PlateAndWellComparator());
+              requestNode.getChild("samples").setContent(sampleArray);
+              
+              Element platesNode = new Element("iScanPlateList");
+              for (String plateName:sourcePlates.keySet()) {
+                Element plateNode = new Element("Plate");
+                plateNode.setAttribute("name", plateName);
+                platesNode.addContent(plateNode);
+              }
+              requestNode.addContent(platesNode);
+              
+            } else {
+              requestNode.setAttribute("containerType", "TUBE");
+            }
+          }
+
           
           // Append related analysis and data tracks and topics
           if (!newRequest) {
@@ -690,6 +768,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (!newRequest) {
             appendWorkflowStatusNodes(request, requestNode);
           }
+
         
           doc.getRootElement().addContent(requestNode);
         
