@@ -354,8 +354,51 @@
 				this.downloadTree.selectedItem = null;
 			}
 			
+			private function removeAnalysisFile():void  {
+				
+				if ((this.filesGrid.selectedItems == null || this.filesGrid.selectedItems.length == 0) &&
+				    (this.downloadTree.selectedItems == null || this.downloadTree.selectedItems.length == 0) ) {
+					Alert.show("Please select the files to delete.");
+					return;
+				} else if (this.filesGrid.selectedItems.length == 1 || this.downloadTree.selectedItems.length == 1) {
+					if ( dataTrackFileSelected() ) {
+						Alert.show("This file is linked to a data track.  Do you want to remove the file and delete the associated data track?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} /* else {
+						Alert.show("Are you sure you want to remove the file?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} */
+				} else if (this.filesGrid.selectedItems.length > 1 || this.downloadTree.selectedItems.length > 1) {
+					if ( dataTrackFileSelected() ) {
+						Alert.show("At lease one selected file is linked to a data track.  Do you want to remove the files and delete any associated data tracks?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} /* else {
+						Alert.show("Are you sure you want to remove the files?",
+							"Confirm",
+							(Alert.YES | Alert.NO), this, 
+							onPromptToRemoveFile,						
+							parentApplication.iconWarning);
+					} */
+				}
+			}
 			
-			private function removeAnalysisFile():void {
+			private function onPromptToRemoveFile(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeAnalysisFileImpl();
+				}
+			}
+			
+			
+			private function removeAnalysisFileImpl():void {
 				if (this.filesGrid.selectedItems != null && this.filesGrid.selectedItems.length > 0) {
 					for each(var uploadFile:XML in this.filesGrid.selectedItems) {
 						this.filesToRemove.addItem(uploadFile);
@@ -377,6 +420,25 @@
 					}
 					this.dirty.setDirty();
 				}
+			}
+			
+			
+			
+			private function dataTrackFileSelected():Boolean {
+				var hasDataTrack:Boolean = false;
+				for each(var f:Object in this.filesGrid.selectedItems){		
+					if (f.@hasDataTrack == 'Y') {
+						hasDataTrack = true;
+						break;
+					}
+				}
+				for each(var f1:Object in this.downloadTree.selectedItems){		
+					if (f1.@hasDataTrack == 'Y') {
+						hasDataTrack = true;
+						break;
+					}
+				}
+				return hasDataTrack;
 			}
 			
 			private function checkXMLChildren(downloadFile:XML):void{
