@@ -31,7 +31,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackLinks.class);
   
   private Integer idDataTrack;
-  private String contextPath;
   private String baseURL;
   private String baseDir;
   private String analysisBaseDir;
@@ -49,8 +48,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idDataTrack", "idDataTrack is required");
     }
-
-    contextPath = request.getContextPath();
     
     serverName = request.getServerName();
   }
@@ -143,18 +140,22 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
 
-      //look and or make directory to hold softlinks to data, also removes old softlinks
+      //look and or make directory to hold softlinks to data
       File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
-
-      //make randomWord 6 char long and append genome build names
-      String randomWord = UUID.randomUUID().toString();
+      
+      String linkPath = this.checkForUserFolderExistence(urlLinkDir, username);
+  	
+	  if (linkPath == null) {
+		linkPath = UUID.randomUUID().toString() + username;
+	  }
       
       //if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
       //if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
 
-      //create directory to hold links, need to do this so one can get the actual age of the links and not the age of the linked file
-      File dir = new File (urlLinkDir, randomWord);
-      dir.mkdir();
+	  //Create the users' data directory
+	  File dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
+	  if (!dir.exists())
+		  dir.mkdir();
 
       //for each file, there might be two for xxx.bam and xxx.bai files, two for vcf, possibly two for converted useq files, plus/minus strands.
 
@@ -183,4 +184,22 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     return urlsToLoad;
 
   }
+  
+  private String checkForUserFolderExistence(File igvLinkDir, String username) throws Exception{
+		File[] directoryList = igvLinkDir.listFiles();
+		
+		String desiredDirectory = null;
+		
+		for (File directory: directoryList) {
+			if (directory.getName().length() > 36) {
+				String parsedUsername = directory.getName().substring(36);
+				if (parsedUsername.equals(username)) {
+					desiredDirectory = directory.getName();
+				}
+			} 
+		}
+		
+		return desiredDirectory;
+	}
+	
 }

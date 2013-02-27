@@ -174,6 +174,20 @@
 	</mx:request>
 </mx:HTTPService> 
 
+<mx:HTTPService
+	id="destroyLinks"
+	url="DestroyExistingLinks.gx"
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onDestroyLinks(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to destroy Links',event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+	</mx:request>
+</mx:HTTPService>
+	
+
 <mx:HTTPService             
 	id="makeIGVLink" 
 	url="MakeDataTrackIGVLink.gx"
@@ -184,7 +198,7 @@
 	method="POST"
 	useProxy="false">
 	<mx:request>
-		<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
+
 	</mx:request>
 </mx:HTTPService> 
 
@@ -967,6 +981,19 @@
 		} else {
 			makeIGVLink.send();
 		}
+	}
+	
+	public function removeLinks():void {
+		destroyLinks.send();
+	}
+	
+	private function onDestroyLinks(event:ResultEvent):void {
+		if (destroyLinks.lastResult.name() == "SUCCESS") {
+			Alert.show("All Links Destroyed");
+		} else {
+			Alert.show(destroyLinks.lastResult.toXMLString(), "Error! Failed to delete links, contact site admin!");
+		}
+		
 	}
 	
 	private function onIGVLinkPrompt(event:CloseEvent):void {
