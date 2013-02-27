@@ -244,6 +244,7 @@ public class Sample extends HibernateDetailObject {
     this.excludeMethodFromXML("getSourceWells");
     this.excludeMethodFromXML("getAssays");
     this.excludeMethodFromXML("getADestinationWell");
+    this.excludeMethodFromXML("getSequenceLanes");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
