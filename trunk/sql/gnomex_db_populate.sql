@@ -910,7 +910,9 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
   ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
-  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y');
+  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
+  ('ISCAN', 'iScan', null, 'Y', null, '', 'assets/iscan.png', 'ISCAN', 'Y', 'Y', 1, 'Y'),
+  ('CAPSEQ', 'Capillary Sequencing', 8, 'Y', 1, '', 'assets/dna-helix-icon.png', 'CAPSEQ', 'Y', 'Y', 1, 'Y');
 
 INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
 VALUES ('AFFY', 'CHIP'),
