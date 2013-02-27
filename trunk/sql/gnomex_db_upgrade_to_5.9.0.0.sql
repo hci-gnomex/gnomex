@@ -66,7 +66,7 @@ alter table TransferLog add ipAddress varchar(50) null;
 alter table TransferLog add idAppUser int(10) null;
 
 -- new column for BillingAccount
-alter table BillingAccount add orderFormFileSize bigint null;
+alter table BillingAccount add orderFormFileSize bigint(20) null;
 
 -- property to enable guest download terms.
 INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
