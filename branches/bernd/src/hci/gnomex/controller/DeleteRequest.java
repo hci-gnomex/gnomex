@@ -246,10 +246,12 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     File f = new File(folderName);
     String [] folderContents = f.list();
     
-    if(folderContents.length == 0){
-      if (!f.delete()) {
-        log.error("Unable to remove " + f.getName() + " from file system");
-      } 
+    if(folderContents == null || folderContents.length == 0){
+      if (f.exists()) {
+        if (!f.delete()) {
+          log.error("Unable to remove " + f.getName() + " from file system");
+        }
+      }
       return;
     }
     

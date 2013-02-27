@@ -286,6 +286,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
   
           if (isNewLab) {
             lab = labScreen;
+            lab.setIncludePiInBillingEmails("Y"); // Default to include pi in billing emails on new labs.
             sess.save(lab);
             
           } else {
@@ -619,6 +620,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsExternalPricingCommercial(labScreen.getIsExternalPricingCommercial());
     lab.setIsActive(labScreen.getIsActive());
     lab.setExcludeUsage(labScreen.getExcludeUsage());
+    lab.setBillingContactEmail(labScreen.getBillingContactEmail());
+    lab.setIncludePiInBillingEmails(labScreen.getIncludePiInBillingEmails());
 
   }
 
@@ -686,8 +689,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
 
       // Email lab contact email address(es)
-      if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
-        String contactEmail = lab.getContactEmail();
+      if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
+        String contactEmail = lab.getBillingNotificationEmail();
         if (isTestEmail) {
           contactEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }

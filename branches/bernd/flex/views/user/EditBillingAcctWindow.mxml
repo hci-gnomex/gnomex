@@ -628,9 +628,12 @@
 				} else {
 					coreCombo.selectedIndex = 0;
 				}
-			} else {
+			} else if (coreFacilities.length > 0) {
 				ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
 				coreCombo.selectedIndex = 0;
+			} else {
+				Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+				PopUpManager.removePopUp(this);
 			}
 		}
 		

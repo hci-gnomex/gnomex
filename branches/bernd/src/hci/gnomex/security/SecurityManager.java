@@ -32,10 +32,11 @@ public class SecurityManager extends SimpleUserManager  {
   private String dbPassword = null;
   private String dbURL = null;
   
-  private String uofu_ldap_init_context_factory = null;
-  private String uofu_ldap_provider_url = null;
-  private String uofu_ldap_sec_protocol = null;
-  private String uofu_ldap_sec_auth = null;
+  private String ldap_init_context_factory = null;
+  private String ldap_provider_url = null;
+  private String ldap_sec_protocol = null;
+  private String ldap_sec_auth = null;
+  private String ldap_sec_principal = null;
   
   public SecurityManager() {
     super();
@@ -160,12 +161,13 @@ public class SecurityManager extends SimpleUserManager  {
         
     
     Hashtable env = new Hashtable();
-    env.put(Context.INITIAL_CONTEXT_FACTORY,uofu_ldap_init_context_factory);
-    env.put(Context.PROVIDER_URL, uofu_ldap_provider_url);
-    env.put(Context.SECURITY_PROTOCOL, uofu_ldap_sec_protocol);
-    env.put(Context.SECURITY_AUTHENTICATION, uofu_ldap_sec_auth);
+    env.put(Context.INITIAL_CONTEXT_FACTORY,ldap_init_context_factory);
+    env.put(Context.PROVIDER_URL, ldap_provider_url);
+    env.put(Context.SECURITY_PROTOCOL, ldap_sec_protocol);
+    env.put(Context.SECURITY_AUTHENTICATION, ldap_sec_auth);
     // Authenticate with the end user's uid and password (collected from a servlet form)
-    env.put(Context.SECURITY_PRINCIPAL, "uid="+uid+",ou=People,dc=utah,dc=edu");
+    ldap_sec_principal = ldap_sec_principal.replace("<uid>", uid);
+    env.put(Context.SECURITY_PRINCIPAL, ldap_sec_principal);
     env.put(Context.SECURITY_CREDENTIALS, password);
 
     try {
@@ -192,26 +194,33 @@ public class SecurityManager extends SimpleUserManager  {
       Properties p = new Properties();
       p.load(fis);
       
-      /*
-      if (p.getProperty("ssl_trustStore") != null && p.getProperty("ssl_trustStorePassword") != null) {
-        System.setProperty("javax.net.ssl.trustStore", p.getProperty("ssl_trustStore"));
-        System.setProperty("javax.net.ssl.trustStorePassword", p.getProperty("ssl_trustStorePassword"));
+      // look for both with uofu_ and without for backwards compatability 
+      if (p.getProperty("ldap_init_context_factory") != null) {
+        ldap_init_context_factory = p.getProperty("ldap_init_context_factory");
+      } else if (p.getProperty("uofu_ldap_init_context_factory") != null) {
+        ldap_init_context_factory = p.getProperty("uofu_ldap_init_context_factory");
       }
-      */
-      
-      if (p.getProperty("uofu_ldap_init_context_factory") != null) {
-        uofu_ldap_init_context_factory = p.getProperty("uofu_ldap_init_context_factory");
+      if (p.getProperty("ldap_provider_url") != null) {
+        ldap_provider_url = LDAPURLEncoder.encode(p.getProperty("ldap_provider_url"));
+      } else if (p.getProperty("uofu_ldap_provider_url") != null) {
+        ldap_provider_url = LDAPURLEncoder.encode(p.getProperty("uofu_ldap_provider_url"));
       }
-      if (p.getProperty("uofu_ldap_provider_url") != null) {
-        uofu_ldap_provider_url = LDAPURLEncoder.encode(p.getProperty("uofu_ldap_provider_url"));
+      if (p.getProperty("ldap_sec_protocol") != null) {
+        ldap_sec_protocol = p.getProperty("ldap_sec_protocol");
+      } else if (p.getProperty("uofu_ldap_sec_protocol") != null) {
+        ldap_sec_protocol = p.getProperty("uofu_ldap_sec_protocol");
       }
-      if (p.getProperty("uofu_ldap_sec_protocol") != null) {
-        uofu_ldap_sec_protocol = p.getProperty("uofu_ldap_sec_protocol");
+      if (p.getProperty("ldap_sec_auth") != null) {
+        ldap_sec_auth = p.getProperty("ldap_sec_auth");
+      } else if (p.getProperty("uofu_ldap_sec_auth") != null) {
+        ldap_sec_auth = p.getProperty("uofu_ldap_sec_auth");
       }
-      if (p.getProperty("uofu_ldap_sec_auth") != null) {
-        uofu_ldap_sec_auth = p.getProperty("uofu_ldap_sec_auth");
+      ldap_sec_principal = "uid=<uid>,ou=People,dc=utah,dc=edu"; // default to uofu values for backwards compatability
+      if (p.getProperty("ldap_sec_principal") != null) {
+        ldap_sec_principal = p.getProperty("ldap_sec_principal");
+      } else if (p.getProperty("uofu_ldap_sec_principal") != null) {
+        ldap_sec_principal = p.getProperty("uofu_ldap_sec_principal");
       }
-      
       if (p.getProperty("dbUsername") != null) {
         dbUsername = p.getProperty("dbUsername");
       }

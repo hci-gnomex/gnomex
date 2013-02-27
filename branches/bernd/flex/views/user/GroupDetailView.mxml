@@ -600,6 +600,8 @@
 				params.isExternalPricing = this.isExternalPricingAcademicButton.selected ? "Y" : "N";
 				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
 				params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
+				params.billingContactEmail = this.billingContactEmail.text;
+				params.includePiInBillingEmails = this.piInBillingEmailsCheckbox.selected ? "Y" : "N";
 				
 				for each(var acct:Object in allApprovedAccounts) {
 					acct.@expirationDate = acct.@expirationDateOther;
@@ -916,14 +918,21 @@
 						<mx:Label text="Phone" />
 						<mx:TextInput id="contactPhone" text="{parentDocument.fullLab.@contactPhone}" width="190" change="dirty.setDirty()"/>
 					</mx:VBox>
-					<mx:VBox  verticalGap="0" width="100%">
-						<mx:HBox verticalGap="8">
-							<mx:Label text="Email(s) " />
-							<mx:Label text="(For multiple email addresses, place a comma between emails.)" fontStyle="italic"/>
-						</mx:HBox>
-						<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()" height="34"/>
+					<mx:VBox width="100%" verticalGap="8" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="0">
+						<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()"/>
+						<mx:VBox  verticalGap="0" width="100%">
+							<mx:HBox width="100%">
+								<mx:Label text="PI Email(s) " toolTip="For multiple email addresses, place a comma between emails." />
+							</mx:HBox>
+							<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" width="100%" change="dirty.setDirty()" height="34" toolTip="For multiple email addresses, place a comma between emails."/>
+						</mx:VBox>
+						<mx:VBox  verticalGap="0" width="100%">
+							<mx:HBox width="100%">
+								<mx:Label text="Billing Contact Email(s) " toolTip="For multiple email addresses, place a comma between emails." />
+							</mx:HBox>
+							<util:TextAreaWorkaround id="billingContactEmail" text="{parentDocument.fullLab.@billingContactEmail}" width="100%" change="dirty.setDirty()" height="34" toolTip="For multiple email addresses, place a comma between emails."/>
+						</mx:VBox>
 					</mx:VBox>
-
 				</mx:HBox>
 
 				<mx:HBox width="100%" horizontalGap="20">

@@ -231,7 +231,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             }
             
             if(allItemsApproved){
-              this.sendInvoiceEmail(sess, lab.getContactEmail(), cf, bp, lab, ba, billingItemMap, relatedBillingItemMap, requestMap);
+              this.sendInvoiceEmail(sess, lab.getBillingNotificationEmail(), cf, bp, lab, ba, billingItemMap, relatedBillingItemMap, requestMap);
             }
           }
           

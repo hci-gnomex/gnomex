@@ -136,7 +136,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           } else if (action.equals(ACTION_EMAIL)) {
             String contactEmail = this.emailAddress;
             if (contactEmail == null) {
-              contactEmail = lab.getContactEmail();
+              contactEmail = lab.getBillingNotificationEmail();
             }
             this.sendInvoiceEmail(sess, contactEmail, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
           }
@@ -398,7 +398,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         "&idCoreFacility=" + idCoreFacility +
         "&action=" + ACTION_EMAIL +
         "&respondInHTML=Y");
-    String contactEmail = lab.getContactEmail();
+    String contactEmail = lab.getBillingNotificationEmail();
     if (contactEmail == null || contactEmail.equals("")) {
       contactEmail = "billing contact";
     }

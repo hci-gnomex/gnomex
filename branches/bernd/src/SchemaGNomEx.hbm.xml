@@ -554,6 +554,8 @@
 		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="excludeUsage" column="excludeUsage" type="string"/>
+    <property name="billingContactEmail" column="billingContactEmail" type="string"/>
+    <property name="includePiInBillingEmails" column="includePiInBillingEmails" type="string"/>
    		<set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
