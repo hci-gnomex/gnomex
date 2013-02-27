@@ -133,7 +133,7 @@ Configuring GNomEx for FDT Uploads and Downloads
 ------------------------------------------------
 Fast Data Transfer is a utility developed by CalTech and CERN. See http://monalisa.cern.ch/FDT/.
 GNomEx can be configured with FDT, which is equipped to deal with the transfer of large
-data files over the internet.  NOTE:  At this time, FDT in GNomEx is set up to work with the Orion application
+data files over the internet.  NOTE:  At this time, FDT in GNomEx is set up to work with the tomcat application
 server running on Unix and Linux based systems.  If you are running GNomex on a Windows or Mac server, GNomEx is
 is not yet configured to work.
 
@@ -172,7 +172,7 @@ is not yet configured to work.
      ----------------------            ---------------------------------------
      fdt_supported                     Y
      fdt_directory                     The fdt staging dir
-     fdt_directory_gnomex              The fdt staging dir.  Only differs from fdt_directory when fdt server running on different machine than Orion (gnomex)
+     fdt_directory_gnomex              The fdt staging dir.  Only differs from fdt_directory when fdt server running on different machine than Tomcat (gnomex)
      fdt_client_codebase               The URL to download fdtClient.jar.  example:  http:bioserver.hci.utah.edu/fdt (See step 6).
      fdt_server_name                   The machine (domain name) that the fdt server is running on.
      fdt_file_daemon_task_dir          Set to /path/to/fdtfilemonitor/tasks
@@ -205,7 +205,7 @@ is not yet configured to work.
   
         
       
-Configuring GNomEx and Orion for SSL (https)
+Configuring GNomEx and Tomcat for SSL (https)
 --------------------------------------------
 By default, GNomEx is configured to run from a non-secure (http:) web-site.
 To run GNomEx from a secure web-site (https:), deploy the secure gnomex.ear, modify the orion 
