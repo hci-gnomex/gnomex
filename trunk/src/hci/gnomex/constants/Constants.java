@@ -66,9 +66,11 @@ public class Constants {
   public static final int MAXIMUM_NUMBER_TEXT_FILE_LINES = 10000;
   
   public static final String UCSC_URL = "http://genome.ucsc.edu";
-  public static final int DAYS_TO_KEEP_URL_LINKS= 7;
+  //public static final int DAYS_TO_KEEP_URL_LINKS= 7; //We used to delete links based on time, we are now allowing customers to delete whenever they want
   public static final String URL_LINK_DIR_NAME = "URLLinks";
+  public static final String IGV_LINK_DIR_NAME = "IGVLinks";
   public static final String UCSC_EXECUTABLE_DIR_NAME = "UCSCExecutables";
+  
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
   public static final String SAMTOOLS_BGZIP_NAME = "bgzip";
