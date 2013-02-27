@@ -270,6 +270,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           if (filesToRemoveParser != null) {
             filesToRemoveParser.parseFilesToRemove();
             
+            if (filesToRemoveParser.getFilesToDeleteMap() != null) {
+              SaveAnalysis.removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, filesToRemoveParser.getFilesToDeleteMap());
+            }
+            
             for(Iterator i = filesToRemoveParser.getFilesToDeleteMap().keySet().iterator(); i.hasNext();) {
 
               String idFileString = (String)i.next();
