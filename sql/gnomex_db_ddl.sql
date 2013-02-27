@@ -320,7 +320,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `totalDollarAmount` DECIMAL(12,2) NULL,
   `purchaseOrderForm` LONGBLOB NULL,
   `orderFormFileType` VARCHAR(10) NULL,
-  `orderFormFileSize` BIGINT NULL,
+  `orderFormFileSize` BIGINT(20) NULL,
   `shortAcct` VARCHAR(10) NULL,
   `startDate` DATETIME NULL,
   `idCoreFacility` INT(10) NULL,
