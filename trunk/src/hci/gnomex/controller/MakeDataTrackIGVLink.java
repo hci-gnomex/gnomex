@@ -55,6 +55,8 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	private SecurityAdvisor secAdvisor;
 	private Session sess;
 	private String username;
+	private ArrayList<String[]> linksToMake = new ArrayList<String[]>();
+	
 	
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
@@ -289,13 +291,18 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
-				String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
+				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());
 				
-				StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
-				
-	      res.setContentType("application/xml");
-	      res.getOutputStream().println("<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>");
-
+				if (success) {
+					String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
+					
+					StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
+					
+				    res.setContentType("application/xml");
+				    res.getOutputStream().println("<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>");
+				} else {
+					throw new Exception("Could not create IGV Links");
+				}
 			} else {
 				log.error("MakeDataTrackIGVLink -- No data tracks associated with this user!");
 			}
@@ -398,7 +405,11 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					String annoString = annoFile.toString();
 
 					//make soft link
-					DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
+					//DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
+					
+					//We are no storing the links and creating them in a batch.
+					String[] links = {f.toString(),annoString};
+					linksToMake.add(links);
 
 					//is it a bam index xxx.bai? If so then skip AFTER making soft link.
 					if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.gz.tbi")) continue;
@@ -433,6 +444,26 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		
 		return sb.toString();
 
+	}
+	
+	private boolean makeSoftLinkViaUNIXCommandLine(String path){
+		try {
+			File script = new File(path,"makeLinks.sh");
+			BufferedWriter bw = new BufferedWriter(new FileWriter(script));
+			for (String[] links: linksToMake) {
+				bw.write(String.format("ln -s %s %s\n", links[0], links[1]));
+			}
+			bw.close();
+			
+			String[] cmd = {"sh", script.toString()};
+			Process p = Runtime.getRuntime().exec(cmd);
+			
+			return true;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	private static String stripBadNameCharacters(String name){
