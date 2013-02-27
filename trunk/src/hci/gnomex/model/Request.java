@@ -83,6 +83,8 @@ public class Request extends HibernateDetailObject {
   private Set             topics;    
   private Integer         idSubmitter;
   private AppUser         submitter;
+  private Integer         idIScanChip;
+  private Integer         numberIScanChips;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1196,7 +1198,21 @@ public class Request extends HibernateDetailObject {
     return redoSamples.toString();
   }
   
-
+  public Integer getIdIScanChip() {
+    return idIScanChip;
+  }
+  
+  public void setIdIScanChip( Integer idIScanChip ) {
+    this.idIScanChip = idIScanChip;
+  }
+  public Integer getNumberIScanChips() {
+    return numberIScanChips;
+  }
+  
+  public void setNumberIScanChips( Integer numberIScanChips ) {
+    this.numberIScanChips = numberIScanChips;
+  }
+  
   public boolean isLibPrepByCore() {
     if (this.getSamples().size() > 0) {
       Sample sample = (Sample)this.getSamples().iterator().next();
@@ -1206,6 +1222,7 @@ public class Request extends HibernateDetailObject {
     }
   }
   
+
 
   public Map<Integer, FlowCellChannel> getFlowCellChannels() {
     Map<Integer, FlowCellChannel> channels = new HashMap<Integer, FlowCellChannel>();
@@ -1217,6 +1234,7 @@ public class Request extends HibernateDetailObject {
     
     return channels;
   }
+
   
   /*
    * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" experiment.
@@ -1234,4 +1252,5 @@ public class Request extends HibernateDetailObject {
     parentNode.addContent(requestNode);
     return requestNode;
   }
+
 }

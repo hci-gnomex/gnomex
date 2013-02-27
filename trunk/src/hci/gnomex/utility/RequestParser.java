@@ -243,7 +243,12 @@ public class RequestParser implements Serializable {
     } else {
       request.setIdSampleDropOffLocation(null);
     }
-    
+    if (n.getAttributeValue("idIScanChip") != null && !n.getAttributeValue("idIScanChip").equals("")) {
+      request.setIdIScanChip(new Integer(n.getAttributeValue("idIScanChip")));
+    }
+    if (n.getAttributeValue("numberIScanChips") != null && !n.getAttributeValue("numberIScanChips").equals("")) {
+      request.setNumberIScanChips(new Integer(n.getAttributeValue("numberIScanChips")));      
+    }
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest) {

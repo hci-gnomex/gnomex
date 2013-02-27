@@ -90,6 +90,14 @@
 			}
 		}
 		
+		public function isIScanState():Boolean {
+			if (currentState == 'IScanState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
 		public function checkSecurity():void {
 			
 			if (parentApplication.isGuestMode()) {
@@ -211,6 +219,14 @@
 				currentState = 'FragAnalState';
 			} else if (requestCategory.@type == 'CHERRYPICK') {
 				currentState = 'CherryPickState';
+			}  else if (requestCategory.@type == 'ISCAN') {
+				this.currentState = "IScanState";
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
+				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.numberOfChips.text = '';
+				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();			
+				parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();	
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -293,7 +309,7 @@
 				if (s.@multiplexGroupNumber != '') {
 					showSampleMultiplexGroup = true;
 				}
-				if (isCapSeqState() && s.hasOwnProperty("@plateName") && s.@plateName != '') {
+				if ((isCapSeqState() && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
 					showPlates = true;
 				}
 				if (s.@idOligoBarcode != '' ) {
@@ -616,14 +632,14 @@
 				 parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 			 } 
 			 
-			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates()) {
-				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
-			 }
-			 
 			 if (this.isCherryPickState()) {
 				 var numDestinationWells:int = Number(this.selectedExperiment.@numDestinationWells.toString());
 				 parentDocument.parentDocument.experimentEditView.cherryPlateList = this.selectedExperiment.cherryPlateList.Plate;
 				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
+			 }
+			 
+			 if (this.isIScanState()) {
+				 parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 			 }
 			 
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
@@ -632,9 +648,9 @@
 			 parentDocument.parentDocument.experimentEditView.setupEditForm( this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 			 
-			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates()) {
-			 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
-			 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
+			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()) {
+				 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
+				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
 			 }
 			 
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
@@ -860,7 +876,27 @@
 					this.cherrySourceWellCol.visible = true;
 					reactionPlateCol.visible = true;
 
-	        	} else {
+	        	} else if (isIScanState()) {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = false;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = false;
+					wellNameCol.visible = true;
+					isControlCol.visible = false;
+					this.qc260Col.visible = false;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
+					this.cherryDestinationWellCol.visible = false;
+					this.cherrySourcePlateCol.visible = false;
+					this.cherrySourceWellCol.visible = false;
+					reactionPlateCol.visible = false;
+					
+				} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
@@ -964,7 +1000,7 @@
 				}    				
 			}
 
-			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
+			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() ) {
 	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 					if(annotation.@idProperty == "-1") {
 						continue;
@@ -1188,37 +1224,37 @@
 						<mx:VBox verticalGap="6" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right" id="label2"/>
 								<mx:Text   text="{this.selectedExperiment.@labName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
-								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right" id="label3"/>
 								<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
-							</mx:HBox>
+ 						    </mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="right" id="label4"/>
 								<mx:Text  text="{requestCategoryName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label width="100" />
+								<mx:Label width="100"  id="label5"/>
 								<mx:Text   text="{experimentCategoryName}" width="280"/>
 							</mx:HBox>
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}">
-								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="right"/>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}" id="hbox3">
+								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="right" id="label6"/>
 								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingTop="10">
-								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="right" id="label7"/>
 								<mx:Text  text="{this.selectedExperiment.@createDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="right" id="label8"/>
 								<mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle" 
 									 visible="{selectedExperiment.@isExternal == 'Y' ? false : true}"
 									 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
-								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="right"/>
+								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="right" id="label9"/>
 								<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
@@ -1275,7 +1311,7 @@
 							</mx:HBox>
 							<mx:HBox  verticalGap="0">
 								<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
-									<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="100" fontSize="9"/>
+									<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="100" fontSize="9" id="text1"/>
 								</mx:Repeater>
 							</mx:HBox>
 							<mx:VBox >
@@ -1867,6 +1903,21 @@
 	<mx:State name="CherryPickState" basedOn="BaseSeqState">
 	</mx:State>
 	<mx:State name="ExternalQCState">
+	</mx:State>
+	<mx:State name="IScanState">
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+				<mx:Label  width="110" text="iScan Chip"  styleName="formLabel" textAlign="right"/>
+				<mx:Text  width="280" text="{this.selectedExperiment.@iScanChipName}"  />
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="Number of Chips" paddingLeft="10" width="110" textAlign="right" styleName="formLabel"/>
+				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
+			</mx:HBox>
+		</mx:AddChild>
+		
 	</mx:State>
 </mx:states>
 	

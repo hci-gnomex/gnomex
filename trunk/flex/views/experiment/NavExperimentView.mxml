@@ -1069,9 +1069,9 @@
 
 				params.isCapSeq      = this.CapSeqCheckbox.selected ? "Y" : "N";
 				params.isMitSeq      = this.MitSeqCheckbox.selected ? "Y" : "N";
-				params.isFragAnal    =  this.FragAnalCheckbox.selected ? "Y" : "N";
-				params.isCherryPick  =  this.CherryPickingCheckbox.selected ? "Y" : "N";
-				
+				params.isFragAnal    = this.FragAnalCheckbox.selected ? "Y" : "N";
+				params.isCherryPick  = this.CherryPickingCheckbox.selected ? "Y" : "N";
+				params.isIScan       = this.IScanCheckbox.selected ? "Y" : "N";
 
 			}
 
@@ -1384,6 +1384,7 @@
 			this.MitSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1394,6 +1395,7 @@
 			this.MitSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1404,6 +1406,7 @@
 			this.MitSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1413,6 +1416,7 @@
 			this.MitSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1422,6 +1426,7 @@
 			this.CapSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1431,6 +1436,7 @@
 			this.CapSeqCheckbox.selected = false;
 			this.MitSeqCheckbox.selected = false;
 			this.CherryPickingCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1440,6 +1446,17 @@
 			this.CapSeqCheckbox.selected = false;
 			this.MitSeqCheckbox.selected = false;
 			this.FragAnalCheckbox.selected = false;
+			this.IScanCheckbox.selected = false;
+			if (currentState == "AdminState") {
+				this.allExperimentsCheckbox.selected = false;
+			}
+		} else if (checkBoxNumber == 8) {
+			this.NextGenSeqCheckbox.selected = false;
+			this.MicroarrayCheckbox.selected = false;
+			this.CapSeqCheckbox.selected = false;
+			this.MitSeqCheckbox.selected = false;
+			this.FragAnalCheckbox.selected = false;
+			this.CherryPickingCheckbox.selected = false;
 			if (currentState == "AdminState") {
 				this.allExperimentsCheckbox.selected = false;
 			}
@@ -1463,6 +1480,7 @@
 				this.MitSeqCheckbox.enabled = false;
 				this.FragAnalCheckbox.enabled = false;
 				this.CherryPickingCheckbox.enabled = false;
+				this.IScanCheckbox.enabled = false;
 			} else {
 				this.browseLabCombo.enabled = true;
 				this.browseUserCombo.enabled = true;
@@ -1478,6 +1496,7 @@
 				this.MitSeqCheckbox.enabled = true;
 				this.FragAnalCheckbox.enabled = true;
 				this.CherryPickingCheckbox.enabled = true;
+				this.IScanCheckbox.enabled = true;
 			}
 		} 
 	}
@@ -1591,6 +1610,11 @@
 						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					</mx:CheckBox>
+					<mx:CheckBox label="iScan"  id="IScanCheckbox"  toolTip="iScan"
+								 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+								 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+						<mx:click>toggleRequestKindCheckboxes(8);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 					<mx:Spacer width="14" id="showEmptyProjectFoldersSpacer"/>
 					<mx:CheckBox label="Show Empty Project Folders"  id="showEmptyProjectFolders" toolTip="Show Empty Project Folders"

@@ -236,6 +236,9 @@
 				}
 				
 				
+				if ( parentDocument.isIScanState() ) {
+					annotation.@isSelected = 'true'
+				}
 				
 				// new column for sample grid
 				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
@@ -261,7 +264,7 @@
 				}
 				
 				// We only show inactive options when it is edit state.
-				var includeInactiveOptions:Boolean = parentDocument.isEditState();
+				var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
 				
 				newCol.editable = false;
 				aCol.editable = false;

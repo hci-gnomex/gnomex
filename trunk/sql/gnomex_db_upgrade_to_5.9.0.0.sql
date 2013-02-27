@@ -30,6 +30,27 @@ CREATE TABLE `gnomex`.`PriceCategoryStep` (
 )
 ENGINE = INNODB;
 
+-- Create IScanChip table
+CREATE TABLE `gnomex`.`IScanChip` (
+  `idIScanChip` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(500) NULL,
+  `costPerSample` DECIMAL(5, 2) NULL,
+  `samplesPerChip` INT(10) NULL,
+  `markersPerSample` VARCHAR(100) NULL,
+  `catalogNumber` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idIScanChip`)
+)
+ENGINE = INNODB;
+
+
+alter table Request add numberIScanChips Integer;
+alter table Request add idIScanChip Integer;
+alter table Request add
+  CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY `FK_Request_IScanChip` (`idIScanChip`)
+    REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
 
 -- Add isCreditCard to BillingAccount table
 alter table gnomex.BillingAccount add column isCreditCard varchar(1);

@@ -172,6 +172,9 @@
 				} else if (this.typeRadioGroup.selectedValue == 'CAPSEQ') {
 					iconToCheck = "assets/dna-helix-icon.png";				
 					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'ISCAN') {
+					iconToCheck = "assets/iscan.png";				
+					dirty.setDirty();
 				}
 				
 				if(iconToCheck.length > 0) {
@@ -599,6 +602,7 @@
 									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()"/>
 									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()"/>
 									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()"/>
 								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >

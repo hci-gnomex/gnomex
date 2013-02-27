@@ -67,7 +67,7 @@
 			var numPlates:int = 0;
 			var nextPlate:int = 0;
 			if (hasPlates()) {
-				numPlates = parentDocument.numCapSeqPlates; 
+				numPlates = parentDocument.isIScanState() ? parentDocument.numIScanPlates : parentDocument.numCapSeqPlates; 
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
@@ -282,6 +282,10 @@
 			} else if (currentState != null && (currentState.indexOf('CherryPick') >= 0)) {
 				var cherryWellName:String = getCherryWellName(parentDocument.samples.length, Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue));
 				emptyNode = this.getEmptyCherryPickNode(cherryWellName);
+			} else if (currentState != null && (currentState.indexOf('IScan') >= 0)) {
+				
+				emptyNode = this.getEmptyIScanNode(parentDocument.samples.length);
+			
 			} else {
 				var xmlString:String = "<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -343,6 +347,21 @@
 			return emptyNode;
 		}
 		
+		private function getEmptyIScanNode(idx:int):XML {
+			var plateName:String = getIScanPlateName(idx);
+			var wellName:String = getWellName(idx);
+			var sampleId:String = "Sample" + idx;
+			var emptyNode:XML = new XML("<Sample " +
+				" idSample='" + sampleId + "'" +
+				" name='' description='' " +
+				" containerType='Plate'" +
+				" canChangeSampleName='Y'" +	
+				" plateName='" + plateName + "'" +
+				" wellName='" + wellName + "'" +
+				"/>");
+			return emptyNode;
+		}
+		
 		private function getEmptyCherryPickNode(cherryWellName:String):XML {
 			var emptyNode:XML = new XML("<Sample " +
 				" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -375,6 +394,16 @@
 				y = y + 1;
 				plateName = "Plate " + String(y);
 			}
+			return plateName;
+		}
+		
+		public function getIScanPlateName(idx:int):String {
+			var plateName:String = "";
+			
+			var y:int = idx / 96;
+			y = y + 1;
+			plateName = parentDocument.sampleSetupView.getIScanPlateName(y);
+			
 			return plateName;
 		}
 		
@@ -481,7 +510,13 @@
 					}
 					
 					if (isValid) {
-						parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+						if ( parentDocument.isIScanState() ){
+							var ind:int = parentDocument.samples.getItemIndex(sample);
+							parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
+							
+						} else {
+							parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+						}
 						deleteHappened = true;
 					} else {
 						break;
@@ -490,10 +525,10 @@
 				}
 			}
 			
-			if (deleteHappened && hasPlates()) {
+			if (deleteHappened && hasPlates() && !parentDocument.isIScanState()) {
 				for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
 					var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
-					plateSample.@plateName = getPlateName(psIdx);
+					plateSample.@plateName = parentDocument.isCapSeqState() ? getPlateName(psIdx) : getIScanPlateName(psIdx);
 				}
 			}
 			
@@ -556,11 +591,16 @@
 					" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 					" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
 					" ccNumber='" + sampleToCopy.@ccNumber + "'";
-					if (hasPlates()) {
+					if (parentDocument.isIScanState()) {
+						emptyNodeString = emptyNodeString +
+							" plateName='" + getIScanPlateName(parentDocument.samples.length) + "'" +
+							" wellName=''";
+					} else if (hasPlates()) {
 						emptyNodeString = emptyNodeString +
 						" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
 						" wellName=''";
 					}
+					
 					
 					emptyNodeString = emptyNodeString + "/>";
 					var emptyNode:XML = new XML(emptyNodeString); 
@@ -588,20 +628,27 @@
 			parentDocument.hybsView.checkHybsCompleteness();
 			samplesGrid.selectedIndex = idx;
 		}
+		
        	public function initializeSamplesGrid():void {
         	if (parentDocument.requestToClone != null) {
         		return;
         	}
        		
-        	
 			var numberOfSamples:Number = 0;
 			var numberOfSamplesToAdd:Number = 0;
 			if (parentApplication.submitInternalExperiment()) {
-				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+				if (!parentDocument.isIScanState() && !parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
 					return;
 				}
 				if (parentDocument.isCherryPickState()) {
 					numberOfSamples = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
+				} else if ( parentDocument.isIScanState()){ 
+					numberOfSamples = parentDocument.numIScanPlates*96;
+//					var requestSamples:XMLListCollection = new XMLListCollection(parentDocument.samples.source.(@name!='').copy());
+//					createEmptySampleList();
+					populateSampleList();
+					
+					return;
 				} else if (hasPlates()) {
 					numberOfSamples = parentDocument.numCapSeqPlates * 96;
 				} else {
@@ -614,11 +661,17 @@
 			} else {
 				numberOfSamples = 1;
 			}
-    		if (parentDocument.samples.length <= numberOfSamples) {
-    			numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
-				for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
-					addSample();
-				}
+			if (parentDocument.samples.length <= numberOfSamples) {
+				/* if ( parentDocument.isIScanState()){ 
+					var requestSamples:XMLListCollection = new XMLListCollection(parentDocument.samples.source.(@name!='').copy());
+					createEmptySampleList();
+					populateSampleList(requestSamples);
+				} else { */
+					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
+						addSample();
+					}
+//				}
     		} else {
 				while (parentDocument.samples.length > numberOfSamples) {
 					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
@@ -627,30 +680,81 @@
 		}
 		
 		public function hasPlates():Boolean {
-			return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE');
+			return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState();
 		}
 		
 		public function fillPlates():void {
 			if (hasPlates()) {
 				var startOfPlate:int = 0;
-				for(var idx:int = 0; idx < parentDocument.numCapSeqPlates; idx++) {
-					var curPlateName:String = getPlateName(startOfPlate);
-					for (var sampleIdx:int = startOfPlate; sampleIdx < startOfPlate + 96; sampleIdx++) {
-						if (sampleIdx >= parentDocument.samples.length) {
-							addSample();
-						} else {
-							var curSample:Object = parentDocument.samples.getItemAt(sampleIdx);
-							if (curSample.@plateName != curPlateName) {
-								var newSample:Object = this.getEmptyCapSeqNode(sampleIdx);
-								parentDocument.samples.addItemAt(newSample, sampleIdx);
+				if ( parentDocument.isCapSeqState() ){
+					for(var idx:int = 0; idx < parentDocument.numCapSeqPlates; idx++) {
+						var curPlateName:String = getPlateName(startOfPlate);
+						for (var sampleIdx:int = startOfPlate; sampleIdx < startOfPlate + 96; sampleIdx++) {
+							if (sampleIdx >= parentDocument.samples.length) {
+								addSample();
+							} else {
+								var curSample:Object = parentDocument.samples.getItemAt(sampleIdx);
+								if (curSample.@plateName != curPlateName) {
+									var newSample:Object = this.getEmptyCapSeqNode(sampleIdx);
+									parentDocument.samples.addItemAt(newSample, sampleIdx);
+								}
 							}
 						}
+						startOfPlate += 96;
 					}
-					startOfPlate += 96;
+				} else if ( parentDocument.isIScanState() ) {
+					populateSampleList();
 				}
 			}
 		}
+		
+		public function createEmptySampleList():void {
+			parentDocument.samples.removeAll();
+			 for (var sampleIdx:int = 0; sampleIdx < parentDocument.numIScanPlates*96; sampleIdx++) {
+				var emptySample:Object = this.getEmptyIScanNode(sampleIdx);
+				parentDocument.samples.addItem(emptySample);
+			}   
+		}
+		
+		public function populateSampleList():void {
+			var numberOfSamples:int = parentDocument.numIScanPlates*96;
+			
+			for (var sampleIdx:int = 0; sampleIdx < numberOfSamples; sampleIdx++) {
+				
+				var emptySample:Object = this.getEmptyIScanNode(sampleIdx);
+				var existingSamples:XMLList = parentDocument.samples.source.(@plateName==emptySample.@plateName && @wellName==emptySample.@wellName);
+				
+				if ( existingSamples== null || existingSamples.length() == 0 ) {
+					// If no sample in that plate and well, add empty one
+					parentDocument.samples.addItemAt(emptySample, sampleIdx);
+				} else if ( existingSamples.length > 1 ) {
+					// If somehow we have more than one sample in the same well, we remove the extras
+					for ( var ind:int = 1; ind < existingSamples.length; ind ++ ) {
+						parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(existingSamples[ind]));
+					}
+				}
+			} 
+			
+			// Remove extra samples
+			while (parentDocument.samples.length > numberOfSamples) {
+				parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+			}
+		}
+		
         
+		private function countSamples():void{
+			samplesGrid.editable = 'true';
+			if ( parentDocument.isIScanState()){
+				var count:int = parentDocument.samples.source.(@name!=null&&@name!='').length();
+				if (count >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
+					var sample:Object = samplesGrid.selectedItem;
+					if ( samplesGrid.selectedItem.@name == null || samplesGrid.selectedItem.@name == '' ) {
+						samplesGrid.editable = 'false';
+					}
+				} 
+			} 
+		}
+		
 		public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
 			parentDocument.request.replace("samples", <samples></samples>); 
 			for(var idx:int = 0; idx < numDestinationWells; idx++) {
@@ -681,13 +785,21 @@
 		
 		private function onPromptToClearAllSamples(event:CloseEvent):void {
             if (event.detail==Alert.YES) {
-				parentDocument.samples.removeAll();
-            	parentDocument.lanes.removeAll();
-				setMultiplexGroupNumberImported(false);
-				if (hasPlates()) {
-					fillPlates(); // Set up the plates as defined in sample setup
+				if ( parentDocument.isIScanState() ){
+					for each ( var s:XML in parentDocument.samples.source.(@name!='') ) {
+						var sampleIdx:int = parentDocument.samples.getItemIndex(s);
+						var emptySample:Object = this.getEmptyIScanNode(sampleIdx);
+						parentDocument.samples.setItemAt(emptySample, sampleIdx);
+					}
 				} else {
-					addSample();	// Add an initial blank sample to the gric
+					parentDocument.samples.removeAll();
+					parentDocument.lanes.removeAll();
+					setMultiplexGroupNumberImported(false);
+					if (hasPlates()) {
+						fillPlates(); // Set up the plates as defined in sample setup
+					} else {
+						addSample(); 	// Add an initial blank sample to the grid
+					}
 				}
             	checkSamplesCompleteness();
             	this.initializeBarcoding();
@@ -850,6 +962,12 @@
 					} else {
 						completeCount++;
 					}
+				} else if (currentState == 'IScanState') {
+					if (isEntered(sample, "@name")) {
+						nameCompleteCount++;
+					}
+					completeCount++;
+					
 				} else {
 					if (isEntered(sample, "@name") &&
 			        	isEntered(sample, "@idSampleType") &&		        		
@@ -873,7 +991,7 @@
         	
         	var isComplete:Boolean = false;
         	if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
-				if (currentState == 'CapSeqState') {
+				if (currentState == 'CapSeqState' || currentState == 'IScanState') {
 					if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
 						isComplete = true;
 					} else {
@@ -1387,8 +1505,8 @@
 			this.downloadExamplePlateButton.includeInLayout = hasPlates();
 			this.downloadExampleTubeButton.visible = parentDocument.isCapSeqState() && !hasPlates();
 			this.downloadExampleTubeButton.includeInLayout = parentDocument.isCapSeqState() && !hasPlates();
-			this.downloadExampleButton.visible = !parentDocument.isCapSeqState();
-			this.downloadExampleButton.includeInLayout = !parentDocument.isCapSeqState();
+			this.downloadExampleButton.visible = !parentDocument.isCapSeqState() && !parentDocument.isIScanState();
+			this.downloadExampleButton.includeInLayout = !parentDocument.isCapSeqState() && !parentDocument.isIScanState();
 			
 			buttonsContainer.visible = !parentDocument.isAmendState();
 			buttonsContainer.includeInLayout = buttonsContainer.visible;
@@ -1401,7 +1519,7 @@
         	
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
-            this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() && !parentDocument.isCherryPickState();
+            this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() && !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1427,7 +1545,16 @@
 			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 			this.sourcePlateCol.visible = parentDocument.isCherryPickState() ? true : false;
 
-			if (hasPlates() || parentDocument.isCherryPickState()) {
+			if (parentDocument.isIScanState()) {
+				this.addSampleButton.visible = false;
+				this.addSampleButton.enabled = false;
+				this.deleteSampleButton.visible = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.visible = false;
+				this.copySampleButton.enabled = false;				
+				this.copyColumnButton.visible = false;
+				this.copyColumnButton.enabled = false;
+			}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
 				this.copySampleButton.visible = false;
@@ -1571,7 +1698,24 @@
 				chipTypeColumn.visible = false; 
 				labelColumn.visible = false;
 				
-			}else {
+			} else if (currentState == 'IScanState') {
+				
+				numberSequencingLanesCol.visible = false;
+				numberSequencingCyclesCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolCol.visible = false;
+				idSeqRunTypeCol.visible = false; 
+				concentrationUnitColumn.visible = false;
+				concentrationUnitColumn.editable = false;
+				sampleOrganismColumn.visible = false;
+				sampleOrganismColumn.editable = false;
+				this.concentrationCol.visible = false;
+				this.otherOrganismCol.visible = false;
+				otherSamplePrepMethodCol.visible = false;
+				chipTypeColumn.visible = false; 
+				labelColumn.visible = false;
+				
+			} else {
         		numberSequencingLanesCol.visible = false;
 				numberSequencingCyclesCol.visible = false;
 				preppedByCoreCol.visible = false;
@@ -1592,7 +1736,7 @@
 			
 			// If this is a QC request, hide the annotation columns 
 			if (currentState != null 
-				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState') {
+				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') || currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState' ) {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -2214,7 +2358,17 @@
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 		</mx:State>
-
+		<mx:State name="IScanState">
+			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetEventHandler target="{samplesGrid}" name="itemFocusIn" handler="countSamples()"/>
+			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
+			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
+		</mx:State>
 
 		
 	</mx:states>
