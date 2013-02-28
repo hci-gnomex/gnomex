@@ -544,7 +544,7 @@
 			}
 		}
 		private function getVisibilityName():void {
-			var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment.@codeVisibility);
+			var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment[0].@codeVisibility);
 			if (visibility is XMLList) {
 				visibilityName = visibility[0].@display.toString();			
 			} else {
