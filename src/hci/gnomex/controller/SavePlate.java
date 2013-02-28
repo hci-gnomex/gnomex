@@ -254,6 +254,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
                 if ( request != null ) {
                   node.setAttribute("requestSubmitDate",  request.getCreateDate() != null ? new SimpleDateFormat("MM/dd/yyyy").format(request.getCreateDate()) : "");
                   node.setAttribute("requestSubmitter", request.getOwnerName());
+                  node.setAttribute("requestNumber", request.getNumber());
                 }
               }
             }
