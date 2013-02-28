@@ -20,8 +20,8 @@ public class ProjectExperimentReportFilter extends DetailObject {
   
   public static final int       COL_LAB_LASTNAME = 0;
   public static final int       COL_LAB_FIRSTNAME = 1;
-  public static final int       COL_OWNER_LASTNAME = 2;
-  public static final int       COL_OWNER_FIRSTNAME = 3;
+  public static final int       COL_SUBMITTER_LASTNAME = 2;
+  public static final int       COL_SUBMITTER_FIRSTNAME = 3;
   public static final int       COL_IDREQUEST = 4;
   public static final int       COL_REQUEST_NUMBER = 5;
   public static final int       COL_CODE_REQUEST_CATEGORY = 6;
@@ -33,6 +33,9 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public static final int       COL_DESCRIPTION = 12;
   public static final int       COL_ORGANISM = 13;
   public static final int       COL_NUMBER_SAMPLES = 14;
+  public static final int       COL_OWNER_LASTNAME = 15;
+  public static final int       COL_OWNER_FIRSTNAME = 16;
+  public static final int       COL_REQUEST_NAME = 17;
 
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -55,7 +58,10 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" min(req.completedDate), ");
     queryBuf.append(" min(req.description), ");
     queryBuf.append(" min(sample.idOrganism), ");
-    queryBuf.append(" count(distinct sample.idSample) ");
+    queryBuf.append(" count(distinct sample.idSample), ");
+    queryBuf.append(" min(owner.lastName), ");
+    queryBuf.append(" min(owner.firstName), ");
+    queryBuf.append(" min(req.name) ");
     
     getQueryBody(queryBuf);
 
@@ -72,6 +78,7 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        req.submitter as submitter ");
     queryBuf.append(" JOIN        req.lab as lab ");
+    queryBuf.append(" JOIN        req.appUser as owner ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
     addRequestCriteria();
