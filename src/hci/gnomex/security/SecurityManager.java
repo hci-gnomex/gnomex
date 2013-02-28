@@ -82,6 +82,7 @@ public class SecurityManager extends SimpleUserManager  {
         return false;
       } catch (SQLException ex) {
         System.err.println("FATAL: Unable to initialize hci.gnomex.security.SecurityManager");
+        ex.printStackTrace(System.err);
         return false;
       } finally {
         this.closeConnection(con);
