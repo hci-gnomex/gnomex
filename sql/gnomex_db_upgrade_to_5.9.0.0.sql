@@ -66,7 +66,7 @@ alter table BillingAccount add
 
 -- Add CreditCardCompany dictionary
 CREATE TABLE gnomex.CreditCardCompany (
-   idCreditCardCompany INT(10),
+   idCreditCardCompany INT(10) NOT NULL AUTO_INCREMENT,
    name varchar(100),
    isActive varchar(1),
    sortOrder INT(10),
