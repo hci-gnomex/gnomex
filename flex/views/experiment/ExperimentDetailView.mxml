@@ -1290,7 +1290,7 @@
 							
 						</mx:VBox>
 					</mx:HBox>
-					<mx:VBox id="headerBox" width="100%" paddingLeft="4">
+					<mx:VBox id="headerBox" paddingLeft="4">
 						<mx:HBox id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
 							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="right"/>
 							<mx:Tile horizontalGap="0" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">

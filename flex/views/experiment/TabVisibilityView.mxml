@@ -178,8 +178,8 @@
   <mx:XMLListCollection id="collaborators" source="{parentDocument.request.collaborators.ExperimentCollaborator}"/>
   <mx:Canvas width="100%" height="100%">
         	
-	<mx:HBox width="100%" height="100%" horizontalGap="10">
-   		<mx:VBox width="100%" height="100%"  paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+	<mx:VBox width="100%" height="100%" verticalGap="20">
+   		<mx:VBox width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
 		       <mx:Text text="(1) Pick the level of visibility this experiment should have." id="labelApplication"/>
 		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
@@ -218,12 +218,12 @@
 
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="0">
-			<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;" height="30" width="310"/>
+			<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;"   width="330"/>
 			<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
 				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
-										  width="250"  
+										  width="270"  
 										  id="collaboratorCombo">
 				</renderers:FilterComboBox>
 				<mx:Button 
@@ -244,14 +244,14 @@
 					<mx:columns>
 						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />  
-						<mx:DataGridColumn headerText="Can Upload Data" 
-										   width="110" 
+						<mx:DataGridColumn headerText="Upload" 
+										   width="65" 
 										   editable="true"                        	
 										   dataField="@canUploadData" 
 										   editorDataField="selected" sortable="false"
 										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
-						<mx:DataGridColumn headerText="Can Update Request" 
-										   width="125" 
+						<mx:DataGridColumn headerText="Update" 
+										   width="65" 
 										   editable="true"                        	
 										   dataField="@canUpdate" 
 										   editorDataField="selected" sortable="false"
@@ -261,7 +261,7 @@
 			</mx:HBox>
 		</mx:VBox>
 		
-	</mx:HBox>
+	</mx:VBox>
 	
   </mx:Canvas>
 
