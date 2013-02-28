@@ -159,6 +159,7 @@ CREATE TABLE `gnomex`.`AnalysisCollaborator` (
   `idAnalysis` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
   `canUploadData` char(1) null,
+  `canUpdate` char(1) null,
   PRIMARY KEY (`idAnalysis`, `idAppUser`),
   CONSTRAINT `FK_AnalysisCollaborator_AppUser` FOREIGN KEY `FK_AnalysisCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -359,7 +360,7 @@ ENGINE = INNODB;
 
 -- Add CreditCardCompany dictionary
 CREATE TABLE gnomex.CreditCardCompany (
-   idCreditCardCompany INT(10),
+   idCreditCardCompany INT(10) NOT NULL AUTO_INCREMENT,
    name varchar(100),
    isActive varchar(1),
    sortOrder INT(10),
@@ -1591,7 +1592,7 @@ CREATE TABLE `gnomex`.`Request` (
   CONSTRAINT `FK_Request_AppUser1` FOREIGN KEY  (`idSubmitter`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION 
+    ON UPDATE NO ACTION, 
   CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY  (`idIScanChip`)
     REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
     ON DELETE NO ACTION
@@ -1673,6 +1674,7 @@ CREATE TABLE `gnomex`.`RequestCollaborator` (
   `idRequest` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
   `canUploadData` char(1) null,
+  `canUpdate` char(1) null,
   PRIMARY KEY (`idRequest`, `idAppUser`),
   CONSTRAINT `FK_RequestCollaborator_AppUser` FOREIGN KEY `FK_RequestCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
