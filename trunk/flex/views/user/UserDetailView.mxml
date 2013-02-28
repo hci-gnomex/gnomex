@@ -197,7 +197,7 @@
 							<mx:VBox verticalGap="1"   id="vbox2">
 								<mx:Label text="User name"  styleName="formLabel"/>
 								<mx:TextInput id="externalUserName" 
-											  width="120" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
+											  width="100" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
 							</mx:VBox>
 							<mx:VBox verticalGap="1"  >
 								<mx:Label text="Password" styleName="formLabel"/>
