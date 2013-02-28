@@ -132,47 +132,51 @@
     
 	<mx:VDividedBox  width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	
-		<mx:VBox  width="100%" verticalGap="10">
+		<mx:VBox verticalGap="10">
 			<mx:HBox verticalAlign="bottom">
 				<mx:VBox verticalGap="1"  width="100%">
-					<mx:Label text="First name"/>
+					<mx:Label text="First name" styleName="formLabel"/>
 					<mx:TextInput id="firstName" maxChars="200" text="{parentDocument.fullUser.@firstName}" width="170" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1" width="100%" id="vbox3">
-					<mx:Label text="Last name"/>
-					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="170" change="dirty.setDirty()"/>
-				</mx:VBox>
-				<mx:VBox verticalGap="1"  width="100%" >
-					<mx:Label text="UCSC Url" id="Label5"/>
-					<mx:TextInput id="ucsc" text="{parentDocument.fullUser.@ucscUrl}" width="200" change="dirty.setDirty()"/>
+					<mx:Label text="Last name" styleName="formLabel"/>
+					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty()">
 				</mx:CheckBox>				
 
 				
 			</mx:HBox>
+
+			<mx:HBox horizontalGap="8">
+				<mx:VBox verticalGap="1" >
+					<mx:Label text="Phone" id="Label0" styleName="formLabel"/>
+					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="170" change="dirty.setDirty()"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"   >
+					<mx:Label text="Email" id="Label" styleName="formLabel"/>
+					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200" change="dirty.setDirty()"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="1"  >
+					<mx:Label text="UCSC Url" id="Label5" styleName="formLabel"/>
+					<mx:TextInput id="ucsc" text="{parentDocument.fullUser.@ucscUrl}" width="200" change="dirty.setDirty()"/>
+				</mx:VBox>
+				
+			</mx:HBox>
 			<mx:HBox verticalAlign="middle">
 				<mx:VBox verticalGap="1"   width="100%" >
-					<mx:Label text="Institution" id="Label2"/>
+					<mx:Label text="Institution" id="Label2" styleName="formLabel"/>
 					<mx:TextInput width="170" id="institute" text="{parentDocument.fullUser.@institute}" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"   width="100%" >
-					<mx:Label text="Department" id="Label1"/>
-					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="170" change="dirty.setDirty()"/>
-				</mx:VBox>
-				<mx:VBox verticalGap="1"  width="100%" >
-					<mx:Label text="Email" id="Label"/>
-					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200" change="dirty.setDirty()"/>
-				</mx:VBox>
-				<mx:VBox verticalGap="1"  width="100%" >
-					<mx:Label text="Phone" id="Label0"/>
-					<mx:TextInput id="phone" text="{parentDocument.fullUser.@phone}" width="130" change="dirty.setDirty()"/>
+					<mx:Label text="Department" id="Label1" styleName="formLabel"/>
+					<mx:TextInput id="department" text="{parentDocument.fullUser.@department}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
 				 
 			</mx:HBox>
-		  	<mx:HBox width="100%" height="100%">
-		  	  <mx:HBox borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
-				<mx:VBox  paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8" width="320">
+		  	<mx:HBox height="100%">
+		  	  <mx:HBox borderStyle="solid" borderColor="#C9D7E1" paddingBottom="2" paddingRight="2" paddingLeft="2" verticalGap="8" cornerRadius="6" paddingTop="2">
+				<mx:VBox  paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8" width="250">
 					<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
 						<mx:RadioButtonGroup id="radioGroupUserAccount"/>
 						<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
@@ -183,7 +187,7 @@
 					<mx:ViewStack id="loginStack" width="100%" height="100%">
 						<mx:HBox paddingLeft="0">	  	      
 					  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
-					  	      <mx:Label text="uNID" />
+					  	      <mx:Label text="uNID"  styleName="formLabel"/>
 					  	      <mx:TextInput id="uNID" 
 					  	      	text="{parentDocument.fullUser.@uNID}" 
 					  	       width="100" change="dirty.setDirty()"/>
@@ -191,21 +195,21 @@
 						</mx:HBox>		  	
 						<mx:HBox width="100%" >
 							<mx:VBox verticalGap="1"   id="vbox2">
-								<mx:Label text="User name" />
+								<mx:Label text="User name"  styleName="formLabel"/>
 								<mx:TextInput id="externalUserName" 
 											  width="120" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
 							</mx:VBox>
 							<mx:VBox verticalGap="1"  >
-								<mx:Label text="Password"/>
+								<mx:Label text="Password" styleName="formLabel"/>
 								<mx:TextInput id="externalUserPassword" 
 											  text="{parentDocument.fullUser.@passwordExternalEntered}" 
-											  width="167" displayAsPassword="true"  change="dirty.setDirty()"/>
+											  width="120" displayAsPassword="true"  change="dirty.setDirty()"/>
 							</mx:VBox>
 						</mx:HBox>
 					</mx:ViewStack>
 				</mx:VBox>
 		  	    <mx:VBox paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalGap="0" id="permissionKindContainer">
-		  	      <mx:Label text="Permission Level"/>
+		  	      <mx:Label text="Permission Level" styleName="formLabel"/>
 		  	         <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
 		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
 		  	           <mx:value>LAB</mx:value>
@@ -221,8 +225,8 @@
 					</mx:RadioButton>		  	         	
 		  	    </mx:VBox>
 		  	  </mx:HBox>
-			  <mx:VBox visible="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" borderStyle="inset"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8">
-				  <mx:Text text="Select Core Facilities this user manages."/>
+			  <mx:VBox visible="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
+				  <mx:Text text="Core Facilities this user manages" styleName="formLabel"/>
 				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.managingCoreFacilities}">
 					  <mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 						  <mx:CheckBox id="chkCoreFacility" paddingBottom="0" paddingTop="0" verticalGap="0"
@@ -245,16 +249,16 @@
 		                <mx:DataGridColumn dataField="@name" headerText="Labs"/>
 		            </mx:columns>
 		        </mx:DataGrid>
-			    <mx:DataGrid id="collaboratingLabs" width="100%" dataProvider="{parentDocument.collaboratingLabs}" height="100%">
-		            <mx:columns>
-		                <mx:DataGridColumn dataField="@name" headerText="Collaborating Labs"/>
-		            </mx:columns>
-		        </mx:DataGrid>
-			    <mx:DataGrid id="managingLabs" width="100%" dataProvider="{parentDocument.managingLabs}" height="100%">
-		            <mx:columns>
-		                <mx:DataGridColumn dataField="@name" headerText="Managing Labs"/>
-		            </mx:columns>
-		        </mx:DataGrid>
+			  <mx:DataGrid id="collaboratingLabs" width="100%" dataProvider="{parentDocument.collaboratingLabs}" height="100%">
+			  	<mx:columns>
+			  		<mx:DataGridColumn dataField="@name" headerText="Collaborating Labs"/>
+			  	</mx:columns>
+			  </mx:DataGrid>
+			  <mx:DataGrid id="managingLabs" width="100%" dataProvider="{parentDocument.managingLabs}" height="100%">
+			  	<mx:columns>
+			  		<mx:DataGridColumn dataField="@name" headerText="Managing Labs"/>
+			  	</mx:columns>
+			  </mx:DataGrid>
 			</mx:HBox>
 		</mx:VBox>
 	
