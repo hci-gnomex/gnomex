@@ -1521,7 +1521,7 @@
        ]]>
     </mx:Script> 
    	
-   	
+   	 
    	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
 	<mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
      
@@ -1597,17 +1597,17 @@
 						<mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 					<mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  toolTip="Mitochonrial Sequencing"
-						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 visible="false" includeInLayout="false"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(5);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 					<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox"  toolTip="Fragment Analysis"
-						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 visible="false" includeInLayout="false"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(6);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 					<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox"  toolTip="Cherry Picking"
-						 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+						 visible="false" includeInLayout="false"								 
 						 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
