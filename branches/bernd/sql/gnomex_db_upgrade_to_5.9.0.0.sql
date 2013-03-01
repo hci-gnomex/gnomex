@@ -30,6 +30,27 @@ CREATE TABLE `gnomex`.`PriceCategoryStep` (
 )
 ENGINE = INNODB;
 
+-- Create IScanChip table
+CREATE TABLE `gnomex`.`IScanChip` (
+  `idIScanChip` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(500) NULL,
+  `costPerSample` DECIMAL(5, 2) NULL,
+  `samplesPerChip` INT(10) NULL,
+  `markersPerSample` VARCHAR(100) NULL,
+  `catalogNumber` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idIScanChip`)
+)
+ENGINE = INNODB;
+
+
+alter table Request add numberIScanChips Integer;
+alter table Request add idIScanChip Integer;
+alter table Request add
+  CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY `FK_Request_IScanChip` (`idIScanChip`)
+    REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
 
 -- Add isCreditCard to BillingAccount table
 alter table gnomex.BillingAccount add column isCreditCard varchar(1);
@@ -45,7 +66,7 @@ alter table BillingAccount add
 
 -- Add CreditCardCompany dictionary
 CREATE TABLE gnomex.CreditCardCompany (
-   idCreditCardCompany INT(10),
+   idCreditCardCompany INT(10) NOT NULL AUTO_INCREMENT,
    name varchar(100),
    isActive varchar(1),
    sortOrder INT(10),
@@ -66,7 +87,7 @@ alter table TransferLog add ipAddress varchar(50) null;
 alter table TransferLog add idAppUser int(10) null;
 
 -- new column for BillingAccount
-alter table BillingAccount add orderFormFileSize bigint null;
+alter table BillingAccount add orderFormFileSize bigint(20) null;
 
 -- property to enable guest download terms.
 INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES

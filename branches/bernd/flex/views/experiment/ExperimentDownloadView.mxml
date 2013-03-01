@@ -410,7 +410,9 @@
 						   click="showDownloadWindow()" 
 						   id="downloadLink" 
 						   textDecoration="underline" icon="@Embed(source='../../assets/download.png')" 
-						   textAlign="left"/>
+						   textAlign="left"
+						   includeInLayout="{this.downloadTree.visible}" 
+						   visible="{this.downloadTree.visible}"/>
 			
 		</mx:HBox>
 		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>

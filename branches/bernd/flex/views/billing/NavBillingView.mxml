@@ -202,7 +202,6 @@
  	<![CDATA[
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
-		import mx.controls.menuClasses.MenuBarItem;
 		
 		import mx.collections.ArrayCollection;
 		import mx.collections.IHierarchicalCollectionView;
@@ -212,6 +211,7 @@
 		import mx.controls.Alert;
 		import mx.controls.DateField;
 		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		import mx.controls.menuClasses.MenuBarItem;
 		import mx.core.DragSource;
 		import mx.events.CloseEvent;
 		import mx.events.CollectionEvent;
@@ -943,7 +943,7 @@
 			} else {
 				lastSelectedInvoice = null;
 			}
- 			gatherDisplayInfo(this.requestTree.selectedItem);
+ 			gatherDisplayInfoShort(this.requestTree.selectedItem);
  		}
  		
  		private function gatherDisplayInfo(selectedItem:Object):void {
@@ -961,7 +961,7 @@
  					for each(item in billingItems) {
 	 					if (item.@requestNumber == request.@requestNumber &&
 		 					item.@idBillingAccount == request.@idBillingAccount) {
-	 						billingItemsDisplayed.addItem(item);
+							billingItemsDisplayed.addItem(item);
 							invoicePrice = sumInvoicePrice(invoicePrice, item);
  						}
  					}  
@@ -974,7 +974,7 @@
 	 					for each(item in billingItems) {
 		 					if (item.@requestNumber == request.@requestNumber &&
 		 					    item.@idBillingAccount == lab.@idBillingAccount) {
-		 						billingItemsDisplayed.addItem(item);
+								billingItemsDisplayed.addItem(item);
 								invoicePrice = sumInvoicePrice(invoicePrice, item);
 	 						}
 	 					}  
@@ -1011,6 +1011,97 @@
 				grandTotalPrice = "";
 			}
  		}
+		
+		private function gatherDisplayInfoShort(selectedItem:Object):void {
+			
+			billingItemsDisplayed = new XMLListCollection();
+			
+			var invoicePrice:Number = new Number(0);
+			var request:XML = null;
+			var lab:XML = null;
+			var item:Object = null;
+			var allDisplayed:Boolean = true;
+			if (selectedItem.name() == "Status" && 
+				selectedItem.@status == 'PENDING') {
+				this.billingItemsDisplayed = new XMLListCollection();
+				for each(request in selectedItem..Request) {
+					for each(item in billingItems) {
+						if (item.@requestNumber == request.@requestNumber &&
+							item.@idBillingAccount == request.@idBillingAccount) {
+							if ( billingItemsDisplayed.length < 20){
+								billingItemsDisplayed.addItem(item);
+							} else {
+								allDisplayed = false;
+							}
+							invoicePrice = sumInvoicePrice(invoicePrice, item);
+						}
+					}  
+					
+				}
+			} else if (selectedItem.name() == "Status") {
+				this.billingItemsDisplayed = new XMLListCollection();
+				for each(lab in selectedItem..Lab) {
+					for each(request in lab.Request) {
+						for each(item in billingItems) {
+							if (item.@requestNumber == request.@requestNumber &&
+								item.@idBillingAccount == lab.@idBillingAccount) {
+								if ( billingItemsDisplayed.length < 20){
+									billingItemsDisplayed.addItem(item);
+								}else {
+									allDisplayed = false;
+								}
+								invoicePrice = sumInvoicePrice(invoicePrice, item);
+							}
+						}  
+						
+					}
+				}
+			}  else if (selectedItem.name() == "Lab") {
+				this.billingItemsDisplayed = new XMLListCollection();
+				lab = XML(selectedItem); 
+				for each(request in lab.Request) {
+					for each(item in billingItems) {
+						if (item.@requestNumber == request.@requestNumber &&
+							item.@idBillingAccount == lab.@idBillingAccount) {
+							if ( billingItemsDisplayed.length < 20){
+								billingItemsDisplayed.addItem(item);
+							}else {
+								allDisplayed = false;
+							}
+							invoicePrice = sumInvoicePrice(invoicePrice, item);
+						}
+					}  
+				}
+			} else if (selectedItem.name() == "Request") {
+				for each(item in billingItems) { 
+					if (item.@requestNumber == selectedItem.@requestNumber &&
+						item.@idBillingAccount == selectedItem.@idBillingAccount) {
+						if ( billingItemsDisplayed.length < 20){
+							billingItemsDisplayed.addItem(item);
+						}else {
+							allDisplayed = false;
+						}
+						invoicePrice = sumInvoicePrice(invoicePrice, item);
+					}
+				}
+			}  
+			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
+			this.billingItemGrid.dataProvider.refresh();
+			
+			if ( !allDisplayed ) {
+				displayAllBox.visible = true;
+				displayAllBox.includeInLayout = true;
+			} else {
+				displayAllBox.visible = false;
+				displayAllBox.includeInLayout = false;
+			}
+			
+			if (invoicePrice > 0) {
+				grandTotalPrice = currencyFormatter.format(invoicePrice.toFixed(2).toString());			
+			} else {
+				grandTotalPrice = "";
+			}
+		}
  		
  		private function sumInvoicePrice(invoicePrice:Number, billingItem:Object):Number {
  			var price:String = billingItem.@invoicePrice;
@@ -1533,7 +1624,7 @@
 				Alert.show("Unable to generate GL interface.  Cannot find approved folder.")
 				return;
 			}
-			this.gatherDisplayInfo(approvedNode);
+			this.gatherDisplayInfoShort(approvedNode);
 
 			// Show popup window for generating gl interface			
     		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
@@ -2416,9 +2507,14 @@
 			        	
         	<mx:VBox styleName="panelBox"  width="100%" height="100%">
 				<mx:VBox width="100%">
-					<mx:HBox width="100%">
+					<mx:HBox width="100%" verticalAlign="middle">
 						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontFamily="Verdana" fontSize="11"/>
 						<mx:Spacer width="100%"/>
+						<mx:HBox id="displayAllBox"  verticalAlign="middle" horizontalGap="0" includeInLayout="false" visible="false">
+							<mx:Label text="(Only first 20 items displayed)" styleName="warningLabel" fontStyle="italic" fontWeight="bold"/>
+							<mx:LinkButton label="Display All" textDecoration="underline"
+										   click="{this.gatherDisplayInfo(this.requestTree.selectedItem);displayAllBox.visible=false;displayAllBox.includeInLayout=false;}"   fontSize="10"/>
+						</mx:HBox>
 						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 						</mx:CheckBox>

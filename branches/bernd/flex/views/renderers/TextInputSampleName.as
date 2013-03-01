@@ -10,7 +10,7 @@ package views.renderers
 	{
 		public static function create(state:String):IFactory {
 			var r:String = " -~";
-			if (state == 'CapSeqState' || state == 'FragAnalState' || state == 'MitSeqState' || state == 'CherryPickState') {
+			if (state == 'CapSeqState' || state == 'FragAnalState' || state == 'MitSeqState' || state == 'CherryPickState' || state == 'IScanState') {
 				r = "A-Za-z0-9_\\-";
 			} 
 			return RendererFactory.create(views.renderers.TextInputSampleName, {restrict:r});			

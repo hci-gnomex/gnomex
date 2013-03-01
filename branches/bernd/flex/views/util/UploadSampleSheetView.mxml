@@ -25,24 +25,24 @@
 			</mx:Canvas>
 			<mx:Canvas id="intro" width="100%" height="100%">
 				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-					<mx:Text width="100%" height="74" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}">
+					<mx:Text width="100%" height="74" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
 						<mx:htmlText><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
 							
   1. Create a spreadsheet containing the columns you wish to populate. You do not need to include all of the columns on the sample view grid - just those to be filled in.
 ]]></mx:htmlText>
 					</mx:Text>
-					<mx:Text width="100%" height="74" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}">
+					<mx:Text width="100%" height="74" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}">
 						<mx:htmlText><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
 							
 							1. Download the example spread sheet and fill in your sample information. 
 						]]></mx:htmlText>
 					</mx:Text>
 					<mx:HBox width="100%" horizontalAlign="center">
-						<mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}" label="Example sample sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" height="31"/>
-						<mx:LinkButton textDecoration="underline" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}" label="Example sample sheet" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" height="31"/>
+						<mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" label="Example sample sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" height="31"/>
+						<mx:LinkButton textDecoration="underline" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" label="Example sample sheet" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" height="31"/>
 					</mx:HBox>
 
-					<mx:Text width="100%" height="100" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}">
+					<mx:Text width="100%" height="100" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
 						<mx:htmlText><![CDATA[  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
 							
   3. The columns are of varying data types. It is your responsibility to insure that each column of the spreadsheet is formated in accordance with the applicable field type.
@@ -51,12 +51,12 @@
 					<mx:LinkButton textDecoration="underline"  label="(Field formats)" 
 								   click="PopUpManager.centerPopUp(SampleSheetColumnFormats(PopUpManager.createPopUp(this, SampleSheetColumnFormats, true)))"   
 								   color="#0000FF" height="31"
-								   visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}"/>
+								   visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}"/>
 						
-					<mx:Text width="100%" height="36" visible="{samplesViewState != 'CapSeqState'}" includeInLayout="{this.samplesViewState != 'CapSeqState'}">
+					<mx:Text width="100%" height="36" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
 						<mx:htmlText><![CDATA[  4. Once you have completed the spreadsheet it must be saved as a <b>tab delimited text file (filename.txt)</b>. When the file is ready, click “Select File to Upload."]]></mx:htmlText>
 					</mx:Text>
-					<mx:Text width="100%" height="36" visible="{samplesViewState == 'CapSeqState'}" includeInLayout="{this.samplesViewState == 'CapSeqState'}">
+					<mx:Text width="100%" height="36" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}">
 						<mx:htmlText><![CDATA[  2. Once you have completed the spreadsheet it must be saved as a <b>tab delimited text file (filename.txt)</b>. When the file is ready, click “Select File to Upload."]]></mx:htmlText>
 					</mx:Text>
 					<mx:CheckBox id="hasColNames" label="First row contains column headings" height="30" selected="true"/>
@@ -180,7 +180,7 @@
 				// Cap seq window is simplified and should be smaller.
 				fullWidth = 738;
 				fullHeight = 406;
-				if (samplesViewState == 'CapSeqState') {
+				if (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') {
 					fullHeight = 250; 
 					reportText.height = 150;
 				}
@@ -301,7 +301,7 @@
 				if (event.detail == Alert.YES) {
 					clickPopulateFieldsButtonAfterWarning();
 				} else {
-					Alert.show("Sample Sheet Upload Aborted", "Abort");
+					Alert.show("No samples have been imported.");
 					PopUpManager.removePopUp(this)
 				}
 			}		
@@ -495,8 +495,11 @@
 					}
 				} // End traverse ss row
 
-				if (tabSamplesView.hasPlates()) {
+				if (tabSamplesView.hasPlates() && samplesViewState != 'IScanState') {
 					tabSamplesView.fillPlates();
+				} 
+				if ( samplesViewState == 'IScanState'){
+					tabSamplesView.initializeSamplesGrid();
 				}
 				
 				tabSamplesView.propagateBarcode();
@@ -594,13 +597,18 @@
 							fieldType = AdvancedDataGridColumnWithType(col).propertyType;
 						}
 						var addColumn:Boolean = false;
-						if ((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
+						if ((samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState') && 
+							((this.specifiedFieldList == null && col.visible && col.editable && col.dataField != null) 
 							|| (this.specifiedFieldList != null && col.dataField != null && this.specifiedFieldList.hasOwnProperty(col.dataField))
-							|| this.specifiedFieldList == null && col.visible && !col.editable && col.dataField != null && (fieldType == 'URL' || fieldType == 'MOPTION')) {
+							|| this.specifiedFieldList == null && col.visible && !col.editable && col.dataField != null && (fieldType == 'URL' || fieldType == 'MOPTION'))){
 							addColumn = true;
 						}
-						
-						if (col.dataField == '@multiplexGroupNumber' && this.allowMultiPlexGroupNumber) {
+						if ( (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') && (col.visible && col.editable && col.dataField != null) ){
+
+							addColumn = true;
+						}
+												
+						if ((col.dataField == '@multiplexGroupNumber' && this.allowMultiPlexGroupNumber) && (samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState')) {
 							addColumn = true;
 						}
 						if (addColumn) {

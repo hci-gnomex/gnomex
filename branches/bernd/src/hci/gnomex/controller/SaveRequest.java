@@ -160,6 +160,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private Integer nextSampleNumber;
   private Integer sampleCountOnPlate;
   private Integer previousCapSeqPlateId = null;
+  private Integer previousIScanPlateId = null;
   
   public void validate() {
   }
@@ -451,7 +452,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         requestParser.getRequest().setSamples(samples);
 
-        // If we are editting a request, figure out which hybs will be deleted
+        // If we are editing a request, figure out which hybs will be deleted
         if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
           
           for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
@@ -1199,6 +1200,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // Cherry pick source and destination wells
     updateCherryPickWells(sess, sample, idSampleString);
     
+    // handle plates and plate wells for iScan
+    updateIScanPlates(sess, sample, idSampleString);
+    
   }
 
   private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString) {
@@ -1499,6 +1503,76 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
       }
+    }
+  }
+  private void updateIScanPlates(Session sess, Sample sample, String idSampleString) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
+      Plate plate = requestParser.getPlate(idSampleString);
+      PlateWell well = requestParser.getWell(idSampleString);
+      if (plate != null && well != null) {
+        // this means it was Plate container type.
+        String idAsString = requestParser.getPlateIdAsString(idSampleString);
+        Plate realPlate = this.storePlateMap.get(idAsString);
+        if (realPlate == null) {
+          realPlate = plate;
+          if (plate.getIdPlate() != null) {
+            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+          } else {
+            realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          }
+          realPlate.setLabel(plate.getLabel());
+          realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          sess.save(realPlate);
+          sess.flush();
+          if (this.previousIScanPlateId == null || !this.previousIScanPlateId.equals(realPlate.getIdPlate())) {
+            this.sampleCountOnPlate = 1;
+          }
+          this.previousIScanPlateId = realPlate.getIdPlate();
+          this.storePlateMap.put(idAsString, realPlate);
+        }
+        PlateWell realWell = well;
+        if (well.getIdPlateWell() != null) {
+          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlateWell());
+        } else {
+          realWell.setSample(sample);
+          realWell.setIdSample(sample.getIdSample());
+          realWell.setPlate(realPlate);
+          realWell.setIdPlate(realPlate.getIdPlate());
+          realWell.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        realWell.setRow(well.getRow());
+        realWell.setCol(well.getCol());
+        // We will assume that the samples are being saved
+        // in the order they are listed, so set the well position based on
+        // to sample count which is incremented as we iterate through the
+        // list of samples.
+        realWell.setPosition(new Integer(sampleCountOnPlate));
+        sess.save(realWell);
+        sess.flush();
+      } else {
+        well = null;
+        if (sample.getWells() != null && sample.getWells().size() > 0) {
+          // this loop should be unnecessary since there should only be the 1 well with no plate (source well)
+          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell w = (PlateWell)i.next();
+            if (w.getIdPlate() == null) {
+              well = w;
+              break;
+            }
+          }
+        }
+        if (well == null) {
+          well = new PlateWell();
+          well.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          well.setIdSample(sample.getIdSample());
+          well.setSample(sample);
+          well.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        well.setPosition(new Integer(sampleCountOnPlate));
+        sess.save(well);
+      }
+      
+      sess.flush();
     }
   }
   

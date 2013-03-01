@@ -21,7 +21,6 @@
 						   icon="@Embed(source='../../assets/igv.png')"
 						   disabledIcon="@Embed(source='../../assets/igv_disable.png')"  					        	
 						   toolTip="Create file link(s) for viewing the selected data track in the IGV Genome Browser"
-						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp; dataTrackFiles.length !=0 &amp;&amp;  getDataTrack.lastResult.Files.Dir.@ucscLinkFile != 'none'}"  
 						   click="{parentDocument.createIGVLink()}" 
 						   id="makeIGVLinkButton"  textDecoration="underline"/>
 			<mx:LinkButton label="URL Links" 
@@ -31,11 +30,19 @@
 						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
 						   click="{parentDocument.createURLLinks()}" 
 						   id="makeURLLinksButton"   textDecoration="underline"/>
+			<mx:LinkButton label="Remove Links"
+					       icon="@Embed(source='../../assets/link_delete.png')"
+					       disabledIcon="@Embed(source='../../assets/link_delete_disable.png')"
+					       toolTip="Destroys all existing IGV, UCSC and URL links to user-owned datatracks.  Re-created links will have different random paths, making tracks private if old paths were distributed."
+					       click="{parentDocument.removeLinks()}"
+					       id="destroyLinksButton" textDecoration="underline" />
 			<mx:LinkButton styleName="linkMenuButton" label="Download" 
 						   icon="@Embed(source='../../assets/download.png')" 
 						   enabled="true" visible="false" includeInLayout="false"
 						   click="{parentDocument.treeItemToSelect=null;promptToDownloadSelectedItems()}" id="downloadButton" />
+			 
 			<mx:LinkButton label="Share"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+			
 	</mx:HBox>
 	
 <mx:HTTPService             

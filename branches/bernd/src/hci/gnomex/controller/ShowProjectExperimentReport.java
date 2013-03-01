@@ -156,17 +156,18 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     
     Set columns = new TreeSet();
     columns.add(makeReportColumn("Lab", 1));
-    columns.add(makeReportColumn("Owner", 2));
-    columns.add(makeReportColumn("Number", 3));
-    columns.add(makeReportColumn("Category", 4));
-    columns.add(makeReportColumn("Application", 5));
-    columns.add(makeReportColumn("Creation", 6));
-    columns.add(makeReportColumn("Last Modification", 7));
-    columns.add(makeReportColumn("Visibility", 8));
-    columns.add(makeReportColumn("Completed", 9));
-    columns.add(makeReportColumn("Description", 10));
-    columns.add(makeReportColumn("Organism", 11));
-    columns.add(makeReportColumn("# Samples", 12));
+    columns.add(makeReportColumn("Experiment #", 2));
+    columns.add(makeReportColumn("Name", 3));
+    columns.add(makeReportColumn("Owner", 4));
+    columns.add(makeReportColumn("Submitter", 5));
+    columns.add(makeReportColumn("Category", 6));
+    columns.add(makeReportColumn("Application", 7));
+    columns.add(makeReportColumn("Date Created", 8));
+    columns.add(makeReportColumn("Last Modification", 9));
+    columns.add(makeReportColumn("Visibility", 10));
+    columns.add(makeReportColumn("Description", 11));
+    columns.add(makeReportColumn("Organism", 12));
+    columns.add(makeReportColumn("# Samples", 13));
     
     
     tray.setColumns(columns);
@@ -198,9 +199,13 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
     Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
     Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
+    String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
+    String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
+    String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
 
     String labName = Lab.formatLabName(labLastName, labFirstName);
     String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
+    String submitterName = AppUser.formatName(submitterLastName, submitterFirstName);
     String requestCategory = dh.getRequestCategory(codeRequestCategory);
     String application = dh.getApplication(codeRequestApplication);
     String createDateString = createDate != null ? dateFormat.format(createDate) : "";
@@ -210,14 +215,15 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String organism = dh.getOrganism(idOrganism);
     
     values.add(labName);
-    values.add(ownerName);
     values.add(number);
+    values.add(requestName);
+    values.add(ownerName);
+    values.add(submitterName);
     values.add(requestCategory);
     values.add(application);
     values.add(createDateString);
     values.add(modifyDateString);
     values.add(visibility);
-    values.add(completeDateString);
     values.add(description);
     values.add(organism);
     values.add(numSamples.toString());

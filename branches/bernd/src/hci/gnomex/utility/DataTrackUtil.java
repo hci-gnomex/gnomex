@@ -489,7 +489,7 @@ public class DataTrackUtil {
     }
 
     //delete old softlinks within
-    DataTrackUtil.deleteNonIndexFiles(urlLinkDir, Constants.DAYS_TO_KEEP_URL_LINKS);
+    //DataTrackUtil.deleteNonIndexFiles(urlLinkDir, Constants.DAYS_TO_KEEP_URL_LINKS);
 
     return urlLinkDir;
   }

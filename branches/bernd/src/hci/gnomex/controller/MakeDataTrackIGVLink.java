@@ -1,8 +1,7 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.AppUser;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -10,7 +9,6 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackUtil;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
@@ -18,7 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,12 +28,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.TransactionException;
+
 
 import java.io.BufferedWriter;
 import java.io.BufferedReader;
@@ -58,17 +55,18 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	private SecurityAdvisor secAdvisor;
 	private Session sess;
 	private String username;
-	private static final String IGV_LINK_PATH = "IGVLinks";
+	private ArrayList<String[]> linksToMake = new ArrayList<String[]>();
+	
 	
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
 	public void validate() {}
 
-	protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
-	  log.error("Get not implemented");
+	protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+	  log.error("Post not implemented");
 	}
 	
-  protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+  protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
 
 		serverName = req.getServerName();
 		
@@ -120,7 +118,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		ArrayList<DataTrack> dts = new ArrayList<DataTrack>(folder.getDataTracks());
 		for (DataTrack dt: dts) {
 			//If one of the datatracks is readable by the user, create folder and links
-			
+		
 			if (secAdvisor.canRead(dt)) {
 				File dir = new File(path);
 				dir.mkdirs();
@@ -130,8 +128,11 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					dataTrackResult.append(trackResults);
 					toWrite = true;
 				}
-			} 
+			}
+			
 		}
+		
+		
 		
 		//Recursively call printContents in subfolders
 		ArrayList<DataTrackFolder> dtfs = new ArrayList<DataTrackFolder>(folder.getFolders());
@@ -152,6 +153,8 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		}
 		
 		return xmlResult.toString();
+		
+		
 		
 	}
 
@@ -179,7 +182,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			File dir = new File(linkDir.getAbsoluteFile(),linkPath);
 			dir.mkdir();
 			String rootPath = dir.getAbsolutePath(); //Path via server
-			String htmlPath = dataTrackFileServerURL + IGV_LINK_PATH + "/" + linkPath + "/"; //Path wia web
+			String htmlPath = dataTrackFileServerURL + Constants.IGV_LINK_DIR_NAME + "/" + linkPath + "/"; //Path wia web
 			
 			
 			//Create Duplicate IGV repository
@@ -288,13 +291,18 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
-				String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
+				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());
 				
-				StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
-				
-	      res.setContentType("application/xml");
-	      res.getOutputStream().println("<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>");
-
+				if (success) {
+					String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
+					
+					StringBuilder sbo = new StringBuilder(preamble + htmlPath + "igv_registry_$$.txt");
+					
+				    res.setContentType("application/xml");
+				    res.getOutputStream().println("<SUCCESS igvURL=\"" +  sbo.toString() +"\"/>");
+				} else {
+					throw new Exception("Could not create IGV Links");
+				}
 			} else {
 				log.error("MakeDataTrackIGVLink -- No data tracks associated with this user!");
 			}
@@ -305,7 +313,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
-				secAdvisor.closeHibernateSession();        
+				secAdvisor.closeHibernateSession();
 			} catch(Exception e) {}
 		}
 	}
@@ -316,10 +324,13 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		String desiredDirectory = null;
 		
 		for (File directory: directoryList) {
-			if (directory.getName().endsWith(username)) {
-				desiredDirectory = directory.getName();
-				delete(directory);
-			}
+			if (directory.getName().length() > 36) {
+				String parsedUsername = directory.getName().substring(36);
+				if (parsedUsername.equals(username)) {
+					desiredDirectory = directory.getName();
+					delete(directory);
+				}
+			} 
 		}
 		
 		return desiredDirectory;
@@ -336,7 +347,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	}
 	
 	private File checkIGVLinkDirectory(String baseURL, String webContextPath) throws Exception{
-	    File igvLinkDir = new File (webContextPath,IGV_LINK_PATH);
+	    File igvLinkDir = new File (webContextPath,Constants.IGV_LINK_DIR_NAME);
 	    igvLinkDir.mkdirs();
 	    if (igvLinkDir.exists() == false) throw new Exception("\nFailed to find and or make a directory to contain url softlinks for IGV data distribution.\n");
 
@@ -394,7 +405,11 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					String annoString = annoFile.toString();
 
 					//make soft link
-					DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
+					//DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
+					
+					//We are no storing the links and creating them in a batch.
+					String[] links = {f.toString(),annoString};
+					linksToMake.add(links);
 
 					//is it a bam index xxx.bai? If so then skip AFTER making soft link.
 					if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.gz.tbi")) continue;
@@ -413,7 +428,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					names.add(datasetName);
 					
 					//make bigData URL e.g. bigDataUrl=http://genome.ucsc.edu/goldenPath/help/examples/bigBedExample.bb
-					int index = annoString.indexOf(IGV_LINK_PATH);
+					int index = annoString.indexOf(Constants.IGV_LINK_DIR_NAME);
 					String annoPartialPath = annoString.substring(index);
 					String bigDataUrl = baseURL + annoPartialPath;
 					fileURLs.add(bigDataUrl);
@@ -422,12 +437,33 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 				}
 			} 
 			
+			
 		} catch (Exception e) {
 			throw e;      
 		}
 		
 		return sb.toString();
 
+	}
+	
+	private boolean makeSoftLinkViaUNIXCommandLine(String path){
+		try {
+			File script = new File(path,"makeLinks.sh");
+			BufferedWriter bw = new BufferedWriter(new FileWriter(script));
+			for (String[] links: linksToMake) {
+				bw.write(String.format("ln -s %s %s\n", links[0], links[1]));
+			}
+			bw.close();
+			
+			String[] cmd = {"sh", script.toString()};
+			Process p = Runtime.getRuntime().exec(cmd);
+			
+			return true;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	private static String stripBadNameCharacters(String name){

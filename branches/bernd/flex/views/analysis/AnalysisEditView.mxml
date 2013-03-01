@@ -1275,9 +1275,9 @@
 		
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
-      <mx:HBox id="visibilityTab" label="Visibility" width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+      <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 	
-		<mx:VBox  width="100%" height="100%"  paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		<mx:VBox  width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 			<mx:HBox horizontalGap="0" id="hbox1">
 				<mx:Text text="(1) Pick the level of visibility this analysis should have." id="labelApplication"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
@@ -1320,7 +1320,7 @@
 				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
-										  width="250"  
+										  width="270"  
 										  id="collaboratorCombo">
 				</renderers:FilterComboBox>
 				<mx:Button 
@@ -1341,14 +1341,14 @@
 					<mx:columns>
 						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />               
-						<mx:DataGridColumn headerText="Can Upload Data" 
-										   width="110" 
+						<mx:DataGridColumn headerText="Upload" 
+										   width="65" 
 										   editable="true"                        	
 										   dataField="@canUploadData" 
 										   editorDataField="selected" sortable="false"
 										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
-						<mx:DataGridColumn headerText="Can Update Analysis" 
-										   width="130" 
+						<mx:DataGridColumn headerText="Update" 
+										   width="65" 
 										   editable="true"                        	
 										   dataField="@canUpdate" 
 										   editorDataField="selected" sortable="false"
@@ -1357,7 +1357,7 @@
 				</mx:DataGrid>		   		
 			</mx:HBox>
 		</mx:VBox>
-      </mx:HBox>		
+      </mx:VBox>		
 
 	</mx:TabNavigator>
 	

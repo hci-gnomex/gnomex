@@ -159,6 +159,7 @@ CREATE TABLE `gnomex`.`AnalysisCollaborator` (
   `idAnalysis` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
   `canUploadData` char(1) null,
+  `canUpdate` char(1) null,
   PRIMARY KEY (`idAnalysis`, `idAppUser`),
   CONSTRAINT `FK_AnalysisCollaborator_AppUser` FOREIGN KEY `FK_AnalysisCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -320,7 +321,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `totalDollarAmount` DECIMAL(12,2) NULL,
   `purchaseOrderForm` LONGBLOB NULL,
   `orderFormFileType` VARCHAR(10) NULL,
-  `orderFormFileSize` BIGINT NULL,
+  `orderFormFileSize` BIGINT(20) NULL,
   `shortAcct` VARCHAR(10) NULL,
   `startDate` DATETIME NULL,
   `idCoreFacility` INT(10) NULL,
@@ -359,7 +360,7 @@ ENGINE = INNODB;
 
 -- Add CreditCardCompany dictionary
 CREATE TABLE gnomex.CreditCardCompany (
-   idCreditCardCompany INT(10),
+   idCreditCardCompany INT(10) NOT NULL AUTO_INCREMENT,
    name varchar(100),
    isActive varchar(1),
    sortOrder INT(10),
@@ -1026,6 +1027,19 @@ CREATE TABLE `gnomex`.`InstrumentRunStatus` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`IScanChip`;
+CREATE TABLE `gnomex`.`IScanChip` (
+  `idIScanChip` INT(10) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(500) NULL,
+  `costPerSample` DECIMAL(5, 2) NULL,
+  `samplesPerChip` INT(10) NULL,
+  `markersPerSample` VARCHAR(100) NULL,
+  `catalogNumber` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idIScanChip`)
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`Lab`;
 CREATE TABLE `gnomex`.`Lab` (
   `idLab` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1520,6 +1534,8 @@ CREATE TABLE `gnomex`.`Request` (
   `idSampleDropOffLocation` INT(10) NULL,
   `codeRequestStatus` VARCHAR(10) NULL,
   `idSubmitter` INT(10) NULL,
+  `numberIScanChips` INT(10) NULL,
+  `idIScanChip` INT(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1575,6 +1591,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,     
   CONSTRAINT `FK_Request_AppUser1` FOREIGN KEY  (`idSubmitter`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION, 
+  CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY  (`idIScanChip`)
+    REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION 
 )
@@ -1654,6 +1674,7 @@ CREATE TABLE `gnomex`.`RequestCollaborator` (
   `idRequest` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL,
   `canUploadData` char(1) null,
+  `canUpdate` char(1) null,
   PRIMARY KEY (`idRequest`, `idAppUser`),
   CONSTRAINT `FK_RequestCollaborator_AppUser` FOREIGN KEY `FK_RequestCollaborator_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)

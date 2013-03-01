@@ -62,15 +62,14 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@codeBioanalyzerChipType = codeChipType;
 			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+//			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
 		public function propagateSeqPrepByCore():void {
        		for each (var sample:Object in parentDocument.samples) {
 				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' ? 'Y' : 'N');
 			}
-
 		}
-
+		
 		
        	private function propagateSampleType():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -167,7 +166,7 @@
           	// propagate selected chip type to samples
           	propagateChipType();       	
           	// check for sampleSetup completeness
-          	checkSampleSetupCompleteness(); 
+//          	checkSampleSetupCompleteness(); 
           	
             checkRequiredChipType();
         }
@@ -202,14 +201,11 @@
         	} 
         } 
 
-
-
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
         	if (parentDocument == null) {
         		return isComplete;
         	}
-        	
         	
         	parentDocument.userWarningsSampleSetup = "";
         	if (parentDocument.isEditState()) {
@@ -402,7 +398,11 @@
 					&& (cherryNumPlates < 12 || (cherryPlate12Name.text != null && cherryPlate12Name.text != ''))) {
 					isComplete = true;	        	    	
 	        	}
-			} else {
+			}  else if (parentDocument.isIScanState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
+					isComplete = true;
+				}
+			}  else {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
 					hasOrganism()) {
@@ -414,7 +414,7 @@
 				(!this.validNumberOfSamples || !this.validConcentration)) {
         		isComplete = false;    	
         	}
-        	
+			        	
         	if (parentDocument.isSolexaState()) {
         		parentDocument.seqSetup1View.enabled = isComplete; 
         	}else {
@@ -799,6 +799,112 @@
 			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
 		}
 		
+		public function updateIScanPlateList(plateList:XMLList):void {
+			if ( plateList == null || parentDocument == null ) {
+				return;
+			}
+			parentDocument.iScanPlateList = plateList;
+			parentDocument.iScanPlateListCollection.source = plateList;
+			parentDocument.numIScanPlates = plateList.length();
+			this.iScanNumSourcePlates.text = plateList.length();
+			this.updatePlateNames();
+			this.onIScanNumSourcePlatesChanged();
+		}
+		
+		public function updatePlateNames():void{
+			var idx:int=1;
+			for each (var plate:Object in parentDocument.iScanPlateListCollection) {
+			    setIScanPlateName(idx, plate.@name);
+				idx++;
+			}
+		}
+		
+		public function getIScanPlateName(idx:int):String {
+			if (idx == 1) return this.iScanPlate1Name.text
+			if (idx == 2) return this.iScanPlate2Name.text
+			if (idx == 3) return this.iScanPlate3Name.text
+			if (idx == 4) return this.iScanPlate4Name.text
+			if (idx == 5) return this.iScanPlate5Name.text
+			if (idx == 6) return this.iScanPlate6Name.text
+			if (idx == 7) return this.iScanPlate7Name.text
+			if (idx == 8) return this.iScanPlate8Name.text
+			if (idx == 9) return this.iScanPlate9Name.text
+			if (idx == 10) return this.iScanPlate10Name.text
+			if (idx == 11) return this.iScanPlate11Name.text
+			if (idx == 12) return this.iScanPlate12Name.text
+			return '';
+		}
+		
+		public function setIScanPlateName(idx:int, name:String):void {
+			if (idx == 1)  this.iScanPlate1Name.text = name;
+			if (idx == 2)  this.iScanPlate2Name.text = name;
+			if (idx == 3)  this.iScanPlate3Name.text = name;
+			if (idx == 4)  this.iScanPlate4Name.text = name;
+			if (idx == 5)  this.iScanPlate5Name.text = name;
+			if (idx == 6)  this.iScanPlate6Name.text = name;
+			if (idx == 7)  this.iScanPlate7Name.text = name;
+			if (idx == 8)  this.iScanPlate8Name.text = name;
+			if (idx == 9)  this.iScanPlate9Name.text = name;
+			if (idx == 10)  this.iScanPlate10Name.text = name;
+			if (idx == 11)  this.iScanPlate11Name.text = name;
+			if (idx == 12)  this.iScanPlate12Name.text = name;
+		}
+		
+		public function onIScanNumSourcePlatesChanged():void {
+			var numPlates:int = Number(this.iScanNumSourcePlates.text);
+			parentDocument.numIScanPlates = numPlates;
+			this.iScanPlate1Box.visible = (numPlates > 0);
+			this.iScanPlate2Box.visible = (numPlates > 1);
+			this.iScanPlate3Box.visible = (numPlates > 2);
+			this.iScanPlate4Box.visible = (numPlates > 3);
+			this.iScanPlate5Box.visible = (numPlates > 4);
+			this.iScanPlate6Box.visible = (numPlates > 5);
+			this.iScanPlate7Box.visible = (numPlates > 6);
+			this.iScanPlate8Box.visible = (numPlates > 7);
+			this.iScanPlate9Box.visible = (numPlates > 8);
+			this.iScanPlate10Box.visible = (numPlates > 9);
+			this.iScanPlate11Box.visible = (numPlates > 10);
+			this.iScanPlate12Box.visible = (numPlates > 11);
+			
+			parentDocument.iScanPlateListCollection.removeAll();
+
+			var startIdx:int = 1;
+			for(var idx:int=startIdx; idx < numPlates+1; idx++) {
+				var node:XML = new XML("<Plate name='" + getIScanPlateName(idx) + "'/>");
+				parentDocument.iScanPlateListCollection.addItem(node);
+			}
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+		}
+		
+		public function propogatePlateNames(plateNumber:int):void {
+			if ( !parentDocument.isIScanState() ) {
+				return;
+			}
+			if ( plateNumber < 0 || plateNumber > 11 ) {
+				return;
+			}
+			var startInd:int = plateNumber * 96;
+			for (var psIdx:int = startInd; psIdx < startInd+96; psIdx++) {
+				var y:int = psIdx / 96;
+				y = y + 1;
+				var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
+				plateSample.@plateName = getIScanPlateName(y);
+			}
+		}
+		
+		private function onIScanPlateNameChanged(plateNumber:int):void {
+			var numPlates:int = Number(this.iScanNumSourcePlates.text);
+			var idx:int=1;
+			for each (var plate:Object in parentDocument.iScanPlateListCollection) {
+				plate.@name = getIScanPlateName(idx);
+				idx++;
+			}
+			propogatePlateNames(plateNumber);
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+			parentDocument.samplesView.initializeSamplesGrid();		
+			
+		}
+		
 		private function onAssayCheckBoxChanged():void {
 			parentDocument.selectedAssaysCollection.removeAll();
 			for (var x:int = 0; x < assayCheckBox.length; x++) {
@@ -811,10 +917,101 @@
 			checkSampleSetupCompleteness();
 			parentDocument.samplesView.initializeSamplesGrid();
 		}
+		
+		[Bindable]
+		private var maxNumberOfIScanSamples:int;
+		
+		private function pickChip():void {
+			if (this.iScanChipRadioGroup.selectedValue != null && 
+				(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
+				this.iScanChipBox.styleName = "normalBox";
+				parentDocument.request.@idIScanChip = iScanChipRadioGroup.selectedValue.@idIScanChip;
+			} else {
+				this.iScanChipBox.styleName = "requiredBox";
+			}
+			
+			this.checkIScanSampleCount();
+		}
+		
+		public function checkIScanSampleCount():void {
+			if (this.iScanChipRadioGroup.selectedValue != null && 
+				(this.iScanChipRadioGroup.selectedValue.@samplesPerChip != null && this.iScanChipRadioGroup.selectedValue.@samplesPerChip != '')) {
+				
+				maxNumberOfIScanSamples = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
+				numberOfIScanSamplesValidator.maxValue = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
+				
+				if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && parseInt(this.numberOfSamples.text) <= this.maxNumberOfIScanSamples ) {
+					validNumberOfSamples = true;
+				} else {
+					validNumberOfSamples = false;
+				}
+				
+				numberOfIScanSamplesValidator.validate();
+				
+				checkChipSetupCompleteness();
+			} 
+			
+		}
+		
+		public function checkChipSetupCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (parentDocument.isEditState() || parentDocument.isIScanState()) {
+				if (this.iScanChipRadioGroup.selectedValue != null && 
+					(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
+					if ( validNumberOfSamples ) {
+						isComplete = true;
+					}
+				}
+			} 
+			
+			if ( this.iScanNumSourcePlates != null && this.iScanNumSourcePlates.text != '' && parseInt(this.iScanNumSourcePlates.text) <= 12 ) {
+				
+			} else {
+				isComplete = false;
+			}
+			numberOfChipsValidator.validate();
+			iScanNumSourcePlatesValidator.validate();
+			
+			parentDocument.samplesView.enabled = isComplete; 
+			
+			if (!parentDocument.isAmendState() && validNumberOfSamples) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+			
+			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
+			}
+			parentDocument.enableNextButtons();
+			
+			callLater(postChipSetupCompleteness, [isComplete]);
+			
+			return isComplete;
+		}
+		
+		private function postChipSetupCompleteness(isComplete:Boolean):void {
+			
+			if (!isComplete) {
+				parentDocument.confirmView.enabled = false;
+			} else {
+				parentDocument.samplesView.checkSamplesCompleteness();
+			}
+			
+		}
+		
+		private function handleInvalidNumberOfIScanSamples():void {
+			this.validNumberOfSamples = false;
+			parentDocument.samplesView.enabled = validNumberOfSamples;
+			this.checkIScanSampleCount();
+		}
+		private function handleValidNumberOfIScanSamples():void {
+			this.validNumberOfSamples = true;
+			this.checkIScanSampleCount();
+		}
+		
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
-    <mx:NumberValidator id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
+    <mx:NumberValidator enabled="{currentState!='IScanState'}" id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
          required="true" allowNegative="false" domain="int" maxValue="384" />
     <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
          required="false" />
@@ -833,6 +1030,21 @@
 						lowerThanMinError="This field is required."
 						property="selectedIndex"
 						minValue="1" />
+	<mx:NumberValidator id="numberOfIScanSamplesValidator" enabled="{currentState=='IScanState'}" source="{numberOfSamples}" property="text" 
+						required="true" allowNegative="false" domain="int" 
+						requiredFieldError="Please enter the number of samples you are submitting."
+						exceedsMaxError="{'This chip handles ' + iScanChipRadioGroup.selectedValue.@samplesPerChip + ' samples; you have requested ' + numberOfChips.text + ' chips. The maximum number of samples you can submit is ' + maxNumberOfIScanSamples.toString() + '.'}" />
+	<mx:NumberValidator id="numberOfChipsValidator" source="{numberOfChips}" property="text" 
+						required="true" allowNegative="false" domain="int"  maxValue="4" minValue="4"
+						lowerThanMinError="A kit contains 4 chips; you must submit samples for all 4 chips."
+						exceedsMaxError="A kit contains 4 chips; you cannot submit samples for more than 4 chips."
+						requiredFieldError="Please enter the number of chips you want." />
+	<mx:NumberValidator enabled="{currentState=='IScanState'}" id="iScanNumSourcePlatesValidator" source="{iScanNumSourcePlates}" property="text" 
+						required="true" allowNegative="false" domain="int" maxValue="12"
+						requiredFieldError="Please enter the number of plates you are submitting your samples on."
+						exceedsMaxError="You can only submit up to 12 plates per order."/>
+	
+	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
         	
@@ -840,9 +1052,7 @@
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
 			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
 				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
-				<mx:TextInput width="40" id="numberOfSamples" 
-					valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)"
- change="checkSampleSetupCompleteness()">
+				<mx:TextInput width="40" id="numberOfSamples" valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)">
 					<mx:focusOut>parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
@@ -1092,7 +1302,7 @@
 						  text="With Bulk pricing you ARE paying for the empty wells, so it is in your best interest to have the max 95 samples per plate to get the best pricing possible." />
 			</mx:AddChild>
              <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
-             <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();pickContainerType();"/>
+             <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="pickContainerType();"/>
              <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                   <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
                   	<mx:Label text="(5) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
@@ -1119,7 +1329,7 @@
 				   </mx:Tile>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+		   <!--<mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>-->
 	   </mx:State>
 	   <mx:State name="MitSeqState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -1175,7 +1385,7 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>
+		   <!--<mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>-->
 	   </mx:State>
 	   <mx:State name="CherryPickState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -1268,6 +1478,133 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
+	   </mx:State>
+	   <mx:State name="IScanState">
+		   <mx:RemoveChild target="{samplePrepContainer}"/>
+		  
+		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
+		   <mx:RemoveChild target="{label8}"/>
+		   <mx:RemoveChild target="{sampleTypeCombo}"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
+				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
+				   <mx:VBox verticalGap="0" styleName="requiredBox" id="iScanChipBox" width="100%">
+					   <mx:HBox width="100%">
+						   <mx:Label width="200" fontSize="10" fontWeight="bold" text="Chip" paddingLeft="25"/>
+						   <mx:Label width="125" fontSize="10" fontWeight="bold"  text="Samples per Chip"/>
+						   <mx:Label width="125" fontSize="10" fontWeight="bold" text="Markers per Sample" />
+						   <mx:Label width="125" fontSize="10" fontWeight="bold" text="Cost per Sample" />
+					   </mx:HBox>
+					   <mx:RadioButtonGroup id="iScanChipRadioGroup"/>
+					   <mx:Repeater id="iScanChipRepeater" dataProvider="{parentApplication.iScanChipList}"> 
+						   <mx:HBox verticalAlign="middle" width="100%">
+							   <mx:RadioButton  label="{iScanChipRepeater.currentItem.@name}" 
+												paddingLeft="0" paddingRight="1"
+												value="{iScanChipRepeater.currentItem}" 
+												click="{pickChip()}"
+												groupName="iScanChipRadioGroup" width="200"/>
+							   <mx:Text width="125" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
+							   <mx:Text width="125" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
+							   <mx:Text width="125" fontSize="9" 
+										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
+						   </mx:HBox>
+					   </mx:Repeater>
+					   
+				   </mx:VBox>
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:HBox horizontalGap="0" verticalAlign="middle">
+				   <mx:Label text="(2) How many chips do you want?" width="334" />
+				   <mx:TextInput width="40" id="numberOfChips" change="checkIScanSampleCount();parentDocument.request.@numberIScanChips = numberOfChips.text;">
+					   <mx:focusOut>checkIScanSampleCount();parentDocument.request.@numberIScanChips = numberOfChips.text;</mx:focusOut>
+				   </mx:TextInput>							
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:RemoveChild target="{hbox3}"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before" target="{hbox3}"/>
+		   <mx:SetProperty target="{label5}" name="text" value="(3) How many samples will you be submitting?"/>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
+				   <mx:Label text="(4) How many source plates will you be submitting?" width="334"  id="iScanNumSourcePlatesLabel"/>
+				   <mx:TextInput width="40" id="iScanNumSourcePlates" 
+								 change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()">
+				   </mx:TextInput>							
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox6}" position="before">
+			   <mx:VBox horizontalGap="0" id="iScanPlateNamesBox" verticalAlign="middle" visible="{parentDocument.request.@idRequest == '0'}" includeInLayout="{parentDocument.request.@idRequest == '0'}">
+				   <mx:Label text="(5) Name your plates." width="334"/>
+				   <mx:HBox horizontalGap="10" verticalAlign="middle">
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate1Box" visible="false">
+						   <mx:Label text="Plate 1:"/>
+						   <mx:TextInput width="100" id="iScanPlate1Name" text="Plate 1"
+										 focusOut="onIScanPlateNameChanged(0)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate2Box" visible="false">
+						   <mx:Label text="Plate 2:"/>
+						   <mx:TextInput width="100" id="iScanPlate2Name" text="Plate 2"
+										 focusOut="onIScanPlateNameChanged(1)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate3Box" visible="false">
+						   <mx:Label text="Plate 3:"/>
+						   <mx:TextInput width="100" id="iScanPlate3Name" text="Plate 3"
+										 focusOut="onIScanPlateNameChanged(2)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate4Box" visible="false">
+						   <mx:Label text="Plate 4:"/>
+						   <mx:TextInput width="100" id="iScanPlate4Name" text="Plate 4"
+										 focusOut="onIScanPlateNameChanged(3)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate5Box" visible="false">
+						   <mx:Label text="Plate 5:"/>
+						   <mx:TextInput width="100" id="iScanPlate5Name" text="Plate 5"
+										 focusOut="onIScanPlateNameChanged(4)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate6Box" visible="false">
+						   <mx:Label text="Plate 6:"/>
+						   <mx:TextInput width="100" id="iScanPlate6Name" text="Plate 6"
+										 focusOut="onIScanPlateNameChanged(5)"/>
+					   </mx:HBox>
+				   </mx:HBox>
+				   <mx:HBox horizontalGap="10" verticalAlign="middle">
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate7Box" visible="false">
+						   <mx:Label text="Plate 7:"/>
+						   <mx:TextInput width="100" id="iScanPlate7Name" text="Plate 7"
+										 focusOut="onIScanPlateNameChanged(6)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate8Box" visible="false">
+						   <mx:Label text="Plate 8:"/>
+						   <mx:TextInput width="100" id="iScanPlate8Name" text="Plate 8"
+										 focusOut="onIScanPlateNameChanged(7)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate9Box" visible="false">
+						   <mx:Label text="Plate 9:"/>
+						   <mx:TextInput width="100" id="iScanPlate9Name" text="Plate 9"
+										 focusOut="onIScanPlateNameChanged(8)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate10Box" visible="false">
+						   <mx:Label text="Plate 10:"/>
+						   <mx:TextInput width="100" id="iScanPlate10Name" text="Plate 10"
+										 focusOut="onIScanPlateNameChanged(9)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate11Box" visible="false">
+						   <mx:Label text="Plate 11:"/>
+						   <mx:TextInput width="100" id="iScanPlate11Name" text="Plate 11"
+										 focusOut="onIScanPlateNameChanged(10)"/>
+					   </mx:HBox>
+					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate12Box" visible="false">
+						   <mx:Label text="Plate 12:"/>
+						   <mx:TextInput width="100" id="iScanPlate12Name" text="Plate 12"
+										 focusOut="onIScanPlateNameChanged(11)"/>
+					   </mx:HBox>
+				   </mx:HBox>
+			   </mx:VBox>
+		   </mx:AddChild>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="focusOut" handler="checkIScanSampleCount()"/>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="invalid" handler="handleInvalidNumberOfIScanSamples()"/>
+		   <mx:SetEventHandler target="{numberOfSamples}" name="valid" handler="handleValidNumberOfIScanSamples()"/>
+		   
 	   </mx:State>
    </mx:states>
    	 

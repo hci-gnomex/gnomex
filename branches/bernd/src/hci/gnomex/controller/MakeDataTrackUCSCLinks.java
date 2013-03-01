@@ -13,6 +13,8 @@ import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -37,7 +39,6 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackUCSCLinks.class);
 
 	private Integer idDataTrack;
-	private String contextPath;
 	private String baseURL;
 	private String baseDir;
 	private String analysisBaseDir;
@@ -61,8 +62,6 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 		} else {
 			this.addInvalidField("idDataTrack", "idDataTrack is required");
 		}
-
-		contextPath = request.getContextPath();
 
 		serverName = request.getServerName();
 	}
@@ -159,6 +158,20 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
 			//look and or make directory to hold softlinks to data, also removes old softlinks
 			File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
+			
+			String linkPath = this.checkForUserFolderExistence(urlLinkDir, username);
+		  	
+			if (linkPath == null) {
+				linkPath = UUID.randomUUID().toString() + username;
+			}
+
+			//if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
+			//if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
+
+			//Create the users' data directory
+			File dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
+			if (!dir.exists())
+				dir.mkdir();
 
 			//what data type (bam, bigBed, bigWig, vcfTabix)
 			String type = "type=" + DataTrackUtil.fetchUCSCDataType (filesToLink);
@@ -173,12 +186,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
 			//TODO: color indicated? look for property named color, convert to RGB, comma delimited and set 'color='
 
-			String randomWord = UUID.randomUUID().toString();
-
-			//create directory to hold links, need to do this so one can get the actual age of the links and not the age of the linked file
-			File dir = new File (urlLinkDir, randomWord);
-			dir.mkdir();
-
+			
 			//for each file, there might be two for xxx.bam and xxx.bai files, xxx.vcf.gz and xxx.vcf.gz.tbi, possibly two for converted useq files, plus/minus strands, otherwise just one.
 			String customHttpLink = null;
 			String toEncode = null;
@@ -227,6 +235,23 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 		}
 		return urlsToLoad;
 
+	}
+	
+	private String checkForUserFolderExistence(File igvLinkDir, String username) throws Exception{
+		File[] directoryList = igvLinkDir.listFiles();
+		
+		String desiredDirectory = null;
+		
+		for (File directory: directoryList) {
+			if (directory.getName().length() > 36) {
+				String parsedUsername = directory.getName().substring(36);
+				if (parsedUsername.equals(username)) {
+					desiredDirectory = directory.getName();
+				}
+			} 
+		}
+		
+		return desiredDirectory;
 	}
 
 

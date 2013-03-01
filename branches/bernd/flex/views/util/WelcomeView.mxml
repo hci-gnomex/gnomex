@@ -78,6 +78,10 @@
 								   visible="{parentApplication.showCoreGenomicsLinks}"
 								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 								   click="showOrganismWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+					<mx:LinkButton id="iScanChipButton"  label="Configure iScan Chips" styleName="dashboardButton" 
+								   visible="{parentApplication.showCoreGenomicsLinks}"
+								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
+								   click="showIScanChipWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton label="Manage microarray catalog" 
 								   visible="{parentApplication.showCoreGenomicsLinks}"
 								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
@@ -531,6 +535,12 @@
 			
 			private function showOrganismWindow():void {
 				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				
+			}
+			
+			private function showIScanChipWindow():void {
+				var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(parentApplication.theBody, IScanChipWindow, true));
 				PopUpManager.centerPopUp(configWindow);
 				
 			}

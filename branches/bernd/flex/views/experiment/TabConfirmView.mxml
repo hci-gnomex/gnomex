@@ -141,7 +141,7 @@
 				} else {
 					this.sampleDropOffLocationVbox.visible = false;	
 				}
-				this.vbox4.visible = !parentDocument.isCapSeqState && !parentDocument.isMitSeqState() && !parentDocument.isFragAnalState() && !parentDocument.isCherryPickState();
+				this.vbox4.visible = !parentDocument.isCapSeqState && !parentDocument.isMitSeqState() && !parentDocument.isFragAnalState() && !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				if (parentDocument.isMitSeqState()) {
 					this.primerVbox.visible = true;
 					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
@@ -167,7 +167,7 @@
 
 			this.label1.text = 'Samples (' + filteredSamples.length + ')';
 
-			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState()) {
+			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() || parentDocument.isIScanState()) {
 				this.parentDocument.submitButton.label = 'Save';
 				this.parentDocument.submitButton.enabled = true;
 				this.parentDocument.agreeCheckbox.selected = true;
@@ -184,16 +184,17 @@
 				&& !parentDocument.isCapSeqState()
 				&& !parentDocument.isFragAnalState()
 				&& !parentDocument.isMitSeqState()
-				&& !parentDocument.isCherryPickState();
+				&& !parentDocument.isCherryPickState()
+				&& !parentDocument.isIScanState;
 			
 			wellNameCol.visible = false;
-			if (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') {
+			if ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) {
 				wellNameCol.visible = true;
 			}
 			if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
 				wellNameCol.visible = true;
 			}
-			plateNameCol.visible = (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') ? true : false;
+			plateNameCol.visible = ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) ? true : false;
 			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
 			
 			// set all assay columns to not visible.
@@ -350,6 +351,19 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = false;
 				
+			} else if (parentDocument.isIScanState()) {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				this.sampleTypeColumn.visible = false;
+				
 			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
@@ -376,7 +390,7 @@
 			}
 			
 			// externals never show organism column in sample
-			if (parentDocument.request.@isExternal == "Y") {
+			if (parentDocument.request!=null && parentDocument.request.@isExternal == "Y") {
 				this.sampleOrganismConfirmColumn.visible = false;
 			}
 			otherOrganismCol.visible = sampleOrganismConfirmColumn.visible;
@@ -551,7 +565,7 @@
 				<mx:Label text="{'Samples (' + filteredSamples.length + ')'}" id="label1" textDecoration="underline"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{filteredSamples}" 
 					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{filteredSamples.length + longDescriptionRowCount}"
-					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" >
+					sortableColumns="false" alpha="0.8" fontSize="9" variableRowHeight="true" selectable="false" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
 						<mx:DataGridColumn id="containerTypeCol" visible="false" headerText="Container" width="80" dataField="@containerType"/>

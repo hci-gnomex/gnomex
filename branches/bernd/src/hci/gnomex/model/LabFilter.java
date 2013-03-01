@@ -197,17 +197,7 @@ public class LabFilter extends DetailObject {
       // Filter to show only labs associated with core facilities this admin manages
       if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to lab query.");
-      }
-      this.addWhereOrAnd();
-//      queryBuf.append(" coreFacility.idCoreFacility in ( ");
-//      for(Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-//        CoreFacility cf = (CoreFacility)i.next();
-//        queryBuf.append(cf.getIdCoreFacility());
-//        if (i.hasNext()) {
-//          queryBuf.append(", ");
-//        }
-//      }      
-//      queryBuf.append(" )");        
+      }     
       
       
     } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
