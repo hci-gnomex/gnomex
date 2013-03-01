@@ -724,6 +724,13 @@
 			];
 						
 			private var isGuest:Boolean = false;
+			
+			// We have turned off the feature for now.  It
+			// would be better to have a gnomex property
+			// so that a site could dictate if experiment
+			// design and factors are turned on. 
+			[Bindable]
+			public var showProjectAnnotations:Boolean = false;
 	        
 			[Bindable]
 			public var dataTrackSupported:Boolean = false;
