@@ -2337,12 +2337,11 @@
 					if (l.@idLab == request.@idLab) {
 						selectedItem = l;
 						refreshLab();
-						break;
 					}
 				}
 				if (selectedItem != null) {
 					requestEditLabCombo.enabled = true;
-					requestEditLabCombo.selectedItem = l;
+					requestEditLabCombo.selectedItem = selectedItem;
 				} else {
 					requestEditLabCombo.enabled = false;
 					for each(var l1:Object in parentApplication.labList) {
