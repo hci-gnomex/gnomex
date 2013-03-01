@@ -15,6 +15,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingAccountComparator;
 import hci.gnomex.utility.BillingAccountParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -246,30 +247,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
       
       accountParser.parse(sess);
-      /* commented out since users were unable to save labs with errors in accounts in other core facilitie4s.
-       * There is a front end warning for this.
-      Boolean containsErrors = false;
+     
+      // For some reason, this code is necessary for the billing account saves.  Without this here, the
+      // billing accounts are deleted, perhaps because the lab isn't iniatialized with all of the
+      // billing accounts?
       for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
         String idBillingAccountString = (String)i.next();
         BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);    
-        if(ba.getIsPO().equals("Y")){
-          continue;
-        }
-        Boolean hasActivity = ba.getAccountNumberActivity().length() > 0;
-        if(ba.getAccountNumberBus().length() != 2 || ba.getAccountNumberOrg().length() != 5
-            || ba.getAccountNumberFund().length() != 4 || (hasActivity && ba.getAccountNumberActivity().length() != 5) 
-            || ((!hasActivity) && ba.getAccountNumberProject().length() != 8) || ba.getAccountNumberAccount().length() != 5
-            || (hasActivity && ba.getAccountNumberAu().length() != 1) || ba.getAccountNumberYear().length() != 4){
-          containsErrors = true;
-          break;
-        }
       }
-      
-      if(containsErrors){
-        this.addInvalidField("Account Chartfield Errors", "There are problems with your billing account chartfield(s)");
-        this.setResponsePage(this.ERROR_JSP);
-      }
-      */
 
       if (isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
@@ -305,11 +290,13 @@ public class SaveLab extends GNomExCommand implements Serializable {
           //
           // Save billing accounts
           //
+          Set<BillingAccount> billingAccountsToSave = new TreeSet<BillingAccount>(new BillingAccountComparator());
           for(Iterator i = accountParser.getBillingAccountMap().keySet().iterator(); i.hasNext();) {
             String idBillingAccountString = (String)i.next();
             BillingAccount ba = (BillingAccount)accountParser.getBillingAccountMap().get(idBillingAccountString);
             ba.setIdLab(lab.getIdLab());
             sess.save(ba);
+            billingAccountsToSave.add(ba);
             
             //If the billing account isPO then change billing status of all billingItems in the account 
             List billingItems = sess.createQuery("select bi from BillingItem bi where idBillingAccount = " + ba.getIdBillingAccount()).list();
@@ -339,6 +326,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
               this.sendApprovedBillingAccountEmail(sess, ba, lab);
             }
           }
+         // lab.setBillingAccounts(billingAccountsToSave);
+          //sess.flush();
   
           // Remove billing accounts no longer in the billing account list
           List billingAccountsToRemove = new ArrayList();
