@@ -301,7 +301,7 @@
 				if (event.detail == Alert.YES) {
 					clickPopulateFieldsButtonAfterWarning();
 				} else {
-					Alert.show("Sample Sheet Upload Aborted", "Abort");
+					Alert.show("No samples have been imported.");
 					PopUpManager.removePopUp(this)
 				}
 			}		
