@@ -103,6 +103,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isGNomExExternalUser = false;
   private boolean                     isUniversityOnlyUser = false;
   private boolean                     isLabManager = false;
+  private boolean                     isReadOnlySession = false;
   
   // version info
   private String                       version;
@@ -2717,33 +2718,44 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public Session getReadOnlyHibernateSession(String userName) throws Exception{
-    Session sess = null;
-    sess = HibernateGuestSession.currentGuestSession(userName);    
-    return sess;
-  }
+	    Session sess = null;
+	    sess = HibernateGuestSession.currentGuestSession(userName);    
+	    isReadOnlySession = true;
+	    return sess;
+	  }
   
   public void closeReadOnlyHibernateSession() throws Exception{
     HibernateGuestSession.closeGuestSession();
+    isReadOnlySession = false;
   }
   
 
   public Session getHibernateSession(String userName) throws Exception{
-    Session sess = null;
-    
-    if (this.isGuest()) {
-      sess = HibernateGuestSession.currentGuestSession(userName);
-    } else {
-      sess = HibernateSession.currentSession(userName);
-    }
-    return sess;
+	    Session sess = null;
+	    
+	    if (this.isGuest()) {
+	      sess = HibernateGuestSession.currentGuestSession(userName);
+	      isReadOnlySession = true;
+	    } else {
+	      sess = HibernateSession.currentSession(userName);
+	      isReadOnlySession = false;
+	    }
+	    return sess;
   }
-  
+	  
+  public Session getWritableHibernateSession(String userName) throws Exception {
+	    Session sess = HibernateSession.currentSession(userName);
+	    isReadOnlySession = false;
+	    return sess;
+  }
+	  
   public void closeHibernateSession() throws Exception{
-    if (this.isGuest()) {
-      HibernateGuestSession.closeGuestSession();
-    } else {
-      HibernateSession.closeSession();
-    }
+	  if (this.isReadOnlySession) {
+	    HibernateGuestSession.closeGuestSession();
+	  } else {
+	    HibernateSession.closeSession();
+	  }
+	  this.isReadOnlySession = false;
   }
 
   

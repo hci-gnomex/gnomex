@@ -46,7 +46,6 @@
 			
 			public function init():void {
 				// Control visibility options - IncludeInLayout
-				Alert.show("Sending the notification interface from HUB!!");
 				notificationInterface.send();
 				var check:Boolean = false;
 				
@@ -78,7 +77,6 @@
 			
 			private function onGetNotificationInterface(event:ResultEvent):void {
 				if(event.result.name() == "NotificationCollection"){
-					Alert.show(mx.utils.ObjectUtil.toString(workflowXML));
 					//				filterXLC();
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");

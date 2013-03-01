@@ -245,7 +245,7 @@
 					if (parentApplication.guestEmailAddress != null) {
 						parms.emailAddress = parentApplication.guestEmailAddress;
 					}
-					var progressWindow:DownloadProgressView = new DownloadProgressView();
+					var progressWindow:views.analysis.DownloadProgressView = new views.analysis.DownloadProgressView();
 					progressWindow.init(parentApplication.theBody, this.DOWNLOAD_FILES_URL, parms, downloadWindow.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
 				}
 			}    

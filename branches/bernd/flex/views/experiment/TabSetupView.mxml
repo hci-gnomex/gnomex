@@ -1077,11 +1077,12 @@
 					<mx:Text id="workAuthInstructions" fontStyle="italic" fontSize="9"  textAlign="left" width="100%">
 					</mx:Text>
 					
-					<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
+				<!--	<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
 						<mx:LinkButton  label="New Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
 							<mx:click>showNewWorkAuthForm()</mx:click>
 						</mx:LinkButton>
 					</mx:HBox>
+					-->
 				</mx:VBox>
 				<mx:Text width="100%" id="billingAccountWarningText" styleName="submitNote">
 					<mx:htmlText>&lt;b&gt;&lt;i&gt;You must choose lab, user and service &lt;br&gt; before billing accounts are available.&lt;/i&gt;&lt;/b&gt;</mx:htmlText>

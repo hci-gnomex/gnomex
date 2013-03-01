@@ -748,11 +748,16 @@
     	<property name="codeRequestStatus" column="codeRequestStatus" type="string"/>
     	<many-to-one name="requestStatus" column="codeRequestStatus" class="hci.gnomex.model.RequestStatus" cascade="none" insert="false" update="false" />
 		<property name="idSubmitter" column="idSubmitter" type="integer"/>
-
+		
+		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
+		
 		<!-- Bernd additions -->
-	    <many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" /> 
-   		<property name="numberIScanChips" column="numberIScanChips" type="integer"/>    
-   	 	<property name="idIScanChip" column="idIScanChip" type="integer"/>		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
+	    <many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
+		
+		<property name="numberIScanChips" column="numberIScanChips" type="integer"/>    
+   	 	<property name="idIScanChip" column="idIScanChip" type="integer"/>
+		    	
+		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />
 		</set>
@@ -892,6 +897,7 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.WorkItem" />
 		</set>
+
   </class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
@@ -1238,7 +1244,7 @@
     <property name="isActive" column="isActive" type="string"/>
   </class>
   
-  <!-- hci.gnomex.model.IScanChip -->
+    <!-- hci.gnomex.model.IScanChip -->
   <class name="hci.gnomex.model.IScanChip" table="IScanChip">
     <id name="idIScanChip" column="idIScanChip" type="integer">
       <generator class="native"/>

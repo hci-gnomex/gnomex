@@ -33,13 +33,7 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-   /*
-	  System.out.println("Title: " + request.getParameter("title"));
-	  System.out.println("Message: " + request.getParameter("message"));
-	  System.out.println("idAppUser: " + request.getParameter("idAppUser"));
-	  System.out.println("CFT: " + request.getParameter("CFT"));
-	  System.out.println("CFS: " + request.getParameter("CFS"));
-	  */
+
     if (request.getParameter("title") != null && !request.getParameter("message").equals("")) {
       title = request.getParameter("title");
       message = request.getParameter("message");
@@ -54,8 +48,9 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-
+      
       initializeNewsItem(sess);
+      newsItem.setIdSubmitter(this.getSecAdvisor().getIdAppUser());
       
       if(newsItem.getTitle() == null || newsItem.getTitle().equals("")) {
         this.addInvalidField("Newsitem Title", "Newsitem title is required.");

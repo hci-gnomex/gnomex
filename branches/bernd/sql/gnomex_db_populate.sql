@@ -869,11 +869,10 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (91,'experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N'),
  (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
- (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N');
+ (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
+ (95,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
+ (96,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y');
  
- 
-
-
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),
   ('IRB', 'IRB', 'Y');

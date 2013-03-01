@@ -26,14 +26,6 @@ CREATE TABLE `gnomex`.`NewsItem` (
        REFERENCES `gnomex`.`AppUser` (`idAppUser`)
        ON DELETE NO ACTION
        ON UPDATE NO ACTION,
-    CONSTRAINT `FK_NewsItem_CoreSender` FOREIGN KEY `FK_NewsItem_CoreSender` (`idCoreSender`)
-       REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-       ON DELETE NO ACTION
-       ON UPDATE NO ACTION,
-    CONSTRAINT `FK_NewsItem_CoreTarget` FOREIGN KEY `FK_NewsItem_CoreTarget` (`idCoreTarget`)
-       REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-       ON DELETE NO ACTION
-       ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -46,14 +38,8 @@ CREATE TABLE `gnomex`.`Notification` (
 	`sourceType` VARCHAR(20) NOT NULL,
 	`message` VARCHAR(250) NULL,
 	`date` DATETIME NULL,
-	   PRIMARY KEY (`idNotification`),
-	CONSTRAINT `FK_Notification_UserTarget` FOREIGN KEY `FK_Notification_UserTarget` (`idUserTarget`)
-		REFERENCES `gnomex`.`AppUser` (`idAppUser`)
-		ON DELETE NO ACTION
-		ON UPDATE NO ACTION,
-	CONSTRAINT `FK_Notification_LabTarget` FOREIGN KEY `FK_Notification_LabTarget` (`idLabTarget`)
-		REFERENCES `gnomex`.`Lab` (`idLab`)
-		ON DELETE NO ACTION
-		ON UPDATE NO ACTION
+	`expID` INT(10) NULL,
+	`type`	VARCHAR(25) NULL, 
+	PRIMARY KEY (`idNotification`)
 )
 ENGINE = INNODB;

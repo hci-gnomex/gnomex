@@ -2934,6 +2934,39 @@ CREATE TABLE `gnomex`.`PriceCategoryStep` (
 )
 ENGINE = INNODB;
 
+-- New table to hold News items in
+DROP TABLE IF EXISTS `gnomex`.`NewsItem`;
+CREATE TABLE `gnomex`.`NewsItem` (
+	`idNewsItem` INT(10) NOT NULL AUTO_INCREMENT,
+	`idSubmitter` INT(10) NOT NULL,
+	`idCoreSender` INT(10) NOT NULL,
+	`idCoreTarget` INT(10) NULL,
+	`title` VARCHAR(200) NOT NULL,
+	`message` VARCHAR(4000) NOT NULL,
+	`date` DATETIME NULL,
+	CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
+       REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+       ON DELETE NO ACTION
+       ON UPDATE NO ACTION,
+    PRIMARY KEY (`idNewsItem`)
+)
+ENGINE = INNODB;
+
+-- New table to hold notification items in
+DROP TABLE IF EXISTS `gnomex`.`Notification`;
+CREATE TABLE `gnomex`.`Notification` (
+	`idNotification` INT(10) NOT NULL AUTO_INCREMENT,
+	`idUserTarget` INT(10) NOT NULL,
+	`idLabTarget` INT(10) NULL,
+	`sourceType` VARCHAR(20) NOT NULL,
+	`message` VARCHAR(250) NULL,
+	`date` DATETIME NULL,
+	`expID` INT(10) NULL,
+	`type`	VARCHAR(25) NULL, 
+	PRIMARY KEY (`idNotification`)
+)
+ENGINE = INNODB;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------
