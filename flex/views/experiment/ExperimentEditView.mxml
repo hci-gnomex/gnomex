@@ -3853,7 +3853,7 @@
 					appUsersForLab.addItem(ownerNode);
 					appUsersForLab.refresh();
 					ownerCombo.selectedItem = ownerNode;
-					ownerCombo.enabled = false;
+					ownerCombo.enabled = true;
 				} else {
 					ownerCombo.enabled = true;
 				}
