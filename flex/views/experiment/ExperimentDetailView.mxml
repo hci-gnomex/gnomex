@@ -1255,7 +1255,7 @@
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle" 
 									 visible="{selectedExperiment.@isExternal == 'Y' ? false : true}"
-									 styleName="formLabel"
+									 
 									 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
 								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 								<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
@@ -1910,13 +1910,13 @@
 	<mx:State name="IScanState">
 		<mx:AddChild relativeTo="{hbox3}" position="before">
 			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-				<mx:Label  width="110" text="iScan Chip"  styleName="formLabel" textAlign="right"/>
+				<mx:Label  width="100" text="iScan Chip"  styleName="formLabel" textAlign="left"/>
 				<mx:Text  width="280" text="{this.selectedExperiment.@iScanChipName}"  />
 			</mx:HBox>
 		</mx:AddChild>
 		<mx:AddChild relativeTo="{hbox3}" position="before">
 			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="Number of Chips" paddingLeft="10" width="110" textAlign="right" styleName="formLabel"/>
+				<mx:Label text="Number of Chips" width="100" styleName="formLabel"/>
 				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
