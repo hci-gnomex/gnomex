@@ -832,7 +832,6 @@
 			}
 			setupView.requestTypeGroup.selectedValue = '';
 
-
 			samplesView.enabled = false;			
 			
 			if (theTab.contains(hybsView)) {
@@ -2138,6 +2137,7 @@
 				samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				this.samplesView.showHideColumns();	
 			} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
+				this.experimentCategoryName = '';
 				this.currentState = "IScanEditState";
 			} else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
@@ -3848,15 +3848,8 @@
 						break;
 					}
 				}
-				if ((ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') && request.hasOwnProperty("@idAppUser") && request.@idAppUser != null && request.@idAppUser != '') {
-					var ownerNode:XML = new XML("<AppUser idAppUser='" + request.@idAppUser + "' displayName='" + request.@ownerName + "' />");
-					appUsersForLab.addItem(ownerNode);
-					appUsersForLab.refresh();
-					ownerCombo.selectedItem = ownerNode;
-					ownerCombo.enabled = true;
-				} else {
-					ownerCombo.enabled = true;
-				}
+				ownerCombo.enabled = true;
+				
 			}			
 
 		}
@@ -5289,6 +5282,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

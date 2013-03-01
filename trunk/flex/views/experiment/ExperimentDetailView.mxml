@@ -225,8 +225,10 @@
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.numberOfChips.text = '';
-				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();			
-				parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();	
+				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();		
+				if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
+					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
+				}
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -1920,6 +1922,7 @@
 				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
+		<mx:RemoveChild target="{noteToBioBox}"/>
 		
 	</mx:State>
 </mx:states>
