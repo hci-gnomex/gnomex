@@ -1224,15 +1224,15 @@
 						<mx:VBox verticalGap="6" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="right" id="label2"/>
+								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="left" id="label2"/>
 								<mx:Text   text="{this.selectedExperiment.@labName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
-								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="right" id="label3"/>
+								<mx:Label text="Name" width="100" styleName="formLabel" textAlign="left" id="label3"/>
 								<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
  						    </mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="right" id="label4"/>
+								<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="left" id="label4"/>
 								<mx:Text  text="{requestCategoryName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
@@ -1240,27 +1240,28 @@
 								<mx:Text   text="{experimentCategoryName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}" id="hbox3">
-								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="right" id="label6"/>
+								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="left" id="label6"/>
 								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingTop="10">
-								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="right" id="label7"/>
+								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="left" id="label7"/>
 								<mx:Text  text="{this.selectedExperiment.@createDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="right" id="label8"/>
+								<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="left" id="label8"/>
 								<mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle" 
 									 visible="{selectedExperiment.@isExternal == 'Y' ? false : true}"
+									 styleName="formLabel"
 									 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
-								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="right" id="label9"/>
+								<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 								<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
 							</mx:HBox>
 							<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
 								<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-									<mx:Text id="designAndInsertLabel" width="100" />
-									<mx:Text  id="designAndInsertText" width="500" />
+									<mx:Text id="designAndInsertLabel" width="100" styleName="formLabel" />
+									<mx:Text  id="designAndInsertText" width="280" />
 								</mx:HBox>
 							</mx:HBox>
 							
@@ -1268,23 +1269,23 @@
 						
 						<mx:VBox width="300" borderStyle="none" verticalGap="6">
 							<mx:HBox verticalGap="0" horizontalGap="0">
-								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{this.selectedExperiment.@submitterName}" width="200"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
-								<mx:Label text="Email" width="100"  styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Email" width="100"  styleName="formLabel" textAlign="left"/>
 								<mx:Text    text="{this.selectedExperiment.@email}" width="200"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0">
-								<mx:Label text="Phone" width="100" styleName="formLabel" textAlign="right"/>
+								<mx:Label text="Phone" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{this.selectedExperiment.@phone}" width="200"/>
 							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-								<mx:Text  width="100" text="Visibility"  styleName="formLabel" textAlign="right"/>
+								<mx:Text  width="100" text="Visibility"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{visibilityName}" width="200"/>
 							</mx:HBox>
 							
@@ -1292,7 +1293,7 @@
 					</mx:HBox>
 					<mx:VBox id="headerBox" paddingLeft="4">
 						<mx:HBox id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
-							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="right"/>
+							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="left"/>
 							<mx:Tile horizontalGap="0" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
 								<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
 									<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
