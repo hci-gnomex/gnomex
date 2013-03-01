@@ -3831,7 +3831,14 @@
 				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 				appUsersForLab = new XMLListCollection(lab.members.AppUser);
 				for each (var mgr:Object in lab.managers.AppUser) {
-					if (!appUsersForLab.contains(mgr)) {
+					var mgrInLabList:Boolean = false;
+					for each(var a:Object in appUsersForLab) {
+						if (a.@idAppUser == mgr.@idAppUser) {
+							mgrInLabList = true;
+							break;
+						}
+					}
+					if (!mgrInLabList) {
 						appUsersForLab.addItem(mgr);				
 					}
 				}
@@ -3842,9 +3849,9 @@
 				appUsersForLab.sort = appUserSort;
 				appUsersForLab.refresh();
 				ownerCombo.selectedItem = emptyNode;
-				for each(var a:Object in appUsersForLab) {
-					if (a.@idAppUser == request.@idAppUser) {
-						ownerCombo.selectedItem = a;
+				for each(var a1:Object in appUsersForLab) {
+					if (a1.@idAppUser == request.@idAppUser) {
+						ownerCombo.selectedItem = a1;
 						break;
 					}
 				}
