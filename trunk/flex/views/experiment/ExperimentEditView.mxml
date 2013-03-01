@@ -423,7 +423,7 @@
 		public function checkDirty():void {
 		}
 				
-		private function initializeData():void {
+		public function initializeData():void {
         	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
 			codeApplication = '';
@@ -505,7 +505,7 @@
 			filteredProjectList.refresh();
 		}
 		
-		private function initFilters():void {
+		public function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
 	        this.filteredProjectList.refresh();
 						
