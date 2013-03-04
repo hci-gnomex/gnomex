@@ -32,6 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.hibernate.Session;
 
 
@@ -152,7 +155,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     tray.setReportTitle(title);
     tray.setReportDescription(title);
     tray.setFileName(fileName);
-    tray.setFormat(ReportFormats.XLS);
+    tray.setFormat(ReportFormats.CSV);
     
     Set columns = new TreeSet();
     columns.add(makeReportColumn("Lab", 1));
@@ -185,6 +188,10 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
     
+    
+    String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
+    description = this.cleanRichText(description);
+    
     String labLastName = (String)row[ProjectExperimentReportFilter.COL_LAB_LASTNAME];
     String labFirstName = (String)row[ProjectExperimentReportFilter.COL_LAB_FIRSTNAME];
     String ownerLastName = (String)row[ProjectExperimentReportFilter.COL_OWNER_LASTNAME];
@@ -196,7 +203,6 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     Date modifyDate = (Date)row[ProjectExperimentReportFilter.COL_MODIFY_DATE];
     String codeVisibility = (String)row[ProjectExperimentReportFilter.COL_CODE_VISIBILITY];
     Date completeDate = (Date)row[ProjectExperimentReportFilter.COL_COMPLETED_DATE];
-    String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
     Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
     Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
     String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
@@ -214,24 +220,77 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
     String organism = dh.getOrganism(idOrganism);
     
-    values.add(labName);
-    values.add(number);
-    values.add(requestName);
-    values.add(ownerName);
-    values.add(submitterName);
-    values.add(requestCategory);
-    values.add(application);
-    values.add(createDateString);
-    values.add(modifyDateString);
-    values.add(visibility);
-    values.add(description);
-    values.add(organism);
-    values.add(numSamples.toString());
+    values.add(surroundWithQuotes(labName));
+    values.add(surroundWithQuotes(number));
+    values.add(surroundWithQuotes(requestName) );
+    values.add(surroundWithQuotes(ownerName) );
+    values.add(surroundWithQuotes(submitterName) );
+    values.add(surroundWithQuotes(requestCategory) );
+    values.add(surroundWithQuotes(application) );
+    values.add(surroundWithQuotes(createDateString) );
+    values.add(surroundWithQuotes(modifyDateString) );
+    values.add(surroundWithQuotes(visibility) );
+    values.add(surroundWithQuotes(description) );
+    values.add(surroundWithQuotes(organism) );
+    values.add(surroundWithQuotes(numSamples.toString()) );
    
     reportRow.setValues(values);
     
     return reportRow;
   }
+  
+  private String surroundWithQuotes(String value) {
+    return "\"" + value + "\"";
+  }
+  
+  private String cleanRichText(String description) {
+
+    final char NEW_LINE = 0x0a;
+   
+    
+    if (description == null) {
+      return "";
+    } else if (description.trim().equals("")) {
+      return "";
+    }
+   
+    Pattern paragraph = Pattern.compile("<P.*?>");
+    description = paragraph.matcher(description).replaceAll("");
+    
+    Pattern pattern = Pattern.compile("<\\/P.*?>");
+    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
+
+    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
+    if (tokens.length > 0) {
+      StringBuffer buf = new StringBuffer();
+      for (int x = 0; x < tokens.length; x++) {
+        buf.append(tokens[x]);
+        buf.append("<br>");
+      }
+      description = buf.toString();
+    } 
+    
+    
+    pattern = Pattern.compile("<B.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/B.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<U.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/U.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<LI.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/LI.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<I.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/I.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    
+    return description;
+  }
+  
   /* (non-Javadoc)
    * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
    */
