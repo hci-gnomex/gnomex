@@ -362,7 +362,15 @@
 	        [Embed(source="assets/group.png")]
 	        public var iconGroup:Class; 
 	        
-	        	
+			[Bindable]
+			[Embed(source="assets/graduation_cap.png")]
+			public var iconExternalAcademic:Class; 
+
+			[Bindable]
+			[Embed(source="assets/building.png")]
+			public var iconExternalCommercial:Class; 
+
+			
 	        [Bindable]
 	        [Embed(source="assets/brick.png")]
 	        public var iconProtocol:Class;

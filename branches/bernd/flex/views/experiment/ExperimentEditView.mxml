@@ -423,7 +423,7 @@
 		public function checkDirty():void {
 		}
 				
-		private function initializeData():void {
+		public function initializeData():void {
         	var dictionarySorter:Sort = new Sort();
     	    dictionarySorter.compareFunction = this.sortDictionaryEntries;
 			codeApplication = '';
@@ -505,7 +505,7 @@
 			filteredProjectList.refresh();
 		}
 		
-		private function initFilters():void {
+		public function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
 	        this.filteredProjectList.refresh();
 						
@@ -831,7 +831,6 @@
 				setupView.appUserCombo.selectedIndex = -1;
 			}
 			setupView.requestTypeGroup.selectedValue = '';
-
 
 			samplesView.enabled = false;			
 			
@@ -2138,6 +2137,7 @@
 				samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				this.samplesView.showHideColumns();	
 			} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
+				this.experimentCategoryName = '';
 				this.currentState = "IScanEditState";
 			} else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
@@ -3831,7 +3831,14 @@
 				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 				appUsersForLab = new XMLListCollection(lab.members.AppUser);
 				for each (var mgr:Object in lab.managers.AppUser) {
-					if (!appUsersForLab.contains(mgr)) {
+					var mgrInLabList:Boolean = false;
+					for each(var a:Object in appUsersForLab) {
+						if (a.@idAppUser == mgr.@idAppUser) {
+							mgrInLabList = true;
+							break;
+						}
+					}
+					if (!mgrInLabList) {
 						appUsersForLab.addItem(mgr);				
 					}
 				}
@@ -3842,21 +3849,14 @@
 				appUsersForLab.sort = appUserSort;
 				appUsersForLab.refresh();
 				ownerCombo.selectedItem = emptyNode;
-				for each(var a:Object in appUsersForLab) {
-					if (a.@idAppUser == request.@idAppUser) {
-						ownerCombo.selectedItem = a;
+				for each(var a1:Object in appUsersForLab) {
+					if (a1.@idAppUser == request.@idAppUser) {
+						ownerCombo.selectedItem = a1;
 						break;
 					}
 				}
-				if ((ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') && request.hasOwnProperty("@idAppUser") && request.@idAppUser != null && request.@idAppUser != '') {
-					var ownerNode:XML = new XML("<AppUser idAppUser='" + request.@idAppUser + "' displayName='" + request.@ownerName + "' />");
-					appUsersForLab.addItem(ownerNode);
-					appUsersForLab.refresh();
-					ownerCombo.selectedItem = ownerNode;
-					ownerCombo.enabled = true;
-				} else {
-					ownerCombo.enabled = true;
-				}
+				ownerCombo.enabled = true;
+				
 			}			
 
 		}
@@ -5289,6 +5289,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

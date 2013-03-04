@@ -36,6 +36,9 @@
 			public var ignoreToggle:Boolean = false;
 			
 			public function checkSecurity():void {
+				if (parentDocument == null) {
+					return;
+				}
 				if (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') {
 					currentState = "ExternalState";
 				} else if (parentDocument.isEditState()  && parentDocument.request.@isExternal != 'Y') {

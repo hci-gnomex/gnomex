@@ -55,7 +55,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	private SecurityAdvisor secAdvisor;
 	private Session sess;
 	private String username;
-	private ArrayList<String[]> linksToMake = new ArrayList<String[]>();
+	private ArrayList<String[]> linksToMake = null;
 	
 	
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
@@ -188,6 +188,9 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			//Create Duplicate IGV repository
 			Pattern broadPattern = Pattern.compile("\"((.+?)_dataServerRegistry\\.txt)\"");
 			URL broadAnns = new URL("http://www.broadinstitute.org/igvdata");
+			
+			//Clear out links to make
+			linksToMake = new ArrayList<String[]>();
 			try {
 				BufferedReader br = new BufferedReader(new InputStreamReader(broadAnns.openStream()));
 				String line;
@@ -292,6 +295,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
 				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());
+				
 				
 				if (success) {
 					String preamble = new String("Launch IGV and replace the default Data Registry URL (View->Preferences->Advanced) with the following link: \n\n");
@@ -449,6 +453,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	private boolean makeSoftLinkViaUNIXCommandLine(String path){
 		try {
 			File script = new File(path,"makeLinks.sh");
+			script.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(script));
 			for (String[] links: linksToMake) {
 				bw.write(String.format("ln -s %s %s\n", links[0], links[1]));
@@ -457,6 +462,8 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			String[] cmd = {"sh", script.toString()};
 			Process p = Runtime.getRuntime().exec(cmd);
+			
+			//script.delete();
 			
 			return true;
 			
