@@ -673,6 +673,18 @@
 					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontFamily="Verdana">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+							<mx:DataGridColumn width="10" dataField="@name">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
+											<mx:Image id="groupImage"  
+													  source="{data.@isExternalPricing == 'Y' ? parentApplication.iconExternalAcademic : (data.@isExternalPricingCommercial == 'Y' ? parentApplication.iconExternalCommercial : '')}"> 
+											</mx:Image> 
+										</mx:HBox>
+										
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
 					    </mx:columns>
 		      	      </mx:DataGrid>
 						
