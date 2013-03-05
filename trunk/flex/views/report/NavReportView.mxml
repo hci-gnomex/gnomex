@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Data Tracks" width="100%" height="100%" 
-		   xmlns:views="views.*"
+		   xmlns:views="views.*"  
 		   xmlns:analysis="views.analysis.*"
 		   xmlns:experiment="views.experiment.*"
 		   xmlns:datatrack="views.datatrack.*"
@@ -14,6 +14,14 @@
 		<mx:State name="AdminState">
 		</mx:State>
 		<mx:State name="UserState">			
+			<mx:SetStyle target="{linkbutton1}" name="paddingBottom" value="0"/>
+			<mx:SetStyle target="{linkbutton1}" name="paddingTop" value="0"/>
+			<mx:SetStyle target="{linkbutton2}" name="paddingTop" value="0"/>
+			<mx:SetStyle target="{linkbutton2}" name="paddingBottom" value="0"/>
+			<mx:AddChild relativeTo="{label1}" position="before" target="{image1}"/>
+			<mx:SetStyle target="{label1}" name="fontWeight" value="normal"/>
+			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
+			<mx:SetStyle target="{label1}" name="color" value="#12740E"/>
 		</mx:State>
 		<mx:State name="GuestState"/>
 	</mx:states>
@@ -229,10 +237,19 @@
 			</mx:Panel>
 			
 			<mx:VBox styleName="panelBox"  id="annotationReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
-				<mx:Text styleName="titleLabel" text="Annotation Report"/>
-				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-					<mx:HBox width="100%">
-						<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+				<mx:HBox width="400">
+					<mx:Text styleName="titleLabel" text="Annotation Report"/>
+					<mx:Spacer width="100%"/>
+					<mx:Button label="Run" 
+							   click="{runAnnotationReport()}"
+							   enabled="{annotationRadioGroup1.selectedValue != null &amp;&amp; annotationRadioGroup1.selectedValue != ''}" 
+							   icon="@Embed(source='../../assets/accept.png')" 
+							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
+					
+				</mx:HBox>
+				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8">
+					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+						<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="formLabel" paddingLeft="2" width="100"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
 												  labelField="@name" 
 												  prompt="Select a lab..."
@@ -241,7 +258,8 @@
 						</renderers:FilterComboBox>
 						
 					</mx:HBox>
-					<mx:HBox width="100%">
+					<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+						<mx:Label text="Annotations for" styleName="formLabel" width="100"/>
 						<mx:RadioButtonGroup id="annotationRadioGroup1"/>
 						<mx:RadioButton label="Experiment samples"  value="SAMPLE" groupName="annotationRadioGroup1" id="showSampleAnnotations" click="refreshAnnotationList()" paddingLeft="2"/>
 						<mx:RadioButton label="Analyses" value="ANALYSIS" groupName="annotationRadioGroup1" id="showAnalysisAnnotations" click="refreshAnnotationList()" />
@@ -249,9 +267,10 @@
 					</mx:HBox>
 					
 					<mx:VBox width="100%" height="100%" verticalGap="0">
+							<mx:Label text="Check the Annotations you want to see on the report" styleName="formLabel"/>
 						<mx:HBox width="100%" paddingLeft="0">
-							<mx:LinkButton label="Select all" styleName="formLinkButton" click="{selectAllAnnotations(true)}"  paddingLeft="0"/>
-							<mx:LinkButton label="Unselect all" styleName="formLinkButton" click="{selectAllAnnotations(false)}" />
+						<mx:LinkButton label="Select all" styleName="formLinkButton" click="{selectAllAnnotations(true)}"  paddingLeft="0" fontSize="10" id="linkbutton2"/>
+						<mx:LinkButton label="Unselect all" styleName="formLinkButton" click="{selectAllAnnotations(false)}"  fontSize="10" id="linkbutton1"/>
 						</mx:HBox>
 						<mx:DataGrid id="annotationGrid" height="100%"
 									 dataProvider="{properties}" 
@@ -297,19 +316,22 @@
 
 				<mx:ControlBar width="100%">
 					<mx:Spacer width="100%"/>
-					<mx:Button label="Run" 
-							   click="{runAnnotationReport()}"
-							   enabled="{annotationRadioGroup1.selectedValue != null &amp;&amp; annotationRadioGroup1.selectedValue != ''}" 
-							   icon="@Embed(source='../../assets/arrow_right.png')" 
-							   disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
 				</mx:ControlBar>
 			</mx:VBox>
 			
 			<mx:VBox styleName="panelBox"  id="projectExperimentReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
-				<mx:Text styleName="titleLabel" text="Project/Experiment Report"/>
-				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:HBox width="400">
+					<mx:Text styleName="titleLabel" text="Project/Experiment Report"/>
+					<mx:Spacer width="100%"/>
+					<mx:Button label="Run" 
+							   click="{runProjectExperimentReport()}"
+							   enabled="true" 
+							   icon="@Embed(source='../../assets/accept.png')" 
+							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
+				</mx:HBox>
+				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox2">
 					<mx:HBox width="100%">
-						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
 												  labelField="@name" 
 												  prompt="All Labs..."
@@ -318,15 +340,10 @@
 						</renderers:FilterComboBox>
 						
 					</mx:HBox>
-					
-					<mx:ControlBar width="100%">
-						<mx:Spacer width="100%"/>
-						<mx:Button label="Run" 
-								   click="{runProjectExperimentReport()}"
-								   enabled="true" 
-								   icon="@Embed(source='../../assets/arrow_right.png')" 
-								   disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
-					</mx:ControlBar>
+					<mx:HBox>
+							<mx:Image source="assets/excel_wrap_text.png" id="image1"/>
+							<mx:Label text="In Excel, Select the Description column and then click on the 'Wrap Text' so that line breaks are shown." id="label1" fontStyle="italic" color="#167A1B"/>
+					</mx:HBox>
 				</mx:VBox>
 			</mx:VBox>
 			
