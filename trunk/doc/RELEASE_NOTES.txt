@@ -1,6 +1,66 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.9 (Mar 3, 2012)
+-----------------
+* MakeDataTrackIGVLink blocking db processes	Ben Spigle	bioinformatics
+* Deleting analysis needs to delete files on file system (not registered as AnalysisFile)	Tarik Courdy	bioinformatics
+* When analysis is created, directory needs to be created on file system (for automated analysis pipeline)	Tony Di Sera	bioinformatics
+* Abort when distributing data track to organism that has no datatracks yet.	Ben Spigle	bioinformatics
+* Fix Edit screen to work for Sample Quality experiment type	Tarik Courdy	cvdc
+* Post Experiment Data link not working on main nav bar for non-admins	Tony Di Sera	cvdc
+* Annotations tab doesn't refresh on New Experiment order after switching organisms in dropdown	Ben Spigle	cvdc
+* Drag-and-drop account drop-down is empty	Ben Spigle	cvdc
+* Change weekly usage report to Friday distribution instead of Monday	Ben Spigle	cvdc
+* When importing sample sheet, annotations that are urls or dropdowns are showing in the list of columns to import even though they weren't selected as an annotation	Tarik Courdy	cvdc
+* Submitter dropdown not refreshing when a different lab is chosen on Experiment Browse view	Tarik Courdy	cvdc
+* Editting an annotation causes abort	Ben Spigle	cvdc
+* New project doesn't show up in project dropdown for New Experiment Order until GNomEx relaunched	Tarik Courdy	cvdc
+* avoid loading billing items grid on selecting a folder to improve performance	Megan Bowler	dna_seq_core
+* Nullpointer on GetLab	Ben Spigle	general
+* Term ERROR in any dictionary value causes GNomEx launch to halt	Tony Di Sera	general
+* Usage chart for Seq Experiments by Application too small	Tarik Courdy	general
+* Sample sheet import throws action script error	Ben Spigle	microarray
+* Allow .docx to upload as PO document.	Tarik Courdy	microarray
+* Worklist request # dropdown shows blank entries	Tarik Courdy	microarray_core
+* When I edit an experiment, the application dropdown is not initialized. Also, it has the wrong applications, so I can't save the experiment.	Ben Spigle	
+* Saving Lab causes billing accounts from core facility not displayed to be deleted	Tony Di Sera	
+* Warn instead of preventing save when billing validation on Lab Save	Ben Spigle	
+* Brenda Bass cannot see mm9 data tracks in IGB	David Nix	
+* QC - Completed work items not yet deleted show up on All worklist, but not Illumina Hi Seq	Tarik Courdy	
+* Collaborator dropdown showing members, need type-ahead dropdown	Tarik Courdy	
+* Annotations not associated with samples show up on Experiment Edit Annotations tab	Tarik Courdy	
+* Fix some errors with text being cut off when printing a chromatogram on some browsers.	Megan Bowler	
+* Cannot delete files in Analysis	Megan Bowler	
+* Analysis files in directories with dashes (-) do not display.	Ben Spigle	
+* Backup SVN and see if sourceforge has backup from Jan 16, 2012 to recover history from Tim's checkin	Tony Di Sera	
+* Add print and fasta file creation links to chromat detail window for users	Megan Bowler	
+* Ldap principal needs to be property.	Ben Spigle	
+* Checkbox for CC Number not on Experiment Edit (samples tab). Can't add CC Number column	Ben Spigle	
+* Plate Editor does not show plate colored properly after save	Megan Bowler	
+* Adding billing items to revised experiment creates different billing folder	Ben Spigle	
+* User combo drop down adds managers of labs in twice if they are also a member of the lab on edit experiment	Megan Bowler	
+* Search narrow window leaves part of view	Tarik Courdy	
+* No seq lib protocol folder for new installs.	Tarik Courdy	
+* When experiment assigned to a diff lab on Edit screen, I am not prompted to specify a new owner	Megan Bowler	
+* The download files link appears in the Downloads tab (Experiments view) when user clicks on Lab	Megan Bowler	
+* Create table columns for sequence adapters	Tony Di Sera	bioinformatics
+* Need ability to delete multiple analysis at a time.	Tarik Courdy	bioinformatics
+* B2B - Have guest user accept terms of download and enter email before downloading files	Ben Spigle	cvdc
+* Configure annotations - Remove organism, platform, analysis type columns from left-hand list	Ben Spigle	cvdc
+* Change 'upload' permission to 'write' permission on Collaborators.	Ben Spigle	cvdc
+* External experiments - take off core facility notes, bioinformatics notes	Ben Spigle	cvdc
+* Experiment detail - change order of fields on info tab	Tony Di Sera	cvdc
+* Add Core Comments to the billing summary pre-approval	Megan Bowler	dna_seq_core
+* Add email field to Billing contact and option to include/exclude PI on Billing emails	Ben Spigle	dna_seq_core
+* Remove description from printable form	Tony Di Sera	microarray_core
+* Default start date on work auth form to today's date	Tarik Courdy	microarray_core
+* Status tab on Experiment Detail	Tony Di Sera	microarray_core
+* Allow codeApplication to be changed on Experiment Edit screen for Illumina experiments	Ben Spigle	microarray_core
+* Complete microarray billing items when exp finishes	Ben Spigle	
+* New project/experiment report	Ben Spigle	cvdc
+
+
 5.8 (Feb 4, 2012)
 -------------------
 * Search will not return any results when I type in an analysis' name	Ben Spigle
