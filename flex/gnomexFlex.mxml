@@ -2972,7 +2972,6 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
-			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
 		</menuitem>
 		
@@ -2998,7 +2997,6 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
-			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
 		</menuitem>
 		
@@ -3065,7 +3063,6 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
-			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
 		</menuitem>
 		
@@ -3117,7 +3114,6 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
-			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
 		</menuitem>
 		
