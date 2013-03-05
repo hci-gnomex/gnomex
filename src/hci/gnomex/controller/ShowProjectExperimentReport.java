@@ -239,8 +239,11 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     return reportRow;
   }
   
-  private String surroundWithQuotes(String value) {
-    return "\"" + value + "\"";
+  private Object surroundWithQuotes(Object value) {
+    if (value == null) {
+      value = "";
+    }
+    return "\"" + value.toString() + "\"";
   }
   
   private String cleanRichText(String description) {
@@ -265,7 +268,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
       StringBuffer buf = new StringBuffer();
       for (int x = 0; x < tokens.length; x++) {
         buf.append(tokens[x]);
-        buf.append("<br>");
+        buf.append("\n");
       }
       description = buf.toString();
     } 
