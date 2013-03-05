@@ -53,6 +53,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String   isInternal;
   private String   isExternal;
   private String   refrainFromAutoDelete;
+  private String   isClinicalResearch;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
@@ -270,6 +271,14 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setRefrainFromAutoDelete(String refrainFromAutoDelete) {
     this.refrainFromAutoDelete = refrainFromAutoDelete;
+  }
+
+  public String getIsClinicalResearch() {
+    return isClinicalResearch;
+  }
+
+  public void setIsClinicalResearch(String isClinicalResearch) {
+    this.isClinicalResearch = isClinicalResearch;
   }
   
 

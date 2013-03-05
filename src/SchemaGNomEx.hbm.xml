@@ -1640,6 +1640,7 @@
 		<property name="isInternal" column="isInternal" type="string"/>
 		<property name="isExternal" column="isExternal" type="string"/>
 	  <property name="refrainFromAutoDelete" column="refrainFromAutoDelete" type="string"/>
+    <property name="isClinicalResearch" column="isClinicalResearch" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
