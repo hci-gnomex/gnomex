@@ -534,7 +534,7 @@
 	
 	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
 		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" verticalAlign="middle" height="30">
-			<mx:LinkButton label="Add Platform" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
+			<mx:LinkButton label="Add Platform" enabled="{parentApplication.isAdminState}" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
 			<mx:LinkButton label="Remove Platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" textDecoration="none" fontSize="11"/>
 			<mx:Spacer width="100%"/>
 			<mx:LinkButton label="Refresh" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="none" fontSize="11"/>
