@@ -929,16 +929,18 @@
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%" verticalAlign="middle">
 								<mx:Label text="PI Email(s)" toolTip="For multiple email addresses, place a comma between emails."  styleName="formLabel"/>
+								<mx:Label text="Place , between emails" fontStyle="italic" textAlign="left" color="#076211"/>
 							</mx:HBox>
 							<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@contactEmail}" width="220"/>
-							<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()" paddingTop="0" paddingBottom="0"/>
+							<mx:Label text="PI gets billing emails + notifications." fontStyle="italic" textAlign="left" color="#076211"/>
+							<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()" paddingTop="0" paddingBottom="0" visible="false" includeInLayout="false"/>
 						</mx:VBox>
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%">
 								<mx:Label text="Billing Contact Email(s)"  styleName="formLabel" toolTip="For multiple email addresses, place a comma between emails."/>
 							</mx:HBox>
 							<util:TextAreaWorkaround id="billingContactEmail" text="{parentDocument.fullLab.@billingContactEmail}" width="260" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@billingContactEmail}"/>
-							<mx:Label text="Place a comma between emails." fontStyle="italic" textAlign="left" color="#076211"/>
+							<mx:Label text="Billing contact gets only billing emails." fontStyle="italic" textAlign="left" color="#076211"/>
 						</mx:VBox>
 					</mx:HBox>
 				</mx:HBox>
