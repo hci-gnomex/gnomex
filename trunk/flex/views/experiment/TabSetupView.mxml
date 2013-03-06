@@ -663,7 +663,12 @@
 						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
 							parentDocument.annotationView.enabled = isComplete;
 						} else {
-							parentDocument.annotationView.enabled = false;
+							if(parentDocument.notesView.experimentName.text != "" && parentDocument.notesView.overallDescript.text != "" && isComplete){
+								parentDocument.annotationView.enabled = true;
+							}
+							else{
+								parentDocument.annotationView.enabled = false;
+							}
 						}				
 						parentDocument.notesView.enabled = isComplete;
 					}  
@@ -674,7 +679,12 @@
 						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
 							parentDocument.samplesView.enabled = isComplete;
 						} else {
-							parentDocument.samplesView.enabled = false;
+							if(parentDocument.notesView.experimentName.text != "" && parentDocument.notesView.overallDescript.text != "" && isComplete){
+								parentDocument.samplesView.enabled = true;
+							}
+							else{
+								parentDocument.samplesView.enabled = false;
+							}
 						}						
 						parentDocument.notesView.enabled = isComplete;
 						if (isComplete && parentApplication.submitInternalExperiment()) {
@@ -689,7 +699,12 @@
 						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
 							parentDocument.annotationView.enabled = isComplete;
 						} else {
-							parentDocument.annotationView.enabled = false;
+							if(parentDocument.notesView.experimentName.text != "" && parentDocument.notesView.overallDescript.text != "" && isComplete){
+								parentDocument.annotationView.enabled = true;
+							}
+							else{
+								parentDocument.annotationView.enabled = false;
+							}
 						}	
 						parentDocument.notesView.enabled = isComplete;
 					}        			
@@ -700,7 +715,12 @@
 						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
 							parentDocument.samplesView.enabled = isComplete;
 						} else {
-							parentDocument.samplesView.enabled = false;
+							if(parentDocument.notesView.experimentName.text != "" && parentDocument.notesView.overallDescript.text != "" && isComplete){
+								parentDocument.samplesView.enabled = true;
+							}
+							else{
+								parentDocument.samplesView.enabled = false;
+							}
 						}
 						parentDocument.notesView.enabled = isComplete;
 						if (isComplete && parentApplication.submitInternalExperiment()) {
@@ -915,7 +935,7 @@
 					parentDocument.samplesView.propagateOtherOrganism(this.getOtherOrganism());
 				}
 				
-				if (parentDocument.annotationView != null) {
+				if (parentDocument.annotationView != null && parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.onPropertyRefreshed(null);
 				}
 				
