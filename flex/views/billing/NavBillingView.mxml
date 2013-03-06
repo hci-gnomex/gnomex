@@ -342,10 +342,9 @@
         	billingPeriodSort.compareFunction = this.sortBillingPeriods;	   
         	billingPeriods.sort = billingPeriodSort;  
         	billingPeriods.refresh();
-        	//billingPeriodCombo.dataProvider = billingPeriods;  
 			
 			
-			// Get min abd max year to display on month picker.
+			// Get min and max year to display on month picker.
 
 			var nowYear:int = (new Date()).getFullYear();
 			var nowMonth:int = (new Date()).getMonth();
@@ -385,8 +384,6 @@
 					}
 				}
 			} 
-			//mChosenMonth.minYear = minBillingYear;
-			//mChosenMonth.maxYear = maxBillingYear;	
 
 			this.systemManager.addEventListener("BillingPeriodSelectEvent", billingPeriodSelected);
 			
@@ -402,7 +399,6 @@
 						this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 		
 						currentBillingPeriod = de;
-			        	//billingPeriodCombo.selectedItem = currentBillingPeriod;
 						lastSelectedBillingPeriod = currentBillingPeriod;
 			        	
 			        	params.idBillingPeriod = currentBillingPeriod.@value;
@@ -416,8 +412,6 @@
 				dirty.resetDirty();
 				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 	
-
-	        	//billingPeriodCombo.selectedItem = lastSelectedBillingPeriod;
 	        	
 	        	params.idBillingPeriod = lastSelectedBillingPeriod.@value;
 	        	getBillingRequestList.send(params);
@@ -562,9 +556,7 @@
 		}
 		
 		private function refreshBillingItems():void {
-			//if (billingPeriodCombo.selectedItem == null) {
 			if (lastSelectedBillingPeriod == null || lastSelectedBillingPeriod.@value == "") {
-				//billingPeriodCombo.setFocus();
 				Alert.show("Please select a billing period or enter an experiment #");
 			} else {
 				this.dirty.resetDirty();
@@ -582,7 +574,6 @@
 		}
 		
 		private function refreshBillingItemsByRequestNumber():void {
-			//billingPeriodCombo.selectedItem = null;
 			lastSelectedBillingPeriod = null;
 			labCombo.selectedItem = null;
 			billingAccountCombo.selectedItem = null;
@@ -595,7 +586,6 @@
 		}
 		
 		private function refreshBillingItemsByInvoiceNumber():void {
-			//billingPeriodCombo.selectedItem = null;
 			lastSelectedBillingPeriod = null;
 			labCombo.selectedItem = null;
 			billingAccountCombo.selectedItem = null;
@@ -1209,7 +1199,6 @@
 	       			dragNode.@codeBillingStatus = "PENDING";
 	       			var params:Object = new Object(); 
 	       			params.idRequest = dragNode.@idRequest;
-					//params.idBillingPeriod = billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "";
 					params.idBillingPeriod = lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "";
 	       			this.createBillingItems.send(params);
 	    	   	} else if (dragNode.name() == "Price") {
@@ -1227,7 +1216,6 @@
        			 	 " description='" + dragNode.@name + "'" +
        			 	 " unitPrice='" + price + "'" +	
        			 	 " codeBillingStatus='PENDING'" +	
-					 //" idBillingPeriod='" + (billingPeriodCombo.selectedItem != null ? billingPeriodCombo.selectedItem.@value : "") + "'" + 
 					 " idBillingPeriod='" + (lastSelectedBillingPeriod != null ? lastSelectedBillingPeriod.@value : "") + "'" + 
        			 	 " idPriceCategory='" +	dragNode.parent().@idPriceCategory + "'" +
        			 	 " idPrice='" + dragNode.@idPrice + "'" +
@@ -1481,13 +1469,7 @@
         }
         
 		public function showBillingInvoice(email:Boolean):void {
-			/*
-			if (billingPeriodCombo.selectedItem == null ||
-				billingPeriodCombo.selectedItem.@value == "") {
-				Alert.show("Please select a billing period.");
-				return;    	
-			}
-			*/
+			
 			if (lastSelectedBillingPeriod == null ||
 				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
@@ -1515,7 +1497,6 @@
 						showBillingInvoiceEmailWindow(labNode);
 					} else {
 						var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
-							//'?idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod + 
 							'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 							'&idLab=' + labNode.@idLab +
 							'&idBillingAccount=' + labNode.@idBillingAccount +
@@ -1530,13 +1511,7 @@
 			}
 		} 
 		public function showBillingMonthendReport():void {
-			/*
-			if (billingPeriodCombo.selectedItem == null ||
-				billingPeriodCombo.selectedItem.@value == "") {
-				Alert.show("Please select a billing period.");
-				return;    	   
-			}
-			*/
+			
 			if (lastSelectedBillingPeriod == null ||
 				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
@@ -1554,7 +1529,6 @@
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
 					    '?codeBillingStatus=' + statusNode.@status +
 						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
-						//'&idBillingPeriod=' + billingPeriodCombo.selectedItem.@idBillingPeriod);
 						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
 					navigateToURL(url, '_blank');			
 					
@@ -1597,13 +1571,7 @@
 			coreCommentsWindow.positionWindow();
 		}
 		public function showBillingGLInterface():void {
-			/*
-			if (billingPeriodCombo.selectedItem == null ||
-				billingPeriodCombo.selectedItem.@value == "") {
-				Alert.show("Please select a billing period.");
-				return;    	
-			} 
-			*/
+		
 			if (lastSelectedBillingPeriod == null ||
 				lastSelectedBillingPeriod .@value == "") {
 				Alert.show("Please select a billing period.");
@@ -1630,10 +1598,8 @@
     		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
     		mx.managers.PopUpManager.centerPopUp(runWindow);
     		runWindow.setFocus();
-			//runWindow.idBillingPeriod = billingPeriodCombo.selectedItem.@idBillingPeriod;
 			runWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
 			runWindow.idCoreFacility = this.getSelectedCoreFacilityId();
-			//runWindow.billingPeriod = billingPeriodCombo.selectedItem.@billingPeriod;
 			runWindow.billingPeriod = lastSelectedBillingPeriod.@billingPeriod;
     		runWindow.grandTotalPrice = this.grandTotalPrice;
 		}		
@@ -1936,7 +1902,6 @@
 			}
 			
 			if (billingPeriods.length > 1) {
-				//if (this.billingPeriodCombo.selectedItem != null && this.billingPeriodCombo.selectedItem.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
 				if (this.lastSelectedBillingPeriod != null && this.lastSelectedBillingPeriod.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
 					Alert.show("This experiment has billing items spanning multiple billing periods.\n\nPlease uncheck the checkbox 'Show related charges in other periods' to narrow the billing items to qualify the billing items to be split.");
 					return;			
@@ -2046,41 +2011,7 @@
 				this.billingTabNavigator.width = this.requestTabWidth;
 			}
 		}
-		
-		//[Bindable]
-		//private var chosenMonth:Date = new Date();
-			
-		/*
-		private function executeBillingPeriod():void
-		{
-			var selDateStr:String = months[mChosenMonth.selectedDate.month] + " " + mChosenMonth.selectedDate.fullYear;
-			var currentBillingPeriod:Object = null;
-			for each( var de:Object in billingPeriods) {
-				if (de.@display == selDateStr) {
-					lastSelectedBillingPeriod=billingPeriodCombo.selectedItem;
-					requestNumberText.text = "";
-					refresh();
-					return;
-				}
-			}
-			Alert.show("Sorry, " + selDateStr + " is not defined in the billing period dictionary.");
-		}
-		
-		private function processMonthChooser():void
-		{
-			var selDateStr:String = months[mChosenMonth.selectedDate.month] + " " + mChosenMonth.selectedDate.fullYear;
-			var currentBillingPeriod:Object = null;
-			for each( var de:Object in billingPeriods) {
-				if (de.@display == selDateStr) {
-					currentBillingPeriod = de;
-					billingPeriodCombo.selectedItem = currentBillingPeriod;
-					return;
-				}
-			}
-			billingPeriodCombo.selectedIndex = 0;
-		}
-		*/
-		
+				
 		private function pickBillingPeriod():void 
 		{
 			var pickBillingPeriodWindow:PickBillingPeriodView = new PickBillingPeriodView();
@@ -2144,8 +2075,50 @@
 			}
 			
 			return "";
-		}		
-
+		}	
+				
+		public function forwardPendingBillingItems():void{
+			
+			var months:Array = new Array(12);
+			months[0] = "Jan";
+			months[1] = "Feb";
+			months[2] = "Mar";
+			months[3] = "Apr";
+			months[4] = "May";
+			months[5] = "Jun";
+			months[6] = "Jul";
+			months[7] = "Aug";
+			months[8] = "Sep";
+			months[9] = "Oct";
+			months[10] = "Nov";
+			months[11] = "Dec";	
+			
+			// Get the currently selected billing period month and year
+			var selYear:int = parseInt(pickBillingPeriodButton.label.substr(pickBillingPeriodButton.label.length-4));
+			var selMonth:int = months.indexOf(pickBillingPeriodButton.label.substr(0,3));
+			// Get the next month and year (if moving from Dec to Jan)
+			var nextMonth:int = (selMonth + 1)%12; 
+			if ( nextMonth == 0 ) {
+				selYear++;
+			}
+			var nextPeriodDisplay:String = months[nextMonth] + " " + selYear;
+			
+			// Get the billing period with that month and year and change all billing items to that billing period.
+			for each( var de:Object in billingPeriods) {
+				if (de.@display == nextPeriodDisplay) {
+					for each(var request:XML in billingItemsDisplayed){
+						for each(var bi:Object in request.BillingItem){
+							bi.@idBillingPeriod = de.@idBillingPeriod
+								bi.@isDirty = "Y";
+						}
+					}
+					return;
+				}
+			}
+			
+			
+		}
+		
 		public function billingStatusCombo_changeHandler(event:ListEvent):void {
 			if ( billingItemGrid.selectedItems.length == 0 ) {
 				for each(var request:XML in billingItemsDisplayed){
@@ -2529,6 +2502,14 @@
 							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontFamily="Verdana" fontSize="11"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
+						<mx:LinkButton label="Move to next billing period" 
+									   toolTip="Move all pending items to the next billing period."
+									   textDecoration="underline" 
+									   styleName="formLinkSmallButton" 
+									   click="forwardPendingBillingItems()" 
+									   id="forwardPendingItemsLink"
+									   visible="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}"
+									   includeInLayout="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}"/>
 						<mx:ComboBox id="billingStatusCombo" 
 									 prompt="- Change Status -" 
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
