@@ -176,7 +176,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             Map<Integer, FlowCellChannel> channels = auto.getRequest().getFlowCellChannels();
             for(Integer chKey : channels.keySet()) {
               FlowCellChannel channel = channels.get(chKey);
-              if (channel.getPipelineDate() != null) {
+              if (channel != null && channel.getPipelineDate() != null) {
                 completedQty++;
               }
             }

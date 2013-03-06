@@ -35,15 +35,6 @@ public class BillingItemAutoComplete {
     }
     
     ArrayList<BillingItemBucket> buckets = getBuckets();
-
-    // if billing item qty doesn't match number of lanes/samples then have to comlete manually.
-    Integer bucketQty = 0;
-    for(BillingItemBucket bk : buckets) {
-      bucketQty += bk.getQty();
-    }
-    if (!bucketQty.equals(totalQty)) {
-      return;
-    }
     
     Integer rollingTotal = 0;
     for(BillingItemBucket bk : buckets) {

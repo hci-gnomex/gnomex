@@ -1227,7 +1227,7 @@ public class Request extends HibernateDetailObject {
   public Map<Integer, FlowCellChannel> getFlowCellChannels() {
     Map<Integer, FlowCellChannel> channels = new HashMap<Integer, FlowCellChannel>();
     for(SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
-      if (!channels.containsKey(lane.getIdFlowCellChannel())) {
+      if (lane.getIdFlowCellChannel() != null && !channels.containsKey(lane.getIdFlowCellChannel())) {
         channels.put(lane.getIdFlowCellChannel(), lane.getFlowCellChannel());
       }
     }
