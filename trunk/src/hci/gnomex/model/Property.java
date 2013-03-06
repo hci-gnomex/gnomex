@@ -220,6 +220,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     return buf.toString();
   }    
   
+  //Removed codeApplication from appliesToPlatform display
   public String getAppliesToPlatform() {
     StringBuffer buf = new StringBuffer();
 
@@ -228,7 +229,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
         if (buf.length() > 0) {
           buf.append(", ");
         }
-        buf.append(pa.getDisplay() + (pa.getApplicationDisplay().length() > 0 ? " " + pa.getApplicationDisplay() : ""));
+        buf.append(pa.getDisplay());
       }
     }
     return buf.toString();
