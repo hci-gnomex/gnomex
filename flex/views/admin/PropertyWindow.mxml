@@ -681,6 +681,14 @@
 				return null;
 			}
 			
+			private function propertyListLabel(item:Object, column:AdvancedDataGridColumn):String {
+				if(item.@appliesToOrganism != "" || item.@appliesToAnalysisType != "" || item.@appliesToRequestCategory != ""){
+					return "*" + item.@name;
+				} else{
+					return item.@name;
+				}
+			}
+			
 			
 		]]>
 	</mx:Script>
@@ -722,7 +730,7 @@
 		
 		<mx:HDividedBox height="100%" width="100%"  horizontalGap="6" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 			<mx:VBox height="100%" width="410">
-				<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelField="@name" 
+				<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelFunction="propertyListLabel" 
 									 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
 									 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
 									 iconFunction="getTreeIcon">
@@ -734,7 +742,7 @@
 							<mx:itemRenderer >
 								<mx:Component>
 									<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
-										<mx:Label text="{data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '' ? '*' + data.@name : data.@name}" 
+										<mx:Label text="{data.name() != 'Option' &amp;&amp; (data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '') ? '*' + data.@name : data.@name}" 
 												  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
 												  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
 												  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
