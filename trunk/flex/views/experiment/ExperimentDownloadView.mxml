@@ -82,8 +82,8 @@
 			[Bindable]
 			public var rowCountMessage:String = new String();
 						
-			[Bindalbe]
-			public var request:Object;
+			[Bindable]
+			private var _request:Object;
 			
 			[Bindable]
 			public var browseMessage:String = new String();
@@ -107,6 +107,15 @@
 			
 			private var dateFormatter:DateFormatter = new DateFormatter();
 			
+			public function set request(value:Object):void {
+				_request = value;
+				dispatchEvent(new Event("requestChanged"));
+			}
+			
+			public function get request():Object {
+				return _request;
+			}
+
 			private function onGetRequestDownloadList(event:ResultEvent): void {
 				if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
 					Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
@@ -374,7 +383,16 @@
 				}
 			}
 			
-			
+			[Bindable(event="requestChanged")]
+			private function isClinicalResearchRequest():Boolean {
+				if (this.request != null) {
+					var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.request.@codeRequestCategory);
+					if (requestCategory.hasOwnProperty("@isClinicalResearch") && requestCategory.@isClinicalResearch == "Y") {
+						return true;
+					}
+				}
+				return false;
+			}
 		]]>
 	</mx:Script>
 	
@@ -395,8 +413,8 @@
 							   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
 							   textAlign="left"/>
 				<mx:LinkButton label="FDT Upload files" 
-							   visible="{parentApplication.isFDTSupported}"
-							   includeInLayout="{parentApplication.isFDTSupported}"
+							   visible="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
+							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
 							   click="showExperimentFDTUploadWindow()" 
 							   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
 				<mx:LinkButton label="Manage files"  
