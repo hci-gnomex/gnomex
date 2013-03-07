@@ -170,7 +170,9 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     columns.add(makeReportColumn("Visibility", 10));
     columns.add(makeReportColumn("Description", 11));
     columns.add(makeReportColumn("Organism", 12));
-    columns.add(makeReportColumn("# Samples", 13));
+    columns.add(makeReportColumn("Project Name", 13));
+    columns.add(makeReportColumn("Project Description", 14));
+    columns.add(makeReportColumn("# Samples", 15));
     
     
     tray.setColumns(columns);
@@ -191,6 +193,14 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     
     String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
     description = this.cleanRichText(description);
+
+    String projectDescription = (String)row[ProjectExperimentReportFilter.COL_PROJECT_DESCRIPTION];
+    if (projectDescription == null) {
+      projectDescription = "";
+    } else {
+      projectDescription = projectDescription.replaceAll("\r", "\n");
+    }
+
     
     String labLastName = (String)row[ProjectExperimentReportFilter.COL_LAB_LASTNAME];
     String labFirstName = (String)row[ProjectExperimentReportFilter.COL_LAB_FIRSTNAME];
@@ -208,6 +218,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
     String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
     String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
+    String projectName = (String)row[ProjectExperimentReportFilter.COL_PROJECT_NAME];
 
     String labName = Lab.formatLabName(labLastName, labFirstName);
     String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
@@ -232,6 +243,8 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     values.add(surroundWithQuotes(visibility) );
     values.add(surroundWithQuotes(description) );
     values.add(surroundWithQuotes(organism) );
+    values.add(surroundWithQuotes(projectName) );
+    values.add(surroundWithQuotes(projectDescription) );
     values.add(surroundWithQuotes(numSamples.toString()) );
    
     reportRow.setValues(values);
@@ -246,11 +259,24 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     return "\"" + value.toString() + "\"";
   }
   
+  private String cleanText(String description) {
+    Pattern pattern = Pattern.compile("\\x0d");
+    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
+
+    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
+    if (tokens.length > 0) {
+      StringBuffer buf = new StringBuffer();
+      for (int x = 0; x < tokens.length; x++) {
+        buf.append(tokens[x]);
+        buf.append("\n");
+      }
+      description = buf.toString();
+    } 
+    return description.toString();
+  }
+  
   private String cleanRichText(String description) {
 
-    final char NEW_LINE = 0x0a;
-   
-    
     if (description == null) {
       return "";
     } else if (description.trim().equals("")) {
