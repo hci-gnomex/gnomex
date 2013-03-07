@@ -180,6 +180,7 @@
 				params.idProject = selectedExperiment.@idProject;
 				params.showSamples = "N";
 				params.showCategory = "N";
+				params.excludeClinicResearch = "Y";
 				
 				// Need this workaround to prevent type #1009 error.
 				this.expBrowseTree.setFocus();
@@ -565,6 +566,7 @@
 				
 				
 				var params:Object = new Object();
+				params.excludeClinicResearch = "Y";
 				
 				if (labCombo.selectedItem != null) {
 					params.idLab = labCombo.selectedItem.@idLab;

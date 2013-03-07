@@ -114,6 +114,9 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
             throw new RuntimeException("Cannot find experiment " + requestNumber);
           }
         }
+        if (experiment.getRequestCategory().getIsClinicalResearch() != null && experiment.getRequestCategory().getIsClinicalResearch().equals("Y")) {
+          this.addInvalidField("Clinical Research", "Clinical research experiments cannot upload using FDT.");
+        }
         if (!secAdvisor.canUploadData(experiment)) {
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload experiment files");
         }

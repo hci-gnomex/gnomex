@@ -99,13 +99,13 @@ public class TopicQuery implements Serializable {
 	  List<Object[]> topicRows = (List<Object[]>)query.list();
 
     // Run query to get requests, organized under topics
-    queryBuf = this.getRequestQuery(secAdvisor);
+    queryBuf = this.getRequestQuery(secAdvisor, DictionaryHelper.getInstance(sess), true);
     Logger.getLogger(this.getClass().getName()).fine("Request query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
     List<Object[]> returnedRequestRows = (List<Object[]>)query.list();
     
     // Run query to get requests with now visibility restrictions, organized under topics
-    queryBuf = this.getRequestQuery(null);
+    queryBuf = this.getRequestQuery(secAdvisor,  DictionaryHelper.getInstance(sess), false);
     Logger.getLogger(this.getClass().getName()).fine("Request query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
     List<Object[]> unrestrictedRequestRows = (List<Object[]>)query.list();
@@ -166,7 +166,7 @@ public class TopicQuery implements Serializable {
 
 	}
 	
-  private StringBuffer getRequestQuery(SecurityAdvisor secAdvisor) throws Exception {
+  private StringBuffer getRequestQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper, boolean isRestricted) throws Exception {
     
     addWhere = true;
     queryBuf = new StringBuffer();
@@ -184,9 +184,11 @@ public class TopicQuery implements Serializable {
 
     addCriteria(REQUEST_LEVEL);
     
-    if (secAdvisor != null) {
+    if (isRestricted) {
       addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, false);
     }
+    
+    addWhere = secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "request");
     
     queryBuf.append(" ORDER BY tp.name asc, request.name asc ");
 

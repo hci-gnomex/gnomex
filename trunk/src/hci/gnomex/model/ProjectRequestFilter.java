@@ -52,6 +52,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isIScan = "N";
   private String                isExternalOnly = "N";
   private String                showEmptyProjectFolders = "N";
+  private String                excludeClinicResearch = "N";
   
   
   
@@ -553,6 +554,10 @@ public class ProjectRequestFilter extends DetailObject {
       secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities");
 
     }
+    
+    if (this.excludeClinicResearch != null && this.excludeClinicResearch.equals("Y")) {
+      secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req");
+    }
   }
 
   private void addAnalysisExperimentSecurityCriteria() {
@@ -983,6 +988,15 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setShowEmptyProjectFolders(String show) {
     showEmptyProjectFolders = show;
+  }
+  
+
+  public String getExcludeClinicResearch() {
+    return excludeClinicResearch;
+  }
+
+  public void setExcludeClinicResearch(String excludeClinicResearch) {
+    this.excludeClinicResearch = excludeClinicResearch;
   }
   
   

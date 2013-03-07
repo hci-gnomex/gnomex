@@ -111,6 +111,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         log.info("GetWorkItemList query: " + queryBuf.toString());
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
         
+        Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 3);
         
         Map relatedFlowCellInfoMap = new HashMap();
 
@@ -124,6 +125,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String sampleNumber     = (String) row[10];
           String itemNumber       = (String) row[12];
           
+          if (idsToSkip.get((Integer)row[0]) != null) {
+            // skip for BSTX Security
+            continue;
+          }
 
           String key = null;
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||

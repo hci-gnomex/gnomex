@@ -377,6 +377,17 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     return requestCategoryList;
   }
+  
+  public List<RequestCategory> getClinicResearchRequestCategoryList() {
+    lazyLoadManagedDictionaries();
+    List<RequestCategory> list = new ArrayList<RequestCategory>();
+    for(RequestCategory cat : (List<RequestCategory>)requestCategoryList) {
+      if (cat != null && cat.getIsClinicalResearch() != null && cat.getIsClinicalResearch().equals("Y")) {
+        list.add(cat);
+      }
+    }
+    return list;
+  }
 
   public List getSeqRunTypeList() {
     lazyLoadManagedDictionaries();

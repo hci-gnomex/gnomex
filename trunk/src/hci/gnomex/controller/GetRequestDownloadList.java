@@ -113,7 +113,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
       
     
-      StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor());
+      StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (1): " + buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
@@ -138,7 +138,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         rowMap.put(key, row);
       }
 
-      buf = filter.getSolexaResultQuery(this.getSecAdvisor());
+      buf = filter.getSolexaResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (2): " + buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
@@ -168,7 +168,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         this.hashFolders(folders, rowMap, dh, baseKey, row);
       }
       
-      buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor());
+      buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor(), dh);
       log.debug("Query for get illumina flow cell: " + buf.toString());
       List flowCellRows = (List)sess.createQuery(buf.toString()).list();
       HashMap flowCellMap = new HashMap();
@@ -191,12 +191,18 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       
 
       
-      buf = filter.getQualityControlResultQuery(this.getSecAdvisor());
+      buf = filter.getQualityControlResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
       List rows3 = (List)sess.createQuery(buf.toString()).list();
+      Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
+      
       for(Iterator i = rows3.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
         
+        if (idsToSkip.get((Integer)row[21]) != null) {
+          // skip for BSTX security
+          continue;
+        }
         String requestNumber = (String)row[1];
         String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];

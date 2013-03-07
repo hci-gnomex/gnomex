@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -94,9 +95,15 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         List results = (List)sess.createQuery(queryBuf.toString()).list();
         
+        Map<Integer, Integer> idsToExclude = secAdvisor.getBSTXSecurityIdsToExclude(sess, dh, results, ProjectExperimentReportFilter.COL_IDREQUEST, ProjectExperimentReportFilter.COL_CODE_REQUEST_CATEGORY);
+        
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
 
+          if (idsToExclude.get((Integer)row[ProjectExperimentReportFilter.COL_IDREQUEST]) != null) {
+            // skip due to BSTX security
+            continue;
+          }
           ReportRow reportRow = makeReportRow(row, dateFormat, dh);
           tray.addRow(reportRow);
         }
