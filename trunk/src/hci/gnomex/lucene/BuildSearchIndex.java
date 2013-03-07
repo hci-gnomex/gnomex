@@ -407,6 +407,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
     buf.append("LEFT JOIN   ls2.sample as s2 ");
     buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_MICROARRAY + "' ");
+    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     List results = sess.createQuery(buf.toString()).list();
@@ -480,6 +481,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.samples as s1 ");
     buf.append("WHERE       reqCat.type in ('" + RequestCategory.TYPE_QC + "', '" + RequestCategory.TYPE_CAP_SEQ + "', '" + RequestCategory.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategory.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategory.TYPE_CHERRY_PICKING + "') ");
+    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     results = sess.createQuery(buf.toString()).list();
@@ -554,6 +556,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.sequenceLanes as lane ");
     buf.append("LEFT JOIN   lane.sample as s1 ");
     buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_ILLUMINA + "' ");
+    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
     results = sess.createQuery(buf.toString()).list();
