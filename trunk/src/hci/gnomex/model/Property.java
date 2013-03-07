@@ -220,8 +220,21 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     return buf.toString();
   }    
   
-  //Removed codeApplication from appliesToPlatform display
   public String getAppliesToPlatform() {
+    StringBuffer buf = new StringBuffer();
+
+    if (getPlatformApplications() != null) {
+      for (PropertyPlatformApplication pa : (Set<PropertyPlatformApplication>)getPlatformApplications()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(pa.getDisplay() + (pa.getApplicationDisplay().length() > 0 ? " " + pa.getApplicationDisplay() : ""));
+      }
+    }
+    return buf.toString();
+  }
+  
+  public String getAppliesToRequestCategory(){
     StringBuffer buf = new StringBuffer();
 
     if (getPlatformApplications() != null) {
@@ -233,6 +246,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
       }
     }
     return buf.toString();
+    
   }
     
 }
