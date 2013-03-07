@@ -211,7 +211,7 @@
 				}
 				
 				if(selectedExpPlatform != null && selectedExpPlatform != ""){
-					var expPlatformArray:Array = String(item.@appliesToPlatform).split(", ");
+					var expPlatformArray:Array = String(item.@appliesToRequestCategory).split(", ");
 					for each(var e:String in expPlatformArray){
 						if(e == selectedExpPlatform){
 							expPlatformMatch = true;
