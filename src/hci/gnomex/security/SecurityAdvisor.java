@@ -1,10 +1,12 @@
 package hci.gnomex.security;
 
+import hci.bstx.utility.BSTXSecurityAdvisor;
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.CreateBillingItems;
 import hci.gnomex.lucene.GlobalIndexHelper;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
@@ -32,11 +34,15 @@ import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateBSTXSession;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabComparator;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +52,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 
@@ -55,6 +66,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          SECURITY_ADVISOR_SESSION_KEY       = "gnomexSecurityAdvisor";
   
   private static final String         RESTRICTED = "(restricted)";
+
+  private static org.apache.log4j.Logger log                             = org.apache.log4j.Logger.getLogger(SecurityAdvisor.class);
   
   public static final int            PROFILE_OBJECT_VISIBILITY          = 1;
   public static final int            PROFILE_GROUP_MEMBERSHIP           = 2;
@@ -97,6 +110,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isUniversityOnlyUser = false;
   private boolean                     isLabManager = false;
   private boolean                     isReadOnlySession = false;
+  private boolean                     canAccessBSTX = false;
   
   // version info
   private String                       version;
@@ -106,12 +120,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   private String                       loginDateTime;
   
-  
+  private BSTXSecurityAdvisor          bstxSecurityAdvisor;
+
   public String getLoginDateTime() {
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
@@ -119,6 +134,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.isUniversityOnlyUser = isUniversityOnlyUser;
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     this.isLabManager = isLabManager;
+    this.canAccessBSTX = canAccessBSTX;
 
     setGlobalPermissions();    
     validate();
@@ -130,6 +146,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     isGNomExExternalUser = false;
     isUniversityOnlyUser = false;
     isLabManager = false;
+    canAccessBSTX = false;
     this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
     setGlobalPermissions();
   }
@@ -189,6 +206,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     boolean isGNomExExternalUser = false;
     boolean isUniversityOnlyUser = true;
     boolean isLabManager = false;
+    boolean canAccessBSTX = false;
     
     // Is this a GNomEx university user?
     StringBuffer queryBuf = new StringBuffer();
@@ -262,15 +280,46 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
     
+    // check if can access BSTX
+    if (isGNomExUniversityUser) {
+      String canAccessBSTXString = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
+      if (canAccessBSTXString != null && canAccessBSTXString.equals("Y")) {
+        canAccessBSTX = isUserInAssociateTable(uid);
+      }
+    }
     
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
     securityAdvisor.getInstitutionsIAmMemberOf();
     
     return securityAdvisor;
+  }
+  
+  private static boolean isUserInAssociateTable(String uid) {
+    boolean in = false;
+    try {
+      Session bstxSession = HibernateBSTXSession.currentBSTXSession(uid);
+      Query query = bstxSession.createQuery("SELECT idSite, assocPreferredName, assocFirstName, assocLastName, personID " +
+          "FROM Associate WHERE ntUserName = :userName");
+      query.setParameter("userName", uid);
+      List assocUsers = query.list();
+      if (assocUsers.size() > 0) {
+        in = true;
+      }
+    } catch(Exception ex) {
+      log.error("Error querying associate table.", ex);
+    } finally {
+      try {
+        HibernateBSTXSession.closeBSTXSession();
+      } catch(Exception ex) {
+        log.error("Error closing BSTX session", ex);
+      }
+    }
+    
+    return in;
   }
   
   public static SecurityAdvisor createGuest()
@@ -361,6 +410,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
           canRead = true;
         }
+      }
+      if (canRead) {
+        canRead = checkBSTXSecurity(object);
       }
     }
     // 
@@ -738,6 +790,139 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     throw new UnknownPermissionException("Unimplemented method");
   }
 
+
+  public boolean checkBSTXSecurity(DetailObject object) {
+    canRead = true;
+    if (object instanceof Request) {
+      Request req = (Request)object;
+      if (req.getRequestCategory().getIsClinicalResearch() != null && req.getRequestCategory().getIsClinicalResearch().equals("Y")) {
+        if (this.canAccessBSTX) {
+          if (this.bstxSecurityAdvisor != null) {
+            canRead = canReadAllCCNumbers(req);
+          }
+        } else {
+          canRead = false;
+        }
+      }
+    }
+    
+    return canRead;
+  }
+  
+  private Map<String, boolean[]> canReadCCNumbers(List<String> ccNumbers) throws NamingException, SQLException {
+    Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
+    if (bstxSecurityAdvisor != null) {
+      try {
+        Session bstxSession = HibernateBSTXSession.currentBSTXSession(this.username);
+        secMap = bstxSecurityAdvisor.canReadSamples(ccNumbers, bstxSession);
+      } finally {
+        try {
+          HibernateBSTXSession.closeBSTXSession();
+        } catch(Exception e) {
+          log.error("Error closing BSTX session", e);
+        }
+      }
+    }
+    return secMap;
+  }
+
+  public boolean canReadAllCCNumbers(Request req) {
+    boolean canRead = true;
+    if (bstxSecurityAdvisor == null) {
+      canRead = false;
+    } else {
+      try {
+        List<String> ccNumbers = new ArrayList<String>();
+        for (Sample s : (Set<Sample>)req.getSamples()) {
+          if (s.getCcNumber() != null) {
+            ccNumbers.add(s.getCcNumber());
+          } else {
+            canRead = false;
+            break;
+          }
+        }
+    
+        if (canRead) {
+          canRead = canReadAllCCNumbers(ccNumbers);
+        }
+      } catch(Exception ex) {
+        log.error("Error getting BSTX security settings to check ccNumbers", ex);
+        canRead = false;
+      }
+    }
+    
+    return canRead;
+  }
+  
+  private boolean canReadAllCCNumbers(List<String> ccNumbers)  throws NamingException, SQLException {
+    canRead = true;
+    Map<String, boolean[]> secMap = canReadCCNumbers(ccNumbers);
+    for(String key : ccNumbers) {
+      boolean[] perms = secMap.get(key);
+      if (perms == null || !perms[0] || !perms[1] || !perms[2]) {
+        canRead = false;
+        break;
+      }
+    }
+    return canRead;
+  }
+  
+  // Used to scrub list of requests being shown to user.  CanRead makes sure even if this scrubbing is not done they don't see details.
+  public Map<Integer, Integer> getBSTXSecurityIdsToExclude(Session sess, DictionaryHelper dh, List rows, Integer idRequestIdx, Integer codeRequestCategoryIdx) throws NamingException, SQLException {
+    Map<Integer, Integer> idsToSkip = new HashMap<Integer, Integer>();
+    ArrayList<Integer> reqIds = new ArrayList<Integer>();
+    for(Object[] row : (List<Object[]>)rows) {
+      Integer idRequest               = (Integer)row[idRequestIdx];
+      String codeRequestCategory      = (String)row[codeRequestCategoryIdx];
+      if (idRequest != null && codeRequestCategory != null) {
+        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        if (requestCategory.getIsClinicalResearch() != null && requestCategory.getIsClinicalResearch().equals("Y")) {
+          if (canAccessBSTX) {
+            reqIds.add(idRequest);
+          } else {
+            idsToSkip.put(idRequest, idRequest);
+          }
+        }
+      }
+    }
+    
+    if (canAccessBSTX && reqIds.size() > 0) {
+      String queryString = "select distinct idRequest, case when ccNumber is null then '@@NULL@@' else ccNumber end from Sample where idRequest in (:reqIds)";
+      Query query = sess.createQuery(queryString);
+      query.setParameterList("reqIds", reqIds);
+      List ccRows = query.list();
+      Map<String, Integer> ccMap = new HashMap<String, Integer>();
+      List<String> ccList = new ArrayList<String>();
+      for(Object[] ccRow : (List<Object[]>)ccRows) {
+        Integer idRequest = (Integer)ccRow[0];
+        String ccNumber = (String)ccRow[1];
+        ccMap.put(ccNumber, idRequest);
+        ccList.add(ccNumber);
+      }
+  
+      Map<String, boolean[]> secMap = this.canReadCCNumbers(ccList);
+      
+      for(String ccNumber : ccList) {
+        boolean[] perms = secMap.get(ccNumber);
+        boolean hasPermission = false;
+        // perms of null means ccNumber doesn't exist in BST
+        // In that case we show experiment to super users but no one else
+        if (perms == null) {
+          if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+            hasPermission = true;
+          }
+        } else if (perms[0] && perms[1] && perms[2]) {
+          hasPermission = true;
+        }
+        
+        if (!hasPermission) {
+          Integer idRequest = ccMap.get(ccNumber);
+          idsToSkip.put(idRequest, idRequest);
+        }
+      }
+    }    
+    return idsToSkip;
+  }
 
   public boolean canUpdate(DetailObject object) throws UnknownPermissionException {
     boolean canUpdate = false;
@@ -1978,7 +2163,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       
-      // GNomex super admin is not restricted
+      // GNomex super admin is not restricted (much)
       
     } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       if (hasCoreFacility) {
@@ -2042,7 +2227,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appendPublicCriteria(queryBuf, classShortName, false);        
 
       queryBuf.append(" ) ");
-       
     }
     
     return isFirstCriteria;
@@ -2343,6 +2527,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
     
   }
+  
 
   private void appendLuceneCoreFacilitiesIManage(StringBuffer searchText) {
     boolean firstTime = true;
@@ -2692,6 +2877,39 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return addWhere;
   }
   
+  /**
+   * This method retrieves the BSTX Security Advisor used for testing BST permissions through an
+   * external application. If the BSTX Security Advisor hasn't been created yet, this method creates 
+   * it.
+   * 
+   * @param request A copy of the active HTTP Servlet Request that was passed into the command.
+   * @param httpSession A copy of the HTTP Session.
+   * @param bstxSession An active copy of the BSTX Hibernate session.
+   * @param username The username of the individual the initiated this request.
+   * @return A copy of the BSTX Security Advisor.
+   */
+  public BSTXSecurityAdvisor getBSTXSecurityAdvisor(HttpServletRequest request, HttpSession httpSession, 
+    Session bstxSession, String username)
+  {
+    if (bstxSecurityAdvisor == null && canAccessBSTX)
+    {
+      // Get the BSTX SecurityAdvisor.
+      if (httpSession.getAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY) != null)
+      {
+        bstxSecurityAdvisor = (BSTXSecurityAdvisor)httpSession.getAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      }
+      
+      // If it doesn't exist, create it and save it for later (so we only have to create it once).
+      else
+      {
+        bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, username);
+        httpSession.setAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, bstxSecurityAdvisor);
+      }
+    }
+    
+    return bstxSecurityAdvisor;
+  }
+  
   public Session getReadOnlyHibernateSession(String userName) throws Exception{
     Session sess = null;
     sess = HibernateGuestSession.currentGuestSession(userName);    
@@ -2763,4 +2981,41 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return coreFacilities;
 
   } 
+  
+  public boolean canAccessBSTX() {
+    return canAccessBSTX;
+  }
+  
+  public boolean appendExcludeClinicResearchCriteria(StringBuffer queryBuf, boolean isFirstCriteria, DictionaryHelper dictionaryHelper, String reqShortName) {
+    List requestCategories = dictionaryHelper.getClinicResearchRequestCategoryList();
+    
+    if (requestCategories.size() > 0) {
+      queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
+      isFirstCriteria = false;
+      
+      queryBuf.append(" " + reqShortName + ".codeRequestCategory not in (");
+  
+      int count = 0;
+      for (Iterator i = requestCategories.iterator(); i.hasNext();) {
+        RequestCategory requestCategory = (RequestCategory)i.next();
+        if (requestCategory.getIsClinicalResearch() != null && requestCategory.getIsClinicalResearch().equals("Y")) {
+          if (count > 0) {
+            queryBuf.append(", ");            
+          }
+          
+          queryBuf.append("'");
+          queryBuf.append(requestCategory.getCodeRequestCategory());
+          queryBuf.append("'");    
+          count++;
+        }
+        
+      }
+      
+      queryBuf.append(") ");
+      
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

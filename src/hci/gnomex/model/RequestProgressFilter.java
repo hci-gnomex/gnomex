@@ -390,6 +390,8 @@ public class RequestProgressFilter extends DetailObject {
       addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup, true);
     }
     
+    // Always exclude clinic research experiments.
+    secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req");
   }
     
   

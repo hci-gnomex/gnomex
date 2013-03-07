@@ -33,11 +33,12 @@ public class RequestSampleFilter extends DetailObject {
   public static final int       COL_SUBMITTER_FIRST_NAME = 3;
   public static final int       COL_ID_REQUEST = 4;
   public static final int       COL_REQUEST_NUMBER = 5;
-  public static final int       COL_ID_SAMPLE = 6;
-  public static final int       COL_SAMPLE_NUMBER = 7;
-  public static final int       COL_SAMPLE_NAME = 8;
-  public static final int       COL_SAMPLE_DESCRIPTION = 9;
-  public static final int       COL_SAMPLE_ID_ORGANISM = 10;
+  public static final int       COL_CODE_REQUEST_CATEGORY = 6;
+  public static final int       COL_ID_SAMPLE = 7;
+  public static final int       COL_SAMPLE_NUMBER = 8;
+  public static final int       COL_SAMPLE_NAME = 9;
+  public static final int       COL_SAMPLE_DESCRIPTION = 10;
+  public static final int       COL_SAMPLE_ID_ORGANISM = 11;
 
   public static final int       PROPCOL_ID_SAMPLE = 2;
   public static final int       COL_ID_PROPERTY = 3;
@@ -60,6 +61,7 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" submitter.firstName, ");
     queryBuf.append(" req.idRequest, ");
     queryBuf.append(" req.number, ");
+    queryBuf.append(" req.codeRequestCategory, ");
     queryBuf.append(" sample.idSample, ");
     queryBuf.append(" sample.number, ");
     queryBuf.append(" sample.name, ");

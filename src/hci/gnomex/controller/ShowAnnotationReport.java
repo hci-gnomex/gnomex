@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -151,6 +152,10 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         hashAnnotations(sess, dh, queryBuf);
         
 
+        Map<Integer, Integer> idsToSkip = new HashMap<Integer, Integer>();
+        if (target.equals(TARGET_SAMPLE)) {
+          idsToSkip = secAdvisor.getBSTXSecurityIdsToExclude(sess, dh, results, RequestSampleFilter.COL_ID_REQUEST, RequestSampleFilter.COL_CODE_REQUEST_CATEGORY);
+        }
         
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
@@ -172,6 +177,11 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             String sampleName = (String)row[RequestSampleFilter.COL_SAMPLE_NAME];
             String sampleDescription = (String)row[RequestSampleFilter.COL_SAMPLE_DESCRIPTION];
             Integer idOrganism = (Integer)row[RequestSampleFilter.COL_SAMPLE_ID_ORGANISM];
+            
+            if (idsToSkip.get(idRequest) != null) {
+              // Skip for BSTX Security
+              continue;
+            }
             
             String labName = Lab.formatLabName(labLastName, labFirstName);
             String submitterName = AppUser.formatName(submitterLastName, submitterFirstName);

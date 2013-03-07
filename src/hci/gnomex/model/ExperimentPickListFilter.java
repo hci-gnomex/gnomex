@@ -23,8 +23,9 @@ public class ExperimentPickListFilter extends DetailObject {
   
   
   
-  public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -76,6 +77,7 @@ public class ExperimentPickListFilter extends DetailObject {
 
     addRequestCriteria();
     addHybCriteria();
+    this.appendExcludeClinicResearchCriteria();
     addSecurityCriteria();
   
   }
@@ -134,6 +136,7 @@ public class ExperimentPickListFilter extends DetailObject {
     
   
     addLaneCriteria();
+    this.appendExcludeClinicResearchCriteria();
     addSecurityCriteria();
   }
   
@@ -201,6 +204,13 @@ public class ExperimentPickListFilter extends DetailObject {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
     
+  
+  private void appendExcludeClinicResearchCriteria() {
+    if (secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req")) {
+      addWhere = false;
+    }
+  }
+
   
   protected boolean addWhereOrAnd() {
     if (addWhere) {

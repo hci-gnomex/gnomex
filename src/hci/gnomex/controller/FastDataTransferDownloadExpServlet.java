@@ -131,6 +131,11 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
             continue;
           }
 
+          if (request.getRequestCategory().getIsClinicalResearch() != null && request.getRequestCategory().getIsClinicalResearch().equals("Y")) {
+            log.error("Clinical Research experiment " + requestNumber + " is are not allowed to download using FDT");
+            continue;
+          }
+          
           // Check permissions - bypass this request if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(request)) {  

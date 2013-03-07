@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateBSTXSession;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -36,6 +37,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
 
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
+  private Document            doc;
   
 
   /**
@@ -60,6 +62,52 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     this.validate();
 
     launchAction  = (String) request.getParameter("launchAction");
+    
+    try {
+      Session sess = HibernateSession.currentSession(this.getUsername());
+      
+      secAdvisor = SecurityAdvisor.create(sess, this.getUsername());
+      
+      if (secAdvisor.canAccessBSTX()) {
+        // Initialize the BSTX Security 
+        Session bstxSession = HibernateBSTXSession.currentBSTXSession(this.getUsername());
+        secAdvisor.getBSTXSecurityAdvisor(request, session, bstxSession, this.getUsername());
+      }
+
+      // Get gnomex version
+      String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+      JarFile jarfile = new JarFile( filename );
+      Manifest manifest = jarfile.getManifest();
+      Attributes value = (Attributes)manifest.getEntries().get("gnomex");
+      secAdvisor.setVersion(value.getValue("Implementation-Version"));
+
+      // Output the security advisor information
+      doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);
+    }
+    catch (InvalidSecurityAdvisorException e) {
+      this.addInvalidField("invalid permission", e.getMessage());
+    }
+    catch (HibernateException ex) {
+      log.error("Hibernate exception while trying to Create Security Advisor: "+ ex);
+      this.addInvalidField("Error", "Hibernate exception while trying to Create Security Advisor: "+ ex);
+    }
+    catch (SQLException ex) {
+      log.error("SQL exception while trying to Create Security Advisor: "+ ex);
+      this.addInvalidField("Error", "SQL exception while trying to Create Security Advisor: "+ ex);
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
+      this.addInvalidField("Error", ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
+    }
+    finally {
+      try {
+        HibernateSession.closeSession();
+      }
+      catch (Exception ex) {
+        log.error("Exception trying to close the Hibernate session: "+ ex);
+      }
+    }
 
     // see if we have a valid form
     if (isValid()) {
@@ -83,47 +131,14 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
   public Command execute() throws RollBackCommandException {
     
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
-      
-      secAdvisor = SecurityAdvisor.create(sess, this.getUsername());
-
-      // Get gnomex version
-      String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-      JarFile jarfile = new JarFile( filename );
-      Manifest manifest = jarfile.getManifest();
-      Attributes value = (Attributes)manifest.getEntries().get("gnomex");
-      secAdvisor.setVersion(value.getValue("Implementation-Version"));
-
-      // Output the security advisor information
-      Document doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);
-      
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
-    }
-    catch (InvalidSecurityAdvisorException e) {
-      this.addInvalidField("invalid permission", e.getMessage());
-    }
-    catch (HibernateException ex) {
-      log.error("Hibernate exception while trying to Create Security Advisor: "+ ex);
-      throw new RollBackCommandException();
-    }
-    catch (SQLException ex) {
-      log.error("SQL exception while trying to Create Security Advisor: "+ ex);
-      throw new RollBackCommandException();
     }
     catch (Exception ex) {
       ex.printStackTrace();
       log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
       throw new RollBackCommandException();
-    }
-    finally {
-      try {
-        HibernateSession.closeSession();
-      }
-      catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
-      }
     }
     
     if (isValid()) {

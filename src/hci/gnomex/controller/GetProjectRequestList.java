@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -154,13 +155,19 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         
         
         Integer maxExperiments = getMaxExperiments(sess);
-        
+
+        Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dictionaryHelper, results, 4, 15);
+
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
           
           
           Integer idProject = row[0] == null ? new Integer(-2) : (Integer)row[0];
           Integer idRequest = row[4] == null ? new Integer(-2) : (Integer)row[4];
+          if (requestsToSkip.get(idRequest) != null) {
+            // skip request due to bstx security.
+            continue;
+          }
           Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
           String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
           String  codeApplication     = row[16]== null ? "" : (String)row[16];

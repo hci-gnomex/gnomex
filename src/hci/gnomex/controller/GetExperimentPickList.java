@@ -96,7 +96,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       TreeMap projectMap = new TreeMap();
       
     
-      StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor());
+      StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetExperimentPickList (1): " + buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybLaneComparator());
