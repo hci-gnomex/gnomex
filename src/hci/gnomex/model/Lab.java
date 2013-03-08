@@ -358,20 +358,40 @@ public class Lab extends HibernateDetailObject {
     }
     return approvedBillingAccounts;
   }
-  
-  public List getPendingBillingAccounts() {
-    ArrayList pendingBillingAccounts = new ArrayList();
+  public List getInternalBillingAccounts() {
+    ArrayList internalBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
       BillingAccount ba = (BillingAccount)i.next();
-      if (ba.getIsApproved() == null || 
-          ba.getIsApproved().equals("") ||
-          ba.getIsApproved().equalsIgnoreCase("N")) {
-        pendingBillingAccounts.add(ba);
+      if ((ba.getIsPO() == null || ba.getIsPO().equals("N")) &&
+          (ba.getIsCreditCard() == null || ba.getIsCreditCard().equals("N"))) {
+        internalBillingAccounts.add(ba);
       }
     }
-    return pendingBillingAccounts;
+    return internalBillingAccounts;
   }
-
+  
+  public List getPOBillingAccounts() {
+    ArrayList poBillingAccounts = new ArrayList();
+    for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
+      BillingAccount ba = (BillingAccount)i.next();
+      if (ba.getIsPO() != null && 
+          ba.getIsPO().equals("Y") ) {
+        poBillingAccounts.add(ba);
+      }
+    }
+    return poBillingAccounts;
+  }
+  public List getCreditCardBillingAccounts() {
+    ArrayList creditCardBillingAccounts = new ArrayList();
+    for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
+      BillingAccount ba = (BillingAccount)i.next();
+      if (ba.getIsCreditCard() != null && 
+          ba.getIsCreditCard().equals("Y") ) {
+        creditCardBillingAccounts.add(ba);
+      }
+    }
+    return creditCardBillingAccounts;
+  }
   public String getExcludeUsage() {
     return excludeUsage;
   }

@@ -23,7 +23,10 @@ public class BillingAccount extends HibernateDetailObject {
   private String     accountNumberAu;
   private String     accountNumberYear;
   private Integer    idFundingAgency;
+  private Integer    idCreditCardCompany;
   private String     isPO;
+  private String     isCreditCard;
+  private String     zipCode;
   private String     isApproved;
   private Date       approvedDate;
   private Date       createDate;
@@ -489,6 +492,32 @@ public class BillingAccount extends HibernateDetailObject {
     this.excludeMethodFromXML("getUsers");
   }
 
+
+  public String getIsCreditCard() {
+    return isCreditCard;
+  }
+
+  public void setIsCreditCard(String isCreditCard) {
+    this.isCreditCard = isCreditCard;
+  }
+
+  public Integer getIdCreditCardCompany() {
+    return idCreditCardCompany;
+  }
+
+  public void setIdCreditCardCompany(Integer idCreditCardCompany) {
+    this.idCreditCardCompany = idCreditCardCompany;
+  }
+
+
+  public String getZipCode() {
+    return zipCode;
+  }
+
+  public void setZipCode(String zipCode) {
+    this.zipCode = zipCode;
+  }
+
   public Long getOrderFormFileSize() {
     return orderFormFileSize;
   }
@@ -496,5 +525,6 @@ public class BillingAccount extends HibernateDetailObject {
   public void setOrderFormFileSize(Long orderFormFileSize) {
     this.orderFormFileSize = orderFormFileSize;
   }
+
  
 }
