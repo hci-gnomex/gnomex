@@ -25,6 +25,7 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
 import hci.gnomex.model.Visibility;
@@ -64,6 +65,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
     try {
     Document doc = new Document(new Element(listKind));
     
+    
     // If this is a guest user and the list is bounded, return an empty lab list
     if (this.getSecAdvisor().isGuest()/* && !labFilter.isUnbounded()*/) {
       
@@ -86,7 +88,9 @@ public class GetLabList extends GNomExCommand implements Serializable {
           otherLabMap.put(idLabOther, idLabOther);        
         }        
       }
-      
+      //workaround until NullPointer exception is dealt with
+      InternalAccountFieldsConfiguration.getConfiguration(sess);
+
       // If this is a non-gnomex University-only user, we want to get
       // all of the active labs
       Map activeLabMap = new HashMap();
@@ -147,11 +151,15 @@ public class GetLabList extends GNomExCommand implements Serializable {
 
           lab.excludeMethodFromXML("getBillingAccounts");
           lab.excludeMethodFromXML("getApprovedBillingAccounts");
-          lab.excludeMethodFromXML("getPendingBillingAccounts");
+          lab.excludeMethodFromXML("getInternalBillingAccounts");
+          lab.excludeMethodFromXML("getPOBillingAccounts");
+          lab.excludeMethodFromXML("getCreditCardBillingAccounts");
           
           lab.excludeMethodFromXML("getProjects");
           
           lab.excludeMethodFromXML("getIsCcsgMember");
+          lab.excludeMethodFromXML("getIsExternalPricing");
+          lab.excludeMethodFromXML("getIsExternalPricingCommercial");
           
           Hibernate.initialize(lab.getInstitutions());
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
