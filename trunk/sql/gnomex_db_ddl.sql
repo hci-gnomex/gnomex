@@ -313,6 +313,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `idCreditCardCompany` INT(10) NULL,
   `isPO` CHAR(1) NULL,
   `isCreditCard` CHAR(1) NULL,
+  `zipCode` CHAR(20) NULL,
   `isApproved` CHAR(1) NULL,
   `approvedDate` DATETIME NULL,
   `createDate` DATETIME NULL,
