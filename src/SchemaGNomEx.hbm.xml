@@ -190,7 +190,10 @@
 		<property name="accountNumberYear" column="accountNumberYear" type="string"/>
 		<property name="expirationDate" column="expirationDate" type="date"/>
 		<property name="idFundingAgency" column="idFundingAgency" type="integer"/>
+		<property name="idCreditCardCompany" column="idCreditCardCompany" type="integer"/>
+		<property name="zipCode" column="zipCode" type="string"/>		
 		<property name="isPO" column="isPO" type="string"/>		
+		<property name="isCreditCard" column="isCreditCard" type="string"/>		
 		<property name="isApproved" column="isApproved" type="string"/>		
 		<property name="approvedDate" column="approvedDate" type="date"/>
 		<property name="createDate" column="createDate" type="date"/>
@@ -1177,6 +1180,16 @@
 		<property name="mageOntologyCode" column="mageOntologyCode" type="string"/>
 		<property name="mageOntologyDefinition" column="mageOntologyDefinition" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+	</class>
+	
+    <!-- hci.gnomex.model.CreditCardCompany -->
+	<class name="hci.gnomex.model.CreditCardCompany" table="CreditCardCompany">
+		<id name="idCreditCardCompany" column="idCreditCardCompany" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string"/>
+		<property name="isActive" column="isActive" type="string"/>
+		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.ExperimentDesign -->
