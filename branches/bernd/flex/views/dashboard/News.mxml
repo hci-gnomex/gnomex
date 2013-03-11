@@ -121,7 +121,7 @@
 			// Call remove HTTPService after confirm in onPromptToDelete.
 			paramDelete.idNewsItem = ci.@idNewsItem;
 			
-			Alert.show("Are you sure you wish to delete this news item??", 
+			Alert.show("Are you sure you wish to delete this news item?", 
 				"Confirm", 
 				(Alert.YES | Alert.NO), this, 
 				onPromptToDelete);

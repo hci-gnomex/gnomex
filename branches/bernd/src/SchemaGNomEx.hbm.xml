@@ -2156,4 +2156,16 @@
 		<property name="idCoreSender"				column="idCoreSender"		type="integer" />
 		<property name="idCoreTarget"				column="idCoreTarget"		type="integer" />
 	</class>
+	
+	<!-- hci.gnomex.model.FAQ -->
+	<class name="hci.gnomex.model.FAQ" table="FAQ">
+		<id name="idFAQ" column="idFAQ" type="integer">
+			<generator class="native" />
+		</id>
+		
+		<property name="title"						column="title"				type="string" />
+		<property name="url"						column="url"				type="string" />
+		<property name="views"						column="views"				type="integer" />
+		
+	</class>
 </hibernate-mapping>

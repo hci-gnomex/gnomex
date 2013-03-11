@@ -6,7 +6,7 @@
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
-	
+
 	<mx:HTTPService 
 		id="notificationInterface" 
 		url="GetNotification.gx"
@@ -19,16 +19,19 @@
 		
 		<mx:request>
 			<workflowCoreFacility>1</workflowCoreFacility>
+			<idUserTarget>{parentApplication.idAppUser}</idUserTarget>
 		</mx:request>
 		
 	</mx:HTTPService>
-	
-	<mx:XMLListCollection id="MIList" source="{notificationInterface.lastResult.NotificationCollection}"/>
-	
+
+	<mx:XMLListCollection id="userData" />
+	<mx:XMLListCollection id="workflowData" />
+	<mx:XMLListCollection id="adminData" />
+	<mx:XMLListCollection id="billingData" />
+	<mx:XMLListCollection id="noteData" />
+
 	<mx:Script>
 		<![CDATA[
-			
-			// Imports
 			import flash.events.TimerEvent;
 			import flash.utils.Timer;
 			
@@ -46,69 +49,126 @@
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectProxy;
 			import mx.utils.ObjectUtil;
 			
-			// Variables
-			
 			[Bindable]
-			public var notificationState:int = 1;
-			
+			public var notificationState:int;
 			
 			public function init():void {
-				Alert.show("Sending the notification interface!");
 				notificationInterface.send();
-				// Retrieve initial SummaryCollection from MetrixServer using controller.
-				//metrixInterface.send();
-				
-				// 1. Retreive based on notificationType
-				// 2. Populate:
-				// 		2 - 1. Date
-				//		2 - 2. Message
-				// 		2 - 3. Link?
-				// 3. 	
 			}
 			
 			private function onGetNotificationInterface(event:ResultEvent):void {
 				if(event.result.name() == "NotificationCollection"){
-					Alert.show(mx.utils.ObjectUtil.toString(MIList));
-					//				filterXLC();
+					if(notificationState == 1){										// User Data
+						userData.source = notificationInterface.lastResult.user;
+						noteData = userData;
+					}else if(notificationState == 2){								// Workflow Data
+						workflowData.source = notificationInterface.lastResult.workflow;
+					}else if(notificationState == 3){								// Admin Data
+						adminData.source = notificationInterface.lastResult.admin;
+						noteData = adminData;
+					}else if(notificationState == 4){								// Billing Data
+						billingData.source = notificationInterface.lastResult.billing;
+						noteData = billingData;
+					}
+					
+					userData.refresh();
+					workflowData.refresh();
+					adminData.refresh();
+					billingData.refresh();
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
 				}
 			}
 			
-			public function repeatHandler():void
+			// The below code will function as a stringbuilder for notifications 
+			// based on the tab-type (sourceType) and field values.
+			public function repeatHandler(rep:Object):String
 			{
+				var notification:String;
+				var sourceType:String = rep.currentItem.@sourceType;
+				var state:String = rep.currentItem.@state;
+				var type:String = rep.currentItem.@type;
+				var expID:String = rep.currentItem.@expId;
 				
+				if(sourceType == "USER"){
+					notification = "Your";
+					
+					if(type == "REQUEST"){
+						if(state == "NEW"){
+							// A new request has been made.
+							notification += " new request (" + expID + "R) has been received.";
+						}else if(state == "EXIST"){
+							// An existing request has been edited.
+							notification = "The existing request (" + expID + "R) has been edited.";
+						}
+					}else if(type == "ANALYSIS"){
+						if(state == "NEW"){
+							// A new analysis has been made.
+							notification += " new analysis for " + expID + "R has been received.";							
+						}else if(state == "EXIST"){
+							// An existing analysis has been edited.
+							notification += "n analysis for " + expID + "R has been edited.";
+						}
+					}
+				}else if(sourceType == "WORKFLOW"){
+					
+				}else if(sourceType == "ADMIN"){
+					notification = "A";
+					
+					if(type == "REQUEST"){
+						if(state == "NEW"){
+							// A new request has been made.
+							notification += " new request (" + expID + "R) has been submitted.";
+						}else if(state == "EXIST"){
+							// An existing request has been edited.
+							notification = "The existing request (" + expID + "R) has been edited.";
+						}
+					}else if(type == "ANALYSIS"){
+						if(state == "NEW"){
+							// A new analysis has been made.
+							notification += " new analysis for " + expID + "R has been received.";							
+						}else if(state == "EXIST"){
+							// An existing analysis has been edited.
+							notification += "n analysis for " + expID + " has been edited.";
+						}
+					}					
+				}else if(sourceType == "BILLING"){
+					if(state == "NEW"){
+						// A new invoice has been made.
+						notification = "The invoice for request " + expID + "R has been created.";
+					}else if(state == "EXIST"){
+						// An existing invoice has been edited.
+						notification = "The invoice for " + expID + "R has been edited.";
+					}					
+				}
+				
+				return notification;
 			}
-			
-			private function filterXLC():void {
-				//			MIList.filterFunction = state_filterFunc;
-				var dateSort:Sort = new Sort();
-				dateSort.fields = [new SortField('date', true, false)];		// Set sort properties - sort on date.
-				dateSort.reverse();											// Reverse the sort list
-			}
-			
-			// Filter to show which run states need to be shown in the control / XMLListCollection 
-			private function state_filterFunc(item:XML):Boolean {
-				// Filter here based on user state and tab state.
-			}
-			
-			private function changeState(state:int):void{
-				notificationState = state;
-				//			metrixInterface.send();
-			}
-			
 		]]>
 	</mx:Script>
 	
-	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
-		<mx:Repeater id="repStatus" dataProvider="" count="3">
-			<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
-				<mx:HBox id="notificationItem" width="100%">
-					
+	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="6">
+		<mx:VBox includeInLayout="{notificationState != 2 ? true : false}">
+			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="6">
+				<mx:VBox  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
+					<mx:HBox id="notificationItem" width="100%">
+						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" fontWeight="bold" />
+						<mx:Label id="noteText" text="{repeatHandler(repStatus)}" />
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Repeater>
+		</mx:VBox>
+		<mx:VBox includeInLayout="{notificationState == 2 ? true : false}">
+			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}">
+				<mx:HBox id="workflowItem" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" backgroundColor="#DEDEDE">
+					<mx:LinkButton id="wfStep" click="{parentApplication.externalViewSwitch(repWorkflow.currentItem.getRepeaterItem().@codeStep)}" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
+					<mx:Spacer width="100%" />
+					<mx:Label id="wfCount" text="{repWorkflow.currentItem.@count}" />
 				</mx:HBox>
-			</mx:VBox>					
-		</mx:Repeater>
+			</mx:Repeater>
+		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

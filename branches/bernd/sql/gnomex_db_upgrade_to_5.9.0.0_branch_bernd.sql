@@ -43,3 +43,13 @@ CREATE TABLE `gnomex`.`Notification` (
 	PRIMARY KEY (`idNotification`)
 )
 ENGINE = INNODB;
+
+-- Create FAQ table
+CREATE TABLE `gnomex`.`FAQ` (
+  `idFAQ` INT(10) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(300) NOT NULL,
+  `url` VARCHAR(500) NOT NULL,
+  `views` INT(10) NULL,
+  PRIMARY KEY (`idFAQ`)
+)
+ENGINE = INNODB;

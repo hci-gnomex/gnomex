@@ -141,7 +141,6 @@
 				}
 				stepsNumExpPre[codeStepNext] = requestNumberCount;
 			}
-			
 		]]> 
 	</mx:Script>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@isActive == 'Y')}" />

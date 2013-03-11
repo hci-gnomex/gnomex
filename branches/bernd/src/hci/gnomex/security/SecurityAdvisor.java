@@ -20,6 +20,7 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.NewsItem;
+import hci.gnomex.model.FAQ;
 import hci.gnomex.model.Notification;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
@@ -950,9 +951,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
           canUpdate = true;
         }
-        
     }
-
+    
+    //
+    // FAQ
+    //
+    else if(object instanceof FAQ){
+    	// Admins
+    	if(hasPermission(this.CAN_WRITE_ANY_OBJECT)){
+    		canUpdate = true;
+    	}
+    }
     return canUpdate;
   }
   
@@ -1307,6 +1316,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     		canDelete = true;
     	}
     }
+    
+    //
+    // FAQ
+    //
+    else if(object instanceof FAQ){
+    	if(hasPermission(this.CAN_MANAGE_DASHBOARD)){
+    		canDelete = true;
+    	}
+    }
+    
     return canDelete;
   }
   

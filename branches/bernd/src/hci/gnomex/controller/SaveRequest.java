@@ -16,6 +16,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -679,11 +680,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 sess.delete(lane);
                 
               }
-              
-              
             }          
           }
-          
         }
         
         // Set the seq lib treatments
@@ -1027,11 +1025,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     request.setDescription(description);
     sess.save(request);
+    String state = "EXIST";
     
     if (requestParser.isNewRequest()) {
       request.setNumber(getNextRequestNumber(request, sess));
       sess.save(request);
-      
+      state = "NEW";
+            
       if (request.getName() == null || request.getName().trim().equals("")) {
         sess.flush();  
         sess.refresh(request);
@@ -1040,11 +1040,29 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     } 
     
+    // Bernd added.
+    sendNotification(request, sess, state, "ADMIN");
+    sendNotification(request, sess, state, "USER");
+    
     originalRequestNumber = request.getNumber();
     
     sess.flush();  
   }
   
+  private void sendNotification(Request req, Session sess, String state, String targetGroup){
+	  Notification note = new Notification();
+	  note.setSourceType(targetGroup);
+	  note.setType("REQUEST");
+	  note.setExpID(Integer.parseInt(req.getRequestNumberNoR(req.getNumber())));
+	  note.setDate(new java.sql.Date(System.currentTimeMillis()));
+	  note.setIdLabTarget(req.getIdLab());
+	  note.setIdUserTarget(req.getIdAppUser());
+	  note.setMessage(state);
+	  
+	  sess.save(note);
+	  sess.flush();
+  }
+
   private String getNextRequestNumber(Request request, Session sess) throws SQLException {
     String requestNumber = "";
     String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);

@@ -10,6 +10,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -374,6 +375,20 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     this.executionLogger.endLogItem(li);
     return readyToInvoice;
     
+  }
+  
+  private void sendNotification(Request req, Session sess, String state, String targetGroup){
+	  Notification note = new Notification();
+	  note.setSourceType(targetGroup);
+	  note.setType("REQUEST");
+	  note.setExpID(Integer.parseInt(req.getRequestNumberNoR(req.getNumber())));
+	  note.setDate(new java.sql.Date(System.currentTimeMillis()));
+	  note.setIdLabTarget(req.getIdLab());
+	  note.setIdUserTarget(req.getIdAppUser());
+	  note.setMessage(state);
+	  
+	  sess.save(note);
+	  sess.flush();
   }
   
   

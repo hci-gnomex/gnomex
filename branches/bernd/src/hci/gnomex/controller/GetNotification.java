@@ -54,7 +54,8 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     	Boolean workflowAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_WORKFLOW_NOTIFICATION);
     	
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
+        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+
         // Process filter calling here 
         Document doc = new Document(new Element("NotificationCollection"));
         
@@ -68,15 +69,15 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             Object[] row = (Object[]) i1.next();
             x = null;
             String sourceType = (String)row[1].toString();
-            if(sourceType == "ADMIN"){
+            if(sourceType.equals("ADMIN")){
             	if(adminAuth){
             		// Set admin level notification node
             		x = new Element("admin");
             	}
-            }else if(sourceType == "USER"){
+            }else if(sourceType.equals("USER")){
             	// Set user level notification node
             	x = new Element("user");
-            }else if(sourceType == "BILLING"){
+            }else if(sourceType.equals("BILLING")){
             	if(billingAuth){
             		// Set billing level notification node
             		if(billingAuth){
@@ -89,15 +90,18 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             
     		x.setAttribute("notificationId",	row[0] == null ? "0" : ((Integer)row[0]).toString());
     		x.setAttribute("sourceType",		row[1] == null ? "" : sourceType);						// Should not be undef.
-    		x.setAttribute("message", 			row[2] == null ? "" : (String)row[2]);
-    		x.setAttribute("date",				row[3] == null ? "" : (String)row[3]);
+    		x.setAttribute("state", 			row[2] == null ? "" : (String)row[2]);
+    		x.setAttribute("date",				row[3] == null ? "" : this.formatDate((java.util.Date)row[3]));
     		x.setAttribute("idTargetUser", 		row[4] == null ? "" : ((Integer)row[4]).toString());
     		x.setAttribute("idTargetLab",		row[5] == null ? "" : ((Integer)row[5]).toString());
     		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
     		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
             
             // Add node content to rootElement XML output.
-            doc.getRootElement().addContent(x);
+    		
+            if(row[0] != null){
+            	doc.getRootElement().addContent(x);	
+            }
         }
   	  
         // If authorized for workflow management 
@@ -123,15 +127,18 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
                   for(Iterator i = rows.iterator(); i.hasNext();) {
                     Object[] row = (Object[])i.next();
                     x = new Element("workflow");
-
+                    
                     x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
                     x.setAttribute("count", 	row[1] == null ? "" : ((Integer)row[1]).toString());
+                    x.setAttribute("sourceType", "WORKFLOW");
+                    x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));
                     
-                    doc.getRootElement().addContent(x);
+                    if((String)row[0] != null){
+                    	doc.getRootElement().addContent(x);
+                    }
                   }
                 }
         	}
-
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
         
@@ -155,7 +162,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+
       }
     }
     

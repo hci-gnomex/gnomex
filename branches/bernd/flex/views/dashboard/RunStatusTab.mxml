@@ -91,23 +91,19 @@
 			
 			if(state == 1){				// Running
 				// Default barcolor is green
-//				mainTitle.text = "Active Runs";
 				bar.setStyle("barColor", "#4BAD2F"); // Green
 				bar.label = cur + " / " + tot + " Cycles";
 				bar.mode = "manual";
 				bar.indeterminate=false;
 			}else if(state == 2){		// Finished
-//				mainTitle.text = "Finished Runs";
 				bar.setStyle("barColor", "#7A9BF0");
 				cur = 100;
 				tot = 100;
 				bar.mode = "manual";
 				bar.indeterminate=false;
-				//bar.label = event.currentTarget.getRepeaterItem().runId + " has finished";
 				bar.label = "Finished";
 				bar.setProgress(cur,tot);
 			}else if(state == 3){		// Error
-//				mainTitle.text = "Runs with errors";
 				bar.setStyle("barColor", "#EB1515"); // Red
 				cur = 100;
 				tot = 100;
@@ -116,7 +112,6 @@
 				bar.label="Error! Please review metrics";
 				bar.setProgress(cur,tot);
 			}else if(state == 4){ 		// Turn
-//				mainTitle.text = "Runs that need to be turned";
 				cur = 100;
 				tot = 100;
 				bar.mode = "manual";
@@ -125,7 +120,6 @@
 				bar.label="Please turn flowcell " + event.currentTarget.getRepeaterItem().flowcellID;
 				bar.setProgress(cur,tot);
 			}else if(state == 5){ 		// Init
-//				mainTitle.text = "Initializing Runs";
 				bar.setStyle("barColor", "#FC8D1E"); // Orange
 				bar.indeterminate=true;
 				bar.setStyle("indeterminateMoveInterval", "60");
@@ -174,7 +168,7 @@
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
 		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
-			<mx:VBox borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
+			<mx:VBox cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE">
 				<mx:HBox id="runProgress" width="100%">
 					<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />
 					<mx:Label id="seqMachineVal" text="{repStatus.currentItem.instrument}" />

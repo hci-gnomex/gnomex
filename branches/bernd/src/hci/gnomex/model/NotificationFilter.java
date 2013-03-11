@@ -38,6 +38,8 @@ public class NotificationFilter extends DetailObject {
     addBaseQueryBody(queryBuf);
     addRequestCriteria();
     
+    System.out.println("Query: " + idUserTarget+ " --- " + queryBuf);
+    
     return queryBuf;
   }
 
