@@ -587,7 +587,7 @@
 
  <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
 	
-    <mx:ViewStack id="navStack" width="280" height="100%">
+    <mx:ViewStack id="navStack" width="250" height="100%">
 
  		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95">
 		      <mx:change>onTabChange()</mx:change>
@@ -650,21 +650,19 @@
 						
 					</mx:ViewStack>
 
-					  <mx:VBox verticalGap="4" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
+					  <mx:VBox verticalGap="2" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
 						  <mx:HBox  horizontalGap="0">
-							  <mx:Text text="Core Facility" width="80"  styleName="labelSmall"/>
-							  <mx:ComboBox width="170" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
-										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()">			       	
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
+										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility...">			       	
 							  </mx:ComboBox>
 						  </mx:HBox>
 						  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
-							  <mx:Text text="Department" width="80"  styleName="labelSmall"/>
+							  <mx:Text text="Department" width="70"  styleName="labelSmall"/>
 							  <mx:TextInput id="deptSearchText" editable="true" styleName="labelSmall" change="labs.refresh()" width="100%" toolTip="Type department name here to filter labs by department." backgroundColor="#FFFFFF"/>
 						  </mx:HBox>
 						  <mx:CheckBox id="isExternalCheckbox"  styleName="labelSmall" click="refreshGroupList()" label="External" selected="false"/>
 						  <mx:HBox  horizontalGap="0">
-							  <mx:Text text="Instititution" width="80"  styleName="labelSmall"/>
-							  <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()">			       	
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution...">			       	
 							  </mx:ComboBox>
 						  </mx:HBox>
 					  </mx:VBox>
