@@ -5,7 +5,7 @@
 	<!-- All                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all" depends="init">
+	<target name="all" depends="initClassPath">
 		<antcall target="clean" />
 		<antcall target="compile" />
 		<antcall target="jar" />
@@ -21,7 +21,7 @@
 	<!-- All (tomcat)                                   -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-tomcat" depends="init">
+	<target name="all-tomcat" depends="initClassPathOpenSource">
 		<antcall target="clean" />
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
@@ -37,7 +37,7 @@
 	<!-- All (opensource)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource" depends="init">
+	<target name="all-opensource" depends="initClassPathOpenSource">
 		<antcall target="clean" />
 		<antcall target="-build-opensource-orion" />
 		<antcall target="deploy" />
@@ -48,7 +48,7 @@
 	<!-- All (opensource tomcat)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-tomcat" depends="init">
+	<target name="all-opensource-tomcat" depends="initClassPathOpenSource">
 		<antcall target="clean" />
 		<antcall target="build-opensource-tomcat" />
 		<antcall target="deploy-tomcat" />
@@ -59,8 +59,9 @@
 	<!-- Release                                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="release" depends="init">
+	<target name="release" depends="initClassPathOpenSource">
 		<antcall target="clean" />
+		<antcall target="initClassPathOpenSource" />
 		<antcall target="-release-opensource" />
 	</target>
 
@@ -70,19 +71,16 @@
 	<!-- Clean                                          -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="clean" depends="init">
+	<target name="clean" >
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Cleaning                                             +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 
-		<delete includeEmptyDirs="true" quiet="false" verbose="true">
+		<delete includeEmptyDirs="true" quiet="true" verbose="false">
 		    <fileset dir="${dist.dir}" />
 		</delete>
-
-
-
 	</target>
 
 
@@ -98,14 +96,15 @@
 	<!-- Compile                                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="compile" depends="init, -classPath, -classPathAlt">
+	<target name="compile" depends="init">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Compiling                                            +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
+		
 
-      	<javac
+      	<javac 
             destdir="${build.class.dir}"
             debug="${compiler.debug}"
             deprecation="${compiler.deprecation}"
@@ -115,7 +114,8 @@
             <src path="${src.dir}" />
       		<exclude name="**/fdt/**"/>      		
       		<exclude name="**/tomcat/**"/>      		
-		    <exclude name="**/*Tomcat**"/>      		
+		    <exclude name="**/*Tomcat**"/>  
+
         </javac>
 	</target>
 
@@ -183,6 +183,8 @@
 		<echo>+  Building jar files                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
+			<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
+
 		<delete>
 			<fileset dir="${dist.dir}" includes="${jar.name}" />
 		</delete>
@@ -194,6 +196,7 @@
             <fileset dir="${build.class.dir}">
             	<exclude name="hci/gnomex/httpclient/*.class" />
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
+            	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -236,6 +239,7 @@
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
             	<exclude name="hci/gnomex/utility/CachedSessionFactory.class" />
             	<exclude name="hci/gnomex/utility/CachedGuestSessionFactory.class" />
+            	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -716,6 +720,18 @@
 	<!--                                                -->
 	<!-- ============================================== -->
 	<target name="-prebuild-opensource" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+   prebuildbuild opensource                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+	    <path id="project.class.path">
+	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+	      <fileset dir="${lib.dir}" 				includes="*.jar" />
+	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
+	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
+	    </path>
+		<property name="bstx.exclude.class" value=""/>
 		
 		<!-- Copy gnomex META-INF, scripts and lib dir -->
   	    <copy todir="${sandbox.dir}">
@@ -789,7 +805,7 @@
 	<!-- build opensource orion                         -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-build-opensource-orion" depends="init, -prebuild-opensource">
+	<target name="-build-opensource-orion" depends="-prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+   build opensource (orion)                            +</echo>
@@ -802,6 +818,7 @@
 			match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
 		    replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
+
 			
 		<!-- Build ear, allowing http (nonsecure) connections -->
 		<subant target="ear">
@@ -1246,7 +1263,6 @@
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />		
        	<mkdir dir="${dist.dir}" />
-		
 
 		
         <path id="project.tomcat.class.path">
@@ -1263,7 +1279,11 @@
 	    	  	<include name="**/*.mxml"/>
 	    		</srcfiles>
 	  	</uptodate>
+		
+		
 	</target>
+	
+	
 
 
     <!-- ============================================== -->
@@ -1315,40 +1335,57 @@
 			
 	</target>
 	
-
-    <!-- ============================================== -->
-	<!--                                                -->
-	<!-- Set the class path for compiling               -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="-classPath" depends="init" if="hcienv.dir.exists">
-	    <echo>${lib.hcienv.dir} exists</echo>
-	  	
-	    <path id="project.class.path">
-	      <fileset dir="${lib.hcienv.dir}" includes="*.jar"/>
-	      <fileset dir="${lib.dir}" 				includes="*.jar" />
-	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
-	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
-	    </path>
 	
-	</target>
 	
     <!-- ============================================== -->
 	<!--                                                -->
-	<!-- Set the class path for compiling (open source) -->
+	<!-- Set the class path for compiling with hciEnv   -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-classPathAlt" depends="init" unless="hcienv.dir.exists">
-	    <echo>${lib.hcienv.dir} missing</echo>
-	  	
+	<target name="initClassPath" depends="init" >
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  initClassPath                                        +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<!-- The default depends on hciEnv jars.                               -->
+		<!-- (This is overridden in opensource target initClassPathOpenSource  -->
 	    <path id="project.class.path">
 	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
 	      <fileset dir="${lib.dir}" 				includes="*.jar" />
 	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
 	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
 	    </path>
+	
+		<!-- The default build will include the 'dummy' BSTX class from the jar. -->
+		<!-- (This is overridden in opensource target -initClassPathOpenSource   -->
+		<property name="bstx.exclude.class" value="hci/bstx/utility/*.class"/>
+		
+		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
+	</target>
+
+	
+    <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Set the class path for compiling (open source) -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="initClassPathOpenSource" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  initClassPathOpenSource                              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<path id="project.class.path">
+			      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+			      <fileset dir="${lib.dir}" 				includes="*.jar" />
+			      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
+			      <fileset dir="${orion.dir}" 			    includes="*.jar" />
+	    </path>
+		<property name="bstx.exclude.class" value=""/>
+
+		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
 	</target>
 	
-
 
 </project>
