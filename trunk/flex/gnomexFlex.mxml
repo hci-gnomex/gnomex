@@ -947,8 +947,8 @@
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
 			
 			
-			public var MAX_DOWNLOAD_SIZE_DISPLAY:String = '1 GB';
-			public var MAX_DOWNLOAD_SIZE:Number = Math.pow(1024,3);
+			public var MAX_DOWNLOAD_SIZE_DISPLAY:String = '300 MB';
+			public var MAX_DOWNLOAD_SIZE:Number = new Number(314572800); //300 MB
 			
 			private var appProgressBar:AppProgressView;
 			private var currentProgressInterval:uint = 0;
