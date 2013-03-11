@@ -367,13 +367,9 @@
 							(Alert.YES | Alert.NO), this, 
 							onPromptToRemoveFile,						
 							parentApplication.iconWarning);
-					} /* else {
-						Alert.show("Are you sure you want to remove the file?",
-							"Confirm",
-							(Alert.YES | Alert.NO), this, 
-							onPromptToRemoveFile,						
-							parentApplication.iconWarning);
-					} */
+					}  else {
+						removeAnalysisFileImpl();
+					} 
 				} else if (this.filesGrid.selectedItems.length > 1 || this.downloadTree.selectedItems.length > 1) {
 					if ( dataTrackFileSelected() ) {
 						Alert.show("At lease one selected file is linked to a data track.  Do you want to remove the files and delete any associated data tracks?",
@@ -381,13 +377,9 @@
 							(Alert.YES | Alert.NO), this, 
 							onPromptToRemoveFile,						
 							parentApplication.iconWarning);
-					} /* else {
-						Alert.show("Are you sure you want to remove the files?",
-							"Confirm",
-							(Alert.YES | Alert.NO), this, 
-							onPromptToRemoveFile,						
-							parentApplication.iconWarning);
-					} */
+					}  else {
+						removeAnalysisFileImpl();
+					} 
 				}
 			}
 			

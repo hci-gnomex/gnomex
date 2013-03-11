@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,6 +32,9 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
@@ -91,9 +95,15 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         List results = (List)sess.createQuery(queryBuf.toString()).list();
         
+        Map<Integer, Integer> idsToExclude = secAdvisor.getBSTXSecurityIdsToExclude(sess, dh, results, ProjectExperimentReportFilter.COL_IDREQUEST, ProjectExperimentReportFilter.COL_CODE_REQUEST_CATEGORY);
+        
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
 
+          if (idsToExclude.get((Integer)row[ProjectExperimentReportFilter.COL_IDREQUEST]) != null) {
+            // skip due to BSTX security
+            continue;
+          }
           ReportRow reportRow = makeReportRow(row, dateFormat, dh);
           tray.addRow(reportRow);
         }
@@ -152,7 +162,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     tray.setReportTitle(title);
     tray.setReportDescription(title);
     tray.setFileName(fileName);
-    tray.setFormat(ReportFormats.XLS);
+    tray.setFormat(ReportFormats.CSV);
     
     Set columns = new TreeSet();
     columns.add(makeReportColumn("Lab", 1));
@@ -167,7 +177,9 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     columns.add(makeReportColumn("Visibility", 10));
     columns.add(makeReportColumn("Description", 11));
     columns.add(makeReportColumn("Organism", 12));
-    columns.add(makeReportColumn("# Samples", 13));
+    columns.add(makeReportColumn("Project Name", 13));
+    columns.add(makeReportColumn("Project Description", 14));
+    columns.add(makeReportColumn("# Samples", 15));
     
     
     tray.setColumns(columns);
@@ -185,6 +197,18 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
     
+    
+    String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
+    description = this.cleanRichText(description);
+
+    String projectDescription = (String)row[ProjectExperimentReportFilter.COL_PROJECT_DESCRIPTION];
+    if (projectDescription == null) {
+      projectDescription = "";
+    } else {
+      projectDescription = projectDescription.replaceAll("\r", "\n");
+    }
+
+    
     String labLastName = (String)row[ProjectExperimentReportFilter.COL_LAB_LASTNAME];
     String labFirstName = (String)row[ProjectExperimentReportFilter.COL_LAB_FIRSTNAME];
     String ownerLastName = (String)row[ProjectExperimentReportFilter.COL_OWNER_LASTNAME];
@@ -196,12 +220,12 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     Date modifyDate = (Date)row[ProjectExperimentReportFilter.COL_MODIFY_DATE];
     String codeVisibility = (String)row[ProjectExperimentReportFilter.COL_CODE_VISIBILITY];
     Date completeDate = (Date)row[ProjectExperimentReportFilter.COL_COMPLETED_DATE];
-    String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
     Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
     Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
     String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
     String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
     String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
+    String projectName = (String)row[ProjectExperimentReportFilter.COL_PROJECT_NAME];
 
     String labName = Lab.formatLabName(labLastName, labFirstName);
     String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
@@ -214,24 +238,95 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
     String organism = dh.getOrganism(idOrganism);
     
-    values.add(labName);
-    values.add(number);
-    values.add(requestName);
-    values.add(ownerName);
-    values.add(submitterName);
-    values.add(requestCategory);
-    values.add(application);
-    values.add(createDateString);
-    values.add(modifyDateString);
-    values.add(visibility);
-    values.add(description);
-    values.add(organism);
-    values.add(numSamples.toString());
+    values.add(surroundWithQuotes(labName));
+    values.add(surroundWithQuotes(number));
+    values.add(surroundWithQuotes(requestName) );
+    values.add(surroundWithQuotes(ownerName) );
+    values.add(surroundWithQuotes(submitterName) );
+    values.add(surroundWithQuotes(requestCategory) );
+    values.add(surroundWithQuotes(application) );
+    values.add(surroundWithQuotes(createDateString) );
+    values.add(surroundWithQuotes(modifyDateString) );
+    values.add(surroundWithQuotes(visibility) );
+    values.add(surroundWithQuotes(description) );
+    values.add(surroundWithQuotes(organism) );
+    values.add(surroundWithQuotes(projectName) );
+    values.add(surroundWithQuotes(projectDescription) );
+    values.add(surroundWithQuotes(numSamples.toString()) );
    
     reportRow.setValues(values);
     
     return reportRow;
   }
+  
+  private Object surroundWithQuotes(Object value) {
+    if (value == null) {
+      value = "";
+    }
+    return "\"" + value.toString() + "\"";
+  }
+  
+  private String cleanText(String description) {
+    Pattern pattern = Pattern.compile("\\x0d");
+    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
+
+    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
+    if (tokens.length > 0) {
+      StringBuffer buf = new StringBuffer();
+      for (int x = 0; x < tokens.length; x++) {
+        buf.append(tokens[x]);
+        buf.append("\n");
+      }
+      description = buf.toString();
+    } 
+    return description.toString();
+  }
+  
+  private String cleanRichText(String description) {
+
+    if (description == null) {
+      return "";
+    } else if (description.trim().equals("")) {
+      return "";
+    }
+   
+    Pattern paragraph = Pattern.compile("<P.*?>");
+    description = paragraph.matcher(description).replaceAll("");
+    
+    Pattern pattern = Pattern.compile("<\\/P.*?>");
+    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
+
+    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
+    if (tokens.length > 0) {
+      StringBuffer buf = new StringBuffer();
+      for (int x = 0; x < tokens.length; x++) {
+        buf.append(tokens[x]);
+        buf.append("\n");
+      }
+      description = buf.toString();
+    } 
+    
+    
+    pattern = Pattern.compile("<B.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/B.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<U.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/U.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<LI.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/LI.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<I.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    pattern = Pattern.compile("<\\/I.*?>");
+    description = pattern.matcher(description).replaceAll("");
+    
+    return description;
+  }
+  
   /* (non-Javadoc)
    * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
    */

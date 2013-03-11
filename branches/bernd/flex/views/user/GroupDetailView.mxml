@@ -91,6 +91,11 @@
 			private var fileRef:FileReference = new FileReference();
 			public var uploadPurchaseOrderURL:String;
 			
+			private var lastIdCoreFacility:Object = null;
+			
+			[Bindable]
+			private var showApproveCol:Boolean = false;
+			
 			public function initializeData():void {
 				// Get the list of all users
 				parentApplication.navUsersView.getAppUserList.send();
@@ -101,22 +106,16 @@
 				parentApplication.promptedAppUserList.refresh();
 				
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
+
 				
 				if (parentApplication.useConfigurableBillingAccounts) {
-					var newPendingCols:Array = new Array();
 					var newActiveCols:Array = new Array();
-					var oldPendingCols:Array = this.pendingBillingAccountGrid.columns;
 					var oldActiveCols:Array = this.billingAccountGrid.columns;
-					configureAccountColumns(oldActiveCols, newActiveCols);
-					configureAccountColumns(oldPendingCols, newPendingCols);
-					this.pendingBillingAccountGrid.columns = newPendingCols;
-					this.pendingBillingAccountGrid.dataProvider = pendingBillingAccounts;
 					this.billingAccountGrid.columns = newActiveCols;
 					this.billingAccountGrid.dataProvider = billingAccounts;
 				}
 				
-				pendingBillingAccounts.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingPendingAccountChange);
-				pendingBillingAccounts.refresh();
+				
 			}
 			
 		
@@ -152,14 +151,13 @@
 			}
 			
 			private function isInternalAccountField(col:DataGridColumn):Boolean {
-				if (col == this.busCol || col == this.pendingBusCol
-					|| col == this.orgCol || col == this.pendingOrgCol
-					|| col == this.fundCol || col == this.pendingFundCol
-					|| col == this.activityCol || col == this.pendingActivityCol
-					|| col == this.projectCol || col == this.pendingProjectCol
-					|| col == this.accountCol || col == this.pendingAccountCol
-					|| col == this.auCol || col == this.pendingAuCol
-					|| col == this.yearCol || col == this.pendingYearCol) {
+				if (col == this.busCol ||
+					 col == this.orgCol || 
+					 col == this.fundCol ||
+					 col == this.activityCol ||
+					 col == this.projectCol || 
+					 col == this.accountCol ||
+					 col == this.auCol ) {
 					return true;
 				} else {
 					return false;
@@ -231,17 +229,9 @@
 			
 			private function getConfigurableAccountFieldName(col:DataGridColumn):String {
 				var fieldName:String = "";
-				if (col == this.pendingStartDateCol || col == this.startDateCol) {
-					fieldName = "startDate";
-				} else if (col == this.pendingExpirationDateCol || col == this.expirationDateCol) {
+				if (col == this.poExpirationDateCol || this.ccExpirationDateCol || col == this.expirationDateCol) {
 					fieldName = "expirationDate";
-				} else if (col == this.pendingFundingAgencyCol || col == this.fundingAgencyCol) {
-					fieldName = "idFundingAgency";
-				} else if (col == this.pendingTotalDollarAmountCol || col == this.totalDollarAmountCol) {
-					fieldName = "totalDollarAmount";
-				} else if (col == this.pendingShortAcctCol || col == this.shortAcctCol) {
-					fieldName = "shortAcct";
-				}
+				} 
 				
 				return fieldName;
 			}
@@ -268,15 +258,32 @@
 			private function getSelectedCoreFacilityId():String {
 				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
 					return parentApplication.coreFacilitiesICanManage[0].@value;
-				} else {
+				} else if (coreFacilityCombo.selectedItem == null) {
+					return "";
+				} else  {
 					return coreFacilityCombo.selectedItem.@value;
 				}
 			}
 			
 			private function addBillingAccount():void {
 				dirty.setDirty();
+				
+				var isPO:String = "N";
+				var isCreditCard:String = "N";
+				
+				if (this.getSelectedCoreFacilityId() == '') {
+					Alert.show("Please select the core facility from the dropdown.");
+					return;
+				}
+				
+				if (this.poCheckBox.selected) {
+					isPO = "Y";
+				} else if (this.creditCardCheckBox.selected) {
+					isCreditCard = "Y";
+				}
+				
 				var node:XML = new XML("<BillingAccount " +
-					" idBillingAccount='" + "BillingAccount" + billingAccounts.length + "'" +
+					" idBillingAccount='" + "BillingAccount" + isCreditCard + isPO + accountName.text + "'" + 
 					" accountName='" + accountName.text + "'" +
 					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
 					" expirationDateOther=''" + 
@@ -291,22 +298,43 @@
 					" accountNumberYear=''" +  
 					" shortAcct=''" +
 					" isDirty='Y'" +
-					" isPO='N'" +
+					" isPO='" + isPO + "'" +
+					" isCreditCard='" + isCreditCard + "'" +
+					" zipCode=''" +
 					" isApproved='Y'" +
 					" isSelectedPeerReviewedFunding='false'" + 
 					"/>");
-				allApprovedAccounts.addItem(node);
+				
+				if (this.poCheckBox.selected) {
+					this.poBillingAccounts.addItem(node);
+				} else if (this.creditCardCheckBox.selected) {
+					this.creditCardBillingAccounts.addItem(node);
+				} else {
+					this.billingAccounts.addItem(node);
+				}
+				
+				allBillingAccounts.addItem(node);				
 				accountName.text = '';
 				
-				refreshDisplayedAccounts();
+				//refreshDisplayedAccounts();
 			}
 			
-			private function removeBillingAccount():void {
+			private function removeBillingAccount(theBillingAccountGrid:DataGrid):void {
 				dirty.setDirty();
-				if (billingAccountGrid.selectedIndex != -1) {
-					var ba:Object = billingAccountGrid.selectedItem;
-					allApprovedAccounts.removeItemAt( allApprovedAccounts.getItemIndex(ba) );
+				var ba:Object = theBillingAccountGrid.selectedItem;
+				if (theBillingAccountGrid == billingAccountGrid && theBillingAccountGrid.selectedIndex != -1) {
 					billingAccounts.removeItemAt( billingAccounts.getItemIndex(ba) );
+				} else  if (theBillingAccountGrid == billingAccountPOGrid && theBillingAccountGrid.selectedIndex != -1) {
+					poBillingAccounts.removeItemAt( poBillingAccounts.getItemIndex(ba) );
+				} else if (theBillingAccountGrid == this.billingAccountCreditCardGrid && theBillingAccountGrid.selectedIndex != -1) {
+					creditCardBillingAccounts.removeItemAt( creditCardBillingAccounts.getItemIndex(ba) );
+				}
+				for each(var ba1:Object in allBillingAccounts) {
+					if (ba1 == ba) {
+						allBillingAccounts.removeItemAt(allBillingAccounts.getItemIndex(ba1));
+					} else if (ba1.@idBillingAccount == ba.@idBillingAccount) {
+						allBillingAccounts.removeItemAt(allBillingAccounts.getItemIndex(ba1));
+					}
 				}
 			}
 			private function addInstitution():void {
@@ -473,16 +501,14 @@
 					}
 				}
 				
-				for each(var ba:Object in allApprovedAccounts) { 
-						if(ba.@isPO == "Y") {
-							if (!this.isChartFieldBlank(ba)) {
-								if (warningMessage != "") {
-									warningMessage += "\n";
-								}
-								warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
-							}
+				for each(var ba:Object in poBillingAccounts) { 
+					if (!this.isChartFieldBlank(ba)) {
+						if (warningMessage != "") {
+							warningMessage += "\n";
 						}
-					}	
+						warningMessage += "Chart fields will be blanked out for PO account " + ba.@accountName + ".";
+					}
+				}	
 				
 				if (warningMessage == "") {
 					save();
@@ -506,9 +532,7 @@
 				var badAccounts:Object = new Object;
 				var coreFacility:String = "";
 				var regEx:RegExp = /[^0-9]/;
-				var allAccounts:XMLListCollection = allApprovedAccounts;
-				allAccounts.addAll(pendingBillingAccounts);
-				for each(var ba:Object in allAccounts) {
+				for each(var ba:Object in billingAccounts) {
 					// skip if billing account in core facility they can't see.
 					if (!parentApplication.isCoreFacilityIManage(ba.@idCoreFacility)) {
 						continue;
@@ -545,9 +569,6 @@
 							errors.addItem("    - A/U must be 1 digit.");
 						}
 					}
-					if (ba.@accountNumberYear.toString().length != 4 || ba.@accountNumberYear.toString().search(regEx) != -1) {
-						errors.addItem("    - Year must be 4 digits.");
-					}
 					if ((ba.@accountNumberActivity.toString().length != 5 || ba.@accountNumberActivity.toString().search(regEx) != -1) && ba.@accountNumberProject == '') {
 						errors.addItem("    - Activity must be 5 digits.");
 					}
@@ -565,9 +586,30 @@
 			}
 			
 			private function save():void {
+				// Add back all of the billing accounts filtered by core facility.  We want the backend
+				// to save all billing accounts; otherwise, the other core facilities billing accounts
+				// will be removed from the set.
+
+				var billingAccount:Object;
+				var billingAccountsToSave:XMLListCollection = new XMLListCollection();
+				billingAccountsToSave.addAll(billingAccounts);
+				billingAccountsToSave.addAll(poBillingAccounts);
+				billingAccountsToSave.addAll(creditCardBillingAccounts);
+				for each(billingAccount in allBillingAccounts) {
+					var latestBillingAccount:Object = null;
+					for each(var ba1:Object in billingAccountsToSave) {
+						if (ba1.idBillingAccount != "" && ba1.@idBillingAccount == billingAccount.@idBillingAccount) {
+							latestBillingAccount = ba1;
+							break;
+						}
+					}
+					if (latestBillingAccount == null) {
+						billingAccountsToSave.addItem(billingAccount);
+					}
+				}
 				
 				// Blank out chartfields on PO accounts
-				for each(var ba:Object in allApprovedAccounts) {
+				for each(var ba:Object in poBillingAccounts) {
 					if (ba.hasOwnProperty("@isDirty") && ba.@isDirty == 'Y') {
 						if(ba.@isPO == "Y") {
 							this.blankOutChartFields(ba);
@@ -603,17 +645,14 @@
 				params.billingContactEmail = this.billingContactEmail.text;
 				params.includePiInBillingEmails = this.piInBillingEmailsCheckbox.selected ? "Y" : "N";
 				
-				for each(var acct:Object in allApprovedAccounts) {
+				var acct:Object;
+				for each(acct in billingAccountsToSave) {
 					acct.@expirationDate = acct.@expirationDateOther;
 					acct.@startDate = acct.@startDateOther;
 				}
 				
-				for each(var pendingAcct:Object in pendingBillingAccounts) {
-					pendingAcct.@expirationDate = pendingAcct.@expirationDateOther;
-					pendingAcct.@startDate = pendingAcct.@startDateOther;
-				}
 				
-				params.accountsXMLString = "<billingAccounts>" + allApprovedAccounts.toXMLString() + " " + pendingBillingAccounts.toXMLString() + "</billingAccounts>";
+				params.accountsXMLString = "<billingAccounts>" + billingAccountsToSave.toXMLString() + "</billingAccounts>";
 				params.institutionsXMLString = "<institutions>" + institutions.toXMLString() + "</institutions>";
 				params.membersXMLString = "<members>" + members.toXMLString() + "</members>";
 				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
@@ -647,21 +686,43 @@
 			}
 			
 			private function refreshBillingTab():void {
-				coreFacilityCombo.selectedIndex = 0;
+				var found:Boolean = false;
+				for each (var cf:Object in labCoreFacilitiesIManage) {
+					if (cf.@idCoreFacility == lastIdCoreFacility) {
+						coreFacilityCombo.selectedItem = cf;
+						found = true;
+						break;
+					}
+				}
+				if (!found && labCoreFacilitiesIManage.length > 1) {
+					coreFacilityCombo.selectedIndex = 1;
+				}
+				
 				
 				refreshDisplayedAccounts(); 
-				pendingBillingAccounts.refresh();
 			}
 			
+			
 			public function refreshDisplayedAccounts():void{
-				billingAccounts.source = parentDocument.fullLab.approvedBillingAccounts.BillingAccount
+				
+				billingAccounts.source = parentDocument.fullLab.internalBillingAccounts.BillingAccount
 				billingAccounts.filterFunction = filterByCore;
 				billingAccounts.refresh();
+				poBillingAccounts.source = parentDocument.fullLab.pOBillingAccounts.BillingAccount
+				poBillingAccounts.filterFunction = filterByCore;
+				poBillingAccounts.refresh();
+				creditCardBillingAccounts.source = parentDocument.fullLab.creditCardBillingAccounts.BillingAccount
+				creditCardBillingAccounts.filterFunction = filterByCore;
+				creditCardBillingAccounts.refresh();
+				
+				showHideApproveColumn();
+
 			}
+			
 			
 			private function onGetLab(event:ResultEvent):void {
 				parentDocument.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
-				
+
 				var isOnlyCoreIManage:Boolean = false;
 				if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
 					for each ( var cf:Object in parentDocument.fullLab..CoreFacility ) {
@@ -797,7 +858,7 @@
 				
 			}
 			
-			public function initForNewLab():void {
+			public function initializeLab():void {
 				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
 					var facility:Object = coreFacilities.getItemAt(x);
 					coreFacilityCheckbox[x].selected = false;
@@ -831,6 +892,13 @@
 				
 				if ( targetGrid.selectedItem != null ) {
 					showEditBillingAcctWindow(targetGrid.selectedItem as XML);
+				}
+			}
+			
+			public function approveBillingAccount(event:MouseEvent):void {
+				if (event.target != null && event.target.data != null) {
+					event.target.data.@isApproved = 'Y';
+					this.dirty.setDirty();
 				}
 			}
 			
@@ -882,13 +950,37 @@
 				cb.setStyle("fontStyle", cb.selected ? "italic" : "normal");
 				cb.setStyle("fontWeight", cb.selected ? "bold" : "normal");
 			}
+			
+			private function showHideApproveColumn():void {
+				// Only show the Approve column in the chartfields grid if we have
+				// at least one billing account that is pending approval	
+				showApproveCol = false;
+				for each(var ba:Object in this.billingAccounts) {
+					if (ba.@isApproved != 'Y') {
+						showApproveCol = true;
+						break;
+					}
+				} 
+				
+			}
+			
+			private function onCoreFacilitySelected():void {
+				billingAccounts.refresh();
+				poBillingAccounts.refresh();
+				creditCardBillingAccounts.refresh();
+				
+				showHideApproveColumn();
+			}
+				
 
 		]]>
 	</mx:Script>	  
 	
-	<mx:XMLListCollection id="billingAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
-	<mx:XMLListCollection id="allApprovedAccounts" source="{parentDocument.fullLab.approvedBillingAccounts.BillingAccount}"/>
-	<mx:XMLListCollection id="pendingBillingAccounts" source="{parentDocument.fullLab.pendingBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	
+	<mx:XMLListCollection id="allBillingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}" />
+	<mx:XMLListCollection id="billingAccounts"   source="{parentDocument.fullLab.internalbillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="poBillingAccounts"  source="{parentDocument.fullLab.pObillingAccounts.BillingAccount}" filterFunction="filterByCore"   />
+	<mx:XMLListCollection id="creditCardBillingAccounts"   source="{parentDocument.fullLab.creditCardbillingAccounts.BillingAccount}" filterFunction="filterByCore"  />
 	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
 	<mx:XMLListCollection id="institutions1" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}"/>
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
@@ -929,16 +1021,18 @@
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%" verticalAlign="middle">
 								<mx:Label text="PI Email(s)" toolTip="For multiple email addresses, place a comma between emails."  styleName="formLabel"/>
+								<mx:Label text="Place , between emails" fontStyle="italic" textAlign="left" color="#076211"/>
 							</mx:HBox>
 							<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@contactEmail}" width="220"/>
-							<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()" paddingTop="0" paddingBottom="0"/>
+							<mx:Label text="PI gets billing emails + notifications." fontStyle="italic" textAlign="left" color="#076211"/>
+							<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()" paddingTop="0" paddingBottom="0" visible="false" includeInLayout="false"/>
 						</mx:VBox>
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%">
 								<mx:Label text="Billing Contact Email(s)"  styleName="formLabel" toolTip="For multiple email addresses, place a comma between emails."/>
 							</mx:HBox>
 							<util:TextAreaWorkaround id="billingContactEmail" text="{parentDocument.fullLab.@billingContactEmail}" width="260" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@billingContactEmail}"/>
-							<mx:Label text="Place a comma between emails." fontStyle="italic" textAlign="left" color="#076211"/>
+							<mx:Label text="Billing contact gets only billing emails." fontStyle="italic" textAlign="left" color="#076211"/>
 						</mx:VBox>
 					</mx:HBox>
 				</mx:HBox>
@@ -1137,155 +1231,195 @@
 			</mx:HBox>
 			
 			
-			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="0" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="0">
-				<mx:HBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle">
+			<mx:VBox label="Billing Accounts" id="billingAccountsTab" width="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="0">
+				<mx:HBox paddingBottom="2">
 					<mx:ComboBox id="coreFacilityCombo" width="300" dataProvider="{labCoreFacilitiesIManage}" editable="false"
-								 labelField="@display" change="{billingAccounts.refresh(); pendingBillingAccounts.refresh();}" prompt="Core facility..."/>
-				</mx:HBox>
-				<mx:HBox horizontalAlign="left" width="100%">
-					<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle" paddingTop="6" paddingBottom="2">
-						<mx:Label text="Add Account    Name:" styleName="formLabel"/>
-						<mx:TextInput id="accountName" width="100%"/>
-						<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{accountName.text != ''}" width="24"/>
-						<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount()" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>						
-					</mx:HBox>
-				</mx:HBox>
-				<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
-							 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
-							 horizontalScrollPolicy="auto" variableRowHeight="true" >
-					<mx:dataProvider>{billingAccounts}</mx:dataProvider>
-					<mx:columns>
-						<mx:DataGridColumn headerText="PO" id="poActive"  
-										   width="30" 
-										   editable="false"                        	
-										   dataField="@isPO" 
-										   editorDataField="selected" 
-										   textAlign="center" 
-										   itemRenderer="{views.renderers.CheckBoxIsPO.create()}" >
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
-										   editable="false">
-							<mx:itemRenderer>
-								<mx:Component>
-									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline"
-												   click="outerDocument.accountNameClick(outerDocument.billingAccountGrid)"/>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-						<mx:DataGridColumn dataField="@startDate" width="75" id="startDateCol"
-										   headerText="Start"  
-										   itemEditor="views.renderers.DateFieldStartDate" 
-										   itemRenderer="mx.controls.Label" 
-										   rendererIsEditor="false" 
-										   labelFunction="getStartDateString"
-										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="75" id="expirationDateCol"
-										   headerText="Expires"  
-										   itemEditor="views.renderers.DateFieldExpiration" 
-										   itemRenderer="mx.controls.Label" 
-										   rendererIsEditor="false" 
-										   labelFunction="getExpirationDateString"
-										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30" id="busCol"/>
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50" id="orgCol"/>
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50" id="fundCol"/>
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70" id="activityCol"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70" id="projectCol"/>
-						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50" id="accountCol"/>
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25" id="auCol"/>
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30" id="yearCol"/>
-						<mx:DataGridColumn headerText="Document"  width="100">
-							<mx:itemRenderer>
-								<mx:Component>
-									<mx:LinkButton textAlign="left" label="View / Upload" fontSize="11"  fontFamily="Arial" click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" id="fundingAgencyCol" 
-										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
-										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
-										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
-						<mx:DataGridColumn headerText="Total $ amt"  textAlign="right" dataField="@totalDollarAmountDisplay" width="80" id="totalDollarAmountCol"/>
-						<mx:DataGridColumn headerText="Total $ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="80"/>
-						<mx:DataGridColumn headerText="Short Acct" dataField="@shortAcct" width="50" id="shortAcctCol"/>
-						<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
-										   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
-										   dataField="@acctUsers"/>
-						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
-						<mx:DataGridColumn headerText="Core Facility" dataField="@idCoreFacility" 
-										   editorDataField="value" editable="{labCoreFacilitiesIManage.length > 1}"  rendererIsEditor="false"  width="130"
-										   itemRenderer="{DropdownLabel.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility')}"
-										   itemEditor="{hci.flex.controls.ComboBox.getFactory(labCoreFacilitiesIManage.source, '@display', '@value', '@idCoreFacility', true)}"/>			                
-					</mx:columns>
-				</mx:DataGrid>
-				<mx:Label text="Pending Accounts (check and press 'Save' to approve)" fontWeight="bold" paddingTop="6" styleName="formLabel"/>
-				<mx:DataGrid width="100%" height="100" 
-							 id="pendingBillingAccountGrid" editable="true" 
-							 itemEditBeginning="verifyChartfieldEdit(event)" 
-							 horizontalScrollPolicy="auto" fontSize="9">
-					<mx:dataProvider>{pendingBillingAccounts}</mx:dataProvider>
-					<mx:columns>
-						<mx:DataGridColumn headerText=""
-										   width="24" 
-										   editable="false"                         	
-										   dataField="@isApproved" 
-										   editorDataField="selected" 
-										   textAlign="center" 
-										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@isApproved', true)}" >
-						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
-										   editable="false">
-							<mx:itemRenderer>
-								<mx:Component>
-									<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="11"  fontFamily="Arial" color="#0000FF"   textDecoration="underline" 
-												   click="outerDocument.accountNameClick(outerDocument.pendingBillingAccountGrid)"/>
-								</mx:Component>
-							</mx:itemRenderer>
-						</mx:DataGridColumn>
-						<mx:DataGridColumn dataField="@startDate" width="75" id="pendingStartDateCol"
-										   headerText="Start"  
-										   itemEditor="views.renderers.DateFieldStartDate" 
-										   itemRenderer="mx.controls.Label" 
-										   rendererIsEditor="false" 
-										   labelFunction="getStartDateString"
-										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn dataField="@expirationDate" width="75" id="pendingExpirationDateCol"
-										   headerText="Expires"  
-										   itemEditor="views.renderers.DateFieldExpiration" 
-										   itemRenderer="mx.controls.Label" 
-										   rendererIsEditor="false" 
-										   labelFunction="getExpirationDateString"
-										   editorDataField="selectedDate"/>
-						<mx:DataGridColumn headerText="Funding agency" dataField="@idFundingAgency" id="pendingFundingAgencyCol"
-										   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
-										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
-										   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
-						<mx:DataGridColumn headerText="Total $ amt" textAlign="right" dataField="@totalDollarAmountDisplay" width="80" id="pendingTotalDollarAmountCol" />
-						<mx:DataGridColumn headerText="Bus" dataField="@accountNumberBus" width="30" id="pendingBusCol" />
-						<mx:DataGridColumn headerText="Org"  dataField="@accountNumberOrg" width="50" id="pendingOrgCol" />
-						<mx:DataGridColumn headerText="Fund" dataField="@accountNumberFund" width="50" id="pendingFundCol" />
-						<mx:DataGridColumn headerText="Activity" dataField="@accountNumberActivity" width="70" id="pendingActivityCol"/>
-						<mx:DataGridColumn headerText="Project" dataField="@accountNumberProject" width="70" id="pendingProjectCol"/>
-						<mx:DataGridColumn headerText="Acct" dataField="@accountNumberAccount" width="50" id="pendingAccountCol" />
-						<mx:DataGridColumn headerText="AU" dataField="@accountNumberAu" width="25" id="pendingAuCol" />
-						<mx:DataGridColumn headerText="Year" dataField="@accountNumberYear" width="30" id="pendingYearCol"/>
-						<mx:DataGridColumn headerText="Short" dataField="@shortAcct" width="50" id="pendingShortAcctCol"/>
-						<mx:DataGridColumn headerText="Created"  editable="false" dataField="@createDate" width="30"/>
-						<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
-						<mx:DataGridColumn headerText="UID"  dataField="@submitterUID" width="10"/>
-						
-					</mx:columns>
-				</mx:DataGrid>
-				
-			</mx:VBox>
+								 labelField="@display" close="{lastIdCoreFacility=coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@idCoreFacility : ''}" change="{onCoreFacilitySelected()}" prompt="Core facility..."/>
+					<mx:LinkButton label="Add account" id="showAddAccountLink" visible="{!addAccountBox.visible}" click="{addAccountBox.visible=true;addAccountBox.includeInLayout=true}" styleName="formLinkButton"/>
+				</mx:HBox>				    
+					<mx:VBox id="addAccountBox" visible="false" includeInLayout="false" verticalGap="3" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2"  borderStyle="solid" cornerRadius="6">
+						<mx:HBox horizontalGap="4" width="552" verticalAlign="middle" paddingTop="2">
+							<mx:Label text="Account Name" styleName="formLabel" width="100" textAlign="left"/>
+							<mx:TextInput id="accountName" width="100%"/>
+						</mx:HBox>
+						<mx:HBox horizontalGap="2" verticalAlign="middle" width="600">
+							<mx:Label text="Payment Method" styleName="formLabel" width="100" textAlign="left"/>
+							<mx:RadioButton  group="{chargeTypeGroup}" label="Chartfield" horizontalGap="0" id="chartfieldCheckBox"/>
+							<mx:RadioButton  group="{chargeTypeGroup}" label="PO"  horizontalGap="0" paddingLeft="8" id="poCheckBox"/>
+							<mx:RadioButton  group="{chargeTypeGroup}" label="Credit Card" horizontalGap="0" paddingLeft="8" id="creditCardCheckBox"/>		
+							<mx:Spacer width="100%"/>
+							<mx:Button icon="@Embed(source='../../assets/add.png')" click="addBillingAccount()" 
+									   disabledIcon="@Embed(source='../../assets/add_disable.png')" 
+									   enabled="{accountName.text != '' &amp;&amp; chargeTypeGroup.selectedValue != null &amp;&amp; chargeTypeGroup.selectedValue != ''}" label="Add account"/>
+							<mx:RadioButtonGroup id="chargeTypeGroup" />
+							<mx:LinkButton label="Hide" styleName="formLinkButton" click="{addAccountBox.visible=false;addAccountBox.includeInLayout=false}"/>
+						</mx:HBox>
+					</mx:VBox>
 
-		
+						<mx:VDividedBox width="100%" height="100%">
+							<mx:VBox width="100%" height="100%" verticalGap="0">
+								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="3" paddingBottom="1">
+									<mx:Image  source="assets/pricesheet.png"/>
+									<mx:Label text="{parentApplication.useConfigurableBillingAccounts ? 'Internal Accounts' : 'Chartfields'}" styleName="formLabel"/>
+									<mx:Spacer width="100%"/>
+									<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount(billingAccountGrid)" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountGrid.selectedItem != null}" width="24"/>
+								</mx:HBox>
+								<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
+											 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
+											 horizontalScrollPolicy="off"   variableRowHeight="true" wordWrap="true">
+									<mx:dataProvider>{billingAccounts}</mx:dataProvider>
+									<mx:columns>
+										<mx:DataGridColumn editable="false" width="62" 	visible="{showApproveCol}">
+											<mx:itemRenderer>
+												<mx:Component>
+													<mx:LinkButton  paddingLeft="0" paddingRight="0" textAlign="left" label="{data.@isApproved == 'Y' ? '' : 'Approve'}" fontSize="9"
+																	click="outerDocument.approveBillingAccount(event)" color="#13A513"   textDecoration="underline" fontWeight="bold"/>
+												</mx:Component>
+											</mx:itemRenderer>
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="160" 
+														   editable="false">
+											<mx:itemRenderer>
+												<mx:Component>
+													<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="9"  
+																   color="{data.@isActive == 'N' ? 0x6a6b6e : 0x0000FF}"   
+																   fontWeight="{data.@isActive == 'N' ? 'normal' : 'bold'}"   
+																   fontStyle="{data.@isActive == 'N' ? 'italic' : 'normal'}"   
+																   textDecoration="underline"
+																   click="outerDocument.accountNameClick(outerDocument.billingAccountGrid)"/>
+												</mx:Component>
+											</mx:itemRenderer>
+										</mx:DataGridColumn>
+										<mx:DataGridColumn dataField="@startDate" width="75" id="startDateCol1"
+														   headerText="Starts"   fontSize="9"
+														   itemEditor="views.renderers.DateFieldStartDate" 
+														   itemRenderer="mx.controls.Label" 
+														   rendererIsEditor="false" 
+														   labelFunction="getStartDateString"
+														   editorDataField="selectedDate"/>
+										<mx:DataGridColumn dataField="@expirationDate" width="75" id="expirationDateCol"
+														   headerText="Expires"   fontSize="9"
+														   itemEditor="views.renderers.DateFieldExpiration" 
+														   itemRenderer="mx.controls.Label" 
+														   rendererIsEditor="false" 
+														   labelFunction="getExpirationDateString"
+														   editorDataField="selectedDate"/>
+										<mx:DataGridColumn headerText="Bus"  fontSize="9" dataField="@accountNumberBus" width="30" id="busCol"/>
+										<mx:DataGridColumn headerText="Org"  fontSize="9"  dataField="@accountNumberOrg" width="50" id="orgCol"/>
+										<mx:DataGridColumn headerText="Fund" fontSize="9" dataField="@accountNumberFund" width="50" id="fundCol"/>
+										<mx:DataGridColumn headerText="Activity" fontSize="9" dataField="@accountNumberActivity" width="70" id="activityCol"/>
+										<mx:DataGridColumn headerText="Project" fontSize="9" dataField="@accountNumberProject" width="70" id="projectCol"/>
+										<mx:DataGridColumn headerText="Acct" fontSize="9" dataField="@accountNumberAccount" width="50" id="accountCol"/>
+										<mx:DataGridColumn headerText="AU"  fontSize="9" dataField="@accountNumberAu" width="25" id="auCol"/>
+										<mx:DataGridColumn headerText="$ billed"   fontSize="9" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
+									</mx:columns>
+								</mx:DataGrid>
+								
+							</mx:VBox>
+							<mx:VBox width="100%" height="100%" verticalGap="1">
+								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="0" paddingBottom="1">
+									<mx:Image  source="assets/email_open.png"/>
+									<mx:Label text="Purchase Orders" styleName="formLabel"/>
+									<mx:Spacer width="100%"/>
+									<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount(billingAccountPOGrid)" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountPOGrid.selectedItem != null}" width="24"/>
+								</mx:HBox>
+								<mx:DataGrid width="100%"  fontSize="9" height="100%" id="billingAccountPOGrid" editable="true"
+											 horizontalScrollPolicy="off" variableRowHeight="true" >
+									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
+									<mx:columns>
+										<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="130" 
+														   editable="false">
+											<mx:itemRenderer>
+												<mx:Component>
+													<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="9"  
+																   color="{data.@isActive == 'N' ? 0x6a6b6e : 0x0000FF}"   textDecoration="underline"
+																   fontWeight="{data.@isActive == 'N' ? 'normal' : 'bold'}"   
+																   fontStyle="{data.@isActive == 'N' ? 'italic' : 'normal'}"   
+																   click="outerDocument.accountNameClick(outerDocument.billingAccountPOGrid)"/>
+												</mx:Component>
+											</mx:itemRenderer>
+										</mx:DataGridColumn>
+										<mx:DataGridColumn dataField="@startDate" width="80" id="startDateCol"
+														   headerText="Starts"   fontSize="9"
+														   itemEditor="views.renderers.DateFieldStartDate" 
+														   itemRenderer="mx.controls.Label" 
+														   rendererIsEditor="false" 
+														   labelFunction="getStartDateString"
+														   editorDataField="selectedDate"/>
+
+										<mx:DataGridColumn dataField="@expirationDate" width="80" id="poExpirationDateCol"
+														   headerText="Expires"   fontSize="9"
+														   itemEditor="views.renderers.DateFieldExpiration" 
+														   itemRenderer="mx.controls.Label" 
+														   rendererIsEditor="false" 
+														   labelFunction="getExpirationDateString"
+														   editorDataField="selectedDate"/>
+										
+										
+										<mx:DataGridColumn headerText="Document"  width="100">
+											<mx:itemRenderer>
+												<mx:Component>
+													<mx:LinkButton textAlign="left" label="View / Upload" fontSize="9"  click="outerDocument.showEditPurchaseOrderWindow(event)" color="#0000FF"   textDecoration="underline" icon="@Embed(source='../../assets/page.png')"/>
+												</mx:Component>
+											</mx:itemRenderer>
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="$ billed"  fontSize="9" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
+									</mx:columns>
+								</mx:DataGrid>
+								
+							</mx:VBox>
+							<mx:VBox width="100%" height="100%" verticalGap="1">
+								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="0" paddingBottom="1">
+									<mx:Image  source="assets/creditcards.png"/>
+									<mx:Label text="Credit Cards" styleName="formLabel"/>
+									<mx:Spacer width="100%"/>
+									<mx:Button icon="@Embed('../../assets/delete.png')" click="removeBillingAccount(billingAccountCreditCardGrid)" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{billingAccountCreditCardGrid.selectedItem != null}" width="24"/>
+								</mx:HBox>
+								
+								<mx:DataGrid width="100%" height="100%" id="billingAccountCreditCardGrid" editable="true"
+											 fontSize="9"
+											 horizontalScrollPolicy="off" variableRowHeight="true" >
+									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
+									<mx:columns>
+										<mx:DataGridColumn headerText="Last 4 digits" dataField="@accountName" width="60" 
+														   editable="false">
+											<mx:itemRenderer>
+												<mx:Component>
+													<mx:LinkButton textAlign="left" label="{data.@accountName}" fontSize="9"  
+																   color="{data.@isActive == 'N' ? 0x6a6b6e : 0x0000FF}"   textDecoration="underline"
+																   fontWeight="{data.@isActive == 'N' ? 'normal' : 'bold'}"   
+																   fontStyle="{data.@isActive == 'N' ? 'italic' : 'normal'}"   
+																   click="outerDocument.accountNameClick(outerDocument.billingAccountCreditCardGrid)"/>
+												</mx:Component>
+											</mx:itemRenderer>
+										</mx:DataGridColumn>
+										<mx:DataGridColumn dataField="@expirationDate" width="80" id="ccExpirationDateCol"
+														   headerText="Expires"   fontSize="9"
+														   itemEditor="views.renderers.DateFieldExpiration" 
+														   itemRenderer="mx.controls.Label" 
+														   rendererIsEditor="false" 
+														   labelFunction="getExpirationDateString"
+														   editorDataField="selectedDate"/>
+										<mx:DataGridColumn headerText="Credit Card Company" dataField="@idCreditCardCompany" id="ccCreditCardCompanyCol" 
+														   editorDataField="value"  fontSize="9" editable="true"  rendererIsEditor="false"  width="100"
+														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany')}"
+														   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany', true)}"/>			                
+										<mx:DataGridColumn headerText="Zip" width="60" editable="true" dataField="@zipCode"/>
+										<mx:DataGridColumn headerText="$ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="60"/>
+									</mx:columns>
+								</mx:DataGrid>
+								
+							</mx:VBox>
+					</mx:VDividedBox>
+				
+				</mx:VBox>
+
 		</mx:TabNavigator>
 		
 	</mx:VBox>
 	<mx:ControlBar width="100%"  horizontalAlign="left" id="controlbar1" verticalGap="0" verticalAlign="bottom" paddingTop="0" paddingRight="2" paddingLeft="2" paddingBottom="0">
 		<mx:HBox  width="100%" paddingTop="2" paddingBottom="2" paddingRight="0" paddingLeft="0" verticalAlign="bottom">
-			<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Verify users"/>
+			<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Send email to verify users"/>
 			<mx:Spacer width="100%"/>
 			<util:DirtyNote id="dirty"/>
 			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="validateAndSave()" id="button1"/>

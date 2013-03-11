@@ -97,12 +97,11 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             billingAccount.getAccountNumberFund() == null || billingAccount.getAccountNumberFund().length() != 4 || 
             billingAccount.getAccountNumberAccount() == null || billingAccount.getAccountNumberAccount().length() != 5 ||
             (hasActivity && (billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1)) || 
-            billingAccount.getAccountNumberYear() == null || billingAccount.getAccountNumberYear().length() != 4 ||
             ((billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().equals("")) && (billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().length() !=5)) ||
             ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8))) {
           
           this.setResponsePage(this.ERROR_JSP);
-          this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check");
+          this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check that you entered the correct number of digits for each field.");
           setResponsePage(this.ERROR_JSP);
         }
       }

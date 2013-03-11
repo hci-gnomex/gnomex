@@ -36,6 +36,8 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public static final int       COL_OWNER_LASTNAME = 15;
   public static final int       COL_OWNER_FIRSTNAME = 16;
   public static final int       COL_REQUEST_NAME = 17;
+  public static final int       COL_PROJECT_NAME = 18;
+  public static final int       COL_PROJECT_DESCRIPTION = 19;
 
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -61,7 +63,9 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" count(distinct sample.idSample), ");
     queryBuf.append(" min(owner.lastName), ");
     queryBuf.append(" min(owner.firstName), ");
-    queryBuf.append(" min(req.name) ");
+    queryBuf.append(" min(req.name), ");
+    queryBuf.append(" min(project.name), ");
+    queryBuf.append(" min(project.description) ");
     
     getQueryBody(queryBuf);
 
@@ -79,6 +83,7 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" JOIN        req.submitter as submitter ");
     queryBuf.append(" JOIN        req.lab as lab ");
     queryBuf.append(" JOIN        req.appUser as owner ");
+    queryBuf.append(" JOIN        req.project as project ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
     
     addRequestCriteria();

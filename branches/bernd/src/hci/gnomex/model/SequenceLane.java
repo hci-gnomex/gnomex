@@ -623,7 +623,31 @@ public class SequenceLane extends HibernateDetailObject {
     
   }
   
+  /*
+   * This method will just return an array with one element
+   * which is the list of lanes.  We have deprecated
+   * the method that used to split the lanes into multiple
+   * groups when duplicate sequence tags were encountered.
+   */
   private static List getMultiplexLaneGroups(List seqLanes) {
+    
+    Set theLanes = new TreeSet(new SequenceLaneNumberComparator());
+    theLanes.addAll(seqLanes);
+    
+    List laneGroups = new ArrayList();
+    laneGroups.add(theLanes);
+    return laneGroups;
+  }
+  
+  /*
+   * This is a deprecated method.  When duplicate index tags exist in 
+   * a multiplex group or a flow cell channel, this method was separating
+   * the lanes out into separate lane groups.  But in a sense, this
+   * is not helpful since it "hides" the sequence lane from its "real"
+   * multiplex group.  
+   * @deprecated
+   */
+  private static List getMultiplexLaneGroupsConsiderDupIndexTags(List seqLanes) {
     List laneGroups = new ArrayList();
 
     // First create a hash map key=barcode sequence, value=list of lanes holding this sequence

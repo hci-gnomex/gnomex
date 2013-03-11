@@ -233,5 +233,20 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     }
     return buf.toString();
   }
+  
+  public String getAppliesToRequestCategory(){
+    StringBuffer buf = new StringBuffer();
+
+    if (getPlatformApplications() != null) {
+      for (PropertyPlatformApplication pa : (Set<PropertyPlatformApplication>)getPlatformApplications()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(pa.getDisplay());
+      }
+    }
+    return buf.toString();
+    
+  }
     
 }

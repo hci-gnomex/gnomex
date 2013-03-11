@@ -36,7 +36,7 @@
 		fault="parentApplication.onFailHttpRequest('Failed to delete group', event)"
 		useProxy="false">
 		<mx:request>
-			<idBillingAccount>{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@idBillingAccount}</idBillingAccount>
+			<idBillingAccount>{parentView.poBillingAccounts.getItemAt(parentView.billingAccountPOGrid.selectedIndex).@idBillingAccount}</idBillingAccount>
 		</mx:request>
 	</mx:HTTPService >
 	
@@ -63,7 +63,7 @@
 			
 			
 			public function prepareToUploadPDF(event:MouseEvent):void{
-				if(parentView.billingAccounts[parentView.billingAccountGrid.selectedIndex].@orderFormFileType != ''){
+				if(parentView.poBillingAccounts[parentView.billingAccountPOGrid.selectedIndex].@orderFormFileType != ''){
 					Alert.show("By uploading a new purchase form you will overwrite the existing purchase form.\n\nContinue anyway?",
 						null, (Alert.YES | Alert.NO), this, continueToUpload);
 				}
@@ -96,18 +96,18 @@
 				request.method = URLRequestMethod.POST;
 				
 				var variables:URLVariables = new URLVariables();
-				variables.idBillingAccount = parentView.billingAccounts[parentView.billingAccountGrid.selectedIndex].@idBillingAccount;
+				variables.idBillingAccount = parentView.poBillingAccounts[parentView.billingAccountPOGrid.selectedIndex].@idBillingAccount;
 				request.data = variables;
 				fileRef.upload(request);
 			}
 			
 			private function completeHandler(event:Event):void{
-				parentView.billingAccounts[parentView.billingAccountGrid.selectedIndex].@orderFormFileType = fileRef.type;
+				parentView.poBillingAccounts[parentView.billingAccountPOGrid.selectedIndex].@orderFormFileType = fileRef.type;
 				Alert.show("File uploaded successfully");
 			}
 			
 			public function viewOrder(event:MouseEvent):void{
-				var billingAccount:int = (int)(parentView.billingAccounts[parentView.billingAccountGrid.selectedIndex].@idBillingAccount);
+				var billingAccount:int = (int)(parentView.poBillingAccounts[parentView.billingAccountPOGrid.selectedIndex].@idBillingAccount);
 				var url:URLRequest = new URLRequest('GetPurchaseOrderForm.gx?idBillingAccount=' + billingAccount);
 				url.method = URLRequestMethod.POST;
 				navigateToURL(url, '_blank');
@@ -119,7 +119,7 @@
 			
 			private function onDeletePurchaseForm(event:ResultEvent):void{
 				if(deletePurchaseForm.lastResult.name() == "SUCCESS"){
-					parentView.billingAccounts[parentView.billingAccountGrid.selectedIndex].@orderFormFileType = "";
+					parentView.poBillingAccounts[parentView.billingAccountPOGrid.selectedIndex].@orderFormFileType = "";
 					Alert.show("File successfully removed");
 				}
 				else{
@@ -132,8 +132,8 @@
 	
 	<mx:HBox width="100%" height="100%" verticalAlign="middle">
 		<mx:LinkButton width="100%" height="20" label="Upload" click="prepareToUploadPDF(event)" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" disabledIcon="@Embed(source='../../assets/upload_disable.png')"/>
-		<mx:LinkButton width="100%" height="20" label="View" click="viewOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/page_find.gif')" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')"/>
-		<mx:LinkButton width="100%" height="20" label="Remove" click="removeOrder(event)" enabled="{parentView.billingAccounts.getItemAt(parentView.billingAccountGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')"/>
+		<mx:LinkButton width="100%" height="20" label="View" click="viewOrder(event)" enabled="{parentView.poBillingAccounts.getItemAt(parentView.billingAccountPOGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/page_find.gif')" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')"/>
+		<mx:LinkButton width="100%" height="20" label="Remove" click="removeOrder(event)" enabled="{parentView.poBillingAccounts.getItemAt(parentView.billingAccountPOGrid.selectedIndex).@orderFormFileType != ''}" textDecoration="underline" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')"/>
 	</mx:HBox>
 	
 </mx:TitleWindow>

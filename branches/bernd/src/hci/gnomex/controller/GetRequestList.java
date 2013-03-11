@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -66,11 +67,17 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     // Hash source plate info by idRequest
     hashSourcePlates(sess);
     
+    Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
+    
     Document doc = new Document(new Element("RequestList"));
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       
       Integer idRequest               = (Integer)row[0];
+      if (requestsToSkip.get(idRequest) != null) {
+        // BST Security failed.
+        continue;
+      }
       String number                   = (String)row[1];
       String name                     = (String)row[2];
       String description              = (String)row[3];
@@ -91,6 +98,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       String requestStatus = dh.getRequestStatus(codeRequestStatus);
       String labName = Lab.formatLabName(labLastName, labFirstName);
       String ownerName = AppUser.formatName(submitterLastName, submitterFirstName);
+      RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
       
       String experimentName = toString(name);
       if (experimentName.length() == 0) {
@@ -116,7 +124,6 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       node.setAttribute("isSelected", "N");
           
       
-      RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
       node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
       
 
@@ -292,7 +299,5 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     node.setAttribute("canUpdate", canUpdate ? "Y" : "N");
 
   }
-  
-
 
 }

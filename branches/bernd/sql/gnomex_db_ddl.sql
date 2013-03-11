@@ -313,6 +313,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `idCreditCardCompany` INT(10) NULL,
   `isPO` CHAR(1) NULL,
   `isCreditCard` CHAR(1) NULL,
+  `zipCode` CHAR(20) NULL,
   `isApproved` CHAR(1) NULL,
   `approvedDate` DATETIME NULL,
   `createDate` DATETIME NULL,
@@ -1617,6 +1618,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
+  `isClinicalResearch` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)

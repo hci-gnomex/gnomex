@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 
 public class RequestDownloadFilter extends DetailObject {
@@ -49,12 +50,14 @@ public class RequestDownloadFilter extends DetailObject {
 
 
   private StringBuffer          queryBuf;
-  private boolean              addWhere = true;
+  private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  private DictionaryHelper      dictionaryHelper;
   
   
-  public StringBuffer getQualityControlResultQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getQualityControlResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -81,8 +84,9 @@ public class RequestDownloadFilter extends DetailObject {
   }
   
   
-  public StringBuffer getMicroarrayResultQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getMicroarrayResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -119,6 +123,7 @@ public class RequestDownloadFilter extends DetailObject {
 
     addRequestCriteria();
     addHybCriteria();
+    addExcludeClinicResearchCriteria();
     addSecurityCriteria();
     
     
@@ -137,13 +142,15 @@ public class RequestDownloadFilter extends DetailObject {
     
     addRequestCriteria();
     addQualityControlCriteria();
+    // Note that this also include clinic research experiments.  Filtered in the controller.
     addSecurityCriteria();
 
     
   
   }
-  public StringBuffer getSolexaResultQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -174,12 +181,14 @@ public class RequestDownloadFilter extends DetailObject {
 
     addRequestCriteria();
     addSolexaCriteria();
+    addExcludeClinicResearchCriteria();
     addSecurityCriteria();
   }
   
   
-  public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -206,14 +215,16 @@ public class RequestDownloadFilter extends DetailObject {
 
     addRequestCriteria();
     addSolexaCriteria();
+    addExcludeClinicResearchCriteria();
     addSecurityCriteria();
 
     queryBuf.append("        group by req.idRequest, s.idSample, s.number, req.idCoreFacility ");
     
   }
 
-  public StringBuffer getSolexaFlowCellQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getSolexaFlowCellQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
     
@@ -236,6 +247,7 @@ public class RequestDownloadFilter extends DetailObject {
 
     addRequestCriteria();
     addSolexaCriteria();
+    addExcludeClinicResearchCriteria();
     addSecurityCriteria();
 
     queryBuf.append("        group by req.number, fc.number, fc.createDate, req.idCoreFacility ");
@@ -463,6 +475,12 @@ public class RequestDownloadFilter extends DetailObject {
     }
 
     
+  }
+  
+  private void addExcludeClinicResearchCriteria() {
+    if (secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req")) {
+      addWhere = false;
+    }
   }
     
   

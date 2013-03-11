@@ -77,9 +77,6 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     if (n.getAttributeValue("accountNumberAu") != null) {
       billingAccount.setAccountNumberAu(n.getAttributeValue("accountNumberAu"));
     } 
-    if (n.getAttributeValue("accountNumberYear") != null) {
-      billingAccount.setAccountNumberYear(n.getAttributeValue("accountNumberYear"));
-    } 
     if (n.getAttributeValue("custom1") != null) {
       billingAccount.setCustom1(n.getAttributeValue("custom1"));
     } 
@@ -111,6 +108,24 @@ public class BillingAccountParser extends DetailObject implements Serializable {
         billingAccount.setIsPO(n.getAttributeValue("isPO"));
     } else {
       billingAccount.setIsPO("N");
+    }
+    
+    if (n.getAttributeValue("isCreditCard") != null && !n.getAttributeValue("isCreditCard").equals("")) {
+      billingAccount.setIsCreditCard(n.getAttributeValue("isCreditCard"));
+    } else {
+      billingAccount.setIsCreditCard("N");
+    }
+    
+    if (n.getAttributeValue("idCreditCardCompany") != null && !n.getAttributeValue("idCreditCardCompany").equals("")) {
+      billingAccount.setIdCreditCardCompany(Integer.valueOf(n.getAttributeValue("idCreditCardCompany")));
+    } else {
+      billingAccount.setIdCreditCardCompany(null);
+    }
+    
+    if (n.getAttributeValue("zipCode") != null && !n.getAttributeValue("zipCode").equals("")) {
+      billingAccount.setZipCode(n.getAttributeValue("zipCode"));
+    } else {
+      billingAccount.setZipCode("");
     }
     
     if (n.getAttributeValue("totalDollarAmountDisplay") != null && !n.getAttributeValue("totalDollarAmountDisplay").equals("")) {

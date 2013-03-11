@@ -31,6 +31,7 @@ import org.jdom.output.XMLOutputter;
 
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 
 
@@ -74,6 +75,9 @@ public class GetLab extends GNomExCommand implements Serializable {
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
     Lab theLab = (Lab)sess.get(Lab.class, lab.getIdLab());
+    
+    //workaround until NullPointer exception is dealt with
+    InternalAccountFieldsConfiguration.getConfiguration(sess);
     
     // We want the billing accounts to show up if the user is authorized to submit
     // requests for this lab
@@ -156,7 +160,9 @@ public class GetLab extends GNomExCommand implements Serializable {
       }
       
       theLab.excludeMethodFromXML("getApprovedBillingAccounts");
-      theLab.excludeMethodFromXML("getPendingBillingAccounts");
+      theLab.excludeMethodFromXML("getInternalBillingAccounts");
+      theLab.excludeMethodFromXML("getPoBillingAccounts");
+      theLab.excludeMethodFromXML("getCreditCardBillingAccounts");
 
       // Block details about total dollar amount on billing accounts
       for(Iterator i = theLab.getBillingAccounts().iterator(); i.hasNext();) {
@@ -190,7 +196,9 @@ public class GetLab extends GNomExCommand implements Serializable {
       theLab.excludeMethodFromXML("getInstitutions");
       theLab.excludeMethodFromXML("getProjects");
       theLab.excludeMethodFromXML("getApprovedBillingAccounts");
-      theLab.excludeMethodFromXML("getPendingBillingAccounts");
+      theLab.excludeMethodFromXML("getPoBillingAccounts");
+      theLab.excludeMethodFromXML("getCreditCardBillingAccounts");
+      theLab.excludeMethodFromXML("getInternalBillingAccounts");
 
       Document doc = new Document(new Element("OpenLabList"));
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();

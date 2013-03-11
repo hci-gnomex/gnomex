@@ -1137,6 +1137,8 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.notesView.setBioNoteVisibility(false);
+				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -2394,7 +2396,8 @@
 					this.propertyEntries.refresh();
 					this.annotationView.checkSecurity();
 					this.samplesView.showHideColumns();		
-					samplesView.initializeSamplesGrid(); 
+					this.samplesView.initializeSamplesGrid(); 
+					this.notesView.setBioNoteVisibility(false);
 				}
 			}
 
@@ -3235,6 +3238,7 @@
 			if (this.isIScanState()) {
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
 				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
+				request.@codeApplication = "";
 			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {

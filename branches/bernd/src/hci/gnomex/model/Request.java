@@ -1241,7 +1241,7 @@ public class Request extends HibernateDetailObject {
   public Map<Integer, FlowCellChannel> getFlowCellChannels() {
     Map<Integer, FlowCellChannel> channels = new HashMap<Integer, FlowCellChannel>();
     for(SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
-      if (!channels.containsKey(lane.getIdFlowCellChannel())) {
+      if (lane.getIdFlowCellChannel() != null && !channels.containsKey(lane.getIdFlowCellChannel())) {
         channels.put(lane.getIdFlowCellChannel(), lane.getFlowCellChannel());
       }
     }
@@ -1256,13 +1256,17 @@ public class Request extends HibernateDetailObject {
    */
 
   public Element appendBasicXML(SecurityAdvisor secAdvisor, Element parentNode) throws UnknownPermissionException {
+    String icon = "";
+    if (this.getRequestCategory().getIcon() != null) {
+      icon = this.getRequestCategory().getIcon();
+    }
     Element requestNode = new Element("Request");
     requestNode.setAttribute("idRequest", this.getIdRequest().toString());
     requestNode.setAttribute("label", this.getNumber() + " " + (secAdvisor.canRead(this) ? (this.getName() != null ? this.getName() : "") : "(Not authorized)"));
     requestNode.setAttribute("codeVisibility", this.getCodeVisibility());
     requestNode.setAttribute("number", this.getNumber());
-    requestNode.setAttribute("icon", this.getRequestCategory().getIcon());
-    requestNode.setAttribute("icon", this.getRequestCategory().getIcon());
+    requestNode.setAttribute("icon", icon);
+    requestNode.setAttribute("icon", icon);
     parentNode.addContent(requestNode);
     return requestNode;
   }

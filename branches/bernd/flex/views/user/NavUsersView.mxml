@@ -496,7 +496,7 @@
 
             } if (call.marker == "doneGetLab") {
             	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
-				this.groupDetailView.initForNewLab();
+				this.groupDetailView.initializeLab();
             	groupDetailView.dirty.resetDirty(); 
             	
 
