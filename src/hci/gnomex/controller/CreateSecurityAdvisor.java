@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateBSTXSession;
@@ -65,6 +66,9 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      
+      //workaround until NullPointer exception is dealt with
+      InternalAccountFieldsConfiguration.getConfiguration(sess);
       
       secAdvisor = SecurityAdvisor.create(sess, this.getUsername());
       
