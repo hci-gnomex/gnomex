@@ -27,6 +27,7 @@ public class Lab extends HibernateDetailObject {
   private String  excludeUsage;
   private String  billingContactEmail;
   private String  includePiInBillingEmails;
+  private Long    version;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -129,6 +130,15 @@ public class Lab extends HibernateDetailObject {
   
   public void setIncludePiInBillingEmails(String includePiInBillingEmails) {
     this.includePiInBillingEmails = includePiInBillingEmails;
+  }
+  
+  
+  public Long getVersion() {
+    return version;
+  }
+  
+  public void setVersion(Long version) {
+    this.version = version;
   }
   
   public String getName() {
