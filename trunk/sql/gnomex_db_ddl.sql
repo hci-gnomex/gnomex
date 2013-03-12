@@ -1063,6 +1063,7 @@ CREATE TABLE `gnomex`.`Lab` (
   `excludeUsage` VARCHAR(1) NULL,
   `billingContactEmail` VARCHAR(200) NULL,
   `includePiInBillingEmails` CHAR(1) NULL,
+  `version` BIGINT(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)

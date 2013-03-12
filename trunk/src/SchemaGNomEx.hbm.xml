@@ -538,6 +538,7 @@
 		<id name="idLab" column="idLab" type="integer">
 			<generator class="native"/>
 		</id>
+    <version name="version" type="long" column="version"/> 
 		<property name="firstName" column="firstName" type="string"/>
 		<property name="lastName" column="lastName" type="string"/>
 		<property name="isExternalPricing" column="isExternalPricing" type="string"/>
@@ -555,7 +556,7 @@
 		<property name="excludeUsage" column="excludeUsage" type="string"/>
     <property name="billingContactEmail" column="billingContactEmail" type="string"/>
     <property name="includePiInBillingEmails" column="includePiInBillingEmails" type="string"/>
-   		<set name="members" table="LabUser" lazy="true" cascade="none">
+ 		<set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
 		</set>

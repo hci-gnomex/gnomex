@@ -257,7 +257,15 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
 
       if (isValid()) {
-        if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+        if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
+          setResponsePage(this.ERROR_JSP);
+        }
+      }
+      
+      Lab lab = null;
+      
+      if (isValid()) {
           accountParser.parse(sess);
           labInstitutionParser.parse(sess);
           labMemberParser.parse(sess);
@@ -266,8 +274,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
           if (coreFacilityParser != null) {
             coreFacilityParser.parse(sess);
           }
-  
-          Lab lab = null;
   
           if (isNewLab) {
             lab = labScreen;
@@ -278,15 +284,20 @@ public class SaveLab extends GNomExCommand implements Serializable {
   
             lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
   
-            // Need to initialize billing accounts; otherwise new accounts
-            // get in the list and get deleted.
-            Hibernate.initialize(lab.getBillingAccounts());
-  
-            initializeLab(lab);
+            if (!lab.getVersion().equals(labScreen.getVersion())) {
+              this.addInvalidField("Locking Violation", "Lab modified by another user.  Please refresh and enter your changes again.");
+              setResponsePage(this.ERROR_JSP);
+            } else {
+              // Need to initialize billing accounts; otherwise new accounts
+              // get in the list and get deleted.
+              Hibernate.initialize(lab.getBillingAccounts());
+    
+              initializeLab(lab);
+            }
           }
-  
-  
-          
+      }
+      
+      if (isValid()) {
           //
           // Save billing accounts
           //
@@ -544,10 +555,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
   
           setResponsePage(this.SUCCESS_JSP);
-        } else {
-          this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
-          setResponsePage(this.ERROR_JSP);
-        }
       }
 
       

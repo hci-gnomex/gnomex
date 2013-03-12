@@ -655,6 +655,7 @@
 				} else {
 					params.idLab = '';
 				}
+				params.version = parentDocument.fullLab.@version;
 				
 				checkEmailFormat();
 				
