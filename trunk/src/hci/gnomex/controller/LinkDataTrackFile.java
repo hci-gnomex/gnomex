@@ -127,7 +127,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 					cloneDataTrack(sourceDT, dataTrack, analysisFile, sess);          
 				} else {
 
-					dataTrack.setName(analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName());
+					dataTrack.setName(analysisFile.getFileName().substring(0, analysisFile.getFileName().lastIndexOf(".")));
 					dataTrack.setIdLab(idLab);
 					dataTrack.setIdGenomeBuild(idGenomeBuild);
 
@@ -340,7 +340,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
 	private void cloneDataTrack(DataTrack sourceDT, DataTrack dataTrack, AnalysisFile analysisFile, Session sess) {
 		dataTrack.setCodeVisibility(sourceDT.getCodeVisibility());
-		dataTrack.setName(sourceDT.getName() + "_" + analysisFile.getFileName());
+		dataTrack.setName(sourceDT.getName() + "_" + analysisFile.getFileName().substring(0, analysisFile.getFileName().lastIndexOf(".")));
 		dataTrack.setDescription(sourceDT.getDescription());
 		dataTrack.setSummary(sourceDT.getSummary());
 		dataTrack.setIdInstitution(sourceDT.getIdInstitution());
