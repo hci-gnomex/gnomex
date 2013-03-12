@@ -3788,7 +3788,9 @@
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
 				
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-		        requestEditBillingAccountCombo.selectedItem = null;
+				if (requestEditBillingAccountCombo.dropdown != null) {
+					requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;
+				}
 		        for each(var ba:Object in billingAccounts) {
 		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
 		        		requestEditBillingAccountCombo.selectedItem = ba;
@@ -4960,6 +4962,7 @@
 					       	  dataProvider="{billingAccounts}" 
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
+							  width="400"
 					       	  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
