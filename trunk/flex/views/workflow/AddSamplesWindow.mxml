@@ -200,6 +200,7 @@
 						" idFlowCellChannel =''" +
 						" flowCellChannel =''" +
 						" idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
+						" sampleBarcodeSequence = '" + item.@sampleBarcodeSequence + "'" +
 						"/>");
 					// Sample names and other text may have special characters.  Assign this
 					// way to avoid malformed XML error.
