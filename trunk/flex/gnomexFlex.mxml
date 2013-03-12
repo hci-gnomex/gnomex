@@ -1366,7 +1366,9 @@
 				theViews.selectedChild = navUsersView;
 			}
 			
-			
+			public function showNewExperiment(ccNumberList:Array):void {
+				showView("New Experiment Order");
+			}
 			
 
 			public function showBillingAccountDetail(idLab:String):void {
@@ -1589,6 +1591,8 @@
 			}
 			
 			public function launchAppUser():Boolean {
+				var lw:String = Application.application.parameters.launchWindow;
+				var cc:String = Application.application.parameters.idLab;
 				if (Application.application.parameters.launchWindow != null &&
 					Application.application.parameters.launchWindow == "UserDetail" &&
 					Application.application.parameters.idLab != null ) {
@@ -1606,6 +1610,18 @@
             		return false;
             	}
             }
+			
+			public function launchCreateExperiment():Boolean {
+				var lw:String = Application.application.parameters.launchWindow;
+				var cc:String = Application.application.parameters.ccNumberList;
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "AddExperiment" &&
+					Application.application.parameters.ccNumberList != null ) {
+					return true;
+				} else { 
+					return false;
+				}
+			}
             
             public function getLaunchRequestNumber():String {
             	if (Application.application.parameters.requestNumber != null) {
@@ -1650,6 +1666,14 @@
 				} else {
 					return "";
 				}
+			}
+			
+			public function getNewExperimentCCNumbers():Array {
+				var ccList:Array = new Array();
+				if (Application.application.parameters.ccNumberList != null) {
+					ccList = Application.application.parameters.ccNumberList.split(",");
+				}
+				return ccList;
 			}
 			  
             private function loggedInInit():void {
@@ -2362,6 +2386,8 @@
 					callLater(showWorkAuthWindow);
 				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
 					this.showUserWindow(this.getLaunchIdAppUser());
+				} else if (launchCreateExperiment()) {
+					this.showNewExperiment(getNewExperimentCCNumbers());
 	        	} else {
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;
