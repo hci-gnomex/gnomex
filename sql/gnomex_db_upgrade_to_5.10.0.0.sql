@@ -9,5 +9,5 @@ alter table gnomex.BillingAccount add column zipCode varchar(20);
 
 --Add contact_email_core_facility_workauth_reminder
 INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
-('contact_email_core_facility_work_auth', 'first.last@somwhere.edu', 'Core facility''s email adresses for reminders', 'N');
+('contact_email_core_facility_work_auth', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'N');
 
