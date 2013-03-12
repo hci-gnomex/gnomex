@@ -96,7 +96,7 @@
 	<!-- Compile                                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="compile" depends="init">
+	<target name="compile" depends="initClassPath">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Compiling                                            +</echo>
