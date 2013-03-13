@@ -8,11 +8,13 @@ HCI Cream = F2EFD9
 global {
 	fontSize:12;
 	fontFamily: "Open Sans";
+	color: #000000;
 }
 
 .titleLabel {
-	fontSize: 14;
+	fontSize: 13;
 	fontWeight: normal;
+	color: #342929;
 }
 
 .errorTip { 
@@ -428,8 +430,8 @@ TextArea {
     paddingTop: 0; 
     paddingBottom: 4;
 	backgroundSize: auto;
-    fontFamily: Arial;
-	fontSize: 14;
+    fontFamily: "Open Sans";
+	fontSize: 12;
 	selectedTabTextStyleName: tabNavigatorSelectedTabText;
 }
 
@@ -547,20 +549,20 @@ TextArea {
 
 Text.welcome
 {
-	color: #000000;
+	color: #2F2D29;
 	fontFamily: Arial;
 	fontSize: 11;
 }
 Text.welcomeTitle
 {
-	color: #000000;
+	color: #2F2D29;
 	fontFamily: Arial;
 	fontSize: 15;
 	fontWeight: bold;
 }
 Text.welcomeHeader
 {
-	color: #000000;
+	color: #2F2D29;
 	fontFamily: Arial;
 	fontSize: 13;
 	fontWeight: normal;
@@ -688,14 +690,14 @@ Text.welcomeUserLabel
 }
 Text.welcomeSessionLabel
 {
-	color: #686464;
+	color: #2F2D29;
 	fontSize: 11;
 	leading: 0;
 	fontWeight: normal;
 }
 Text.navLabel
 {
-	color: #686464;
+	color: #2F2D29;
 	fontSize: 12;
 	leading: 0;
 }
@@ -707,7 +709,7 @@ Text.navLabelSmall
 }
 Text.progressLabel
 {
-	color: #555454;
+	color: #2F2D29;
 	fontSize: 16;
 	fontWeight: normal;
 	textAlign: center;
@@ -812,7 +814,7 @@ Accordion.blueAccordion {
 	disabledColor: #FFFFFF;
 }
 
-Accordion.greyAccordion {
+Accordion.lightBlueAccordion {
 	headerStyleName: greyAccordionHeader;
 	paddingTop: 0;
 	paddingBottom: 0;
@@ -827,7 +829,7 @@ Accordion.greyAccordion {
 {
 	fillColors: #87999D, #E3E8EB;
 	fillAlphas: 1.0, 1.0, 1.0, 1.0;
-	selectedFillColors: #f9f9f9, #909090;
+	selectedFillColors: #f9f9f9, #A0dbfe;
 	fontWeight: normal;
 	fontSize: 11;
 	cornerRadius: 6;
@@ -848,16 +850,16 @@ Accordion.greyAccordion {
 	textRollOverColor: #FFFFFF;
 	highlightAlphas: 0, 0;
 }
+ 
 
-
-MenuBar {
+MenuBar { 
 	backgroundAlpha: 0;
 	borderStyle: none;
 	fillAlphas: 0,0;
-	color: #342929;
+	color: #000000;
 	fontFamily: "Open Sans";
 	menuStyleName: menuItem;
-	fontSize: 14;
+	fontSize: 13;
 	fontWeight: normal;
 	borderColor: #FFFFFF;
 	highlightAlphas: 0, .5;
@@ -876,8 +878,8 @@ MenuBar {
 	borderColor: #B7B7B7;
 	fillAlphas: 1, 1;
 	fillColors: #B7B7B7, #222836, #3F495E, #3F495E;
-	color: #342929;
-	fontSize: 14;
+	color: #000000;
+	fontSize: 13;
 	disabledColor: #ACE2F2;
 	errorColor: #ACE2F2;
 	rollOverColor: #ACE788;
@@ -892,7 +894,7 @@ MenuBar.linkMenuBar {
 	fillAlphas: 0,0;
 	color: #000000;
 	menuStyleName: menuItem;
-	fontSize: 14;
+	fontSize: 13;
 	fontWeight: normal;
 	highlightAlphas: 0.1, .1;
 	disabledColor: #000000;
@@ -928,7 +930,8 @@ MenuBar.linkMenuBar1
 {
 	color: #324B7A;
 	fontStyle: italic;
-	fontWeight: bold;
+	fontWeight: normal;
+	fontSize: 11;
 }
 
 RichTextEditor.readOnly {
