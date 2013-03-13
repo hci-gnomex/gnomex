@@ -341,7 +341,6 @@
 			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
 			 			
-
 	        [Bindable]
 	        [Embed(source="assets/tick.png")]
 	        public var iconCheck:Class;
@@ -2900,7 +2899,7 @@
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
 
 	
-	<mx:XMLList id="adminMenu">
+	<mx:XMLList id="adminMenu"> 
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
@@ -3205,17 +3204,17 @@
 						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
 			                
-						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel" fontFamily="Verdana" fontSize="12"  />
-			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"  fontFamily="Verdana" visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  fontSize="12"/>
+			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
 			              <mx:Button id="lookupButton" 
 			              	 width="30"
 			               	 click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 			            </mx:HBox>
 			            <mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-			              <mx:Label text="Search" height="18" styleName="navLabel" id="searchLabel" visible="false"  fontFamily="Verdana" fontSize="12"/>
-		 	              <mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontFamily="Verdana" fontSize="12" borderThickness="1"/>
-			              <mx:Button id="searchButton" height="18" click="callLater(search)"    fontFamily="Verdana" fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"  fontFamily="Verdana" fontSize="12">
+			              <mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"   fontSize="12" paddingBottom="4" height="20"/>
+		 	              <mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+			              <mx:Button id="searchButton" height="18" click="callLater(search)"     fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"   fontSize="12" height="20">
 			              </mx:LinkButton>
 			            </mx:HBox>
 					  
@@ -3232,8 +3231,8 @@
 				        </mx:HBox>
 				      </mx:HBox>
 			      
-			      <mx:HBox width="100%"  backgroundSize="100%"  height="40" 
-						   backgroundImage="assets/menubar1.png" horizontalGap="0"  
+			      <mx:HBox width="100%"  backgroundSize="100%"  height="35" 
+						   backgroundImage="assets/menubar3.png" horizontalGap="0"  
 						   verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
 						   paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false">
 
