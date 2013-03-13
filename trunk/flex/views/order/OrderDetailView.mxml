@@ -145,7 +145,7 @@
   <mx:XMLListCollection id="samplesList" source="{getRequest.lastResult..Sample}" />
 	
   <mx:VBox width="100%" height="100%" styleName="form" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"  minHeight="0" verticalScrollPolicy="auto">
-    <mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
+    <mx:Accordion width="100%"  styleName="blueAccordion" resizeToContent="true" id="accordion1">
       <mx:Canvas label="Client" width="100%" id="dataGridAccordion" minHeight="0" >
         <mx:Grid  horizontalGap="1" verticalGap="1" minHeight="0"  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" id="grid1">
           
@@ -187,7 +187,7 @@
       
     </mx:Accordion>
     
-    <mx:Accordion width="100%" resizeToContent="true"  id="accordion2">
+    <mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true"  id="accordion2">
       <mx:Canvas label="Order" width="100%" minHeight="0">
         
 			<mx:Grid  minHeight="0"  horizontalGap="1" verticalGap="1" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" id="grid2">
@@ -261,7 +261,7 @@
     </mx:Accordion>
     
     
-    <mx:Accordion width="100%"   resizeToContent="true" id="accordion3">
+    <mx:Accordion width="100%"  styleName="blueAccordion" resizeToContent="true" id="accordion3">
       <mx:Canvas label="Samples" width="100%" id="sequenceAccordion" minHeight="0"  >
       
 			  <mx:DataGrid dataProvider="{samplesList}" rowCount="{samplesList.length}" selectable="false" width="100%">

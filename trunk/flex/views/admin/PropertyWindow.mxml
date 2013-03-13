@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="969" height="506"
+				width="969" height="550"
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -702,30 +702,22 @@
 	<mx:XMLListCollection id="analysisTypes" source="{property.analysisTypes.AnalysisType}"/>
 	<mx:VBox width="100%" height="100%" verticalGap="0"  paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
 		
-		<mx:HBox width="100%" paddingBottom="6" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')"  paddingLeft="2" paddingRight="2" paddingTop="6">
+		<mx:HBox width="100%" paddingBottom="2" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')"  paddingLeft="2" paddingRight="2" paddingTop="2" fontSize="10">
 			<mx:LinkButton label="Add" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="11" textDecoration="underline"/>
 			<mx:LinkButton label="Remove" styleName="linkMenuButton" mouseUp="removeProperty(event, 'N')" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11" textDecoration="underline"/>
 			<mx:Spacer width="100%"/>
 			<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/refresh.png')" click="refresh(event)"/>
 		</mx:HBox>
 		<mx:HBox width="100%" paddingBottom="6" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')"  paddingLeft="2" paddingRight="2" paddingTop="6">
-			<mx:Text text="Show Annotations for:" />
+			<mx:Text text="Show Annotations for:"  fontSize="10"/>
 			<mx:RadioButtonGroup id="radioButtonGroupTarget" itemClick="onPropertyRefreshed(null)"/>
 			<mx:RadioButton label="Samples" value="samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Analysis" value="analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Data Tracks" value="dataTracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations"  fontSize="10"/>
-		</mx:HBox>
-		<mx:HBox width="100%" paddingBottom="6" verticalAlign="middle" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')"  paddingLeft="2" paddingRight="2" paddingTop="6">
-			<mx:Label text="Applies to Specific:"/>
-			<mx:Label text="Organism"/>
-			<mx:ComboBox id="organismFilter" itemRenderer="mx.controls.Label"  width="165"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display"/>
-			<mx:VRule height = "20" />
-			<mx:Label text="Experiment Platform"/>
-			<mx:ComboBox id="experimentPlatformFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display"/>
-			<mx:VRule height = "20" />
-			<mx:Label text="Analysis Type"/>
-			<mx:ComboBox id="analysisTypeFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display"/>
-			
+			<mx:Label text="Applies to Specific:" fontSize="10" paddingLeft="20"/>
+			<mx:ComboBox id="organismFilter" itemRenderer="mx.controls.Label"  width="140"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Organism..."/>
+			<mx:ComboBox id="experimentPlatformFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" prompt="Experiment Platform..." fontSize="10"/>
+			<mx:ComboBox id="analysisTypeFilter" itemRenderer="mx.controls.Label" width="140" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Analysis Type..."/>
 		</mx:HBox>
 		
 		
@@ -795,7 +787,7 @@
 							</mx:HBox>
 							<mx:HBox width="100%" verticalGap="0" height="65">
 								<mx:Text text="Description" width="90"/>
-								<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="65" id="description"  maxChars="2000"/>
+								<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="55" id="description"  maxChars="2000" fontSize="10"/>
 							</mx:HBox>
 							<mx:HBox width="100%">
 								<mx:Label text="Owner" width="90"/>
@@ -803,7 +795,7 @@
 							</mx:HBox>
 							<mx:HBox width="100%" verticalGap="0" height="100%" verticalAlign="top">
 								<mx:Label text="Type" width="90"/>
-								<mx:VBox verticalGap="1" height="100%" paddingTop="10">
+								<mx:VBox verticalGap="0" height="100%" paddingTop="0">
 									<mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{property.@codePropertyType}">
 									</mx:RadioButtonGroup>
 									<mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
@@ -833,9 +825,9 @@
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
 								<mx:Text text="Only show for these platforms/applications:" width="100%"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
-									<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();" >			       	
+									<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
 									</mx:ComboBox>
-									<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)" >			       	
+									<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)"  fontSize="10">			       	
 									</mx:ComboBox>
 									<mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -855,7 +847,7 @@
 								<mx:VBox   verticalGap="1" height="100%"  width="100%">
 									<mx:Text text="Only show for these organisms:" width="100%"/>
 									<mx:HBox horizontalAlign="left" horizontalGap="2">
-										<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display" >			       	
+										<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display"  fontSize="10">			       	
 										</mx:ComboBox>
 										<mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 											<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -874,7 +866,7 @@
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
 								<mx:Label text="Only show for these analysis types:" width="100%"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
-									<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display" >			       	
+									<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display"  fontSize="10">			       	
 									</mx:ComboBox>
 									<mx:Button click="addAnalysisType()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypeCombo.selectedItem != null &amp;&amp; analysisTypeCombo.selectedIndex > 0 ? true : false}</mx:enabled>

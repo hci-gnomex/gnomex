@@ -13,7 +13,7 @@
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="2" fontSize="12" paddingTop="0" paddingLeft="10">
-			<mx:Text text="Functionality" fontWeight="bold" fontSize="12" paddingBottom="0" fontFamily="Verdana" color="#000000" fontStyle="normal"/>
+			<mx:Text text="Functionality" fontWeight="bold" fontSize="12" paddingBottom="0" color="#000000" fontStyle="normal"/>
 			<mx:HBox horizontalGap="0" width="100%">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="A LIMS for making and tracking requests for genomic analysis (e.g. Next generation sequencing, Microarrays, Sanger Sequencing, etc.)" width="100%"/>				
@@ -34,7 +34,7 @@
 		</mx:VBox>
 		
 		<mx:VBox id="contactBox" width="100%" verticalGap="0" fontSize="12" paddingLeft="10">		
-			<mx:Text text="Contact Info" fontWeight="bold" fontSize="12" paddingBottom="0" fontFamily="Verdana" color="#000000" textDecoration="none" fontStyle="normal"/>
+			<mx:Text text="Contact Info" fontWeight="bold" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="To report software bugs and/or provide feedback:"/>
@@ -43,7 +43,7 @@
 		</mx:VBox>
 		
 		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">
-			<mx:Text text="Credits" fontWeight="bold" fontSize="12" paddingBottom="0" fontFamily="Verdana" color="#000000" textDecoration="none" fontStyle="normal"/>
+			<mx:Text text="Credits" fontWeight="bold" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray and Genomics Analysis Core Facility and the University of Utah Bioinformatics Core." width="100%"/>

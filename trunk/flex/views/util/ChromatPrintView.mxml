@@ -9,9 +9,9 @@
 	
 	
 	<mx:VBox width="100%" id="infoBox" minHeight="0">
-		<mx:Accordion width="100%" resizeToContent="true" id="accordion1"/>
-		<mx:Accordion width="100%" resizeToContent="true" id="accordion2"/>
-		<mx:Accordion width="100%" resizeToContent="true" id="accordion3"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion1"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion2"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion3"/>
 	</mx:VBox>
 	
 </mx:VBox>

@@ -646,7 +646,7 @@
 		<mx:Spacer height="100%"/>
 		<mx:VBox paddingLeft="30" paddingRight="30" width="100%" paddingBottom="2" paddingTop="0" id="vbox15">
 			<mx:VBox   bottom="4" left ="4"  visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha="1" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
-				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal" fontFamily="Verdana" textAlign="left"  width="800" height="100%"   id="text4"/>  			
+				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal"  textAlign="left"  width="800" height="100%"   id="text4"/>  			
 			</mx:VBox>
 		</mx:VBox>
 		<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel" width="100%" textAlign="right"/>
