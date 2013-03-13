@@ -98,6 +98,14 @@
 			}
 		}
 		
+		public function isSequenomState():Boolean {
+			if (currentState == 'SequenomState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
 		public function checkSecurity():void {
 			
 			if (parentApplication.isGuestMode()) {
@@ -229,6 +237,10 @@
 				if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 				}
+			} else if (requestCategory.@type == 'SEQUENOM') {
+				this.currentState = "SequenomState";
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
+				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'SequenomState';	
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -311,7 +323,7 @@
 				if (s.@multiplexGroupNumber != '') {
 					showSampleMultiplexGroup = true;
 				}
-				if ((isCapSeqState() && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
+				if (((isCapSeqState() || isSequenomState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
 					showPlates = true;
 				}
 				if (s.@idOligoBarcode != '' ) {
@@ -640,7 +652,7 @@
 				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 			 }
 			 
-			 if (this.isIScanState()) {
+			 if (this.isIScanState() || this.isSequenomState()) {
 				 parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 			 }
 			 
@@ -659,9 +671,6 @@
 			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
-			 //parentDocument.experimentEditView.removeDataListeners();
-           	 //parentDocument.experimentEditView.initializeData();
-           	 //callLater(parentDocument.experimentEditView.setupDataListeners);
 		}
 
 		private function countPlates():int {
@@ -702,7 +711,7 @@
 			// can't do this in state stuff because of external stuff below.
 			this.noteToCoreFacilityBox.visible = true;
 			this.noteToCoreFacilityBox.includeInLayout = true;
-			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState()) {
+			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState() || this.isSequenomState()) {
 				this.noteToBioBox.visible = false;
 				this.noteToBioBox.includeInLayout = false;
 			} else {
@@ -900,6 +909,21 @@
 					this.cherrySourceWellCol.visible = false;
 					reactionPlateCol.visible = false;
 					
+				} else if (isSequenomState()) {
+					concentrationCol.visible = false; 
+					sampleTypeCol.visible = true;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					this.qc260Col.visible = false;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
+					
 				} else {
 					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
@@ -1004,7 +1028,7 @@
 				}    				
 			}
 
-			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() ) {
+			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() && !isSequenomState() ) {
 	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 					if(annotation.@idProperty == "-1") {
 						continue;
@@ -1347,7 +1371,7 @@
 											borderThicknessTop="0" height="100%" minHeight="50" styleName="readOnly"/>
 						<mx:VBox width="100%" height="100%" id="bioAndCoreNoteVBox">
 							<mx:Spacer height="4" />
-							<mx:HBox width="100%" height="100%" >
+							<mx:HBox width="100%" height="100%"  id="hbox4">
 			  					<mx:VBox verticalGap="0" width="100%" height="100%" id="noteToCoreFacilityBox" visible="true" includeInLayout="true">
 		  							<mx:Label text="Notes for Core Facility"  styleName="formLabel"/>
 									<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
@@ -1925,6 +1949,11 @@
 		<mx:RemoveChild target="{noteToBioBox}"/>
 		
 	</mx:State>
+	<mx:State name="SequenomState">
+		<mx:RemoveChild target="{hbox4}"/>
+		<mx:RemoveChild target="{bioAndCoreNoteVBox}"/>
+	</mx:State>
+	<mx:State name="ClinicalSeqState" basedOn="SequenomState"/>
 </mx:states>
 	
 </mx:VBox>

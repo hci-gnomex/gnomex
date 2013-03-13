@@ -1538,6 +1538,8 @@ CREATE TABLE `gnomex`.`Request` (
   `idSubmitter` INT(10) NULL,
   `numberIScanChips` INT(10) NULL,
   `idIScanChip` INT(10) NULL,
+  `coreToExtractDNA` CHAR(1) NULL,
+  `applicationNotes` varchar(5000) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

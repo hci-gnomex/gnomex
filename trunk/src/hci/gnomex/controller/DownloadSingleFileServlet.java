@@ -277,7 +277,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
             "<html><head><title>Error</title></head>");
         response.getOutputStream().println("<body><b>");
         response.getOutputStream().println(
-            "DownloadAnalyisSingleFileServlet: You must have a SecurityAdvisor in order to run this command."
+            "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command."
                 + "<br>");
         response.getOutputStream().println("</body>");
         response.getOutputStream().println("</html>");
@@ -289,7 +289,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           "<html><head><title>Error</title></head>");
       response.getOutputStream().println("<body><b>");
       response.getOutputStream().println(
-          "DownloadAnalyisSingleFileServlet: An exception occurred " + e.toString()
+          "DownloadSingleFileServlet: An exception occurred " + e.toString()
               + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");

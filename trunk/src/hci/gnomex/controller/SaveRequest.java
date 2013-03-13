@@ -1194,7 +1194,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // handle plate and plate wells for fragment analysis, if applicable
     updateFragAnalPlates(sess, sample, idSampleString);
     
-    // handl mitochondrial sequencing wells and plates
+    // handle mitochondrial sequencing wells and plates
     updateMitSeqWells(sess, sample, idSampleString);
     
     // Cherry pick source and destination wells
@@ -1203,10 +1203,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     // handle plates and plate wells for iScan
     updateIScanPlates(sess, sample, idSampleString);
     
+    // handle plates and plate wells for Sequeonom
+//    updateSequenomPlates(sess, sample, idSampleString);
+    
   }
 
   private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString) {
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
+        requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ||
+        requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
       Plate plate = requestParser.getPlate(idSampleString);
       PlateWell well = requestParser.getWell(idSampleString);
       if (plate != null && well != null) {
@@ -1528,6 +1533,76 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             this.sampleCountOnPlate = 1;
           }
           this.previousIScanPlateId = realPlate.getIdPlate();
+          this.storePlateMap.put(idAsString, realPlate);
+        }
+        PlateWell realWell = well;
+        if (well.getIdPlateWell() != null) {
+          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlateWell());
+        } else {
+          realWell.setSample(sample);
+          realWell.setIdSample(sample.getIdSample());
+          realWell.setPlate(realPlate);
+          realWell.setIdPlate(realPlate.getIdPlate());
+          realWell.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        realWell.setRow(well.getRow());
+        realWell.setCol(well.getCol());
+        // We will assume that the samples are being saved
+        // in the order they are listed, so set the well position based on
+        // to sample count which is incremented as we iterate through the
+        // list of samples.
+        realWell.setPosition(new Integer(sampleCountOnPlate));
+        sess.save(realWell);
+        sess.flush();
+      } else {
+        well = null;
+        if (sample.getWells() != null && sample.getWells().size() > 0) {
+          // this loop should be unnecessary since there should only be the 1 well with no plate (source well)
+          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell w = (PlateWell)i.next();
+            if (w.getIdPlate() == null) {
+              well = w;
+              break;
+            }
+          }
+        }
+        if (well == null) {
+          well = new PlateWell();
+          well.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          well.setIdSample(sample.getIdSample());
+          well.setSample(sample);
+          well.setIdRequest(requestParser.getRequest().getIdRequest());
+        }
+        well.setPosition(new Integer(sampleCountOnPlate));
+        sess.save(well);
+      }
+      
+      sess.flush();
+    }
+  }
+  private void updateSequenomPlates(Session sess, Sample sample, String idSampleString) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+      Plate plate = requestParser.getPlate(idSampleString);
+      PlateWell well = requestParser.getWell(idSampleString);
+      if (plate != null && well != null) {
+        // this means it was Plate container type.
+        String idAsString = requestParser.getPlateIdAsString(idSampleString);
+        Plate realPlate = this.storePlateMap.get(idAsString);
+        if (realPlate == null) {
+          realPlate = plate;
+          if (plate.getIdPlate() != null) {
+            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+          } else {
+            realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
+          }
+          realPlate.setLabel(plate.getLabel());
+          realPlate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
+          sess.save(realPlate);
+          sess.flush();
+          if (this.previousCapSeqPlateId == null || !this.previousCapSeqPlateId.equals(realPlate.getIdPlate())) {
+            this.sampleCountOnPlate = 1;
+          }
+          this.previousCapSeqPlateId = realPlate.getIdPlate();
           this.storePlateMap.put(idAsString, realPlate);
         }
         PlateWell realWell = well;

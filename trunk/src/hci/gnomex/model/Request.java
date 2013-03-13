@@ -85,6 +85,8 @@ public class Request extends HibernateDetailObject {
   private AppUser         submitter;
   private Integer         idIScanChip;
   private Integer         numberIScanChips;
+  private String          applicationNotes;
+  private String          coreToExtractDNA;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1213,6 +1215,22 @@ public class Request extends HibernateDetailObject {
     this.numberIScanChips = numberIScanChips;
   }
   
+  
+  public String getApplicationNotes() {
+    return applicationNotes;
+  }
+  
+  public void setApplicationNotes( String applicationNotes ) {
+    this.applicationNotes = applicationNotes;
+  }
+  
+  public String getCoreToExtractDNA() {
+    return coreToExtractDNA;
+  }
+  
+  public void setCoreToExtractDNA( String coreToExtractDNA ) {
+    this.coreToExtractDNA = coreToExtractDNA;
+  }
   public boolean isLibPrepByCore() {
     if (this.getSamples().size() > 0) {
       Sample sample = (Sample)this.getSamples().iterator().next();

@@ -78,10 +78,6 @@
 								   visible="{parentApplication.showCoreGenomicsLinks}"
 								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
 								   click="showOrganismWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
-					<mx:LinkButton id="iScanChipButton"  label="Configure iScan Chips" styleName="dashboardButton" 
-								   visible="{parentApplication.showCoreGenomicsLinks}"
-								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
-								   click="showIScanChipWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
 					<mx:LinkButton label="Manage microarray catalog" 
 								   visible="{parentApplication.showCoreGenomicsLinks}"
 								   includeInLayout="{parentApplication.showCoreGenomicsLinks}"
@@ -301,6 +297,10 @@
 			<mx:SetStyle target="{vbox11}" name="paddingTop" value="0"/>
 			<mx:SetProperty target="{text4}" name="width" value="800"/>
 			<mx:SetProperty target="{vbox11}" name="width"/>
+			<mx:AddChild relativeTo="{button0}" position="before">
+				<mx:LinkButton id="iScanChipButton"  label="Configure iScan Chips" styleName="dashboardButton" 
+							   click="showIScanChipWindow()"  enabled="true" icon="@Embed(source='../../assets/page_white_wrench.png')"/>
+			</mx:AddChild>
 
 		</mx:State>
 		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
@@ -321,6 +321,8 @@
 			<mx:RemoveChild target="{button21}"/>
 			<mx:AddChild relativeTo="{vbox9}" position="lastChild" target="{button21}"/>
 			<mx:RemoveChild target="{accountConfigurationButton}"/>
+			<mx:RemoveChild target="{iScanChipButton}"/>
+			<mx:RemoveChild target="{iScanChipButton}"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>

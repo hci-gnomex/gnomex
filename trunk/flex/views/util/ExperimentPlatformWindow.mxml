@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="900" height="540"  creationPolicy="all"
+				layout="vertical" width="950" height="540"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform" titleIcon="@Embed(source='../../assets/page_white_wrench.png')">
@@ -130,6 +130,7 @@
 				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
 				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
 				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
+				params.isClinicalResearch = this.isCRCheckbox.selected ? 'Y' : 'N';
 				
 				//params.icon = this.theIcon.text;
 				if(iconCombo.selectedIndex > 0) {
@@ -174,6 +175,15 @@
 					dirty.setDirty();
 				} else if (this.typeRadioGroup.selectedValue == 'ISCAN') {
 					iconToCheck = "assets/iscan.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'CLINSEQ') {
+					iconToCheck = "assets/cherrypick.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'SEQUENOM') {
+					iconToCheck = "assets/cherrypick.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'GENERIC') {
+					iconToCheck = "assets/cherrypick.png";				
 					dirty.setDirty();
 				}
 				
@@ -606,6 +616,16 @@
 									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
 									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
 								</mx:VBox>
+								<mx:VBox verticalGap="0" paddingLeft="0">
+									<mx:RadioButton label="Clinical Research Sequenom" value="CLINSEQ" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Sequenom" value="SEQUENOM" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Generic" value="GENERIC" groupName="typeRadioGroup" click="pickType()"/>
+								</mx:VBox>
+							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+								<mx:Text text="Security" 
+										 width="80" />
+								<mx:CheckBox id="isCRCheckbox" label="Is for clinical research" click="{dirty.setDirty()}" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" />
 							</mx:HBox>
 							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
 								<mx:Label id="channelLabel" text="Number of channels" width="120"/>

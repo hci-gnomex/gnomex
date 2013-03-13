@@ -31,7 +31,7 @@
 		public var parentWindow:views.util.ExperimentPlatformWindow = null;
 		
 		private function init():void{
-			var platformTypeString:String = "<label></label><label>Next Generation Sequencing</label><label>Microarray</label><label>Sample Quality</label><label>Capillary Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label><label>iScan</label>"
+			var platformTypeString:String = "<label></label><label>Next Generation Sequencing</label><label>Microarray</label><label>Sample Quality</label><label>Capillary Sequencing</label><label>Mitochondrial D-Loop Sequencing</label><label>Fragment Analysis Panels</label><label>Cherry Picking</label><label>iScan</label><label>Clinical Sequenom</label><label>Sequenom</label><label>Generic</label>"
 			platformTypes = new XMLList(platformTypeString);
 		}
 		
@@ -95,6 +95,12 @@
 				platformTypeCode = parentApplication.TYPE_CAP_SEQ;
 			} else if(typeCombo.selectedLabel == "iScan"){
 				platformTypeCode = parentApplication.TYPE_ISCAN;
+			} else if(typeCombo.selectedLabel == "Clinical Sequenom"){
+				platformTypeCode = parentApplication.TYPE_CLINICAL_SEQUENOM;
+			} else if(typeCombo.selectedLabel == "Sequenom"){
+				platformTypeCode = parentApplication.TYPE_SEQUENOM;
+			} else if(typeCombo.selectedLabel == "Generic"){
+				platformTypeCode = parentApplication.TYPE_GENERIC;
 			}
 		}
 		
