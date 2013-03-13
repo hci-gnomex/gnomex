@@ -550,7 +550,7 @@
 				<mx:VBox width="100%" height="100%" styleName="panelBox" 
 						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
-						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="4">
+						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="5">
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
 								<mx:Label text="Name" width="80"/>
 								<mx:TextInput  id="platformName"  width="100%" text="{requestCategory.@requestCategory}"  change="dirty.setDirty()"/>
@@ -593,16 +593,18 @@
 								<mx:Label text="Type" width="73"/>
 								<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
 								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
+									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0"/>
+									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0"/>
 								</mx:VBox>
 								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
+									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
+									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
+								</mx:VBox>
+								<mx:VBox verticalGap="0" paddingLeft="0">
+									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
+									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0"/>
 								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
@@ -738,7 +740,7 @@
 												   enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   
 												   icon="@Embed(source='../../assets/delete.png')" 
 												   disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-									<mx:Text width="350" text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="italic"/>
+									<mx:Text width="350" text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="italic" fontSize="9"/>
 									
 								</mx:HBox>
 								<mx:DataGrid id="sampleTypeGrid" 
@@ -793,7 +795,7 @@
 									</mx:HBox> 
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
 												 dataProvider="{sequencingOptions}" wordWrap="true"
-												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()">
+												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" fontSize="10">
 										<mx:columns>
 											<mx:DataGridColumn headerText="Cycles"    headerWordWrap="true"
 															   width="50" dataField="@display" 

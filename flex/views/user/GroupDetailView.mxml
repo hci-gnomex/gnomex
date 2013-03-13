@@ -1374,13 +1374,13 @@
 						</mx:HBox>
 					</mx:VBox>
 
-					<mx:Accordion width="100%" height="100%">
+					<mx:Accordion width="100%" height="100%" styleName="formAccordion">
 						<mx:VBox   label="{parentApplication.useConfigurableBillingAccounts ? 'Internal Accounts' : 'Chartfields'}" width="100%" height="100%" verticalGap="0">
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="3" paddingBottom="1">
 								<mx:Spacer width="100%"/>
 							</mx:HBox>
 							<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
-										 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="9"
+										 itemEditBeginning="verifyChartfieldEdit(event)" fontSize="12"
 										horizontalScrollPolicy="auto"   variableRowHeight="true" wordWrap="true">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 								<mx:columns>
@@ -1451,7 +1451,7 @@
 								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="0" paddingBottom="1">
 									<mx:Spacer width="100%"/>
 								</mx:HBox>
-								<mx:DataGrid width="100%"  fontSize="9" height="100%" id="billingAccountPOGrid" editable="true"
+								<mx:DataGrid width="100%"  fontSize="12" height="100%" id="billingAccountPOGrid" editable="true"
 											 horizontalScrollPolicy="off" variableRowHeight="true" >
 									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
 									<mx:columns>
@@ -1534,7 +1534,7 @@
 								</mx:HBox>
 								
 								<mx:DataGrid width="100%" height="100%" id="billingAccountCreditCardGrid" editable="true"
-											 fontSize="9"
+											 fontSize="12"
 											 horizontalScrollPolicy="off" variableRowHeight="true" >
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
