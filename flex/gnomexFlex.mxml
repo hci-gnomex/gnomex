@@ -1369,9 +1369,21 @@
 			}
 			
 			public function showNewExperiment(ccNumberList:Array):void {
-				showView("New Experiment Order");
+				// When beginning a new order always load a new request.
+				this.submitRequestView.request = null;
+				this.isInternalExperimentSubmission = true;
+				theViews.selectedChild = homeView;
+				submitRequestView.ccNumberList = ccNumberList;
+				submitRequestView.defaultCodeRequestCategory = 'CLINSEQ';
+				callLater(submitClinicalResearchRequest);	
 			}
 			
+			private function submitClinicalResearchRequest():void {
+				this.isInternalExperimentSubmission = true;
+				this.theViews.selectedChild = this.submitRequestView;
+				// If new experiment then initialize ShowCCNumber checkbox
+				this.submitRequestView.showCCNumberColumn = true;
+			}			
 
 			public function showBillingAccountDetail(idLab:String):void {
 				var theLab:Object = this.getLabList.lastResult.Lab.(@idLab == idLab);
