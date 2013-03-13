@@ -390,8 +390,8 @@
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
 				
 				// reset stuff for clinical research integration
-				this.parentApplication.defaultCodeRequestCategory = null;
-				this.parentApplication.ccNumberList = null;
+				this.parentApplication.submitRequestView.defaultCodeRequestCategory = null;
+				this.parentApplication.submitRequestView.ccNumberList = null;
 			}
 			
 			private function reviewOrders():void {
