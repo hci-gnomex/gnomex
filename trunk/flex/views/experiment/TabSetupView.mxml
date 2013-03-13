@@ -516,6 +516,12 @@
 				}
 				
 				selectDefaultUserProject();
+				
+				if (parentDocument.defaultCodeRequestCategory != null) {
+					requestTypeGroup.selectedValue = parentDocument.defaultCodeRequestCategory;
+					callLater(parentDocument.setRequestCategoryName);
+					callLater(highlightRequestCategory);
+				}
 				this.checkSetupCompleteness();
 				
 				
@@ -801,6 +807,8 @@
 						parentDocument.confirmView.enabled = false;
 					}
 				} else {
+					setClinicalSequenomSamples();
+
 					if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
 						if (parentDocument.theTab.contains(parentDocument.seqSetupView)) {
 							parentDocument.seqSetupView.enabled = true;
@@ -823,6 +831,27 @@
 					}
 				}
 				
+			}
+
+			private function setClinicalSequenomSamples():void {
+				if (parentDocument.requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM && parentDocument.ccNumberList != null) {
+					// add samples for cc numbers passed in by BST
+					parentDocument.samples.removeAll();
+					for (var sampleIdx:int = 0; sampleIdx < parentDocument.ccNumberList.length; sampleIdx++) {
+						var ccNumber:String = parentDocument.ccNumberList[sampleIdx];
+						var sampleId:String = "Sample" + sampleIdx;
+						var emptyNode:XML = new XML("<Sample " +
+							" idSample='" + sampleId + "'" +
+							" name='" + ccNumber + "' description='' " +
+							" canChangeSampleName='Y'" +
+							" ccNumber='" + ccNumber + "'" +
+							"/>");
+						parentDocument.samples.addItem(emptyNode);
+					}
+					if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
+						parentDocument.sampleSetupView.numberOfSamples.text = parentDocument.samples.length;
+					}
+				}
 			}
 			
 			private function onGetProjectRequestList(event:ResultEvent):void {
@@ -968,20 +997,26 @@
 			
 			private function filterRequestCategory(item:Object):Boolean {
 				var keep:Boolean = false;
-				if (item.@idCoreFacility == null) {
-					// If a request category is not associated with a core facility,
-					// include it in the list.
-					keep = true;
-				} else if (lab == null) {
-					keep = true;
+				if (parentDocument.defaultCodeRequestCategory != null) {
+					if (item.@codeRequestCategory == parentDocument.defaultCodeRequestCategory) {
+						keep = true;
+					}
 				} else {
-					// If the user is an admin, filter by the core facilities he/she manages; if
-					// the user is a normal user, filter by the core facilities associated with
-					// the labs he/she is a member of.
-					for each(var cf:Object in lab..CoreFacility) {
-						if (cf.@idCoreFacility == item.@idCoreFacility) {
-							keep = true;
-							break;
+					if (item.@idCoreFacility == null) {
+						// If a request category is not associated with a core facility,
+						// include it in the list.
+						keep = true;
+					} else if (lab == null) {
+						keep = true;
+					} else {
+						// If the user is an admin, filter by the core facilities he/she manages; if
+						// the user is a normal user, filter by the core facilities associated with
+						// the labs he/she is a member of.
+						for each(var cf:Object in lab..CoreFacility) {
+							if (cf.@idCoreFacility == item.@idCoreFacility) {
+								keep = true;
+								break;
+							}
 						}
 					}
 				}

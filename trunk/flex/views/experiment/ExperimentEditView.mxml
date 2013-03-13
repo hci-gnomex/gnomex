@@ -341,6 +341,10 @@
 			
 		public var numIScanPlates:int = 0;
 		
+		public var defaultCodeRequestCategory:String = null;
+		
+		public var ccNumberList:Array = null;
+		
 		[Bindable]
 		private var labList:XMLListCollection = null;
 		
