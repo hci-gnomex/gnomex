@@ -1172,12 +1172,15 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.sampleSetupView.sequenomPanelContainer.visible = false;
+				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
+				
 				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
-				
+								
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -1190,6 +1193,10 @@
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
+				
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',filteredAppList[0].@codeApplication);
+				applicationName = application.@display.toString();
+				codeApplication = application.@codeApplication;
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 								
@@ -2467,7 +2474,9 @@
 					}
 				}
 				this.sampleSetupView.coreToExtractDNACheckBox.selected = request.@coreToExtractDNA == 'Y' ? true : false;
-				this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
+				if (this.isSequenomState() ){
+					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
+				} 
 				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 			}
@@ -3170,6 +3179,8 @@
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
 				if (this.isClinicalSequenomState()) {
+					request.@applicationNotes = '';
+					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
 				if (currentState != 'QCState' && !isDNASeqCoreState() && !isSequenomState() && !isClinicalSequenomState()) {
@@ -3322,6 +3333,8 @@
 				request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 			}
 			if (this.isClinicalSequenomState()) {
+				request.@applicationNotes = '';
+				request.@codeApplication = filteredAppList[0].@value;
 				request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 			}
 			request.replace("samples", <samples></samples>); 
@@ -5408,10 +5421,11 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
-			<!--<mx:RemoveChild target="{samplesView}"/>-->
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
 			<!--<mx:RemoveChild target="{samplesView}"/>-->
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
