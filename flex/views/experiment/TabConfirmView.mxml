@@ -145,6 +145,8 @@
 				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				this.vbox4.includeInLayout = !parentDocument.isDNASeqCoreState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
+				this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
 				if (parentDocument.isMitSeqState()) {
 					this.primerVbox.visible = true;
 					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
@@ -185,7 +187,8 @@
 			}			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
 									   && !parentDocument.isDNASeqCoreState()
-									   && !parentDocument.isSequenomState();
+									   && !parentDocument.isSequenomState()
+									   && !parentDocument.isClinicalSequenomState();
 			
 			wellNameCol.visible = false;
 			if (parentDocument.samplesView.hasPlates()) {
@@ -196,7 +199,7 @@
 				wellNameCol.visible = true;
 			}
 //			plateNameCol.visible = ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) ? true : false;
-			containerTypeCol.visible = parentDocument.isCapSeqState() || parentDocument.isSequenomState() ? true : false;
+			containerTypeCol.visible = parentDocument.isCapSeqState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState() ? true : false;
 			
 			// set all assay columns to not visible.
 			for each(var colRemove:DataGridColumn in samplesGridConfirm.columns) {
@@ -326,7 +329,7 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = false;
 				
-			}  else if (parentDocument.isSequenomState()) {
+			}  else if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
@@ -355,7 +358,7 @@
 
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState' || (parentDocument.isDNASeqCoreState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState()) {
+			if (parentDocument.currentState == 'QCState' || (parentDocument.isDNASeqCoreState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -401,10 +404,12 @@
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
 			<mx:HBox width="100%" horizontalGap="4">
-				<mx:VBox height="100%" verticalGap="0" width="120" horizontalScrollPolicy="off">
+				<mx:VBox height="100%" verticalGap="0" width="160" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isDNASeqCoreState()}"/>
+					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" id="appLabel0" width="140" 
+							 visible="{parentDocument.isSequenomState()}"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="130" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>

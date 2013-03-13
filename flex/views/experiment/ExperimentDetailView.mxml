@@ -1952,6 +1952,20 @@
 	<mx:State name="SequenomState">
 		<mx:RemoveChild target="{hbox4}"/>
 		<mx:RemoveChild target="{bioAndCoreNoteVBox}"/>
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
+				<mx:Label text="Core to extract DNA"  width="100" styleName="formLabel" textAlign="left" id="label0"/>
+				<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox5}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
+					 visible="{this.selectedExperiment.@applicationNotes!=''}"
+					 includeInLayout="{this.selectedExperiment.@applicationNotes!=''}">
+				<mx:Label width="100"  id="label10"/>
+				<mx:Text   text="{this.selectedExperiment.@applicationNotes}" width="280"/>
+			</mx:HBox>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="ClinicalSeqState" basedOn="SequenomState"/>
 </mx:states>
