@@ -141,7 +141,10 @@
 				} else {
 					this.sampleDropOffLocationVbox.visible = false;	
 				}
-				this.vbox4.visible = !parentDocument.isCapSeqState && !parentDocument.isMitSeqState() && !parentDocument.isFragAnalState() && !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
+				this.vbox4.visible = !parentDocument.isDNASeqCoreState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox4.includeInLayout = !parentDocument.isDNASeqCoreState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				if (parentDocument.isMitSeqState()) {
 					this.primerVbox.visible = true;
 					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
@@ -167,7 +170,7 @@
 
 			this.label1.text = 'Samples (' + filteredSamples.length + ')';
 
-			if (parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() || parentDocument.isIScanState()) {
+			if (parentDocument.isDNASeqCoreState()) {
 				this.parentDocument.submitButton.label = 'Save';
 				this.parentDocument.submitButton.enabled = true;
 				this.parentDocument.agreeCheckbox.selected = true;
@@ -181,21 +184,19 @@
 				this.parentDocument.agreeCheckbox.selected = false;
 			}			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
-				&& !parentDocument.isCapSeqState()
-				&& !parentDocument.isFragAnalState()
-				&& !parentDocument.isMitSeqState()
-				&& !parentDocument.isCherryPickState()
-				&& !parentDocument.isIScanState;
+									   && !parentDocument.isDNASeqCoreState()
+									   && !parentDocument.isSequenomState();
 			
 			wellNameCol.visible = false;
-			if ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) {
+			if (parentDocument.samplesView.hasPlates()) {
 				wellNameCol.visible = true;
+				plateNameCol.visible = true;
 			}
 			if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
 				wellNameCol.visible = true;
 			}
-			plateNameCol.visible = ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) ? true : false;
-			containerTypeCol.visible = parentDocument.isCapSeqState() ? true : false;
+//			plateNameCol.visible = ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) ? true : false;
+			containerTypeCol.visible = parentDocument.isCapSeqState() || parentDocument.isSequenomState() ? true : false;
 			
 			// set all assay columns to not visible.
 			for each(var colRemove:DataGridColumn in samplesGridConfirm.columns) {
@@ -312,7 +313,7 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = true;
 
-			} else if (parentDocument.isFragAnalState()) {
+			} else if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() || parentDocument.isIScanState()) {
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
@@ -325,7 +326,7 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = false;
 				
-			} else if (parentDocument.isMitSeqState()) {
+			}  else if (parentDocument.isSequenomState()) {
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
@@ -338,33 +339,7 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = false;
 				
-			} else if (parentDocument.isCherryPickState()) {
-				concentrationUnitConfirmColumn.visible = false;
-				sampleOrganismConfirmColumn.visible = false;
-				otherOrganismCol.visible = false;
-				chipTypeConfirmColumn.visible = false; 
-				otherSamplePrepMethodConfirmCol.visible = false;
-				preppedByCoreCol.visible = false;
-				seqLibProtocolConfirmCol.visible = false;
-				this.numberOfSequencingCyclesCol.visible = false;
-				this.seqRunTypeCol.visible = false;
-				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = false;
-				
-			} else if (parentDocument.isIScanState()) {
-				concentrationUnitConfirmColumn.visible = false;
-				sampleOrganismConfirmColumn.visible = false;
-				otherOrganismCol.visible = false;
-				chipTypeConfirmColumn.visible = false; 
-				otherSamplePrepMethodConfirmCol.visible = false;
-				preppedByCoreCol.visible = false;
-				seqLibProtocolConfirmCol.visible = false;
-				this.numberOfSequencingCyclesCol.visible = false;
-				this.seqRunTypeCol.visible = false;
-				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = false;
-				
-			} else {
+			}else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				otherOrganismCol.visible = false;
@@ -380,7 +355,7 @@
 
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState' || parentDocument.isCapSeqState() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() ) {
+			if (parentDocument.currentState == 'QCState' || (parentDocument.isDNASeqCoreState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -429,7 +404,7 @@
 				<mx:VBox height="100%" verticalGap="0" width="120" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
-					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140"/>
+					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isDNASeqCoreState()}"/>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="130" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>
@@ -446,7 +421,7 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName}" width="250"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber}" width="250"/>
 				</mx:VBox>
-				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="100">
+				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="100" editable="false">
 					  <mx:htmlText><![CDATA[1.  Please confirm the information below. Click the<br>     Back button or a tab to modify the request.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the Submit<br>    button.]]></mx:htmlText>
 				</mx:TextArea>
 			</mx:HBox>

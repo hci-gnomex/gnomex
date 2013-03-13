@@ -891,6 +891,9 @@
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
 			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
 			public  var TYPE_ISCAN:String   	  = "ISCAN";
+			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
+			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
+			public  var TYPE_GENERIC:String   	  = "GENERIC";
 			public  const TYPE_DISK_USAGE:String  = "DISKUSAGE"; // For disk usage in billing items.  Not used by requests.
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";

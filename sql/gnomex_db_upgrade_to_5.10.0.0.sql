@@ -1,8 +1,11 @@
 use gnomex;
 
--- Add sortOrder to workflow step table
+-- Add clinical research flag to request category
 alter table RequestCategory add isClinicalResearch CHAR(1) null;
 
+-- add application notes and core to extract DNA to request
+alter table Request add coreToExtractDNA CHAR(1) null;
+alter table Request add applicationNotes varchar(5000) null;
 
 -- Add zipCode to BillingAccount table
 alter table gnomex.BillingAccount add column zipCode varchar(20);

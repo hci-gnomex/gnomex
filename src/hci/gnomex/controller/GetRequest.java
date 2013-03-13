@@ -477,7 +477,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             GetRequestDownloadList.addExpandedFileNodes(sess, serverName, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh, false);
           }
 
-          // Default to not breaking otu samples by plates.
+          // Default to not breaking out samples by plates.
           requestNode.setAttribute("hasPlates", "N");
 
           // get list of samlpe ids for the request.  Used in querying PlateWell.
@@ -487,7 +487,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
             sampleIds.add(sample.getIdSample());
           }
           
-          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)
+          if (request.getCodeRequestCategory() != null && 
+              (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY))
               && request.getSamples().size() > 0) {
             String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
             Query plateQuery = sess.createQuery(plateQueryString);
