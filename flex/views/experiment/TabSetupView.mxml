@@ -1001,7 +1001,8 @@
 					if (item.@codeRequestCategory == parentDocument.defaultCodeRequestCategory) {
 						keep = true;
 					}
-				} else {
+					// Note we don't show clinical research categories for manual submission.  
+				} else if (item.@isClinicalResearch == null || item.@isClinicalResearch != 'Y') {
 					if (item.@idCoreFacility == null) {
 						// If a request category is not associated with a core facility,
 						// include it in the list.
