@@ -120,6 +120,16 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
       return codeRequestCategory.equals(this.QUALITY_CONTROL_REQUEST_CATEGORY);
     }
   }
+  
+  public static boolean isSequenom(String codeRequestCategory) {
+    if (codeRequestCategory != null &&
+        (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
+          codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   
   public String getDisplay() {

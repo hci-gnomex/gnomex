@@ -1133,6 +1133,23 @@ public class Request extends HibernateDetailObject {
   public Boolean isCapSeqPlate() {
     Boolean retVal = false;
     if (this.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+      retVal = isPlateRequest();
+    }
+    return retVal;
+  }
+  
+
+  public Boolean isSequenomPlate() {
+    Boolean retVal = false;
+    if (this.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+      retVal = isPlateRequest();
+    }
+    return retVal;
+  }
+
+  private Boolean isPlateRequest() {
+    Boolean retVal = false;
+    if (this.getSamples().size() > 0) {
       Sample firstSample = (Sample)this.getSamples().toArray()[0];
       if (firstSample.getWells() != null) {
         for(Iterator i = firstSample.getWells().iterator();i.hasNext();) {
