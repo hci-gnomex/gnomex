@@ -45,7 +45,7 @@
 					<mx:Text width="100%" height="100" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
 						<mx:htmlText><![CDATA[  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
 							
-  3. The columns are of varying data types. It is your responsibility to insure that each column of the spreadsheet is formated in accordance with the applicable field type.
+  3. The columns are of varying data types. It is your responsibility to ensure that each column of the spreadsheet is formated in accordance with the applicable field type.
 						]]></mx:htmlText>
 					</mx:Text>
 					<mx:LinkButton textDecoration="underline"  label="(Field formats)" 
@@ -180,7 +180,7 @@
 				// Cap seq window is simplified and should be smaller.
 				fullWidth = 738;
 				fullHeight = 406;
-				if (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') {
+				if (samplesViewState == 'CapSeqState' ) {
 					fullHeight = 250; 
 					reportText.height = 150;
 				}
@@ -190,8 +190,8 @@
 				
 				// If cap seq with > 1 plate then we need to ask which plate to upload.
 				if (numPlates > 1) {
-					this.width = 200;
-					this.height = 200;
+					this.width = 300;
+					this.height = 250;
 					vsMain.selectedChild = this.plates;
 					this.radioPlate1.visible = true;
 					this.radioPlate2.visible = true;

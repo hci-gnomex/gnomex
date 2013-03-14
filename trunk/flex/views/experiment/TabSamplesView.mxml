@@ -67,10 +67,14 @@
 			var numPlates:int = 0;
 			var nextPlate:int = 0;
 			if (hasPlates()) {
-				numPlates = parentDocument.isIScanState() || parentDocument.isSequenomState() ? parentDocument.numIScanPlates : parentDocument.numCapSeqPlates; 
-				fieldList = new Dictionary();
-				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
-				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+				if ( parentDocument.isIScanState() || parentDocument.isSequenomState() ) {
+					numPlates = parentDocument.numIScanPlates;
+				} else {
+					numPlates = parentDocument.numCapSeqPlates; 
+					fieldList = new Dictionary();
+					fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
+					fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+				}
 				for each (var sample:Object in parentDocument.samples) {
 					var thisPlate:int = 0;
 					if (sample.@name != '') {
