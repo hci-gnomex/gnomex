@@ -67,7 +67,7 @@
 			var numPlates:int = 0;
 			var nextPlate:int = 0;
 			if (hasPlates()) {
-				numPlates = parentDocument.isIScanState() ? parentDocument.numIScanPlates : parentDocument.numCapSeqPlates; 
+				numPlates = parentDocument.isIScanState() || parentDocument.isSequenomState() ? parentDocument.numIScanPlates : parentDocument.numCapSeqPlates; 
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
@@ -286,7 +286,7 @@
 				
 				emptyNode = this.getEmptyIScanNode(parentDocument.samples.length);
 			
-			} else if (currentState != null && (currentState.indexOf('Sequenom') >= 0)) {
+			} else if (currentState != null && ((currentState.indexOf('Sequenom') >= 0) || (currentState.indexOf('ClinicalSeq') >= 0))) {
 				
 				emptyNode = this.getEmptySequenomNode(parentDocument.samples.length);
 				
@@ -373,10 +373,12 @@
 			var emptyNode:XML = new XML("<Sample " +
 				" idSample='" + sampleId + "'" +
 				" name='' description='' " +
+				" concentration=''" +
 				" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 				" canChangeSampleName='Y'" +	
 				" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
 				" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
+				" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
 				"/>");
 			return emptyNode;
 		}
@@ -1763,7 +1765,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = false;
 				sampleOrganismColumn.editable = false;
-				this.concentrationCol.visible = true;
+				this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
 				this.otherOrganismCol.visible = false;
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
@@ -1780,7 +1782,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = false;
 				sampleOrganismColumn.editable = false;
-				this.concentrationCol.visible = true;
+				this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
 				this.otherOrganismCol.visible = false;
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
