@@ -2224,6 +2224,16 @@
 					this.samplesView.fillPlates();
 				}
 				
+			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
+				this.currentState = "ClinicalSequenomEditState";
+				this.sampleSetupView.currentState = 'ClinicalSequenomState';
+				
+				this.samplesView.currentState = 'ClinicalSequenomState';				
+				this.samplesView.showHideColumns();				
+				if (this.samplesView.hasPlates()) {
+					this.samplesView.fillPlates();
+				}
+				
 			}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
 				
@@ -2257,7 +2267,7 @@
 
 			}
 			
-			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem") && this.analysisButton!=null) {
 				this.analysisButton.enabled = true;
 			} else {
 				this.analysisButton.enabled = false;

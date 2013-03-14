@@ -106,6 +106,14 @@
 			}
 		}
 		
+		public function isClinicalSequenomState():Boolean {
+			if (currentState == 'ClinicalSeqState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
 		public function checkSecurity():void {
 			
 			if (parentApplication.isGuestMode()) {
@@ -241,6 +249,10 @@
 				this.currentState = "SequenomState";
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'SequenomState';	
+			} else if (requestCategory.@type == 'CLINSEQ') {
+				this.currentState = "ClinicalSeqState";
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
+				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'ClinicalSequenomState';	
 			}
 			
 			if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -655,7 +667,7 @@
 				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 			 }
 			 
-			 if (this.isIScanState() || this.isSequenomState()) {
+			 if (this.isIScanState() || this.isSequenomState() ) {
 				 parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 			 }
 			 
@@ -714,7 +726,8 @@
 			// can't do this in state stuff because of external stuff below.
 			this.noteToCoreFacilityBox.visible = true;
 			this.noteToCoreFacilityBox.includeInLayout = true;
-			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState() || this.isSequenomState()) {
+			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState() || 
+				    this.isSequenomState() || this.isClinicalSequenomState()) {
 				this.noteToBioBox.visible = false;
 				this.noteToBioBox.includeInLayout = false;
 			} else {
@@ -913,7 +926,7 @@
 					reactionPlateCol.visible = false;
 					
 				} else if (isSequenomState()) {
-					concentrationCol.visible = false; 
+					concentrationCol.visible = true; 
 					sampleTypeCol.visible = true;
 					organismCol.visible = false;
 					preppedByLabCol.visible = false;
@@ -922,7 +935,22 @@
 					concentrationUnitCol.visible = false;
 					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-					this.qc260Col.visible = false;
+					this.qc260Col.visible = true;
+					this.qcConcCol.visible = false;
+					this.qcRINCol.visible = false;
+					this.qcStatusCol.visible = false;
+					
+				} else if (isClinicalSequenomState()) {
+					concentrationCol.visible = true; 
+					sampleTypeCol.visible = true;
+					organismCol.visible = false;
+					preppedByLabCol.visible = false;
+					otherSamplePrepMethodCol.visible = false;
+					chipTypeCol.visible = false
+					concentrationUnitCol.visible = false;
+					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+					this.qc260Col.visible = true;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -1031,7 +1059,7 @@
 				}    				
 			}
 
-			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() && !isSequenomState() ) {
+			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() && !isSequenomState() && !isClinicalSequenomState() ) {
 	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 					if(annotation.@idProperty == "-1") {
 						continue;
