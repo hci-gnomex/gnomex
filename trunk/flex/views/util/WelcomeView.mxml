@@ -390,8 +390,7 @@
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
 				
 				// reset stuff for clinical research integration
-				this.parentApplication.submitRequestView.defaultCodeRequestCategory = null;
-				this.parentApplication.submitRequestView.ccNumberList = null;
+				this.parentApplication.submitRequestView.setDefaultRequestCategory(null, null);
 			}
 			
 			private function reviewOrders():void {
@@ -424,6 +423,9 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
+				
+				// reset stuff for clinical research integration
+				this.parentApplication.submitRequestView.setDefaultRequestCategory(null, null);
 			}
 			
 			private function amendRequest():void {

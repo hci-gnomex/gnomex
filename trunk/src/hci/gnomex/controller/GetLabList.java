@@ -160,6 +160,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
           lab.excludeMethodFromXML("getIsCcsgMember");
           
           Hibernate.initialize(lab.getInstitutions());
+          Hibernate.initialize(lab.getCoreFacilities());
           doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
         }
       }
