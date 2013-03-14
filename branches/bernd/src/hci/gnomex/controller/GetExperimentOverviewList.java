@@ -84,6 +84,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             n.setAttribute("labLastName",		         row[16] == null ? "" :  (String)row[16]);
             n.setAttribute("sampleCodeStepNext",		 row[17] == null ? "" : (String)row[17]);
             n.setAttribute("idCoreFacility",	 		 row[18] == null ? "" : ((Integer)row[18]).toString());
+            n.setAttribute("sampleNumber",	 		 	 row[19] == null ? "" : (String)row[19]);
             
             String labFullName = "";
             if (row[16] != null) {

@@ -57,7 +57,7 @@ public class ExperimentOverviewFilter extends DetailObject {
 	  queryBuf.append(" srt.seqRunType, ");
 	  queryBuf.append(" nsc.numberSequencingCycles, ");
 	  queryBuf.append(" ins.instrument, lab.lastName, ");
-	  queryBuf.append(" wi.codeStepNext, req.idCoreFacility ");
+	  queryBuf.append(" wi.codeStepNext, req.idCoreFacility, s.number ");
    } 
 
   private void addBaseQueryBody(StringBuffer queryBuf) {

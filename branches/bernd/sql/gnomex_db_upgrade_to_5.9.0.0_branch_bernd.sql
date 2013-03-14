@@ -25,7 +25,7 @@ CREATE TABLE `gnomex`.`NewsItem` (
     CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
        REFERENCES `gnomex`.`AppUser` (`idAppUser`)
        ON DELETE NO ACTION
-       ON UPDATE NO ACTION,
+       ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 

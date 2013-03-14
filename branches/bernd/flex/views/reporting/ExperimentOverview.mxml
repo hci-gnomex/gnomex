@@ -59,6 +59,8 @@
 	<mx:Script>
 
 		<![CDATA[
+			import flash.net.navigateToURL;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
@@ -131,7 +133,7 @@
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting lab list");
 				} 
 			}
-			
+		
 			private function resultHandler(event:ResultEvent):void {
 				if (event.result.name() == "AppUserList") {
 					requesterFilter.selectedIndex = -1;
@@ -197,10 +199,32 @@
 			}
 			
 			protected function exportType_changeHandler(event:ListEvent):void
-			{
-				// Handle Export options.
-				// Create generators in reporting package.
-				// Call respective class based on selected combobox value.
+			{	
+				if(exportType.selectedItem.data != ""){
+					experimentList.refresh();
+						// Embed Export options as attributes in root node.
+					var rootNode:String = "<root idCoreFacility='" + CF + "' " +
+												"exportFormat='"+ exportType.selectedItem.data + "' " +
+												"workflow='"+ workflowStatus +"' " +
+												"expType='"+expType+"' " +
+												"requestUser='"+ requestingUser +"' " +
+												"seqType='"+ seqType + "' " + 
+												"seqLength='"+ seqLength + "' " +
+												"seqInstrument='"+ seqInstrument + "' " +
+												"experimentID='"+ expID + "' >";
+					
+					var XML:String = rootNode + experimentList + "</root>";
+					var req:URLRequest = new URLRequest("ShowExperimentOverviewReport.gx");
+					req.method = URLRequestMethod.POST;
+					
+					// Attach XML as POST data URLvariable. 
+					var postData:URLVariables = new URLVariables();
+					postData.data = XML;
+					req.data = postData; // Link variable containing XML data to request. 
+					navigateToURL(req);	// Post request.
+				}
+				
+				exportType.selectedIndex = -1;
 			}
 			
 			protected function labFilter_changeHandler(event:ListEvent):void
@@ -214,7 +238,7 @@
 				workflowStatusFilter.selectedIndex = -1;
 				workflowStatus = null;
 				cfSelector.selectedIndex = -1;
-				CF = null;
+		//		CF = null;
 				experimentTypeFilter.selectedIndex = -1;
 				expType = null;
 				requesterFilter.selectedIndex = -1;
@@ -330,11 +354,15 @@
 				</mx:HBox>
 					
 					<mx:ComboBox id="exportType" change="exportType_changeHandler(event)">
-						<mx:String></mx:String>
-						<mx:String>Excel 2003</mx:String>
-						<mx:String>Excel 2010</mx:String>
-						<mx:String>PDF</mx:String>
-						<mx:String>Tab Separated</mx:String>
+						<mx:ArrayCollection>
+							<mx:Object label="" data="" />
+							<mx:Object label="Excel 2003" 	 data="xls" />
+						<!--	
+							<mx:Object label="Excel 2010" 	 data="" />
+							<mx:Object label="PDF" 		  	 data="" /> 
+						-->
+							<mx:Object label="Comma Separated" data="csv" />							
+						</mx:ArrayCollection>
 					</mx:ComboBox>
 			</mx:HBox>
 			<mx:HBox horizontalAlign="right" width="100%">
@@ -358,13 +386,9 @@
 			<mx:columns>
 				<mx:AdvancedDataGridColumn  dataField="@experimentId" editable="false" headerText="Experiment ID" width="60">
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@expCreateDate" editable="false" headerText="Submission Date" width="60">
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@userFullName" editable="false" headerText="Client" width="60">
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@labFullName" editable="false" headerText="Lab" width="60">
-				</mx:AdvancedDataGridColumn>				
-				<mx:AdvancedDataGridColumn  dataField="@expReadApp" editable="false" headerText="Experiment Type" width="60">
+				<mx:AdvancedDataGridColumn  dataField="@sampleNumber" editable="false" headerText="Sample Number" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@sampleName" editable="false" headerText="Sample Name" width="60">
 				</mx:AdvancedDataGridColumn>
@@ -387,11 +411,15 @@
 							</mx:VBox>
 						</mx:Component>
 					</mx:headerRenderer>                     
-					
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@expNumSeqCycles"  editable="false" headerText="# Cycles"   width="32" />
+				<mx:AdvancedDataGridColumn  dataField="@expReadApp" editable="false" headerText="Experiment Type" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="@labFullName" editable="false" headerText="Lab" width="60">
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@samplePrepDate" editable="false" headerText="Library Prep Completed" width="60" />
-				  
+				<mx:AdvancedDataGridColumn  dataField="@expCreateDate" editable="false" headerText="Submission Date" width="60">
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@expInstrument" editable="false" headerText="Instrument" width="60">
 				</mx:AdvancedDataGridColumn>
 			</mx:columns>
