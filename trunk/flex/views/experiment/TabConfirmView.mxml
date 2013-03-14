@@ -186,9 +186,9 @@
 				this.parentDocument.agreeCheckbox.selected = false;
 			}			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
-									   && !parentDocument.isDNASeqCoreState()
-									   && !parentDocument.isSequenomState()
-									   && !parentDocument.isClinicalSequenomState();
+									   && !parentDocument.isDNASeqCoreState();
+//									   && !parentDocument.isSequenomState()
+//									   && !parentDocument.isClinicalSequenomState();
 			
 			wellNameCol.visible = false;
 			if (parentDocument.samplesView.hasPlates()) {
@@ -404,12 +404,18 @@
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
 			<mx:HBox width="100%" horizontalGap="4">
-				<mx:VBox height="100%" verticalGap="0" width="160" horizontalScrollPolicy="off">
+				<mx:VBox height="100%" verticalGap="0" width="170" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="underline" height="16"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isDNASeqCoreState()}"/>
-					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" id="appLabel0" width="140" 
-							 visible="{parentDocument.isSequenomState()}"/>
+					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" 
+							 id="appLabel0" width="140" />
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
+						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
+								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}"/>
+						<mx:Text  text="{parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'Yes' : 'No'}" 
+								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}" />
+					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="130" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" textDecoration="underline" height="16"/>

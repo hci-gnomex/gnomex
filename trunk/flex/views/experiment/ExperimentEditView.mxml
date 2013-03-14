@@ -707,6 +707,9 @@
 			} else {
 				experimentCategoryName = experimentCategory.@display.toString();
 			}
+			if ( this.request.@codeApplication == 'OTHER' && this.request.@applicationNotes != '' ) {
+				experimentCategoryName += ' - ' + this.request.@applicationNotes;
+			}
 		}
 		private function getBillingAccountName():void {
 			var billingAccount:Object = null;
@@ -1017,6 +1020,11 @@
 			requestIcon = requestCategory.@icon;
 			requestCategoryName = requestCategory.@display.toString();
 			requestType = requestCategory.@type;
+			
+			applicationName = '';
+			codeApplication = '';
+			request.@applicationNotes = '';
+			request.@codeApplication = '';
 			
 			if (theTab.contains(notesView)) {
 				notesView.setAnalysisVisibility();
@@ -5201,7 +5209,14 @@
 					    <mx:Spacer width="100"/>
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
 					 </mx:HBox>
-
+					
+					<!--<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
+						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
+								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}"/>
+						<mx:Text  text="{parentDocument.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" 
+								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}" />
+					</mx:HBox>-->
+					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
 						<mx:Text text="Organism" width="100" id="labelOrg"/>
 						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							

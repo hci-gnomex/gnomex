@@ -712,6 +712,7 @@
 					<item label="" icon="assets/mitseq.png" />
 					<item label="" icon="assets/DNA_diag_miseq.png" />
 					<item label="" icon="assets/iscan.png" />
+					<item label="" icon="assets/sequenom.png" />
 				</items>    
 			);
 			
