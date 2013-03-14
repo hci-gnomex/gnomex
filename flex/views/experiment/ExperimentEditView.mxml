@@ -1189,6 +1189,12 @@
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
 				this.samplesView.currentState = 'ClinicalSequenomState';				
+				for(var i:int = 0; i < theTab.getChildren().length; i++) {
+					if (theTab.getTabAt(i).label == 'Samples') {
+						theTab.getTabAt(i).visible = false;
+						theTab.getTabAt(i).includeInLayout = false;
+					}
+				}
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
