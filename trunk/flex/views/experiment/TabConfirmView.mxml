@@ -186,9 +186,8 @@
 				this.parentDocument.agreeCheckbox.selected = false;
 			}			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
-									   && !parentDocument.isDNASeqCoreState();
-//									   && !parentDocument.isSequenomState()
-//									   && !parentDocument.isClinicalSequenomState();
+									   && !parentDocument.isDNASeqCoreState()
+									   && !parentDocument.isSequenomState()  && !parentDocument.isClinicalSequenomState();
 			
 			wellNameCol.visible = false;
 			if (parentDocument.samplesView.hasPlates()) {
@@ -198,8 +197,7 @@
 			if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) {
 				wellNameCol.visible = true;
 			}
-//			plateNameCol.visible = ((parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState()) ? true : false;
-			containerTypeCol.visible = parentDocument.isCapSeqState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState() ? true : false;
+			containerTypeCol.visible = parentDocument.isCapSeqState() || parentDocument.isSequenomState() ? true : false;
 			
 			// set all assay columns to not visible.
 			for each(var colRemove:DataGridColumn in samplesGridConfirm.columns) {
@@ -340,7 +338,7 @@
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = false;
+				this.sampleTypeColumn.visible = true;
 				
 			}else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
