@@ -360,6 +360,7 @@ CREATE TABLE `gnomex`.`BillingChargeKind` (
 ENGINE = INNODB;
 
 -- Add CreditCardCompany dictionary
+DROP TABLE IF EXISTS `gnomex`.`CreditCardCompany`;
 CREATE TABLE gnomex.CreditCardCompany (
    idCreditCardCompany INT(10) NOT NULL AUTO_INCREMENT,
    name varchar(100),
@@ -1539,7 +1540,7 @@ CREATE TABLE `gnomex`.`Request` (
   `numberIScanChips` INT(10) NULL,
   `idIScanChip` INT(10) NULL,
   `coreToExtractDNA` CHAR(1) NULL,
-  `applicationNotes` varchar(5000) null,
+  `applicationNotes` varchar(2000) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
