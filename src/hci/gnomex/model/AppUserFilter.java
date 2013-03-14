@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import hci.gnomex.security.SecurityAdvisor;
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
 
 public class AppUserFilter extends DetailObject {
@@ -55,15 +56,6 @@ public class AppUserFilter extends DetailObject {
       queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");      
       queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");      
     }
-    
-    // If the user is an admin (not a super admin), we need to filter lab list by core facility
-    if (joinToCoreFacility) {
-      queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacilityMem ");
-      queryBuf.append(" LEFT JOIN collabLab.coreFacilities as coreFacilityCollab ");
-      queryBuf.append(" LEFT JOIN managerLab.coreFacilities as coreFacilityMgr ");
-      queryBuf.append(" LEFT JOIN user.managingCoreFacilities as managingCoreFacility ");
-    }
-    
     
     addUserCriteria();
     addLabCriteria();
@@ -138,36 +130,6 @@ public class AppUserFilter extends DetailObject {
       if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to user query.");
       }
-      this.addWhereOrAnd();
-      queryBuf.append("(");
-      
-      queryBuf.append(" coreFacilityMem.idCoreFacility in ( ");
-      appendCoreFacilityInClause();
-      queryBuf.append(" OR ");
-
-      
-      queryBuf.append(" coreFacilityCollab.idCoreFacility in ( ");
-      appendCoreFacilityInClause();
-      queryBuf.append(" OR ");
- 
-      queryBuf.append(" coreFacilityMgr.idCoreFacility in ( ");
-      appendCoreFacilityInClause();
-      queryBuf.append(" OR ");
-           
-      // Also include any non-admin app user that is not yet assigned to a lab
-      queryBuf.append(" (user.codeUserPermissionKind = '" + UserPermissionKind.GROUP_PERMISSION_KIND + "' AND lab.idLab is NULL AND collabLab.idLab is NULL AND managerLab.idLab is NULL) ");
-      queryBuf.append(" OR ");
-      
-      // Also include other admins managing this core facility
-      queryBuf.append("(");
-      queryBuf.append(" user.codeUserPermissionKind in ('" + UserPermissionKind.ADMIN_PERMISSION_KIND + "', '" + UserPermissionKind.BILLING_PERMISSION_KIND + "')");
-      queryBuf.append(" AND managingCoreFacility.idCoreFacility in ( ");
-      appendCoreFacilityInClause();
-      queryBuf.append(")");
-      
-      
-      
-      queryBuf.append(")");
 
     } else if (secAdvisor.getGroupsIManage().size() > 0) {
       
