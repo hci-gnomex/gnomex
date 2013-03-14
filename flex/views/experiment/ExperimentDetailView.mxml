@@ -546,6 +546,9 @@
 			} else {
 				experimentCategoryName = experimentCategory.@display.toString();
 			}
+			if ( this.selectedExperiment.@codeApplication == 'OTHER' && this.selectedExperiment.@applicationNotes != '' ) {
+				experimentCategoryName += ' - ' + this.selectedExperiment.@applicationNotes;
+			}
 		}
 
 		private function getSeqLibTreatments():void {
@@ -659,7 +662,7 @@
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 			 
 			 parentDocument.parentDocument.experimentEditView.removeDataListeners();
-			 parentDocument.parentDocument.experimentEditView.setupEditForm( this.selectedExperiment);
+			 parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 			 
 			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()) {
@@ -1956,14 +1959,6 @@
 			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
 				<mx:Label text="Core to extract DNA"  width="100" styleName="formLabel" textAlign="left" id="label0"/>
 				<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
-			</mx:HBox>
-		</mx:AddChild>
-		<mx:AddChild relativeTo="{hbox5}" position="before">
-			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
-					 visible="{this.selectedExperiment.@applicationNotes!=''}"
-					 includeInLayout="{this.selectedExperiment.@applicationNotes!=''}">
-				<mx:Label width="100"  id="label10"/>
-				<mx:Text   text="{this.selectedExperiment.@applicationNotes}" width="280"/>
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>

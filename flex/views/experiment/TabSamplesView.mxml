@@ -1555,8 +1555,8 @@
         	existingNumberSequencingLanesCol.visible = false;
         	additionalNumberSequencingLanesCol.visible = false;
             this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
-											&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState()
-											&& !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+											&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
+//											&& !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1763,7 +1763,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = false;
 				sampleOrganismColumn.editable = false;
-				this.concentrationCol.visible = false;
+				this.concentrationCol.visible = true;
 				this.otherOrganismCol.visible = false;
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
@@ -1780,7 +1780,7 @@
 				concentrationUnitColumn.editable = false;
 				sampleOrganismColumn.visible = false;
 				sampleOrganismColumn.editable = false;
-				this.concentrationCol.visible = false;
+				this.concentrationCol.visible = true;
 				this.otherOrganismCol.visible = false;
 				otherSamplePrepMethodCol.visible = false;
 				chipTypeColumn.visible = false; 
@@ -2452,6 +2452,7 @@
 			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
 			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC Number"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="287"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="selected" value="true"/>
