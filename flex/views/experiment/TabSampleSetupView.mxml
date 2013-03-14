@@ -400,7 +400,8 @@
 					isComplete = true;
 				}
 			} else if (parentDocument.isSequenomState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
 					if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 						if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
 							isComplete = true;
@@ -410,8 +411,9 @@
 					}
 				}
 			} else if (parentDocument.isClinicalSequenomState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-					isComplete = true;
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+					isComplete = true;	        	    	
 				}
 			} else {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -590,6 +592,14 @@
 		}
 		
 		private function pickSampleType():void {
+			if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+				
+				propagateSampleType();
+				parentDocument.samplesView.initializeSamplesGrid();
+
+				checkSampleSetupCompleteness();
+				return;
+			}
 			// Select the default organism on sample setup if the request category specifies one
 			if (!parentDocument.isQCState()) {
 				if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
@@ -1886,6 +1896,8 @@
 	   	<mx:RemoveChild target="{hbox8}"/>
 	   	<mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
 	   	<mx:RemoveChild target="{sequenomPlateNamesBox}"/>
+	    <mx:SetProperty target="{hbox3}" name="visible" value="false"/>
+	    <mx:SetProperty target="{hbox3}" name="includeInLayout" value="false"/>
 		   
 	   </mx:State>
    </mx:states>
