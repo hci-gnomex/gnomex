@@ -343,6 +343,8 @@
 		
 		public var defaultCodeRequestCategory:String = null;
 		
+		public var defaultRequestCategory:Object = null;
+	
 		public var ccNumberList:Array = null;
 		
 		[Bindable]
@@ -488,6 +490,7 @@
 				this.propertyEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
+			this.filteredLabList.refresh();
 			
 	    	concentrationValidator.domain = "real";
 			concentrationValidator.minValue = "0";
@@ -938,6 +941,7 @@
 				}
 			}
 			
+			this.filteredLabList.refresh();
 		}
 			
 		private function nextTab():void {
@@ -2278,6 +2282,7 @@
 			// files shown rather than current selection.
 			this.refreshDownloadList();				
 
+			this.filteredLabList.refresh();
 
 		    postSetupEditForm();
 
@@ -4785,6 +4790,35 @@
 					request.@codeApplication = "";
 				}
 			} 
+			
+			private function filterLabList(item:Object):Boolean {
+				var keep:Boolean = false;
+				if (defaultCodeRequestCategory == null) {
+					keep=true;
+				} else {
+					if (defaultRequestCategory == null) {
+						keep = true;   // should never happen.
+					} else {
+						for each(var cf:Object in item..CoreFacility) {
+							if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
+								keep = true;
+								break;
+							}
+						}
+					}
+				}
+				return keep;
+			}
+			
+			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
+				this.defaultCodeRequestCategory = codeDefaultRequestCategory;
+				this.ccNumberList = ccNumberList;
+				if (defaultCodeRequestCategory != null) {
+					this.defaultRequestCategory = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value==defaultCodeRequestCategory);
+				} else {
+					this.defaultRequestCategory = null;
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4810,7 +4844,9 @@
   	<mx:XMLListCollection id="projects" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
-		
+	
+	<mx:XMLListCollection id="filteredLabList" filterFunction="filterLabList" source="{parentApplication.submitRequestLabList.source}"/>
+
 	<mx:NumberValidator id="minRangeValidator"
 						source="{rangeFrom}"
 						lowerThanMinError="Outside valid range."

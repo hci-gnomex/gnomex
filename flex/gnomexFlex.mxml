@@ -1373,8 +1373,7 @@
 				this.submitRequestView.request = null;
 				this.isInternalExperimentSubmission = true;
 				theViews.selectedChild = homeView;
-				submitRequestView.ccNumberList = ccNumberList;
-				submitRequestView.defaultCodeRequestCategory = 'CLINSEQ';
+				submitRequestView.setDefaultRequestCategory('CLINSEQ', ccNumberList);
 				callLater(submitClinicalResearchRequest);	
 			}
 			
