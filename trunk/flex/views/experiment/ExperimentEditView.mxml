@@ -436,7 +436,7 @@
 			if(request != null) {
 				codeApplication = request.@codeApplication;
 			}
-			
+
 	        seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
 	        seqLibProtocolList.sort = dictionarySorter;
 	        seqLibProtocolList.refresh();
@@ -949,6 +949,9 @@
 			
 		private function nextTab():void {
 			theTab.selectedIndex++;
+			while (!theTab.getTabAt(theTab.selectedIndex).visible) {
+				theTab.selectedIndex++;
+			}
 		}
 		
 		private function previousTab():void {
@@ -1011,6 +1014,8 @@
 		}		
 		
 		public function setRequestCategoryName():void {
+			setTabNotVisible("allVisible");
+
 			requestCategory = getRequestCategory();
 		
 			if (requestCategory == null) {
@@ -1197,15 +1202,11 @@
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
 				this.samplesView.currentState = 'ClinicalSequenomState';				
-				for(var i:int = 0; i < theTab.getChildren().length; i++) {
-					if (theTab.getTabAt(i).label == 'Samples') {
-						theTab.getTabAt(i).visible = false;
-						theTab.getTabAt(i).includeInLayout = false;
-					}
-				}
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				setTabNotVisible("Samples");
+
 				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				
@@ -1306,6 +1307,18 @@
 			this.setupView.checkSecurity();
 		}
 			
+		private function setTabNotVisible(label:String):void {
+			for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
+				if (theTab.getTabAt(tabIdx).label == label) {
+					theTab.getTabAt(tabIdx).visible = false;
+					theTab.getTabAt(tabIdx).includeInLayout = false;
+				} else {
+					theTab.getTabAt(tabIdx).visible = true;
+					theTab.getTabAt(tabIdx).includeInLayout = true;
+				}
+			}
+
+		}
 		public function showHideBarcodingQuestion():void {
 			sampleSetupView.radioYesBarcoding.selected = true;
 			sampleSetupView.pickRadioBarcoding();
@@ -2091,7 +2104,9 @@
 		public function setupTheEditForm():void {
 			currentState = '';
 			samplesView.currentState = '';
-
+			
+			setTabNotVisible('AllVisible');
+			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
@@ -5491,7 +5506,6 @@
 			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
-			<!--<mx:RemoveChild target="{samplesView}"/>-->
 			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
