@@ -891,12 +891,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
       sess.refresh(requestParser.getRequest());
       if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-        if (requestParser.getRequest().getAppUser() != null
-            && requestParser.getRequest().getAppUser().getEmail() != null
-            && !requestParser.getRequest().getAppUser().getEmail().equals("")) {
+        String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
+        if ((requestParser.getRequest().getAppUser() != null
+              && requestParser.getRequest().getAppUser().getEmail() != null
+              && !requestParser.getRequest().getAppUser().getEmail().equals(""))
+            || (otherRecipients != null && otherRecipients.length() > 0)) {
           try {
             // confirmation email for dna seq requests is sent at submit time.
-              sendConfirmationEmail(sess);
+              sendConfirmationEmail(sess, otherRecipients);
           } catch (Exception e) {
             String msg = "Unable to send confirmation email notifying submitter that request "
               + requestParser.getRequest().getNumber()
@@ -2194,7 +2196,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   
-  private void sendConfirmationEmail(Session sess) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
@@ -2238,21 +2240,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") + 
                   requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
     
+    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+    String emailRecipients = "";
+    if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
+      emailRecipients = requestParser.getRequest().getAppUser().getEmail();
+    }
+    if (otherRecipients != null && otherRecipients.length() > 0) {
+      if (emailRecipients.length() > 0) {
+        emailRecipients += ",";
+      }
+      emailRecipients += otherRecipients;
+    }
+    
     boolean send = false;
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
+      if (emailRecipients.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
         send = true;
         subject = "TEST - " + subject;
       }
     }
     
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
-    
     if (send) {
-      MailUtil.send(requestParser.getRequest().getAppUser().getEmail(), 
+      MailUtil.send(emailRecipients, 
           null,
           (requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
