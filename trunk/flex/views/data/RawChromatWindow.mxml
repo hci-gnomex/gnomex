@@ -337,7 +337,7 @@
 						
 						<!-- Legend -->
 						<mx:HBox horizontalAlign="center" width="100%">
-							<mx:Legend dataProvider="{rawDataGraph}" direction="horizontal"/>
+							<mx:Legend dataProvider="{rawDataGraph}" />
 						</mx:HBox>
 												
 					</mx:VBox>
