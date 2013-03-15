@@ -1109,7 +1109,7 @@
 							  visible="{requestCategoryRepeater.currentItem.hasOwnProperty('@isCoreFacilityVisible') &amp;&amp; requestCategoryRepeater.currentItem.@isCoreFacilityVisible=='Y'}"
 							  includeInLayout="{requestCategoryRepeater.currentItem.hasOwnProperty('@isCoreFacilityVisible') &amp;&amp; requestCategoryRepeater.currentItem.@isCoreFacilityVisible=='Y'}"
 							  styleName="titleLabel" fontWeight="bold"
-							   fontFamily="Verdana" fontSize="10" textDecoration="underline"/>
+							  textDecoration="underline"/>
 					<mx:HBox  paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 						<mx:HBox horizontalAlign="center" paddingBottom="0" paddingTop="0">
 							<mx:Image 						    	
@@ -1118,6 +1118,7 @@
 						<mx:RadioButton id="radioRequestCategory" groupName="requestTypeGroup" 
 										label="{requestCategoryRepeater.currentItem.@display}" 
 										value="{requestCategoryRepeater.currentItem.@value}" 
+										paddingBottom="0" paddingTop="0"
 										click="parentDocument.setRequestCategoryName();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
 						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="9"/>							
 					</mx:HBox>
@@ -1141,7 +1142,7 @@
 					</mx:Text>
 					
 					<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
-						<mx:LinkButton  label="New Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" fontFamily="Verdana" paddingTop="0" textAlign="left" paddingLeft="0"> 
+						<mx:LinkButton  label="New Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="9" paddingTop="0" textAlign="left" paddingLeft="0"> 
 							<mx:click>showNewWorkAuthForm()</mx:click>
 						</mx:LinkButton>
 					</mx:HBox>
