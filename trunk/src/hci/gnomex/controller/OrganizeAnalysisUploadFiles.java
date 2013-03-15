@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.TransferLog;
@@ -194,6 +195,12 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
+              Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + fileName.substring(fileName.lastIndexOf("\\")));
+              String mostRecentFile = "";
+              if(duplicateUpload){
+                mostRecentFile = (String)fileNames.get(fileNames.indexOf(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + fileName.substring(fileName.lastIndexOf("\\"))));
+              }
+                
               
               // Change qualifiedFilePath if the file is registered in the db
               if ( parser.getFileIdMap().containsKey(fileName) ) {
@@ -204,14 +211,29 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   AnalysisFile af;
                   if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                     af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
-                  } else {
+                  } else{
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setIdAnalysis(Integer.valueOf(idAnalysis));
                     af.setFileName(new File(fileName).getName());
                     af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
                   }
-                  af.setFileSize(new BigDecimal(new File(fileName).length()));
+                  
+                  if(duplicateUpload){
+                    af.setFileSize(new BigDecimal(new File(mostRecentFile).length()));
+                    while(i1.hasNext()){
+                      String test = (String) i1.next();
+                      if(test.equals(mostRecentFile)){
+                        i1.remove();
+                        i1 = fileNames.iterator();
+                        new File(mostRecentFile).delete();
+                        break;
+                      }
+                    }
+                  }
+                  else{
+                    af.setFileSize(new BigDecimal(new File(fileName).length()));
+                  }
                   af.setQualifiedFilePath(qualifiedFilePath);
                   sess.save(af);
                   
