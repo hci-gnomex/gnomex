@@ -775,6 +775,7 @@
 				wellNameCol.visible = false;
 				isControlCol.visible = false;
 				this.qc260Col.visible = false;
+				this.qc260280Col.visible = false;
 				this.qcConcCol.visible = false;
 				this.qcRINCol.visible = false;
 				this.qcStatusCol.visible = false;
@@ -794,6 +795,7 @@
 				wellNameCol.visible = false;
 				isControlCol.visible = false;
 				this.qc260Col.visible = false;
+				this.qc260280Col.visible = false;
 				this.qcConcCol.visible = false;
 				this.qcRINCol.visible = false;
 				this.qcStatusCol.visible = false;
@@ -814,6 +816,7 @@
 					wellNameCol.visible = false;
 					isControlCol.visible = false;
 					this.qc260Col.visible = true;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = true;
 					this.qcRINCol.visible = true;
 					this.qcStatusCol.visible = true;
@@ -830,6 +833,7 @@
 					wellNameCol.visible = false;
 					isControlCol.visible = false;
 					this.qc260Col.visible = true;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = true;
 					this.qcRINCol.visible = true;
 					this.qcStatusCol.visible = currentState == 'QCState';
@@ -845,6 +849,7 @@
 					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					isControlCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					this.qc260Col.visible = false;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -863,6 +868,7 @@
 					wellNameCol.visible = true;
 					isControlCol.visible = false;
 					this.qc260Col.visible = false;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -881,6 +887,7 @@
 					wellNameCol.visible = true;
 					isControlCol.visible = false;
 					this.qc260Col.visible = false;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -897,6 +904,7 @@
 					wellNameCol.visible = false;
 					isControlCol.visible = false;
 					this.qc260Col.visible = false;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -917,6 +925,7 @@
 					wellNameCol.visible = true;
 					isControlCol.visible = false;
 					this.qc260Col.visible = false;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -935,7 +944,8 @@
 					concentrationUnitCol.visible = false;
 					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-					this.qc260Col.visible = true;
+					this.qc260Col.visible = false;
+					this.qc260280Col.visible = true;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -950,7 +960,8 @@
 					concentrationUnitCol.visible = false;
 					plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 					wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-					this.qc260Col.visible = true;
+					this.qc260Col.visible = false;
+					this.qc260280Col.visible = true;
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
@@ -967,6 +978,7 @@
 					wellNameCol.visible = false;
 					isControlCol.visible = false;
 					this.qc260Col.visible = true;
+					this.qc260280Col.visible = false;
 					this.qcConcCol.visible = true;
 					this.qcRINCol.visible = true;
 					this.qcStatusCol.visible = true;
@@ -1507,6 +1519,7 @@
 	
 							<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 							<mx:AdvancedDataGridColumn id="qc260Col" visible="false" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
+							<mx:AdvancedDataGridColumn id="qc260280Col" visible="false" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
 							<mx:AdvancedDataGridColumn id="qcRINCol" visible="false" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 			                <mx:AdvancedDataGridColumn  visible="{currentState == 'SolexaState'}" headerText="QC Bioanalyzer method"  width="120" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
