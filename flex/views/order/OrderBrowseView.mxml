@@ -3,6 +3,42 @@
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*"  
 		 verticalGap="3">
+	<mx:states>
+		<mx:State name="SequenomState">
+			<mx:AddChild relativeTo="{iScanCheckbox}" position="before">
+				<mx:CheckBox label = "Sequenom"
+							 id = "sequenomCheckbox"
+							 horizontalGap = "0"
+							 styleName = "labelSmall"
+							 paddingLeft = "2">
+					<mx:click>
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{capSeqCheckbox}"/>
+			<mx:RemoveChild target="{fragCheckbox}"/>
+			<mx:RemoveChild target="{mitoCheckbox}"/>
+			<mx:RemoveChild target="{iScanCheckbox}"/>
+			<mx:RemoveChild target="{cherryCheckbox}"/>
+			<mx:SetProperty target="{submittedCheckbox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{submittedCheckbox}" name="visible" value="false"/>
+			<mx:SetProperty target="{newCheckbox}" name="selected" value="true"/>
+			<mx:SetProperty target="{failedCheckbox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{failedCheckbox}" name="visible" value="false"/>
+			<mx:SetProperty target="{redoCheckbox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{redoCheckbox}" name="visible" value="false"/>
+			<mx:RemoveChild target="{vrule1}"/>
+			<mx:RemoveChild target="{typeCheckboxBar}"/>
+			<mx:RemoveChild target="{dateCheckboxBar}"/>
+			<mx:AddChild relativeTo="{spacer1}" position="before" target="{dateCheckboxBar}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+			<mx:AddChild relativeTo="{dateCheckboxBar}" position="before">
+				<mx:VRule height = "20" />
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
 	
 	
 	<mx:HTTPService 
@@ -570,8 +606,6 @@
 					
 					<mx:Label text="Order #" />
 					
-					<mx:VRule height = "20" />
-					
 					<mx:TextInput id="requestNoLookupField"
 								  fontSize="9"
 								  height="19"
@@ -580,7 +614,7 @@
 					
 					
 				</mx:HBox>
-				<mx:Spacer width="100%"/>
+				<mx:Spacer width="100%" id="spacer1"/>
 				
 				<mx:LinkButton textDecoration = "underline"
 							   label = "Refresh"
@@ -593,7 +627,7 @@
 		
 		
 		
-		<mx:VBox  width="100%">
+		<mx:VBox  width="100%" id="vbox1">
 			
 			<mx:HBox id = "filterBar"
 					 horizontalGap = "20"
@@ -611,7 +645,7 @@
 						this.requestNoLookupField.text = "";this.getList();
 					</mx:click>
 				</mx:CheckBox>
-				<mx:VRule height = "20" />
+				<mx:VRule height = "20"  id="vrule1"/>
 				
 				
 				
@@ -832,7 +866,7 @@
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
 					
 					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="60"
-									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}"/>
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
 
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
@@ -845,15 +879,15 @@
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
 					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "105" />
-					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110"/>
-					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110"/>
-					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70"/>
+					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110" id="datagridcolumn2"/>
+					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110" id="datagridcolumn3"/>
+					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70" id="datagridcolumn4"/>
 					
 					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
 
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 
-					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"  />
+					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"   id="datagridcolumn5"/>
 					
 				</mx:columns>
 				
