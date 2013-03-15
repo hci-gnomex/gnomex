@@ -8,13 +8,13 @@ HCI Cream = F2EFD9
 global {
 	fontSize:12;
 	fontFamily: "Open Sans";
-	color: #000000;
+	color: #302d2b;
 }
 
 .titleLabel {
 	fontSize: 13;
 	fontWeight: normal;
-	color: #342929;
+	color: #302D2B;
 }
 
 .errorTip { 
@@ -142,7 +142,6 @@ Panel {
 
 .loginTitleStyle {
 	color: #FFFFFF;
-	fontFamily: Arial;
 	fontSize: 11;
 	fontWeight: bold;
 } 
@@ -180,7 +179,6 @@ TitleWindow {
 { 
 	fontSize: 14;
 	color: #FFFFFF;
-	fontFamily: Arial;
 
 }
 
@@ -447,7 +445,6 @@ TextArea {
  	borderColor: #5F696F;
 	borderStyle: solid;
 	cornerRadius: 6;	
-	fontFamily: Arial;
 	fontSize: 14;
 
 }
@@ -536,7 +533,6 @@ TextArea {
 }
 .tabBarSelectedTabText
 {
-	fontFamily: "Arial Narrow";
 }
 .instructionBox
 {
@@ -549,21 +545,18 @@ TextArea {
 
 Text.welcome
 {
-	color: #2F2D29;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 11;
 }
 Text.welcomeTitle
 {
-	color: #2F2D29;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 15;
 	fontWeight: bold;
 }
 Text.welcomeHeader
 {
-	color: #2F2D29;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 13;
 	fontWeight: normal;
 	leading: 0;
@@ -856,7 +849,7 @@ MenuBar {
 	backgroundAlpha: 0;
 	borderStyle: none;
 	fillAlphas: 0,0;
-	color: #000000;
+	color: #302D2B;
 	fontFamily: "Open Sans";
 	menuStyleName: menuItem;
 	fontSize: 13;
@@ -878,7 +871,7 @@ MenuBar {
 	borderColor: #B7B7B7;
 	fillAlphas: 1, 1;
 	fillColors: #B7B7B7, #222836, #3F495E, #3F495E;
-	color: #000000;
+	color: #302D2B;
 	fontSize: 13;
 	disabledColor: #ACE2F2;
 	errorColor: #ACE2F2;
@@ -923,7 +916,6 @@ MenuBar.linkMenuBar1
 }
 .tabNavigatorSelectedTabText
 {
-	fontFamily: Arial;
 	fontSize: 14;
 }
 .formLabel
@@ -944,10 +936,10 @@ RichTextEditor.readOnly {
 @font-face
 {
 	fontFamily: "Open Sans";
-	fontWeight: normal;
+	fontWeight: normal; 
 	fontStyle: normal;
 	advancedAntiAliasing: true;
-	src: url("../assets/OpenSans-Regular.ttf");
+	src: url("../assets/Varela-Regular.ttf");
 }
 @font-face
 {

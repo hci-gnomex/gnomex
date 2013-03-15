@@ -5007,14 +5007,14 @@
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" fontFamily="Tahoma" fontSize="14" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="bold" paddingRight="50"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" fontSize="13" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="bold" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
 		<mx:TabNavigator id="theTab"  styleName="form" width="100%" 
-			creationPolicy="all"
+			creationPolicy="all" 
 			height="100%" paddingLeft="8" 
 			paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 			

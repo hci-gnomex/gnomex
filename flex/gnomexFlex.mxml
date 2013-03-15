@@ -3246,10 +3246,10 @@
 				        </mx:HBox>
 				      </mx:HBox>
 			      
-			      <mx:HBox width="100%"  backgroundSize="100%"  height="40" 
+			      <mx:HBox width="100%"  backgroundSize="100%" 
 						   backgroundImage="assets/menubar3.png" horizontalGap="0"  
 						   verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
-						   paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false">
+						   paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false" borderStyle="none">
 
 					  <mx:MenuBar  height="40"   width="100%"  id="mainMenu"   
 								   click="onMenuClick(event)"
