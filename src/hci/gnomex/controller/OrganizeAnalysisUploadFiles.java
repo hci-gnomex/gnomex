@@ -221,14 +221,22 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   
                   if(duplicateUpload){
                     af.setFileSize(new BigDecimal(new File(mostRecentFile).length()));
+                    Boolean firstUpload = true;
                     while(i1.hasNext()){
                       String test = (String) i1.next();
                       if(test.equals(mostRecentFile)){
                         i1.remove();
                         i1 = fileNames.iterator();
                         new File(mostRecentFile).delete();
+                        firstUpload = false;
                         break;
                       }
+                    }
+                    if(firstUpload){
+                      i1 = fileNames.iterator();
+                      i1.next();
+                      i1.remove();
+                      i1 = fileNames.iterator();
                     }
                   }
                   else{
