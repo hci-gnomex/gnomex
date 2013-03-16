@@ -587,7 +587,7 @@
 
  <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
 	
-    <mx:ViewStack id="navStack" width="250" height="100%">
+    <mx:ViewStack id="navStack" width="260" height="100%">
 
  		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95" fontSize="11">
 		      <mx:change>onTabChange()</mx:change>
@@ -637,7 +637,7 @@
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" verticalGap="0">
 			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
-			       	      <mx:Text text="Search lab groups" width="80" styleName="labelSmall" paddingTop="0" fontSize="11"/>
+			       	      <mx:Text text="Search lab groups" width="100" styleName="labelSmall" paddingTop="0" fontSize="11"/>
 			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			          </mx:HBox>
 					<mx:ViewStack id="filterStack" width="100%">

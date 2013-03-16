@@ -211,16 +211,16 @@
 		  	    <mx:VBox paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalGap="0" id="permissionKindContainer">
 		  	      <mx:Label text="Permission Level" styleName="formLabel"/>
 		  	         <mx:RadioButtonGroup id="permissionGroup" selectedValue="{parentDocument.fullUser.@codeUserPermissionKind}"/>
-		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	         <mx:RadioButton label="Group" id="isGroupPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()" paddingBottom="0" paddingTop="0">
 		  	           <mx:value>LAB</mx:value>
 		  	         </mx:RadioButton>
-		  	         <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	         <mx:RadioButton label="Admin" id="isAdminPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()" paddingBottom="0" paddingTop="0">
 		  	           <mx:value>ADMIN</mx:value>
 		  	         </mx:RadioButton>
-		  	         <mx:RadioButton label="Billing Admin" id="isBillingPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+		  	         <mx:RadioButton label="Billing Admin" id="isBillingPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()" paddingBottom="0" paddingTop="0">
 		  	           <mx:value>BILLING</mx:value>
 		  	         </mx:RadioButton>		  	         	
-					<mx:RadioButton label="Super Admin" id="isSuperPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()">
+					<mx:RadioButton label="Super Admin" id="isSuperPermissionLevel" groupName="permissionGroup" click="dirty.setDirty()" paddingBottom="0" paddingTop="0">
 						<mx:value>SUPER</mx:value>
 					</mx:RadioButton>		  	         	
 		  	    </mx:VBox>
@@ -270,7 +270,7 @@
 	  <mx:HBox width="100%" horizontalAlign="right">
 	    <util:DirtyNote id="dirty"/>
 	  
-		<mx:Button id="saveButton" label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')" width="70"/>
+		<mx:Button id="saveButton" label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')"/>
 	  </mx:HBox>	
 	</mx:ControlBar>
 </mx:VBox>
