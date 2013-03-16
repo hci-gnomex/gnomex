@@ -1648,7 +1648,7 @@
 	   
 			
 			<mx:VBox styleName="panelBox"   width="268" height="100%" id="navPanel" >
-				<mx:Text id="messageLabel"  width="100%" fontFamily="Arial" fontStyle="italic"/>
+				<mx:Text id="messageLabel"  width="100%" fontStyle="normal" fontSize="10"/>
 				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" >
 					<mx:VBox id="treeContainer"  width="100%" height="100%" paddingLeft="2" verticalGap="0" >
 						<mx:Tree width="100%" height="100%" 

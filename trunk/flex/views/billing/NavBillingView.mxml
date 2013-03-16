@@ -2290,25 +2290,12 @@
 						<menuitem label="Refresh"  icon="iconRefresh" />
 					</mx:XMLList>
 				</mx:MenuBar> 
-				<mx:Spacer width="100%"/>
-				<mx:HBox verticalGap="0" verticalAlign="middle" horizontalGap="0">
-				<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
-				<mx:TextInput id="requestNumberText" enter="refreshRequestTab()" width="75" backgroundColor="#FFFFFF">
-				</mx:TextInput>			   	
-				</mx:HBox>
-				<mx:HBox verticalGap="0" horizontalAlign="left" verticalAlign="middle" horizontalGap="0">
-				<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0"  paddingTop="0" fontSize="9"/>
-				<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refreshRequestTab()" backgroundColor="#FFFFFF">
-				</mx:TextInput>			   	
-				</mx:HBox>
-
 				<mx:MenuBar id="menuBarNoGLInterface" 
 							visible="false" includeInLayout="false" 
 							click="onMenuClick(event)"
 							itemClick="{onMenuSelect(event)}"   
 							labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="30" width="100%">
 					<mx:XMLList>
-						<menuitem label="Billing"  icon="iconBilling" />
 						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
 						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
 						<menuitem label="Reports..."  icon="iconReports" >
@@ -2320,6 +2307,19 @@
 						<menuitem label="Refresh"  icon="iconRefresh" />
 					</mx:XMLList>
 				</mx:MenuBar> 
+
+				<mx:Spacer width="100%"/>
+				<mx:HBox verticalGap="0" verticalAlign="middle" horizontalGap="0">
+				<mx:Label id="requestNumberLabel" visible="true" text="Experiment #" paddingBottom="0"  paddingTop="0" fontSize="10"/>
+				<mx:TextInput id="requestNumberText" enter="refreshRequestTab()" width="75" backgroundColor="#FFFFFF" fontSize="10">
+				</mx:TextInput>			   	
+				</mx:HBox>
+				<mx:HBox verticalGap="0" horizontalAlign="left" verticalAlign="middle" horizontalGap="0">
+				<mx:Label id="invoiceNumberLabel" visible="true" text="Invoice #" paddingBottom="0"  paddingTop="0" fontSize="10"/>
+				<mx:TextInput id="invoiceNumberLookupText" width="55" enter="refreshRequestTab()" backgroundColor="#FFFFFF" fontSize="10">
+				</mx:TextInput>			   	
+				</mx:HBox>
+
 	     </mx:HBox>
 
 	      <mx:HBox horizontalGap="10" verticalAlign="top" paddingLeft="62" paddingTop="4" width="100%">
@@ -2390,7 +2390,7 @@
 						iconFunction="parentApplication.getTreeIcon"  
 						labelFunction="getTreeLabel"
 						showDataTips="true"
-						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11" fontFamily="Verdana">
+						dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11">
     		 	        <mx:dataProvider>
   						  <mx:HierarchicalData id="rc" source="{requests}"/>
 				        </mx:dataProvider>		 				  
@@ -2417,14 +2417,14 @@
 							<mx:LinkButton label="{priceSheetRepeater.currentItem.@display}" 
 								fontSize="9" paddingTop="0" paddingBottom="0"  width="130"
 								paddingLeft="0" paddingRight="1" textDecoration="underline"
-								click="{jumpToPriceSheet(event.currentTarget.getRepeaterItem().@display)}" textAlign="left" fontFamily="Verdana">
+								click="{jumpToPriceSheet(event.currentTarget.getRepeaterItem().@display)}" textAlign="left">
 							</mx:LinkButton>
 						</mx:Repeater>
   									<mx:VBox styleName="dragAndDropHint" borderStyle="solid" cornerRadius="4">
   									</mx:VBox>
 					</mx:Tile>
 					<mx:LinkButton label="Drag-and-drop hint" 
-						click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')" fontSize="9" fontFamily="Verdana" fontStyle="italic" fontWeight="normal">
+						click="{Alert.show('Drag-and-drop price category to reorder within a price sheet or attach to another price sheet. Drag price to billing grid to create a new billing item for an experiment.')}" paddingLeft="0" paddingRight="0" paddingTop="1" paddingBottom="1" icon="@Embed(source='../../assets/information.png')" fontSize="10" fontStyle="italic" fontWeight="normal">
 					</mx:LinkButton>
 					
 					<util:AdvancedDataGridAS id="pricingTree" width="100%" height="100%" 
@@ -2444,7 +2444,7 @@
 						 dropShadowEnabled="true" 
 						 headerWordWrap="false" 
 						resizableColumns="true" 
-						dataTipFunction="showPricingTreeToolTips" fontSize="11" fontFamily="Verdana">						
+						dataTipFunction="showPricingTreeToolTips" fontSize="10">						
   		 	        <util:dataProvider> 
   						  <mx:HierarchicalData source="{pricingList}"/>
 				        </util:dataProvider>						  
@@ -2457,7 +2457,7 @@
   					</util:AdvancedDataGridAS>
   					<mx:ControlBar paddingBottom="2" horizontalGap="0" paddingTop="3" paddingLeft="0" paddingRight="0" >
   							<mx:VBox verticalGap="0" >
-  								<mx:HBox width="100%"  fontFamily="Verdana" fontSize="10">
+  								<mx:HBox width="100%" fontSize="10">
   									<mx:CheckBox label="Show prices" id="showPricesCheckbox" selected="true" click="{this.getPricingList.send()}" />
   									<mx:CheckBox label="Show price criteria" id="showPriceCriteriaCheckbox" click="{this.getPricingList.send()}" />
   									<mx:CheckBox label="Show inactive prices" id="showInactivePricesCheckbox" click="{this.getPricingList.send()}" />
@@ -2481,25 +2481,24 @@
         	<mx:VBox styleName="panelBox"  width="100%" height="100%">
 				<mx:VBox width="100%">
 					<mx:HBox width="100%" verticalAlign="middle">
-						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontFamily="Verdana" fontSize="11"/>
+						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontSize="11"/>
 						<mx:Spacer width="100%"/>
 						<mx:HBox id="displayAllBox"  verticalAlign="middle" horizontalGap="0" includeInLayout="false" visible="false">
 							<mx:Label text="(Only first 20 items displayed)" styleName="warningLabel" fontStyle="italic" fontWeight="bold"/>
 							<mx:LinkButton label="Display All" textDecoration="underline"
 										   click="{this.gatherDisplayInfo(this.requestTree.selectedItem);displayAllBox.visible=false;displayAllBox.includeInLayout=false;}"   fontSize="10"/>
 						</mx:HBox>
-						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="9" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
+						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="10" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 						</mx:CheckBox>
 					</mx:HBox>
 					<mx:HBox width="100%" verticalAlign="middle">
 						<mx:HBox id="invoiceBox" visible="{lastSelectedInvoice != null}" horizontalGap="0" verticalAlign="middle">
-							<mx:Label styleName="titleLabel" text="Invoice:" fontFamily="Verdana" fontSize="11"/>
-							<mx:Label id="invoiceNumberlabel" styleName="titleLabel" text="Number" fontFamily="Verdana" fontSize="11"/>
-							<mx:TextInput id="invoiceNumberText" change="invoiceNumberText_changeHandler()" width="120" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@invoiceNumber}" enabled="{this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Lab'}"  fontFamily="Verdana" fontSize="11" backgroundColor="#FFFFFF" backgroundAlpha="1.0"/>
+							<mx:Label styleName="titleLabel" text="Invoice" fontSize="11"/>
+							<mx:TextInput id="invoiceNumberText" change="invoiceNumberText_changeHandler()" width="120" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@invoiceNumber}" enabled="{this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Lab'}" fontSize="11" backgroundColor="#FFFFFF" backgroundAlpha="1.0"/>
 							<mx:Spacer width="10"/>
-							<mx:Label id="lastEmailDateLabel" styleName="titleLabel" text="Email Date" fontFamily="Verdana" fontSize="11"/>
-							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontFamily="Verdana" fontSize="11"/>
+							<mx:Label id="lastEmailDateLabel" styleName="titleLabel" text="Email Date" fontSize="11"/>
+							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontSize="11"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 						<mx:LinkButton label="Move to next billing period" 
@@ -2509,7 +2508,7 @@
 									   click="forwardPendingBillingItems()" 
 									   id="forwardPendingItemsLink"
 									   visible="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}"
-									   includeInLayout="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}"/>
+									   includeInLayout="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}" fontSize="10"/>
 						<mx:ComboBox id="billingStatusCombo" 
 									 prompt="- Change Status -" 
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
@@ -2533,7 +2532,7 @@
                     showDataTips="true"
                     headerWordWrap="true" 
 					selectionMode="singleRow" itemEditEnd="onEdit()" 
-                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid">
+                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid" fontSize="10">
         		 	<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
     				</mx:dataProvider> 

@@ -564,6 +564,7 @@ Text.welcomeHeader
 Text.submitNote
 {
 	color: #0000ff;
+	fontWeight: normal;
 }
 
 

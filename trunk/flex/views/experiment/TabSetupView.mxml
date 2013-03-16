@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Experiment setup"   
 		   width="100%" height="100%"
-		   xmlns:views="*.views" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*">
+		   xmlns:views="*.views"  horizontalScrollPolicy="off"
+		   xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*">
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{labAndInstructionBox}" position="after">
@@ -1147,8 +1148,8 @@
 						</mx:LinkButton>
 					</mx:HBox>
 				</mx:VBox>
-				<mx:Text width="100%" id="billingAccountWarningText" styleName="submitNote">
-					<mx:htmlText>&lt;b&gt;&lt;i&gt;You must choose lab, user and service &lt;br&gt; before billing accounts are available.&lt;/i&gt;&lt;/b&gt;</mx:htmlText>
+				<mx:Text width="100%" id="billingAccountWarningText" fontSize="11" fontWeight="normal" fontStyle="normal" styleName="submitNote">
+					<mx:htmlText>You must choose lab, user and service &lt;br&gt; before billing accounts are available.</mx:htmlText>
 				</mx:Text>
 				
 			</mx:HBox>

@@ -186,30 +186,30 @@
 		       </mx:RadioButtonGroup>
 		   </mx:HBox>
 		   <mx:HBox horizontalGap="0" width="100%">
-		   	<mx:VBox verticalGap="0" width="100%">
+		   	<mx:VBox verticalGap="2" width="100%">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 				<mx:HBox horizontalGap="0">
-					<mx:VBox verticalGap="0" width="82">
-						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to the submitter and the lab PI"/>
-						<mx:RadioButton value="MEM" selected="true" label="Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group"/>
+					<mx:VBox verticalGap="2" width="82" paddingBottom="1">
+						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
+						<mx:RadioButton value="MEM" selected="true" label="Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
-						<mx:Text width="207" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0">									
-							<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-						</mx:Text>
 					</mx:VBox>
 				</mx:HBox>				
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution"/>
-					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()">			       	
+					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
 					</mx:ComboBox>	
+					<mx:Text id="institutionNote" styleName="submitNote" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10" width="300" paddingTop="0">									
+						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+					</mx:Text>
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to everyone" width="82"/>
-				</mx:HBox>
-				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-					<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " width="250" height="30"/>
+					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to everyone" width="85" paddingTop="0" paddingBottom="0"/>
+					<mx:HBox horizontalGap="0" verticalAlign="middle">
+						<mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
+						<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
+					</mx:HBox>
 				</mx:HBox>
 		   	</mx:VBox>
 		   </mx:HBox>

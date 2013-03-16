@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>   
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
-	xmlns="*" 
-	xmlns:views="views.*"
-	xmlns:workflow="views.workflow.*"  
-	xmlns:experiment="views.experiment.*"  
-	xmlns:analysis="views.analysis.*" 
-	xmlns:datatrack="views.datatrack.*" 
-	xmlns:topics="views.topics.*" 
-	xmlns:user="views.user.*"
-	xmlns:protocol="views.protocol.*"
-	xmlns:admin="views.admin.*"
-	xmlns:plate="views.plate.*"
-  	xmlns:data="views.data.*"  
- 	xmlns:order="views.order.*"
-  	xmlns:run="views.run.*"
-	xmlns:slide="views.slide.*"
-	xmlns:hci="hci.flex.controls.*"
-	xmlns:billing="views.billing.*"
-	xmlns:util="views.util.*"
-	xmlns:login="views.login.*"
-	xmlns:report="views.report.*"
-	paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-	creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
-
-
-
-    <mx:Fade id="fadeOut" duration="100"/>
-    <mx:Fade id="fadeIn" duration="100"/>	
+				xmlns="*" 
+				xmlns:views="views.*"
+				xmlns:workflow="views.workflow.*"  
+				xmlns:experiment="views.experiment.*"  
+				xmlns:analysis="views.analysis.*" 
+				xmlns:datatrack="views.datatrack.*" 
+				xmlns:topics="views.topics.*" 
+				xmlns:user="views.user.*"
+				xmlns:protocol="views.protocol.*"
+				xmlns:admin="views.admin.*"
+				xmlns:plate="views.plate.*"
+				xmlns:data="views.data.*"  
+				xmlns:order="views.order.*"
+				xmlns:run="views.run.*"
+				xmlns:slide="views.slide.*"
+				xmlns:hci="hci.flex.controls.*"
+				xmlns:billing="views.billing.*"
+				xmlns:util="views.util.*"
+				xmlns:login="views.login.*"
+				xmlns:report="views.report.*"
+				paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
+	
+	
+	
+	<mx:Fade id="fadeOut" duration="100"/>
+	<mx:Fade id="fadeIn" duration="100"/>	
 	
 	
 	<mx:HTTPService 
@@ -38,59 +38,59 @@
 		method="POST"
 		useProxy="false" >  
 	</mx:HTTPService> 
-		
+	
 	
 	<mx:HTTPService 
-    id="createSecurityAdvisor"
-    url="CreateSecurityAdvisor.gx"
-    resultFormat="e4x"
-    result="onCreateSecurityAdvisor(event)"
-    fault="onFailCreateSecurityAdvisor(event)"
-    destination="createSecurityAdvisor"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-        	
+		id="createSecurityAdvisor"
+		url="CreateSecurityAdvisor.gx"
+		resultFormat="e4x"
+		result="onCreateSecurityAdvisor(event)"
+		fault="onFailCreateSecurityAdvisor(event)"
+		destination="createSecurityAdvisor"
+		showBusyCursor="false"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
 	<mx:HTTPService 
-    id="getSecurityAdvisorForGuest" 
-    url="CreateSecurityAdvisorForGuest.gx"
-    resultFormat="e4x"
-    result="onGetSecurityAdvisorForGuest(event)"
-	fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
-    destination="getSecurityAdvisorForGuest"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService > 
-    
-    <mx:HTTPService 
-    id="getExperimentDesignList" 
-    url="GetExperimentDesignList.gx"
-    resultFormat="e4x"
-    showBusyCursor="false"
-    destination="getExperimentDesignList"
-    result="onGetExperimentDesignList(event)"
-	fault="onFailHttpRequest('Failed to get experiment design list', event)"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
-    
-    <mx:HTTPService 
-    id="getExperimentFactorList" 
-    url="GetExperimentFactorList.gx"
-    resultFormat="e4x"
-    showBusyCursor="false"
-    result="onGetExperimentFactorList(event)"
-	fault="onFailHttpRequest('Failed to get experiment factor list', event)"
-    destination="getExperimentFactorList"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
+		id="getSecurityAdvisorForGuest" 
+		url="CreateSecurityAdvisorForGuest.gx"
+		resultFormat="e4x"
+		result="onGetSecurityAdvisorForGuest(event)"
+		fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
+		destination="getSecurityAdvisorForGuest"
+		showBusyCursor="false"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService > 
+	
+	<mx:HTTPService 
+		id="getExperimentDesignList" 
+		url="GetExperimentDesignList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getExperimentDesignList"
+		result="onGetExperimentDesignList(event)"
+		fault="onFailHttpRequest('Failed to get experiment design list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getExperimentFactorList" 
+		url="GetExperimentFactorList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetExperimentFactorList(event)"
+		fault="onFailHttpRequest('Failed to get experiment factor list', event)"
+		destination="getExperimentFactorList"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
 	
 	<mx:HTTPService 
 		id="getPropertyList" 
@@ -157,44 +157,44 @@
 		</mx:request>
 	</mx:HTTPService >
 	
-    <mx:HTTPService 
-    id="getAppUserList" 
-    url="GetAppUserList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetAppUserList(event)"
-	fault="onFailHttpRequest('Failed to get app user list', event)"
-    destination="getAppUserList"
-    useProxy="false">
-    </mx:HTTPService >
-         
-    <mx:HTTPService 
-    id="getLabList" 
-    url="GetLabList.gx"
-    showBusyCursor="false"
-    resultFormat="e4x"
-    result="onGetLabList(event)"
-	fault="onFailHttpRequest('Failed to get lab list', event)"
-    destination="getLabList"
-    useProxy="false">
-    <mx:request>
-           <listKind>UnboundedLabList</listKind>
-    </mx:request>
-    </mx:HTTPService >
-    
-    
-    <mx:HTTPService 
-    id="getProjectList" 
-    url="GetProjectList.gx"
-    resultFormat="e4x"
-    result="onGetProjectList(event)"
-    destination="getProjectList"
-	fault="onFailHttpRequest('Failed to get project list', event)"
-    showBusyCursor="false"
-    useProxy="false">
-    <mx:request>
-    </mx:request>
-    </mx:HTTPService >
+	<mx:HTTPService 
+		id="getAppUserList" 
+		url="GetAppUserList.gx"
+		showBusyCursor="false"
+		resultFormat="e4x"
+		result="onGetAppUserList(event)"
+		fault="onFailHttpRequest('Failed to get app user list', event)"
+		destination="getAppUserList"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getLabList" 
+		url="GetLabList.gx"
+		showBusyCursor="false"
+		resultFormat="e4x"
+		result="onGetLabList(event)"
+		fault="onFailHttpRequest('Failed to get lab list', event)"
+		destination="getLabList"
+		useProxy="false">
+		<mx:request>
+			<listKind>UnboundedLabList</listKind>
+		</mx:request>
+	</mx:HTTPService >
+	
+	
+	<mx:HTTPService 
+		id="getProjectList" 
+		url="GetProjectList.gx"
+		resultFormat="e4x"
+		result="onGetProjectList(event)"
+		destination="getProjectList"
+		fault="onFailHttpRequest('Failed to get project list', event)"
+		showBusyCursor="false"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
 	
 	<mx:HTTPService 
 		id="getSessionTimeout" 
@@ -271,13 +271,13 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService >
-
-        <mx:Style source="css/gnomex_flex.css" />
-
-        
-<mx:Script>
+	
+	<mx:Style source="css/gnomex_flex.css" />
+	
+	
+	<mx:Script>
             
-        <![CDATA[
+		<![CDATA[
 			import com.earthbrowser.ebutils.MacMouseWheelHandler;
 			
 			import hci.flex.dictionary.DictionaryEditor;
@@ -324,9 +324,15 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-           
-            [Bindable]
-            public var dictionaryManager:DictionaryManager;
+			
+			import views.admin.AlignmentProfileWindow;
+			import views.admin.BillingAccountFieldsConfigurationWindow;
+			import views.util.IScanChipWindow;
+			import views.util.BroadcastEmailWindow;
+			
+			
+			[Bindable]
+			public var dictionaryManager:DictionaryManager;
 			
 			private var navSearchView:NavSearchView;
 			
@@ -334,150 +340,150 @@
 			
 			private var cursorID:Number = 0; 
 			
-			[Bindable]
+			[Bindable]  
 			private var siteLogo:String = "";
 			
 			[Bindable]
 			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
-			 			
-	        [Bindable]
-	        [Embed(source="assets/tick.png")]
-	        public var iconCheck:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/tick_black.png")]
-	        public var iconBlackCheck:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/information.png")]
-	        public var iconInformation:Class;
-	                    
-	        [Bindable]
-	        [Embed(source="assets/flag_yellow.png")]
-	        public var iconYellowFlag:Class;
-	        	
-	        [Bindable]
-	        [Embed(source="assets/group.png")]
-	        public var iconGroup:Class; 
-	        
+			
+			[Bindable]
+			[Embed(source="assets/tick.png")]
+			public var iconCheck:Class;
+			
+			[Bindable]
+			[Embed(source="assets/tick_black.png")]
+			public var iconBlackCheck:Class;
+			
+			[Bindable]
+			[Embed(source="assets/information.png")]
+			public var iconInformation:Class;
+			
+			[Bindable]
+			[Embed(source="assets/flag_yellow.png")]
+			public var iconYellowFlag:Class;
+			
+			[Bindable]
+			[Embed(source="assets/group.png")]
+			public var iconGroup:Class; 
+			
 			[Bindable]
 			[Embed(source="assets/graduation_cap.png")]
 			public var iconExternalAcademic:Class; 
-
+			
 			[Bindable]
 			[Embed(source="assets/building.png")]
 			public var iconExternalCommercial:Class; 
-
 			
-	        [Bindable]
-	        [Embed(source="assets/brick.png")]
-	        public var iconProtocol:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/folder.png")]
-	        public var iconProject:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/folder.png")]
-	        public var iconFolder:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/folder_disable.png")]
-	        public var iconFolderDisabled:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/page.png")]
-	        public var iconPage:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/flask.png")]
-	        public var iconFlask:Class;  
-
-	        [Bindable]
-	        [Embed(source="assets/flask_add.png")]
-	        public var iconSubmitExperiment:Class;
-
+			
+			[Bindable]
+			[Embed(source="assets/brick.png")]
+			public var iconProtocol:Class;
+			
+			[Bindable]
+			[Embed(source="assets/folder.png")]
+			public var iconProject:Class;
+			
+			[Bindable]
+			[Embed(source="assets/folder.png")]
+			public var iconFolder:Class;
+			
+			[Bindable]
+			[Embed(source="assets/folder_disable.png")]
+			public var iconFolderDisabled:Class;
+			
+			[Bindable]
+			[Embed(source="assets/page.png")]
+			public var iconPage:Class;
+			
+			[Bindable]
+			[Embed(source="assets/flask.png")]
+			public var iconFlask:Class;  
+			
+			[Bindable]
+			[Embed(source="assets/flask_add.png")]
+			public var iconSubmitExperiment:Class;
+			
 			[Bindable]
 			[Embed(source="assets/flask_edit.png")]
 			public var iconEditExperiment:Class;
 			
-	        
-	        [Bindable]
-	        [Embed(source="assets/experiment_register.png")]
-	        public var iconAddExternalExperiment:Class;
-	        
-	
-	        [Bindable]
-	        [Embed(source="assets/microarray_small.png")]
-	        public var iconExperiment:Class; 
-	
-	        [Bindable]
-	        [Embed(source="assets/microarray_small.png")]
-	        public var iconMicroarray:Class; 
-	        
-	        	
-	        [Bindable]
-	        [Embed(source="assets/microarray_small_disable.png")]
-	        public var iconMicroarrayDisabled:Class; 
-
-	        [Bindable]
-	        [Embed(source="assets/microarray_small_single_color.png")]
-	        public var iconMicroarraySingleColor:Class; 
-
-	        [Bindable]
-	        [Embed(source="assets/microarray_small_single_color_disable.png")]
-	        public var iconMicroarraySingleColorDisabled:Class; 
-
-	        [Bindable]
-	        [Embed(source="assets/microarray_chip.png")]
-	        public var iconMicroarrayAffy:Class; 
-	        
-	        [Bindable]
-	        [Embed(source="assets/microarray_chip_disable.png")]
-	        public var iconMicroarrayAffyDisabled:Class; 
-	        	        
-	        [Bindable]
-	        [Embed(source="assets/flask.png")]
-	        public var iconExperimentOther:Class; 
-	        
-	        [Bindable]
-	        [Embed(source="assets/basket.png")]
-	        public var iconCategory:Class;
-	        
+			
+			[Bindable]
+			[Embed(source="assets/experiment_register.png")]
+			public var iconAddExternalExperiment:Class;
+			
+			
+			[Bindable]
+			[Embed(source="assets/microarray_small.png")]
+			public var iconExperiment:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/microarray_small.png")]
+			public var iconMicroarray:Class; 
+			
+			
+			[Bindable]
+			[Embed(source="assets/microarray_small_disable.png")]
+			public var iconMicroarrayDisabled:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/microarray_small_single_color.png")]
+			public var iconMicroarraySingleColor:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/microarray_small_single_color_disable.png")]
+			public var iconMicroarraySingleColorDisabled:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/microarray_chip.png")]
+			public var iconMicroarrayAffy:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/microarray_chip_disable.png")]
+			public var iconMicroarrayAffyDisabled:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/flask.png")]
+			public var iconExperimentOther:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/basket.png")]
+			public var iconCategory:Class;
+			
 			[Bindable]
 			[Embed(source="assets/chart_bar.png")]
 			public var iconUsage:Class;
 			
-	        [Bindable]
-	        [Embed(source="assets/chart_line.png")]
-	        public var iconQC:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/chart_line_disable.png")]
-	        public var iconQCDisabled:Class;
-	        
-	       	[Bindable]
-	        [Embed(source="assets/bullet_orange.png")]
-	        public var iconBullet:Class;
-	     
-	       	[Bindable]
-	        [Embed(source="assets/bullet_green.png")]
-	        public var iconGreenBullet:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/bullet_red.png")]
-	        public var iconRedBullet:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/DNA_diag.png")]
-	        public var iconSolexa:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/DNA_diag_disable.png")]
-	        public var iconSolexaDisabled:Class;
-	        
-	        
+			[Bindable]
+			[Embed(source="assets/chart_line.png")]
+			public var iconQC:Class;
+			
+			[Bindable]
+			[Embed(source="assets/chart_line_disable.png")]
+			public var iconQCDisabled:Class;
+			
+			[Bindable]
+			[Embed(source="assets/bullet_orange.png")]
+			public var iconBullet:Class;
+			
+			[Bindable]
+			[Embed(source="assets/bullet_green.png")]
+			public var iconGreenBullet:Class;
+			
+			[Bindable]
+			[Embed(source="assets/bullet_red.png")]
+			public var iconRedBullet:Class;
+			
+			[Bindable]
+			[Embed(source="assets/DNA_diag.png")]
+			public var iconSolexa:Class;
+			
+			[Bindable]
+			[Embed(source="assets/DNA_diag_disable.png")]
+			public var iconSolexaDisabled:Class;
+			
+			
 			[Bindable]
 			[Embed(source="assets/DNA_diag_lightening.png")]
 			public var iconHiSeq:Class;
@@ -494,17 +500,17 @@
 			[Embed(source="assets/DNA_diag_miseq_disable.png")]
 			public var iconMiSeqDisabled:Class;
 			
-	        [Bindable]
-	        [Embed(source="assets/sitemap.png")]
-	        public var iconTree:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/error.png")]
-	        public var iconError:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/comment.png")]
-	        public var iconWarning:Class;
+			[Bindable]
+			[Embed(source="assets/sitemap.png")]
+			public var iconTree:Class;
+			
+			[Bindable]
+			[Embed(source="assets/error.png")]
+			public var iconError:Class;
+			
+			[Bindable]
+			[Embed(source="assets/comment.png")]
+			public var iconWarning:Class;
 			[Bindable]
 			[Embed(source="assets/page_white_wrench.png")]
 			public var iconConfig:Class;
@@ -513,67 +519,80 @@
 			[Embed(source="assets/book.png")]
 			public var iconBook:Class;
 			
-	        [Bindable]
-	        [Embed(source="assets/asterisk_yellow.png")]
-	        public var iconLabeling:Class;
-	        
- 	        [Bindable]
-	        [Embed(source="assets/basket_put.png")]
-	        public var iconHyb:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/chart_line.png")]
-	        public var iconSamplePrep:Class;
-
- 
-	        [Bindable] 
-	        [Embed(source="assets/map.png")]
-	        public var iconAnalysis:Class;
-
-	        [Bindable]
-	        [Embed(source="assets/server_go.png")]
-	        public var iconServer:Class;
-	        
-	         
-	        [Bindable]
-	        [Embed(source="assets/money.png")]
-	        public var iconBilling:Class; 
-
-	        [Bindable]
-	        [Embed(source="assets/money_disable.png")]
-	        public var iconBillingDisabled:Class; 
-	        
-	        
-	        [Bindable]
-	        [Embed(source="assets/folder_money.png")]
-	        public var iconBillingFolder:Class;
-	        
-	        	        
-	        [Bindable]
-	        [Embed(source="assets/pricesheet.png")]
-	        public var iconPriceSheet:Class;
-	        
-	        [Bindable]
-	        [Embed(source="assets/attach.png")]
-	        public var iconPriceCriteria:Class;
-
 			[Bindable]
-	        [Embed(source="assets/image.png")]
-	        public var iconSlide:Class;
+			[Embed(source="assets/asterisk_yellow.png")]
+			public var iconLabeling:Class;
 			
 			[Bindable]
-	        [Embed(source="assets/images.png")]
-	        public var iconSlideSet:Class;
+			[Embed(source="assets/basket_put.png")]
+			public var iconHyb:Class;
 			
 			[Bindable]
-	        [Embed(source="assets/image_disable.png")]
-	        public var iconSlideInActive:Class;
+			[Embed(source="assets/chart_line.png")]
+			public var iconSamplePrep:Class;
+			
+			
+			[Bindable] 
+			[Embed(source="assets/map.png")]
+			public var iconAnalysis:Class;
 			
 			[Bindable]
-	        [Embed(source="assets/images_disable.png")]
-	        public var iconSlideSetInActive:Class;
+			[Embed(source="assets/server_go.png")]
+			public var iconServer:Class;
 			
-
+			
+			[Bindable]
+			[Embed(source="assets/money.png")]
+			public var iconBilling:Class; 
+			
+			[Bindable]
+			[Embed(source="assets/money_disable.png")]
+			public var iconBillingDisabled:Class; 
+			
+			
+			[Bindable]
+			[Embed(source="assets/folder_money.png")]
+			public var iconBillingFolder:Class;
+			
+			
+			[Bindable]
+			[Embed(source="assets/pricesheet.png")]
+			public var iconPriceSheet:Class;
+			
+			[Bindable]
+			[Embed(source="assets/attach.png")]
+			public var iconPriceCriteria:Class;
+			
+			[Bindable]
+			[Embed(source="assets/image.png")]
+			public var iconSlide:Class;
+			
+			[Bindable]
+			[Embed (source="assets/account.png")]
+			public var iconConfigBillingAccount:Class;
+			
+			[Bindable]
+			[@Embed(source="assets/money.png")]
+			public var iconMoney:Class;
+			
+			
+			[Bindable]
+			[@Embed(source="assets/money_dollar.png")]
+			public var iconDollar:Class;
+			
+			[Bindable]
+			[Embed(source="assets/images.png")]
+			public var iconSlideSet:Class;
+			
+			[Bindable]
+			[Embed(source="assets/image_disable.png")]
+			public var iconSlideInActive:Class;
+			
+			[Bindable]
+			[Embed(source="assets/images_disable.png")]
+			public var iconSlideSetInActive:Class;
+			
+			
 			
 			
 			[Bindable]
@@ -583,12 +602,12 @@
 			[Bindable]
 			[Embed(source="assets/genome_build_faded.png")]
 			public var iconGenomeBuildFaded:Class;
-						
+			
 			
 			[Bindable]
 			[Embed(source="assets/folder_group.png")]
 			public var iconDataTrackFolderForGroup:Class;
-			 
+			
 			[Bindable]
 			[Embed(source="assets/organism.png")]
 			public var iconOrganism:Class;
@@ -634,7 +653,7 @@
 			[Bindable]
 			[Embed(source="assets/bullet_delete.png")]
 			public var iconSmallDelete:Class;
-
+			
 			[Bindable]
 			[Embed(source="assets/topic_tag.png")]
 			public var iconTopic:Class;
@@ -646,7 +665,7 @@
 			[Bindable]
 			[Embed(source="assets/topic_tag_members.png")]
 			public var iconTopicMember:Class;
-
+			
 			
 			[Bindable]
 			[Embed(source="assets/topic_tag_institution.png")]
@@ -689,11 +708,11 @@
 			[Bindable]
 			[Embed(source="assets/folder_add.png")]
 			public var iconFolderAdd:Class;
-				
-    
-	        [Bindable]
-	        [@Embed(source="assets/ding.mp3")]
-	        public var soundDing:Class;
+			
+			
+			[Bindable]
+			[@Embed(source="assets/ding.mp3")]
+			public var soundDing:Class;
 			
 			
 			[Bindable]
@@ -717,20 +736,20 @@
 			);
 			
 			public var wellNamesByColumn:Array = [
-			"A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
-			"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
-			"A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3",
-			"A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4",
-			"A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5",
-			"A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6",
-			"A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7",
-			"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8",
-			"A9", "B9", "C9", "D9", "E9", "F9", "G9", "H9",
-			"A10", "B10", "C10", "D10", "E10", "F10", "G10", "H10",
-			"A11", "B11", "C11", "D11", "E11", "F11", "G11", "H11",
-			"A12", "B12", "C12", "D12", "E12", "F12", "G12", "H12"
+				"A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
+				"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
+				"A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3",
+				"A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4",
+				"A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5",
+				"A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6",
+				"A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7",
+				"A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8",
+				"A9", "B9", "C9", "D9", "E9", "F9", "G9", "H9",
+				"A10", "B10", "C10", "D10", "E10", "F10", "G10", "H10",
+				"A11", "B11", "C11", "D11", "E11", "F11", "G11", "H11",
+				"A12", "B12", "C12", "D12", "E12", "F12", "G12", "H12"
 			];
-						
+			
 			private var isGuest:Boolean = false;
 			
 			// We have turned off the feature for now.  It
@@ -739,18 +758,18 @@
 			// design and factors are turned on. 
 			[Bindable]
 			public var showProjectAnnotations:Boolean = false;
-	        
+			
 			[Bindable]
 			public var dataTrackSupported:Boolean = false;
-	        
-	        public var isUniversityOnlyUser:Boolean = false;
+			
+			public var isUniversityOnlyUser:Boolean = false;
 			public var isExternalUser:Boolean = false;
 			
 			[Bindable]
 			public var bulletin:String = '';
-	        
-	        [Bindable]
-	        public var pricingURL:String = '';
+			
+			[Bindable]
+			public var pricingURL:String = '';
 			
 			[Bindable]
 			public var userName:String = '';
@@ -759,7 +778,7 @@
 			
 			[Bindable]
 			public var isCoreDNASeq:Boolean = false;
-
+			
 			[Bindable]
 			public var isCoreGenomics:Boolean = false;
 			
@@ -780,12 +799,12 @@
 			
 			[Bindable]
 			public var loginDateTime:String = '';
-	        
-	        [Bindable]
-	        public var isInternalExperimentSubmission:Boolean = true;
-	        
-	        [Bindable]
-	        public var isBSTLinkageSupported:Boolean = false;
+			
+			[Bindable]
+			public var isInternalExperimentSubmission:Boolean = true;
+			
+			[Bindable]
+			public var isBSTLinkageSupported:Boolean = false;
 			
 			[Bindable]
 			public var isSequenceAlignmentSupported:Boolean = false;
@@ -806,6 +825,9 @@
 			public var showUsage:Boolean = false;
 			
 			[Bindable]
+			public var showPurchaseSupplies:Boolean = false;
+			
+			[Bindable]
 			public var isExternalDataSharingSite:Boolean = false;
 			
 			[Bindable]
@@ -816,34 +838,34 @@
 			
 			[Bindable]
 			public var siteTitle:String = "";
-
+			
 			[Bindable]
 			public var siteWelcomeMessage:String = "";
 			
 			[Bindable]
 			public var useConfigurableBillingAccounts:Boolean = false;
-
-	        public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
-	        public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
-
-	        public var cy3Color:uint = 0xccffaa;
-	        public var cy3ColorBold:uint = 0x77dd55;
-
-	        public var cy5Color:uint = 0xffccaa;
-	        public var cy5ColorBold:uint = 0xff8855;
+			
+			public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
+			public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
+			
+			public var cy3Color:uint = 0xccffaa;
+			public var cy3ColorBold:uint = 0x77dd55;
+			
+			public var cy5Color:uint = 0xffccaa;
+			public var cy5ColorBold:uint = 0xff8855;
 			
 			private var distributeDataTrackWindow:DistributeDataTrackWindow = null;
-
-	        
-	        private var currentView:Object = null;
-	        
-	        
-	        public var downloadPopupCount:int = 0;
-	        
+			
+			
+			private var currentView:Object = null;
+			
+			
+			public var downloadPopupCount:int = 0;
+			
 			[Bindable]
 			public var appUserList:XMLListCollection;
-	        [Bindable]
-		    public var promptedAppUserList:PromptXMLListCollection;
+			[Bindable]
+			public var promptedAppUserList:PromptXMLListCollection;
 			[Bindable]
 			public var labList:XMLListCollection;
 			[Bindable]
@@ -883,7 +905,7 @@
 			private var properties:Object;
 			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
-
+			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
 			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
 			public  var TYPE_QC:String            = 'QC';
@@ -899,19 +921,19 @@
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 			public var CORE_FACILITY_GENOMICS:String = "Microarray and Genomic Analysis";
-
-	        public var PROPERTY_WORKAUTH_INSTRUCTIONS:String              = "workauth_instructions";
-	        public var PROPERTY_WORKAUTH1_URL:String                      = "workauth1_url";
-	        public var PROPERTY_WORKAUTH1_NAME:String                     = "workauth1_name";
-	        public var PROPERTY_WORKAUTH2_URL:String                      = "workauth2_url";
-	        public var PROPERTY_WORKAUTH2_NAME:String                     = "workauth2_name";
-	        public var PROPERTY_QC_INSTRUCTIONS:String                    = "qc_instructions";
+			
+			public var PROPERTY_WORKAUTH_INSTRUCTIONS:String              = "workauth_instructions";
+			public var PROPERTY_WORKAUTH1_URL:String                      = "workauth1_url";
+			public var PROPERTY_WORKAUTH1_NAME:String                     = "workauth1_name";
+			public var PROPERTY_WORKAUTH2_URL:String                      = "workauth2_url";
+			public var PROPERTY_WORKAUTH2_NAME:String                     = "workauth2_name";
+			public var PROPERTY_QC_INSTRUCTIONS:String                    = "qc_instructions";
 			public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
-	        public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
-	        public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
+			public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
+			public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
 			public var PROPERTY_CONTACT_EMAIL_BIOINFORMATICS:String       = "contact_email_bioinformatics";
-	        public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
-	        public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
+			public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
+			public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
 			public var PROPERTY_HELP_URL:String                           = "help_url";
 			public var PROPERTY_PRICING_URL:String                        = "pricing_url";
 			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String     = "university_user_authentication";  
@@ -943,9 +965,9 @@
 			public var PROPERTY_FISCAL_YEAR_BREAK_DAY :String             = "fiscal_year_break_day";
 			public var PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT :String    = "account_number_account_default";
 			public var PROPERTY_GUEST_DOWNLOAD_TERMS :String              = "guest_download_terms";
-
+			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
-
+			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";
 			public var USAGE_VISIBILITY_FULL:String                       = "full";
 			
@@ -969,7 +991,7 @@
 			public var baseURL:String = "";
 			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
 			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
-
+			
 			// email address entered when guest downloads files.
 			public var guestEmailAddress:String = "";	
 			
@@ -1009,7 +1031,7 @@
 						coreFacilityList.addItem(core);
 					}
 				}
-				
+					
 				else {
 					Alert.show("An error occurred getting launch properties");
 				}
@@ -1041,14 +1063,14 @@
 			public function loggedOut():void {
 				var urlRequest:URLRequest = new URLRequest("gnomexFlex.jsp");
 				navigateToURL(urlRequest,"_self");
-
+				
 			}			
-			   
+			
 			public function showChangePasswordBeforeLogin():void {
 				var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
 				PopUpManager.centerPopUp(managePasswordWindow);
 				managePasswordWindow.init(null);
-
+				
 			}   
 			
 			
@@ -1098,8 +1120,8 @@
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
 				navExperimentView.showPromptToUpload = showPromptToUpload;
-
-    			// We have to make sure that the first time a lookup
+				
+				// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the experiment
 				// through show event (init()).  The next time
 				// through, we will make the call directly.
@@ -1107,12 +1129,12 @@
 					navExperimentView.refreshExperimentsForLookup();					
 				}
 				
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
 				
-	        					
+				
 				
 				// Reset the experiment search components.
 				callLater(navExperimentView.resetSearchComponents);
@@ -1124,13 +1146,13 @@
 				navExperimentView.selectedIdRequest = idRequest;
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
-
+				
 				navExperimentView.checkSecurity();
-
+				
 				var parms:Object = new Object();
 				parms.idRequest = idRequest;
 				navExperimentView.getRequestFromNav.send(parms);
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
@@ -1142,51 +1164,51 @@
 				navExperimentView.selectedIdRequest = null;
 				navExperimentView.selectedIdLab = null;
 				navExperimentView.selectedIdProject = null;
-
 				
-    			// We have to make sure that the first time a lookup
+				
+				// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the experiment
 				// through show event (init()).  The next time
 				// through, we will make the call directly.
 				if (navExperimentView.isInitialized) {
 					navExperimentView.refreshExperimentForLookupDownload();					
 				}
-
-
+				
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navExperimentView;
 				
 			}
-            
+			
 			public function showAnalysisForExperiment(request:Object):void {
 				navAnalysisView.selectedIdAnalysis = null;
 				navAnalysisView.selectedIdAnalysisGroup = null; 
 				navAnalysisView.selectedIdLab = request.@idLab;
-
+				
 				var parms:Object = new Object();
 				parms.idRequest = request.@idRequest;
 				navAnalysisView.getAnalysisGroupList.send(parms);
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
 				
 			}
-
+			
 			public function showAnalysis(idAnalysis:Object, analysisNumber:String, idLab:String):void {
 				navAnalysisView.selectedIdAnalysis = null;
 				navAnalysisView.selectedIdAnalysisGroup = null;
 				navAnalysisView.selectedIdLab = idLab;
 				navAnalysisView.selectedAnalysisNumber = analysisNumber;
-
+				
 				navAnalysisView.checkSecurity();
-
+				
 				var parms:Object = new Object();
 				parms.idLab = idLab;
 				parms.idAnalysis = idAnalysis;
 				navAnalysisView.getAnalysisGroupList.send(parms);
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				navAnalysisView.checkSecurity();
@@ -1199,9 +1221,9 @@
 				navAnalysisView.selectedIdAnalysis = null;
 				navAnalysisView.selectedIdLab = null;
 				navAnalysisView.selectedIdAnalysisGroup = null;
-
 				
-
+				
+				
 				// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the analysis
 				// through show event (init()).  The next time
@@ -1209,7 +1231,7 @@
 				if (navAnalysisView.isInitialized) {
 					navAnalysisView.refreshAnalysisForLookup()
 				}
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
@@ -1269,7 +1291,7 @@
 					Alert.show(checkDataTrackPermission.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
-
+			
 			public function showInstrumentRun(idRun:String):void {
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
@@ -1315,7 +1337,7 @@
 			public function showTopicForNumber(topicNumber:String):void {
 				navTopicsView.topicNumber = topicNumber;
 				navTopicsView.treatAsTopicClick = true;
-									
+				
 				// We have to make sure that the first time a lookup
 				// occurs after launch, we refresh the topic
 				// through show event (init()).  The next time
@@ -1333,7 +1355,7 @@
 				parms.topicNumber = topicNumber;
 				checkTopicPermission.send(parms);									
 			}
-				
+			
 			
 			private function onCheckTopicPermission(event:ResultEvent):void {
 				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
@@ -1350,12 +1372,12 @@
 				protocolList.addItemAt(emptyNode, 0);
 				this.dispatchEvent(new AnalysisProtocolsEvent(AnalysisProtocolsEvent.DATA_REFRESHED));
 			}
-
+			
 			public function showUserWindow(idAppUser:String):void {	
 				var userNode:XML = <AppUser  id=''/>;
 				userNode.@id = idAppUser;
 				navUsersView.itemToSelect = userNode;				
-
+				
 				// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the lab list
 				// through show event (init()).  The next time
@@ -1384,7 +1406,7 @@
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.submitRequestView.showCCNumberColumn = true;
 			}			
-
+			
 			public function showBillingAccountDetail(idLab:String):void {
 				var theLab:Object = this.getLabList.lastResult.Lab.(@idLab == idLab);
 				if (theLab is XMLList) {
@@ -1394,7 +1416,7 @@
 				labNode.@id = theLab.@idLab;
 				navUsersView.itemToSelect = labNode;
 				
-
+				
 				// We have to make sure that the first time a lookup
 				// occurs after lauch, we refresh the lab list
 				// through show event (init()).  The next time
@@ -1402,7 +1424,7 @@
 				if (navUsersView.isInitialized) {
 					navUsersView.initializeData();
 				}
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navUsersView;
@@ -1444,24 +1466,24 @@
 					"/>");
 				PopUpManager.centerPopUp(wa);
 			}			       
-
-
+			
+			
 			public function showProtocol(idProtocol:Object, className:String):void {
 				protocolsView.lastSavedProtocolId = idProtocol;
 				protocolsView.lastSelectedProtocolClass = className; 
 				protocolsView.initializeData();
-
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = protocolsView;
 				
 			}
-
-            private function search():void {
+			
+			private function search():void {
 				showSearch();
 				navSearchView.simpleSearchText = this.searchText.text;
-            }
-            
+			}
+			
 			public function showSearch():void {
 				navSearchView = NavSearchView(PopUpManager.createPopUp(this,  NavSearchView, false));
 				PopUpManager.centerPopUp(navSearchView);
@@ -1482,8 +1504,8 @@
 				} else {
 					userPublicView.currentState = "externalInterfaceOnlyState";
 				}
-
-	
+				
+				
 				userPublicView.radioUniversityUser.selected = true;
 				PopUpManager.centerPopUp(userPublicView);
 				//userPublicView.init();
@@ -1493,93 +1515,93 @@
 				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));
 			}
 			
-
-            
-            private function onViewSelection():void {
-            	this.setDefaultSubmissionState();
-            	
-            	if (currentView != null) {
-	            	currentView.checkDirty();
-	            	
-	            	// if we are leaving slide view, refresh dictionaries
-	            	if (isAdminState) {
-		            	if (currentView == this.slideManagementView) {
-		            		slideManagementView.refreshDictionaries();
-	    	        	}
-	            	}
-	            	
-	            	// if we are leaving protocol view, refresh dictionaries
-	            	if (currentView == this.protocolsView) {
-	            		protocolsView.refreshDictionaries();
+			
+			
+			private function onViewSelection():void {
+				this.setDefaultSubmissionState();
+				
+				if (currentView != null) {
+					currentView.checkDirty();
+					
+					// if we are leaving slide view, refresh dictionaries
+					if (isAdminState) {
+						if (currentView == this.slideManagementView) {
+							slideManagementView.refreshDictionaries();
+						}
+					}
+					
+					// if we are leaving protocol view, refresh dictionaries
+					if (currentView == this.protocolsView) {
+						protocolsView.refreshDictionaries();
 						this.getProtocolList.send();
-	            	}
-	            	
-            	}
-            	
-            	
+					}
+					
+				}
+				
+				
 				this.stateStack.selectedChild = theViews;
-            	theViews.visible = true;
-            	
-            	currentView = theViews.selectedChild;
-            }
-                        
-            
-             public function isGuestMode():Boolean {
+				theViews.visible = true;
+				
+				currentView = theViews.selectedChild;
+			}
+			
+			
+			public function isGuestMode():Boolean {
 				// Check the URL, if isGuest=Y on request parameter, then
 				// this is a guest login
-            	if (Application.application.parameters.isGuest != null) {
-       				return Application.application.parameters.isGuest == 'Y' || isGuest;
-            	} else {
+				if (Application.application.parameters.isGuest != null) {
+					return Application.application.parameters.isGuest == 'Y' || isGuest;
+				} else {
 					// If the request parameter isGuest not present, check the
 					// SecurityAdvisor isGuest attribute.
-            		return isGuest;
-            	}
-             } 
-             
-             public function submitInternalExperiment():Boolean {
-             	return isInternalExperimentSubmission;
-             }
-              
-             public function setDefaultSubmissionState():void {
+					return isGuest;
+				}
+			} 
+			
+			public function submitInternalExperiment():Boolean {
+				return isInternalExperimentSubmission;
+			}
+			
+			public function setDefaultSubmissionState():void {
 				if(isInternalExperimentSubmission == false){
 					return;
 				}
-             	if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) != null &&
-             	    this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'INTERNAL') {
+				if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) != null &&
+					this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'INTERNAL') {
 					// Default is "submit request" (internal), but if this is an external data sharing
 					// hub, make default "register external" experiment.
-             		isInternalExperimentSubmission =  !isExternalDataSharingSite;
-             	} else if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE)!= null &&
-             	        this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {					
-             		isInternalExperimentSubmission =  false;
-             	} else {
+					isInternalExperimentSubmission =  !isExternalDataSharingSite;
+				} else if (this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE)!= null &&
+					this.getProperty(this.PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE) == 'EXTERNAL') {					
+					isInternalExperimentSubmission =  false;
+				} else {
 					isInternalExperimentSubmission = true;
 				}
-             }
-
-            public function launchExperimentDownloads():Boolean {
-            	if (Application.application.parameters.launchWindow != null &&
-            	    Application.application.parameters.launchWindow == "ExperimentDownload" &&
-            	    Application.application.parameters.requestNumber != null ) {
-       				return true;
-            	} else {
-            		return false;
-            	}
-            }
-            public function launchExperimentDetail():Boolean {
-            	if (Application.application.parameters.requestNumber != null && Application.application.parameters.requestNumber != 'null') {
-       				return true;
-            	} else { 
-            		return false;
-            	}
-            }
-            public function launchAnalysisDetail():Boolean { 
-            	if (Application.application.parameters.analysisNumber != null && Application.application.parameters.analysisNumber != 'null') {
-       				return true;
-            	} else {
-            		return false;
-            	}
-            }
+			}
+			
+			public function launchExperimentDownloads():Boolean {
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "ExperimentDownload" &&
+					Application.application.parameters.requestNumber != null ) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			public function launchExperimentDetail():Boolean {
+				if (Application.application.parameters.requestNumber != null && Application.application.parameters.requestNumber != 'null') {
+					return true;
+				} else { 
+					return false;
+				}
+			}
+			public function launchAnalysisDetail():Boolean { 
+				if (Application.application.parameters.analysisNumber != null && Application.application.parameters.analysisNumber != 'null') {
+					return true;
+				} else {
+					return false;
+				}
+			}
 			public function launchDataTrackDetail():Boolean { 
 				if (Application.application.parameters.dataTrackNumber != null && Application.application.parameters.dataTrackNumber != 'null') {
 					return true;
@@ -1616,14 +1638,14 @@
 				}
 			}
 			
-            public function launchWorkAuthForm():Boolean {
-            	if (Application.application.parameters.launchWindow != null &&
-            	    Application.application.parameters.launchWindow == "WorkAuthForm") {
-            		return true;
-            	} else {
-            		return false;
-            	}
-            }
+			public function launchWorkAuthForm():Boolean {
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "WorkAuthForm") {
+					return true;
+				} else {
+					return false;
+				}
+			}
 			
 			public function launchCreateExperiment():Boolean {
 				var lw:String = Application.application.parameters.launchWindow;
@@ -1636,21 +1658,21 @@
 					return false;
 				}
 			}
-            
-            public function getLaunchRequestNumber():String {
-            	if (Application.application.parameters.requestNumber != null) {
-       				return Application.application.parameters.requestNumber;
-            	} else {
-            		return "";
-            	}
-            }
-            public function getLaunchAnalysisNumber():String {
-            	if (Application.application.parameters.analysisNumber != null) {
-       				return Application.application.parameters.analysisNumber;
-            	} else {
-            		return "";
-            	}
-            }
+			
+			public function getLaunchRequestNumber():String {
+				if (Application.application.parameters.requestNumber != null) {
+					return Application.application.parameters.requestNumber;
+				} else {
+					return "";
+				}
+			}
+			public function getLaunchAnalysisNumber():String {
+				if (Application.application.parameters.analysisNumber != null) {
+					return Application.application.parameters.analysisNumber;
+				} else {
+					return "";
+				}
+			}
 			public function getLaunchDataTrackNumber():String {
 				if (Application.application.parameters.dataTrackNumber != null) {
 					return Application.application.parameters.dataTrackNumber;
@@ -1665,7 +1687,7 @@
 					return "";
 				}
 			}
-            
+			
 			public function getLaunchIdLab():String {
 				if (Application.application.parameters.idLab != null) {
 					return Application.application.parameters.idLab;
@@ -1689,175 +1711,175 @@
 				}
 				return ccList;
 			}
-			  
-            private function loggedInInit():void {
-            	appProgressBar = new AppProgressView();
-            	appProgressBar.currentState = "StartupState";
-			    PopUpManager.addPopUp(appProgressBar, mainArea, false);
+			
+			private function loggedInInit():void {
+				appProgressBar = new AppProgressView();
+				appProgressBar.currentState = "StartupState";
+				PopUpManager.addPopUp(appProgressBar, mainArea, false);
 				PopUpManager.centerPopUp(appProgressBar);
 				
 				// This is for handler to enable Mac MouseWheel
 				this.addEventListener(Event.ADDED_TO_STAGE, stage_init);
-
-            	if (isGuestMode() ) { 
+				
+				if (isGuestMode() ) { 
 					/*
 					Captcha feature removed 7.6.12. Guests can now login directly
-            		var captchaWindow:CaptchaView = new CaptchaView();
-            		PopUpManager.addPopUp(captchaWindow, mainArea, false);
-            		PopUpManager.centerPopUp(captchaWindow);
-            		captchaWindow.init();
-            		captchaWindow.phrase.setFocus();
+					var captchaWindow:CaptchaView = new CaptchaView();
+					PopUpManager.addPopUp(captchaWindow, mainArea, false);
+					PopUpManager.centerPopUp(captchaWindow);
+					captchaWindow.init();
+					captchaWindow.phrase.setFocus();
 					*/
 					getSecurityAdvisorForGuest.send();
-            				    
+					
 				} else {
-	            	createSecurityAdvisor.send();
+					createSecurityAdvisor.send();
 				}
-            } 
-            
+			} 
+			
 			public function stage_init(e:Event):void {		    
 				MacMouseWheelHandler.init(stage);
 			}            
-            
-            public  function formatDate(date:Date):String {
-			    return date.getFullYear().toString() + 
-                    '-' + (date.getMonth()+1).toString() + '-' + date.getDate();
-            }
-            
-                   
-
-            public function getLabName(item:Object, col:int):String 
-            {  
-	        	var labName:String = "";
-	        	var labList:XMLList = getLabList.lastResult.Lab;     			
-	        	for(var i:Number = 0; i < labList.length(); i++) {
-	            	if(labList[i].@idLab == item.@idLab) {
-	                	labName = labList[i].@name;
-	                    break;
-	             	}
-	             }
-	             return labName;
-       	
-            }
-            
-            public function getIdAppUser():Object {
+			
+			public  function formatDate(date:Date):String {
+				return date.getFullYear().toString() + 
+					'-' + (date.getMonth()+1).toString() + '-' + date.getDate();
+			}
+			
+			
+			
+			public function getLabName(item:Object, col:int):String 
+			{  
+				var labName:String = "";
+				var labList:XMLList = getLabList.lastResult.Lab;     			
+				for(var i:Number = 0; i < labList.length(); i++) {
+					if(labList[i].@idLab == item.@idLab) {
+						labName = labList[i].@name;
+						break;
+					}
+				}
+				return labName;
+				
+			}
+			
+			public function getIdAppUser():Object {
 				return idAppUser;
-            }
-            public function getAppUserName():Object {
-            	if (isGuestMode()) {
-            		return "guest";
-            	} else {
-            		return createSecurityAdvisor.lastResult.@userLastName + (createSecurityAdvisor.lastResult.@userLastName != "" ? (", " + createSecurityAdvisor.lastResult.@userFirstName) : "");
-            	}
-            }
-            
-            public function getUNID():Object {
-            	if (isGuestMode()) {
-            		return "";
-            	} else {
-            		return createSecurityAdvisor.lastResult.@uNID;
-            	}
-            }
-            
-            public function getUserEmail():String {
-            	if (isGuestMode()) {
-            		return "";
-            	} else {
-            		return createSecurityAdvisor.lastResult.@userEmail;
-            	}
-            }
-            
-            public function hasPermission(permission:String):Boolean {
-            	var hasPermission:Boolean = false;
-            	var thePermission:Object = null;
-            	if (isGuestMode()) {
+			}
+			public function getAppUserName():Object {
+				if (isGuestMode()) {
+					return "guest";
+				} else {
+					return createSecurityAdvisor.lastResult.@userLastName + (createSecurityAdvisor.lastResult.@userLastName != "" ? (", " + createSecurityAdvisor.lastResult.@userFirstName) : "");
+				}
+			}
+			
+			public function getUNID():Object {
+				if (isGuestMode()) {
+					return "";
+				} else {
+					return createSecurityAdvisor.lastResult.@uNID;
+				}
+			}
+			
+			public function getUserEmail():String {
+				if (isGuestMode()) {
+					return "";
+				} else {
+					return createSecurityAdvisor.lastResult.@userEmail;
+				}
+			}
+			
+			public function hasPermission(permission:String):Boolean {
+				var hasPermission:Boolean = false;
+				var thePermission:Object = null;
+				if (isGuestMode()) {
 					hasPermission = false;
-            	} else {
+				} else {
 					thePermission = createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission);     
 					if (thePermission.length() > 0) { 
 						hasPermission = true;
 					}       		
-            	}
+				}
 				
 				return hasPermission;
-            }
-
-            public function getGroupsToManage():Object {
-            	if (isGuestMode()) {
-            		return new XMLListCollection();
-            	} else {
-            		return new XMLListCollection(createSecurityAdvisor.lastResult.groupsToManage.Lab);
-            	}
-            }
-            
-            public function hasGroupsToManage():Boolean {
-            	var groupsToManage:XMLList = null;
-            	if (isGuestMode()) {
-					groupsToManage = new XMLList();
-            	} else {
-					groupsToManage = createSecurityAdvisor.lastResult.groupsToManage.Lab;    		
-            	}
-            	if (groupsToManage.length() > 0) {
-            		return true;
-            	} else {
-            		return false;
-            	}
-            }
+			}
 			
-            
-            public function canSubmitRequests(idLab:int):Boolean {
-            	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
-            	if (theLab != null && theLab.@canSubmitRequests == 'Y') {
-            		return true;
-            	} else {
-            		return false;
-            	}
-            }
-            public function belongsToALab():Boolean {
-             	var hasLab:Boolean = false;
-            	for each(var lab:Object in getLabList.lastResult.Lab) {
-            		if (lab.@isMyLab == 'Y') {
-            			hasLab = true;
-            			break;
-            		}
-            	} 
-            	return hasLab;
-            }
-            
-            public function canSubmitRequestForALab():Boolean {
-             	var hasLab:Boolean = false;
-            	for each(var lab:Object in getLabList.lastResult.Lab) {
-            		if (lab.@canSubmitRequests == 'Y') {
-            			hasLab = true;
-            			break;
-            		}
-            	} 
-            	return hasLab;
-            }
-            
-            public function isMyLab(idLab:int):Boolean {
-            	var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
-            	if (theLab != null && theLab.@isMyLab == 'Y') {
-            		return true;
-            	} else {
-            		return false;
-            	}
-            	
-            }
-              
+			public function getGroupsToManage():Object {
+				if (isGuestMode()) {
+					return new XMLListCollection();
+				} else {
+					return new XMLListCollection(createSecurityAdvisor.lastResult.groupsToManage.Lab);
+				}
+			}
+			
+			public function hasGroupsToManage():Boolean {
+				var groupsToManage:XMLList = null;
+				if (isGuestMode()) {
+					groupsToManage = new XMLList();
+				} else {
+					groupsToManage = createSecurityAdvisor.lastResult.groupsToManage.Lab;    		
+				}
+				if (groupsToManage.length() > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			
+			public function canSubmitRequests(idLab:int):Boolean {
+				var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
+				if (theLab != null && theLab.@canSubmitRequests == 'Y') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			public function belongsToALab():Boolean {
+				var hasLab:Boolean = false;
+				for each(var lab:Object in getLabList.lastResult.Lab) {
+					if (lab.@isMyLab == 'Y') {
+						hasLab = true;
+						break;
+					}
+				} 
+				return hasLab;
+			}
+			
+			public function canSubmitRequestForALab():Boolean {
+				var hasLab:Boolean = false;
+				for each(var lab:Object in getLabList.lastResult.Lab) {
+					if (lab.@canSubmitRequests == 'Y') {
+						hasLab = true;
+						break;
+					}
+				} 
+				return hasLab;
+			}
+			
+			public function isMyLab(idLab:int):Boolean {
+				var theLab:Object = getLabList.lastResult.Lab.(@idLab == idLab.toString());
+				if (theLab != null && theLab.@isMyLab == 'Y') {
+					return true;
+				} else {
+					return false;
+				}
+				
+			}
+			
 			public function isCoreFacilityIManage(idCoreFacility:String):Boolean {
 				var isMyCoreFacility:Boolean = false;
 				
-					for each (var facility:XML in coreFacilitiesICanManage) {
-						if (facility.@idCoreFacility == idCoreFacility) {
-							isMyCoreFacility = true;
-							break;
-						}
+				for each (var facility:XML in coreFacilitiesICanManage) {
+					if (facility.@idCoreFacility == idCoreFacility) {
+						isMyCoreFacility = true;
+						break;
 					}
+				}
 				return isMyCoreFacility;
 			}
 			
-            private function checkSecurity():void {
+			private function checkSecurity():void {
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
@@ -1889,90 +1911,90 @@
 				}
 				
 				callLater(this.resizeMenuItems);
-            }
-
-            private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
-            	this.appProgressBar.currentState = "AuthenticationFailedState";
-            }
-            
-            private function onCreateSecurityAdvisor(event:ResultEvent):void {
-            	if (!(createSecurityAdvisor.lastResult is XML) ||
-            	    createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
-            		Alert.show("Authentication failed.");  
-            		return;	
-            	}
+			}
+			
+			private function onFailCreateSecurityAdvisor(event:FaultEvent):void {
+				this.appProgressBar.currentState = "AuthenticationFailedState";
+			}
+			
+			private function onCreateSecurityAdvisor(event:ResultEvent):void {
+				if (!(createSecurityAdvisor.lastResult is XML) ||
+					createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
+					Alert.show("Authentication failed.");  
+					return;	
+				}
 				
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
 				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
-
-				this.appProgressBar.currentState = "LoadingState";
-			    this.showProgress(10);
-			    
-			    userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
-				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
-			    isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
-				isExternalUser = createSecurityAdvisor.lastResult.@isExternalUser == "Y" ? true : false;
-			    version = createSecurityAdvisor.lastResult.@version;
-			    		
-			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
-				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
-			    dictionaryManager.call("load", "");
-			    
-
-
-
 				
-            }
-            
-            private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
-			    this.appProgressBar.currentState = "LoadingState";
-            	this.showProgress(30);
+				this.appProgressBar.currentState = "LoadingState";
+				this.showProgress(10);
+				
+				userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
+				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
+				isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+				isExternalUser = createSecurityAdvisor.lastResult.@isExternalUser == "Y" ? true : false;
+				version = createSecurityAdvisor.lastResult.@version;
+				
+				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
+				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+				dictionaryManager.call("load", "");
+				
+				
+				
+				
+				
+			}
+			
+			private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
+				this.appProgressBar.currentState = "LoadingState";
+				this.showProgress(30);
 				
 				isGuest = true;
-
-            	if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
-            	    getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
-            		Alert.show("You must launch GNomEx from guest page.");  
-            		return;	
-            	} 
+				
+				if (!(getSecurityAdvisorForGuest.lastResult is XML) ||
+					getSecurityAdvisorForGuest.lastResult.name() != 'SecurityAdvisor') {
+					Alert.show("You must launch GNomEx from guest page.");  
+					return;	
+				} 
 				idAppUser = getSecurityAdvisorForGuest.lastResult.@idAppUser;
-
-            	userName  = "guest user";
+				
+				userName  = "guest user";
 				loginDateTime  = getSecurityAdvisorForGuest.lastResult.@loginDateTime;
 				
-			    version = getSecurityAdvisorForGuest.lastResult.@version;
-			    isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+				version = getSecurityAdvisorForGuest.lastResult.@version;
+				isUniversityOnlyUser = getSecurityAdvisorForGuest.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
 				isExternalUser = false;
-
-			    
-			    dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
+				
+				
+				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
-			    dictionaryManager.call("load", "");
-            	
-            	showProgress(30);
-            }
- 
-            public function onDictionariesLoaded(event:Event):void {
-            	properties = new Object();
-            	for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
-            		if (prop.@value == '') {
-            			continue; 
-            		}
+				dictionaryManager.call("load", "");
+				
+				showProgress(30);
+			}
+			
+			public function onDictionariesLoaded(event:Event):void {
+				properties = new Object();
+				for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (prop.@value == '') {
+						continue; 
+					}
 					var qualName:String = prop.@propertyName;
 					if (prop.hasOwnProperty("@idCoreFacility") && prop.@idCoreFacility != '') {
 						qualName = prop.@idCoreFacility + '\t' + qualName;
 					}
-            		properties[qualName] = prop.@propertyValue;
-            	}
-            	pricingURL = getProperty(PROPERTY_PRICING_URL);
+					properties[qualName] = prop.@propertyValue;
+				}
+				pricingURL = getProperty(PROPERTY_PRICING_URL);
 				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
-            	
-            	if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
-            	    this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) == 'Y') {
-            		this.isBSTLinkageSupported = true;
-            	} else {
-            		this.isBSTLinkageSupported = false;
-            	}
+				
+				if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
+					this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) == 'Y') {
+					this.isBSTLinkageSupported = true;
+				} else {
+					this.isBSTLinkageSupported = false;
+				}
 				
 				if (this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) != null && 
 					this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) == 'Y') {
@@ -2016,15 +2038,15 @@
 				} else {
 					this.isExternalDataSharingSite = false;
 				}
-
-
+				
+				
 				if (this.getProperty(this.PROPERTY_SITE_TITLE) != null) {
 					this.siteTitle = this.getProperty(this.PROPERTY_SITE_TITLE);
 				} 
 				if (this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE) != null) {
 					this.siteWelcomeMessage = this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE);
 				} 
-
+				
 				// Admins can always view usage.  Normal gnomex users (non guest users)
 				// can only view it if the
 				// property usage_user_visibility set to 'masked' or 'full'.
@@ -2036,6 +2058,11 @@
 					this.showUsage = this.hasPermission("canAccessAnyObject");
 				}
 				
+				if (this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) != '') {
+					showPurchaseSupplies = false;
+				} else {
+					showPurchaseSupplies = true;
+				}
 				
 				if (this.getProperty(this.PROPERTY_DATATRACK_SUPPORTED) == 'Y') {
 					dataTrackSupported = true;
@@ -2147,12 +2174,12 @@
 				if (this.hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isSuperAdmin = true;
 				}
-
-
+				
+				
 				
 				setDefaultSubmissionState();
-
-            	
+				
+				
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
 					
@@ -2160,30 +2187,30 @@
 					enableApp();
 					
 				}
-
+				
 				if (this.getProperty(this.PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS) == "Y") {
 					this.useConfigurableBillingAccounts = true;
 				} else {
 					this.useConfigurableBillingAccounts = false;
 				}
-
+				
 				getSessionTimeout.send();
-            }
+			}
 			
-					
+			
 			private function onGetSessionTimeout(event:ResultEvent):void {
 				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
 				SessionTimeoutData.setThisApplication(this, sessionTimeout); 
 				SessionTimeoutData.startUserSessionTimer();		
 				getProtocolList.send();
 			}	
-            
-            public function getProperty(name:String):String {
-            	if (properties == null) {
-            		return "";
-            	}
-            	return properties[name];
-            }
+			
+			public function getProperty(name:String):String {
+				if (properties == null) {
+					return "";
+				}
+				return properties[name];
+			}
 			
 			public function getCoreFacilityProperty(idCoreFacility:String, name:String):String {
 				var result:String = "";
@@ -2196,69 +2223,69 @@
 				}
 				return result;
 			}
-            
-            private function showProgress(interval:uint):void {
-            	currentProgressInterval = currentProgressInterval + interval;
+			
+			private function showProgress(interval:uint):void {
+				currentProgressInterval = currentProgressInterval + interval;
 				appProgressBar.bar.setProgress(currentProgressInterval, 100);
-            }
-            
-            private function onGetExperimentDesignList(event:ResultEvent):void {
-	        	getExperimentFactorList.send();
-            	
-	        	showProgress(10);
-	        	enableApp();
-	        }		
-	        
+			}
+			
+			private function onGetExperimentDesignList(event:ResultEvent):void {
+				getExperimentFactorList.send();
+				
+				showProgress(10);
+				enableApp();
+			}		
+			
 			private function onGetExperimentFactorList(event:ResultEvent):void {
-	        	getLabList.send();
-            	
-	        	
-	        	showProgress(10);
-	        }
-	        
-	        private function onGetAppUserList(event:ResultEvent):void {
+				getLabList.send();
+				
+				
+				showProgress(10);
+			}
+			
+			private function onGetAppUserList(event:ResultEvent):void {
 				appUserList = new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y'));
-			  	var emptyNode:XML = <AppUser displayName = '' idAppUser='' name='' label=''/>;
-              	promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
-              	
-              	getProjectList.send();
-            				
-	          	showProgress(10);
-	        	enableApp();
-	        }
-	        
-	        private function onGetLabList(event:ResultEvent):void {
-	        	var emptyNode:XML = <Lab idLab='' name='' label=''/>;
+				var emptyNode:XML = <AppUser displayName = '' idAppUser='' name='' label=''/>;
+				promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
+				
+				getProjectList.send();
+				
+				showProgress(10);
+				enableApp();
+			}
+			
+			private function onGetLabList(event:ResultEvent):void {
+				var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 				labList = new XMLListCollection(getLabList.lastResult.Lab);
-	        	promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
-	        	submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
-	        	promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
+				promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
+				submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
+				promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 				promptedSubmitRequestLabList.refresh();
-	        	manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
-	        	
-	       		// For submitting work auth forms online, a non-gnomex university user will
-	       		// select from a list of all labs.  A guest user doesn't have this feature.
-	       		// A normal gnomex user will select from a list of their labs. (Admins
-	       		// will have a full list since they can submit a request on behalf 
-	       		// of any lab.
-	        	if (this.isUniversityOnlyUser) {
-					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab);
-	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
-	        	} else if (this.isGuestMode()) {	        		
-	        	} else if (this.canSubmitRequestForALab()) {
-					workAuthLabList = submitRequestLabList;
-	        		promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
-	        	} else {
+				manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
+				
+				// For submitting work auth forms online, a non-gnomex university user will
+				// select from a list of all labs.  A guest user doesn't have this feature.
+				// A normal gnomex user will select from a list of their labs. (Admins
+				// will have a full list since they can submit a request on behalf 
+				// of any lab.
+				if (this.isUniversityOnlyUser) {
 					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab);
 					promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
-	        	}
-	        	
-	        	getAppUserList.send();
-            	
-	        	showProgress(30);
-	        	enableApp();
-	        }		
-						
+				} else if (this.isGuestMode()) {	        		
+				} else if (this.canSubmitRequestForALab()) {
+					workAuthLabList = submitRequestLabList;
+					promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
+				} else {
+					workAuthLabList = new XMLListCollection(getLabList.lastResult.Lab);
+					promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
+				}
+				
+				getAppUserList.send();
+				
+				showProgress(30);
+				enableApp();
+			}		
+			
 			private function onGetProjectList(event:ResultEvent):void {
 				getGenomeIndexList.send();
 				getAlignmentProfileList.send();
@@ -2271,7 +2298,7 @@
 				showProgress(10);
 				enableApp();
 			}			
-	        
+			
 			private function onGetPropertyList(event:ResultEvent):void {
 				propertyList = new XMLListCollection(getPropertyList.lastResult.Property);
 				this.dispatchEvent(new PropertyEvent(PropertyEvent.DATA_REFRESHED));
@@ -2325,7 +2352,7 @@
 			private function onGetIScanChipList(event:ResultEvent):void {
 				iScanChipList = new XMLListCollection(getIScanChipList.lastResult..IScanChip);
 				var emptyNode:XML = <IScanChip idIScanChip='' name='' />;
-					
+				
 				this.dispatchEvent(new IScanChipEvent(IScanChipEvent.DATA_REFRESHED));
 				
 				if (currentState == null || currentState == "") {
@@ -2339,62 +2366,62 @@
 				this.otherAccountFieldsConfigurationList = new XMLListCollection(getAccountFieldsConfiguration.lastResult.OtherAccountFieldsConfigurationList.OtherAccountFieldsConfiguration);
 			}
 			
-	        private function enableApp():void {
-	        	// If we are already in an enabled state,
-	        	// just return.
-	        	if (currentState != null) {
-	        		return;
-	        	}
-	        	
-	        	var done:Boolean = false;
-	        	if (dictionaryManager != null &&
-	        	    dictionaryManager.xml != null &&
-	        	    manageLabList != null &&
-	        	    promptedLabList != null &&
-				    propertyList != null) {
-	        	    
-	        	    if (this.isGuestMode()) {
-	        	    	done = true;
-	        	    } else if (promptedAppUserList != null) {
-	        	    	done = true;
-	        	    }
-	        	} 
-	        	
-	        	if (done) {
+			private function enableApp():void {
+				// If we are already in an enabled state,
+				// just return.
+				if (currentState != null) {
+					return;
+				}
+				
+				var done:Boolean = false;
+				if (dictionaryManager != null &&
+					dictionaryManager.xml != null &&
+					manageLabList != null &&
+					promptedLabList != null &&
+					propertyList != null) {
+					
+					if (this.isGuestMode()) {
+						done = true;
+					} else if (promptedAppUserList != null) {
+						done = true;
+					}
+				} 
+				
+				if (done) {
 					appProgressBar.bar.setProgress(100, 100);
-		        	PopUpManager.removePopUp(appProgressBar);
-	    	    	currentState = "enabledState";
+					PopUpManager.removePopUp(appProgressBar);
+					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
-	        	}
-	        	
-	        }
-	        
-	        private function checkSecurityAndLaunchStartWindow():void {
-	        	if (this.currentState == "enabledState") {
-	        		checkSecurity();
-	        		if (this.homeView != null) {
-	        			this.homeView.init();
-	        		}
-		        	launchStartWindow();	        		
-	        	}
-	        }
-	        
-	        private function launchStartWindow():void {
-	        	if (launchExperimentDownloads()) {
+				}
+				
+			}
+			
+			private function checkSecurityAndLaunchStartWindow():void {
+				if (this.currentState == "enabledState") {
+					checkSecurity();
+					if (this.homeView != null) {
+						this.homeView.init();
+					}
+					launchStartWindow();	        		
+				}
+			}
+			
+			private function launchStartWindow():void {
+				if (launchExperimentDownloads()) {
 					// (Make sure call to launchExperimentDownloads() is before launchExperimentDetail()
 					// since launching to the detail window is now the default if no launchWindow
 					// parameter is included.
-	        		this.showExperimentDownload(getLaunchRequestNumber());
-	        	} else if (launchExperimentDetail()) {
-	        		this.showExperiment(getLaunchRequestNumber(), false);
-	        	} else if (launchAnalysisDetail()) {
-   					this.showAnalysisForNumber(getLaunchAnalysisNumber());
+					this.showExperimentDownload(getLaunchRequestNumber());
+				} else if (launchExperimentDetail()) {
+					this.showExperiment(getLaunchRequestNumber(), false);
+				} else if (launchAnalysisDetail()) {
+					this.showAnalysisForNumber(getLaunchAnalysisNumber());
 				} else if (launchDataTrackDetail()) {
 					this.showDataTrackForNumber(getLaunchDataTrackNumber());
 				} else if (launchTopicDetail()) {
 					this.showTopicForNumber(getLaunchTopicNumber());
 				} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
-   					this.showBillingAccountDetail(this.getLaunchIdLab());
+					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
 					this.theViews.selectedChild = this.homeView;
 					callLater(showWorkAuthWindow);
@@ -2402,108 +2429,108 @@
 					this.showUserWindow(this.getLaunchIdAppUser());
 				} else if (launchCreateExperiment()) {
 					this.showNewExperiment(getNewExperimentCCNumbers());
-	        	} else {
+				} else {
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;
 					} else {
 						theViews.selectedChild = this.homeView;						
 					}					
 				}
-	        	 
-	        }
-	        
-		public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				var ed1:String = obj1.@experimentDesign;
-				var ed2:String = obj2.@experimentDesign;
 				
-				if (ed1 == 'Other') {
+			}
+			
+			public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
 					return 1;
-				} else if (ed2 == 'Other') {
-					return  -1;
+				} else if (obj2 == null) {
+					return -1;
 				} else {
-					if (ed1 < ed2) {
-						return -1;
-					} else if (ed1 > ed2) {
+					var ed1:String = obj1.@experimentDesign;
+					var ed2:String = obj2.@experimentDesign;
+					
+					if (ed1 == 'Other') {
 						return 1;
+					} else if (ed2 == 'Other') {
+						return  -1;
 					} else {
-						return 0;
-					}
-				}			
-				
+						if (ed1 < ed2) {
+							return -1;
+						} else if (ed1 > ed2) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}			
+					
+				}
 			}
-		}
-		public function sortExperimentFactors(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				var ef1:String = obj1.@experimentFactor;
-				var ef2:String = obj2.@experimentFactor;
-				if (ef1 == 'Other') {
+			public function sortExperimentFactors(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
 					return 1;
-				} else if (ef2 == 'Other') {
-					return  -1;
-				} else  {
-					if (ef1 < ef2) {
-						return -1;
-					} else if (ef1 > ef2) {
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var ef1:String = obj1.@experimentFactor;
+					var ef2:String = obj2.@experimentFactor;
+					if (ef1 == 'Other') {
 						return 1;
-					} else {
-						return 0;
-					}
-				}				
-				
+					} else if (ef2 == 'Other') {
+						return  -1;
+					} else  {
+						if (ef1 < ef2) {
+							return -1;
+						} else if (ef1 > ef2) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}				
+					
+				}
 			}
-		}
-		
-		public function onFailHttpRequest(title:String, event:FaultEvent):void {
-			var sandboxMessage:String = "";
-			switch (Security.sandboxType) {
-                case Security.LOCAL_TRUSTED:
-                    sandboxMessage += " (Local trusted)";
-                    break;
-                case Security.LOCAL_WITH_FILE:
-                    sandboxMessage += " (Local with file)";
-                    break;
-                case Security.LOCAL_WITH_NETWORK:
-                    sandboxMessage += " (Local with network)";
-                    break;
-                case Security.REMOTE:
-                    sandboxMessage += " (Remote)";
-                    break;
-            }
-        	Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
-		}
-		
-
-            
-        public function onFailHttpRequestNonVerbose(title:String, event:FaultEvent):void {
-        		
-        	if (event.message.body is String) {
-	        	var startPos:int = event.message.body.indexOf("TEXT=");
-	        	var endPos:int   = event.message.body.indexOf("TYPE=");
-	        	if (startPos != -1 && endPos != -1) {
-		        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), title);    		
-	        	} else {
-	        		Alert.show(event.message.body.toString(), title);
-	        	}        
-        		
-        	} else {
-        		Alert.show(event.message.toString(), title + " event.message");
-        	}
-        }
-        
-		public function getTreeIcon(item:Object):Class {
+			
+			public function onFailHttpRequest(title:String, event:FaultEvent):void {
+				var sandboxMessage:String = "";
+				switch (Security.sandboxType) {
+					case Security.LOCAL_TRUSTED:
+						sandboxMessage += " (Local trusted)";
+						break;
+					case Security.LOCAL_WITH_FILE:
+						sandboxMessage += " (Local with file)";
+						break;
+					case Security.LOCAL_WITH_NETWORK:
+						sandboxMessage += " (Local with network)";
+						break;
+					case Security.REMOTE:
+						sandboxMessage += " (Remote)";
+						break;
+				}
+				Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
+			}
+			
+			
+			
+			public function onFailHttpRequestNonVerbose(title:String, event:FaultEvent):void {
+				
+				if (event.message.body is String) {
+					var startPos:int = event.message.body.indexOf("TEXT=");
+					var endPos:int   = event.message.body.indexOf("TYPE=");
+					if (startPos != -1 && endPos != -1) {
+						Alert.show(event.message.body.toString().substring(startPos + 5, endPos), title);    		
+					} else {
+						Alert.show(event.message.body.toString(), title);
+					}        
+					
+				} else {
+					Alert.show(event.message.toString(), title + " event.message");
+				}
+			}
+			
+			public function getTreeIcon(item:Object):Class {
 				if(item is XML) {
 					// If icon path defined then use it
 					var itemIcon:String = item.@icon;
@@ -2522,7 +2549,7 @@
 				} else if (item.name() == "RequestCategory") {
 					return this.iconCategory;
 				} else if (item.name() == "BillingItem") {
-				    return iconBilling;
+					return iconBilling;
 				} else if (item.name() == "DataTrack") {
 					return getDataTrackTreeIcon(item);
 				} else if (item.name() == "Topic") {		
@@ -2538,7 +2565,7 @@
 						return iconTopicPublic;
 					}			
 				} else if (item.name() == "PriceSheet") {
-				    return iconPriceSheet;
+					return iconPriceSheet;
 				} else if (item.name() == "PriceCategory" ) {
 					return iconBillingFolder;
 				} else if (item.name() == "Price" ) {
@@ -2553,7 +2580,7 @@
 					if (item.@isActive == "N") {
 						return this.iconSlideSetInActive;
 					} else {
-					   return this.iconSlideSet;
+						return this.iconSlideSet;
 					}
 				} else if (item.name() == "SlideDesign") {
 					if (item.@isActive == "N") {
@@ -2562,7 +2589,7 @@
 						return this.iconSlide;
 					}
 				}
-				
+					
 				else if (item.name() == "RequestDownload") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
@@ -2570,11 +2597,11 @@
 						return iconFolder;			
 					}
 				} else if (item.name() == "FileDescriptor" && item.hasOwnProperty("@type") && item.@type == "dir") {
-          if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
-            return iconFolderDisabled;
-          } else {
-            return iconFolder;			
-          }
+					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+						return iconFolderDisabled;
+					} else {
+						return iconFolder;			
+					}
 				} else if (item.name() == "AnalysisDownload") {
 					if (item.hasOwnProperty("@type") && item.@type == "dir") {
 						if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
@@ -2608,7 +2635,7 @@
 				} else {
 					return null;
 				}
-		}
+			}
 			
 			public function getDataTrackTreeIcon(item:Object):Class {
 				if (item.name() == "Organism") {
@@ -2645,7 +2672,7 @@
 					return iconDataTrack;
 				}
 			}     
-
+			
 			public function getTopicTreeIcon(item:Object):Class {
 				if (item.name() == "Lab") {
 					return iconDataTrackFolderForGroup;
@@ -2683,224 +2710,308 @@
 				return organism;
 			}		
 			
-		
+			
 			public function getPropertyOptions(idProperty:String, includeInactive:Boolean=true):XMLList {
-			var property:XML = null;
-			for each(var prop:XML in propertyList) {
-				if (prop.@idProperty == idProperty) {
-					property = prop;
-					break;
+				var property:XML = null;
+				for each(var prop:XML in propertyList) {
+					if (prop.@idProperty == idProperty) {
+						property = prop;
+						break;
+					}
 				}
-			}
-			if (property != null) {
-				if (includeInactive) {
-					return property.options.PropertyOption;					
+				if (property != null) {
+					if (includeInactive) {
+						return property.options.PropertyOption;					
+					} else {
+						return property.options.PropertyOption.(@value == '' || @isActive != 'N');					
+					}
 				} else {
-					return property.options.PropertyOption.(@value == '' || @isActive != 'N');					
+					return new XMLList();
 				}
-			} else {
-				return new XMLList();
+			}		
+			
+			// Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
+			public function isEditState():Boolean {
+				if (this.theViews.selectedChild != null && this.submitRequestView != null && this.theViews.selectedChild == this.submitRequestView) {
+					return false;
+				} else {
+					return true;
+				}
 			}
-		}		
 			
-		// Workaround to DropdownLabel.updateDisplayList issue which calls parentDocument.parentDocument.isEditState
-		public function isEditState():Boolean {
-			if (this.theViews.selectedChild != null && this.submitRequestView != null && this.theViews.selectedChild == this.submitRequestView) {
-				return false;
-			} else {
-				return true;
+			
+			public function showUploadDownloadHints():void {
+				var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this.mainArea, DownloadHints, true));
+				PopUpManager.centerPopUp(hints);			 		
 			}
-		}
 			
-			
-		public function showUploadDownloadHints():void {
-			var hints:IFlexDisplayObject = DownloadHints(PopUpManager.createPopUp(this.mainArea, DownloadHints, true));
-			PopUpManager.centerPopUp(hints);			 		
-		}
-			
-		public function busy():void {
-			cursorID=CursorManager.setCursor(
-				StyleManager.getStyleDeclaration("CursorManager").getStyle("busyCursor"),
-				CursorManagerPriority.HIGH);
-		}
-			
-		public function notBusy():void {
-			CursorManager.removeCursor(cursorID);
-		}
-			
-		public function showDistributeDataTrackWindow(analysis:Object):void {
-			if (distributeDataTrackWindow == null) {
-				distributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(this.theBody, DistributeDataTrackWindow, false));
-				distributeDataTrackWindow.positionWindow();
+			public function busy():void {
+				cursorID=CursorManager.setCursor(
+					StyleManager.getStyleDeclaration("CursorManager").getStyle("busyCursor"),
+					CursorManagerPriority.HIGH);
 			}
-			distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
-		}
 			
-		public function closeDistributeDataTrackWindow(analysis:Object):void {
-			if (distributeDataTrackWindow != null) {
+			public function notBusy():void {
+				CursorManager.removeCursor(cursorID);
+			}
+			
+			public function showDistributeDataTrackWindow(analysis:Object):void {
+				if (distributeDataTrackWindow == null) {
+					distributeDataTrackWindow = DistributeDataTrackWindow(PopUpManager.createPopUp(this.theBody, DistributeDataTrackWindow, false));
+					distributeDataTrackWindow.positionWindow();
+				}
+				distributeDataTrackWindow.refreshDataTracksForAnalysis(analysis);
+			}
+			
+			public function closeDistributeDataTrackWindow(analysis:Object):void {
+				if (distributeDataTrackWindow != null) {
+					PopUpManager.removePopUp(distributeDataTrackWindow);
+					distributeDataTrackWindow = null;
+				}
+			}
+			
+			
+			public function removeDistributeDataTrackWindow():void {
 				PopUpManager.removePopUp(distributeDataTrackWindow);
 				distributeDataTrackWindow = null;
 			}
-		}
 			
+			public function isDNASeqType(type:String):Boolean {
+				if (type == TYPE_CAP_SEQ || type == TYPE_FRAG_ANAL || type == this.TYPE_MIT_SEQ || type == this.TYPE_CHERRY_PICK || type == this.TYPE_ISCAN) {
+					return true;
+				} else {
+					return false;
+				}
+			}	
 			
-		public function removeDistributeDataTrackWindow():void {
-			PopUpManager.removePopUp(distributeDataTrackWindow);
-			distributeDataTrackWindow = null;
-		}
-			
-		public function isDNASeqType(type:String):Boolean {
-			if (type == TYPE_CAP_SEQ || type == TYPE_FRAG_ANAL || type == this.TYPE_MIT_SEQ || type == this.TYPE_CHERRY_PICK || type == this.TYPE_ISCAN) {
-				return true;
-			} else {
-				return false;
+			private function onMenuClick(event:MouseEvent):void {
+				if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
+					return;
+				}
+				showView(event.target.data.@label);
 			}
-		}	
 			
-		private function onMenuClick(event:MouseEvent):void {
-			if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
-				return;
+			private function onMenuSelect(event:MenuEvent):void {
+				showView(event.label);
 			}
-			showView(event.target.data.@label);
-		}
+			
+			
+			private function showView(label:String):void {
+				
+				
+				if (label == 'Analysis') {
+					theViews.selectedChild = navAnalysisView;
+				} else if (label == 'Data Tracks') {
+					theViews.selectedChild = this.navDataTrackView;
+				} else if (label == 'Experiments') {
+					theViews.selectedChild = this.navExperimentView;
+				} else if (label == 'Topics') {
+					theViews.selectedChild = this.navTopicsView;
+				} else if (label == 'New Analysis') {
+					theViews.selectedChild = navAnalysisView;
+					navAnalysisView.showNewAnalysisWindow();
+				} else if (label == "Add Services to Experiment Order") {
+					theViews.selectedChild = amendRequestView;
+				} else if (label == "Post Experiment Data To Repository" || label == "Post Experiment Data") {
+					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
+					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
+						this.submitRequestView.startNewRequest();
+					}
+					this.isInternalExperimentSubmission = false;
+					this.theViews.selectedChild = homeView;
+					callLater(this.homeView.submitExternalExperiment);	
+					// If new experiment then initialize ShowCCNumber checkbox
+					this.submitRequestView.showCCNumberColumn = false; 
+				} else if (label == "Track Usage") {
+					this.theViews.selectedChild = this.navUsageView;
+				} else if (label == "Add/Edit Dictionaries") {
+					showDictionaries();
+				} else if (label == "Configure Experiment Platform") {
+					var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(theBody, ExperimentPlatformWindow, true));
+					PopUpManager.centerPopUp(platformWindow);
+				} else if (label == "Configure Organisms and Genome Builds") {
+					var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(theBody, OrganismsWindow, true));
+					PopUpManager.centerPopUp(configWindow);
+				} else if (label == "Configure Annotations") {
+					var configAnnotWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(theBody, PropertyWindow, true));
+					PopUpManager.centerPopUp(configAnnotWindow);
+					
+				}  else if (label == "Annotation Report") {
+					navReportView.reportName = "Annotation Report";
+					theViews.selectedChild = navReportView;
+					if (navReportView.isInitialized) {
+						navReportView.init();
+					}
+				}  else if (label == "Project/Experiment Report") {
+					navReportView.reportName = "Project/Experiment Report";
+					theViews.selectedChild = navReportView;
+					if (navReportView.isInitialized) {
+						navReportView.init();
+					}
+				} else if (label == "New Experiment Order") {
+					// When beginning a new order always load a new request.
+					this.submitRequestView.request = null;
+					this.isInternalExperimentSubmission = true;
+					theViews.selectedChild = homeView;
+					callLater(this.homeView.submitRequest);	
+				} else if (label == "Browse Experiments" || label == "Experiments") {
+					this.navExperimentView.shortcutToExperimentListTab = true;
+					theViews.selectedChild = navExperimentView;
+				} else if (label == "Analysis") {
+					theViews.selectedChild = navAnalysisView;
+				} else if (label == "Data Tracks") {
+					theViews.selectedChild = this.navDataTrackView;
+				} else if (label == "Topics") {
+					theViews.selectedChild = navTopicsView;
+				} else if (label == "Workflow") {
+					theViews.selectedChild = navWorkflowView;
+				} else if (label == "Billing") {
+					theViews.selectedChild = navBillingView;
+				} else if (label == "Users and Groups") {
+					theViews.selectedChild = navUsersView;
+				} else if (label == "Orders") {
+					theViews.selectedChild = navOrderView;
+				} else if (label == "Fill Plate") {
+					theViews.selectedChild = navPlateView;
+					navPlateView.removeRun();
+					navPlateView.toggleBuildState('PLATE');
+				} else if (label == "Build Run") {
+					theViews.selectedChild = navPlateView;
+					navPlateView.removeRun();
+					navPlateView.toggleBuildState('RUN');
+				} else if (label == "Plates and Runs") {
+					theViews.selectedChild = navRunView;				
+				} else if (label == "Results") {
+					theViews.selectedChild = navDataView;
+				} else if (label == "Submit Work Auth") {
+					this.homeView.showWorkAuthForm();				
+				} else if (label == "New Project") {
+					var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
+					projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+					projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
+					projectDetailWindow.projectDetailView.fromWelcomeView = true;
+					PopUpManager.centerPopUp(projectDetailWindow);
+					
+				} else if (label == "Send email to all GNomEx users" ) {
+					this.showBroadcastEmailWindow()
+				} else if (label == "Manage Microarray Catalog") {
+					this.showSlides();
+				} else if (label == "Configure Billing Account Fields") {
+					showBillingAccountFields();				
+				} else if (label == "Manage Protocols" || label == "Protocols") {
+					showProtocols();
+				} else if (label == "Upload and Download Help") {
+					this.showUploadDownloadHints();
+				} else if (label == "Purchase Supplies (DNA Seq Core)") {
+					this.showPurchaseSuppliesLink();
+				} else if (label == "Pricing (Microarray Core)") {
+					showPricing();
+				} else if (label == "Pricing (DNA Seq Core") {
+					showPricingDNASeqCore();
+				}  else if (label == "Configure iScan Chips") {
+					showIScanChipWindow();				
+				}
+				
+				
+				
+				
+				
+			}
+			
+			
+			private function resizeMenuItems():void{
+				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
+					item.width += 15;
+				}
+			}
+			
+			public function getCurrentFiscalYear():String {
+				var now:Date = new Date();
+				var yr:Number = now.fullYear;
+				var mo:Number = now.month;
+				var da:Number = now.day;
+				var breakMo:Number = 7;
+				if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH) != null) {
+					breakMo = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH));
+				}
+				var breakDa:Number = 1;
+				if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY) != null) {
+					breakDa = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY));
+				}
+				if (mo > breakMo || (mo == breakMo && da >= breakDa)) {
+					yr = yr + 1;
+				}
+				return yr.toString();
+			}
+			
+			private function showSlides():void {
+				this.theViews.selectedChild = this.slideManagementView;
+			}
+			
+			private function showProtocols():void {
+				this.theViews.selectedChild = this.protocolsView;
+			}	
+			
+			private function showPurchaseSuppliesLink():void{
+				if (showPurchaseSupplies) {
+					var url:URLRequest = new URLRequest(getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL));
+					url.method = URLRequestMethod.POST;
+					navigateToURL(url, '_blank');
+				} else {
+					Alert.show("You do not have permissions to open this window.");
+				}
+			}
+			
+			private function showPricing():void {				
+				var pricingURL:String = this.getProperty(this.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
+			}
+			private function showPricingDNASeqCore():void {
+				var pricingURL:String = this.getCoreFacilityProperty(String(this.idCoreFacilityDNASeq), this.PROPERTY_PRICING_URL);
+				if (pricingURL == null || pricingURL == "") {
+					Alert.show("Please contact GNomEx support.  The pricing web page for the DNA Sequencing Core Facility is not configured in GNomEx.");
+				} else {
+					navigateToURL(new URLRequest(pricingURL), '_blank');
+				}
+			}
+			
+			private function showIScanChipWindow():void {
+				if (isCoreDNASeq) {
+					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
+					PopUpManager.centerPopUp(configWindow);
+				} else {
+					Alert.show("This feature is not enabled.");
+				}
+				
+			}
+			
+			private function showAlignmentProfileWindow():void {
+				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(this.theBody, AlignmentProfileWindow, true));
+				PopUpManager.centerPopUp(apWindow);				
+			}
+			
+			
+			private function showBroadcastEmailWindow():void {
+				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this.theBody, BroadcastEmailWindow, true));
+				PopUpManager.centerPopUp(broadcastEmailWindow);
+			}			
+			
+			private function showBillingAccountFields():void {
+				if (useConfigurableBillingAccounts) {
+					var w:BillingAccountFieldsConfigurationWindow = BillingAccountFieldsConfigurationWindow(PopUpManager.createPopUp(this.theBody, BillingAccountFieldsConfigurationWindow, true));
+					PopUpManager.centerPopUp(w);
+				} else {
+					Alert.show("This feature is not enabled for this site.");
+				}
+			}
+			
+		]]>
+	</mx:Script>
 	
-		private function onMenuSelect(event:MenuEvent):void {
-			showView(event.label);
-		}
-				
-			
-		private function showView(label:String):void {
-
-			
-			if (label == 'Analysis') {
-				theViews.selectedChild = navAnalysisView;
-			} else if (label == 'Data Tracks') {
-				theViews.selectedChild = this.navDataTrackView;
-			} else if (label == 'Experiments') {
-				theViews.selectedChild = this.navExperimentView;
-			} else if (label == 'Topics') {
-				theViews.selectedChild = this.navTopicsView;
-			} else if (label == 'New Analysis') {
-				theViews.selectedChild = navAnalysisView;
-				navAnalysisView.showNewAnalysisWindow();
-			} else if (label == "Add Services to Experiment Order") {
-				theViews.selectedChild = amendRequestView;
-			} else if (label == "Post Experiment Data To Repository" || label == "Post Experiment Data") {
-				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
-				if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
-					this.submitRequestView.startNewRequest();
-				}
-				this.isInternalExperimentSubmission = false;
-				this.theViews.selectedChild = homeView;
-				callLater(this.homeView.submitExternalExperiment);	
-				// If new experiment then initialize ShowCCNumber checkbox
-				this.submitRequestView.showCCNumberColumn = false; 
-			} else if (label == "Track Usage") {
-				this.theViews.selectedChild = this.navUsageView;
-			} else if (label == "Add/Edit Dictionaries") {
-				showDictionaries();
-			} else if (label == "Configure Experiment Platform") {
-				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(theBody, ExperimentPlatformWindow, true));
-				PopUpManager.centerPopUp(platformWindow);
-			} else if (label == "Configure Organisms and Genome Builds") {
-				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(theBody, OrganismsWindow, true));
-				PopUpManager.centerPopUp(configWindow);
-			} else if (label == "Configure Annotations") {
-				var configAnnotWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(theBody, PropertyWindow, true));
-				PopUpManager.centerPopUp(configAnnotWindow);
-				
-			}  else if (label == "Annotation Report") {
-				navReportView.reportName = "Annotation Report";
-				theViews.selectedChild = navReportView;
-				if (navReportView.isInitialized) {
-					navReportView.init();
-				}
-			}  else if (label == "Project/Experiment Report") {
-				navReportView.reportName = "Project/Experiment Report";
-				theViews.selectedChild = navReportView;
-				if (navReportView.isInitialized) {
-					navReportView.init();
-				}
-			} else if (label == "New Experiment Order") {
-				// When beginning a new order always load a new request.
-				this.submitRequestView.request = null;
-				this.isInternalExperimentSubmission = true;
-				theViews.selectedChild = homeView;
-				callLater(this.homeView.submitRequest);	
-			} else if (label == "Browse Experiments" || label == "Experiments") {
-				this.navExperimentView.shortcutToExperimentListTab = true;
-				theViews.selectedChild = navExperimentView;
-			} else if (label == "Analysis") {
-				theViews.selectedChild = navAnalysisView;
-			} else if (label == "Data Tracks") {
-				theViews.selectedChild = this.navDataTrackView;
-			} else if (label == "Topics") {
-				theViews.selectedChild = navTopicsView;
-			} else if (label == "Workflow") {
-				theViews.selectedChild = navWorkflowView;
-			} else if (label == "Billing") {
-				theViews.selectedChild = navBillingView;
-			} else if (label == "Users and Groups") {
-				theViews.selectedChild = navUsersView;
-			} else if (label == "Orders") {
-				theViews.selectedChild = navOrderView;
-			} else if (label == "Fill Plate") {
-				theViews.selectedChild = navPlateView;
-				navPlateView.removeRun();
-				navPlateView.toggleBuildState('PLATE');
-			} else if (label == "Build Run") {
-				theViews.selectedChild = navPlateView;
-				navPlateView.removeRun();
-				navPlateView.toggleBuildState('RUN');
-			} else if (label == "Plates and Runs") {
-				theViews.selectedChild = navRunView;				
-			} else if (label == "Results") {
-				theViews.selectedChild = navDataView;
-			} else if (label == "Submit Work Auth") {
-				this.homeView.showWorkAuthForm();				
-			} else if (label == "New Project") {
-				var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
-				projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
-				projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
-				projectDetailWindow.projectDetailView.fromWelcomeView = true;
-				PopUpManager.centerPopUp(projectDetailWindow);
-				
-			}
-			
-		
-		
-		
-		}
-			
-			
-		private function resizeMenuItems():void{
-			for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
-				item.width += 15;
-			}
-		}
-			
-		public function getCurrentFiscalYear():String {
-			var now:Date = new Date();
-			var yr:Number = now.fullYear;
-			var mo:Number = now.month;
-			var da:Number = now.day;
-			var breakMo:Number = 7;
-			if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH) != null) {
-				breakMo = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH));
-			}
-			var breakDa:Number = 1;
-			if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY) != null) {
-				breakDa = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY));
-			}
-			if (mo > breakMo || (mo == breakMo && da >= breakDa)) {
-				yr = yr + 1;
-			}
-			return yr.toString();
-		}
-
-        ]]>
-    </mx:Script>
-    
 	<mx:Parallel id="hide">
 		<mx:Iris duration="500"/>
 		<mx:Fade duration="500"/>
@@ -2908,11 +3019,11 @@
 	
 	<mx:Iris id="show" duration="500" scaleXFrom="0" scaleXTo="1" scaleYFrom="0" scaleYTo="1"/>
 	
-    <mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}" sort="{experimentDesignSorter}"/>
-    <mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}" sort="{experimentFactorSorter}"/>
+	<mx:XMLListCollection id="experimentDesignList" source="{getExperimentDesignList.lastResult.ExperimentDesign}" sort="{experimentDesignSorter}"/>
+	<mx:XMLListCollection id="experimentFactorList" source="{getExperimentFactorList.lastResult.ExperimentFactor}" sort="{experimentFactorSorter}"/>
 	<mx:Sort id="experimentDesignSorter" compareFunction="sortExperimentDesigns" unique="true"/>
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
-
+	
 	
 	<mx:XMLList id="adminMenu"> 
 		<menuitem label="Experiments..."  icon="iconFlask" >
@@ -2921,33 +3032,43 @@
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar"/>
 		</menuitem>
-
+		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
-
+		
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
-			
+		
 		<menuitem label="Topics" icon="iconTopic"   />
-				
+		
 		<menuitem label="Workflow" icon="iconWorkflow"  />
-					
+		
 		<menuitem label="Billing" icon="iconBilling"   />
-
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Users and Groups" icon="iconUsers"   >
+		</menuitem>
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
+			<menuitem label="Manage Protocols" icon="iconProtocol" />
+			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" />
 		</menuitem>
-			
+		
+		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
+			
 		</menuitem>
-	
+		
 	</mx:XMLList>
 	
 	<mx:XMLList id="billingAdminMenu">
@@ -2957,6 +3078,14 @@
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
+		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		
+		<menuitem label="Misc...">
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+		</menuitem>
+		
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
@@ -2978,27 +3107,31 @@
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
-				
+		
 		<menuitem label="Users and Groups" icon="iconUsers"   />
+		
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
+			<menuitem label="Manage Protocols" icon="iconProtocol" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 		</menuitem>
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="managerESMenu">
 		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
-
+		
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
@@ -3013,6 +3146,8 @@
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
+			<menuitem label="Manage Protocols" icon="iconProtocol" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -3022,10 +3157,10 @@
 		</menuitem>
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="userESMenu">
 		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
-
+		
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
@@ -3038,6 +3173,7 @@
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Protocols" icon="iconProtocol" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -3047,7 +3183,7 @@
 		</menuitem>
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="adminDNASeqMenu">
 		
 		<menuitem label="Orders" icon="iconOrders"   />
@@ -3055,24 +3191,31 @@
 		<menuitem label="Build Run" icon="iconInstrumentRun"   />
 		<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
 		<menuitem label="Results" icon="iconResults"   />
-
+		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 		</menuitem>
-		 
-
+		
+		
 		<menuitem label="Admin..." icon="iconUsers"   >
 			<menuitem label="Billing" icon="iconBilling"   />
 			<menuitem label="Users and Groups" icon="iconUsers"   />
+			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
 		</menuitem>
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
+			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
+			<menuitem label="Protocols" icon="iconProtocol" />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -3092,7 +3235,11 @@
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 		</menuitem>
+		
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
@@ -3104,6 +3251,7 @@
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Protocols" icon="iconProtocol" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -3113,14 +3261,22 @@
 		</menuitem>
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="userNoBioinformaticsMenu">
 		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
-
+		
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
+		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		
+		<menuitem label="Misc...">
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
+		</menuitem>
+		
 		
 	</mx:XMLList>
 	<mx:XMLList id="managerNoBioinformaticsMenu">
@@ -3131,10 +3287,16 @@
 		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		
+		<menuitem label="Misc...">
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		</menuitem>
+		
 		<menuitem label="Users and Groups" icon="iconUsers"   />
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="managerMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
@@ -3142,19 +3304,22 @@
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
+		
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
-
+		
 		<menuitem label="Users and Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Protocols" icon="iconProtocol" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -3163,8 +3328,15 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
+		<menuitem label="Misc....">
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		</menuitem>
+		
+		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="userNonSubmitterMenu">
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
@@ -3177,7 +3349,7 @@
 		
 		
 	</mx:XMLList>
-
+	
 	<mx:XMLList id="guestMenu">
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
@@ -3188,227 +3360,230 @@
 		
 		<menuitem label="Topics" icon="iconTopic"   />
 		
+		<menuitem label="Protocols" icon="iconProtocol" />
+		
 		
 	</mx:XMLList>
-
-	<mx:XMLList id="experimentMenuListDNASeq">
-		<menuitem label="Experiments..."  icon="iconFlask" >
-			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
-		</menuitem>
-	</mx:XMLList>
-
-
-	    <mx:VBox id="theBody"   backgroundColor="#FFFFFF"
-	    	width="100%" height="100%" 
-	    	verticalGap="4"  
-	    	paddingTop="0" paddingLeft="2" 
-	    	paddingRight="2" paddingBottom="2" borderStyle="outset">
-	    
-
-		  <mx:VBox width="100%"  id="navBar" 
-		  	 verticalGap="0"  
-	 	  	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" >
-		  	 
-		      <mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-			      <mx:HBox width="100%"  
-				  horizontalAlign="left" verticalAlign="middle" horizontalGap="8"  
-			      	paddingBottom="4" id="hbox1" 
-			      	paddingTop="6" 
-			      	paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
-						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-				        <mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
-			                
-						  <mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  fontSize="12"/>
-			              <mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-			              <mx:Button id="lookupButton" 
-			              	 width="30"
-			               	 click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
-			            </mx:HBox>
-			            <mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-			              <mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"   fontSize="12" paddingBottom="4" height="20"/>
-		 	              <mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-			              <mx:Button id="searchButton" height="18" click="callLater(search)"     fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-			              <mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"   fontSize="12" height="20">
-			              </mx:LinkButton>
-			            </mx:HBox>
-					  
-					  <mx:Spacer width="100%"/>
-				        
-				        <mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
-							<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
-										   label="Home" visible="false" 
-										   click="{theViews.selectedChild = homeView}"
-										   icon="@Embed(source='assets/house.png')"/>
-				        	<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
-							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
-							<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
-				        </mx:HBox>
-				      </mx:HBox>
-			      
-			      <mx:HBox width="100%"  backgroundSize="100%" 
-						   backgroundImage="assets/menubar3.png" horizontalGap="0"  
-						   verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
-						   paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false" borderStyle="none">
-
-					  <mx:MenuBar  height="40"   width="100%"  id="mainMenu"   
-								   click="onMenuClick(event)"
-								   itemClick="{onMenuSelect(event)}"  
-								   labelField="@label" iconField="@icon"  dataProvider="{adminMenu}"  buttonMode="true"
-								   useHandCursor="true" >
-						  
-					  </mx:MenuBar> 
-						  
-						  
-				  </mx:HBox>
-	      	
-		      	
-		      </mx:VBox>
-
-		  </mx:VBox>  
-		      
-	    <mx:VBox id="mainArea" width="100%" 
-	    	height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
-	    	paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
-	    	<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-	 				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
-			    
-						<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
-						</util:LaunchView> 
-					</mx:ViewStack>
-			    	     
-	 				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
-			
-						<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
-						</util:WelcomeView>  
-			
-					    <experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
-					    	icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
-			            </experiment:ExperimentEditView>
 	
-					    <experiment:ExperimentEditView id="amendRequestView" label="Add Services to Order" 
-					    	icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
-			            </experiment:ExperimentEditView>
-			            		
-				        <experiment:NavExperimentView id = "navExperimentView" label="Experiments" width="100%" height="100%" 
-				        	icon="@Embed('assets/flask.png')">
-				        </experiment:NavExperimentView>
-			
-				        <analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
-				        	icon="@Embed('assets/map.png')">
-				        </analysis:NavAnalysisView>
-						
-						<datatrack:NavDataTrackView id="navDataTrackView"  label="Data Tracks" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
-						</datatrack:NavDataTrackView>
-
-						<topics:NavTopicsView id="navTopicsView"  label="Topics" width="100%" height="100%" icon="@Embed('assets/topic.png')">
-						</topics:NavTopicsView>
+	
+	
+	<mx:VBox id="theBody"   backgroundColor="#FFFFFF"
+			 width="100%" height="100%" 
+			 verticalGap="4"  
+			 paddingTop="0" paddingLeft="2" 
+			 paddingRight="2" paddingBottom="2" borderStyle="outset">
 		
-						<workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
-				        </workflow:NavWorkflowView> 
-			 
-			            <billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
-			            </billing:NavBillingView> 
-			          
-				        <protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
-				        </protocol:ProtocolsView>
+		
+		<mx:VBox width="100%"  id="navBar" 
+				 verticalGap="0"  
+				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" >
 			
-				        <slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
-				        </slide:SlideManagementView>
-				        
-				        <user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users Groups" width="100%" height="100%" backgroundAlpha="1.0">	
-				        </user:NavUsersView>
-				        
-						<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
-						</admin:NavUsageView>
-				        
-						<plate:NavPlateView id="navPlateView"   width="100%" height="100%" backgroundAlpha="1.0">	
-						</plate:NavPlateView>
-
-						<data:NavDataView id="navDataView"    width="100%" height="100%" backgroundAlpha="1.0">	
-						</data:NavDataView>
+			<mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+				<mx:HBox width="100%"  
+						 horizontalAlign="left" verticalAlign="middle" horizontalGap="8"  
+						 paddingBottom="2" id="hbox1" 
+						 paddingTop="0" 
+						 paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
+					<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
+					<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
 						
-						<order:NavOrderView id="navOrderView" width="100%" height="100%" backgroundAlpha="1.0">
-						</order:NavOrderView>
-
-						<run:NavRunView id="navRunView" width="100%" height="100%" backgroundAlpha="1.0">
-						</run:NavRunView>
-            
-						<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
-						</report:NavReportView>
+						<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  fontSize="12"/>
+						<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+						<mx:Button id="lookupButton" 
+								   width="30"
+								   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+					</mx:HBox>
+					<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
+						<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"   fontSize="12" paddingBottom="4" height="20"/>
+						<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+						<mx:Button id="searchButton" height="18" click="callLater(search)"     fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+						<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"   fontSize="12" height="20">
+						</mx:LinkButton>
+					</mx:HBox>
+					
+					<mx:Spacer width="100%"/>
+					
+					<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
+						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
+									   label="Home" visible="true" 
+									   click="{theViews.selectedChild = homeView}"
+									   icon="@Embed(source='assets/house.png')"/>
 						
-			        </mx:ViewStack>
-	    		
-	    	</mx:ViewStack>
-           
-  
-        </mx:VBox>
-     
-
-	 </mx:VBox>
-	 
-	 
-	 <mx:states>
-	 	<mx:State name="enabledState">
-	 	    <mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
-	 	    <mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
-	 		<mx:SetProperty target="{theViews}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
-	 		<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{searchText}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
-	 		<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
-	 	    <mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-	 	    <mx:SetProperty target="{homeLinkButton}" name="visible" value="true"/>
-
-	 	</mx:State>
-	 	<mx:State name="AdminState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
-	 	</mx:State>
-		 
-		 <mx:State name="BillingAdminState" basedOn="enabledState">
-			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminMenu}"/>
-		 </mx:State>
-		 
-	 	<mx:State name="UserState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? userMenu : userNoBioinformaticsMenu}"/>
-	 	</mx:State>
-
-		 <mx:State name="ManagerState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? managerMenu : managerNoBioinformaticsMenu}"/>
-
-	 	</mx:State>
-	 	<mx:State name="UserNonSubmitterState" basedOn="UserState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userNonSubmitterMenu}"/>
+						<mx:LinkButton label="Account settings" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false"/>
+						<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
+						<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
+						<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
+					</mx:HBox>
+				</mx:HBox> 
+				
+				<mx:HBox width="100%"     
+						 backgroundImage="assets/menubar3.png" backgroundSize="100%"  horizontalGap="0"  
+						 verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
+						 paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false" borderStyle="none">
+					
+					<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
+								click="onMenuClick(event)"
+								itemClick="{onMenuSelect(event)}"  
+								labelField="@label" iconField="@icon"  dataProvider="{adminMenu}"  buttonMode="true"
+								useHandCursor="true" >
+						
+					</mx:MenuBar> 
+					
+					
+				</mx:HBox>
+				
+				
+			</mx:VBox>
+			
+		</mx:VBox>  
+		
+		<mx:VBox id="mainArea" width="100%" 
+				 height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
+				 paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
+			<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
+				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+					
+					<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
+					</util:LaunchView> 
+				</mx:ViewStack>
+				
+				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
+					
+					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
+					</util:WelcomeView>  
+					
+					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
+												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
+					</experiment:ExperimentEditView>
+					
+					<experiment:ExperimentEditView id="amendRequestView" label="Add Services to Order" 
+												   icon="@Embed('assets/flask_edit.png')"  width="100%" height="100%">
+					</experiment:ExperimentEditView>
+					
+					<experiment:NavExperimentView id = "navExperimentView" label="Experiments" width="100%" height="100%" 
+												  icon="@Embed('assets/flask.png')">
+					</experiment:NavExperimentView>
+					
+					<analysis:NavAnalysisView id="navAnalysisView" width="100%" height="100%" 
+											  icon="@Embed('assets/map.png')">
+					</analysis:NavAnalysisView>
+					
+					<datatrack:NavDataTrackView id="navDataTrackView"  label="Data Tracks" width="100%" height="100%" icon="@Embed('assets/datatrack.png')">
+					</datatrack:NavDataTrackView>
+					
+					<topics:NavTopicsView id="navTopicsView"  label="Topics" width="100%" height="100%" icon="@Embed('assets/topic.png')">
+					</topics:NavTopicsView>
+					
+					<workflow:NavWorkflowView id="navWorkflowView" width="100%" height="100%"  icon="@Embed('assets/building_go.png')">
+					</workflow:NavWorkflowView> 
+					
+					<billing:NavBillingView id="navBillingView" label="Billing" width="100%" height="100%" icon="@Embed('assets/money.png')">
+					</billing:NavBillingView> 
+					
+					<protocol:ProtocolsView id="protocolsView" label="Protocols" icon="@Embed('assets/bricks.png')">
+					</protocol:ProtocolsView>
+					
+					<slide:SlideManagementView label="Slides" id="slideManagementView" icon="@Embed('assets/images.png')">
+					</slide:SlideManagementView>
+					
+					<user:NavUsersView id="navUsersView" icon="@Embed('assets/group.png')"  label="Users Groups" width="100%" height="100%" backgroundAlpha="1.0">	
+					</user:NavUsersView>
+					
+					<admin:NavUsageView id="navUsageView" icon="@Embed('assets/chart_bar.png')"  label="Usage" width="100%" height="100%" backgroundAlpha="1.0">	
+					</admin:NavUsageView>
+					
+					<plate:NavPlateView id="navPlateView"   width="100%" height="100%" backgroundAlpha="1.0">	
+					</plate:NavPlateView>
+					
+					<data:NavDataView id="navDataView"    width="100%" height="100%" backgroundAlpha="1.0">	
+					</data:NavDataView>
+					
+					<order:NavOrderView id="navOrderView" width="100%" height="100%" backgroundAlpha="1.0">
+					</order:NavOrderView>
+					
+					<run:NavRunView id="navRunView" width="100%" height="100%" backgroundAlpha="1.0">
+					</run:NavRunView>
+					
+					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
+					</report:NavReportView>
+					
+				</mx:ViewStack>
+				
+			</mx:ViewStack>
+			
+			
+		</mx:VBox>
+		
+		
+	</mx:VBox>
+	
+	
+	<mx:states>
+		<mx:State name="enabledState">
+			<mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
+			<mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
+			<mx:SetProperty target="{theViews}" name="visible" value="true"/>
+			<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
+			<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
+			<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
+			<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
+			<mx:SetProperty target="{searchText}" name="visible" value="true"/>
+			<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
+			<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
+			<mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
+			<mx:SetProperty target="{homeLinkButton}" name="visible" value="true"/>
+			<mx:SetStyle target="{linkButtonBarBox}" name="backgroundSize"/>
+			<mx:SetProperty target="{linkbutton4}" name="visible" value="true"/>
+			<mx:SetProperty target="{linkbutton4}" name="enabled" value="true"/>
+			
 		</mx:State>
-	 	<mx:State name="GuestState" basedOn="UserState">
+		<mx:State name="AdminState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
+		</mx:State>
+		
+		<mx:State name="BillingAdminState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminMenu}"/>
+		</mx:State>
+		
+		<mx:State name="UserState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? userMenu : userNoBioinformaticsMenu}"/>
+		</mx:State>
+		
+		<mx:State name="ManagerState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? managerMenu : managerNoBioinformaticsMenu}"/>
+			
+		</mx:State>
+		<mx:State name="UserNonSubmitterState" basedOn="UserState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userNonSubmitterMenu}"/>
+			<mx:RemoveChild target="{linkbutton4}"/>
+		</mx:State>
+		<mx:State name="GuestState" basedOn="UserState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{guestMenu}"/>
-	 	</mx:State>
-
+			<mx:RemoveChild target="{linkbutton4}"/>
+		</mx:State>
+		
 		<mx:State name="AdminESState" basedOn="AdminState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminESMenu}"/>
 		</mx:State>
-
-		 <mx:State name="ManagerESState" basedOn="ManagerState">
-			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{managerESMenu}"/>
-		 </mx:State>
-
-		 <mx:State name="UserESState" basedOn="UserState">
-			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userESMenu}"/>
-		 </mx:State>
-		 
-		 <mx:State name="AdminDNASeqState" basedOn="AdminState">
-			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
-		 </mx:State>
-		 
-		 <mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			 <mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
-		 </mx:State>
-
-		 
-	 </mx:states>
+		
+		<mx:State name="ManagerESState" basedOn="ManagerState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{managerESMenu}"/>
+		</mx:State>
+		
+		<mx:State name="UserESState" basedOn="UserState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userESMenu}"/>
+		</mx:State>
+		
+		<mx:State name="AdminDNASeqState" basedOn="AdminState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+		</mx:State>
+		
+		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+		</mx:State>
+		
+		
+	</mx:states>
 	
 	
 </mx:Application>
