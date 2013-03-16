@@ -134,18 +134,26 @@
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 
 				
-				if (parentApplication.useConfigurableBillingAccounts) {
-					var newActiveCols:Array = new Array();
-					var oldActiveCols:Array = this.billingAccountGrid.columns;
-					this.billingAccountGrid.columns = newActiveCols;
-					this.billingAccountGrid.dataProvider = billingAccounts;
-				}
-				 
+		
+		
 				
 				getUploadPurchaseOrderURL.send();
+				
+				callLater(configureInternalBillingAccountGrid);
+			}
+			
+			private function  configureInternalBillingAccountGrid():void {
+				if (parentApplication.useConfigurableBillingAccounts) {
+					var newCols:Array = new Array();
+					var oldCols:Array = this.billingAccountGrid.columns;
+					
+					configureAccountColumns(oldCols, newCols);
+					
+					this.billingAccountGrid.columns = newCols;
+					this.billingAccountGrid.dataProvider = billingAccounts;
+					this.billingAccountGrid.validateNow();
+				}
 
-				
-				
 			}
 			
 		
@@ -162,21 +170,24 @@
 				var nextNewCol:int = 0;
 				var haveInternalAccountFields:Boolean = false;
 				for each (var oldCol:DataGridColumn in oldCols) {
+					
 					if (isInternalAccountField(oldCol)) {
 						if (!haveInternalAccountFields) {
 							nextNewCol = addInternalAccountFields(newCols, nextNewCol);
 							haveInternalAccountFields = true;
 						}
-					} else if (isConfigurableAccountField(oldCol)) {
-						if (isIncludedAccountField(oldCol)) {
-							newCols[nextNewCol] = oldCol;
-							nextNewCol++;
-						}
+					} else 
+					
+					if (isConfigurableAccountField(oldCol)) {
+						oldCol.visible = isIncludedAccountField(oldCol);
+						newCols[nextNewCol] = oldCol;
+						nextNewCol++;
 					} else {
 						newCols[nextNewCol] = oldCol;
 						nextNewCol++;
 						
 					}
+					
 				}
 			}
 			
@@ -214,7 +225,12 @@
 						newCol.headerText = selectedConfiguration.@displayName;
 						newCol.dataField = getConfigurableInternalDataField(selectedConfiguration);
 						var w:int = new Number(selectedConfiguration.@maxLength);
-						newCol.width = w * 10;
+						if (w < 4) {
+							newCol.width = 30;
+						} else {
+							newCol.width = w * 5;
+						}
+					
 						newCols[nextNewCol] = newCol;
 						nextNewCol++;
 					}
@@ -259,9 +275,18 @@
 			
 			private function getConfigurableAccountFieldName(col:DataGridColumn):String {
 				var fieldName:String = "";
-				if (col == this.poExpirationDateCol || this.ccExpirationDateCol || col == this.expirationDateCol) {
+				if ( col == this.expirationDateCol) {
 					fieldName = "expirationDate";
+				} else if ( col == this.startDateCol) {
+					fieldName = "startDate";
+				} else if ( col == this.fundingAgencyCol) {
+					fieldName = "idFundingAgency";
+				} else if ( col == this.totalDollarAmtCol) {
+					fieldName = "totalDollarAmount";
+				} else if ( col == this.shortAcctCol) {
+					fieldName = "shortAcct";
 				} 
+ 
 				
 				return fieldName;
 			}
@@ -560,6 +585,13 @@
 			}
 			
 			private function checkChartFields():Object{
+				
+				// For now, let's just skip validation on custom chartfields.
+				// TODO:  Use internal billing account configurations to
+				//        drive validation
+				if (parentApplication.useConfigurableBillingAccounts) {
+					return null;
+				}
 				var badAccounts:Object = new Object;
 				var coreFacility:String = "";
 				var regEx:RegExp = /[^0-9]/;
@@ -729,7 +761,7 @@
 				if (!found && labCoreFacilitiesIManage.length >= 1) {
 					coreFacilityCombo.selectedIndex = 0;
 				}
-				
+				 
 				
 				refreshDisplayedAccounts(); 
 			}
@@ -901,7 +933,7 @@
 							break;
 						}
 					}
-					coreFacilityCheckbox[x].setStyle("fontWeight", coreFacilityCheckbox[x].selected ? "bold" : "normal");
+					coreFacilityCheckbox[x].setStyle("fundWeight", coreFacilityCheckbox[x].selected ? "bold" : "normal");
 					coreFacilityCheckbox[x].setStyle("fontStyle", coreFacilityCheckbox[x].selected ? "italic" : "normal");
 				}
 				activeSubmitters = new XMLList(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
@@ -1095,9 +1127,9 @@
 	
 	
 	<mx:XMLListCollection id="allBillingAccounts" source="{parentDocument.fullLab.billingAccounts.BillingAccount}" />
-	<mx:XMLListCollection id="billingAccounts"   source="{parentDocument.fullLab.internalbillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
-	<mx:XMLListCollection id="poBillingAccounts"  source="{parentDocument.fullLab.pObillingAccounts.BillingAccount}" filterFunction="filterByCore"   />
-	<mx:XMLListCollection id="creditCardBillingAccounts"   source="{parentDocument.fullLab.creditCardbillingAccounts.BillingAccount}" filterFunction="filterByCore"  />
+	<mx:XMLListCollection id="billingAccounts"   source="{parentDocument.fullLab.internalBillingAccounts.BillingAccount}" filterFunction="filterByCore"/>
+	<mx:XMLListCollection id="poBillingAccounts"  source="{parentDocument.fullLab.pOBillingAccounts.BillingAccount}" filterFunction="filterByCore"   />
+	<mx:XMLListCollection id="creditCardBillingAccounts"   source="{parentDocument.fullLab.creditCardBillingAccounts.BillingAccount}" filterFunction="filterByCore"  />
 	<mx:XMLListCollection id="institutions" source="{parentDocument.fullLab.institutions.Institution}"/>
 	<mx:XMLListCollection id="institutions1" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry.(@value)}"/>
 	<mx:XMLListCollection id="members" source="{parentDocument.fullLab.members.AppUser}"/>
@@ -1166,7 +1198,7 @@
 												click="checkPricingChange()" width="100" 
 												fontStyle="{this.isInternalPricingButton.selected ? 'italic' : 'normal'}"
 												fontWeight="{this.isInternalPricingButton.selected ? 'bold' : 'normal'}"
-												horizontalGap="0" paddingTop="1" paddingBottom="0" />
+												horizontalGap="0" paddingTop="1" paddingBottom="0"  fontSize="11"/>
 							</mx:HBox>
 							<mx:HBox horizontalGap="3">
 								<mx:Image source="{parentApplication.iconExternalAcademic}"/>
@@ -1175,7 +1207,7 @@
 											click="checkPricingChange()" 
 											fontStyle="{this.isExternalPricingAcademicButton.selected ? 'italic' : 'normal'}"
 											fontWeight="{this.isExternalPricingAcademicButton.selected ? 'bold' : 'normal'}"
-											paddingTop="1" width="140" horizontalGap="0" paddingBottom="0" />
+											paddingTop="1" width="140" horizontalGap="0" paddingBottom="0"  fontSize="11"/>
 							</mx:HBox>
 							<mx:HBox horizontalGap="3">
 								<mx:Image source="{parentApplication.iconExternalCommercial}"/>
@@ -1185,15 +1217,15 @@
 											fontStyle="{this.isExternalPricingCommercialButton.selected ? 'italic' : 'normal'}"
 											fontWeight="{this.isExternalPricingCommercialButton.selected ? 'bold' : 'normal'}"
 											selected="{parentDocument.fullLab.@isExternalPricingCommercial == 'Y' ? true : false}" 
-											click="checkPricingChange()" paddingTop="1" horizontalGap="0" paddingBottom="0" />
+											click="checkPricingChange()" paddingTop="1" horizontalGap="0" paddingBottom="0"  fontSize="11"/>
 							</mx:HBox>
 						</mx:VBox>
 						
 						<mx:VBox verticalGap="0" horizontalGap="0" paddingTop="0" cornerRadius="6" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" width="220" verticalAlign="middle">
 							<mx:Text text="Flags" styleName="formLabel" width="100" paddingBottom="0"/>
-							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Active" click="dirty.setDirty()" paddingBottom="0" paddingTop="1" width="100" horizontalGap="0" fontStyle="{this.isActiveCheckBox.selected ? 'italic' : 'normal'}" fontWeight="{this.isActiveCheckBox.selected ? 'bold' : 'normal'}"/>
-							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()" paddingTop="1" repeatDelay="0" paddingBottom="0" width="140" horizontalGap="0" fontStyle="{this.isCcsgMemberCheckBox.selected ? 'italic' : 'normal'}" fontWeight="{this.isCcsgMemberCheckBox.selected ? 'bold' : 'normal'}"/>
-							<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()" paddingTop="1" paddingBottom="0" width="180"  fontStyle="{this.excludeUsageCheckBox .selected ? 'italic' : 'normal'}" fontWeight="{this.excludeUsageCheckBox.selected ? 'bold' : 'normal'}" horizontalGap="0"/>
+							<mx:CheckBox id="isActiveCheckBox" selected="{parentDocument.fullLab.@isActive == 'Y' ? true : false}" label="Active" click="dirty.setDirty()" paddingBottom="0" paddingTop="1" width="100" horizontalGap="0" fontStyle="{this.isActiveCheckBox.selected ? 'italic' : 'normal'}" fontWeight="{this.isActiveCheckBox.selected ? 'bold' : 'normal'}" fontSize="11"/>
+							<mx:CheckBox id="isCcsgMemberCheckBox" selected="{parentDocument.fullLab.@isCcsgMember == 'Y' ? true : false}" label="CCSG Member?" click="dirty.setDirty()" paddingTop="1" repeatDelay="0" paddingBottom="0" width="140" horizontalGap="0" fontStyle="{this.isCcsgMemberCheckBox.selected ? 'italic' : 'normal'}" fontWeight="{this.isCcsgMemberCheckBox.selected ? 'bold' : 'normal'}" fontSize="11"/>
+							<mx:CheckBox id="excludeUsageCheckBox" selected="{parentDocument.fullLab.@excludeUsage == 'Y' ? true : false}" label="Exclude from usage charts?" click="dirty.setDirty()" paddingTop="1" paddingBottom="0" width="180"  fontStyle="{this.excludeUsageCheckBox .selected ? 'italic' : 'normal'}" fontWeight="{this.excludeUsageCheckBox.selected ? 'bold' : 'normal'}" horizontalGap="0" fontSize="11"/>
 							<mx:RadioButtonGroup id="pricingModel"/>
 						</mx:VBox>
 						
@@ -1203,7 +1235,7 @@
 								<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}">
 									<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox"
 												 enabled="{parentApplication.isCoreFacilityIManage(coreFacilityRepeater.currentItem.@idCoreFacility)?true:false}"
-												 click="{dirty.setDirty();setCheckboxStyle(mx.controls.CheckBox(event.currentTarget))}" horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="260">
+												 click="{dirty.setDirty();setCheckboxStyle(mx.controls.CheckBox(event.currentTarget))}" horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="260" fontSize="11">
 									</mx:CheckBox> 
 								</mx:Repeater>
 							</mx:VBox>	
@@ -1230,7 +1262,7 @@
 							<mx:Button click="removeInstitution()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{institutionsGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
 						<mx:Spacer height="2"/>
-						<mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" height="94" width="210">
+						<mx:DataGrid id="institutionsGrid" showHeaders="false" dataProvider="{institutions}" height="94" width="210" fontSize="11">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@institution" headerText="Name"/>
 							</mx:columns>
@@ -1292,7 +1324,7 @@
 							</mx:Button>
 							<mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
-						<mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%" showHeaders="false">
+						<mx:DataGrid id="membersGrid" width="100%" dataProvider="{members}" height="100%" showHeaders="false" fontSize="11">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 							</mx:columns>
@@ -1312,7 +1344,7 @@
 							</mx:Button>
 							<mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}" width="25"/>
 						</mx:HBox>
-						<mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%" showHeaders="false">
+						<mx:DataGrid id="collaboratorsGrid" width="100%" dataProvider="{collaborators}" height="100%" showHeaders="false" fontSize="11">
 							<mx:columns>
 								<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 							</mx:columns>
@@ -1332,7 +1364,7 @@
 								</mx:Button>
 								<mx:Button click="removeManager()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{managersGrid.selectedItem != null}" width="25"/>
 							</mx:HBox>
-							<mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false">
+							<mx:DataGrid id="managersGrid" width="100%" dataProvider="{managers}" height="100%" showHeaders="false" fontSize="11">
 								<mx:columns>
 									<mx:DataGridColumn dataField="@displayName" headerText="Name"/>
 								</mx:columns>
@@ -1358,7 +1390,7 @@
 						</mx:HBox>
 						<mx:HBox horizontalGap="2" verticalAlign="middle" width="600">
 							<mx:Label text="Payment Method" styleName="formLabel" width="100" textAlign="left"/>
-							<mx:RadioButton  group="{chargeTypeGroup}" label="Chartfield" horizontalGap="0" id="chartfieldCheckBox"/>
+							<mx:RadioButton  group="{chargeTypeGroup}" label="{parentApplication.useConfigurableBillingAccounts ? 'Internal' : 'Chartfield'}" horizontalGap="0" id="chartfieldCheckBox"/>
 							<mx:RadioButton  group="{chargeTypeGroup}" label="PO"  horizontalGap="0" paddingLeft="8" id="poCheckBox"/>
 							<mx:RadioButton  group="{chargeTypeGroup}" label="Credit Card" horizontalGap="0" paddingLeft="8" id="creditCardCheckBox"/>		
 							<mx:Spacer width="100%"/>
@@ -1370,14 +1402,13 @@
 						</mx:HBox>
 					</mx:VBox>
 
-					<mx:Accordion width="100%" height="100%" styleName="lightBlueAccordion">
 						<mx:VBox   label="{parentApplication.useConfigurableBillingAccounts ? 'Internal Accounts' : 'Chartfields'}" width="100%" height="100%" verticalGap="0">
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" paddingTop="3" paddingBottom="1">
 								<mx:Spacer width="100%"/>
 							</mx:HBox>
 							<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
 										 itemEditBeginning="verifyChartfieldEdit(event)" 
-										horizontalScrollPolicy="auto"   variableRowHeight="true" wordWrap="true" fontSize="11">
+										horizontalScrollPolicy="auto"   variableRowHeight="true" wordWrap="true" fontSize="10">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 								<mx:columns>
 									<mx:DataGridColumn editable="false" width="62" 	visible="{showApproveCol}">
@@ -1403,7 +1434,7 @@
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>
-									<mx:DataGridColumn dataField="@startDate" width="65" id="startDateCol1"
+									<mx:DataGridColumn dataField="@startDate" width="65" id="startDateCol"
 													   headerText="Starts"   
 													   itemEditor="views.renderers.DateFieldStartDate" 
 													   itemRenderer="mx.controls.Label" 
@@ -1424,9 +1455,13 @@
 									<mx:DataGridColumn headerText="Project"  dataField="@accountNumberProject" width="60" id="projectCol"/>
 									<mx:DataGridColumn headerText="Acct"  dataField="@accountNumberAccount" width="50" id="accountCol"/>
 									<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="20" id="auCol"/>
-									<mx:DataGridColumn headerText="$ billed"    textAlign="right" editable="false" 
-													   dataField="@totalChargesToDateDisplay" width="80"/>
-									<mx:DataGridColumn headerText=""  width="20" editable="false"> 
+									<mx:DataGridColumn headerText="Funding agency" visible="false" dataField="@idFundingAgency" id="fundingAgencyCol" 
+													   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
+													   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+									<mx:DataGridColumn headerText="Total $ Amt"  dataField="@totalDollarAmount" width="60" visible="false" id="totalDollarAmtCol"/>
+									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="60" id="shortAcctCol"/>
+									<mx:DataGridColumn headerText=""  width="30" editable="false"> 
 										<mx:itemRenderer>
 											<mx:Component>
 												<mx:LinkButton textAlign="left"  
@@ -1436,6 +1471,8 @@
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>								
+									<mx:DataGridColumn headerText="$ Billed"    textAlign="right" editable="false" 
+													   dataField="@totalChargesToDateDisplay" width="50"/>
 	
 								</mx:columns>
 							</mx:DataGrid>
@@ -1447,7 +1484,7 @@
 									<mx:Spacer width="100%"/>
 								</mx:HBox>
 								<mx:DataGrid width="100%"   height="100%" id="billingAccountPOGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="11">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
 									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
 									<mx:columns>
 										<mx:DataGridColumn headerText="PO" dataField="@accountName" width="200" 
@@ -1464,7 +1501,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
-										<mx:DataGridColumn dataField="@startDate" width="80" id="startDateCol"
+										<mx:DataGridColumn dataField="@startDate" width="80" id="startDateCol1"
 														   headerText="Starts"   
 														   itemEditor="views.renderers.DateFieldStartDate" 
 														   itemRenderer="mx.controls.Label" 
@@ -1508,8 +1545,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="$ billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
-										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
+										<mx:DataGridColumn headerText=""  width="10" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  
@@ -1519,6 +1555,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>										
+										<mx:DataGridColumn headerText="$ Billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="40"/>
 									</mx:columns>
 								</mx:DataGrid>
 								
@@ -1529,10 +1566,10 @@
 								</mx:HBox>
 								
 								<mx:DataGrid width="100%" height="100%" id="billingAccountCreditCardGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="11">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
-										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="70" 
+										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="40" 
 														   editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
@@ -1557,8 +1594,7 @@
 														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany')}"
 														   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany', true)}"/>			                
 										<mx:DataGridColumn headerText="Zip" width="50" editable="true" dataField="@zipCode"/>
-										<mx:DataGridColumn headerText="$ billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="60"/>
-										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
+										<mx:DataGridColumn headerText=""  width="5" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  
@@ -1568,13 +1604,14 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>										
+										<mx:DataGridColumn headerText="$ Billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="40"/>
 									</mx:columns>
 								</mx:DataGrid>
 								
 							</mx:VBox>
 							
 						</mx:VDividedBox>
-				</mx:Accordion>
+
 				
 			</mx:VBox>
 
