@@ -5144,7 +5144,7 @@
         			sortExpertMode="true" horizontalScrollPolicy="auto"
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
-					fontSize="9" iconFunction="parentApplication.getTreeIcon">
+					fontSize="10" iconFunction="parentApplication.getTreeIcon">
 						<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItems}"/> 
     					</mx:dataProvider> 
@@ -5211,11 +5211,11 @@
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
 				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" paddingTop="4" verticalAlign="middle" paddingLeft="4">
-					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
+					<mx:LinkButton label="View" fontSize="10" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
-					<mx:LinkButton label="Download Files" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+					<mx:LinkButton label="Download Files" fontSize="10" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Printable form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Analysis" fontSize="10" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.experimentDetailView.detail.showRelatedAnalysis()" textAlign="left">
 					</mx:LinkButton>
 					<mx:Spacer width="10"/>
@@ -5226,7 +5226,7 @@
 			<mx:AddChild relativeTo="{theTab}" position="firstChild">
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
-					       <mx:Text text="Experiment" width="100"  fontWeight="normal"/>
+					       <mx:Text text="Experiment" width="100"  fontWeight="normal" styleName="formLabel"/>
 					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
 					   </mx:HBox>
 					
@@ -5243,7 +5243,7 @@
 					</mx:HBox>-->
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
-						<mx:Text text="Organism" width="100" id="labelOrg"/>
+						<mx:Text text="Organism" width="100" id="labelOrg" styleName="formLabel"/>
 						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							
 							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 							<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -5257,7 +5257,7 @@
 					</mx:HBox>
 
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
+						<mx:Label text="Lab Group"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<renderers:FilterComboBox id="requestEditLabCombo"
 												  labelField="@name" 
 												  close="this.dirty.setDirty();refreshLab()" 
@@ -5267,7 +5267,7 @@
 						</renderers:FilterComboBox>
 					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
-						<mx:Label text="Project"  width="100" fontWeight="normal"/>
+						<mx:Label text="Project"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<mx:ComboBox id="requestEditProjectCombo"
 									 labelField="@name" 
 									 change="this.dirty.setDirty()"
@@ -5277,17 +5277,17 @@
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
-						<mx:Text text="Submitted by"  fontWeight="normal" width="100"/>
+						<mx:Text text="Submitted by"  fontWeight="normal" width="100" styleName="formLabel"/>
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@submitterName}" />
 					</mx:HBox>
 
 					<mx:HBox horizontalGap="0">
-						<mx:Text  text="Submit Date" width="100"  fontWeight="normal"/>    				       
+						<mx:Text  text="Submit Date" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
+						<mx:Label text="Owner"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
 									 change="this.dirty.setDirty();" 
@@ -5297,18 +5297,18 @@
 					</mx:HBox>
 						
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text  text="Completed" width="100"  fontWeight="normal"/>    				       
+						<mx:Text  text="Completed" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
 				   
 					
 					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design"/>
+						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 					
 					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size"/>
+						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
 						<mx:Text fontWeight="normal" text=" to "/>
 						<mx:TextInput focusOut="propagateRange()" id="rangeTo" change="{this.dirty.setDirty()}" width="100" text="{this.request.@avgInsertSizeTo}"/>

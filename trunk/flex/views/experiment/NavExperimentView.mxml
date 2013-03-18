@@ -1568,7 +1568,7 @@
 					<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>			
 			</mx:HBox>
-			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="10" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)">
+			<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="10" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)" includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
 				<mx:click>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 			</mx:CheckBox>
 			<mx:Spacer width="100%"/>
@@ -1578,15 +1578,14 @@
 	</mx:HBox>
 	   <mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a" >
 		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
-			   <mx:Label text="Core Facility"/>
 			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
-							labelField="@display">
+							labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
 				   <mx:change>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
 				</mx:ComboBox>
 		   </mx:VBox>
 		   
 		   <mx:HBox horizontalGap="0" id="hbox5">
-			   <mx:CheckBox label="Next Gen Sequencing"  id="NextGenSeqCheckbox"
+			   <mx:CheckBox label="Next Gen Seq"  id="NextGenSeqCheckbox"
 							visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
 							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 				   <mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
@@ -1782,10 +1781,12 @@
 			<mx:SetStyle target="{CapSeqCheckbox}" name="paddingLeft"/>
 			<mx:SetStyle target="{lastYearCheckbox}" name="paddingRight"/>
 			<mx:SetStyle target="{BioanalyzerCheckbox}" name="paddingRight" value="40"/>
-			<mx:SetProperty target="{CapSeqCheckbox}" name="label" value="DNA Seq" />
+			<mx:SetProperty target="{CapSeqCheckbox}" name="label" value="Sanger Seq" />
 			<mx:SetProperty target="{MitSeqCheckbox}" name="label" value="Mit Seq" />
 			<mx:SetStyle target="{vbox1}" name="verticalGap" value="3"/>
 			<mx:SetStyle target="{vbox3}" name="borderStyle" value="none"/>
+			<mx:SetStyle target="{hbox1a}" name="horizontalGap" value="6"/>
+			<mx:SetProperty target="{NextGenSeqCheckbox}" name="label" value="Next Gen Seq"/>
 
 		</mx:State>
 
