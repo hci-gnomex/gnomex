@@ -4,7 +4,7 @@
 		 xmlns:util="views.util.*"  
 		 verticalGap="3">
 	<mx:states>
-		<mx:State name="SequenomState">
+		<mx:State name="GenericCoreState">
 			<mx:AddChild relativeTo="{iScanCheckbox}" position="before">
 				<mx:CheckBox label = "Sequenom"
 							 id = "sequenomCheckbox"
