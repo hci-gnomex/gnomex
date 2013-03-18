@@ -673,9 +673,9 @@
 			private function refresh(event:Event):void{
 				radioButtonGroupTarget.selection = null;
 				radioButtonGroupTarget.selectedValue = null;
-				organismFilter.selectedIndex = 0;
-				analysisTypeFilter.selectedIndex = 0;
-				experimentPlatformFilter.selectedIndex = 0;
+				organismFilter.selectedIndex = -1;
+				analysisTypeFilter.selectedIndex = -1;
+				experimentPlatformFilter.selectedIndex = -1;
 				init();
 			}
 			public function getTreeIcon(item:Object):Class {
