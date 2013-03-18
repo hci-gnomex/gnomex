@@ -3025,7 +3025,10 @@
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
 	
 	
-	<mx:XMLList id="adminMenu"> 
+	<mx:XMLList id="adminMenu">
+		
+		<menuitem label="Orders" icon="iconOrders"/>
+		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
@@ -3414,7 +3417,7 @@
 						<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
 						<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
 					</mx:HBox>
-				</mx:HBox> 
+				</mx:HBox>  
 				
 				<mx:HBox width="100%"     
 						 backgroundImage="assets/menubar3.png" backgroundSize="100%"  horizontalGap="0"  
@@ -3539,6 +3542,7 @@
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
+			<mx:SetStyle target="{mainMenu}" name="fontSize" value="12"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">

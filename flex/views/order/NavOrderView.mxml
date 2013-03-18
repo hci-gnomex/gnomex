@@ -118,7 +118,7 @@
 			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				
 				<order:OrderBrowseView id="browseView"
-									   width="100%"
+									   width="100%" currentState="GenericCoreState"
 									   height="100%"
 									   parentView="{this}"
 									   label="Order List"
