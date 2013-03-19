@@ -1078,7 +1078,7 @@
 					
 					var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
 					var headerName:String = "";
-					if (property.@name == "Other" && annotation.@otherLabel != "" ) {
+					if (property != null && property.@name == "Other" && annotation.@otherLabel != "" ) {
 						headerName = annotation.@otherLabel;
 						annotation.@isSelected = "true";
 					} else {
