@@ -198,6 +198,7 @@ public class RequestHTMLFormatter {
     
     boolean showSeqLibProtocol = false;
     boolean showBarcodeTag = false;
+    boolean showCcNumber = false;
     String barcodeHeader = "Index Tag Sequence";
     for(Iterator i = samples.iterator(); i.hasNext();) {
     	Sample s = (Sample)i.next();
@@ -208,6 +209,11 @@ public class RequestHTMLFormatter {
     	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
     	}
+    	if ( (request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) || 
+    	      request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
+    	     (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
+        showCcNumber = true;
+      }
     }
     
     if (showMultiplexGroup) {
@@ -228,12 +234,17 @@ public class RequestHTMLFormatter {
         this.addHeaderCell(rowh, "Well",rowSpan, 1);
       }
     }
+    if (showCcNumber) {
+      this.addHeaderCell( rowh, "CC Number" );
+    }
     if (request.getCodeRequestCategory() != null && 
         (request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) 
             || request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY))) {
       this.addHeaderCell(rowh, "Well", rowSpan, 1);
     }
-    this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
+    if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
+      this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
+    }
     if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
       this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
       if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
@@ -363,12 +374,17 @@ public class RequestHTMLFormatter {
           this.addCell(row, "TUBE");
         }
       }
+      if (showCcNumber) {
+        this.addCell( row, sample.getCcNumber() != null ? sample.getCcNumber() : "" );
+      }
       if (request.getCodeRequestCategory() != null 
           && (request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)
               || request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY))) {
         this.addCell(row, sample.getASourceWell().getWellName());
       }
-      this.addCell(row, sample.getName());
+      if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
+        this.addCell(row, sample.getName());
+      }
       if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
         this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
         if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
