@@ -69,10 +69,12 @@
 
 				var title:String = 'Edit Experiment ' + selectedRequest.@number;
 
+				experimentEditView.request = this.selectedRequest;
 				experimentViews.selectedChild = experimentEditView;
 				experimentEditView.removeDataListeners();
 				experimentEditView.setupEditForm(this.selectedRequest);
 				experimentEditView.titleLabel.text = title;
+				experimentEditView.initializeData();
 				callLater(experimentEditView.setupDataListeners);
 			}
 			
@@ -111,9 +113,6 @@
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
 	<mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
-		
-		
-			
 			
 			<mx:ViewStack id="experimentViews" creationPolicy="all" visible="true" width="100%" height="100%">
 				

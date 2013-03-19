@@ -2340,7 +2340,7 @@
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
 					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !parentDocument.isSequenomState() &amp;&amp; !parentDocument.isClinicalSequenomState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !parentDocument.isSequenomState() &amp;&amp; !parentDocument.isClinicalSequenomState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !isExternal &amp;&amp; isEditState}" 
+					<mx:AdvancedDataGridColumn visible="{parentDocument.isSequenomState() &amp;&amp; isEditState}" 
 											   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 											   headerText="QC 260/280" width="80" 
 											   dataField="@qual260nmTo280nmRatio" 
