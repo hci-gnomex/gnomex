@@ -682,7 +682,6 @@
 				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
 			 }
 			 
-			 parentDocument.parentDocument.experimentEditView.removeDataListeners
 			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
