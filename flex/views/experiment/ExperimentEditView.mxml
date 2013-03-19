@@ -3371,16 +3371,6 @@
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
 				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
 			}
-			if (this.isSequenomState()) {
-				request.@applicationNotes = sampleSetupView.sequenomApplicationDesc.text;
-				request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue.@value;
-				request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
-			}
-			if (this.isClinicalSequenomState()) {
-				request.@applicationNotes = '';
-				request.@codeApplication = filteredAppList[0].@value;
-				request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
-			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
 				if (   (this.isCapSeqState() || this.isCherryPickState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) 

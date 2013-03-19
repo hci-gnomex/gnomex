@@ -1562,7 +1562,6 @@
         	additionalNumberSequencingLanesCol.visible = false;
             this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 											&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
-//											&& !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 			
 			this.concentrationCol.visible = !isExternal;
 			this.otherOrganismCol.visible = !isExternal;
@@ -1588,6 +1587,18 @@
 			this.destinationWellCol.visible = parentDocument.isCherryPickState() ? true : false;
 			this.sourcePlateCol.visible = parentDocument.isCherryPickState() ? true : false;
 
+			this.qc_260_280Column.visible = false;
+			
+			if (parentDocument.isIScanState()) {
+				this.addSampleButton.visible = false;
+				this.addSampleButton.enabled = false;
+				this.deleteSampleButton.visible = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.visible = false;
+				this.copySampleButton.enabled = false;				
+				this.copyColumnButton.visible = false;
+				this.copyColumnButton.enabled = false;
+			} 
 			if (parentDocument.isIScanState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				this.addSampleButton.visible = false;
 				this.addSampleButton.enabled = false;
@@ -1597,6 +1608,7 @@
 				this.copySampleButton.enabled = false;				
 				this.copyColumnButton.visible = false;
 				this.copyColumnButton.enabled = false;
+				this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
 			}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
@@ -2340,7 +2352,7 @@
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
 					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !parentDocument.isSequenomState() &amp;&amp; !parentDocument.isClinicalSequenomState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 					<mx:AdvancedDataGridColumn visible="{!parentDocument.isSequencingState() &amp;&amp; !parentDocument.isSequenomState() &amp;&amp; !parentDocument.isClinicalSequenomState() &amp;&amp; !isExternal &amp;&amp; isEditState}" editable="{parentApplication.hasPermission('canWriteAnyObject')}" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio" itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-					<mx:AdvancedDataGridColumn visible="{parentDocument.isSequenomState() &amp;&amp; isEditState}" 
+					<mx:AdvancedDataGridColumn id="qc_260_280Column"
 											   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 											   headerText="QC 260/280" width="80" 
 											   dataField="@qual260nmTo280nmRatio" 
