@@ -206,7 +206,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
           String theCreateYear  = dateTokens[2];
           String sortDate = theCreateYear + createMonth + createDay;    
           
-          String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG) + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getIdCoreFacility();
+          String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR 
+              + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR 
+              + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR 
+              + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR 
+              + experiment.getIdCoreFacility() + Constants.DOWNLOAD_KEY_SEPARATOR
+              + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG); 
           if (keys.length() > 0) {
             keys.append(":");
           }
