@@ -156,6 +156,7 @@
         import mx.managers.DragManager;
         import mx.managers.PopUpManager;
         import mx.rpc.events.ResultEvent;
+		import views.util.PromptXMLListCollection;
         
         public var selectedIdRequest:Object;
         public var selectedRequestNumber:Object;
@@ -181,6 +182,9 @@
        [Bindable]
         private var appUsers:XMLListCollection;
         private var appUserSort:Sort;
+
+		[Bindable]
+		public var promptedMyCoreFacilities:PromptXMLListCollection;
 
         private var dropProject:Object;
         private var dragRequest:Object;
@@ -240,6 +244,10 @@
         		this.experimentViews.selectedChild = this.browseView;
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
+			
+			var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
+			promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.myCoreFacilities));
+			
 
 			isInitialized = true;
 
@@ -1578,7 +1586,7 @@
 	</mx:HBox>
 	   <mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a" >
 		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
-			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.myCoreFacilities}"
+			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{promptedMyCoreFacilities}"
 							labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
 				   <mx:change>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
 				</mx:ComboBox>
