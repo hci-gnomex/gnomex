@@ -156,7 +156,7 @@ public class RequestParser implements Serializable {
         // a QC request to a microarray or sequencing request
         if (this.isQCAmendRequest()) {
           request.setCompletedDate(null);
-  
+          request.setCodeRequestStatus(RequestStatus.SUBMITTED);
         }
         request.setLastModifyDate(new java.sql.Date(System.currentTimeMillis()));
         
@@ -308,8 +308,12 @@ public class RequestParser implements Serializable {
           }
         }
       }
-    } else if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
-      request.setCodeRequestStatus(RequestStatus.NEW);
+    } else {
+      if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+        request.setCodeRequestStatus(RequestStatus.NEW);
+      } else {
+        request.setCodeRequestStatus(RequestStatus.SUBMITTED);
+      }
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 

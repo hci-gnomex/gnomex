@@ -31,11 +31,15 @@
 			<mx:RemoveChild target="{dateCheckboxBar}"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before" target="{dateCheckboxBar}"/>
 			<mx:RemoveChild target="{vbox1}"/>
-			<mx:AddChild relativeTo="{dateCheckboxBar}" position="before">
-				<mx:VRule height = "20" />
-			</mx:AddChild>
 		</mx:State>
 		<mx:State name="DNASeqCoreState">
+			<mx:RemoveChild target="{coreFacilityCombo}"/>
+			<mx:AddChild relativeTo="{titleLabel}" position="after">
+				<mx:Spacer width="74" id="spacer2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{orderNumberLabel}" position="before">
+				<mx:VRule height = "20"  id="vrule2"/>
+			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	
@@ -213,6 +217,10 @@
 					params.codeRequestCategory = 'ISCAN' ;
 				}
 
+				if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
+					params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
+				} 
+
 				return params;
 			}
 			
@@ -312,7 +320,9 @@
 				if ( this.iScanCheckbox.selected ) {
 					return false;
 				}
-					
+				if ( this.coreFacilityCombo != null && this.coreFacilityCombo.selectedItem != null) {
+					return false;
+				}
 				return true;
 			}
 			
@@ -521,12 +531,18 @@
 	
 	<mx:VBox width="100%" styleName="panelBox"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 		<mx:VBox width="100%">
-			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
+			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="0">
 				<mx:HBox horizontalGap="0">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="50" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="0" />			
 				</mx:HBox>
-				
+
+				<mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
+					<mx:ComboBox id="coreFacilityCombo" width="175" dataProvider="{parentApplication.myCoreFacilities}"
+								 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
+						<mx:change>this.requestNoLookupField.text = "";getList();</mx:change>
+					</mx:ComboBox>
+				</mx:VBox>
 				<mx:HBox id = "statusCheckboxBar"
 						 horizontalGap = "0"
 						 height = "100%"
@@ -595,7 +611,6 @@
 					</mx:CheckBox>
 					
 				</mx:HBox>
-				<mx:VRule height = "20" />
 				
 				<mx:HBox horizontalGap="0"
 						 height="100%"
@@ -603,7 +618,7 @@
 						 verticalGap="0"
 						 width="150" >
 					
-					<mx:Label text="Order #" />
+					<mx:Label text="Order #" id="orderNumberLabel" />
 					
 					<mx:TextInput id="requestNoLookupField"
 								  fontSize="9"
@@ -717,9 +732,6 @@
 						
 					</mx:CheckBox>
 				</mx:HBox>
-				
-				
-				<mx:VRule height = "20" />
 				
 				
 				<mx:HBox id = "dateCheckboxBar"

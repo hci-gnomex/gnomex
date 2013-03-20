@@ -25,6 +25,7 @@ public class RequestFilter extends DetailObject {
 
   private String                codeRequestCategory;
   private String                status;
+  private Integer               idCoreFacility;
   
   private String                hasRedo = "N";
   
@@ -257,6 +258,11 @@ public class RequestFilter extends DetailObject {
       queryBuf.append(codeRequestCategory);
       queryBuf.append("%'");
     } 
+    if (idCoreFacility != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idCoreFacility = ");
+      queryBuf.append(idCoreFacility);
+    } 
   }
   
   private void addWellCriteria() {
@@ -413,7 +419,13 @@ public class RequestFilter extends DetailObject {
     this.hasRedo = hasRedo;
   }
 
-
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+  
+  public void setIdCoreFacility(Integer id) {
+    idCoreFacility = id;
+  }
 
   
   
