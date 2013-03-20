@@ -1640,7 +1640,7 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
 				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
-				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%">
+				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%" styleName="requiredBox">
 					   <mx:HBox width="100%">
 						   <mx:Label width="200" fontSize="10" fontWeight="bold" text="Chip" paddingLeft="25"/>
 						   <mx:Label width="125" fontSize="10" fontWeight="bold"  text="Samples per Chip"/>
