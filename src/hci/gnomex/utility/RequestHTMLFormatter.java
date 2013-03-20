@@ -10,6 +10,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -375,7 +376,14 @@ public class RequestHTMLFormatter {
         }
       }
       if (showCcNumber) {
-        this.addCell( row, sample.getCcNumber() != null ? sample.getCcNumber() : "" );
+        if ( sample.getCcNumber() != null && !sample.getCcNumber().toString().equals( "" ) ) {
+          String ccLinkString = "<a href=\"" + 
+                                  dictionaryHelper.getPropertyDictionary(PropertyDictionary.GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + sample.getCcNumber() + 
+                                  "\">" + sample.getCcNumber() + "</a>";
+          this.addCell( row, ccLinkString );
+        } else {
+          this.addCell( row, "" );
+        }
       }
       if (request.getCodeRequestCategory() != null 
           && (request.getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)
