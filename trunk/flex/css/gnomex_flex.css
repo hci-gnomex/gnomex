@@ -692,8 +692,10 @@ Text.welcomeSessionLabel
 Text.navLabel
 {
 	color: #2F2D29;
-	fontSize: 12;
+	fontSize: 11;
 	leading: 0;
+	fontWeight: normal;
+	fontFamily: "Open Sans";
 }
 Text.navLabelSmall
 {
