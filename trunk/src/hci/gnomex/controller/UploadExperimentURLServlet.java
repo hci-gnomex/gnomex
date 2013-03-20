@@ -55,8 +55,8 @@ public class UploadExperimentURLServlet extends HttpServlet {
       
       
       
-      boolean isLocalHost = req.getServerName().equalsIgnoreCase("localhost") || req.getServerName().equals("127.0.0.1");
-      
+      boolean useSecureDownload = !req.getServerName().equalsIgnoreCase("localhost") && !req.getServerName().equals("127.0.0.1") && !req.getServerName().equals("h005973");
+      useSecureDownload = false; // https doesn't work
       //
       // COMMENTED OUT CODE: 
       //    String baseURL =  "http"+ (isLocalHost ? "://" : "s://") + req.getServerName() + req.getContextPath();
@@ -75,7 +75,7 @@ public class UploadExperimentURLServlet extends HttpServlet {
         portNumber = ":" + portNumber;           
       }
       
-      String baseURL =  "http"+  "://"  + req.getServerName() + portNumber + req.getContextPath();
+      String baseURL =  "http" + (useSecureDownload ? "s" : "") + "://"  + req.getServerName() + portNumber + req.getContextPath();
       String URL = baseURL + "/" + "UploadExperimentFileServlet.gx";
       // Encode session id in URL so that session maintains for upload servlet when called from
       // Flex upload component inside FireFox, Safari
