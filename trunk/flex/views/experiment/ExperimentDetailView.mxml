@@ -1943,13 +1943,13 @@
 	<mx:State name="CapSeqState" basedOn="BaseSeqChromoState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-				<mx:Text  width="100" text="Container" />
+				<mx:Text  width="100" text="Container" styleName="formLabel" />
 				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@containerType}" width="500" />
 			</mx:HBox>
 		</mx:AddChild>
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-				<mx:Text  width="100" text="Drop Off Loc." />
+				<mx:Text  width="100" text="Drop Off Loc." styleName="formLabel"/>
 				<mx:TextInput id="sampleDropOffLocationText" editable="false" backgroundColor="#FFFFFF" 
 							  text="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry.(@value == this.selectedExperiment.@idSampleDropOffLocation).@display}" 
 							  width="500" />
