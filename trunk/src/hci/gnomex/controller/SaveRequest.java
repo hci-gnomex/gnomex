@@ -2221,7 +2221,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         ".  You will receive email notification when the experiment is complete.");   
         
       }
-      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + requestParser.getRequest().getNumber() + "</a>.");
       
     }
     
