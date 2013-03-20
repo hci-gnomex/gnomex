@@ -974,6 +974,7 @@
 			public var PROPERTY_FISCAL_YEAR_BREAK_DAY :String             = "fiscal_year_break_day";
 			public var PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT :String    = "account_number_account_default";
 			public var PROPERTY_GUEST_DOWNLOAD_TERMS :String              = "guest_download_terms";
+			public var PROPERTY_GNOMEX_LINKAGE_BST_URL:String             = "gnomex_linkage_bst_url";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
