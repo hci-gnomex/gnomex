@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class Constants {
   public static final String              DATA_SOURCES                     = "config/data-sources.xml";  
   
-  public static final String              APP_NAME                        = "GNomExTestNix";
+  public static final String              APP_NAME                        = "GNomEx";
   
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   public static final String              SHOW_REQUEST_FORM               = "/ShowRequestForm.gx";
