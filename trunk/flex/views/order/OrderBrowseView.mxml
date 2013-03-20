@@ -2,7 +2,7 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*"  
-		 verticalGap="3" currentState="DNASeqCoreState">
+		 verticalGap="3" currentState="GenericCoreState">
 	<mx:states>
 		<mx:State name="GenericCoreState">
 			<mx:AddChild relativeTo="{iScanCheckbox}" position="before">
@@ -22,9 +22,6 @@
 			<mx:RemoveChild target="{mitoCheckbox}"/>
 			<mx:RemoveChild target="{iScanCheckbox}"/>
 			<mx:RemoveChild target="{cherryCheckbox}"/>
-			<mx:SetProperty target="{submittedCheckbox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{submittedCheckbox}" name="visible" value="false"/>
-			<mx:SetProperty target="{newCheckbox}" name="selected" value="true"/>
 			<mx:SetProperty target="{failedCheckbox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{failedCheckbox}" name="visible" value="false"/>
 			<mx:SetProperty target="{redoCheckbox}" name="includeInLayout" value="false"/>
@@ -38,7 +35,8 @@
 				<mx:VRule height = "20" />
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="DNASeqCoreState"/>
+		<mx:State name="DNASeqCoreState">
+		</mx:State>
 	</mx:states>
 	
 	
