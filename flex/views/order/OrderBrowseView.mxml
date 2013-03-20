@@ -87,6 +87,7 @@
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			import views.util.PromptXMLListCollection;
 			
 			
 			// Warning Icon
@@ -97,7 +98,13 @@
 			[Bindable]
 			public var parentView:NavOrderView;
 			
+			[Bindable]
+			public var promptedMyCoreFacilities:PromptXMLListCollection;
+			
 			public function init():void {
+				var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
+				promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.myCoreFacilities));
+
 				getList();
 			}
 			
@@ -538,7 +545,7 @@
 				</mx:HBox>
 
 				<mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
-					<mx:ComboBox id="coreFacilityCombo" width="175" dataProvider="{parentApplication.myCoreFacilities}"
+					<mx:ComboBox id="coreFacilityCombo" width="175" dataProvider="{promptedMyCoreFacilities}"
 								 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
 						<mx:change>this.requestNoLookupField.text = "";getList();</mx:change>
 					</mx:ComboBox>
