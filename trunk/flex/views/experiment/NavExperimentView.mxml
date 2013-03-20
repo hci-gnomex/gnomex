@@ -1577,8 +1577,8 @@
 		
 	</mx:HBox>
 	   <mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a" >
-		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
-			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
+			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.myCoreFacilities}"
 							labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
 				   <mx:change>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
 				</mx:ComboBox>

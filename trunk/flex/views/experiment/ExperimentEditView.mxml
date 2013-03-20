@@ -1040,6 +1040,23 @@
 				this.confirmView.barcodeColumn.visible = false;        					
 			}
 	
+			if (theTab.contains(sampleSetupView)) {
+				if ( sampleSetupView.radioGroupQCApp != null ){
+					sampleSetupView.radioGroupQCApp.selectedValue = null;
+				}
+				if (sampleSetupView.bioanalyzerChipTypeGrid != null) {
+					sampleSetupView.bioanalyzerChipTypeGrid.selectedItem = null;
+					samplesView.initializeSamplesGrid();
+					// propagate selected chip type to samples
+					sampleSetupView.propagateChipType();   
+				} 
+				if ( sampleSetupView.iScanChipRadioGroup != null ){
+					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
+				}
+				if ( sampleSetupView.iScanChipBox != null ){
+					sampleSetupView.iScanChipBox.styleName = "requiredBox";
+				}
+			}
 				
 			if (theTab.contains(setupView)) {
 				if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
@@ -2500,6 +2517,11 @@
 							break;
 						}
 					}
+					if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
+						if ( sampleSetupView.iScanChipBox != null ) {
+							sampleSetupView.iScanChipBox.styleName = "normalBox";
+						}
+					}
 					sampleSetupView.numberOfChips.text = request.@numberIScanChips;
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 					this.propertyEntries.refresh();
@@ -3258,7 +3280,10 @@
 					request.@codeApplication = setupView.getApp();						
 				}
 			}
-			
+			if (this.isIScanState()) {
+				request.@codeApplication = "";	
+				request.@codeBioanalyzerChipType = "";
+			}
 			
 			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
@@ -3370,6 +3395,8 @@
 			if (this.isIScanState()) {
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
 				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
+				request.@codeApplication = "";
+				request.@codeBioanalyzerChipType = "";
 			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
