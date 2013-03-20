@@ -302,6 +302,8 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.admin.AlignmentProfileEvent;
+			import views.admin.AlignmentProfileWindow;
+			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
@@ -315,20 +317,17 @@
 			import views.util.AboutView;
 			import views.util.AnalysisProtocolsEvent;
 			import views.util.AppProgressView;
+			import views.util.BroadcastEmailWindow;
 			import views.util.CaptchaView;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
 			import views.util.IScanChipEvent;
+			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-			
-			import views.admin.AlignmentProfileWindow;
-			import views.admin.BillingAccountFieldsConfigurationWindow;
-			import views.util.IScanChipWindow;
-			import views.util.BroadcastEmailWindow;
 			
 			
 			[Bindable]
@@ -347,6 +346,11 @@
 			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
 			
+
+			[Bindable]
+			[Embed(source="assets/hyperlink.png")]
+			public var iconLinks:Class;
+
 			[Bindable]
 			[Embed(source="assets/tick.png")]
 			public var iconCheck:Class;
@@ -415,7 +419,7 @@
 			
 			
 			[Bindable]
-			[Embed(source="assets/microarray_small.png")]
+			[Embed(source="assets/dna-helix-icon.png")]
 			public var iconExperiment:Class; 
 			
 			[Bindable]
@@ -539,6 +543,10 @@
 			[Bindable]
 			[Embed(source="assets/server_go.png")]
 			public var iconServer:Class;
+			
+			[Bindable]
+			[Embed(source="assets/email_go.png")]
+			public var iconEmail:Class;
 			
 			
 			[Bindable]
@@ -731,7 +739,8 @@
 					<item label="" icon="assets/mitseq.png" />
 					<item label="" icon="assets/DNA_diag_miseq.png" />
 					<item label="" icon="assets/iscan.png" />
-					<item label="" icon="assets/sequenom.png" />
+					<item label="" icon="assets/sequenom_clinical.png" />
+					<item label="" icon="assets/sequenom_plate.png" />
 				</items>    
 			);
 			
@@ -1879,7 +1888,63 @@
 				return isMyCoreFacility;
 			}
 			
+
+			private function customizeMenus(navMenu:XMLList):void {
+				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (property.@value == '') {
+						continue; 
+					}
+					if (property.@propertyName.toString().indexOf("menu_") == 0) {
+						var menuToHide:String = null;
+						if (property.@propertyValue == "hide") {
+							if (property.@idCoreFacility != "" && !isSuperAdmin) {
+								for each (var cf:Object in coreFacilitiesICanManage) {
+									if (property.@idCoreFacility == cf.@idCoreFacility) {
+										menuToHide = property.@propertyName.toString().substr(5);
+										break;
+									}
+								}
+							} else if (property.@idCoreFacility == "") {
+								menuToHide = property.@propertyName.toString().substr(5);
+							}							
+						} else if (property.@propertyValue == "hide super" && isSuperAdmin) {
+							menuToHide = property.@propertyName.toString().substr(5);
+						} 
+						if (menuToHide != null) {
+							for (var i:int = 0; i < navMenu.length(); i++) {
+								if (navMenu[i].@label == menuToHide) {
+									delete navMenu[i];
+									break;
+								} else {
+									var cn:XMLList = XMLList(navMenu[i].children());
+									for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+										if (cn[j].@label == menuToHide) {
+											delete cn[j];
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+
 			private function checkSecurity():void {
+				customizeMenus(adminMenu);
+				customizeMenus(this.adminDNASeqMenu);
+				customizeMenus(this.guestMenu);
+				customizeMenus(this.userNonSubmitterMenu);
+				customizeMenus(this.managerMenu);
+				customizeMenus(this.managerNoBioinformaticsMenu);
+				customizeMenus(this.userNoBioinformaticsMenu);
+				customizeMenus(this.userMenu);
+				customizeMenus(this.userESMenu);
+				customizeMenus(this.managerESMenu);
+				customizeMenus(this.adminESMenu);
+				customizeMenus(billingAdminMenu);
+				
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
 				} else if (hasPermission("canAccessAnyObject")) {
@@ -1910,6 +1975,8 @@
 					currentState = "UserNonSubmitterState";
 				}
 				
+				// Let's remove Orders from admin menu for Microarray core
+				// since it uses the workflow
 				callLater(this.resizeMenuItems);
 			}
 			
@@ -2812,7 +2879,7 @@
 					navAnalysisView.showNewAnalysisWindow();
 				} else if (label == "Add Services to Experiment Order") {
 					theViews.selectedChild = amendRequestView;
-				} else if (label == "Post Experiment Data To Repository" || label == "Post Experiment Data") {
+				} else if (label == "Create (external) Experiment and upload Raw Data files" || label=="Create New Experiment and Upload Files") {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 						this.submitRequestView.startNewRequest();
@@ -2863,11 +2930,11 @@
 					theViews.selectedChild = this.navDataTrackView;
 				} else if (label == "Topics") {
 					theViews.selectedChild = navTopicsView;
-				} else if (label == "Workflow") {
+				} else if (label == "Workflow" || label == "Workflow ") {
 					theViews.selectedChild = navWorkflowView;
 				} else if (label == "Billing") {
 					theViews.selectedChild = navBillingView;
-				} else if (label == "Users and Groups") {
+				} else if (label == "Users & Groups") {
 					theViews.selectedChild = navUsersView;
 				} else if (label == "Orders") {
 					theViews.selectedChild = navOrderView;
@@ -2921,7 +2988,7 @@
 			
 			private function resizeMenuItems():void{
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
-					item.width += 15;
+					item.width += 10;
 				}
 			}
 			
@@ -3027,16 +3094,15 @@
 	
 	<mx:XMLList id="adminMenu">
 		
-		<menuitem label="Orders" icon="iconOrders"/>
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar"/>
+			<menuitem label="Orders" icon="iconOrders"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -3045,11 +3111,19 @@
 		
 		<menuitem label="Topics" icon="iconTopic"   />
 		
-		<menuitem label="Workflow" icon="iconWorkflow"  />
-		
+		<menuitem label="Workflow..." icon="iconWorkflow"  >
+			<menuitem label="Workflow " icon="iconWorkflow"   />
+			<menuitem label="Fill Plate" icon="iconPlate"   />
+			<menuitem label="Build Run" icon="iconInstrumentRun"   />
+			<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+			<menuitem label="Results" icon="iconResults"   />
+		</menuitem>
+
+		<menuitem label="Workflow" icon="iconWorkflow"   />
+
 		<menuitem label="Billing" icon="iconBilling"   />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   >
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   >
 		</menuitem>
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -3063,7 +3137,6 @@
 			<menuitem label="Configure iScan Chips" icon="iconConfig" />
 		</menuitem>
 		
-		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
@@ -3071,6 +3144,14 @@
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
 		</menuitem>
+		
+		<menuitem label="Links..." icon="iconLinks" >
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar"/>
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar"/>
+			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar"/>
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		</menuitem>
+
 		
 	</mx:XMLList>
 	
@@ -3080,15 +3161,9 @@
 		
 		<menuitem label="Billing" icon="iconBilling"   />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-		
-		<menuitem label="Misc...">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-		</menuitem>
-		
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
@@ -3101,7 +3176,7 @@
 	<mx:XMLList id="adminESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
@@ -3133,9 +3208,11 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="managerESMenu">
-		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
 		
-		<menuitem label="Experiments"  icon="iconFlask" >
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -3162,9 +3239,10 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="userESMenu">
-		<menuitem label="Post Experiment Data" icon="iconSubmitExperiment"   />
-		
-		<menuitem label="Experiments"  icon="iconFlask" >
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -3198,11 +3276,8 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
-			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 		</menuitem>
 		
 		
@@ -3210,7 +3285,7 @@
 			<menuitem label="Billing" icon="iconBilling"   />
 			<menuitem label="Users and Groups" icon="iconUsers"   />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+			
 		</menuitem>
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -3227,6 +3302,11 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
+		<menuitem label="Useful Links..." icon="iconLinks">
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		</menuitem>
+		
 	</mx:XMLList>
 	
 	<mx:XMLList id="userMenu">
@@ -3236,11 +3316,9 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 		</menuitem>
 		
 		
@@ -3260,8 +3338,16 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
+		
+		<menuitem label="Useful Links..." icon="iconLinks">
+			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
+			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		</menuitem>
+
 		
 	</mx:XMLList>
 	
@@ -3274,8 +3360,9 @@
 		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		
-		<menuitem label="Misc...">
+		<menuitem label="Useful Links..." icon="iconLinks">
 			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
 			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
 		</menuitem>
@@ -3289,14 +3376,16 @@
 		</menuitem>
 		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-		
-		<menuitem label="Misc...">
+
+		<menuitem label="Users and Groups" icon="iconUsers"   />
+
+		<menuitem label="Useful Links..." icon="iconLinks">
 			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
 			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
 		</menuitem>
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
 		
 	</mx:XMLList>
 	
@@ -3305,7 +3394,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Post Experiment Data To Repository" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
@@ -3331,10 +3420,11 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Misc....">
+		<menuitem label="Useful Links..." icon="iconLinks">
 			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
+			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
 			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
 		</menuitem>
 		
 		
@@ -3367,8 +3457,7 @@
 		
 		
 	</mx:XMLList>
-	
-	
+
 	
 	<mx:VBox id="theBody"   backgroundColor="#FFFFFF"
 			 width="100%" height="100%" 
@@ -3383,24 +3472,24 @@
 			
 			<mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
 				<mx:HBox width="100%"  
-						 horizontalAlign="left" verticalAlign="middle" horizontalGap="8"  
+						 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
 						 paddingBottom="2" id="hbox1" 
 						 paddingTop="0" 
 						 paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
 					<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-					<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36">
+					<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 						
-						<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  fontSize="12"/>
+						<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
 						<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
 						<mx:Button id="lookupButton" 
 								   width="30"
 								   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 					</mx:HBox>
-					<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}">
-						<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"   fontSize="12" paddingBottom="4" height="20"/>
+					<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
+						<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
 						<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-						<mx:Button id="searchButton" height="18" click="callLater(search)"     fontSize="12" visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-						<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"   fontSize="12" height="20">
+						<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+						<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
 						</mx:LinkButton>
 					</mx:HBox>
 					
@@ -3410,12 +3499,11 @@
 						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
 									   label="Home" visible="true" 
 									   click="{theViews.selectedChild = homeView}"
-									   icon="@Embed(source='assets/house.png')"/>
-						
-						<mx:LinkButton label="Account settings" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false"/>
+									   paddingLeft="0" paddingRight="1"/>
+						<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false"/>
 						<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
 						<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
-						<mx:LinkButton label="Log Out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
+						<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
 					</mx:HBox>
 				</mx:HBox>  
 				
@@ -3427,7 +3515,7 @@
 					<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 								click="onMenuClick(event)"
 								itemClick="{onMenuSelect(event)}"  
-								labelField="@label" iconField="@icon"  dataProvider="{adminMenu}"  buttonMode="true"
+								labelField="@label" iconField="@icon"    buttonMode="true"
 								useHandCursor="true" >
 						
 					</mx:MenuBar> 
