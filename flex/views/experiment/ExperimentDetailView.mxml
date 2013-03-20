@@ -1263,6 +1263,13 @@
 				return item.groupLabel;
 			}
 		}
+		
+		public function navigateToURLLink(ccNumber:String):void {
+			
+			var url:String = parentApplication.getProperty(parentApplication.PROPERTY_GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber;
+			
+			navigateToURL( new URLRequest(url), '_blank' );
+		}
 
 	]]>
 </mx:Script>
@@ -1483,7 +1490,17 @@
 							
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
 							
-							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber"/>
+							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:LinkButton click="outerDocument.navigateToURLLink(data.@ccNumber)" 
+													   label="{data.@ccNumber}"  
+													   paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
+										
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+							
 			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
 			                   <mx:headerRenderer>
