@@ -46,6 +46,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        TEMP_DIRECTORY                      = "temp_directory";
   public static final String        BST_LINKAGE_SUPPORTED               = "bst_linkage_supported";  
   public static final String        BST_LINKAGE_GNOMEX_URL              = "bst_linkage_gnomex_url";
+  public static final String        GNOMEX_LINKAGE_BST_URL              = "gnomex_linkage_bst_url";  
   public static final String        FDT_SUPPORTED                       = "fdt_supported";
   public static final String        HTTP_PORT                           = "http_port";
   public static final String        FDT_USER                            = "fdt_user";
