@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>   
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
-				xmlns="*" 
+				xmlns="*"  
 				xmlns:views="views.*"
 				xmlns:workflow="views.workflow.*"  
 				xmlns:experiment="views.experiment.*"  
@@ -21,7 +21,7 @@
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
 				paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true">
 	
 	
 	
@@ -340,7 +340,7 @@
 			private var cursorID:Number = 0; 
 			
 			[Bindable]  
-			private var siteLogo:String = "";
+			public var siteLogo:String = "";
 			
 			[Bindable]
 			[Embed(source="assets/gnomex_logo.png")]
@@ -1953,7 +1953,7 @@
 						isAdminState = true; // real admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+						} else if (this.isCoreDNASeq && !isSuperAdmin) {
 							currentState = "AdminDNASeqState";
 						} else {
 							currentState = "AdminState";
@@ -1962,7 +1962,7 @@
 						isBillingAdminState = true;  // billing admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+						} else if (this.isCoreDNASeq &&  !isSuperAdmin) {
 							currentState = "BillingAdminDNASeqState";
 						} else {
 							currentState = "BillingAdminState";
@@ -2947,7 +2947,7 @@
 					theViews.selectedChild = navPlateView;
 					navPlateView.removeRun();
 					navPlateView.toggleBuildState('RUN');
-				} else if (label == "Plates and Runs") {
+				} else if (label == "Plates &amp; Runs") {
 					theViews.selectedChild = navRunView;				
 				} else if (label == "Results") {
 					theViews.selectedChild = navDataView;
@@ -2988,8 +2988,16 @@
 			
 			
 			private function resizeMenuItems():void{
+				var menuBarSpacing:int = 8;
+				if (this.mainMenu.menuBarItems.length <= 5) {
+					menuBarSpacing = 30;
+				} else if (this.mainMenu.menuBarItems.length <= 7) {
+					menuBarSpacing = 25;
+				} else if (this.mainMenu.menuBarItems.length <= 8) {
+					menuBarSpacing = 14;
+				}
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
-					item.width += 10;
+					item.width += menuBarSpacing;
 				}
 			}
 			
@@ -3187,7 +3195,7 @@
 		
 		<menuitem label="Topics" icon="iconTopic"   />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -3222,7 +3230,7 @@
 		
 		<menuitem label="Topics" icon="iconTopic"   />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
@@ -3271,7 +3279,7 @@
 		<menuitem label="Orders" icon="iconOrders"   />
 		<menuitem label="Fill Plate" icon="iconPlate"   />
 		<menuitem label="Build Run" icon="iconInstrumentRun"   />
-		<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+		<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 		<menuitem label="Results" icon="iconResults"   />
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
@@ -3284,7 +3292,7 @@
 		
 		<menuitem label="Admin..." icon="iconUsers"   >
 			<menuitem label="Billing" icon="iconBilling"   />
-			<menuitem label="Users and Groups" icon="iconUsers"   />
+			<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
 		</menuitem>
@@ -3303,7 +3311,7 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Useful Links..." icon="iconLinks">
+		<menuitem label="Links..." icon="iconLinks">
 			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
 			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
 		</menuitem>
@@ -3378,7 +3386,7 @@
 		
 		<menuitem label="Submit Work Auth" icon="iconBilling"   />
 
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 
 		<menuitem label="Useful Links..." icon="iconLinks">
 			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
@@ -3407,7 +3415,7 @@
 		
 		<menuitem label="Topics" icon="iconTopic"   />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
@@ -3462,67 +3470,77 @@
 	
 	<mx:VBox id="theBody"   backgroundColor="#FFFFFF"
 			 width="100%" height="100%" 
-			 verticalGap="4"  
+			 verticalGap="8"   visible="true"
 			 paddingTop="0" paddingLeft="2" 
-			 paddingRight="2" paddingBottom="2" borderStyle="outset">
-		
-		
+			 paddingRight="2" paddingBottom="2">
+		   
+		 
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"  
-				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" >
+				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none"  
+				  visible="true">
 			
-			<mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-				<mx:HBox width="100%"  
-						 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
-						 paddingBottom="2" id="hbox1" 
-						 paddingTop="0" 
-						 paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
-					<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-					<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
-						
-						<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-						<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-						<mx:Button id="lookupButton" 
-								   width="30"
-								   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
-					</mx:HBox>
-					<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
-						<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
-						<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-						<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-						<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
-						</mx:LinkButton>
-					</mx:HBox>
-					
-					<mx:Spacer width="100%"/>
-					
-					<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
-						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
-									   label="Home" visible="true" 
-									   click="{theViews.selectedChild = homeView}"
-									   paddingLeft="0" paddingRight="1"/>
-						<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false"/>
-						<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
-						<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
-						<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
-					</mx:HBox>
-				</mx:HBox>  
+			 
+			
+			<mx:VBox width="100%" verticalGap="0"   backgroundImage="@Embed(source='assets/greyBackgroundBar.png')" backgroundSize="100%" 
+					 paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="false" id="vbox1">
 				
-				<mx:HBox width="100%"     
-						 backgroundImage="assets/menubar3.png" backgroundSize="100%"  horizontalGap="0"  
-						 verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
-						 paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false" borderStyle="none">
-					
-					<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
-								click="onMenuClick(event)"
-								itemClick="{onMenuSelect(event)}"  
-								labelField="@label" iconField="@icon"    buttonMode="true"
-								useHandCursor="true" >
+				<mx:VBox width="100%" backgroundColor="#FFFFFF">
+					<mx:HBox width="100%"  
+							 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
+							 paddingBottom="4" id="hbox1" 
+							 paddingTop="4" 
+							 paddingLeft="4" paddingRight="4" borderStyle="none">
+						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
+						<mx:Spacer width="100%"/>
+						<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
+							
+							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
+							<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:Button id="lookupButton" 
+									   width="30"
+									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+						</mx:HBox>
+						<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
+							<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
+							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+							<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
+							</mx:LinkButton>
+						</mx:HBox>
 						
-					</mx:MenuBar> 
+						<mx:Spacer width="100%"/>
+						
+						<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
+							<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
+										   label="Home" visible="false" 
+										   click="{theViews.selectedChild = homeView}"
+										   paddingLeft="0" paddingRight="1"/>
+							<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false" visible="false"/>
+							<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
+							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
+							<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="false" />
+						</mx:HBox>
+					</mx:HBox>  
 					
+					<mx:HBox width="100%"  verticalAlign="middle" height="37" 
+							 backgroundImage="@Embed(source='assets/filterBarGrey.png')" backgroundSize="100%" 
+							 paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" id="hbox5">
+						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
+									click="onMenuClick(event)"
+									itemClick="{onMenuSelect(event)}"  
+									labelField="@label" iconField="@icon"    
+									useHandCursor="true"  
+									fillAlphas="[0, 0, 0, 0]" 
+									fillColors="[#FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF]" 
+									alpha="1.0">
+							
+						</mx:MenuBar> 
+						
+					</mx:HBox>	
 					
-				</mx:HBox>
+				</mx:VBox>
+					
 				
 				
 			</mx:VBox>
@@ -3531,11 +3549,11 @@
 		
 		<mx:VBox id="mainArea" width="100%" 
 				 height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
-				 paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
+				 paddingRight="0" horizontalCenter="0" verticalGap="0" backgroundColor="#FFFFFF" visible="false">
 			<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+				<mx:ViewStack id="initViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 					
-					<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
+					<util:LaunchView id="homeView1"   >
 					</util:LaunchView> 
 				</mx:ViewStack>
 				
@@ -3610,9 +3628,9 @@
 	</mx:VBox>
 	
 	
-	<mx:states>
+	<mx:states> 
 		<mx:State name="enabledState">
-			<mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 			<mx:SetProperty target="{theViews}" name="visible" value="true"/>
 			<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
@@ -3624,14 +3642,26 @@
 			<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 			<mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 			<mx:SetProperty target="{homeLinkButton}" name="visible" value="true"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="backgroundSize"/>
 			<mx:SetProperty target="{linkbutton4}" name="visible" value="true"/>
 			<mx:SetProperty target="{linkbutton4}" name="enabled" value="true"/>
+			<mx:SetProperty target="{mainArea}" name="visible" value="true"/>
+			<mx:SetProperty target="{linkbutton3}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
+			<mx:SetStyle target="{mainMenu}" name="fillAlphas" value="[0,0, 0,0]"/>
+			<mx:SetStyle target="{mainMenu}" name="backgroundColor" value="#FFFFFF"/>
+			<mx:SetStyle target="{vbox1}" name="paddingBottom" value="4"/>
+			<mx:SetStyle target="{vbox1}" name="paddingLeft" value="4"/>
+			<mx:SetStyle target="{vbox1}" name="paddingRight" value="4"/>
+			<mx:SetStyle target="{vbox1}" name="paddingTop" value="4"/>
+			<mx:SetStyle target="{mainArea}" name="paddingLeft" value="4"/>
+			<mx:SetStyle target="{mainArea}" name="paddingRight" value="4"/>
+			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
+			<mx:SetProperty target="{theBody}" name="visible" value="true"/>
+			<mx:SetProperty name="visible" value="true"/>
 			
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
-			<mx:SetStyle target="{mainMenu}" name="fontSize" value="12"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">
