@@ -1975,8 +1975,7 @@
 		
 		 
 		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="all">
-			<mx:Panel id="blankView" width="100%" height="100%"   borderThicknessBottom="27" dropShadowEnabled="false">			    	
-			</mx:Panel>
+			<mx:VBox id="blankView" width="100%" height="100%" styleName="panelBox"/>			    	
 			
 			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all">
 			</datatrack:DataTrackView>

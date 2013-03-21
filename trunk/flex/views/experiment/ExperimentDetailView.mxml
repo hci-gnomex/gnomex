@@ -1309,9 +1309,9 @@
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-				<mx:VBox label="Info" paddingLeft="4" verticalGap="10"> 
+				<mx:VBox label="Info" paddingLeft="4" verticalGap="4"> 
 					<mx:HBox horizontalGap="0">
-						<mx:VBox verticalGap="6" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
+						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 								<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="left" id="label2"/>
@@ -1357,7 +1357,7 @@
 							
 						</mx:VBox>
 						
-						<mx:VBox width="300" borderStyle="none" verticalGap="6">
+						<mx:VBox width="300" borderStyle="none" verticalGap="4">
 							<mx:HBox verticalGap="0" horizontalGap="0">
 								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
@@ -1394,7 +1394,7 @@
 							
 						</mx:HBox>
 					</mx:VBox>            
-					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="10">
+					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">
 						<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 							<mx:HBox width="100%" >
 								<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="right"/>
@@ -1460,7 +1460,7 @@
 						defaultLeafIcon="{null}" 	
 						iconFunction="getSampleTreeIcon"					 
 						displayItemsExpanded="true"
-						horizontalScrollPolicy="auto" height="100%">
+						horizontalScrollPolicy="auto" height="100%" fontSize="11">
 						<mx:columns>
 			                <mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
 								width="60">
@@ -1953,8 +1953,8 @@
 	<mx:State name="BaseSeqState">
 		<mx:AddChild relativeTo="{this.nameBox}" position="after">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
-				<mx:Text  width="100" text="Status" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@requestStatus}" width="500" />
+				<mx:Text  width="100" text="Status" styleName="formLabel" />
+				<mx:Text  text="{this.selectedExperiment.@requestStatus}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
@@ -1974,31 +1974,31 @@
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Container" styleName="formLabel" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@containerType}" width="500" />
+				<mx:Text text="{this.selectedExperiment.@containerType}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 				<mx:Text  width="100" text="Drop Off Loc." styleName="formLabel"/>
-				<mx:TextInput id="sampleDropOffLocationText" editable="false" backgroundColor="#FFFFFF" 
+				<mx:Text id="sampleDropOffLocationText" 
 							  text="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry.(@value == this.selectedExperiment.@idSampleDropOffLocation).@display}" 
-							  width="500" />
+							  width="280" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
 	<mx:State name="MitSeqState" basedOn="BaseSeqChromoState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-				<mx:Text  width="100" text="Primers" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@primerList}" width="500" />
+				<mx:Text  width="100" text="Primers" styleName="formLabel" />
+				<mx:Text  text="{this.selectedExperiment.@primerList}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
 	<mx:State name="FragAnalState" basedOn="BaseSeqState">
 		<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 			<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-				<mx:Text  width="100" text="Assays" />
-				<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{this.selectedExperiment.@assayList}" width="500" />
+				<mx:Text  width="100" text="Assays" styleName="formLabel" />
+				<mx:Text  text="{this.selectedExperiment.@assayList}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>

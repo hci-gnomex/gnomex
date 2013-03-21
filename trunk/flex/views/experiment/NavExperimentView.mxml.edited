@@ -1648,7 +1648,73 @@
 			</mx:HBox>
 			
 		</mx:HBox>
-
+<<<<<<< .mine
+=======
+		
+	</mx:HBox>
+	   <mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a" >
+		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
+			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{promptedMyCoreFacilities}"
+							labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
+				   <mx:change>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
+				</mx:ComboBox>
+		   </mx:VBox>
+		   
+		   <mx:HBox horizontalGap="0" id="hbox5">
+			   <mx:CheckBox label="Next Gen Seq"  id="NextGenSeqCheckbox"
+							visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="Microarray" id="MicroarrayCheckbox" 
+							visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+							horizontalGap="0" styleName="labelSmall" paddingLeft="2">
+				   <mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" 
+							visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
+							horizontalGap="0" styleName="labelSmall" >
+				   <mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+		   </mx:HBox>
+		   <mx:Spacer width="100%"/>
+		   <mx:HBox horizontalGap="0" id="dnaSeqCoreCheckboxBox">
+			   <mx:CheckBox label="DNA (Sanger) Seq" id="CapSeqCheckbox" toolTip="DNA (Sanger) Sequencing"
+							visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+							horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  toolTip="Mitochonrial Sequencing"
+							visible="false" includeInLayout="false"								 
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(5);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox"  toolTip="Fragment Analysis"
+							visible="false" includeInLayout="false"								 
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(6);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox"  toolTip="Cherry Picking"
+							visible="false" includeInLayout="false"								 
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+			   <mx:CheckBox label="iScan"  id="IScanCheckbox"  toolTip="iScan"
+							visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>toggleRequestKindCheckboxes(8);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+		   </mx:HBox>
+		   <mx:Spacer width="14" id="showEmptyProjectFoldersSpacer"/>
+		   <mx:HBox>	
+			   <mx:CheckBox label="Show Empty Project Folders"  id="showEmptyProjectFolders" toolTip="Show Empty Project Folders"
+							paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+				   <mx:click>getProjectRequestList.send(getBrowseParameters());</mx:click>
+			   </mx:CheckBox>
+		   </mx:HBox>
+		   
+	   </mx:HBox>
+>>>>>>> .r3701
 	   
 	   
    </mx:VBox>
