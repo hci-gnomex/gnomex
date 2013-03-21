@@ -1024,6 +1024,9 @@
 			if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
 				params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
 			} 
+			if ( ccLookupText.text != '' ) {
+				params.ccNumber = ccLookupText.text;
+			}
 			if (currentState == 'AdminState' && allExperimentsCheckbox.selected) {
 				params.allExperiments = 'Y';
 			} else {
@@ -1100,6 +1103,8 @@
 				return;
 			}
 			
+			this.coreFacilityCombo.selectedItem = null;
+			
 			this.MicroarrayCheckbox.selected = false;
 			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected = false;
@@ -1118,6 +1123,7 @@
 		}
 		
 		public function refreshExperiments():void {
+			this.ccLookupText.text = '';
 			if (this.selectedRequestNumber != null) {
 				var params:Object = new Object();
 				params.idProject = selectedExperiment.@idProject;
@@ -1349,6 +1355,7 @@
 		}			
 
 	private function toggleDateCheckboxes(checkBoxNumber:int):void {
+		this.ccLookupText.text = '';
 		if (checkBoxNumber == 1) {
 			this.lastMonthCheckbox.selected = false;
 			this.lastThreeMonthsCheckbox.selected = false;
@@ -1388,6 +1395,7 @@
 		} 
 	}
 	private function toggleRequestKindCheckboxes(checkBoxNumber:int):void {
+		this.ccLookupText.text = '';
 		if (checkBoxNumber == 1) {
 			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected  = false;
@@ -1528,6 +1536,13 @@
 			browseUserCombo.dropdown.dataProvider = new XMLListCollection;
 		}
 	}
+	
+	private function ccNoLookupFieldEntered():void {
+		if (ccLookupText.text != '') {
+			this.resetSearchComponents();
+			this.getProjectRequestList.send(getBrowseParameters());
+		} 
+	}
 		
        ]]>
     </mx:Script> 
@@ -1543,25 +1558,25 @@
 			 id="vbox3" styleName="panelBox" paddingBottom="2" 
 			 paddingLeft="2">
 		<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1"  width="100%">
-			<mx:HBox id="hbox4"  horizontalGap="10" paddingLeft="0" verticalAlign="middle"  width="100%">
+			<mx:HBox id="hbox4"  horizontalGap="8" paddingLeft="0" verticalAlign="middle"  width="100%">
 				<mx:Text text="Experiments"   styleName="titleLabel" fontSize="12"/>
 				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 					
 					<mx:RadioButtonGroup id="experimentRadioGroup"/>
 					<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted" selected="true">
-						<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
 					<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 						<mx:toolTip><![CDATA[Experiments of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
-						<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
 					<mx:RadioButton label="Other labs" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
 						<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
-						<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
 					<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" paddingRight="20">
 						<mx:toolTip>All experiments I have access to</mx:toolTip>
-						<mx:click>selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
@@ -1579,18 +1594,23 @@
 					</mx:CheckBox>			
 				</mx:HBox>
 				<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="10" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)" includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
-					<mx:click>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
+					<mx:click>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:Spacer width="100%"/>
+				<mx:Label visible="true" text="CC Number" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+				<mx:TextInput id="ccLookupText" fontSize="9"
+							  height="19"
+							  width="55" 
+							  enter="{ccNoLookupFieldEntered()}"/>
 				<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2" paddingLeft="0"/>
 			</mx:HBox>
 			
 		</mx:HBox>
-		<mx:HBox horizontalGap="10" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a"  borderStyle="none">
-			<mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
-				<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+	   <mx:HBox horizontalGap="8" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="bottom" id="hbox1a" >
+		   <mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
+			   <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{promptedMyCoreFacilities}"
 							 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
-					<mx:change>selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
+					<mx:change>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:change>
 				</mx:ComboBox>
 			</mx:VBox>
 			
@@ -1643,7 +1663,7 @@
 			<mx:HBox>	
 				<mx:CheckBox label="Show Empty Project Folders"  id="showEmptyProjectFolders" toolTip="Show Empty Project Folders"
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-					<mx:click>getProjectRequestList.send(getBrowseParameters());</mx:click>
+					<mx:click>this.ccLookupText.text = '';getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 			</mx:HBox>
 			
