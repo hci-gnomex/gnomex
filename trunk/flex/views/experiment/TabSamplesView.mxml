@@ -1588,6 +1588,7 @@
 			this.sourcePlateCol.visible = parentDocument.isCherryPickState() ? true : false;
 
 			this.qc_260_280Column.visible = false;
+			this.sampleNameCol.visible = true;
 			
 			if (parentDocument.isIScanState()) {
 				this.addSampleButton.visible = false;
@@ -1599,7 +1600,7 @@
 				this.copyColumnButton.visible = false;
 				this.copyColumnButton.enabled = false;
 			} 
-			if (parentDocument.isIScanState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+			if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				this.addSampleButton.visible = false;
 				this.addSampleButton.enabled = false;
 				this.deleteSampleButton.visible = true;
@@ -1609,6 +1610,10 @@
 				this.copyColumnButton.visible = false;
 				this.copyColumnButton.enabled = false;
 				this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
+				this.descriptionColumn.visible = false;
+				if ( parentDocument.isClinicalSequenomState() ) {
+					this.sampleNameCol.visible = false;
+				}
 			}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
 				this.addSampleButton.visible = false;
 				this.deleteSampleButton.visible = false;
@@ -2247,7 +2252,7 @@
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn> 
 
-					<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" visible="{showCCNumberCheckbox.selected ? true : false}"
+					<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" visible="{showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isDNASeqCoreState() ? true : false}"
 						width="76"
 						itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>

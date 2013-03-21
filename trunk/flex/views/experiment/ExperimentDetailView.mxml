@@ -734,6 +734,7 @@
 			this.cherrySourceWellCol.visible = false;
 			reactionPlateCol.visible = false;
 			redoFlagCol.visible = false;
+			this.sampleNameColumn.visible = true;
 			
 			// can't do this in state stuff because of external stuff below.
 			this.noteToCoreFacilityBox.visible = true;
@@ -945,6 +946,7 @@
 					this.cherrySourcePlateCol.visible = false;
 					this.cherrySourceWellCol.visible = false;
 					reactionPlateCol.visible = false;
+					this.descriptionCol.visible = false;
 					
 				} else if (isSequenomState()) {
 					concentrationCol.visible = true; 
@@ -961,6 +963,7 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+					this.descriptionCol.visible = false;
 					
 				} else if (isClinicalSequenomState()) {
 					concentrationCol.visible = true; 
@@ -977,6 +980,8 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
+					this.descriptionCol.visible = false;
+					this.sampleNameColumn.visible = false;
 					
 				} else {
 					concentrationCol.visible = true; 
@@ -1478,7 +1483,7 @@
 							<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 							<mx:AdvancedDataGridColumn id="isControlCol" visible="false" editable="false" headerText="Ctrl?"  width="40" resizable="false" dataField="@isControl"
 													    labelFunction="isControlLabelFunction"/>
-							<mx:AdvancedDataGridColumn headerText="Sample Name" width="160" dataField="@name"/>
+							<mx:AdvancedDataGridColumn headerText="Sample Name" id="sampleNameColumn" width="160" dataField="@name"/>
 							<mx:AdvancedDataGridColumn  headerText="Source Plate" width="150" dataField="@sourcePlate" editable="false" id="cherrySourcePlateCol"/>
 							<mx:AdvancedDataGridColumn  headerText="Source Well"  width="75" dataField="@sourceWell" editable="false" id="cherrySourceWellCol"/>
 							<mx:AdvancedDataGridColumn  headerText="Dest. Well" width="75" dataField="@destinationWell" editable="false" id="cherryDestinationWellCol"/>

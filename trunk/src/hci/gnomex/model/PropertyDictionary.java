@@ -90,6 +90,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        GUEST_DOWNLOAD_TERMS                = "guest_download_terms";
   public static final String        CAN_ACCESS_BSTX                     = "can_access_bstx";
   public static final String        REQUEST_SUBMIT_CONFIRMATION_EMAIL   = "request_submit_confirmation_email";
+  public static final String        SUBMIT_REQUEST_INSTRUCTIONS         = "submit_request_instructions";
   public static final String        ONCOCARTA_FDF_TEMPLATE              = "oncocarta_fdf_template";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
