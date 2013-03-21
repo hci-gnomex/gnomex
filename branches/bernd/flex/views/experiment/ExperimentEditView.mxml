@@ -341,6 +341,12 @@
 			
 		public var numIScanPlates:int = 0;
 		
+		public var defaultCodeRequestCategory:String = null;
+		
+		public var defaultRequestCategory:Object = null;
+	
+		public var ccNumberList:Array = null;
+		
 		[Bindable]
 		private var labList:XMLListCollection = null;
 		
@@ -430,7 +436,7 @@
 			if(request != null) {
 				codeApplication = request.@codeApplication;
 			}
-			
+
 	        seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
 	        seqLibProtocolList.sort = dictionarySorter;
 	        seqLibProtocolList.refresh();
@@ -484,6 +490,7 @@
 				this.propertyEntries.refresh();
 				this.annotationView.addNonStandardSampleColumns(); 
 			}
+			this.filteredLabList.refresh();
 			
 	    	concentrationValidator.domain = "real";
 			concentrationValidator.minValue = "0";
@@ -601,6 +608,22 @@
 				return false;
 			}
 		}
+			
+		public function isSequenomState():Boolean {
+			if (currentState == 'SequenomState' || currentState == 'SequenomEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+			
+		public function isClinicalSequenomState():Boolean {
+			if (currentState == 'ClinicalSequenomState' || currentState == 'ClinicalSequenomEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		
 		public function isSequencingState():Boolean {
 			return isCapSeqState() || isFragAnalState() || isMitSeqState() || isCherryPickState() || isIScanState();
@@ -627,7 +650,9 @@
 				currentState == 'CherryPickEditState' ||
 				currentState == 'FragAnalEditState' ||
 				currentState == 'MitSeqEditState' ||
-				currentState == 'IScanEditState') {
+				currentState == 'IScanEditState' ||
+				currentState == 'SequenomEditState' ||
+				currentState == 'ClinicalSequenomEditState') {
 				return true;    	
 			} else {
 				return false;
@@ -681,6 +706,9 @@
 				experimentCategoryName = experimentCategory[0].@display.toString();				
 			} else {
 				experimentCategoryName = experimentCategory.@display.toString();
+			}
+			if ( this.request.@codeApplication == 'OTHER' && this.request.@applicationNotes != '' ) {
+				experimentCategoryName += ' - ' + this.request.@applicationNotes;
 			}
 		}
 		private function getBillingAccountName():void {
@@ -916,10 +944,14 @@
 				}
 			}
 			
+			this.filteredLabList.refresh();
 		}
 			
 		private function nextTab():void {
 			theTab.selectedIndex++;
+			while (!theTab.getTabAt(theTab.selectedIndex).visible) {
+				theTab.selectedIndex++;
+			}
 		}
 		
 		private function previousTab():void {
@@ -982,6 +1014,8 @@
 		}		
 		
 		public function setRequestCategoryName():void {
+			setTabNotVisible("allVisible");
+
 			requestCategory = getRequestCategory();
 		
 			if (requestCategory == null) {
@@ -992,6 +1026,11 @@
 			requestCategoryName = requestCategory.@display.toString();
 			requestType = requestCategory.@type;
 			
+			applicationName = '';
+			codeApplication = '';
+			request.@applicationNotes = '';
+			request.@codeApplication = '';
+			
 			if (theTab.contains(notesView)) {
 				notesView.setAnalysisVisibility();
 				notesView.setExternalNoteVisibility();
@@ -1001,6 +1040,23 @@
 				this.confirmView.barcodeColumn.visible = false;        					
 			}
 	
+			if (theTab.contains(sampleSetupView)) {
+				if ( sampleSetupView.radioGroupQCApp != null ){
+					sampleSetupView.radioGroupQCApp.selectedValue = null;
+				}
+				if (sampleSetupView.bioanalyzerChipTypeGrid != null) {
+					sampleSetupView.bioanalyzerChipTypeGrid.selectedItem = null;
+					samplesView.initializeSamplesGrid();
+					// propagate selected chip type to samples
+					sampleSetupView.propagateChipType();   
+				} 
+				if ( sampleSetupView.iScanChipRadioGroup != null ){
+					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
+				}
+				if ( sampleSetupView.iScanChipBox != null ){
+					sampleSetupView.iScanChipBox.styleName = "requiredBox";
+				}
+			}
 				
 			if (theTab.contains(setupView)) {
 				if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
@@ -1143,6 +1199,41 @@
 				filteredAppList.refresh();
 				
 				
+			} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
+				this.currentState = "SequenomState";
+				this.sampleSetupView.currentState = 'SequenomState';
+				this.samplesView.currentState = 'SequenomState';				
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				this.sampleSetupView.sequenomPanelContainer.visible = false;
+				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
+				
+				this.notesView.setBioNoteVisibility(false);
+				this.notesView.setCoreFacilityNoteVisibility(false);
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+								
+			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
+				this.currentState = "ClinicalSequenomState";
+				this.sampleSetupView.currentState = 'ClinicalSequenomState';
+				this.samplesView.currentState = 'ClinicalSequenomState';				
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				setTabNotVisible("Samples");
+
+				this.notesView.setBioNoteVisibility(false);
+				this.notesView.setCoreFacilityNoteVisibility(false);
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
+				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',filteredAppList[0].@codeApplication);
+				applicationName = application.@display.toString();
+				codeApplication = application.@codeApplication;
+				
 			} else if (requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 								
 				this.currentState = parentApplication.submitInternalExperiment() ? 'MicroarrayState' : 'MicroarrayExternalState';
@@ -1233,6 +1324,18 @@
 			this.setupView.checkSecurity();
 		}
 			
+		private function setTabNotVisible(label:String):void {
+			for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
+				if (theTab.getTabAt(tabIdx).label == label) {
+					theTab.getTabAt(tabIdx).visible = false;
+					theTab.getTabAt(tabIdx).includeInLayout = false;
+				} else {
+					theTab.getTabAt(tabIdx).visible = true;
+					theTab.getTabAt(tabIdx).includeInLayout = true;
+				}
+			}
+
+		}
 		public function showHideBarcodingQuestion():void {
 			sampleSetupView.radioYesBarcoding.selected = true;
 			sampleSetupView.pickRadioBarcoding();
@@ -2018,7 +2121,9 @@
 		public function setupTheEditForm():void {
 			currentState = '';
 			samplesView.currentState = '';
-
+			
+			setTabNotVisible('AllVisible');
+			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
@@ -2141,7 +2246,27 @@
 			} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
 				this.experimentCategoryName = '';
 				this.currentState = "IScanEditState";
-			} else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
+			}  else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
+				this.currentState = "SequenomEditState";
+				this.sampleSetupView.currentState = 'SequenomState';
+				
+				this.samplesView.currentState = 'SequenomState';				
+				this.samplesView.showHideColumns();				
+				if (this.samplesView.hasPlates()) {
+					this.samplesView.fillPlates();
+				}
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
+				this.currentState = "ClinicalSequenomEditState";
+				this.sampleSetupView.currentState = 'ClinicalSequenomState';
+				
+				this.samplesView.currentState = 'ClinicalSequenomState';				
+				this.samplesView.showHideColumns();				
+				if (this.samplesView.hasPlates()) {
+					this.samplesView.fillPlates();
+				}
+				
+			}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
 				
 				currentState = 'MicroarrayEditState';
@@ -2174,7 +2299,7 @@
 
 			}
 			
-			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem") && this.analysisButton!=null) {
 				this.analysisButton.enabled = true;
 			} else {
 				this.analysisButton.enabled = false;
@@ -2213,6 +2338,7 @@
 			// files shown rather than current selection.
 			this.refreshDownloadList();				
 
+			this.filteredLabList.refresh();
 
 		    postSetupEditForm();
 
@@ -2391,6 +2517,11 @@
 							break;
 						}
 					}
+					if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
+						if ( sampleSetupView.iScanChipBox != null ) {
+							sampleSetupView.iScanChipBox.styleName = "normalBox";
+						}
+					}
 					sampleSetupView.numberOfChips.text = request.@numberIScanChips;
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 					this.propertyEntries.refresh();
@@ -2401,6 +2532,20 @@
 				}
 			}
 
+			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
+				for each(var app:Object in sampleSetupView.seqAppRepeater.dataProvider) {
+					if (app.@value == request.@codeApplication) {
+						sampleSetupView.radioGroupSeqApp.selectedValue = app;
+						break;
+					}
+				}
+				this.sampleSetupView.coreToExtractDNACheckBox.selected = request.@coreToExtractDNA == 'Y' ? true : false;
+				if (this.isSequenomState() ){
+					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
+				} 
+				this.notesView.setBioNoteVisibility(false);
+				this.notesView.setCoreFacilityNoteVisibility(false);
+			}
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
 				if (theTab.contains(sampleSetupView)) {
@@ -2708,7 +2853,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isCapSeqState() && !isFragAnalState() && !isMitSeqState() && !isCherryPickState() && !isIScanState()) {
+				if (!isQCState() && !isDNASeqCoreState() && !isSequenomState() && !isClinicalSequenomState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -3094,8 +3239,17 @@
 						}
 					}	
 				}
-				
-				if (currentState != 'QCState' && !isCapSeqState() && !isFragAnalState() && !isMitSeqState() && !isCherryPickState() && !isIScanState()) {
+				if (this.isSequenomState()) {
+					request.@applicationNotes = sampleSetupView.sequenomApplicationDesc.text;
+					request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;
+					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
+				}
+				if (this.isClinicalSequenomState()) {
+					request.@applicationNotes = '';
+					request.@codeApplication = filteredAppList[0].@value;
+					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
+				}
+				if (currentState != 'QCState' && !isDNASeqCoreState() && !isSequenomState() && !isClinicalSequenomState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3126,7 +3280,10 @@
 					request.@codeApplication = setupView.getApp();						
 				}
 			}
-			
+			if (this.isIScanState()) {
+				request.@codeApplication = "";	
+				request.@codeBioanalyzerChipType = "";
+			}
 			
 			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
@@ -3239,10 +3396,12 @@
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
 				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
 				request.@codeApplication = "";
+				request.@codeBioanalyzerChipType = "";
 			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ((this.isCapSeqState() || this.isCherryPickState() || this.isIScanState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if (   (this.isCapSeqState() || this.isCherryPickState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) 
+					&& (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
@@ -3428,7 +3587,7 @@
 					externalIdRequest = submittedIdRequest;
 					showPromptToUpload = true;
 				} else {
-					if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState() && !this.isIScanState()) {
+					if (!this.isDNASeqCoreState()) {
 						showPrintableRequestForm();
 					}
 				}
@@ -3788,7 +3947,9 @@
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
 				
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-		        requestEditBillingAccountCombo.selectedItem = null;
+				if (requestEditBillingAccountCombo.dropdown != null) {
+					requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;
+				}
 		        for each(var ba:Object in billingAccounts) {
 		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
 		        		requestEditBillingAccountCombo.selectedItem = ba;
@@ -4514,7 +4675,7 @@
 			
 		public function showPlateGroup():Boolean {
 			var show:Boolean = false;
-			if (this.isCapSeqState() || this.isIScanState()) {
+			if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
 				if (this.isEditState()) {
 					show = false;
 				} else if (this.request.@containerType == "PLATE") {
@@ -4685,6 +4846,35 @@
 					request.@codeApplication = "";
 				}
 			} 
+			
+			private function filterLabList(item:Object):Boolean {
+				var keep:Boolean = false;
+				if (defaultCodeRequestCategory == null) {
+					keep=true;
+				} else {
+					if (defaultRequestCategory == null) {
+						keep = true;   // should never happen.
+					} else {
+						for each(var cf:Object in item..CoreFacility) {
+							if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
+								keep = true;
+								break;
+							}
+						}
+					}
+				}
+				return keep;
+			}
+			
+			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
+				this.defaultCodeRequestCategory = codeDefaultRequestCategory;
+				this.ccNumberList = ccNumberList;
+				if (defaultCodeRequestCategory != null) {
+					this.defaultRequestCategory = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@value==defaultCodeRequestCategory);
+				} else {
+					this.defaultRequestCategory = null;
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4710,7 +4900,9 @@
   	<mx:XMLListCollection id="projects" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
-		
+	
+	<mx:XMLListCollection id="filteredLabList" filterFunction="filterLabList" source="{parentApplication.submitRequestLabList.source}"/>
+
 	<mx:NumberValidator id="minRangeValidator"
 						source="{rangeFrom}"
 						lowerThanMinError="Outside valid range."
@@ -4832,14 +5024,14 @@
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" fontFamily="Tahoma" fontSize="14" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="bold" paddingRight="50"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="normal" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
  	<mx:VBox  width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0" id="vbox1">
  	    	
 		<mx:TabNavigator id="theTab"  styleName="form" width="100%" 
-			creationPolicy="all"
+			creationPolicy="all" 
 			height="100%" paddingLeft="8" 
 			paddingRight="4" paddingBottom="4"  paddingTop="6" change="enableNextButtons()">
 			
@@ -4960,6 +5152,7 @@
 					       	  dataProvider="{billingAccounts}" 
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
+							  width="400"
 					       	  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
@@ -4968,7 +5161,7 @@
         			sortExpertMode="true" horizontalScrollPolicy="auto"
         			sortableColumns="false"
 					backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
-					fontSize="9" iconFunction="parentApplication.getTreeIcon">
+					fontSize="10" iconFunction="parentApplication.getTreeIcon">
 						<mx:dataProvider>   
       						<mx:HierarchicalData source="{billingItems}"/> 
     					</mx:dataProvider> 
@@ -5035,11 +5228,11 @@
     		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
 				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" paddingTop="4" verticalAlign="middle" paddingLeft="4">
-					<mx:LinkButton label="View" fontSize="9" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
+					<mx:LinkButton label="View" fontSize="10" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
-					<mx:LinkButton label="Download Files" fontSize="9" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Printable form" fontSize="9" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Analysis" fontSize="9" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
+					<mx:LinkButton label="Download Files" fontSize="10" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Printable form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Analysis" fontSize="10" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.experimentDetailView.detail.showRelatedAnalysis()" textAlign="left">
 					</mx:LinkButton>
 					<mx:Spacer width="10"/>
@@ -5050,7 +5243,7 @@
 			<mx:AddChild relativeTo="{theTab}" position="firstChild">
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
-					       <mx:Text text="Experiment" width="100"  fontWeight="normal"/>
+					       <mx:Text text="Experiment" width="100"  fontWeight="normal" styleName="formLabel"/>
 					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
 					   </mx:HBox>
 					
@@ -5058,9 +5251,16 @@
 					    <mx:Spacer width="100"/>
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
 					 </mx:HBox>
-
+					
+					<!--<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
+						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
+								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}"/>
+						<mx:Text  text="{parentDocument.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" 
+								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}" />
+					</mx:HBox>-->
+					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
-						<mx:Text text="Organism" width="100" id="labelOrg"/>
+						<mx:Text text="Organism" width="100" id="labelOrg" styleName="formLabel"/>
 						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							
 							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 							<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -5074,7 +5274,7 @@
 					</mx:HBox>
 
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="Lab Group"  width="100" fontWeight="normal"/>
+						<mx:Label text="Lab Group"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<renderers:FilterComboBox id="requestEditLabCombo"
 												  labelField="@name" 
 												  close="this.dirty.setDirty();refreshLab()" 
@@ -5084,7 +5284,7 @@
 						</renderers:FilterComboBox>
 					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
-						<mx:Label text="Project"  width="100" fontWeight="normal"/>
+						<mx:Label text="Project"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<mx:ComboBox id="requestEditProjectCombo"
 									 labelField="@name" 
 									 change="this.dirty.setDirty()"
@@ -5094,17 +5294,17 @@
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
-						<mx:Text text="Submitted by"  fontWeight="normal" width="100"/>
+						<mx:Text text="Submitted by"  fontWeight="normal" width="100" styleName="formLabel"/>
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@submitterName}" />
 					</mx:HBox>
 
 					<mx:HBox horizontalGap="0">
-						<mx:Text  text="Submit Date" width="100"  fontWeight="normal"/>    				       
+						<mx:Text  text="Submit Date" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
+						<mx:Label text="Owner"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
 									 change="this.dirty.setDirty();" 
@@ -5114,18 +5314,18 @@
 					</mx:HBox>
 						
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text  text="Completed" width="100"  fontWeight="normal"/>    				       
+						<mx:Text  text="Completed" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
 				   
 					
 					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design"/>
+						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 					
 					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size"/>
+						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
 						<mx:Text fontWeight="normal" text=" to "/>
 						<mx:TextInput focusOut="propagateRange()" id="rangeTo" change="{this.dirty.setDirty()}" width="100" text="{this.request.@avgInsertSizeTo}"/>
@@ -5289,11 +5489,41 @@
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<!--<mx:RemoveChild target="{annotationView}"/>-->
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="SequenomState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+		</mx:State>
+		<mx:State name="SequenomEditState" basedOn="SequencingEditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
+				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+					<mx:Text  width="100" text="Container" />
+					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
+			<mx:RemoveChild target="{notesView}"/>
+		</mx:State>
+		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

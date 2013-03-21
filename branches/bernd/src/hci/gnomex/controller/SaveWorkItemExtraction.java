@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -123,6 +124,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
             // Set the completed date on the request
             if (request.isConsideredFinished() && request.getCompletedDate() == null) {
               request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+              request.setCodeRequestStatus(RequestStatus.COMPLETED);
             }
             
             

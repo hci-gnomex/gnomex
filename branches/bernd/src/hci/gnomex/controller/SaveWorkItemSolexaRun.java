@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
@@ -145,6 +146,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
                 // Set the completed date on the request
                 if (request.isConsideredFinished() && request.getCompletedDate() == null) {
                   request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                  request.setCodeRequestStatus(RequestStatus.COMPLETED);
                 }
                 
               }

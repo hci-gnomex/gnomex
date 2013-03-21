@@ -656,7 +656,8 @@ VALUES ('CGH', 'CGH', 'Y', 3, NULL),
   ('DNAGEL', 'DNA Gel', 'Y', 4, NULL),
   ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2),
   ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
-  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3);
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3),
+  ('OTHER', 'Custom', 'Y', NULL, 100);
 
 -- Populate InstrumentRunStatus dictionary
 insert into gnomex.InstrumentRunStatus 
@@ -871,7 +872,9 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
  (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
  (95,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
- (96,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y');
+ (96,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
+ (97,'contact_email_core_facility_workauth_reminder','first.last@somwhere.edu','Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'N');
+
  
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),

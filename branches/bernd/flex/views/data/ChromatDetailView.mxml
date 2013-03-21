@@ -9,7 +9,11 @@
 	
 	<mx:VBox width="100%" id="vbox1">
 		
-	<mx:HBox id="headerBox" horizontalGap="10" paddingTop="10" verticalAlign="middle" width="100%" >
+	<mx:HBox id="headerBox" horizontalGap="10" verticalAlign="middle" 
+			 width="100%"  backgroundSize="100%" 
+			 backgroundImage="assets/menubar3.png"
+			 paddingBottom="0" paddingLeft="0" paddingRight="0"  paddingTop="10" 
+			 borderStyle="none">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
 		<mx:Label id="redoLabel" 
 				  styleName="titleLabel" 
@@ -706,7 +710,7 @@
 					
 					<!-- Legend -->
 					<mx:HBox horizontalAlign="center" width="100%">
-						<mx:Legend  direction="horizontal">
+						<mx:Legend >
 							<mx:LegendItem label="Quality Values" fontWeight="bold">
 								<mx:fill>
 									<mx:SolidColor color="#000060"/>
@@ -1014,7 +1018,7 @@
 						
 						<!-- Legend -->
 						<mx:HBox horizontalAlign="center" width="100%">
-							<mx:Legend direction="horizontal">
+							<mx:Legend>
 								
 								<mx:LegendItem label="A" fontWeight="bold">
 									<mx:fill>
@@ -1076,7 +1080,7 @@
 					
 					<!-- Legend -->
 					<mx:HBox horizontalAlign="center" width="100%">
-						<mx:Legend  direction="horizontal">
+						<mx:Legend  >
 							<mx:LegendItem label="High quality bases" fontWeight="bold">
 								<mx:fill>
 									<mx:SolidColor color="black"/>
@@ -1113,11 +1117,11 @@
 			<mx:RemoveChild target="{redoLabel}"/>
 			<mx:RemoveChild target="{titleLabel}"/>
 			<mx:SetStyle target="{headerBox}" name="paddingTop"/>
-			<mx:SetStyle target="{printButton}" name="fontSize" value="10"/>
-			<mx:SetStyle target="{fastaButton}" name="fontSize" value="10"/>
 			<mx:SetProperty target="{vbox1}" name="styleName" value="selectedAccordionHeader"/>
 			<mx:SetStyle target="{vbox1}" name="borderStyle" value="applicationControlBar"/>
 			<mx:SetProperty target="{headerBox}" name="styleName" value="gradientBackground"/>
+			<mx:SetStyle target="{printButton}" name="color" value="#302D2B"/>
+			<mx:SetStyle target="{fastaButton}" name="color" value="#302D2B"/>
 			
 		</mx:State>
 	</mx:states>

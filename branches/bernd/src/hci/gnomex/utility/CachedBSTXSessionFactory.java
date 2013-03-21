@@ -37,7 +37,7 @@ public class CachedBSTXSessionFactory
       {
         Configuration config = new Configuration();
         config.setProperty("hibernate.connection.provider_class", "com.opensourceconnections.msjdbcproxy.HibernateProvider");   
-        config.configure( new File("applications/hciEnv/hibernateBSTX.cfg.xml") ).buildSessionFactory();
+        config.configure( new File("applications/gnomex/lib/hibernateBSTX.cfg.xml") ).buildSessionFactory();
         SessionFactory factory = (SessionFactory) new InitialContext().lookup(jndiName);
         factories.put(jndiName, factory);
         return factory;     

@@ -5,10 +5,16 @@ HCI Blue = 00529F
 HCI Teal = 00A9B9
 HCI Cream = F2EFD9
 */
+global {
+	fontSize:12;
+	fontFamily: "Open Sans";
+	color: #302d2b;
+}
 
 .titleLabel {
-	fontFamily: Arial;
-	fontSize: 14;
+	fontSize: 13;
+	fontWeight: normal;
+	color: #302D2B;
 }
 
 .errorTip { 
@@ -136,7 +142,6 @@ Panel {
 
 .loginTitleStyle {
 	color: #FFFFFF;
-	fontFamily: Arial;
 	fontSize: 11;
 	fontWeight: bold;
 } 
@@ -174,7 +179,6 @@ TitleWindow {
 { 
 	fontSize: 14;
 	color: #FFFFFF;
-	fontFamily: Arial;
 
 }
 
@@ -258,7 +262,6 @@ LinkButton.navLinkButton
 {
 	fontWeight: normal;	
 	fontSize: 12;
-	fontFamily: Verdana;
 	color: #FFFFFF;
 }
 
@@ -266,7 +269,6 @@ LinkButton.reportLinkButton
 {
 	fontWeight: normal;	
 	fontSize: 12;
-	fontFamily: Verdana;
 	color: #000000;
 	fontStyle: underline;
 	textDecoration: underline;
@@ -426,8 +428,8 @@ TextArea {
     paddingTop: 0; 
     paddingBottom: 4;
 	backgroundSize: auto;
-    fontFamily: Arial;
-	fontSize: 14;
+    fontFamily: "Open Sans";
+	fontSize: 12;
 	selectedTabTextStyleName: tabNavigatorSelectedTabText;
 }
 
@@ -443,7 +445,6 @@ TextArea {
  	borderColor: #5F696F;
 	borderStyle: solid;
 	cornerRadius: 6;	
-	fontFamily: Arial;
 	fontSize: 14;
 
 }
@@ -505,7 +506,6 @@ TextArea {
 	fontSize: 16;
 	fontWeight: bold;
 	color: #595350;
-	fontFamily: Verdana;
 }
 
 
@@ -533,7 +533,6 @@ TextArea {
 }
 .tabBarSelectedTabText
 {
-	fontFamily: "Arial Narrow";
 }
 .instructionBox
 {
@@ -546,21 +545,18 @@ TextArea {
 
 Text.welcome
 {
-	color: #000000;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 11;
 }
 Text.welcomeTitle
 {
-	color: #000000;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 15;
 	fontWeight: bold;
 }
 Text.welcomeHeader
 {
-	color: #000000;
-	fontFamily: Arial;
+	color: #302D2B;
 	fontSize: 13;
 	fontWeight: normal;
 	leading: 0;
@@ -568,6 +564,7 @@ Text.welcomeHeader
 Text.submitNote
 {
 	color: #0000ff;
+	fontWeight: normal;
 }
 
 
@@ -598,7 +595,6 @@ Label.titleLabel
 {
 	fillAlphas: 1.0, 1.0;
 	fillColors: #Ffffff, #dadfc9;
-	fontFamily: Verdana;
 	fontSize: 12;
 	width: 300;
 	height: 120;
@@ -629,7 +625,6 @@ Label.titleLabel
 }
 .navLinkButtonSmall
 {
-	fontFamily: Verdana;
 	color: #9E8D8D;
 	textAlign: right;
 	textDecoration: underline;
@@ -669,7 +664,6 @@ Label.titleLabel
 }
 Label.welcomeLabel
 {
-	fontFamily: Verdana;
 	color: 	 #4D4848;
 	fontSize: 14;
 	fontWeight: normal;
@@ -679,31 +673,29 @@ Label.appTitle
 	fontSize: 18;
 	color: #FFFFFF;
 	fontWeight: normal;
-	fontFamily: Verdana;
 	fontStyle: normal;
 }
 
 Text.welcomeUserLabel
 {
-	fontFamily: Verdana;
 	color: #686464;
 	fontSize: 12;
 	fontWeight: normal;
 }
 Text.welcomeSessionLabel
 {
-	color: #686464;
-	fontFamily: Verdana;
+	color: #2F2D29;
 	fontSize: 11;
 	leading: 0;
 	fontWeight: normal;
 }
 Text.navLabel
 {
-	fontFamily: Verdana;
-	color: #686464;
-	fontSize: 12;
+	color: #2F2D29;
+	fontSize: 11;
 	leading: 0;
+	fontWeight: normal;
+	fontFamily: "Open Sans";
 }
 Text.navLabelSmall
 {
@@ -713,8 +705,7 @@ Text.navLabelSmall
 }
 Text.progressLabel
 {
-	color: #555454;
-	fontFamily: Verdana;
+	color: #2F2D29;
 	fontSize: 16;
 	fontWeight: normal;
 	textAlign: center;
@@ -795,18 +786,18 @@ Text.progressLabel
 	verticalGap: 2; 
 	
 }
-Accordion {
-	headerStyleName: accordionHeader;
+Accordion.blueAccordion {
+	headerStyleName: blueAccordionHeader;
 	paddingTop: 0;
 	paddingBottom: 0;
-	
+	fontWeight: normal;
 	headerHeight: 18;
 	dropShadowEnabled: true;
 	focusAlpha: .5; 
 	backgroundColor: #FFFFFF;
 	
 }
-.accordionHeader
+.blueAccordionHeader
 {
 	fillColors: #87999D, #E3E8EB;
 	fillAlphas: 1.0, 1.0, 1.0, 1.0;
@@ -819,6 +810,32 @@ Accordion {
 	disabledColor: #FFFFFF;
 }
 
+Accordion.lightBlueAccordion {
+	headerStyleName: greyAccordionHeader;
+	paddingTop: 0;
+	paddingBottom: 0;
+	fontWeight: normal;
+	headerHeight: 18;
+	dropShadowEnabled: true;
+	focusAlpha: .5; 
+	backgroundColor: #FFFFFF;
+	
+}
+.greyAccordionHeader
+{
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #f9f9f9, #A0dbfe;
+	fontWeight: normal;
+	fontSize: 11;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #3e3e3e;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
+}
+
+
 .gradientBackground 
 {  
 	borderStyle: applicationControlBar; 
@@ -829,23 +846,23 @@ Accordion {
 	textRollOverColor: #FFFFFF;
 	highlightAlphas: 0, 0;
 }
+ 
 
-
-MenuBar {
+MenuBar { 
 	backgroundAlpha: 0;
 	borderStyle: none;
 	fillAlphas: 0,0;
-	color: #ffffff;
-	fontFamily: Verdana;
+	color: #302D2B;
+	fontFamily: "Open Sans";
 	menuStyleName: menuItem;
-	fontSize: 12;
+	fontSize: 13;
 	fontWeight: normal;
-	borderColor: #7e7e7e;
+	borderColor: #FFFFFF;
 	highlightAlphas: 0, .5;
 	disabledColor: #071002;
 	errorColor: #ACE788;
-	rollOverColor: #ACE788;
-	selectionColor: #ACE788;
+	rollOverColor: #ACE2F2;
+	selectionColor: #ACE2F2;
 	fontStyle: normal;
 
 }
@@ -854,14 +871,13 @@ MenuBar {
 
 .menuItem {
 	backgroundAlpha: 0;
-	borderColor: #7B877B;
+	borderColor: #B7B7B7;
 	fillAlphas: 1, 1;
-	fillColors: #B1B6C1, #222836, #3F495E, #3F495E;
-	color: #ffffff;
-	fontFamily: Verdana;
-	fontSize: 12;
-	disabledColor: #ACE788;
-	errorColor: #ACE788;
+	fillColors: #B7B7B7, #222836, #3F495E, #3F495E;
+	color: #302D2B;
+	fontSize: 13;
+	disabledColor: #ACE2F2;
+	errorColor: #ACE2F2;
 	rollOverColor: #ACE788;
 	selectionColor: #ACE788;
 	highlightAlphas: 0,0;
@@ -873,9 +889,8 @@ MenuBar.linkMenuBar {
 	borderStyle: none;
 	fillAlphas: 0,0;
 	color: #000000;
-	fontFamily: Verdana;
 	menuStyleName: menuItem;
-	fontSize: 12;
+	fontSize: 13;
 	fontWeight: normal;
 	highlightAlphas: 0.1, .1;
 	disabledColor: #000000;
@@ -904,14 +919,14 @@ MenuBar.linkMenuBar1
 }
 .tabNavigatorSelectedTabText
 {
-	fontFamily: Arial;
 	fontSize: 14;
 }
 .formLabel
 {
 	color: #324B7A;
 	fontStyle: italic;
-	fontWeight: bold;
+	fontWeight: normal;
+	fontSize: 11;
 }
 
 RichTextEditor.readOnly {
@@ -920,4 +935,36 @@ RichTextEditor.readOnly {
 
 .rteTextAreaStyles {
 	backgroundColor: #FFFFFF;
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: normal; 
+	fontStyle: normal;
+	advancedAntiAliasing: true;
+	src: url("../assets/Varela-Regular.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: bold;
+	fontStyle: normal;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-Bold.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: normal;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-Italic.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: bold;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-BoldItalic.ttf");
 }

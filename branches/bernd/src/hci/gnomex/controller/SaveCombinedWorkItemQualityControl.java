@@ -5,6 +5,7 @@ import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
@@ -187,6 +188,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                   request.getCompletedDate() == null &&
                   request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
                 request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                request.setCodeRequestStatus(RequestStatus.COMPLETED);
                 sess.save(request);   
               }              
             }

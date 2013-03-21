@@ -111,7 +111,8 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        fc.number, ");
     queryBuf.append("        lane.idSequenceLane, ");
     queryBuf.append("        '', ");
-    queryBuf.append("        req.name ");
+    queryBuf.append("        req.name, ");
+    queryBuf.append("        s.barcodeSequence ");
 
     getNextGenSeqQueryBody(queryBuf);
     

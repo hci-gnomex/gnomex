@@ -1,5 +1,7 @@
 <project name="gnomex" default="all" basedir="./">
+	
 
+	
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- All                                            -->
@@ -70,19 +72,16 @@
 	<!-- Clean                                          -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="clean" depends="init">
+	<target name="clean" >
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Cleaning                                             +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 
-		<delete includeEmptyDirs="true" quiet="false" verbose="true">
+		<delete includeEmptyDirs="true" quiet="true" verbose="false">
 		    <fileset dir="${dist.dir}" />
 		</delete>
-
-
-
 	</target>
 
 
@@ -98,14 +97,15 @@
 	<!-- Compile                                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="compile" depends="init, -classPath, -classPathAlt">
+	<target name="compile" depends="init">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Compiling                                            +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
+		
 
-      	<javac
+      	<javac 
             destdir="${build.class.dir}"
             debug="${compiler.debug}"
             deprecation="${compiler.deprecation}"
@@ -115,7 +115,8 @@
             <src path="${src.dir}" />
       		<exclude name="**/fdt/**"/>      		
       		<exclude name="**/tomcat/**"/>      		
-		    <exclude name="**/*Tomcat**"/>      		
+		    <exclude name="**/*Tomcat**"/>  
+
         </javac>
 	</target>
 
@@ -183,6 +184,8 @@
 		<echo>+  Building jar files                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
+			<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
+
 		<delete>
 			<fileset dir="${dist.dir}" includes="${jar.name}" />
 		</delete>
@@ -194,6 +197,7 @@
             <fileset dir="${build.class.dir}">
             	<exclude name="hci/gnomex/httpclient/*.class" />
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
+            	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -236,6 +240,7 @@
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
             	<exclude name="hci/gnomex/utility/CachedSessionFactory.class" />
             	<exclude name="hci/gnomex/utility/CachedGuestSessionFactory.class" />
+            	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -369,7 +374,7 @@
 	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
 		<replace file="${build.dir}/${flexapp.name}.jsp"
     											 token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
-		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&quot;,"/>
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&quot;,"/>
 	    <replace file="${build.dir}/${flexapp.name}.jsp"
 	                         token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
 	                         value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
@@ -380,7 +385,7 @@
 	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
 		<replace file="${build.dir}/${flexapp.guest.name}.jsp"
     						   token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
-		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=Y&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&quot;,"/>
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;isGuest=Y&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&quot;,"/>
 	    <replace file="${build.dir}/${flexapp.guest.name}.jsp"
 	                         token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
 	                         value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
@@ -712,6 +717,18 @@
 	<!--                                                -->
 	<!-- ============================================== -->
 	<target name="-prebuild-opensource" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+   prebuildbuild opensource                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+	    <path id="project.class.path">
+	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+	      <fileset dir="${lib.dir}" 				includes="*.jar" />
+	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
+	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
+	    </path>
+		<property name="bstx.exclude.class" value=""/>
 		
 		<!-- Copy gnomex META-INF, scripts and lib dir -->
   	    <copy todir="${sandbox.dir}">
@@ -785,7 +802,7 @@
 	<!-- build opensource orion                         -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-build-opensource-orion" depends="init, -prebuild-opensource">
+	<target name="-build-opensource-orion" depends="-prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+   build opensource (orion)                            +</echo>
@@ -798,9 +815,11 @@
 			match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
 		    replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
+
 			
 		<!-- Build ear, allowing http (nonsecure) connections -->
 		<subant target="ear">
+			    <property name="opensource" value="true"/>
 				<property name="dist.dir" value="${dist.dir}"/>
 			    <property name="basedir" value="${basedir}"/>
 				<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
@@ -826,6 +845,7 @@
 
 		<!-- Build ear again, this time allowing https (secure) connections -->
 		<subant target="ear">
+		        <property name="opensource" value="true"/>
 				<property name="dist.dir" value="${dist.dir}/secure"/>
 				<property name="basedir" value="${basedir}"/>
 				<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
@@ -856,6 +876,7 @@
 		
 		<!-- Build ear again, this time allowing http (nonsecure) connections -->
 		<subant target="war-tomcat">
+		    <property name="opensource" value="true"/>
 			<property name="dist.dir" value="${dist.dir}"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
 		    <property name="basedir" value="${basedir}"/>
@@ -891,6 +912,7 @@
 
 		<!-- Build ear again, this time allowing https (secure) connections -->
 		<subant target="war-tomcat">
+		    <property name="opensource" value="true"/>
 		    <property name="dist.dir" value="${dist.dir}/secure"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
 		    <property name="basedir" value="${basedir}"/>
@@ -959,7 +981,6 @@
 		
 		<!-- build orion web app -->
 		<subant target="-build-opensource-orion">
-			   <property name="basedir" value="${basedir}"/>
 			   <property name="dist.dir" value="${dist.dir}"/>
 			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
 			   <property name="lib.dir" value="${sandbox.dir}/lib"/>
@@ -1223,16 +1244,12 @@
 	<!-- Initialization                                 -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="init">
+	<target name="init" depends="setClassExclusions">
 
     	<!-- General config -->
         <tstamp />
-        <property environment="env" />
+        <property environment="env"  />
         <property file="${basedir}/build.properties" />
-    	
-	    <condition property="hcienv.dir.exists">
-	      <available file="${lib.hcienv.dir}" type="dir"/>
-	    </condition>
 
 		<tstamp>
 		    <format property="build.date" pattern="MMM-dd-yyyy HH:MM" locale="en,UK"/>
@@ -1242,8 +1259,13 @@
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />		
        	<mkdir dir="${dist.dir}" />
-		
 
+	    <path id="project.class.path">
+	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+	      <fileset dir="${lib.dir}" 				includes="*.jar" />
+	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
+	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
+	    </path>
 		
         <path id="project.tomcat.class.path">
             <fileset dir="${lib.dir}" 				    includes="*.jar" />
@@ -1259,7 +1281,11 @@
 	    	  	<include name="**/*.mxml"/>
 	    		</srcfiles>
 	  	</uptodate>
+
+			
 	</target>
+	
+	
 
 
     <!-- ============================================== -->
@@ -1311,40 +1337,20 @@
 			
 	</target>
 	
-
-    <!-- ============================================== -->
-	<!--                                                -->
-	<!-- Set the class path for compiling               -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="-classPath" depends="init" if="hcienv.dir.exists">
-	    <echo>${lib.hcienv.dir} exists</echo>
-	  	
-	    <path id="project.class.path">
-	      <fileset dir="${lib.hcienv.dir}" includes="*.jar"/>
-	      <fileset dir="${lib.dir}" 				includes="*.jar" />
-	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
-	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
-	    </path>
 	
-	</target>
 	
     <!-- ============================================== -->
 	<!--                                                -->
-	<!-- Set the class path for compiling (open source) -->
+	<!-- Exclude bstx class for HCI build since it is   -->
+	<!-- in hciEnv jar                                  -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-classPathAlt" depends="init" unless="hcienv.dir.exists">
-	    <echo>${lib.hcienv.dir} missing</echo>
-	  	
-	    <path id="project.class.path">
-	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
-	      <fileset dir="${lib.dir}" 				includes="*.jar" />
-	      <fileset dir="${lib.orion.dir}" 		    includes="*.jar" />
-	      <fileset dir="${orion.dir}" 			    includes="*.jar" />
-	    </path>
+	<target name="setClassExclusions" unless="opensource" >
+		<echo> set bstx exclusion </echo>
+		<property name="bstx.exclude.class" value="hci/bstx/utility/*.class"/>		
+		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
 	</target>
-	
 
+	
 
 </project>

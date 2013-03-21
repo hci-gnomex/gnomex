@@ -40,7 +40,7 @@
 
 		<mx:HBox width="100%" horizontalGap="1"  paddingTop="0" verticalAlign="middle">
 			<mx:Image source="{detail.selectedExperiment.@icon}"/>
-			<mx:Label id="titleLabel" styleName="titleLabel"  fontWeight="bold" paddingRight="20" fontFamily="Tahoma" fontSize="14"/>
+			<mx:Label id="titleLabel" styleName="titleLabel"  fontWeight="normal" paddingRight="20"/>
 			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
 				<mx:HBox width="100%"  horizontalGap="2" horizontalAlign="left" verticalAlign="middle">
 					   <mx:Text id="submitWarning" text="Order not yet submitted" 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="900" height="540"  creationPolicy="all"
+				layout="vertical" width="1000" height="540"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				showCloseButton="true" close="{closeWindow()}"
 				title="Configure Experiment Platform" titleIcon="@Embed(source='../../assets/page_white_wrench.png')">
@@ -130,6 +130,7 @@
 				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
 				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
 				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
+				params.isClinicalResearch = this.isCRCheckbox.selected ? 'Y' : 'N';
 				
 				//params.icon = this.theIcon.text;
 				if(iconCombo.selectedIndex > 0) {
@@ -174,6 +175,15 @@
 					dirty.setDirty();
 				} else if (this.typeRadioGroup.selectedValue == 'ISCAN') {
 					iconToCheck = "assets/iscan.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'CLINSEQ') {
+					iconToCheck = "assets/cherrypick.png";
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'SEQUENOM') {
+					iconToCheck = "assets/cherrypick.png";				
+					dirty.setDirty();
+				} else if (this.typeRadioGroup.selectedValue == 'GENERIC') {
+					iconToCheck = "assets/cherrypick.png";				
 					dirty.setDirty();
 				}
 				
@@ -533,7 +543,7 @@
 	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
-		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" verticalAlign="middle" height="30">
+		<mx:HBox width="100%"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" verticalAlign="middle" height="28">
 			<mx:LinkButton label="Add Platform" enabled="{parentApplication.isAdminState}" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
 			<mx:LinkButton label="Remove Platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" textDecoration="none" fontSize="11"/>
 			<mx:Spacer width="100%"/>
@@ -549,68 +559,75 @@
 						 paddingRight="4" paddingBottom="0"/>
 				<mx:VBox width="100%" height="100%" styleName="panelBox" 
 						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
-					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
-						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="4">
+					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
+						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="5">
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
-								<mx:Label text="Name" width="80"/>
-								<mx:TextInput  id="platformName"  width="100%" text="{requestCategory.@requestCategory}"  change="dirty.setDirty()"/>
+								<mx:Label text="Name" width="80" styleName="formLabel"/>
+								<mx:TextInput  id="platformName"  width="400" text="{requestCategory.@requestCategory}"  change="dirty.setDirty()"/>
+								<mx:Label  text="Code" paddingLeft="20" styleName="formLabel"/>
+								<mx:TextInput id="codeRequestCategoryField"  width="65" backgroundColor="0xffffff" text="{requestCategory.@codeRequestCategory}" editable="false"/>
 								<mx:Spacer width="10"/>
 								<mx:CheckBox id="isActiveCheckbox" label="Active"  click="{dirty.setDirty()}" selected="{requestCategory.@isActive == 'N' ? false : true}"/>
 							</mx:HBox>
 							
-							<mx:HBox verticalAlign="middle" horizontalGap="1" width="100%">
-								<mx:Label  text="Code" width="80"/>
-								<mx:TextInput id="codeRequestCategoryField"  width="65" backgroundColor="0xffffff" text="{requestCategory.@codeRequestCategory}" editable="false"/>
-							</mx:HBox>
-							
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
-								<mx:Label text="Notes" width="80"/>
+								<mx:Label text="Notes" width="80" styleName="formLabel"/>
 								<mx:TextInput id="notes"  width="100%" text="{requestCategory.@notes}"  change="dirty.setDirty()"/>
 							</mx:HBox>
 							
 							<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-								<mx:Label  text="Sort Order" width="80"/>
+								<mx:Label  text="Sort Order" width="80" styleName="formLabel"/>
 								<mx:TextInput id="sortOrder"  width="40" text="{requestCategory.@sortOrder}" change="dirty.setDirty()"/>
 							</mx:HBox>
 							
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
-								<mx:Label text="Vendor" width="80"/>
-								<mx:ComboBox  width="100%" 
+								<mx:Label text="Vendor" width="80" styleName="formLabel"/>
+								<mx:ComboBox  width="300" 
 											  dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
 											  labelField="@display"
 											  close="{this.dirty.setDirty();}"
 											  id="vendorCombo"/>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
-								<mx:Label text="Core Facility" width="80"/>
-								<mx:ComboBox width="100%"
+								<mx:Label text="Core Facility" width="80" styleName="formLabel"/>
+								<mx:ComboBox width="300"
 											 dataProvider="{coreFacilities}"
 											 labelField="@display" 
 											 close="{this.dirty.setDirty();}"
 											 id="coreFacilityCombo"/>
 							</mx:HBox>
-							<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0">
-								<mx:Label text="Type" width="73"/>
+							<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0" fontSize="11">
+								<mx:Label text="Type" width="73" fontSize="12" styleName="formLabel"/>
 								<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
 								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Next generation sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
+									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
 								</mx:VBox>
 								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()"/>
-									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()"/>
+									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+								</mx:VBox>
+								<mx:VBox verticalGap="0" paddingLeft="0">
+									<mx:RadioButton label="Sequenom Mass Array (Clinical Reserarch)" value="CLINSEQ" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
+									<mx:RadioButton label="Sequenom MassArray" value="SEQUENOM" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
+									<mx:RadioButton label="Generic" value="GENERIC" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
 								</mx:VBox>
 							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+								<mx:Text text="Security" 
+										 width="80"  styleName="formLabel"/>
+								<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" click="{dirty.setDirty()}" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" />
+							</mx:HBox>
 							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
-								<mx:Label id="channelLabel" text="Number of channels" width="120"/>
+								<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>
 								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
-								<mx:Label text="Show for" width="80"/>
+								<mx:Label text="Show for" width="80" styleName="formLabel"/>
 								<mx:CheckBox id="isInternalCheckbox" label="Internal Experiment Requests" click="{dirty.setDirty()}" selected="{requestCategory.@isInternal == 'Y' ? true : false}" />
 								<mx:CheckBox id="isExternalCheckbox" label="External Experiments" click="{dirty.setDirty()}" selected="{requestCategory.@isExternal == 'Y' ? true : false}"/>
 								<mx:Spacer width="100%"/>
@@ -621,14 +638,14 @@
 								<mx:Spacer width="10"/>
 							</mx:HBox-->
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
-								<mx:Label text="Icon" width="80"/>
+								<mx:Label text="Icon" width="80" styleName="formLabel"/>
 								<util:IconComboBox id="iconCombo" dataProvider="{parentApplication.expIcons..item}" labelField="@label" change="{dirty.setDirty()}"  iconFunction="getIcon"  x="10" y="10" rowCount="12"/>
 								<mx:Spacer width="10"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 								<mx:Text text="Default Organism" 
-										 width="80" visible="{isInternalCheckbox.selected}" />
-								<mx:ComboBox width="100%" id="organismCombo"
+										 width="80" visible="{isInternalCheckbox.selected}"  styleName="formLabel"/>
+								<mx:ComboBox width="300" id="organismCombo"
 											 dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 											 labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
 							</mx:HBox>
@@ -641,14 +658,14 @@
 								<mx:LinkButton label="Add" styleName="linkMenuButton" 
 											   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
 											   icon="@Embed(source='../../assets/add.png')" 
-											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()"/>
-								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()"/>
-								<mx:Text width="440" text="Enter min and max insert size or check Capture Lib Design to require submitter to enter values on new experiment." 
-										 styleName="linkMenuButton" fontStyle="italic" visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" fontSize="10" color="#2863C6" fontWeight="bold"/>
+											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
+								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()" fontSize="10"/>
+								<mx:Text text="Enter min and max insert size or check Capture Lib Design to require submitter to enter values on new experiment." 
+										 styleName="linkMenuButton" fontStyle="normal" visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" fontSize="10" color="#2863C6" fontWeight="normal"/>
 							</mx:HBox>
 							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
 										 dataProvider="{applications}" editable="true"
-										 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" wordWrap="true" variableRowHeight="true">
+										 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" wordWrap="true" variableRowHeight="true" fontSize="11">
 								<mx:columns>
 									<mx:DataGridColumn headerText=" "  
 													   width="20"  editable="false"                      	
@@ -731,20 +748,20 @@
 												   click="addSampleType()"
 												   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
 												   icon="@Embed(source='../../assets/add.png')" 
-												   disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+												   disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
 									
 									<mx:LinkButton label="Remove" styleName="linkMenuButton"
 												   click="removeSampleType()"
 												   enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   
 												   icon="@Embed(source='../../assets/delete.png')" 
-												   disabledIcon="@Embed(source='../../assets/delete_disable.png')"/>
-									<mx:Text width="350" text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="italic"/>
+												   disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
+									<mx:Text text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6"/>
 									
 								</mx:HBox>
 								<mx:DataGrid id="sampleTypeGrid" 
 											 dataProvider="{sampleTypes}" 
 											 editable="true"
-											 width="100%" height="100%" itemEditBegin="dirty.setDirty()" variableRowHeight="true" wordWrap="true">
+											 width="100%" height="100%" itemEditBegin="dirty.setDirty()" variableRowHeight="true" wordWrap="true" fontSize="11">
 									<mx:columns>
 										<mx:DataGridColumn headerText=" "  
 														   width="20" 
@@ -776,7 +793,7 @@
 						<mx:VBox width="100%" enabled="{typeRadioGroup.selectedValue == 'ILLUMINA'}" height="100%" label="Sequencing" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 							<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
 								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
-									<mx:Label text="Sample Index Tags" width="150"/>
+									<mx:Label text="Sample Index Tags" width="150" styleName="formLabel"/>
 									<mx:HBox>
 										<mx:RadioButtonGroup id="barcodingRadioGroup"/>
 										<mx:RadioButton label="Optional"  value="Y" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
@@ -787,13 +804,13 @@
 									<mx:HBox verticalAlign="middle" horizontalGap="0">
 										<mx:Label text="Sequencing options" width="150"/>
 										
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()"/>
-										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()"/>
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()" fontSize="10"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()" fontSize="10"/>
 										
 									</mx:HBox> 
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
 												 dataProvider="{sequencingOptions}" wordWrap="true"
-												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()">
+												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" fontSize="10">
 										<mx:columns>
 											<mx:DataGridColumn headerText="Cycles"    headerWordWrap="true"
 															   width="50" dataField="@display" 

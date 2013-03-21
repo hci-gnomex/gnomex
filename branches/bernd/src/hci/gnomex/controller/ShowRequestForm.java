@@ -252,7 +252,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               Element description = new Element("H6");
               description.addContent(request.getDescription());
               maindiv.addContent(description);              
-            } else {
+            } else if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
               // Show core facility and bioinformatics notes for internal experiments
               Element sequenceNote = new Element("H5");
               sequenceNote.addContent("Notes for Core facility");

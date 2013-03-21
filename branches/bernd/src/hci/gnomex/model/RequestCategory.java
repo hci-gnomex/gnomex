@@ -24,7 +24,11 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   FRAGMENT_ANALYSIS_REQUEST_CATEGORY = "FRAGANAL";
   public static final String   MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY = "MITSEQ";
   public static final String   CHERRY_PICKING_REQUEST_CATEGORY = "CHERRYPICK";
+  public static final String   ION_TORRENT_REQUEST_CATEGORY = "ISCAN";
   public static final String   ISCAN_REQUEST_CATEGORY = "ISCAN";
+  
+  public static final String   CLINICAL_SEQUENOM_REQUEST_CATEGORY = "CLINSEQ";
+  public static final String   SEQUENOM_REQUEST_CATEGORY = "SEQUENOM";
   
   
   
@@ -36,6 +40,9 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   TYPE_MITOCHONDRIAL_DLOOP = "MITSEQ";
   public static final String   TYPE_CHERRY_PICKING      = "CHERRYPICK";
   public static final String   TYPE_ISCAN               = "ISCAN";
+  public static final String   TYPE_CLINICAL_SEQUENOM   = "CLINSEQ";
+  public static final String   TYPE_SEQUENOM            = "SEQUENOM";
+  public static final String   TYPE_GENERIC             = "GENERIC";
 
   
   private String   codeRequestCategory;
@@ -111,6 +118,16 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
       return type.equals(TYPE_QC);
     } else {
       return codeRequestCategory.equals(this.QUALITY_CONTROL_REQUEST_CATEGORY);
+    }
+  }
+  
+  public static boolean isSequenom(String codeRequestCategory) {
+    if (codeRequestCategory != null &&
+        (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
+          codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY))) {
+      return true;
+    } else {
+      return false;
     }
   }
 

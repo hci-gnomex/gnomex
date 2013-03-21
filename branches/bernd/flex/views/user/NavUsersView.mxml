@@ -587,17 +587,17 @@
 
  <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
 	
-    <mx:ViewStack id="navStack" width="280" height="100%">
+    <mx:ViewStack id="navStack" width="260" height="100%">
 
- 		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95">
+ 		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95" fontSize="11">
 		      <mx:change>onTabChange()</mx:change>
 		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%" icon="@Embed(source='../../assets/user.png')">
 		        
 	
-		        <mx:VBox styleName="panelTabBody" fontFamily="Arial" fontSize="11" fontWeight="normal" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000" verticalGap="0">
+		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
 			          <mx:HBox width="100%" paddingTop="4">
-			       	      <mx:Label text="Search users" fontFamily="Verdana" styleName="labelSmall"/>
+			       	      <mx:Label text="Search users" styleName="labelSmall" fontSize="11"/>
 			       	      <mx:TextInput id="userSearchText" editable="true" 
 			       	      	change="appUsers.refresh()" width="100%" toolTip="Type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
 			          </mx:HBox>
@@ -606,7 +606,7 @@
 		    	      <mx:DataGrid id="usersGrid" 
 		    	      	visible="true" width="100%" editable="false" enabled="true" 
 		    	      	dataProvider="{appUsers}" height="100%"  
-		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="true" borderStyle="solid" fontFamily="Verdana">
+		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="true" borderStyle="solid" fontSize="11">
 						<mx:columns>
 									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
 					    </mx:columns>
@@ -632,12 +632,12 @@
 		      </mx:Canvas>
 		      
 		      
-		      <mx:Canvas id="groupsView" fontFamily="Arial" fontSize="11" fontWeight="normal" label="Groups" width="100%" height="100%"  color="#000405" icon="@Embed(source='../../assets/group.png')">
+		      <mx:Canvas id="groupsView"   label="Groups" width="100%" height="100%"  color="#000405" icon="@Embed(source='../../assets/group.png')">
 		      
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" verticalGap="0">
 			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
-			       	      <mx:Text text="Search lab groups" width="80" fontFamily="Verdana" styleName="labelSmall" paddingTop="0"/>
+			       	      <mx:Text text="Search lab groups" width="100" styleName="labelSmall" paddingTop="0" fontSize="11"/>
 			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			          </mx:HBox>
 					<mx:ViewStack id="filterStack" width="100%">
@@ -650,27 +650,25 @@
 						
 					</mx:ViewStack>
 
-					  <mx:VBox verticalGap="4" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
+					  <mx:VBox verticalGap="2" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
 						  <mx:HBox  horizontalGap="0">
-							  <mx:Text text="Core Facility" width="80"  styleName="labelSmall"/>
-							  <mx:ComboBox width="170" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
-										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()">			       	
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
+										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility...">			       	
 							  </mx:ComboBox>
 						  </mx:HBox>
 						  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
-							  <mx:Text text="Department" width="80"  styleName="labelSmall"/>
+							  <mx:Text text="Department" width="70"  styleName="labelSmall"/>
 							  <mx:TextInput id="deptSearchText" editable="true" styleName="labelSmall" change="labs.refresh()" width="100%" toolTip="Type department name here to filter labs by department." backgroundColor="#FFFFFF"/>
 						  </mx:HBox>
 						  <mx:CheckBox id="isExternalCheckbox"  styleName="labelSmall" click="refreshGroupList()" label="External" selected="false"/>
 						  <mx:HBox  horizontalGap="0">
-							  <mx:Text text="Instititution" width="80"  styleName="labelSmall"/>
-							  <mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()">			       	
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution...">			       	
 							  </mx:ComboBox>
 						  </mx:HBox>
 					  </mx:VBox>
 						
 						
-					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontFamily="Verdana">
+					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontSize="11">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 							<mx:DataGridColumn width="10" dataField="@name">

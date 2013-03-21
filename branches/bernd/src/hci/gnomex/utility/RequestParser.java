@@ -156,7 +156,7 @@ public class RequestParser implements Serializable {
         // a QC request to a microarray or sequencing request
         if (this.isQCAmendRequest()) {
           request.setCompletedDate(null);
-  
+          request.setCodeRequestStatus(RequestStatus.SUBMITTED);
         }
         request.setLastModifyDate(new java.sql.Date(System.currentTimeMillis()));
         
@@ -249,6 +249,13 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("numberIScanChips") != null && !n.getAttributeValue("numberIScanChips").equals("")) {
       request.setNumberIScanChips(new Integer(n.getAttributeValue("numberIScanChips")));      
     }
+    if (n.getAttributeValue("coreToExtractDNA") != null && !n.getAttributeValue("coreToExtractDNA").equals(""))
+      request.setCoreToExtractDNA(n.getAttributeValue("coreToExtractDNA"));
+    
+    if (n.getAttributeValue("applicationNotes") != null && !n.getAttributeValue("applicationNotes").equals(""))
+      request.setApplicationNotes(n.getAttributeValue("applicationNotes"));
+    
+    
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest) {
@@ -301,8 +308,12 @@ public class RequestParser implements Serializable {
           }
         }
       }
-    } else if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
-      request.setCodeRequestStatus(RequestStatus.NEW);
+    } else {
+      if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+        request.setCodeRequestStatus(RequestStatus.NEW);
+      } else {
+        request.setCodeRequestStatus(RequestStatus.SUBMITTED);
+      }
     }
     request.setProtocolNumber(n.getAttributeValue("protocolNumber"));      
 

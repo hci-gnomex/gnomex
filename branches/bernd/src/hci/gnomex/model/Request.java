@@ -85,6 +85,8 @@ public class Request extends HibernateDetailObject {
   private AppUser         submitter;
   private Integer         idIScanChip;
   private Integer         numberIScanChips;
+  private String          applicationNotes;
+  private String          coreToExtractDNA;
   
   // Bernd added
   private Application	  application;
@@ -1146,6 +1148,23 @@ public class Request extends HibernateDetailObject {
   public Boolean isCapSeqPlate() {
     Boolean retVal = false;
     if (this.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+      retVal = isPlateRequest();
+    }
+    return retVal;
+  }
+  
+
+  public Boolean isSequenomPlate() {
+    Boolean retVal = false;
+    if (this.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+      retVal = isPlateRequest();
+    }
+    return retVal;
+  }
+
+  private Boolean isPlateRequest() {
+    Boolean retVal = false;
+    if (this.getSamples().size() > 0) {
       Sample firstSample = (Sample)this.getSamples().toArray()[0];
       if (firstSample.getWells() != null) {
         for(Iterator i = firstSample.getWells().iterator();i.hasNext();) {
@@ -1227,6 +1246,22 @@ public class Request extends HibernateDetailObject {
     this.numberIScanChips = numberIScanChips;
   }
   
+  
+  public String getApplicationNotes() {
+    return applicationNotes;
+  }
+  
+  public void setApplicationNotes( String applicationNotes ) {
+    this.applicationNotes = applicationNotes;
+  }
+  
+  public String getCoreToExtractDNA() {
+    return coreToExtractDNA;
+  }
+  
+  public void setCoreToExtractDNA( String coreToExtractDNA ) {
+    this.coreToExtractDNA = coreToExtractDNA;
+  }
   public boolean isLibPrepByCore() {
     if (this.getSamples().size() > 0) {
       Sample sample = (Sample)this.getSamples().iterator().next();

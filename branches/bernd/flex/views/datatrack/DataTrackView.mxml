@@ -723,7 +723,7 @@
 		if (downloadSizeRange != getFileSizeText(uncompressedDownloadSize)) {
 			downloadSizeRange += " - " + getFileSizeText(uncompressedDownloadSize);
 		}
-		var recommended:String = "(FDT download is recommended for downloads > 1GB.)";
+		var recommended:String = "(FDT download is recommended for downloads > 300 MB.)";
 		
 		Alert.buttonWidth = 120; 
 		Alert.yesLabel = "Normal download";

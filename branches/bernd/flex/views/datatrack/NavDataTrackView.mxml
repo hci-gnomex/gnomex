@@ -1785,7 +1785,7 @@
 				<mx:VRule height="20" id="vrule0" width="2"									   
 						  visible="{currentState != 'GuestState'}"
 						  includeInLayout="{currentState != 'GuestState'}"/>
-				<mx:ViewStack id="removeButtonStack" creationPolicy="all"   
+				<mx:ViewStack id="removeButtonStack"  creationPolicy="all"   
 							  visible="{currentState != 'GuestState'}"
 							  includeInLayout="{currentState != 'GuestState'}">
 					<mx:HBox  horizontalGap="8" horizontalAlign="left" id="hbox5"  >		           
@@ -1796,7 +1796,7 @@
 							enabled="{currentState == 'AdminState'}"
 							click="{this.promptToRemoveSelectedItems()}" toolTip="Delete organism" id="linkbutton7"   textDecoration="underline"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"   fontSize="11" fontFamily="Verdana">
+					<mx:HBox horizontalGap="8"   width="100%" horizontalAlign="left" id="hbox6"   fontSize="11" >
 						<mx:LinkButton   
 							icon="@Embed(source='../../assets/crossout.png')" 
 							disabledIcon="@Embed(source='../../assets/crossout_disable.png')"

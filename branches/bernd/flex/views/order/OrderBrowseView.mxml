@@ -2,7 +2,46 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 xmlns:util="views.util.*"  
-		 verticalGap="3">
+		 verticalGap="3" currentState="GenericCoreState">
+	<mx:states>
+		<mx:State name="GenericCoreState">
+			<mx:AddChild relativeTo="{iScanCheckbox}" position="before">
+				<mx:CheckBox label = "Sequenom"
+							 id = "sequenomCheckbox"
+							 horizontalGap = "0"
+							 styleName = "labelSmall"
+							 paddingLeft = "2">
+					<mx:click>
+						getList();
+					</mx:click>
+					
+				</mx:CheckBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{capSeqCheckbox}"/>
+			<mx:RemoveChild target="{fragCheckbox}"/>
+			<mx:RemoveChild target="{mitoCheckbox}"/>
+			<mx:RemoveChild target="{iScanCheckbox}"/>
+			<mx:RemoveChild target="{cherryCheckbox}"/>
+			<mx:SetProperty target="{failedCheckbox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{failedCheckbox}" name="visible" value="false"/>
+			<mx:SetProperty target="{redoCheckbox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{redoCheckbox}" name="visible" value="false"/>
+			<mx:RemoveChild target="{vrule1}"/>
+			<mx:RemoveChild target="{typeCheckboxBar}"/>
+			<mx:RemoveChild target="{dateCheckboxBar}"/>
+			<mx:AddChild relativeTo="{spacer1}" position="before" target="{dateCheckboxBar}"/>
+			<mx:RemoveChild target="{vbox1}"/>
+		</mx:State>
+		<mx:State name="DNASeqCoreState">
+			<mx:RemoveChild target="{coreFacilityCombo}"/>
+			<mx:AddChild relativeTo="{titleLabel}" position="after">
+				<mx:Spacer width="74" id="spacer2"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{orderNumberLabel}" position="before">
+				<mx:VRule height = "20"  id="vrule2"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
 	
 	
 	<mx:HTTPService 
@@ -48,6 +87,7 @@
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			import views.util.PromptXMLListCollection;
 			
 			
 			// Warning Icon
@@ -58,7 +98,13 @@
 			[Bindable]
 			public var parentView:NavOrderView;
 			
+			[Bindable]
+			public var promptedMyCoreFacilities:PromptXMLListCollection;
+			
 			public function init():void {
+				var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
+				promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.myCoreFacilities));
+
 				getList();
 			}
 			
@@ -178,6 +224,10 @@
 					params.codeRequestCategory = 'ISCAN' ;
 				}
 
+				if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
+					params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
+				} 
+
 				return params;
 			}
 			
@@ -277,7 +327,9 @@
 				if ( this.iScanCheckbox.selected ) {
 					return false;
 				}
-					
+				if ( this.coreFacilityCombo != null && this.coreFacilityCombo.selectedItem != null) {
+					return false;
+				}
 				return true;
 			}
 			
@@ -486,12 +538,18 @@
 	
 	<mx:VBox width="100%" styleName="panelBox"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
 		<mx:VBox width="100%">
-			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="20">
+			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="0">
 				<mx:HBox horizontalGap="0">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="50" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="0" />			
 				</mx:HBox>
-				
+
+				<mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
+					<mx:ComboBox id="coreFacilityCombo" width="175" dataProvider="{promptedMyCoreFacilities}"
+								 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
+						<mx:change>this.requestNoLookupField.text = "";getList();</mx:change>
+					</mx:ComboBox>
+				</mx:VBox>
 				<mx:HBox id = "statusCheckboxBar"
 						 horizontalGap = "0"
 						 height = "100%"
@@ -560,7 +618,6 @@
 					</mx:CheckBox>
 					
 				</mx:HBox>
-				<mx:VRule height = "20" />
 				
 				<mx:HBox horizontalGap="0"
 						 height="100%"
@@ -568,9 +625,7 @@
 						 verticalGap="0"
 						 width="150" >
 					
-					<mx:Label text="Order #" />
-					
-					<mx:VRule height = "20" />
+					<mx:Label text="Order #" id="orderNumberLabel" />
 					
 					<mx:TextInput id="requestNoLookupField"
 								  fontSize="9"
@@ -580,7 +635,7 @@
 					
 					
 				</mx:HBox>
-				<mx:Spacer width="100%"/>
+				<mx:Spacer width="100%" id="spacer1"/>
 				
 				<mx:LinkButton textDecoration = "underline"
 							   label = "Refresh"
@@ -593,7 +648,7 @@
 		
 		
 		
-		<mx:VBox  width="100%">
+		<mx:VBox  width="100%" id="vbox1">
 			
 			<mx:HBox id = "filterBar"
 					 horizontalGap = "20"
@@ -611,7 +666,7 @@
 						this.requestNoLookupField.text = "";this.getList();
 					</mx:click>
 				</mx:CheckBox>
-				<mx:VRule height = "20" />
+				<mx:VRule height = "20"  id="vrule1"/>
 				
 				
 				
@@ -684,9 +739,6 @@
 						
 					</mx:CheckBox>
 				</mx:HBox>
-				
-				
-				<mx:VRule height = "20" />
 				
 				
 				<mx:HBox id = "dateCheckboxBar"
@@ -832,7 +884,8 @@
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
 					
 					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="60"
-									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}"/>
+									   visible="{currentState=='DNASeqCoreState'}"
+									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
 
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
@@ -845,15 +898,16 @@
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
 					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "105" />
-					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110"/>
-					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110"/>
-					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70"/>
-					
+					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110" 
+									   visible="{currentState=='DNASeqCoreState'}"/>
+					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110" 
+									   visible="{currentState=='DNASeqCoreState'}"/>
+					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70" 
+									   visible="{currentState=='DNASeqCoreState'}"/>
 					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
-
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
-
-					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"  />
+					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"   
+									   visible="{currentState=='DNASeqCoreState'}"/>
 					
 				</mx:columns>
 				

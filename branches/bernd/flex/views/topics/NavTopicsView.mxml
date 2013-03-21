@@ -498,7 +498,7 @@
 	}
 	
 	private function onGetRequest(event:ResultEvent):void {
-		selectedExperiment = getRequest.lastResult..Request.(@idRequest == this.browseTree.selectedItem.@idRequest);
+		selectedExperiment = getRequest.lastResult.Request.(@idRequest == this.browseTree.selectedItem.@idRequest);
 		experimentDetailView.titleLabel.text = (browseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + browseTree.selectedItem.@requestNumber;
 		callLater(postOnGetRequest);	
 	}

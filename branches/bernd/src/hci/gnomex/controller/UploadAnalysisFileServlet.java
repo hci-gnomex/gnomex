@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -190,6 +191,8 @@ public class UploadAnalysisFileServlet extends HttpServlet {
             }      
           }
 
+          Set<AnalysisFile> analysisFiles = analysis.getFiles();
+          
           while ((part = mp.readNextPart()) != null) {        
             if (part.isFile()) {
               // it's a file part
@@ -221,18 +224,31 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                   body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size) + " bytes.");                  
                 }
                 
-                // Save analysis file (name) in db
-                AnalysisFile af = new AnalysisFile();
+                // Save analysis file (name) in db.  Create new af if filename does not already exist in analysis files.  Otherwise just update upload time and size.
+                Boolean isExistingFile = false;
+                for(AnalysisFile existingFile : analysisFiles){
+                  if(existingFile.getFileName().equals(fileName)){
+                    existingFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                    existingFile.setFileSize(new BigDecimal(new File(fileName).length()));
+                    sess.save(existingFile);
+                    isExistingFile = true;
+                    break;
+                  }
+                  
+                }
+                if(!isExistingFile){
+                  AnalysisFile af = new AnalysisFile();
 
-                af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
-                af.setIdAnalysis(Integer.valueOf(idAnalysis));
-                af.setAnalysis(analysis);
-                af.setFileName(new File(fileName).getName());
-                af.setBaseFilePath(baseDir + "/" + analysis.getNumber());
-                af.setFileSize(new BigDecimal(new File(fileName).length()));
+                  af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                  af.setIdAnalysis(Integer.valueOf(idAnalysis));
+                  af.setAnalysis(analysis);
+                  af.setFileName(new File(fileName).getName());
+                  af.setBaseFilePath(baseDir + "/" + analysis.getNumber());
+                  af.setFileSize(new BigDecimal(new File(fileName).length()));
 
-                af.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);
-                sess.save(af);
+                  af.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);
+                  sess.save(af);
+                }
                 
                 
               }

@@ -19,6 +19,7 @@ public class ProjectRequestFilter extends DetailObject {
   private Integer               idLab;
   private Integer               idRequest;
   private Integer               idProject;
+  private Integer               idCoreFacility;
   private String                codeRequestCategory;
   private String                codeApplication;
   private Integer               idSlideProduct;
@@ -67,6 +68,7 @@ public class ProjectRequestFilter extends DetailObject {
     boolean hasLimitingCriteria = false;
     
     if ((idRequest != null) ||
+        idCoreFacility != null ||
         idLab != null ||
         idProject != null ||
         idAppUser != null ||
@@ -345,6 +347,12 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" req.idRequest = ");
       queryBuf.append(idRequest);
     } 
+    //  Search by idCoreFacility 
+    if (idCoreFacility != null){
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idCoreFacility = ");
+      queryBuf.append(idCoreFacility);
+    }
     //  Search by Project 
     if (idProject != null){
       this.addWhereOrAnd();
@@ -637,6 +645,15 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
+  }
+  
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+
+  
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
   }
 
   
