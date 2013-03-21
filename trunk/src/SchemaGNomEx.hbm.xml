@@ -2122,5 +2122,28 @@
       <one-to-many class="hci.gnomex.model.BillingItem" />
     </set>    
   </class>  
+    
+  <!-- hci.gnomex.model.BSTSampleInformation (view into BST sample information) -->
+  <class name="hci.gnomex.model.BSTSampleInformation" table="BSTSampleInformation">
+    <id name="idSample"                   column="idSample"           type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="ccNumber"                       column="ccNumber"                     type="string"/>
+    <property name="lastName"                       column="lastName"                     type="string"/>
+    <property name="firstName"                      column="firstName"                    type="string"/>
+    <property name="mrn"                            column="mrn"                          type="string"/>
+    <property name="birthDate"                      column="birthDate"                    type="java.sql.Date"/>
+    <property name="collectDate"                    column="collectDate"                  type="java.sql.Date"/>
+    <property name="completedDate"                  column="completedDate"                type="java.sql.Date"/>
+    <property name="gender"                         column="gender"                       type="string"/>
+    <property name="createDate"                     column="createDate"                   type="java.sql.Date"/>
+    <property name="blockId"                        column="blockId"                      type="string"/>
+    <property name="diagnosisIcd9Description"       column="diagnosisIcd9Description"     type="string"/>
+    <property name="concentration"                  column="concentration"                type="big_decimal"/>
+    <property name="qual260nmTo280nmRatio"          column="qual260nmTo280nmRatio"        type="big_decimal"/>
+    <property name="specimenTested"                 column="specimenTested"               type="string"/>
+    <property name="patientSpNumber"                column="patientSpNumber"               type="string"/>
+    <property name="percentTumor"                   column="percentTumor"                 type="big_decimal"/>
+  </class>  
 	
 </hibernate-mapping>
