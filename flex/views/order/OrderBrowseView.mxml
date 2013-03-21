@@ -533,7 +533,7 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox width="100%" styleName="panelBox"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%">
 		<mx:VBox width="100%">
 			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
 				<mx:HBox horizontalGap="0" width="90">

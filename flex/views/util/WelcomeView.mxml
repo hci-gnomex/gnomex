@@ -7,19 +7,20 @@
 		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
 	<mx:states> 
 		<mx:State name="GuestState">
+			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
 		</mx:State>
 		<mx:State name="BillingAdminState" basedOn="AdminState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', Billing Admin)'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Billing Admin privileges"/>
 		</mx:State>
 		<mx:State name="AdminState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', Admin)'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Admin privileges&#xa;"/>
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 			<mx:AddChild relativeTo="{spacer2}" position="before"> 
 				<mx:Text text="Restricted access - Please contact support to be added to a lab group"
 						 styleName="welcomeUserLabel" id="text3" color="#132A9F" />
 			</mx:AddChild>
+			<mx:SetProperty target="{text5}" name="text" value="Restricted account access&#xa;"/>
 		</mx:State>
 		<mx:State name="UserState">
 		</mx:State>
@@ -32,23 +33,24 @@
 		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
 		</mx:State>
 		<mx:State name="UserNonSubmitterESState" basedOn="UserNonSubmitterState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName}"/>
 		</mx:State>
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text3}" name="text" value="Restricted - For additional access, please sign up for a GNomEx user account "/>
+			<mx:SetProperty target="{text5}" name="text" value="University guest access"/>
 		</mx:State>
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', University guest access)'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Guess privileges only"/>
 		</mx:State>
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', Admin'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Admin privileges"/>
+			<mx:SetStyle target="{text5}" name="textAlign" value="right"/>
 
 		</mx:State>
 		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', Super Admin'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Super Admin privileges"/>
 		</mx:State>
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{text1}" name="text" value="{'Welcome ' + parentApplication.userName + ', Billing Admin'}"/>
+			<mx:SetProperty target="{text5}" name="text" value="Billing Admin privileges"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -291,10 +293,10 @@
 		<mx:Spacer height="60" />
 
 		<mx:HBox paddingTop="4" verticalAlign="middle">
-			<mx:Text  text="{'Welcome ' + parentApplication.userName}" styleName="welcomeLabel" left="8" top="8" id="text1"/>
+			<mx:Text  text="Welcome to GNomEx" styleName="welcomeLabel" left="8" top="8" id="text1"/>
 		</mx:HBox>
-		<mx:HBox paddingTop="4" verticalAlign="middle">
-			<mx:Text  text="Click on a menu item above to continue." styleName="welcomeLabel" left="8" top="8" fontSize="12" paddingTop="13"/>
+		<mx:HBox paddingTop="0" verticalAlign="top">
+			<mx:Text  text="Click on a menu item above to continue." styleName="welcomeLabel" left="8" top="8" fontSize="13"/>
 		</mx:HBox>
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
@@ -303,6 +305,11 @@
 			</mx:VBox>
 		</mx:VBox>
 		<mx:Spacer  height="100%"/>
-		<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel" textAlign="left" fontSize="12"/>
+		<mx:HBox width="100%" horizontalGap="20">
+			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel" textAlign="right" fontSize="12"/>
+			<mx:Spacer width="100%"/>
+			<mx:Text text="{parentApplication.userName}"/>
+			<mx:Text id="text5"/>
+		</mx:HBox>
 	</mx:VBox>
 </mx:Canvas>
