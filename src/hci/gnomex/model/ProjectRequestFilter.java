@@ -54,7 +54,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                isExternalOnly = "N";
   private String                showEmptyProjectFolders = "N";
   private String                excludeClinicResearch = "N";
-  
+  private String                ccNumber;
   
   
   
@@ -72,6 +72,7 @@ public class ProjectRequestFilter extends DetailObject {
         idLab != null ||
         idProject != null ||
         idAppUser != null ||
+        ccNumber != null ||
         (allExperiments != null && allExperiments.equalsIgnoreCase("Y")) ||
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
@@ -547,6 +548,14 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" sample.idOrganism =");
       queryBuf.append(idOrganism);
     } 
+    
+    //  Search by ccNumber (of sample)
+    if (ccNumber != null && !ccNumber.equalsIgnoreCase("")){
+      this.addWhereOrAnd();
+      queryBuf.append(" sample.ccNumber = '");
+      queryBuf.append(ccNumber);
+      queryBuf.append("'");
+    } 
   }
 
   
@@ -1014,6 +1023,18 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setExcludeClinicResearch(String excludeClinicResearch) {
     this.excludeClinicResearch = excludeClinicResearch;
+  }
+
+
+  
+  public String getCcNumber() {
+    return ccNumber;
+  }
+
+
+  
+  public void setCcNumber( String ccNumber ) {
+    this.ccNumber = ccNumber;
   }
   
   
