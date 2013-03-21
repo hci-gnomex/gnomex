@@ -1135,6 +1135,8 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.notesView.setBioNoteVisibility(false);
+				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -1145,6 +1147,8 @@
 				this.samplesView.currentState = 'FragAnalState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1157,6 +1161,8 @@
 				this.samplesView.currentState = 'MitSeqState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1182,6 +1188,8 @@
 				this.samplesView.currentState = 'CherryPickState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();

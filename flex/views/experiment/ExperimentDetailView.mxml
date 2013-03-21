@@ -1284,6 +1284,10 @@
 		
 		public function navigateToURLLink(ccNumber:String):void {
 			
+			if ( ccNumber == null ) {
+				return;
+			}
+			
 			var url:String = parentApplication.getProperty(parentApplication.PROPERTY_GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber;
 			
 			navigateToURL( new URLRequest(url), '_blank' );
