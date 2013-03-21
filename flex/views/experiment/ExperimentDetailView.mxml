@@ -47,6 +47,8 @@
 		[Bindable]
 		private var requestCategoryName:String;
 		[Bindable]
+		public var isClinicalResearch:String = 'N';
+		[Bindable]
 		private var experimentCategoryName:String;
 		[Bindable]
 		private var seqLibTreatments:String;
@@ -281,7 +283,7 @@
 				}
 			}
 
-			getRequestCategoryName();
+			getRequestCategoryVariables();
 			getExperimentCategoryName();
 			getSeqLibTreatments();
 			getVisibilityName();
@@ -543,14 +545,25 @@
 	       return String(x);
 	    } 
 
-		private function getRequestCategoryName():void {
+		private function getRequestCategoryVariables():void {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
 			if (requestCategory is XMLList) {
-				requestCategoryName = requestCategory[0].@display.toString();				
+				requestCategoryName = requestCategory[0].@display.toString();
+				if (requestCategory[0].@isClinicalResearch != null) {
+					isClinicalResearch = requestCategory[0].@isClinicalResearch.toString();
+				} else {
+					isClinicalResearch = 'N'
+				}
 			} else {
 				requestCategoryName = requestCategory.@display.toString();		
+				if (requestCategory.@isClinicalResearch != null) {
+					isClinicalResearch = requestCategory.@isClinicalResearch.toString();
+				} else {
+					isClinicalResearch = 'N'
+				}
 			}
 		}
+		
 		private function getExperimentCategoryName():void {
 			var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
 			if (experimentCategory is XMLList) {
