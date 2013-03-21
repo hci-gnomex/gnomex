@@ -1761,8 +1761,6 @@
 	   <mx:State name="SequenomState">
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
-		   <!--<mx:RemoveChild target="{label8}"/>-->
-		   <!--<mx:RemoveChild target="{sampleTypeCombo}"/>-->
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox7">
 				   <mx:Text text="(1) Select an application." width="334" id="labelSeqApplication"/>
