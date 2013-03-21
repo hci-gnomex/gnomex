@@ -1641,15 +1641,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         globalPermissionMap.put(new Permission(CAN_WRITE_PROPERTY_DICTIONARY), null);
       }
       
-      // Can manage workflow - until other cores come online that require workflows, we
-      // will just give this permission to super admins and the admins that manage the 
-      // Genomics core facility.
       if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
         globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
       } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-        if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
-          globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
-        }
+        globalPermissionMap.put(new Permission(CAN_MANAGE_WORKFLOW), null);
       }
 
       // Can manage billing
