@@ -1515,8 +1515,9 @@
 							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber">
 								<mx:itemRenderer>
 									<mx:Component>
-										<mx:LinkButton click="outerDocument.navigateToURLLink(data.@ccNumber)" 
-													   label="{data.@ccNumber}"  
+										<mx:LinkButton includeInLayout="{data.hasOwnProperty('@ccNumber')}" 
+													   click="outerDocument.navigateToURLLink(data.@ccNumber)" 
+													   label="{data.hasOwnProperty('@ccNumber') ? data.@ccNumber : ''}"  
 													   paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
 										
 									</mx:Component>
