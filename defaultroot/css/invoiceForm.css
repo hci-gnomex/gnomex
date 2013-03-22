@@ -163,6 +163,22 @@ body {
        text-align: left;
    }
 
+  div.remitAddress {
+	  float: left;
+	  width: 50%;
+	  display: inline-block;
+  }
+
+  div.labAddress {
+	  float: left;
+	  width: 50%;
+	  display: inline-block;;
+  }
+  div.wrap {
+	  float: left;
+	  width: 960px;
+  }
+
 
 
 
