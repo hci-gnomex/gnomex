@@ -10,8 +10,7 @@
 	<mx:VBox width="100%" id="vbox1">
 		
 	<mx:HBox id="headerBox" horizontalGap="10" verticalAlign="middle" 
-			 width="100%"  backgroundSize="100%" 
-			 backgroundImage="assets/menubar3.png"
+			 width="100%" 
 			 paddingBottom="0" paddingLeft="0" paddingRight="0"  paddingTop="10" 
 			 borderStyle="none">
 		<mx:Label id="titleLabel" styleName="titleLabel" text="{'View Chromatogram ' + selectedIdChromatogram}"/>
@@ -502,7 +501,7 @@
 		<!-- General information box -->
 		<mx:Accordion width="100%"   resizeToContent="true" id="accordion1">
 			<mx:Canvas label="General Information" width="100%" height="100%" id="dataGridAccordion" minHeight="0" >
-				<mx:Grid minHeight="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" horizontalGap="1" verticalGap="1">
+				<mx:Grid minHeight="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" horizontalGap="1" verticalGap="1" fontWeight="normal" fontSize="11">
 					
 					<mx:GridRow >
 						<mx:GridItem horizontalAlign="right" paddingRight="5">

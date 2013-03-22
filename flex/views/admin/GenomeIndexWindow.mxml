@@ -177,9 +177,9 @@
 <mx:XMLListCollection id="genomeIndexes"/>
 <mx:VBox width="100%" height="100%" verticalGap="0">
 	
-	<mx:HBox width="100%" backgroundImage="@Embed(source='../../assets/filterBar.png')">
-		<mx:LinkButton label="Add Genone Index" styleName="linkMenuButton" click="addGenomeIndex()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
-		<mx:LinkButton label="Remove Genome Index" styleName="linkMenuButton" click="removeGenomeIndex()" enabled="{genomeIndexList.selectedItem != null &amp;&amp; genomeIndexList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')"/>
+	<mx:HBox width="100%">
+		<mx:LinkButton label="Add Genone Index" styleName="linkMenuButton" click="addGenomeIndex()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" fontSize="10"/>
+		<mx:LinkButton label="Remove Genome Index" styleName="linkMenuButton" click="removeGenomeIndex()" enabled="{genomeIndexList.selectedItem != null &amp;&amp; genomeIndexList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="10"/>
 	</mx:HBox>
 	
 <mx:HDividedBox height="100%" width="100%" >
@@ -189,9 +189,9 @@
 		</mx:List>
   </mx:VBox>	
   <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
-	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
+	<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
 	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
+		 <mx:VBox width="100%" height="100%" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="4">			 
 			 <mx:HBox width="100%" verticalGap="0">
 			  <mx:Label text="Name:" width="120"/>
 			  <mx:TextInput text="{genomeIndexList.selectedItem.@genomeIndexName}" change="{setDirty()}" width="100%" id="gnIdxName"  maxChars="120"/>

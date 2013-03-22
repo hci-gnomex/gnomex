@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 	xmlns:UsersView="UsersView.*" label="Users And Groups" 
-	width="100%" height="100%"  
+	width="100%" height="100%"   backgroundAlpha="0"
 	xmlns:views="views.*" 
 	xmlns:user="views.user.*" 
 	xmlns:util="views.util.*" 
@@ -606,7 +606,7 @@
 		    	      <mx:DataGrid id="usersGrid" 
 		    	      	visible="true" width="100%" editable="false" enabled="true" 
 		    	      	dataProvider="{appUsers}" height="100%"  
-		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="true" borderStyle="solid" fontSize="11">
+		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 						<mx:columns>
 									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
 					    </mx:columns>
@@ -637,7 +637,7 @@
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" verticalGap="0">
 			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
-			       	      <mx:Text text="Search lab groups" width="100" styleName="labelSmall" paddingTop="0" fontSize="11"/>
+			       	      <mx:Text width="100" styleName="labelSmall" paddingTop="0" fontSize="11" text="Search groups"/>
 			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
 			          </mx:HBox>
 					<mx:ViewStack id="filterStack" width="100%">
@@ -668,7 +668,7 @@
 					  </mx:VBox>
 						
 						
-					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="true" borderStyle="solid" fontSize="11">
+					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
 							<mx:DataGridColumn width="10" dataField="@name">

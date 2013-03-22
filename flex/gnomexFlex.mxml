@@ -20,7 +20,7 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
-				paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
+				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
 				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true">
 	
 	
@@ -1737,8 +1737,8 @@
 			
 			private function loggedInInit():void {
 				appProgressBar = new AppProgressView();
-				appProgressBar.currentState = "StartupState";
-				PopUpManager.addPopUp(appProgressBar, mainArea, false);
+				appProgressBar.currentState = "ShowCreditsState";
+				PopUpManager.addPopUp(appProgressBar, theBody, false);
 				PopUpManager.centerPopUp(appProgressBar);
 				
 				// This is for handler to enable Mac MouseWheel
@@ -2124,7 +2124,6 @@
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
 				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
 				
-				this.appProgressBar.currentState = "LoadingState";
 				this.showProgress(10);
 				
 				userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
@@ -2387,21 +2386,26 @@
 			}
 			
 			private function doesManagePlateBasedWorkflow():Boolean {
-				for each (var cf:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
-					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@isActive == 'Y' &&
-							(requestCategory.@type == this.TYPE_CAP_SEQ ||
-							 requestCategory.@type == this.TYPE_MIT_SEQ ||
-							 requestCategory.@type == this.TYPE_FRAG_ANAL) ) {
-							return true;
-							break;
+				if (!isGuest) {
+					for each (var cf:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
+						for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+							if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+								requestCategory.@isActive == 'Y' &&
+								(requestCategory.@type == this.TYPE_CAP_SEQ ||
+									requestCategory.@type == this.TYPE_MIT_SEQ ||
+									requestCategory.@type == this.TYPE_FRAG_ANAL) ) {
+								return true;
+								break;
+							}
 						}
 					}
 				}
 				return false;
 			}
 			private function usesExperimentType(experimentType:String):Boolean {
+				if (isGuest) {
+					return false;
+				}
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
@@ -2610,6 +2614,7 @@
 					PopUpManager.removePopUp(appProgressBar);
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
+
 				}
 				
 			}
@@ -3098,7 +3103,7 @@
 					theViews.selectedChild = navPlateView;
 					navPlateView.removeRun();
 					navPlateView.toggleBuildState('RUN');
-				} else if (label == "Plates &amp; Runs") {
+				} else if (label == "Plates & Runs")  {
 					theViews.selectedChild = navRunView;				
 				} else if (label == "Results") {
 					theViews.selectedChild = navDataView;
@@ -3253,7 +3258,7 @@
 			<menuitem label="Workflow " icon="iconWorkflow"   />
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
-			<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
 
@@ -3550,27 +3555,28 @@
 	</mx:XMLList>
 
 	
-	<mx:VBox id="theBody"   backgroundColor="#FFFFFF"
+	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="8"   visible="true"
-			 paddingTop="0" paddingLeft="2" 
-			 paddingRight="2" paddingBottom="2">
+			 verticalGap="4"   visible="true" 
+			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
+			 paddingTop="0" paddingLeft="0" 
+			 paddingRight="0" paddingBottom="0">
 		   
 		 
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"  
-				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none"  
-				  visible="true">
+				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"   
+				  visible="false" borderStyle="solid" dropShadowEnabled="true" dropShadowColor="#CAC9B7">
 			
 			 
 			
-			<mx:VBox width="100%" verticalGap="0"   backgroundImage="@Embed(source='assets/greyBackgroundBar.png')" backgroundSize="100%" 
-					 paddingBottom="8" paddingLeft="8" paddingRight="8" paddingTop="8" visible="false" id="vbox1">
+			<mx:VBox width="100%" verticalGap="0"  
+					 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" visible="false" id="vbox1">
 				
-				<mx:VBox width="100%" backgroundColor="#FFFFFF">
+				<mx:VBox width="100%" backgroundColor="#FFFFFF" verticalGap="0">
 					<mx:HBox width="100%"  
 							 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
-							 paddingBottom="4" id="hbox1" 
+							 paddingBottom="2" id="hbox1" 
 							 paddingTop="4" 
 							 paddingLeft="4" paddingRight="4" borderStyle="none">
 						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
@@ -3605,9 +3611,7 @@
 						</mx:HBox>
 					</mx:HBox>  
 					
-					<mx:HBox width="100%"  verticalAlign="middle" height="37" 
-							 backgroundImage="@Embed(source='assets/filterBarGrey.png')" backgroundSize="100%" 
-							 paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" id="hbox5">
+					<mx:HRule width="100%"   strokeWidth="1" strokeColor="#E9EBD1" alpha="0.64" id="hrule1"/>
 						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 									click="onMenuClick(event)"
 									itemClick="{onMenuSelect(event)}"  
@@ -3619,8 +3623,7 @@
 							
 						</mx:MenuBar> 
 						
-					</mx:HBox>	
-					
+
 				</mx:VBox>
 					
 				
@@ -3630,8 +3633,8 @@
 		</mx:VBox>  
 		
 		<mx:VBox id="mainArea" width="100%" 
-				 height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
-				 paddingRight="0" horizontalCenter="0" verticalGap="0" backgroundColor="#FFFFFF" visible="false">
+				 height="100%" paddingTop="0"  paddingBottom="4" paddingLeft="4" 
+				 paddingRight="4" horizontalCenter="0" verticalGap="0" backgroundAlpha="1" visible="false" borderStyle="none">
 			<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
 				<mx:ViewStack id="initViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 					
@@ -3729,14 +3732,6 @@
 			<mx:SetProperty target="{mainArea}" name="visible" value="true"/>
 			<mx:SetProperty target="{linkbutton3}" name="visible" value="true"/>
 			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
-			<mx:SetStyle target="{mainMenu}" name="fillAlphas" value="[0,0, 0,0]"/>
-			<mx:SetStyle target="{mainMenu}" name="backgroundColor" value="#FFFFFF"/>
-			<mx:SetStyle target="{vbox1}" name="paddingBottom" value="4"/>
-			<mx:SetStyle target="{vbox1}" name="paddingLeft" value="4"/>
-			<mx:SetStyle target="{vbox1}" name="paddingRight" value="4"/>
-			<mx:SetStyle target="{vbox1}" name="paddingTop" value="4"/>
-			<mx:SetStyle target="{mainArea}" name="paddingLeft" value="4"/>
-			<mx:SetStyle target="{mainArea}" name="paddingRight" value="4"/>
 			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
 			<mx:SetProperty target="{theBody}" name="visible" value="true"/>
 			<mx:SetProperty name="visible" value="true"/>
@@ -3744,6 +3739,8 @@
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
+			<mx:SetStyle target="{hrule1}" name="strokeColor"/>
+			<mx:SetStyle target="{hrule1}" name="strokeWidth"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">

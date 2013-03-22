@@ -4,7 +4,7 @@
 				title="Run Alignments" 
 				width="536"
 				verticalScrollPolicy="off"
-				height="246" 
+				height="284" 
 				defaultButton="{runButton}" 
 				creationComplete="init()" 
 				titleIcon="@Embed(source='../../assets/align.png')">

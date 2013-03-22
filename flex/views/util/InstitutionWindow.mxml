@@ -106,15 +106,15 @@
 	<mx:VBox width="100%" height="100%" verticalGap="0">
 		
 		
-		<mx:HBox width="100%" horizontalAlign="right" backgroundImage="@Embed(source='../../assets/filterBar.png')">
-			<mx:LinkButton label="Add Institution" styleName="linkMenuButton" click="addInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"/>
-			<mx:LinkButton label="Remove Institution" styleName="linkMenuButton" click="removeInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" textAlign="right"/>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:LinkButton label="Add Institution" styleName="linkMenuButton" click="addInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" fontSize="10"/>
+			<mx:LinkButton label="Remove Institution" styleName="linkMenuButton" click="removeInstitution(event)"  disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" textAlign="right" fontSize="10"/>
 		</mx:HBox>
 		
 		<mx:HDividedBox height="100%" width="100%" >
 			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">	
 				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true" change = "dirty.setDirty()">
+					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true" change = "dirty.setDirty()" fontSize="11">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution" /> 
 							<mx:DataGridColumn headerText="Description" width="300"  editable="true" dataField="@description"/> 

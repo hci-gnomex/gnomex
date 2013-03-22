@@ -6,12 +6,14 @@
 		   xmlns:experiment="views.experiment.*"
 		   xmlns:datatrack="views.datatrack.*"
 		   xmlns:topics="views.topics.*"
-		   xmlns:util="views.util.*"
+		   xmlns:util="views.util.*" backgroundAlpha="0"
 		   xmlns:renderers="views.renderers.*"
 		   creationPolicy="all"  show="init()"
 		   cornerRadius="10" >
 	<mx:states>
 		<mx:State name="AdminState">
+			<mx:SetProperty target="{vbox3}" name="styleName"/>
+			<mx:SetProperty target="{vbox2}" name="styleName"/>
 		</mx:State>
 		<mx:State name="UserState">			
 			<mx:SetStyle target="{linkbutton1}" name="paddingBottom" value="0"/>
@@ -22,6 +24,7 @@
 			<mx:SetStyle target="{label1}" name="fontWeight" value="normal"/>
 			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
 			<mx:SetStyle target="{label1}" name="color" value="#12740E"/>
+			<mx:SetProperty name="styleName" value="panelBox"/>
 		</mx:State>
 		<mx:State name="GuestState"/>
 	</mx:states>
@@ -247,7 +250,7 @@
 							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
 					
 				</mx:HBox>
-				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8">
+				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox3">
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 						<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="formLabel" paddingLeft="2" width="100"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
@@ -329,7 +332,7 @@
 							   icon="@Embed(source='../../assets/accept.png')" 
 							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
 				</mx:HBox>
-				<mx:VBox styleName="form" width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox2">
+				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox2">
 					<mx:HBox width="100%">
 						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 

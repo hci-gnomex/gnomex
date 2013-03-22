@@ -501,6 +501,6 @@
 			 paddingLeft="2"
 			 paddingRight="2"
 			 paddingTop="2"
-			 initialize="populatePlate()"  width="100%" height="100%"/>
+			 initialize="populatePlate()"  width="100%" height="100%" fontSize="10"/>
 
 </mx:Canvas>
