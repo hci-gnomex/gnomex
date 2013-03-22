@@ -872,7 +872,9 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
  (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
  (95,'contact_email_core_facility_workauth_reminder','first.last@somwhere.edu','Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'N'),
- (96,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N');
+ (96,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
+ (97,'contact_remit_address_core_facility','Core Facility Remit Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility remittance address', 'N', 2),
+ (98,'contact_address_core_facility','Core Facility Lab Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility lab address', 'N', 2);
  
  
 
