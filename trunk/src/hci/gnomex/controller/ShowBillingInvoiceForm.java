@@ -132,7 +132,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           
           
           if (action.equals(ACTION_SHOW)) {
-            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap, coreFacility);
+            this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
           } else if (action.equals(ACTION_EMAIL)) {
             String contactEmail = this.emailAddress;
             if (contactEmail == null) {
@@ -353,7 +353,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
       Lab lab, BillingAccount billingAccount, Invoice invoice,
-      Map billingItemMap, Map relatedBillingItemMap, Map requestMap, CoreFacility coreFacility) throws Exception {
+      Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
     
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
@@ -438,7 +438,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       center2.addContent(formatter.makeDetail());          
     }
     
-    if(coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ) && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
+    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
       body.addContent(new Element("BR"));
       Element hr = new Element("HR");
       hr.setAttribute("style", "border-style:dashed");
