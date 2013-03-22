@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 width="100%"
-		 height="100%"
+		 height="100%" backgroundAlpha="0"
 		 xmlns:util="views.util.*"
 		 xmlns:renderers="views.renderers.*"
 		 initialize="init()"
@@ -567,7 +567,7 @@
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
 	
-	<mx:VBox id="filterBox" width="100%" styleName="panelBox" borderStyle="outset" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+	<mx:VBox id="filterBox" width="100%" styleName="panelBox">
 		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" verticalAlign="middle" width="100%">
 			<mx:Image source="assets/tv_chart_review.png"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  />
@@ -578,7 +578,7 @@
 			<mx:HBox horizontalGap="0"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 id="hbox1aa" paddingLeft="10">
+					 id="hbox1aa" paddingLeft="10" fontSize="10">
 				<mx:Label text="Plate Name" />
 				
 				<mx:TextInput id="plateNameLookupField"
@@ -593,7 +593,7 @@
 					 height="100%"
 					 verticalAlign="middle"
 					 verticalGap="0"
-					 id="hbox1aaa" paddingLeft="10">
+					 id="hbox1aaa" paddingLeft="10" fontSize="10">
 				<mx:Label text="Run Name" />
 				
 				<mx:TextInput id="runNameLookupField"
@@ -609,7 +609,7 @@
 					 verticalAlign="middle"
 					 verticalGap="0"
 					 id="hbox1" paddingLeft="10">
-				<mx:Label text="Order #" />
+				<mx:Label text="Order #"  fontSize="10"/>
 				
 				<mx:TextInput id="requestNoLookupField"
 							  fontSize="9"
@@ -622,7 +622,7 @@
 						   label="Refresh"
 						   icon="@Embed('../../assets/action_refresh.gif')"
 						   toolTip="Refresh chromatogram list"
-						   click="{this.getList();}"  paddingLeft="8" id="linkbutton3"/>
+						   click="{this.getList();}"  paddingLeft="8" id="linkbutton3" fontSize="10"/>
 			
 		</mx:HBox>
 		<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1" >
@@ -634,7 +634,7 @@
 					 paddingBottom="4"
 					 paddingLeft="0"
 					 horizontalAlign="left"
-					 verticalAlign="middle">
+					 verticalAlign="middle" fontSize="10">
 				
 				<mx:HBox horizontalGap="0"
 						 verticalAlign="middle"
@@ -763,7 +763,7 @@
 									   width="100%"
 									   height="100%"
 									   dataProvider="{chromats}"
-									   sortArrowSkin="mx.skins.ProgrammaticSkin">
+									   sortArrowSkin="mx.skins.ProgrammaticSkin" borderStyle="none" fontSize="11">
 			<util:columns>
 				
 				<mx:DataGridColumn id="checkBoxColumn"

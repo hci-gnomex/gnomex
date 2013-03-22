@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Data Tracks" width="100%" height="100%" 
-		   xmlns:views="views.*"  backgroundColor="#FFFFFF"
+		   xmlns:views="views.*"
 		   xmlns:datatrack="views.datatrack.*"
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
 		   creationPolicy="all"  show="init()"
-		   cornerRadius="10" >
+		   cornerRadius="10"  backgroundAlpha="0">
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:SetProperty target="{reloadDas2ServerButton}" name="includeInLayout" value="{currentState == 'AdminState'}"/>
@@ -1723,7 +1723,7 @@
 <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="2">
 	<mx:VBox styleName="panelBox"
 			 width="100%" 
-			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" backgroundSize="100%" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" borderStyle="outset" id="vbox2" borderColor="#979DA2" dropShadowEnabled="false">
+			 verticalGap="0" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" id="vbox2" borderStyle="none">
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 					 id="topBar" horizontalGap="2">
 				<mx:Image source="assets/datatrack.jpg"/>
@@ -1820,7 +1820,7 @@
 										 click="{this.promptToRemoveSelectedItems()}" 
 										 toolTip="Delete dataTrack grouping"  id="removeDataTrackFolderButton" paddingLeft="4"/>
 					</mx:HBox>
-					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8"  fontSize="11" fontFamily="Verdana">
+					<mx:HBox horizontalGap="8"  width="100%" horizontalAlign="left" id="hbox8"  fontSize="11" >
 						<mx:LinkButton  icon="@Embed(source='../../assets/crossout.png')"  
 										disabledIcon="@Embed(source='../../assets/crossout_disable.png')"
 										label="Remove" paddingLeft="4"
@@ -1960,7 +1960,7 @@
 							 dragMoveEnabled="true"
 							 dragDrop="onDragDrop(event);" 
 							 itemRenderer="views.renderers.TreeNodeRenderer"
-							 iconFunction="parentApplication.getDataTrackTreeIcon" backgroundAlpha="1" dropShadowEnabled="true"></mx:Tree>
+							 iconFunction="parentApplication.getDataTrackTreeIcon" backgroundAlpha="0" dropShadowEnabled="false"></mx:Tree>
 					
 				</mx:VBox>
 				

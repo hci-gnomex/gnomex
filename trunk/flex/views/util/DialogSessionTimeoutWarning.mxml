@@ -4,7 +4,6 @@
 				height="160"
 				showCloseButton="false" verticalAlign="middle" 
 				horizontalAlign="center" title="{dialogTitle}" 
-				backgroundColor="0x4593AD" 
 				close="this.closeWindow()">
 	<mx:Script>
 		<![CDATA[
@@ -192,20 +191,16 @@
 		method="POST"
 		useProxy="false" >  
 	</mx:HTTPService> 
-	<mx:VBox width="100%" verticalAlign="middle" horizontalAlign="center">
-		<mx:HBox width="95%" horizontalAlign="center" verticalAlign="middle">
+	<mx:VBox verticalAlign="middle" height="100%" width="100%" horizontalAlign="center">
+		<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle" height="100%" paddingLeft="4" paddingRight="4">
 			<mx:ProgressBar id="idTimeoutWarning" mode="manual" verticalCenter="true" 
-							width="100%" labelPlacement="center"	label="{this.countdownMessage}" barColor="#E3866A" height="30"/>
+							width="100%" labelPlacement="center"	label="{this.countdownMessage}" barColor="#95D7DB" height="30"/>
 		</mx:HBox>
-		<mx:Label height="10" />
 		<mx:HBox width="95%" horizontalAlign="center" verticalAlign="middle">
 			<mx:Button id="idContinue" label="Keep application active" 
-					   click="this.keepSessionAlive('User choose to continue working at the end of timeout', true)" width="170"/>
-		</mx:HBox>
-		<mx:Label height="5" />
-		<mx:HBox width="95%" horizontalAlign="center" verticalAlign="middle">
+					   click="this.keepSessionAlive('User choose to continue working at the end of timeout', true)"/>
 			<mx:Button id="idQuit" label="Log out" 
-					   click="logout();" width="170"/>
+					   click="logout();"/>
 		</mx:HBox>
 	</mx:VBox>	
 </mx:TitleWindow>

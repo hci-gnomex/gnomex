@@ -88,7 +88,7 @@
 								  sortableColumns="false"
 								  sortExpertMode="true"  
 								  defaultLeafIcon="{null}" 
-								  displayItemsExpanded="true">
+								  displayItemsExpanded="true" fontSize="11">
 				<mx:columns>
 					<mx:AdvancedDataGridColumn headerText="Lab" width="200" dataField="@labNameDisplay"/>
 					<mx:AdvancedDataGridColumn headerText="Date" width="60" dataField="@createDate"/>

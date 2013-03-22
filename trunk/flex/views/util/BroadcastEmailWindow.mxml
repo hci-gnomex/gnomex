@@ -183,27 +183,27 @@
 	<mx:EmailValidator required="true" source="{fromAddress}" property="text" />
 	
 	
-	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="coreFacilityHBox"
 				 visible="{parentDocument.coreFacilitiesICanManage.length() > 1}"
-				 includeInLayout="{parentDocument.coreFacilitiesICanManage.length() > 1}" >
-			<mx:Label text="Cores:" width="80"/>
+				 includeInLayout="{parentDocument.coreFacilitiesICanManage.length() > 1}"  horizontalGap="0">
+			<mx:Label text="Cores" width="80" styleName="formLabel"/>
 			<mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.coreFacilitiesICanManage}">
 				<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox" paddingTop="0" paddingBottom="1" click="{onCoreFacilityClick()}" />
 			</mx:Repeater>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-			<mx:Label text="Subject:" width="80"/>
+			<mx:Label text="Subject" width="80" styleName="formLabel"/>
 			<mx:TextInput width="100%" id="subject"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-			<mx:Label text="From:" width="80"/>
+			<mx:Label text="From" width="80" styleName="formLabel"/>
 			<mx:TextInput width="100%" id="fromAddress"/>
 		</mx:HBox>
 		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
 			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
 				<mx:RadioButtonGroup id="bodyRadioGroup"/>
-				<mx:Label text="Body:" width="80"/>
+				<mx:Label text="Body" width="80" styleName="formLabel"/>
 				<mx:RadioButton label="Enter Text"  click="{bodyViewStack.selectedIndex = 0;fileRef = null; fileSelected = false;}" groupName="bodyRadioGroup" selected="true"/>
 				<mx:RadioButton label="Upload File" click="{body.text = '';bodyViewStack.selectedIndex = 1;this.selectFileToUpload()}" groupName="bodyRadioGroup"/>
 			</mx:HBox>

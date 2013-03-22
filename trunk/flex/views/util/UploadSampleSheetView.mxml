@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-	layout="vertical" width="738" height="406" 
+	layout="vertical" width="562" height="302" 
 	creationPolicy="all"
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
@@ -23,55 +23,26 @@
 					<mx:Button label="Continue" click="clickPlateContinueButton()" id="plateContinueButton" enabled="false"/>
 				</mx:VBox>
 			</mx:Canvas>
-			<mx:Canvas id="intro" width="100%" height="100%">
-				<mx:VBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" height="100%" paddingTop="8" paddingBottom="8" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-					<mx:Text width="100%" height="74" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
-						<mx:htmlText><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
-							
-  1. Create a spreadsheet containing the columns you wish to populate. You do not need to include all of the columns on the sample view grid - just those to be filled in.
-]]></mx:htmlText>
-					</mx:Text>
-					<mx:Text width="100%" height="74" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}">
-						<mx:htmlText><![CDATA[This option allows you to upload a tab-delimited text file to populate the corresponding rows and columns of the sample view grid. To prepare the file:
-							
-							1. Download the example spread sheet and fill in your sample information. 
-						]]></mx:htmlText>
-					</mx:Text>
-					<mx:HBox width="100%" horizontalAlign="center">
-						<mx:LinkButton textDecoration="underline" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" label="Example sample sheet for plate" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" height="31"/>
-						<mx:LinkButton textDecoration="underline" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" label="Example sample sheet" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" height="31"/>
-					</mx:HBox>
-
-					<mx:Text width="100%" height="100" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
-						<mx:htmlText><![CDATA[  2. To enable auto-matching of the spreadsheet columns to those on the grid you may enter column headings in the first row (make sure to also click "First row contains column headings" below). Auto-matching will take place if the column headings match exactly (case and space sensitive). If headings are not provided or if they do not match then you will need to match them manually using provided dropdown lists of the available columns. 
-							
-  3. The columns are of varying data types. It is your responsibility to ensure that each column of the spreadsheet is formated in accordance with the applicable field type.
-						]]></mx:htmlText>
-					</mx:Text>
+			<mx:Canvas id="intro" width="100%">
+				<mx:HBox verticalGap="0" fontSize="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="left" paddingRight="8" width="100%" paddingTop="8" paddingBottom="8" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 					<mx:LinkButton textDecoration="underline"  label="(Field formats)" 
 								   click="PopUpManager.centerPopUp(SampleSheetColumnFormats(PopUpManager.createPopUp(this, SampleSheetColumnFormats, true)))"   
 								   color="#0000FF" height="31"
 								   visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}"/>
-						
-					<mx:Text width="100%" height="36" visible="{samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}" includeInLayout="{this.samplesViewState != 'CapSeqState' &amp;&amp; samplesViewState != 'IScanState'}">
-						<mx:htmlText><![CDATA[  4. Once you have completed the spreadsheet it must be saved as a <b>tab delimited text file (filename.txt)</b>. When the file is ready, click “Select File to Upload."]]></mx:htmlText>
-					</mx:Text>
-					<mx:Text width="100%" height="36" visible="{samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}" includeInLayout="{this.samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState'}">
-						<mx:htmlText><![CDATA[  2. Once you have completed the spreadsheet it must be saved as a <b>tab delimited text file (filename.txt)</b>. When the file is ready, click “Select File to Upload."]]></mx:htmlText>
-					</mx:Text>
+					<mx:Spacer width="100%"/>
 					<mx:CheckBox id="hasColNames" label="First row contains column headings" height="30" selected="true"/>
 					<mx:Spacer height="10"/>
 					<mx:Button label="Select File to Upload" click="clickUploadFileButton()" id="selectFileButton"/>
-				</mx:VBox>
+				</mx:HBox>
 			</mx:Canvas>
 			<mx:Canvas id="chooseColumns" width="100%" height="100%">
-				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="center" paddingRight="8" width="100%" id="vbox0" height="100%" paddingTop="8" paddingBottom="8">
-					<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%"/>
+				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="left" paddingRight="8" width="100%" id="vbox0" height="100%" paddingTop="8" paddingBottom="8">
+					<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%" fontSize="11"/>
 					<mx:DataGrid id="columnSelectionGrid" height="100%" width="100%" dataProvider="{fieldList}" rowHeight="30">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Field" dataField="@fieldText" editable="false" sortable="false" width="38"/>
 							<mx:DataGridColumn headerText="Type" labelFunction="getFieldTypeLabel" dataField="@fieldType" editable="false" sortable="false" width="24"/>
-							<mx:DataGridColumn headerText="SampleSheetColumn" width="38"> 
+							<mx:DataGridColumn headerText="Sample Sheet Column" width="38"> 
 								<mx:itemRenderer> 
 									<mx:Component> 
 										<util:SampleSheetColumnRenderer />
@@ -80,7 +51,10 @@
 							</mx:DataGridColumn>							
 						</mx:columns>
 					</mx:DataGrid>
-					<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button0"/>
+					<mx:HBox width="100%">
+						<mx:Spacer width="100%"/>
+						<mx:Button label="Populate Fields" click="clickPopulateFieldsButton()"  id="button0"/>
+					</mx:HBox>
 				</mx:VBox>
 			</mx:Canvas>
 			<mx:Canvas id="reportResults" label="" width="100%" height="100%">

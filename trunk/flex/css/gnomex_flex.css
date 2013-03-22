@@ -157,8 +157,8 @@ Panel {
 }
 
 TitleWindow {
-	borderColor: #ACAEB2;
-	backgroundColor: #D8DBDC;
+	borderColor: #FFFFFF;
+	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
 	borderThicknessTop: 2;
 	borderThicknessBottom: 2;
@@ -330,7 +330,7 @@ TextArea {
 	paddingLeft: 4;
 	paddingRight: 4;
 	verticalGap: 4;
-	backgroundColor: #FDFDFB;
+	backgroundColor: #FFFFFF;
 	dropShadowEnabled: false;
 	borderStyle: solid;
 	borderColor: #D2D2D2;
@@ -352,8 +352,8 @@ TextArea {
 
 .form {
 	backgroundColor: #FFFFFF;
-	cornerRadius: 4;
-	borderStyle: solid;
+	cornerRadius: 0;
+	borderStyle: none;
 }
 
 .formrule
@@ -971,4 +971,9 @@ RichTextEditor.readOnly {
 	fontStyle: italic;
 	advancedAntiAliasing: true;
 	src: url("../assets/OpenSans-BoldItalic.ttf");
+}
+HRule
+{
+	strokeColor: #E9EBD1;
+	strokeWidth: 1;
 }

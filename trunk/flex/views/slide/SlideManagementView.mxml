@@ -4,7 +4,7 @@
 	xmlns:views="views.*"
 	xmlns:util="views.util.*"
 	xmlns:hci="hci.flex.controls.*"
-	creationPolicy="all" show="init()"
+	creationPolicy="all" show="init()" backgroundAlpha="0"
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	width="100%" height="100%">
 	

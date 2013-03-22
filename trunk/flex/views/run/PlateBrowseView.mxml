@@ -222,7 +222,6 @@
 	
 	<mx:VDividedBox width = "100%"
 					height = "100%"
-					styleName = "form"
 					paddingBottom = "4"
 					paddingLeft = "4"
 					paddingRight = "4"
@@ -242,7 +241,7 @@
 						 width = "100%"
 						 height = "100%"
 						 dataProvider = "{plateList}"
-						 sortArrowSkin="mx.skins.ProgrammaticSkin">
+						 sortArrowSkin="mx.skins.ProgrammaticSkin" fontSize="11">
 				<mx:columns>
 					
 					<mx:DataGridColumn id = "checkBoxColumn"

@@ -248,7 +248,7 @@
 				</mx:Image>
 				<mx:Label text=" Usage" styleName="titleLabel" />
 			</mx:HBox>
-			<mx:TabNavigator id="theTab" styleName="form" width="100%" height="100%" change="{onTabChange()}">
+			<mx:TabNavigator id="theTab" width="100%" height="100%" change="{onTabChange()}">
 				<mx:VBox label="Experiments" id="experimentTab" height="100%" width="100%" color="#000000">
 					<mx:HBox paddingLeft="4" paddingRight="4" horizontalAlign="center" width="100%">
 						<mx:ComboBox width="200" selectedIndex="1"
@@ -295,7 +295,7 @@
 			<mx:ViewStack id="chartStack" width="100%" height="100%">
 				<mx:VBox id="blankPanel">
 				</mx:VBox>
-				<mx:VBox id="daysSincePanel" width="100%" height="100%" styleName="form" 
+				<mx:VBox id="daysSincePanel" width="100%" height="100%" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:Label text="Days since last Upload" fontWeight="bold"/> 
 					<mx:ColumnChart maxColumnWidth="30"  name="Days since last upload" id="daysSinceChart" dataProvider="{getUsageData.lastResult.SummaryDaysSinceLastUpload.Entry}" showDataTips="true" width="100%" height="100%">
@@ -318,7 +318,7 @@
 				</mx:VBox>
 				
 				
-				<mx:VBox id="uploadsByLabPanel" width="100%" height="100%" styleName="form" 
+				<mx:VBox id="uploadsByLabPanel" width="100%" height="100%"  
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:HBox width="100%">
 						<mx:Label text="Uploads" fontWeight="bold"/>

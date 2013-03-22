@@ -260,17 +260,14 @@
 		]]> 
 	</mx:Script>  
 	
-	<mx:VBox    
+	<mx:VBox    backgroundColor="#FFFFFF"
 		width="100%" height="100%"  
 		verticalAlign="top" horizontalAlign="center"  
 		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center">
 		<mx:Spacer height="60" />
 
 		<mx:HBox paddingTop="4" verticalAlign="middle">
-			<mx:Text  text="Welcome to GNomEx" styleName="welcomeLabel" left="8" top="8" id="text1"/>
-		</mx:HBox>
-		<mx:HBox paddingTop="0" verticalAlign="top">
-			<mx:Text  text="Click on a menu item above to continue." styleName="welcomeLabel" left="8" top="8" fontSize="13"/>
+			<mx:Text  text="Welcome to GNomEx" styleName="welcomeLabel" left="8" top="8" id="text1" fontWeight="normal"/>
 		</mx:HBox>
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">

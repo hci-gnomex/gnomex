@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" 
-				width="390" height="208" 
+				width="390" height="236" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
 				title="Warning" verticalAlign="top">
 <mx:Script>

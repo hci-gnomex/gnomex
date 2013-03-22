@@ -9,7 +9,7 @@
 		   hideEffect="{parentApplication.fadeOut}"
 		   label="Plate"
 		   currentState="newStatePlate"
-		   cornerRadius="10"
+		   backgroundAlpha="0"
 		   width="100%"
 		   height="100%">
 	
@@ -2365,9 +2365,8 @@
 	<mx:VBox verticalGap="2" width="100%" height="100%">
 		
 		<mx:VBox styleName="panelBox"
-				 borderStyle="none"
 				 width="100%"
-				 verticalGap="0" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+				 verticalGap="0"  id="vbox1">
 			
 			<mx:HBox width="100%"
 					 verticalAlign="middle"
@@ -2376,7 +2375,7 @@
 					 paddingRight="2">
 				
 				<mx:Label
-						  fontWeight="bold"
+						  fontWeight="normal"
 						  id="runTitleLabel"
 						  text="Run"
 						  paddingRight="5" styleName="titleLabel"/>
@@ -2403,14 +2402,14 @@
 				</mx:HBox>
 				<mx:Spacer width="100%" height="100%" id="spacer1" />
 				<mx:LinkButton label="View"
-							   fontSize="9"
+							   fontSize="10"
 							   click="{switchToViewState()}"
 							   icon="@Embed(source='../../assets/page_white.png')"
 							   textDecoration="underline"
 							   id="viewButton"
 							   textAlign="left" />
 				<mx:LinkButton label="Edit"
-							   fontSize="9"
+							   fontSize="10"
 							   click="{switchToEditState()}"
 							   icon="@Embed(source='../../assets/tag_blue_edit.png')"
 							   textDecoration="underline"
@@ -2427,7 +2426,7 @@
 							   toolTip="Build new plate..."
 							   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
 							   textDecoration="underline"
-							   fontSize="9" />
+							   fontSize="10" />
 				<mx:LinkButton label="New Run"
 							   id="newRunButton"
 							   click="{buildState=RUN;switchToNewState();}"
@@ -2439,7 +2438,7 @@
 							   toolTip="Build new run..."
 							   disabledIcon="@Embed(source='../../assets/run_add_disable.png')"
 							   textDecoration="underline"
-							   fontSize="9" />
+							   fontSize="10" />
 				
 			</mx:HBox>
 			<mx:HRule width="100%" height="10" />
@@ -2658,7 +2657,7 @@
 							   icon="@Embed('../../assets/action_refresh.gif')"
 							   toolTip="Refresh sample list"
 							   click="{this.refreshLists();}"
-							   fontSize="9" />
+							   fontSize="10" />
 				
 			</mx:HBox>
 			
@@ -2681,7 +2680,7 @@
 					
 					<mx:HBox width="100%" verticalAlign="middle" height="26">
 						
-						<mx:Label id="titleLabel" styleName="titleLabel" text="Add Samples" />
+						<mx:Label id="titleLabel" styleName="titleLabel" text="Add Samples"  fontSize="12"/>
 						<mx:Spacer width="100%" height="100%" />
 						<mx:LinkButton label="Add Selected"
 									   icon="@Embed('../../assets/add.png')"
@@ -2690,7 +2689,7 @@
 									   textDecoration="underline"
 									   visible="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
 									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
-									   color="#000000" />
+									   color="#000000"  fontSize="10"/>
 						<mx:LinkButton label="Add All"
 									   icon="@Embed('../../assets/add_all.png')"
 									   click="{addAllSamples()}"
@@ -2710,13 +2709,10 @@
 						
 						<mx:Tree width="100%"
 								 height="100%"
-								 color="#000000"
-								 fontFamily="Verdana"
 								 fontSize="10"
 								 showRoot="false"
 								 id="sampleTree"
 								 dataProvider="{samplesList}"
-								 borderStyle="solid"
 								 showDataTips="true"
 								 dataTipFunction="sampleTreeTipFunction"
 								 labelFunction="sampleTreeLabelFunction"
@@ -2734,7 +2730,7 @@
 								 dragComplete="dragComplete(event)"
 								 iconFunction="isSampleAdded"
 								 backgroundAlpha="1"
-								 dropShadowEnabled="true">
+								 dropShadowEnabled="false">
 						</mx:Tree>
 						
 						
@@ -2764,7 +2760,7 @@
 							
 							<mx:Spacer width="100%" height="100%" />
 							
-							<mx:Label id="numSamples" color="#000000" fontFamily="Verdana"
+							<mx:Label id="numSamples" color="#000000" 
 									  fontSize="10"/>
 							
 						</mx:HBox>
@@ -2803,7 +2799,6 @@
 								 height="100%"
 								 color="#000000"
 								 showRoot="false"
-								 fontFamily="Verdana"
 								 fontSize="10"
 								 id="plateTree"
 								 labelFunction="runTreeLabelFunction"
@@ -2855,7 +2850,6 @@
 						<mx:Tree width="100%"
 								 height="100%"
 								 color="#000000"
-								 fontFamily="Verdana"
 								 fontSize="10"
 								 showRoot="false"
 								 id="runTree"
@@ -2889,32 +2883,32 @@
 			<mx:VBox horizontalAlign="center"
 					 id="platePanel"
 					 width="100%"
-					 height="100%">
+					 height="100%" verticalGap="1">
 				
 				<mx:VBox styleName="panelBox" width="100%" verticalAlign="middle">
 					
 					<mx:HBox verticalAlign="middle" width="100%" horizontalGap="1">
 						
-						<mx:Label text="Run:" fontWeight="bold" fontSize="10"  id="label4"/>
+						<mx:Label text="Run"   styleName="formLabel" id="label4"/>
 						<mx:Label id="runNumberLabel" text="{run.label}"/>
 						<mx:Spacer width="5" height="100%"  id="spacer4"/>
-						<mx:Label text="Plate:" fontWeight="bold" fontSize="10" />
+						<mx:Label text="Plate"  styleName="formLabel"/>
 						<mx:Label id="plateIdLabel" text="{activePlate.label}" />
 						<mx:Spacer width="100%" height="100%" id="spacer3" />
-						<mx:Label text="Fill orientation:" fontWeight="bold" id="orientationLabel" />
+						<mx:Label text="Fill orientation" fontWeight="normal" id="orientationLabel"  styleName="formLabel"/>
 						<mx:RadioButtonGroup id="fillOrientation" />
 						<mx:RadioButton id="radioRow"
 										value="radioRow"
 										label="row"
 										groupName="fillOrientation"
 										selected="{!fillColWise}"
-										click="{this.setDirty();fillColWise = false;toggleFillOrientation();}" />
+										click="{this.setDirty();fillColWise = false;toggleFillOrientation();}"  fontSize="11"/>
 						<mx:RadioButton id="radioCol"
 										value="radioCol"
 										label="column"
 										groupName="fillOrientation"
 										selected="{fillColWise}"
-										click="{this.setDirty();fillColWise = true;toggleFillOrientation();}" />
+										click="{this.setDirty();fillColWise = true;toggleFillOrientation();}"  fontSize="11"/>
 						<mx:Spacer width="15" height="100%"  id="spacer5"/>
 						<mx:LinkButton label="Create PLT file"
 									   paddingRight="1"
@@ -3098,7 +3092,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Plate #:" fontWeight="bold" />
+								<mx:Label text="Plate #" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="plateNumberText" width="140" height="100%" />
 								
@@ -3108,7 +3102,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Plate Name:" fontWeight="bold" />
+								<mx:Label text="Plate Name" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="plateNameText"
 											  change="this.setDirty();"
@@ -3122,7 +3116,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Comments:" fontWeight="bold" />
+								<mx:Label text="Comments" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="plateCommentsText"
 											 change="this.setDirty();"
@@ -3138,7 +3132,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Reaction:" fontWeight="bold" />
+								<mx:Label text="Reaction" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="plateReactTypeText" width="140" height="100%" />
 								
@@ -3149,7 +3143,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Label text="Sealing" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="sealComboBox"
 											 selectedIndex="-1"
@@ -3167,7 +3161,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Label text="Sealing" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="sealText" width="140" height="100%" />
 								
@@ -3177,7 +3171,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Creator:" fontWeight="bold" />
+								<mx:Label text="Creator" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="plateCreatorText" width="140" height="100%" />
 								
@@ -3187,14 +3181,14 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Date Created:" fontWeight="bold" />
+								<mx:Label text="Date Created" styleName="formLabel" />
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="plateCreateDateText" width="140" height="100%" />
 								
 							</mx:HBox>
 							
-							<mx:Label text="  Wells:"
-									  fontWeight="bold"
+							<mx:Label text="  Wells"
+									  styleName="formLabel"
 									  visible="{wellGrid.dataProvider.length > 0}"
 									  includeInLayout="{wellGrid.dataProvider.length > 0}" />
 							<mx:HBox width="100%"
@@ -3253,7 +3247,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Run #:" fontWeight="bold" />
+								<mx:Label text="Run #" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="runNumberText" width="140" height="100%" text="{run.idRun}"/>
 								
@@ -3263,7 +3257,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Run Name:" fontWeight="bold" />
+								<mx:Label text="Run Name" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextInput id="runNameText"
 											  text="{run.label}"
@@ -3278,7 +3272,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Comments:" fontWeight="bold" />
+								<mx:Label text="Comments" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:TextArea id="runCommentsText"
 											 text="{run.comments}"
@@ -3295,7 +3289,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Reaction:" fontWeight="bold" />
+								<mx:Label text="Reaction" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="reactTypeText" width="140" height="100%"  />
 								
@@ -3306,7 +3300,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Label text="Sealing" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="runSealComboBox"
 											 selectedIndex="-1"
@@ -3324,7 +3318,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Sealing:" fontWeight="bold" />
+								<mx:Label text="Sealing" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="runSealText" width="140" height="100%" text="{run.codeSealType}" />
 								
@@ -3335,7 +3329,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Status:" fontWeight="bold" />
+								<mx:Label text="Status" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="statusComboBox"
 											 selectedIndex="-1"
@@ -3353,7 +3347,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Status:" fontWeight="bold" />
+								<mx:Label text="Status" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="statusText" width="140" height="100%" 
 										 text="{run.codeInstrumentRunStatus}" />
@@ -3364,7 +3358,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Creator:" fontWeight="bold" />
+								<mx:Label text="Creator" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="runCreatorText" width="140" height="100%" text="{run.creator}" />
 								
@@ -3374,7 +3368,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Date Created:" fontWeight="bold" />
+								<mx:Label text="Date Created" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="runCreateDateText" width="140" height="100%" text="{run.createDate}"/>
 								
@@ -3384,7 +3378,7 @@
 									 horizontalGap="0"
 									 paddingRight="4">
 								
-								<mx:Label text="Run Date:" fontWeight="bold" />
+								<mx:Label text="Run Date" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:Text id="runRunDateText" width="140" height="100%" text="{run.runDate}"/>
 								
@@ -3655,6 +3649,7 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
+			<mx:SetProperty target="{plateStack}" name="styleName" value="panelBox"/>
 			
 		</mx:State>
 		
