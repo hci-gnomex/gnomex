@@ -20,6 +20,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "contact_email_core_facility_workauth_reminder";
   public static final String        REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "reply_email_core_facility_workauth_reminder";
+  public static final String        CONTACT_ADDRESS_CORE_FACILITY       = "contact_address_core_facility";
+  public static final String        CONTACT_REMIT_ADDRESS_CORE_FACILITY       = "contact_remit_address_core_facility";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
   public static final String        LAST_UPLOAD_NOTIFICATION            = "last_upload_notification";
   public static final String        QC_DIRECTORY                        = "qc_directory";
