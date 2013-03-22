@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
@@ -45,8 +46,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private String         contactPhoneCoreFacility;
   private String         invoiceNote1;
   private String         invoiceNote2;
+  private String         contactAddressCoreFacility;
+  private String         contactRemitAddressCoreFacility;
+  BigDecimal             grandTotal = new BigDecimal(0);
   
- public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNot2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNote2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap, String contactAddressCoreFacility, String contactRemitAddressCoreFacility) {
    this.billingPeriod  = billingPeriod;
    this.lab            = lab;
    this.billingAccount = billingAccount;
@@ -59,6 +63,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    this.contactPhoneCoreFacility = contactPhoneCoreFacility;
    this.invoiceNote1 = invoiceNote1;
    this.invoiceNote2 = invoiceNote2;
+   this.contactAddressCoreFacility = contactAddressCoreFacility;
+   this.contactRemitAddressCoreFacility = contactRemitAddressCoreFacility;
    
  }
  
@@ -99,18 +105,79 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
  
 
  public Element makeHeader() {
-    
-    
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
-    table.addContent(makeRow(lab.getName()));
-    table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
-    table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
-    if(invoice != null){
-      table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+    
+    if(billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N") && coreFacilityName.equals(CoreFacility.CORE_FACILITY_DNA_SEQ)){
+      table.addContent(makeRow("ATTN: " + lab.getName()));
+      if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
+        table.addContent(makeRow(lab.getContactAddress()));
+      }
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(makeRow("The following billing summary (or statement) is presented for your review from the " + coreFacilityName + ". This bill will be electronically processed using the specified chartfield number without further action on your behalf. If you have any questions in regards to the billing statement, please contact Derek Warner at derek.warner@hci.utah.edu."));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(makeRow(coreFacilityName));
+      table.addContent(makeAddressRow(contactAddressCoreFacility));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(makeRow(billingPeriod.getBillingPeriod()));
+      table.addContent(makeRow(billingAccount.getAccountNumber()));
+    } else if(billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N") && coreFacilityName.equals(CoreFacility.CORE_FACILITY_DNA_SEQ)){
+      table.addContent(makeRow(coreFacilityName));
+      table.addContent(new Element("TR"));
+      table.addContent(makeAddressRow(contactAddressCoreFacility));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
+      table.addContent(makeRow("ATTN: " + lab.getName()));
+      if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
+        table.addContent(makeRow(lab.getContactAddress()));
+      }
+      table.addContent(makeRow(billingPeriod.getBillingPeriod()));
+      table.addContent(makeRow(billingAccount.getAccountNumber()));
+    } else{
+      table.addContent(makeRow(lab.getName()));
+      table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
+      table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
+      if(invoice != null){
+        table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+      }
     }
     
     return table;
+ }
+ 
+ public Element makeRemittanceAddress(){
+   String addressArray[] = contactRemitAddressCoreFacility.split("\n");
+   Element p = new Element("P");
+   p.addContent("REMIT TO ADDRESS:");
+   p.addContent(new Element("BR"));
+   for(int i = 0; i < addressArray.length; i++){
+     p.addContent(addressArray[i]);
+     if(i + 1 < addressArray.length){
+       p.addContent(new Element("BR"));
+     }
+   }
+   return p;
+ }
+ 
+ public Element makeLabAddress(){
+   String addressArray[] = contactAddressCoreFacility.split("\n");
+   Element p = new Element("P");
+   p.addContent("LAB ADDRESS:");
+   p.addContent(new Element("BR"));
+   for(int i = 0; i < addressArray.length; i++){
+     p.addContent(addressArray[i]);
+     if(i + 1 < addressArray.length){
+       p.addContent(new Element("BR"));
+     }
+   }
+   return p;
+   
  }
 
  private String formatAccountNumber(String accountNumber, String accountName) {
@@ -140,7 +207,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       columnCount++;
     }
     
-    BigDecimal grandTotal = new BigDecimal(0);
+    grandTotal = new BigDecimal(0);
     
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
@@ -288,6 +355,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     
     return table;
   }
+  
+  public String getGrandTotal(){
+    return grandTotal != null ? currencyFormat.format(grandTotal) : "";
+  }
 
   private String getHTMLString(String value) {
     if (value == null) {
@@ -313,6 +384,22 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     row.addContent(cell);
     
 
+    return row;
+  }
+  
+  private Element makeAddressRow(String header1){
+    Element row = new Element("TR");
+    Element cell = new Element("TD");
+    cell.setAttribute("CLASS", "label");
+    cell.setAttribute("ALIGN", "LEFT");
+    String addressArray[] = header1.split("\n");
+    for(int i = 0; i < addressArray.length; i++){
+      cell.addContent(addressArray[i]);
+      if(i + 1 < addressArray.length){
+        cell.addContent(new Element("BR"));
+      }
+    }
+    row.addContent(cell);
     return row;
   }
   
