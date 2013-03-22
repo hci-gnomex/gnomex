@@ -842,7 +842,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (62, 'billing_core_facility_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
  (63, 'billing_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
  (64, 'bst_linkage_gnomex_url', '', 'The url used in BST to launch gnomex when samples are inked (internal use only)', 'Y'),
- (65, 'contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'The email addresses to send email about pending work authorizations', 'Y'),
+ (65, 'contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'Y'),
  (66, 'dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
  (67, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
  (68, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
@@ -871,10 +871,9 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
  (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
- (95,'contact_email_core_facility_workauth_reminder','first.last@somwhere.edu','Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'N'),
- (96,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
- (97,'contact_remit_address_core_facility','Core Facility Remit Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility remittance address', 'N', 2),
- (98,'contact_address_core_facility','Core Facility Lab Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility lab address', 'N', 2);
+ (95,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
+ (96,'contact_remit_address_core_facility','Core Facility Remit Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility remittance address', 'N'),
+ (97,'contact_address_core_facility','Core Facility Lab Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility lab address', 'N');
  
  
 
