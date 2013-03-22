@@ -22,18 +22,11 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{text5}" name="text" value="Restricted account access&#xa;"/>
 		</mx:State>
+		
 		<mx:State name="UserState">
+			<mx:SetProperty target="{text5}" name="text" value=""/>
 		</mx:State>
-		<mx:State name="ExternalUserState" basedOn="UserState">
-		</mx:State>
-		<mx:State name="AdminESState" basedOn="AdminState">
-		</mx:State>
-		<mx:State name="UserESState" basedOn="UserState">
-		</mx:State>
-		<mx:State name="ExternalUserESState" basedOn="ExternalUserState">
-		</mx:State>
-		<mx:State name="UserNonSubmitterESState" basedOn="UserNonSubmitterState">
-		</mx:State>
+
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text3}" name="text" value="Restricted - For additional access, please sign up for a GNomEx user account "/>
 			<mx:SetProperty target="{text5}" name="text" value="University guest access"/>
@@ -41,11 +34,7 @@
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
 			<mx:SetProperty target="{text5}" name="text" value="Guess privileges only"/>
 		</mx:State>
-		<mx:State name="AdminDNASeqState" basedOn="AdminState">
-			<mx:SetProperty target="{text5}" name="text" value="Admin privileges"/>
-			<mx:SetStyle target="{text5}" name="textAlign" value="right"/>
 
-		</mx:State>
 		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
 			<mx:SetProperty target="{text5}" name="text" value="Super Admin privileges"/>
 		</mx:State>
@@ -81,29 +70,14 @@
 						this.currentState = "GuestState";
 					}
 				} else if (parentApplication.isAdminState) {
-					if (parentApplication.isExternalDataSharingSite) {
-						currentState = "AdminESState";
-					} else if (parentApplication.isSuperAdmin) {
-						currentState = "AdminSuperState"
-					} else if (parentApplication.isCoreDNASeq) {
-						currentState = "AdminDNASeqState"
-					} else {
-						currentState = "AdminState";
-					}
+				    currentState = "AdminState";
 				} else if (parentApplication.isBillingAdminState) {
-					if (parentApplication.isExternalDataSharingSite) {
-						currentState = "AdminESState";
-					} else if (parentApplication.isCoreDNASeq) {
-						currentState = "BillingAdminDNASeqState"
-					} else {
-						currentState = "BillingAdminState";
-					}
+					currentState = "BillingAdminState";
+
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
-					currentState = parentApplication.isExternalDataSharingSite ? "UserNonSubmitterESState" : "UserNonSubmitterState";						
-				} else if (parentApplication.isExternalUser)  {
-					currentState = parentApplication.isExternalDataSharingSite ? "ExternalUserESState" : "ExternalUserState";
+					currentState = "UserNonSubmitterState";						
 				} else {
-					currentState = parentApplication.isExternalDataSharingSite ? "UserESState" : "UserState";
+					currentState = "UserState";
 				}
 			}
 			

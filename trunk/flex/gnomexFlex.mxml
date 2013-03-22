@@ -785,8 +785,20 @@
 			
 			public var idCoreFacilityDNASeq:Object;
 			
+			
 			[Bindable]
-			public var isCoreDNASeq:Boolean = false;
+			public var usesExperimentTypeCapSeq:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeIScan:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeMitSeq:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeFragAnalysis:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeCherryPick:Boolean = false;
+			
+			[Bindable]
+			public var managesPlateBasedWorkflow:Boolean = false;
 			
 			[Bindable]
 			public var isCoreGenomics:Boolean = false;
@@ -1890,8 +1902,113 @@
 				return isMyCoreFacility;
 			}
 			
-
 			private function customizeMenus(navMenu:XMLList):void {
+				if (!this.showBioinformaticsLinks) {
+					hideMenusByContext(navMenu, "bioinformatics");
+				}
+				if (!showUsage) {
+					hideMenusByContext(navMenu, "usage");
+				}
+				if (!showPurchaseSupplies) {
+					hideMenusByContext(navMenu, "purchaseSuppliesLink");
+				}
+				
+				hideMenusByProperties(navMenu);
+				
+				addPricingMenus(navMenu);
+			}
+			
+			private function addPricingMenus(navMenu:XMLList):void {
+				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (property.@value == '') {
+						continue; 
+					}
+					var propertyMenu:XML = null;
+					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
+						if (property.@propertyValue != null && property.@propertyValue != '') {
+							if (property.@idCoreFacility != "") {
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								} else {
+									for each (var cf1:Object in  myCoreFacilities) {
+										if (property.@idCoreFacility == cf1.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								}
+							} else if (property.@idCoreFacility == "") {
+								propertyMenu = new XML("<menuitem/>");
+								propertyMenu.@label = "Pricing";
+								propertyMenu.@url = property.@propertyValue;
+							}							
+						}
+					}
+					if (propertyMenu != null) {
+						// Find 'Links' or 'Useful Links' menu
+						var parentMenu:Object = null;
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@context == "otherLinks") {
+								parentMenu = navMenu[i];
+								break;
+							} 
+						}
+						if (parentMenu == null) {
+							var linkMenu:Object = new XML("<menuitem/>");
+							linkMenu.@label = "Useful Links...";
+							
+							// Need to do this strange code to insert into the XMLList
+							var xmlList:XMLList = XMLList(navMenu);
+							xmlList[xmlList.length() - 1] += linkMenu; 
+							
+							parentMenu = linkMenu;
+						}
+						// Add pricing menu item to the menu
+						parentMenu.appendChild(propertyMenu);
+					}
+				}
+				
+			}
+			
+			private function hideMenusByContext(navMenu:XMLList, context:String):void {
+				var foundSomethingToDelete:Boolean = true;
+				
+				// If this user doesn't use any experiment types that deal with 
+				// analysis, then we want to exclude bioinformatics specific menus
+				if (!this.showBioinformaticsLinks) {
+					while (foundSomethingToDelete) {
+						foundSomethingToDelete = false;
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@context == context) {
+								delete navMenu[i];
+								foundSomethingToDelete = true;
+								break;
+							} else {
+								var cn:XMLList = XMLList(navMenu[i].children());
+								for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+									if (cn[j].@context == context) {
+										delete cn[j];
+										foundSomethingToDelete = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+
+			private function hideMenusByProperties(navMenu:XMLList):void {
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (property.@value == '') {
 						continue; 
@@ -1900,10 +2017,23 @@
 						var menuToHide:String = null;
 						if (property.@propertyValue == "hide") {
 							if (property.@idCoreFacility != "" && !isSuperAdmin) {
-								for each (var cf:Object in coreFacilitiesICanManage) {
-									if (property.@idCoreFacility == cf.@idCoreFacility) {
-										menuToHide = property.@propertyName.toString().substr(5);
-										break;
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											menuToHide = property.@propertyName.toString().substr(5);
+											break;
+										}
+									}
+								} else {
+									
+									if (menuToHide == null) {
+										for each (var cf1:Object in  myCoreFacilities) {
+											if (property.@idCoreFacility == cf1.@idCoreFacility) {
+												menuToHide = property.@propertyName.toString().substr(5);
+												break;
+											}
+										}
+										
 									}
 								}
 							} else if (property.@idCoreFacility == "") {
@@ -1935,12 +2065,10 @@
 
 			private function checkSecurity():void {
 				customizeMenus(adminMenu);
-				customizeMenus(this.adminDNASeqMenu);
+				customizeMenus(this.adminPlateBasedMenu);
 				customizeMenus(this.guestMenu);
 				customizeMenus(this.userNonSubmitterMenu);
 				customizeMenus(this.managerMenu);
-				customizeMenus(this.managerNoBioinformaticsMenu);
-				customizeMenus(this.userNoBioinformaticsMenu);
 				customizeMenus(this.userMenu);
 				customizeMenus(this.userESMenu);
 				customizeMenus(this.managerESMenu);
@@ -1954,7 +2082,7 @@
 						isAdminState = true; // real admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq && !isSuperAdmin) {
+						} else if (this.managesPlateBasedWorkflow && !isSuperAdmin) {
 							currentState = "AdminDNASeqState";
 						} else {
 							currentState = "AdminState";
@@ -1963,7 +2091,7 @@
 						isBillingAdminState = true;  // billing admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq &&  !isSuperAdmin) {
+						} else if (this.managesPlateBasedWorkflow &&  !isSuperAdmin) {
 							currentState = "BillingAdminDNASeqState";
 						} else {
 							currentState = "BillingAdminState";
@@ -2194,23 +2322,15 @@
 					}
 				}
 				
-				//
-				// Determine which core facilities the user is associated with.
-				//
-				if (isGuest) {
-					// Only presume the guest needs Core DNA Seq specific behavior if the core facility
-					// for DNA Seq is in the core facilities dictionary.
-					isCoreDNASeq = coreDNASeqConfigured;
-				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-					// Only presume the super admin needs Core DNA Seq specific behavior if the core facility
-					// for DNA Seq is in the core facilities dictionary.
-					isCoreDNASeq = coreDNASeqConfigured;
-				} else {
-					var coreFacilityDNASeq:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_DNA_SEQ);
-					if (coreFacilityDNASeq is XMLList && XMLList(coreFacilityDNASeq).length() > 0) {
-						isCoreDNASeq = true;
-					} 					
-				}
+				// Determine if the admin uses the Plate Based workflow screens (Fill Plate, Build Run, Review results)
+				this.managesPlateBasedWorkflow = this.doesManagePlateBasedWorkflow();
+				
+				// Determine which experiment types this person can use
+				this.usesExperimentTypeCapSeq = this.usesExperimentType(this.TYPE_CAP_SEQ);
+				this.usesExperimentTypeFragAnalysis = this.usesExperimentType(this.TYPE_FRAG_ANAL);
+				this.usesExperimentTypeMitSeq = this.usesExperimentType(this.TYPE_MIT_SEQ);
+				this.usesExperimentTypeCherryPick = this.usesExperimentType(this.TYPE_CHERRY_PICK);
+				this.usesExperimentTypeIScan = this.usesExperimentType(this.TYPE_ISCAN);
 				
 				
 				if (isGuest) {
@@ -2218,10 +2338,10 @@
 				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isCoreGenomics = true;
 				} else {
-					var coreFacilityGenomics:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_GENOMICS);
-					if (coreFacilityGenomics is XMLList && XMLList(coreFacilityGenomics).length() > 0) {
+					if (usesExperimentType(this.TYPE_ILLUMINA) ||
+						usesExperimentType(this.TYPE_MICROARRAY)) {
 						isCoreGenomics = true;
-					} 
+					}
 				}
 				
 				
@@ -2233,7 +2353,7 @@
 				if (!isExternalDataSharingSite) {
 					// We will show all of the links for a super admin
 					if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-						if (isCoreDNASeq && !isCoreGenomics) {
+						if (!isCoreGenomics) {
 							showBioinformaticsLinks = false;
 							showCoreGenomicsLinks = false;
 						}
@@ -2266,6 +2386,35 @@
 				getSessionTimeout.send();
 			}
 			
+			private function doesManagePlateBasedWorkflow():Boolean {
+				for each (var cf:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory.@isActive == 'Y' &&
+							(requestCategory.@type == this.TYPE_CAP_SEQ ||
+							 requestCategory.@type == this.TYPE_MIT_SEQ ||
+							 requestCategory.@type == this.TYPE_FRAG_ANAL) ) {
+							return true;
+							break;
+						}
+					}
+				}
+				return false;
+			}
+			private function usesExperimentType(experimentType:String):Boolean {
+				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory.@type == experimentType &&
+						    requestCategory.@isActive == 'Y') {
+							return true;
+							break;
+						}
+					}
+				}
+				return false;
+			}
+
 			
 			private function onGetSessionTimeout(event:ResultEvent):void {
 				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
@@ -2857,16 +3006,17 @@
 				if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
 					return;
 				}
-				showView(event.target.data.@label);
+				showView(event.target.data);
 			}
 			
-			private function onMenuSelect(event:MenuEvent):void {
-				showView(event.label);
+			private function onMenuSelect(event:MenuEvent):void {				
+				showView(event.item);
 			}
 			
 			
-			private function showView(label:String):void {
-				
+			private function showView(menuitem:Object):void {
+				var label:String = menuitem.@label;
+				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
 				
 				if (label == 'Analysis') {
 					theViews.selectedChild = navAnalysisView;
@@ -2973,18 +3123,11 @@
 					this.showUploadDownloadHints();
 				} else if (label == "Purchase Supplies (DNA Seq Core)") {
 					this.showPurchaseSuppliesLink();
-				} else if (label == "Pricing (Microarray Core)") {
-					showPricing();
-				} else if (label == "Pricing (DNA Seq Core") {
-					showPricingDNASeqCore();
-				}  else if (label == "Configure iScan Chips") {
+				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
-				}
-				
-				
-				
-				
-				
+				} else if (url != "") {
+					navigateToURL(new URLRequest(url), '_blank');
+				} 
 			}
 			
 			
@@ -3039,25 +3182,9 @@
 				}
 			}
 			
-			private function showPricing():void {				
-				var pricingURL:String = this.getProperty(this.PROPERTY_PRICING_URL);
-				if (pricingURL == null || pricingURL == "") {
-					Alert.show("Please contact GNomEx support.  The pricing web page is not configured in GNomEx.");
-				} else {
-					navigateToURL(new URLRequest(pricingURL), '_blank');
-				}
-			}
-			private function showPricingDNASeqCore():void {
-				var pricingURL:String = this.getCoreFacilityProperty(String(this.idCoreFacilityDNASeq), this.PROPERTY_PRICING_URL);
-				if (pricingURL == null || pricingURL == "") {
-					Alert.show("Please contact GNomEx support.  The pricing web page for the DNA Sequencing Core Facility is not configured in GNomEx.");
-				} else {
-					navigateToURL(new URLRequest(pricingURL), '_blank');
-				}
-			}
 			
 			private function showIScanChipWindow():void {
-				if (isCoreDNASeq) {
+				if (managesPlateBasedWorkflow) {
 					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
@@ -3104,7 +3231,8 @@
 	
 	<mx:XMLList id="adminMenu">
 		
-		
+		<menuitem label="Orders" icon="iconOrders"   />
+
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
@@ -3112,14 +3240,14 @@
 			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
-			<menuitem label="Orders" icon="iconOrders"/>
+			<menuitem label="Orders" icon="iconOrders"   />
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic" context="bioinformatics"   />
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="Workflow " icon="iconWorkflow"   />
@@ -3155,11 +3283,8 @@
 			
 		</menuitem>
 		
-		<menuitem label="Links..." icon="iconLinks" >
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar"/>
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar"/>
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar"/>
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks" >
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 
 		
@@ -3190,11 +3315,11 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis" context="bioinformatics"   />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
@@ -3225,11 +3350,11 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
@@ -3275,7 +3400,7 @@
 		
 	</mx:XMLList>
 	
-	<mx:XMLList id="adminDNASeqMenu">
+	<mx:XMLList id="adminPlateBasedMenu">
 		
 		<menuitem label="Orders" icon="iconOrders"   />
 		<menuitem label="Fill Plate" icon="iconPlate"   />
@@ -3312,9 +3437,8 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Links..." icon="iconLinks">
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -3332,11 +3456,11 @@
 		</menuitem>
 		
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -3346,58 +3470,18 @@
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
-			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
 		
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
 		</menuitem>
 
 		
 	</mx:XMLList>
 	
-	<mx:XMLList id="userNoBioinformaticsMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
-		
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
-		
-		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-		
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
-		</menuitem>
-		
-		
-	</mx:XMLList>
-	<mx:XMLList id="managerNoBioinformaticsMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
-		
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
-		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-
-		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
-
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
-		</menuitem>
-		
-		
-	</mx:XMLList>
 	
 	<mx:XMLList id="managerMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
@@ -3410,11 +3494,11 @@
 		</menuitem>
 		
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
@@ -3430,11 +3514,8 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 		
 		
@@ -3558,7 +3639,7 @@
 					</util:LaunchView> 
 				</mx:ViewStack>
 				
-				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
+				<mx:ViewStack id="theViews" visible="true" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
 					
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>  
@@ -3670,11 +3751,11 @@
 		</mx:State>
 		
 		<mx:State name="UserState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? userMenu : userNoBioinformaticsMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userMenu}"/>
 		</mx:State>
 		
 		<mx:State name="ManagerState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? managerMenu : managerNoBioinformaticsMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{managerMenu}"/>
 			
 		</mx:State>
 		<mx:State name="UserNonSubmitterState" basedOn="UserState">
@@ -3699,11 +3780,11 @@
 		</mx:State>
 		
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminPlateBasedMenu}"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminPlateBasedMenu}"/>
 		</mx:State>
 		
 		

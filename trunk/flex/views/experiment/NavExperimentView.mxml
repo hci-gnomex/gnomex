@@ -1583,7 +1583,7 @@
 					<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" paddingLeft="20"   styleName="labelSmall">
 						<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
-					<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall" selected="true">
+					<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall" selected="false">
 						<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>
 					<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
@@ -1634,27 +1634,31 @@
 			<mx:Spacer width="100%"/>
 			<mx:HBox horizontalGap="0" id="dnaSeqCoreCheckboxBox">
 				<mx:CheckBox label="DNA (Sanger) Seq" id="CapSeqCheckbox" toolTip="DNA (Sanger) Sequencing"
-							 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+							 visible="{parentApplication.usesExperimentTypeCapSeq}" 							 
+							 includeInLayout="{parentApplication.usesExperimentTypeCapSeq}" 							 
 							 horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox label="Mitochondrial Seq"  id="MitSeqCheckbox"  toolTip="Mitochonrial Sequencing"
-							 visible="false" includeInLayout="false"								 
+							 visible="{parentApplication.usesExperimentTypeMitSeq}" 							 
+							 includeInLayout="{parentApplication.usesExperimentTypeMitSeq}" 							 
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(5);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox"  toolTip="Fragment Analysis"
-							 visible="false" includeInLayout="false"								 
+							 visible="{parentApplication.usesExperimentTypeFragAnalysis}" 							 
+							 includeInLayout="{parentApplication.usesExperimentTypeFragAnalysis}" 							 
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(6);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox"  toolTip="Cherry Picking"
-							 visible="false" includeInLayout="false"								 
+							 visible="{parentApplication.usesExperimentTypeCherryPick}" 							 
+							 includeInLayout="{parentApplication.usesExperimentTypeCherryPick}" 							 
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
 				<mx:CheckBox label="iScan"  id="IScanCheckbox"  toolTip="iScan"
-							 visible="{parentApplication.isCoreDNASeq}" includeInLayout="{parentApplication.isCoreDNASeq}"								 
+							 visible="{parentApplication.usesExperimentTypeIScan}" includeInLayout="{parentApplication.usesExperimentTypeIScan}"								 
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(8);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
@@ -1771,6 +1775,7 @@
 				<mx:Spacer width="100%"/>
 			</mx:AddChild>
 			<mx:SetProperty target="{hbox4}" name="width" value="100%"/>
+			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 		</mx:State>
 		
 		<mx:State name="AdminState">
@@ -1817,6 +1822,7 @@
 			<mx:SetStyle target="{vbox1}" name="verticalGap" value="3"/>
 			<mx:SetStyle target="{hbox1a}" name="horizontalGap" value="6"/>
 			<mx:SetProperty target="{NextGenSeqCheckbox}" name="label" value="Next Gen Seq"/>
+			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 
 		</mx:State>
 
