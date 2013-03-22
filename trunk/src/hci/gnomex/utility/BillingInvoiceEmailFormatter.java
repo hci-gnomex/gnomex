@@ -45,13 +45,15 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   private String         coreFacilityContactPhone;
   private String         invoiceNote1;
   private String         invoiceNote2;
+  private Session        sess;
 
 
   private DictionaryHelper dictionaryHelper;
   
   protected boolean       includeMicroarrayCoreNotes = true;
 
-  public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) { 
+  public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+    this.sess           = sess;
     this.coreFacility   = coreFacility;
     this.billingPeriod  = billingPeriod;
     this.lab            = lab;
@@ -118,7 +120,9 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
   public String format() throws Exception {
 
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(coreFacilityName, coreFacilityContactName, coreFacilityContactPhone,
-        invoiceNote1, invoiceNote2, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
+        invoiceNote1, invoiceNote2, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
     
     Element root = new Element("HTML");
     Document doc = new Document(root);
