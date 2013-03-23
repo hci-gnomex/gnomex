@@ -108,7 +108,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
     
-    if(billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N") && billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue()){
+    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){
       table.addContent(makeRow("ATTN: " + lab.getName()));
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
         table.addContent(makeRow(lab.getContactAddress()));
@@ -126,7 +126,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(new Element("TR"));
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
       table.addContent(makeRow(billingAccount.getAccountNumber()));
-    } else if(billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N") && billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue()){
+    } else if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
       table.addContent(makeRow(coreFacilityName));
       table.addContent(new Element("TR"));
       table.addContent(makeAddressRow(contactAddressCoreFacility));
