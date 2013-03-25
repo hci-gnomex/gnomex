@@ -13,13 +13,24 @@ alter table gnomex.BillingAccount add column zipCode varchar(20);
 -- Add optimistic locking version to lab
 alter table Lab add version bigint(20) not null default 0;
 
---Add contact_email_core_facility_workauth_reminder
+-- Add contact_email_core_facility_workauth_reminder
 INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
 ('contact_email_core_facility_work_auth', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'N'),
 ('submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N');
 
---Add contact_remit_address_core_facility
-INSERT INTO PropertyDictionary VALUES('contact_remit_address_core_facility', 'University of Utah' + CHAR(13) + 'DNA Sequencing Core Research Facility' + CHAR(13) + '30 N. 1900 E. 5C124 SOM' + CHAR(13) + 'Salt Lake City, Utah 84132', 'Core facility remittance address', 'N', 3);
+-- Add contact_remit_address_core_facility
+INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly, idCoreFacility)
+VALUES('contact_remit_address_core_facility', 'University of ......
+..... Core Research Facility
+address goes here
+city, state zip', 
+'Core facility remittance address', 'N', 1);
 
---Add contact_address_core_facility
-INSERT INTO PropertyDictionary VALUES('contact_address_core_facility', 'University of Utah' + CHAR(13) + 'DNA Sequencing Core Research Facility' + CHAR(13) + '30 N. 1900 E. 5C124 SOM' + CHAR(13) + 'Salt Lake City, Utah 84132', 'Core facility lab address', 'N', 3);
+-- Add contact_address_core_facility
+INSERT INTO PropertyDictionary  (propertyName,propertyValue,propertyDescription, forServerOnly, idCoreFacility)
+VALUES('contact_address_core_facility', 
+'University of .....
+..... Sequencing Core Research Facility
+address goes here
+city, state zip', 
+'Core facility lab address', 'N', 1);
