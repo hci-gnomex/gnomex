@@ -15,7 +15,8 @@
         <!-- ENTER ALL MAPPING FILES HERE, USE THE FOLLOWING AS AN EXAMPLE -->
         <mapping file="applications/gnomex/SchemaGNomEx.hbm.xml"/>
 
-        <!-- Mappings for BST adhoc querying -->
+		<!--
+        
         <mapping file="applications/hciEnv/SchemaMetaAttribute.hbm.xml"/>
         <mapping file="applications/hciEnv/SchemaMetaAttributePath.hbm.xml"/>
         <mapping file="applications/hciEnv/SchemaAssoc.hbm.xml"/>
@@ -25,7 +26,7 @@
         <mapping file="applications/hciEnv/SchemaPersonResearch.hbm.xml"/>
         <mapping file="applications/hciEnv/SchemaTumorReg.hbm.xml"/>  
         <mapping file="applications/hciEnv/SchemaBSTX.hbm.xml"/>    
-
+-->
     </session-factory>
 </hibernate-configuration>
 

@@ -8,34 +8,57 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
+			
+		//	var monitorVisible:Boolean = true;
+		//	var notificationVisible:Boolean = true;
+			
 			public function init():void {
-
+				// Determine 3 states:
+					// * User
+					// * Billing
+					// * (Super) Admin
+				
+		//			Alert.show("PA state: " + parentApplication.currentState);
+		//			Alert.show("Current local state DB: " + currentState);
+					
+			//		monitorVisible = false;	
+				
+		//			if(currentState  == "user"){
+//					}
+					//notificationHub.currentState = "admin";
+				//	notificationHub.currentState = "";
+/*				}else if(parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)){
+					currentState = "billing";
+					notificationHub.currentState = "billing";
+					Alert.show("CAN Admin all core facs");
+				}else{
+					currentState = "user";
+					notificationHub.currentState = "user";
+					Alert.show("Just a user - default");*/
 			}
 		]]> 
 	</mx:Script>
-	<mx:HBox y="50" horizontalAlign="center" width="100%">
-		<mx:Label height="106" fontSize="33" text="GNomEx Dashboard" />
-	</mx:HBox>
 
-	<mx:Grid id="DashboardGrid" x="0" y="156" width="100%" height="85%" horizontalAlign="center"
-			 horizontalGap="8" verticalGap="6">
+	<mx:VBox verticalAlign="middle" horizontalAlign="center" width="100%" height="100%">
+		<mx:Spacer height="25" />
+			
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Label height="106" fontSize="33" text="GNomEx Dashboard" />
+		</mx:HBox>
 		
-		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
-			<mx:GridItem horizontalAlign="center">
+		<mx:Spacer height="10" />
+		
+		<mx:VBox verticalAlign="middle" horizontalAlign="center">
+			<mx:HBox>
 				<db:News id="newsHub" />
-			</mx:GridItem>
-			<mx:GridItem horizontalAlign="center">
-				<db:FAQ />
-			</mx:GridItem>
-		</mx:GridRow>
-		<mx:GridRow width="90%" height="40%" horizontalAlign="center">
-			<mx:GridItem horizontalAlign="center">
-				<db:RunStatusHub id="runMonitor" includeInLayout="{parentApplication.isSuperAdmin}" />
-			</mx:GridItem>
-			<mx:GridItem horizontalAlign="center">
-				<db:NotificationHub />
-			</mx:GridItem>
-		</mx:GridRow>
-	</mx:Grid>
-	
+				<db:FAQ id="faqHub" />
+			</mx:HBox>
+			<mx:Spacer height="10" />		
+			<mx:HBox>
+				<db:NotificationHub id="notificationHub" />
+				<db:RunStatusHub id="runMonitor" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>
 </mx:Canvas>

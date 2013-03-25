@@ -39,7 +39,8 @@ CREATE TABLE `gnomex`.`Notification` (
 	`message` VARCHAR(250) NULL,
 	`date` DATETIME NULL,
 	`expID` INT(10) NULL,
-	`type`	VARCHAR(25) NULL, 
+	`type`	VARCHAR(25) NULL,
+	`fullNameUser` VARCHAR(100) NULL, 
 	PRIMARY KEY (`idNotification`)
 )
 ENGINE = INNODB;

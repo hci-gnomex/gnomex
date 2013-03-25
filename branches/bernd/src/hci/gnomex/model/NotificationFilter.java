@@ -38,7 +38,7 @@ public class NotificationFilter extends DetailObject {
     addBaseQueryBody(queryBuf);
     addRequestCriteria();
     
-    System.out.println("Query: " + idUserTarget+ " --- " + queryBuf);
+//    System.out.println("Query: " + idUserTarget+ " --- " + queryBuf);
     
     return queryBuf;
   }
@@ -48,7 +48,7 @@ public class NotificationFilter extends DetailObject {
 	  queryBuf.append(" n.idNotification, n.sourceType, ");
 	  queryBuf.append(" n.message, n.date, ");
 	  queryBuf.append(" n.idUserTarget, n.idLabTarget, ");
-	  queryBuf.append(" n.expID, n.type ");
+	  queryBuf.append(" n.expID, n.type, n.fullNameUser ");
    } 
 
   private void addBaseQueryBody(StringBuffer queryBuf) {

@@ -16,7 +16,7 @@ if (tray.getColumns().size() > 6) {
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>HCI Report - <%=tray.getReportTitle()%></title>
+<title>GNomEx Report - <%=tray.getReportTitle()%></title>
 
 <style type="text/css" media="all">
 body {
@@ -107,7 +107,7 @@ tr.rowColorWht {
 } 
  else {
    %>
-   <tr><td colsoan="<%=tray.getColumns().size()%>"> No results </td></tr>
+   <tr><td colspan="<%=tray.getColumns().size()%>"> No results </td></tr>
    <%
  }
 %>

@@ -37,6 +37,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 	
     filter = new NotificationFilter();
+    filter.setIdUserTarget(this.getSecAdvisor().getIdAppUser());
     HashMap errors = this.loadDetailObject(request, filter);
     if(request.getParameter("workflowCoreFacility") != null){
     	workflowCoreFacility = Integer.parseInt(request.getParameter("workflowCoreFacility"));	
@@ -55,7 +56,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     	
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-
+        
         // Process filter calling here 
         Document doc = new Document(new Element("NotificationCollection"));
         
@@ -96,9 +97,9 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     		x.setAttribute("idTargetLab",		row[5] == null ? "" : ((Integer)row[5]).toString());
     		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
     		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
+    		x.setAttribute("fullNameUser", 		row[8] == null ? "" : (String)row[8]);
             
             // Add node content to rootElement XML output.
-    		
             if(row[0] != null){
             	doc.getRootElement().addContent(x);	
             }

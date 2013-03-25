@@ -14,6 +14,7 @@ public class Notification extends HibernateDetailObject {
   private Integer			idLabTarget;
   private String			type;
   private Integer			expID;
+  private String			fullNameUser;
   
   public Integer getIdNotification(){
 	 return idNotification;
@@ -63,20 +64,28 @@ public class Notification extends HibernateDetailObject {
 	  this.idLabTarget = idLabTarget;
   }
 
-public String getType() {
-	return type;
-}
-
-public void setType(String type) {
-	this.type = type;
-}
-
-public Integer getExpID() {
-	return expID;
-}
-
-public void setExpID(Integer expID) {
-	this.expID = expID;
-}
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public Integer getExpID() {
+		return expID;
+	}
+	
+	public void setExpID(Integer expID) {
+		this.expID = expID;
+	}
+	
+	public String getFullNameUser() {
+		return fullNameUser;
+	}
+	
+	public void setFullNameUser(String fullNameUser) {
+		this.fullNameUser = fullNameUser;
+	}
    
 }

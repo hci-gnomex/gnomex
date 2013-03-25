@@ -20,6 +20,7 @@
  
 
   	 <mapping resource="SchemaGNomEx.hbm.xml"/>
+<!--
      <mapping resource="applications/hciEnv/SchemaMetaAttribute.hbm.xml"/>
      <mapping resource="applications/hciEnv/SchemaMetaAttributePath.hbm.xml"/>
      <mapping resource="applications/hciEnv/SchemaAssoc.hbm.xml"/>
@@ -27,7 +28,8 @@
      <mapping resource="applications/hciEnv/SchemaPathReportAttr.hbm.xml"/>
      <mapping resource="applications/hciEnv/SchemaPersonResearch.hbm.xml"/>
      <mapping resource="applications/hciEnv/SchemaTumorReg.hbm.xml"/>  
-     <mapping resource="applications/hciEnv/SchemaBSTX.hbm.xml"/>    
+     <mapping resource="applications/hciEnv/SchemaBSTX.hbm.xml"/>  
+-->	 
         
     </session-factory>
 

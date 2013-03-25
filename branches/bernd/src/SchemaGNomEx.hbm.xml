@@ -2156,7 +2156,8 @@
 		<property name="idUserTarget" 				column="idUserTarget" 					type="integer" />
 		<property name="idLabTarget" 				column="idLabTarget" 					type="integer" />
 		<property name="type"						column="type"							type="string" />
-		<property name="expID"						column="expID"							type="integer" />					
+		<property name="expID"						column="expID"							type="integer" />
+		<property name="fullNameUser"				column="fullNameUser"					type="string" />					
 	     
 	</class>
     

@@ -158,7 +158,7 @@
 </mx:Script>
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:HBox width="100%" paddingLeft="200" horizontalGap="155"  paddingTop="5">
+		<mx:HBox width="100%" paddingLeft="200" horizontalGap="150"  paddingTop="5">
 			<mx:Label id="mainTitle" text="Latest News" fontSize="18" />
 			<mx:LinkButton id="addNewsItem" click="showAddNewsItem()" 
 						   icon="@Embed(source='../../assets/table_row_insert.png')" width="22" 

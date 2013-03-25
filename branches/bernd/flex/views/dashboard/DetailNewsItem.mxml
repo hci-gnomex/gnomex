@@ -51,9 +51,9 @@
 		</mx:HBox>
 
 		<mx:Label fontWeight="bold" text="Message: "/>
-		<mx:Text id="messageInput" text="{msg}" width="100%" height="535" />
+		<mx:Text id="messageInput" text="{msg}" width="100%" height="555" />
 		
-		<mx:HBox width="100%">
+		<mx:HBox width="100%" horizontalGap="16">
 			<mx:Spacer width="100%"/>
 			<mx:Button id="cancelButton" label="Close" click="cancelNewsItem()" />
 		</mx:HBox>

@@ -35,7 +35,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     
     try {
     	
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DASHBOARD)) {
+//      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DASHBOARD)) {
 
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         Document doc = new Document(new Element("FaqCollection"));
@@ -68,10 +68,10 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         // Send redirect with response SUCCESS or ERROR page.
         setResponsePage(this.SUCCESS_JSP);
 
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to retrieve FAQs.");
-        setResponsePage(this.ERROR_JSP);
-      }
+//      } else {
+//        this.addInvalidField("Insufficient permissions", "Insufficient permission to retrieve FAQs.");
+//        setResponsePage(this.ERROR_JSP);
+//      }
 
     }catch (NamingException e){
       log.error("An exception has occurred in GetFAQ ", e);

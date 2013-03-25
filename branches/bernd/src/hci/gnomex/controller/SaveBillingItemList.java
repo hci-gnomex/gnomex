@@ -133,7 +133,6 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         this.addInvalidField( "BillingItemXMLString", "Invalid work item xml");
       }
     }
-
     
     try {
       appURL = this.getLaunchAppURL(request);      
@@ -158,7 +157,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           li = executionLogger.startLogItem("Parse");
           parser.parse(sess);
           executionLogger.endLogItem(li);
-
+          
           li = executionLogger.startLogItem("Initial Save");
           ArrayList billingItems = new ArrayList();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
@@ -326,7 +325,11 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       // Set last email date
       if (invoice != null) {
         invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
+        System.out.println("Saving invoice!");
         sess.save(invoice);
+        
+        System.out.println("Calling sendNotification!");
+        sendNotification(invoice, sess, "NEW", "BILLING");
         sess.flush();
       }
     }
@@ -377,14 +380,15 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     
   }
   
-  private void sendNotification(Request req, Session sess, String state, String targetGroup){
+  private void sendNotification(Invoice inv, Session sess, String state, String targetGroup){
+	  System.out.println("Generating Notification for " + inv.getInvoiceNumber());
 	  Notification note = new Notification();
 	  note.setSourceType(targetGroup);
-	  note.setType("REQUEST");
-	  note.setExpID(Integer.parseInt(req.getRequestNumberNoR(req.getNumber())));
+	  note.setType("INVOICE");
+	  note.setExpID(Integer.parseInt(inv.getInvoiceNumber().substring(0, inv.getInvoiceNumber().length() - 2)));
 	  note.setDate(new java.sql.Date(System.currentTimeMillis()));
-	  note.setIdLabTarget(req.getIdLab());
-	  note.setIdUserTarget(req.getIdAppUser());
+//	  note.setIdLabTarget(inv.getidreq.getIdLab());
+	  note.setIdUserTarget(this.getSecAdvisor().getIdAppUser());
 	  note.setMessage(state);
 	  
 	  sess.save(note);

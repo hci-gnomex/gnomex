@@ -4,7 +4,6 @@
 		   xmlns:db="views.dashboard.*"
 		   width="500" height="430" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
-		   includeInLayout="{parentApplication.isSuperAdmin}"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
 

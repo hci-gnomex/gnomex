@@ -19,7 +19,7 @@
 		
 		<mx:request>
 			<workflowCoreFacility>1</workflowCoreFacility>
-			<idUserTarget>{parentApplication.idAppUser}</idUserTarget>
+
 		</mx:request>
 		
 	</mx:HTTPService>
@@ -40,6 +40,7 @@
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+			import mx.core.Application;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
@@ -56,6 +57,7 @@
 			public var notificationState:int;
 			
 			public function init():void {
+				
 				notificationInterface.send();
 			}
 			
@@ -92,6 +94,7 @@
 				var state:String = rep.currentItem.@state;
 				var type:String = rep.currentItem.@type;
 				var expID:String = rep.currentItem.@expId;
+				var fullname:String = rep.currentItem.@fullNameUser;
 				
 				if(sourceType == "USER"){
 					notification = "Your";
@@ -116,15 +119,15 @@
 				}else if(sourceType == "WORKFLOW"){
 					
 				}else if(sourceType == "ADMIN"){
-					notification = "A";
+					notification = fullname;
 					
 					if(type == "REQUEST"){
 						if(state == "NEW"){
 							// A new request has been made.
-							notification += " new request (" + expID + "R) has been submitted.";
+							notification += " has submitted a new request (" + expID + "R).";
 						}else if(state == "EXIST"){
 							// An existing request has been edited.
-							notification = "The existing request (" + expID + "R) has been edited.";
+							notification = fullname + " has edited an existing request (" + expID + "R).";
 						}
 					}else if(type == "ANALYSIS"){
 						if(state == "NEW"){

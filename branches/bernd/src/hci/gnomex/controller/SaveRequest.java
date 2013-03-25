@@ -89,6 +89,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -1060,6 +1061,22 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	  note.setIdLabTarget(req.getIdLab());
 	  note.setIdUserTarget(req.getIdAppUser());
 	  note.setMessage(state);
+	  
+	  
+      StringBuffer buf = new StringBuffer();
+	  buf.append("SELECT firstName, lastName FROM AppUser WHERE idAppUser='" + req.getIdAppUser() +"'");
+
+	  List rows = (List) sess.createQuery(buf.toString()).list();
+	  String fullName = "";
+      if (rows.size() > 0) {
+        for(Iterator i = rows.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          fullName = row[0] == null ? "" : (String)row[0].toString();
+          fullName += " ";
+          fullName += row[1] == null ? "" : (String)row[1].toString();
+        }
+      }
+	  note.setFullNameUser(fullName);
 	  
 	  sess.save(note);
 	  sess.flush();
@@ -2298,7 +2315,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
     String requestNumber = requestParser.getRequest().getNumber();
     String requestCategoryMsg = "";
-   
+    String state = "NEW";
+    
     if (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
       requestCategoryMsg = "Estimated Microarray";   
     }
@@ -2319,11 +2337,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
+      ".");
+      	state = "NEW";
     } else {
       emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
-      
+      ".");
+        state = "EXIST";
     }
    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
 
@@ -2346,7 +2365,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       contactEmail = ccEmail;
       ccEmail = null;
       if(contactEmail == null) {
-        // If neither email present then just cend to the lab
+        // If neither email present then just send to the lab
         contactEmail = senderEmail;
       }
     } else if(ccEmail != null && ccEmail.length() == 0) {
@@ -2372,7 +2391,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           senderEmail, 
           subject, 
           emailInfo + emailBody.toString(),
-          true);      
+          true);
+      // Add to Notification table.
+      	sendNotification(requestParser.getRequest(), sess, state, "BILLING");
     }
     
   }  
