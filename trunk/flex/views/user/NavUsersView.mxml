@@ -585,7 +585,7 @@
     
     
 
- <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
+ <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
     <mx:ViewStack id="navStack" width="260" height="100%">
 
