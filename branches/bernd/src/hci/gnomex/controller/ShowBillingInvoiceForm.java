@@ -363,7 +363,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
         billingPeriod, 
-        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
+        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
 
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -434,6 +436,55 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
     if (!billingItemMap.isEmpty()) {
       center2.addContent(formatter.makeDetail());          
+    }
+    
+    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
+      body.addContent(new Element("BR"));
+      Element hr = new Element("HR");
+      hr.setAttribute("style", "border-style:dashed");
+      hr.setAttribute("align", "center");
+      hr.setAttribute("width", "50%");
+      body.addContent(hr);
+      Element p = new Element("P");
+      p.setAttribute("align", "center");
+      p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
+      body.addContent(p);
+      body.addContent(new Element("BR"));
+      
+      Element wrapDiv = new Element("DIV");
+      wrapDiv.setAttribute("class", "wrap");
+      
+      Element remitAddressDiv = new Element("DIV");
+      remitAddressDiv.setAttribute("class", "remitAddress");
+      Element h3 = new Element("H3");
+      Element u = new Element("U");
+      u.addContent("REMITTANCE ADVICE");
+      h3.addContent(u);
+      remitAddressDiv.addContent(h3);
+      Element h5 = new Element("H5");
+      h5.addContent("Your payment is due upon receipt");
+      remitAddressDiv.addContent(h5);
+      remitAddressDiv.addContent(formatter.makeRemittanceAddress());
+      
+      wrapDiv.addContent(remitAddressDiv);
+      
+      Element labAddressDiv = new Element("DIV");
+      labAddressDiv.setAttribute("class", "labAddress");
+      Element p1 = new Element("P");
+      Element b = new Element("B");
+      b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
+      p1.addContent(b);
+      labAddressDiv.addContent(p1);
+      Element p2 = new Element("P");
+      Element b1 = new Element("B");
+      b1.addContent("Amount Due: " + formatter.getGrandTotal());
+      p2.addContent(b1);
+      labAddressDiv.addContent(p2);
+      labAddressDiv.addContent(formatter.makeLabAddress());
+      
+      wrapDiv.addContent(labAddressDiv);
+      body.addContent(wrapDiv);
+      
     }
 
 

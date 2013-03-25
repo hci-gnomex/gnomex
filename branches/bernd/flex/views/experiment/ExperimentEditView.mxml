@@ -1135,6 +1135,8 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.notesView.setBioNoteVisibility(false);
+				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -1145,6 +1147,8 @@
 				this.samplesView.currentState = 'FragAnalState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1157,6 +1161,8 @@
 				this.samplesView.currentState = 'MitSeqState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1182,6 +1188,8 @@
 				this.samplesView.currentState = 'CherryPickState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+				
+				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -2517,9 +2525,11 @@
 							break;
 						}
 					}
-					if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
-						if ( sampleSetupView.iScanChipBox != null ) {
-							sampleSetupView.iScanChipBox.styleName = "normalBox";
+					if ( sampleSetupView.iScanChipRadioGroup.selectedValue != null ) {
+						if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
+							if ( sampleSetupView.iScanChipBox != null ) {
+								sampleSetupView.iScanChipBox.styleName = "normalBox";
+							}
 						}
 					}
 					sampleSetupView.numberOfChips.text = request.@numberIScanChips;
@@ -2532,6 +2542,11 @@
 				}
 			}
 
+			if ( this.theTab.contains(samplesView) && this.isDNASeqCoreState() ) {
+				if ( samplesView.showCCNumberCheckbox != null ) {
+					samplesView.showCCNumberCheckbox.selected = false;
+				}
+			}
 			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
 				for each(var app:Object in sampleSetupView.seqAppRepeater.dataProvider) {
 					if (app.@value == request.@codeApplication) {
@@ -3552,24 +3567,24 @@
 					}					
 				} 
 
-				var message:String = "";
+				var message:String = '';
 				var title:String = ""; 
 				if (this.isAmendState()) {
 					message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
 					title = "Services added to Request";			
 				} else {
 					if (this.isExternalExperimentSubmission()) {
-						message = 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
+						message += 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
 						title = "Experiment Registered";			
 						
-					} else if (this.isCapSeqState() || this.isFragAnalState() || this.isMitSeqState() || this.isCherryPickState() || this.isIScanState()) {
-						message = 'Experiment request #  ' + submittedRequestNumber + ' has been saved.  When you are ready to deliver your samples, please submit the experiment by clicking on the Submit link on the Experiment detail page.';
-						title = "Experiment request saved";			
-						
 					} else {
-						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted.\nPlease print off the request form and deliver it along with your samples to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';
-						title = "Request Submitted";			
-						
+						message = 'Request #  ' + submittedRequestNumber + '\n' + 
+							       parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
+						if (this.isDNASeqCoreState()) {
+							title = "Experiment request saved";		
+						} else {
+							title = "Request Submitted";
+						}
 					}
 				}
 				Alert.show(message, title, 0, this, onNotifySubmitRequest);
@@ -5024,7 +5039,7 @@
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Post Experiment Data'}" fontWeight="normal" paddingRight="50"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Create new Experiment and upload your data'}" fontWeight="normal" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
@@ -5225,7 +5240,6 @@
     		<mx:SetStyle target="{dirty}" name="fontSize" value="9"/>
     		<mx:SetProperty target="{dirty}" name="label" value="Changes have not been saved"/>
     		<mx:SetStyle target="{hbox8}" name="horizontalGap" value="0"/>
-    		<mx:SetStyle target="{dirty}" name="fontFamily" value="Verdana"/>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
 				<mx:HBox  horizontalAlign="left" id="hbox6" horizontalGap="0" paddingBottom="4" paddingTop="4" verticalAlign="middle" paddingLeft="4">
 					<mx:LinkButton label="View" fontSize="10" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        

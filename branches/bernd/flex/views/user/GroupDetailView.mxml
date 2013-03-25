@@ -1548,7 +1548,7 @@
 										<mx:DataGridColumn headerText=""  width="10" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
-													<mx:LinkButton textAlign="left"  
+													<mx:LinkButton textAlign="left"  toolTip="Delete Account"
 																   icon="@Embed(source='../../assets/momentum_trash_can_delete.png')"
 																   textDecoration="underline"
 																   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountPOGrid)}"/>
@@ -1597,7 +1597,7 @@
 										<mx:DataGridColumn headerText=""  width="5" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
-													<mx:LinkButton textAlign="left"  
+													<mx:LinkButton textAlign="left"  toolTip="Delete Credit Card"
 																   icon="@Embed(source='../../assets/momentum_trash_can_delete.png')"
 																   textDecoration="underline"
 																   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountCreditCardGrid)}"/>

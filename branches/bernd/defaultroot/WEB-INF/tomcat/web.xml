@@ -144,6 +144,13 @@
 			hci.gnomex.controller.DownloadDataTrackFileServlet
 		</servlet-class>
 	</servlet>
+  
+  <servlet>
+    <servlet-name>DownloadOncoCartaFDFServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.DownloadOncoCartaFDFServlet
+    </servlet-class>
+  </servlet>
 
 	<servlet>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
@@ -337,6 +344,11 @@
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
 		<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>DownloadOncoCartaFDFServlet</servlet-name>
+    <url-pattern>/DownloadOncoCartaFDFServlet.gx</url-pattern>
+  </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>UploadDataTrackFileServlet</servlet-name>

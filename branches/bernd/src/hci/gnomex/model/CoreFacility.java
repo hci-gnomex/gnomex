@@ -14,6 +14,8 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   
   public static final String CORE_FACILITY_DNA_SEQ = "DNA Sequencing";
   public static final String CORE_FACILITY_GENOMICS = "Microarray and Genomic Analysis";
+  public static final Integer CORE_FACILITY_DNA_SEQ_ID = 2;
+  public static final Integer CORE_FACILITY_GENOMICS_ID = 1;
   
   private Integer  idCoreFacility;
   private String   facilityName;

@@ -3,7 +3,7 @@
 				xmlns:renderers="views.renderers.*"
 				layout="vertical" 
 				title="Edit Billing Account" 
-				width="665" 
+				width="675" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/work_auth_form.png')">

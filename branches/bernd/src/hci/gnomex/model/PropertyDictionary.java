@@ -20,6 +20,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "contact_email_core_facility_workauth_reminder";
   public static final String        REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "reply_email_core_facility_workauth_reminder";
+  public static final String        CONTACT_ADDRESS_CORE_FACILITY       = "contact_address_core_facility";
+  public static final String        CONTACT_REMIT_ADDRESS_CORE_FACILITY       = "contact_remit_address_core_facility";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
   public static final String        LAST_UPLOAD_NOTIFICATION            = "last_upload_notification";
   public static final String        QC_DIRECTORY                        = "qc_directory";
@@ -90,8 +92,12 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 
   public static final String        GUEST_DOWNLOAD_TERMS                = "guest_download_terms";
   public static final String        CAN_ACCESS_BSTX                     = "can_access_bstx";
-  public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";  public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
-  public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
+  public static final String        REQUEST_SUBMIT_CONFIRMATION_EMAIL   = "request_submit_confirmation_email";
+  public static final String        SUBMIT_REQUEST_INSTRUCTIONS         = "submit_request_instructions";
+  public static final String        ONCOCARTA_FDF_TEMPLATE              = "oncocarta_fdf_template";
+  
+  public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
+  public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";  public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
   public static final String		METRIX_SERVER_HOST					= "metrix_server_host";
   public static final String		METRIX_SERVER_PORT					= "metrix_server_port";
 

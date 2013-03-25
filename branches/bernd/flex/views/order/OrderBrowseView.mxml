@@ -31,15 +31,12 @@
 			<mx:RemoveChild target="{dateCheckboxBar}"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before" target="{dateCheckboxBar}"/>
 			<mx:RemoveChild target="{vbox1}"/>
+			<mx:AddChild relativeTo="{dateCheckboxBar}" position="before">
+				<mx:VRule height = "20" />
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="DNASeqCoreState">
-			<mx:RemoveChild target="{coreFacilityCombo}"/>
-			<mx:AddChild relativeTo="{titleLabel}" position="after">
-				<mx:Spacer width="74" id="spacer2"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{orderNumberLabel}" position="before">
-				<mx:VRule height = "20"  id="vrule2"/>
-			</mx:AddChild>
+			
 		</mx:State>
 	</mx:states>
 	
@@ -536,12 +533,12 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox width="100%" styleName="panelBox"  backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%">
+	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%">
 		<mx:VBox width="100%">
-			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="0">
-				<mx:HBox horizontalGap="0">
+			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
+				<mx:HBox horizontalGap="0" width="90">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" paddingRight="0" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" />			
 				</mx:HBox>
 
 				<mx:VBox verticalGap="0" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" verticalAlign="middle" fontSize="9">
@@ -550,13 +547,13 @@
 						<mx:change>this.requestNoLookupField.text = "";getList();</mx:change>
 					</mx:ComboBox>
 				</mx:VBox>
+				<mx:VRule height = "20" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" visible="{parentApplication.myCoreFacilities.length() > 1}" />
 				<mx:HBox id = "statusCheckboxBar"
 						 horizontalGap = "0"
 						 height = "100%"
 						 verticalAlign = "middle"
 						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5">
+						 horizontalAlign = "right">
 					<mx:CheckBox label = "New"
 								 id = "newCheckbox"
 								 horizontalGap = "0"
@@ -618,12 +615,11 @@
 					</mx:CheckBox>
 					
 				</mx:HBox>
-				
+				<mx:VRule height = "20" />
 				<mx:HBox horizontalGap="0"
 						 height="100%"
 						 verticalAlign="middle"
-						 verticalGap="0"
-						 width="150" >
+						 verticalGap="0">
 					
 					<mx:Label text="Order #" id="orderNumberLabel" />
 					
@@ -651,15 +647,14 @@
 		<mx:VBox  width="100%" id="vbox1">
 			
 			<mx:HBox id = "filterBar"
-					 horizontalGap = "20"
+					 horizontalGap = "5"
 					 paddingTop = "0"
 					 paddingBottom = "4"
-					 paddingLeft = "145"
+					 paddingLeft = "95"
 					 horizontalAlign = "left"
 					 verticalAlign = "middle">
 				<mx:CheckBox label = "Redos"
 							 id = "redoCheckbox"
-							 paddingLeft = "2"
 							 horizontalGap = "0"						
 							 styleName = "labelSmall">
 					<mx:click>
@@ -668,16 +663,12 @@
 				</mx:CheckBox>
 				<mx:VRule height = "20"  id="vrule1"/>
 				
-				
-				
 				<mx:HBox id = "typeCheckboxBar"
 						 horizontalGap = "0"
 						 height = "100%"
 						 verticalAlign = "middle"
 						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
+						 horizontalAlign = "right">
 					
 					<mx:CheckBox label = "Sanger Seq"
 								 id = "capSeqCheckbox"
@@ -741,14 +732,13 @@
 				</mx:HBox>
 				
 				
+				<mx:VRule height = "20" />
 				<mx:HBox id = "dateCheckboxBar"
 						 horizontalGap = "0"
 						 height = "100%"
 						 verticalAlign = "middle"
 						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
+						 horizontalAlign = "right">
 					<mx:CheckBox id = "createdLastWeekCheckbox"
 								 label = "Created in last week"
 								 paddingRight = "0"

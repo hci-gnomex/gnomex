@@ -9,13 +9,20 @@
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
 		   creationPolicy="all"  show="init()"
-		   cornerRadius="10" >
+		   cornerRadius="10"  backgroundAlpha="0">
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:SetStyle target="{vbox2}" name="borderStyle" value="none"/>
+			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
+			<mx:SetStyle target="{topBar}" name="paddingRight" value="4"/>
+			<mx:SetStyle target="{topBar}" name="paddingLeft" value="4"/>
 		</mx:State>
-		<mx:State name="UserState"/>
-		<mx:State name="GuestState"/>
+		<mx:State name="UserState">
+			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
+		</mx:State>
+		<mx:State name="GuestState">
+			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
+		</mx:State>
 	</mx:states>
 
 	<mx:HTTPService  
@@ -1036,7 +1043,7 @@
 			 verticalGap="10" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" borderStyle="outset" dropShadowEnabled="false" id="vbox2">
 
 			<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
-					 id="topBar" backgroundImage="@Embed(source='../../assets/filterBarGrey.png')" backgroundSize="100%" horizontalGap="10" paddingLeft="2" paddingRight="2" borderStyle="none">
+					 id="topBar" horizontalGap="10" paddingLeft="4" paddingRight="4" >
 				<mx:Text text="Topics" styleName="titleLabel" width="80"/>
 				<mx:LinkButton   label="New topic" 
 								 enabled="{currentState != 'GuestState'}"
@@ -1090,7 +1097,7 @@
 							 click="onTreeClick();"
 							 doubleClickEnabled="true" 
 							 doubleClick="onTreeDoubleClick();"
-							 borderStyle="solid"
+							 borderStyle="none"
 							 labelField="@label"
 							 labelFunction="getTreeLabel"
 							 dragEnabled="{currentState != 'GuestState'}" 
@@ -1115,8 +1122,7 @@
 		
 		 
 		<mx:ViewStack id="mainViewStack" width="100%" height="100%" creationPolicy="auto">
-			<mx:Panel id="blankView" width="100%" height="100%">			    	
-			</mx:Panel>
+			<mx:VBox id="blankView" width="100%" height="100%" styleName="panelBox"/>			    	
 			
 			<datatrack:DataTrackView id="dataTrackView" width="100%" height="100%" creationPolicy="all" creationComplete="dataTrackViewShow();">
 			</datatrack:DataTrackView>

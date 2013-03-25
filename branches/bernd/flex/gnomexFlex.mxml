@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>   
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
-				xmlns="*" 
+				xmlns="*"  
 				xmlns:views="views.*"
 				xmlns:workflow="views.workflow.*"  
 				xmlns:experiment="views.experiment.*"  
@@ -20,8 +20,8 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
-				paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*">
+				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true">
 	
 	
 	
@@ -340,7 +340,7 @@
 			private var cursorID:Number = 0; 
 			
 			[Bindable]  
-			private var siteLogo:String = "";
+			public var siteLogo:String = "";
 			
 			[Bindable]
 			[Embed(source="assets/gnomex_logo.png")]
@@ -785,8 +785,20 @@
 			
 			public var idCoreFacilityDNASeq:Object;
 			
+			
 			[Bindable]
-			public var isCoreDNASeq:Boolean = false;
+			public var usesExperimentTypeCapSeq:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeIScan:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeMitSeq:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeFragAnalysis:Boolean = false;
+			[Bindable]
+			public var usesExperimentTypeCherryPick:Boolean = false;
+			
+			[Bindable]
+			public var managesPlateBasedWorkflow:Boolean = false;
 			
 			[Bindable]
 			public var isCoreGenomics:Boolean = false;
@@ -975,6 +987,7 @@
 			public var PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT :String    = "account_number_account_default";
 			public var PROPERTY_GUEST_DOWNLOAD_TERMS :String              = "guest_download_terms";
 			public var PROPERTY_GNOMEX_LINKAGE_BST_URL:String             = "gnomex_linkage_bst_url";
+			public var PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS:String		  = "submit_request_instructions";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -1724,8 +1737,8 @@
 			
 			private function loggedInInit():void {
 				appProgressBar = new AppProgressView();
-				appProgressBar.currentState = "StartupState";
-				PopUpManager.addPopUp(appProgressBar, mainArea, false);
+				appProgressBar.currentState = "ShowCreditsState";
+				PopUpManager.addPopUp(appProgressBar, theBody, false);
 				PopUpManager.centerPopUp(appProgressBar);
 				
 				// This is for handler to enable Mac MouseWheel
@@ -1889,8 +1902,113 @@
 				return isMyCoreFacility;
 			}
 			
-
 			private function customizeMenus(navMenu:XMLList):void {
+				if (!this.showBioinformaticsLinks) {
+					hideMenusByContext(navMenu, "bioinformatics");
+				}
+				if (!showUsage) {
+					hideMenusByContext(navMenu, "usage");
+				}
+				if (!showPurchaseSupplies) {
+					hideMenusByContext(navMenu, "purchaseSuppliesLink");
+				}
+				
+				hideMenusByProperties(navMenu);
+				
+				addPricingMenus(navMenu);
+			}
+			
+			private function addPricingMenus(navMenu:XMLList):void {
+				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (property.@value == '') {
+						continue; 
+					}
+					var propertyMenu:XML = null;
+					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
+						if (property.@propertyValue != null && property.@propertyValue != '') {
+							if (property.@idCoreFacility != "") {
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								} else {
+									for each (var cf1:Object in  myCoreFacilities) {
+										if (property.@idCoreFacility == cf1.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								}
+							} else if (property.@idCoreFacility == "") {
+								propertyMenu = new XML("<menuitem/>");
+								propertyMenu.@label = "Pricing";
+								propertyMenu.@url = property.@propertyValue;
+							}							
+						}
+					}
+					if (propertyMenu != null) {
+						// Find 'Links' or 'Useful Links' menu
+						var parentMenu:Object = null;
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@context == "otherLinks") {
+								parentMenu = navMenu[i];
+								break;
+							} 
+						}
+						if (parentMenu == null) {
+							var linkMenu:Object = new XML("<menuitem/>");
+							linkMenu.@label = "Useful Links...";
+							
+							// Need to do this strange code to insert into the XMLList
+							var xmlList:XMLList = XMLList(navMenu);
+							xmlList[xmlList.length() - 1] += linkMenu; 
+							
+							parentMenu = linkMenu;
+						}
+						// Add pricing menu item to the menu
+						parentMenu.appendChild(propertyMenu);
+					}
+				}
+				
+			}
+			
+			private function hideMenusByContext(navMenu:XMLList, context:String):void {
+				var foundSomethingToDelete:Boolean = true;
+				
+				// If this user doesn't use any experiment types that deal with 
+				// analysis, then we want to exclude bioinformatics specific menus
+				if (!this.showBioinformaticsLinks) {
+					while (foundSomethingToDelete) {
+						foundSomethingToDelete = false;
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@context == context) {
+								delete navMenu[i];
+								foundSomethingToDelete = true;
+								break;
+							} else {
+								var cn:XMLList = XMLList(navMenu[i].children());
+								for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+									if (cn[j].@context == context) {
+										delete cn[j];
+										foundSomethingToDelete = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+
+			private function hideMenusByProperties(navMenu:XMLList):void {
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (property.@value == '') {
 						continue; 
@@ -1899,10 +2017,23 @@
 						var menuToHide:String = null;
 						if (property.@propertyValue == "hide") {
 							if (property.@idCoreFacility != "" && !isSuperAdmin) {
-								for each (var cf:Object in coreFacilitiesICanManage) {
-									if (property.@idCoreFacility == cf.@idCoreFacility) {
-										menuToHide = property.@propertyName.toString().substr(5);
-										break;
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											menuToHide = property.@propertyName.toString().substr(5);
+											break;
+										}
+									}
+								} else {
+									
+									if (menuToHide == null) {
+										for each (var cf1:Object in  myCoreFacilities) {
+											if (property.@idCoreFacility == cf1.@idCoreFacility) {
+												menuToHide = property.@propertyName.toString().substr(5);
+												break;
+											}
+										}
+										
 									}
 								}
 							} else if (property.@idCoreFacility == "") {
@@ -1934,12 +2065,10 @@
 
 			private function checkSecurity():void {
 				customizeMenus(adminMenu);
-				customizeMenus(this.adminDNASeqMenu);
+				customizeMenus(this.adminPlateBasedMenu);
 				customizeMenus(this.guestMenu);
 				customizeMenus(this.userNonSubmitterMenu);
 				customizeMenus(this.managerMenu);
-				customizeMenus(this.managerNoBioinformaticsMenu);
-				customizeMenus(this.userNoBioinformaticsMenu);
 				customizeMenus(this.userMenu);
 				customizeMenus(this.userESMenu);
 				customizeMenus(this.managerESMenu);
@@ -1953,7 +2082,7 @@
 						isAdminState = true; // real admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+						} else if (this.managesPlateBasedWorkflow && !isSuperAdmin) {
 							currentState = "AdminDNASeqState";
 						} else {
 							currentState = "AdminState";
@@ -1962,7 +2091,7 @@
 						isBillingAdminState = true;  // billing admin
 						if (this.isExternalDataSharingSite) {
 							currentState = "AdminESState";
-						} else if (this.isCoreDNASeq && !isCoreGenomics && !isSuperAdmin) {
+						} else if (this.managesPlateBasedWorkflow &&  !isSuperAdmin) {
 							currentState = "BillingAdminDNASeqState";
 						} else {
 							currentState = "BillingAdminState";
@@ -1995,7 +2124,6 @@
 				idAppUser = createSecurityAdvisor.lastResult.@idAppUser;
 				isGuest = createSecurityAdvisor.lastResult.@isGuest == 'Y' ? true : false;
 				
-				this.appProgressBar.currentState = "LoadingState";
 				this.showProgress(10);
 				
 				userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
@@ -2193,23 +2321,15 @@
 					}
 				}
 				
-				//
-				// Determine which core facilities the user is associated with.
-				//
-				if (isGuest) {
-					// Only presume the guest needs Core DNA Seq specific behavior if the core facility
-					// for DNA Seq is in the core facilities dictionary.
-					isCoreDNASeq = coreDNASeqConfigured;
-				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-					// Only presume the super admin needs Core DNA Seq specific behavior if the core facility
-					// for DNA Seq is in the core facilities dictionary.
-					isCoreDNASeq = coreDNASeqConfigured;
-				} else {
-					var coreFacilityDNASeq:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_DNA_SEQ);
-					if (coreFacilityDNASeq is XMLList && XMLList(coreFacilityDNASeq).length() > 0) {
-						isCoreDNASeq = true;
-					} 					
-				}
+				// Determine if the admin uses the Plate Based workflow screens (Fill Plate, Build Run, Review results)
+				this.managesPlateBasedWorkflow = this.doesManagePlateBasedWorkflow();
+				
+				// Determine which experiment types this person can use
+				this.usesExperimentTypeCapSeq = this.usesExperimentType(this.TYPE_CAP_SEQ);
+				this.usesExperimentTypeFragAnalysis = this.usesExperimentType(this.TYPE_FRAG_ANAL);
+				this.usesExperimentTypeMitSeq = this.usesExperimentType(this.TYPE_MIT_SEQ);
+				this.usesExperimentTypeCherryPick = this.usesExperimentType(this.TYPE_CHERRY_PICK);
+				this.usesExperimentTypeIScan = this.usesExperimentType(this.TYPE_ISCAN);
 				
 				
 				if (isGuest) {
@@ -2217,10 +2337,10 @@
 				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isCoreGenomics = true;
 				} else {
-					var coreFacilityGenomics:Object = createSecurityAdvisor.lastResult..CoreFacility.(@facilityName == CORE_FACILITY_GENOMICS);
-					if (coreFacilityGenomics is XMLList && XMLList(coreFacilityGenomics).length() > 0) {
+					if (usesExperimentType(this.TYPE_ILLUMINA) ||
+						usesExperimentType(this.TYPE_MICROARRAY)) {
 						isCoreGenomics = true;
-					} 
+					}
 				}
 				
 				
@@ -2232,7 +2352,7 @@
 				if (!isExternalDataSharingSite) {
 					// We will show all of the links for a super admin
 					if (!hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-						if (isCoreDNASeq && !isCoreGenomics) {
+						if (!isCoreGenomics) {
 							showBioinformaticsLinks = false;
 							showCoreGenomicsLinks = false;
 						}
@@ -2265,6 +2385,40 @@
 				getSessionTimeout.send();
 			}
 			
+			private function doesManagePlateBasedWorkflow():Boolean {
+				if (!isGuest) {
+					for each (var cf:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
+						for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+							if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+								requestCategory.@isActive == 'Y' &&
+								(requestCategory.@type == this.TYPE_CAP_SEQ ||
+									requestCategory.@type == this.TYPE_MIT_SEQ ||
+									requestCategory.@type == this.TYPE_FRAG_ANAL) ) {
+								return true;
+								break;
+							}
+						}
+					}
+				}
+				return false;
+			}
+			private function usesExperimentType(experimentType:String):Boolean {
+				if (isGuest) {
+					return false;
+				}
+				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory.@type == experimentType &&
+						    requestCategory.@isActive == 'Y') {
+							return true;
+							break;
+						}
+					}
+				}
+				return false;
+			}
+
 			
 			private function onGetSessionTimeout(event:ResultEvent):void {
 				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
@@ -2460,6 +2614,7 @@
 					PopUpManager.removePopUp(appProgressBar);
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
+
 				}
 				
 			}
@@ -2856,16 +3011,17 @@
 				if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
 					return;
 				}
-				showView(event.target.data.@label);
+				showView(event.target.data);
 			}
 			
-			private function onMenuSelect(event:MenuEvent):void {
-				showView(event.label);
+			private function onMenuSelect(event:MenuEvent):void {				
+				showView(event.item);
 			}
 			
 			
-			private function showView(label:String):void {
-				
+			private function showView(menuitem:Object):void {
+				var label:String = menuitem.@label;
+				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
 				
 				if (label == 'Analysis') {
 					theViews.selectedChild = navAnalysisView;
@@ -2947,7 +3103,7 @@
 					theViews.selectedChild = navPlateView;
 					navPlateView.removeRun();
 					navPlateView.toggleBuildState('RUN');
-				} else if (label == "Plates and Runs") {
+				} else if (label == "Plates & Runs")  {
 					theViews.selectedChild = navRunView;				
 				} else if (label == "Results") {
 					theViews.selectedChild = navDataView;
@@ -2972,24 +3128,25 @@
 					this.showUploadDownloadHints();
 				} else if (label == "Purchase Supplies (DNA Seq Core)") {
 					this.showPurchaseSuppliesLink();
-				} else if (label == "Pricing (Microarray Core)") {
-					showPricing();
-				} else if (label == "Pricing (DNA Seq Core") {
-					showPricingDNASeqCore();
-				}  else if (label == "Configure iScan Chips") {
+				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
-				}
-				
-				
-				
-				
-				
+				} else if (url != "") {
+					navigateToURL(new URLRequest(url), '_blank');
+				} 
 			}
 			
 			
 			private function resizeMenuItems():void{
+				var menuBarSpacing:int = 8;
+				if (this.mainMenu.menuBarItems.length <= 5) {
+					menuBarSpacing = 30;
+				} else if (this.mainMenu.menuBarItems.length <= 7) {
+					menuBarSpacing = 25;
+				} else if (this.mainMenu.menuBarItems.length <= 8) {
+					menuBarSpacing = 14;
+				}
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
-					item.width += 10;
+					item.width += menuBarSpacing;
 				}
 			}
 			
@@ -3030,25 +3187,9 @@
 				}
 			}
 			
-			private function showPricing():void {				
-				var pricingURL:String = this.getProperty(this.PROPERTY_PRICING_URL);
-				if (pricingURL == null || pricingURL == "") {
-					Alert.show("Please contact GNomEx support.  The pricing web page is not configured in GNomEx.");
-				} else {
-					navigateToURL(new URLRequest(pricingURL), '_blank');
-				}
-			}
-			private function showPricingDNASeqCore():void {
-				var pricingURL:String = this.getCoreFacilityProperty(String(this.idCoreFacilityDNASeq), this.PROPERTY_PRICING_URL);
-				if (pricingURL == null || pricingURL == "") {
-					Alert.show("Please contact GNomEx support.  The pricing web page for the DNA Sequencing Core Facility is not configured in GNomEx.");
-				} else {
-					navigateToURL(new URLRequest(pricingURL), '_blank');
-				}
-			}
 			
 			private function showIScanChipWindow():void {
-				if (isCoreDNASeq) {
+				if (managesPlateBasedWorkflow) {
 					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
@@ -3095,7 +3236,8 @@
 	
 	<mx:XMLList id="adminMenu">
 		
-		
+		<menuitem label="Orders" icon="iconOrders"   />
+
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
@@ -3103,20 +3245,20 @@
 			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
-			<menuitem label="Orders" icon="iconOrders"/>
+			<menuitem label="Orders" icon="iconOrders"   />
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic" context="bioinformatics"   />
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="Workflow " icon="iconWorkflow"   />
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
-			<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
 
@@ -3146,11 +3288,8 @@
 			
 		</menuitem>
 		
-		<menuitem label="Links..." icon="iconLinks" >
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar"/>
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar"/>
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar"/>
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks" >
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 
 		
@@ -3180,13 +3319,13 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis" context="bioinformatics"   />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -3215,13 +3354,13 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
@@ -3266,12 +3405,12 @@
 		
 	</mx:XMLList>
 	
-	<mx:XMLList id="adminDNASeqMenu">
+	<mx:XMLList id="adminPlateBasedMenu">
 		
 		<menuitem label="Orders" icon="iconOrders"   />
 		<menuitem label="Fill Plate" icon="iconPlate"   />
 		<menuitem label="Build Run" icon="iconInstrumentRun"   />
-		<menuitem label="Plates and Runs" icon="iconPlatesAndRuns"   />
+		<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 		<menuitem label="Results" icon="iconResults"   />
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
@@ -3284,7 +3423,7 @@
 		
 		<menuitem label="Admin..." icon="iconUsers"   >
 			<menuitem label="Billing" icon="iconBilling"   />
-			<menuitem label="Users and Groups" icon="iconUsers"   />
+			<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
 		</menuitem>
@@ -3302,9 +3441,8 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -3322,11 +3460,11 @@
 		</menuitem>
 		
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 
 <!--		
 		
@@ -3337,58 +3475,18 @@
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
-			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
 -->
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney"  />
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
 		</menuitem>
 
 		
 	</mx:XMLList>
 	
-	<mx:XMLList id="userNoBioinformaticsMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
-		
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
-		
-		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-		
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
-		</menuitem>
-		
-		
-	</mx:XMLList>
-	<mx:XMLList id="managerNoBioinformaticsMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
-		
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
-		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
-
-		<menuitem label="Users and Groups" icon="iconUsers"   />
-
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
-		</menuitem>
-		
-		
-	</mx:XMLList>
 	
 	<mx:XMLList id="managerMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
@@ -3401,13 +3499,13 @@
 		</menuitem>
 		
 		
-		<menuitem label="Analysis" icon="iconAnalysis"   />
+		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
-		<menuitem label="Data Tracks" icon="iconDataTrack"   />
+		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
 		
-		<menuitem label="Topics" icon="iconTopic"   />
+		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 		
-		<menuitem label="Users and Groups" icon="iconUsers"   />
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
@@ -3421,11 +3519,8 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Useful Links..." icon="iconLinks">
-			<menuitem label="Pricing (Microarray Core)" icon="iconDollar" />
-			<menuitem label="Pricing (Translational Oncology)" icon="iconDollar" />
-			<menuitem label="Pricing (DNA Seq Core)" icon="iconDollar" />
-			<menuitem label="Purchase Supplies (DNA Seq Core)" icon="iconMoney" />
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 		
 		
@@ -3460,69 +3555,77 @@
 	</mx:XMLList>
 
 	
-	<mx:VBox id="theBody"   backgroundColor="#FFFFFF"
+	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="4"  
-			 paddingTop="0" paddingLeft="2" 
-			 paddingRight="2" paddingBottom="2" borderStyle="outset">
-		
-		
+			 verticalGap="4"   visible="true" 
+			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
+			 paddingTop="0" paddingLeft="0" 
+			 paddingRight="0" paddingBottom="0">
+		   
+		 
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"  
-				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"  borderStyle="none" >
+				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"   
+				  visible="false" borderStyle="solid" dropShadowEnabled="true" dropShadowColor="#CAC9B7">
 			
-			<mx:VBox width="100%" verticalGap="0"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-				<mx:HBox width="100%"  
-						 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
-						 paddingBottom="2" id="hbox1" 
-						 paddingTop="0" 
-						 paddingLeft="4" paddingRight="4" borderStyle="none" borderColor="#E9ECEE" borderThickness="2">
-					<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
-					<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
-						
-						<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-						<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-						<mx:Button id="lookupButton" 
-								   width="30"
-								   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
-					</mx:HBox>
-					<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
-						<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
-						<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
-						<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-						<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
-						</mx:LinkButton>
-					</mx:HBox>
-					
-					<mx:Spacer width="100%"/>
-					
-					<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
-						<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
-									   label="Home" visible="true" 
-									   click="{theViews.selectedChild = homeView}"
-									   paddingLeft="0" paddingRight="1"/>
-						<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false"/>
-						<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
-						<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
-						<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="true" />
-					</mx:HBox>
-				</mx:HBox>  
+			 
+			
+			<mx:VBox width="100%" verticalGap="0"  
+					 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" visible="false" id="vbox1">
 				
-				<mx:HBox width="100%"     
-						 backgroundImage="assets/menubar3.png" backgroundSize="100%"  horizontalGap="0"  
-						 verticalAlign="middle" id="linkButtonBarBox" paddingBottom="0" 
-						 paddingLeft="0" paddingRight="0" paddingTop="0"    visible="false" borderStyle="none">
-					
-					<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
-								click="onMenuClick(event)"
-								itemClick="{onMenuSelect(event)}"  
-								labelField="@label" iconField="@icon"    buttonMode="true"
-								useHandCursor="true" >
+				<mx:VBox width="100%" backgroundColor="#FFFFFF" verticalGap="0">
+					<mx:HBox width="100%"  
+							 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
+							 paddingBottom="2" id="hbox1" 
+							 paddingTop="4" 
+							 paddingLeft="4" paddingRight="4" borderStyle="none">
+						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
+						<mx:Spacer width="100%"/>
+						<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
+							
+							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
+							<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:Button id="lookupButton" 
+									   width="30"
+									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+						</mx:HBox>
+						<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
+							<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
+							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
+							<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
+							</mx:LinkButton>
+						</mx:HBox>
 						
-					</mx:MenuBar> 
+						<mx:Spacer width="100%"/>
+						
+						<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
+							<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
+										   label="Home" visible="false" 
+										   click="{theViews.selectedChild = homeView}"
+										   paddingLeft="0" paddingRight="1"/>
+							<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false" visible="false"/>
+							<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
+							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
+							<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="false" />
+						</mx:HBox>
+					</mx:HBox>  
 					
+					<mx:HRule width="100%"   strokeWidth="1" strokeColor="#E9EBD1" alpha="0.64" id="hrule1"/>
+						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
+									click="onMenuClick(event)"
+									itemClick="{onMenuSelect(event)}"  
+									labelField="@label" iconField="@icon"    
+									useHandCursor="true"  
+									fillAlphas="[0, 0, 0, 0]" 
+									fillColors="[#FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF]" 
+									alpha="1.0">
+							
+						</mx:MenuBar> 
+						
+
+				</mx:VBox>
 					
-				</mx:HBox>
 				
 				
 			</mx:VBox>
@@ -3530,16 +3633,16 @@
 		</mx:VBox>  
 		
 		<mx:VBox id="mainArea" width="100%" 
-				 height="100%" paddingTop="0"  paddingBottom="0" paddingLeft="0" 
-				 paddingRight="0" horizontalCenter="0" verticalGap="0"  backgroundImage="@Embed(source='assets/welcome_background.png')" backgroundSize="100%">
+				 height="100%" paddingTop="0"  paddingBottom="4" paddingLeft="4" 
+				 paddingRight="4" horizontalCenter="0" verticalGap="0" backgroundAlpha="1" visible="false" borderStyle="none">
 			<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-				<mx:ViewStack id="initViews" visible="false" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
+				<mx:ViewStack id="initViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
 					
-					<util:LaunchView id="homeView1" label="Home" icon="@Embed('assets/house.png')" >
+					<util:LaunchView id="homeView1"   >
 					</util:LaunchView> 
 				</mx:ViewStack>
 				
-				<mx:ViewStack id="theViews" visible="false" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
+				<mx:ViewStack id="theViews" visible="true" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
 					
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>  
@@ -3610,9 +3713,9 @@
 	</mx:VBox>
 	
 	
-	<mx:states>
+	<mx:states> 
 		<mx:State name="enabledState">
-			<mx:SetProperty target="{linkButtonBarBox}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 			<mx:SetProperty target="{theViews}" name="visible" value="true"/>
 			<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
@@ -3624,14 +3727,20 @@
 			<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 			<mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
 			<mx:SetProperty target="{homeLinkButton}" name="visible" value="true"/>
-			<mx:SetStyle target="{linkButtonBarBox}" name="backgroundSize"/>
 			<mx:SetProperty target="{linkbutton4}" name="visible" value="true"/>
 			<mx:SetProperty target="{linkbutton4}" name="enabled" value="true"/>
+			<mx:SetProperty target="{mainArea}" name="visible" value="true"/>
+			<mx:SetProperty target="{linkbutton3}" name="visible" value="true"/>
+			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
+			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
+			<mx:SetProperty target="{theBody}" name="visible" value="true"/>
+			<mx:SetProperty name="visible" value="true"/>
 			
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
-			<mx:SetStyle target="{mainMenu}" name="fontSize" value="12"/>
+			<mx:SetStyle target="{hrule1}" name="strokeColor"/>
+			<mx:SetStyle target="{hrule1}" name="strokeWidth"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">
@@ -3639,11 +3748,11 @@
 		</mx:State>
 		
 		<mx:State name="UserState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? userMenu : userNoBioinformaticsMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userMenu}"/>
 		</mx:State>
 		
 		<mx:State name="ManagerState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{showBioinformaticsLinks ? managerMenu : managerNoBioinformaticsMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{managerMenu}"/>
 			
 		</mx:State>
 		<mx:State name="UserNonSubmitterState" basedOn="UserState">
@@ -3668,11 +3777,11 @@
 		</mx:State>
 		
 		<mx:State name="AdminDNASeqState" basedOn="AdminState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminPlateBasedMenu}"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminDNASeqMenu}"/>
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminPlateBasedMenu}"/>
 		</mx:State>
 		
 		

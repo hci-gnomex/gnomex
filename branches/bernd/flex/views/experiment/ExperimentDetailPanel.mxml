@@ -24,6 +24,14 @@
 				webLinksView.setTitleMessage("Experiment " + detail.selectedExperiment.@number);
 				webLinksView.setUserLink(topicNumber);
 			}
+			
+			private function downloadOncoCartaFDF():void {
+				var parms:URLVariables = new URLVariables();
+				parms.mode =  "fdf";
+				parms.idRequest = detail.selectedExperiment.@idRequest;
+				var progressWindow:DownloadProgressView = new DownloadProgressView();
+				progressWindow.init(parentApplication.theBody, 'DownloadOncoCartaFDFServlet.gx', parms, null, 1000, "oncaCarta.fdf");		
+			}
 
 		]]>
 	</mx:Script>
@@ -65,7 +73,10 @@
 					    <mx:LinkButton label="Download Files"  click="detail.checkForFileView();" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
 						<mx:LinkButton label="Printable form"  click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 					    <mx:Spacer width="5"/>
-						<mx:LinkButton label="Share"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Share Link"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Generate OncoCarta Import"  click="{downloadOncoCartaFDF();}" icon="@Embed(source='../../assets/download.png')" 
+									   id="downloadOncoCartaFDFLink" textDecoration="underline" textAlign="left" 
+									   visible="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}" includeInLayout="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}"/>
 				</mx:HBox>
 			</mx:HBox>
 			

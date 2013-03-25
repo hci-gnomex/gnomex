@@ -66,12 +66,12 @@
 </mx:Script>
 	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-			<mx:Label text="Subject:" width="80"/>
+			<mx:Label text="Subject" width="80" styleName="formLabel"/>
 			<mx:TextInput width="100%" id="subject"/>
 		</mx:HBox>
 		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
 			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
-				<mx:Label text="Body:" width="80"/>
+				<mx:Label text="Body" width="80" styleName="formLabel"/>
 			</mx:HBox>
 			<mx:ViewStack paddingLeft="80" id="bodyViewStack" width="100%" height="100%">
 				<mx:Canvas label="textView" width="100%" height="100%"> 

@@ -8,13 +8,13 @@ HCI Cream = F2EFD9
 global {
 	fontSize:12;
 	fontFamily: "Open Sans";
-	color: #302d2b;
+	color: #2E2D2C;
 }
 
 .titleLabel {
 	fontSize: 13;
 	fontWeight: normal;
-	color: #302D2B;
+	color: #2E2D2C;
 }
 
 .errorTip { 
@@ -114,7 +114,7 @@ AdvancedDataGrid {
 
 Panel {
    borderThicknessLeft: 4;
-   borderThicknessTop: 0;
+   borderThicknessTop: 1;
    borderThicknessBottom: 4;
    borderThicknessRight: 4;
    roundedBottomCorners: true;
@@ -124,6 +124,7 @@ Panel {
    statusStyleName: panelStatus;
    borderAlpha: 1;
    dropShadowEnabled: true;
+	borderColor: #FDFDFD;
 }
 
 .panelControlBar {
@@ -156,13 +157,13 @@ Panel {
 }
 
 TitleWindow {
-	borderColor: #BDB4B4;
-	backgroundColor: #BDB4B4;
+	borderColor: #FFFFFF;
+	backgroundColor: #FFFFFF;
 	cornerRadius: 4;
-	borderThicknessTop: 0;
-	borderThicknessBottom: 0;
-	borderThicknessLeft: 0;
-	borderThicknessRight: 0;
+	borderThicknessTop: 2;
+	borderThicknessBottom: 2;
+	borderThicknessLeft: 2;
+	borderThicknessRight: 2;
 	titleStyleName: titleWindowTitle;
 	headerHeight: 20;
 	controlBarStyleName: titleWindowControlBar;
@@ -325,14 +326,17 @@ TextArea {
 
 .panelBox {
 	paddingTop: 4;
-	paddingBottom: 2;
+	paddingBottom: 2; 
 	paddingLeft: 4;
 	paddingRight: 4;
 	verticalGap: 4;
-	backgroundColor: #EBE9E9;
-	dropShadowColor: #020000;
-	dropShadowEnabled: true;
+	backgroundColor: #FFFFFF;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
 }
+
+
 
 .panelWelcomeBox {
 	paddingTop: 4;
@@ -348,8 +352,8 @@ TextArea {
 
 .form {
 	backgroundColor: #FFFFFF;
-	cornerRadius: 4;
-	borderStyle: solid;
+	cornerRadius: 0;
+	borderStyle: none;
 }
 
 .formrule
@@ -415,14 +419,14 @@ TextArea {
 .navTabNavigator {
 	
 	backgroundAlpha:            1.0;
-	backgroundColor:  #d1d1d1;
+	backgroundColor:  #FDFDFB;
 
 	tabStyleName: navTabHeader;
 	firstTabStyleName: navTabHeader;
 	middleTabStyleName: navTabHeader;
 	lastTabStyleName: navTabHeader;
 
-	borderColor: #5F696F;
+	borderColor: #E1E2E6;
 	borderStyle: solid;
 	cornerRadius: 6;
     paddingTop: 0; 
@@ -434,7 +438,7 @@ TextArea {
 }
 
 .panelTabBody {
-	backgroundColor:    #d1d1d1;
+	backgroundColor:    #FDFDFB;
 }
 
 
@@ -442,7 +446,7 @@ TextArea {
 	color: #000000;
 	fillAlphas:  .5, .5;
  	fontWeight: 		normal;
- 	borderColor: #5F696F;
+ 	borderColor: #A8AEB2;
 	borderStyle: solid;
 	cornerRadius: 6;	
 	fontSize: 14;
@@ -470,8 +474,8 @@ TextArea {
 
 .popupWindow {
 	headerColors: #CBCAC1, #CBCAC1;
-	backgroundColor: #CBCAC1;
-	borderColor: #CBCAC1;
+	backgroundColor: #FDFDFB;
+	borderColor: #FDFDFB;
 	cornerRadius: 4;
 	borderStyle: none;
 
@@ -545,18 +549,18 @@ TextArea {
 
 Text.welcome
 {
-	color: #302D2B;
+	color: #2E2D2C;
 	fontSize: 11;
 }
 Text.welcomeTitle
 {
-	color: #302D2B;
+	color: #2E2D2C;
 	fontSize: 15;
 	fontWeight: bold;
 }
 Text.welcomeHeader
 {
-	color: #302D2B;
+	color: #2E2D2C;
 	fontSize: 13;
 	fontWeight: normal;
 	leading: 0;
@@ -852,7 +856,7 @@ MenuBar {
 	backgroundAlpha: 0;
 	borderStyle: none;
 	fillAlphas: 0,0;
-	color: #302D2B;
+	color: #2E2D2C;
 	fontFamily: "Open Sans";
 	menuStyleName: menuItem;
 	fontSize: 13;
@@ -871,10 +875,10 @@ MenuBar {
 
 .menuItem {
 	backgroundAlpha: 0;
-	borderColor: #B7B7B7;
+	borderColor: #FDFDFD;
 	fillAlphas: 1, 1;
-	fillColors: #B7B7B7, #222836, #3F495E, #3F495E;
-	color: #302D2B;
+	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
+	color: #2E2D2C;
 	fontSize: 13;
 	disabledColor: #ACE2F2;
 	errorColor: #ACE2F2;
@@ -890,7 +894,7 @@ MenuBar.linkMenuBar {
 	fillAlphas: 0,0;
 	color: #000000;
 	menuStyleName: menuItem;
-	fontSize: 13;
+	fontSize: 12;
 	fontWeight: normal;
 	highlightAlphas: 0.1, .1;
 	disabledColor: #000000;
@@ -967,4 +971,9 @@ RichTextEditor.readOnly {
 	fontStyle: italic;
 	advancedAntiAliasing: true;
 	src: url("../assets/OpenSans-BoldItalic.ttf");
+}
+HRule
+{
+	strokeColor: #E9EBD1;
+	strokeWidth: 1;
 }
