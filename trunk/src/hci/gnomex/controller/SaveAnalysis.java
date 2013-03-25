@@ -644,7 +644,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     // DataTrack and DataTrackFile query 
     StringBuffer queryBuf = new StringBuffer();
     int inCount = 0;
-    queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
+    queryBuf.append("SELECT distinct dt FROM DataTrack dt ");
     queryBuf.append("JOIN dt.dataTrackFiles dtf ");
     queryBuf.append("WHERE dtf.idAnalysisFile IN (");
     boolean firstTime = true;
@@ -678,16 +678,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
 
       // Run the Query
-      List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
+      List dataTracksToUnlink = sess.createQuery(queryBuf.toString()).list();
       
       
       // Delete the DataTrackFiles and DataTracks 
-      for (Iterator i = dataTrackFiles.iterator(); i.hasNext();) {
-        Object[] row = (Object[]) i.next();
-        DataTrackFile dtf = (DataTrackFile) row[0];
-        DataTrack dt = (DataTrack) row[1];
-        sess.delete( dtf );
-        sess.flush();
+      for (Iterator i = dataTracksToUnlink.iterator(); i.hasNext();) {
+        DataTrack dt = (DataTrack) i.next();
         
         for(DataTrackFolder folder : (Set<DataTrackFolder>)dt.getFolders()) {
           String path = folder.getQualifiedTypeName();
@@ -703,11 +699,28 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
           sess.save(unload);
         }
+        
+        //
+        // Delete the files
+        //
+        for (DataTrackFile dtFile : (Set<DataTrackFile>)dt.getDataTrackFiles()) {
+          sess.delete(dtFile);
+        }
+        sess.flush();
+        dt.setDataTrackFiles(null);
+        
+        sess.flush();
 
         //
         // Delete (unlink) collaborators
         //
         dt.setCollaborators(null);
+        
+        //
+        // Remove all data track files from Data Track
+        //
+        dt.setDataPath(null);
+        
         sess.flush();
         
         // delete database object
