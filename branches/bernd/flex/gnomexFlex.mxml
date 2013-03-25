@@ -3131,16 +3131,10 @@
 					this.showPurchaseSuppliesLink();
 				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
-<<<<<<< .mine
-				}
-=======
 				} else if (url != "") {
 					navigateToURL(new URLRequest(url), '_blank');
 				} 
->>>>>>> .r3728
 			}
-
-			
 			
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 8;
@@ -3459,24 +3453,7 @@
 		
 		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
 
-<<<<<<< .mine
-=======
-<!--		
-		
-		<menuitem label="Configure..." icon="iconConfig"   >
-			<menuitem label="Configure Annotations" icon="iconConfig" />
-			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
-			<menuitem label="Protocols" icon="iconProtocol" />
-		</menuitem>
-		
-		<menuitem label="Reports..."  icon="iconPage" >
-			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
-			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
-		</menuitem>
--->
->>>>>>> .r3728
-		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+ 		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
 			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
 		</menuitem>
 
