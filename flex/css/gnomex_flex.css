@@ -156,6 +156,11 @@ Panel {
 	paddingTop: 2;
 }
 
+HDividedBox {
+	dividerAlpha: 0.0;
+	dividerThickness: 4;
+}
+
 TitleWindow {
 	borderColor: #FFFFFF;
 	backgroundColor: #FFFFFF;
@@ -353,7 +358,10 @@ TextArea {
 .form {
 	backgroundColor: #FFFFFF;
 	cornerRadius: 0;
-	borderStyle: none;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
+	dropShadowColor: #E2E1E0;
+	dropShadowEnabled: true;
 }
 
 .formrule
@@ -974,6 +982,6 @@ RichTextEditor.readOnly {
 }
 HRule
 {
-	strokeColor: #E9EBD1;
+	strokeColor: #D7D5D1;
 	strokeWidth: 1;
 }

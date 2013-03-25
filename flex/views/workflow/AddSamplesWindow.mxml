@@ -347,18 +347,18 @@
 									paddingTop="4">
 						<mx:VBox width="230" height="100%">
 							
-							<mx:Text  width="100%" height="35" 
-									  text="Drag and drop samples to add to the flow cell.">						
+							<mx:Text  width="100%" 
+									  text="Drag and drop samples to add to the flow cell." fontSize="11" styleName="formLabel">						
 							</mx:Text>
 							<mx:HBox backgroundColor="#FEFCFC" 
-									 horizontalAlign="center" 
+									 horizontalAlign="left" 
 									 verticalAlign="middle" 
 									 height="26" width="100%">
 								
-								<mx:Text text="Lab:" 
+								<mx:Text text="Lab" 
 										 height="15" 
 										 paddingTop="0" 
-										 textAlign="center"/>
+										 textAlign="left"/>
 								
 								<mx:ComboBox id="selectedLab" 
 											 dataProvider="{labs}" 
@@ -382,7 +382,7 @@
 							</mx:Tree>
 						
 						</mx:VBox>
-						<mx:VBox width="100%" height="100%">
+						<mx:VBox width="100%" height="100%" styleName="form">
 							<mx:VBox verticalGap="0" 
 									 width="100%" height="100%" 
 									 id="vbox1">
