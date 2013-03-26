@@ -121,8 +121,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
     
     BSTSampleInformation info = (BSTSampleInformation)sess.load(BSTSampleInformation.class, sample.getIdSample());
     
-    //String spNumber = info.getNonNullString(info.getPatientSpNumber());
-    String spNumber = "SP00000 5D";
+    String spNumber = info.getNonNullString(info.getPatientSpNumber());
     String blockId = "";
     char breakChar = '&';
     if (spNumber.lastIndexOf(' ') >= 0) {
