@@ -20,10 +20,10 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
-				xmlns:reporting="views.reporting.*"
-				xmlns:dashboard="views.dashboard.*"
-				paddingBottom="3" paddingLeft="1" paddingRight="1" paddingTop="2" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" >
+				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true">
+	
+	
 	
 	<mx:Fade id="fadeOut" duration="100"/>
 	<mx:Fade id="fadeIn" duration="100"/>	
@@ -2614,22 +2614,23 @@
 					PopUpManager.removePopUp(appProgressBar);
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
-	        	}
-	        	
-	        }
-	        
-	        private function checkSecurityAndLaunchStartWindow():void {
-	        	if (this.currentState == "enabledState") {
-	        		checkSecurity();
-	        		if (this.homeView != null) {
-	        			this.homeDashboard.init();
-	        		}
-		        	launchStartWindow();	        		
-	        	}
-	        }
-	        
-	        private function launchStartWindow():void {
-	        	if (launchExperimentDownloads()) {
+
+				}
+				
+			}
+			
+			private function checkSecurityAndLaunchStartWindow():void {
+				if (this.currentState == "enabledState") {
+					checkSecurity();
+					if (this.homeView != null) {
+						this.homeView.init();
+					}
+					launchStartWindow();	        		
+				}
+			}
+			
+			private function launchStartWindow():void {
+				if (launchExperimentDownloads()) {
 					// (Make sure call to launchExperimentDownloads() is before launchExperimentDetail()
 					// since launching to the detail window is now the default if no launchWindow
 					// parameter is included.
@@ -2645,8 +2646,7 @@
 				} else if (launchBillingAccountDetail() && hasPermission("canAccessAnyObject")) {
 					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
-					//this.theViews.selectedChild = this.homeView;
-					this.theViews.selectedChild = this.homeDashboard;
+					this.theViews.selectedChild = this.homeView;
 					callLater(showWorkAuthWindow);
 				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
 					this.showUserWindow(this.getLaunchIdAppUser());
@@ -2656,8 +2656,7 @@
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;
 					} else {
-						//theViews.selectedChild = this.homeView;
-						theViews.selectedChild = this.homeDashboard;
+						theViews.selectedChild = this.homeView;						
 					}					
 				}
 				
@@ -3043,8 +3042,7 @@
 						this.submitRequestView.startNewRequest();
 					}
 					this.isInternalExperimentSubmission = false;
-					//this.theViews.selectedChild = homeView;
-					this.theViews.selectedChild = homeDashboard;
+					this.theViews.selectedChild = homeView;
 					callLater(this.homeView.submitExternalExperiment);	
 					// If new experiment then initialize ShowCCNumber checkbox
 					this.submitRequestView.showCCNumberColumn = false; 
@@ -3061,6 +3059,7 @@
 				} else if (label == "Configure Annotations") {
 					var configAnnotWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(theBody, PropertyWindow, true));
 					PopUpManager.centerPopUp(configAnnotWindow);
+					
 				}  else if (label == "Annotation Report") {
 					navReportView.reportName = "Annotation Report";
 					theViews.selectedChild = navReportView;
@@ -3136,6 +3135,7 @@
 				} 
 			}
 			
+			
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 8;
 				if (this.mainMenu.menuBarItems.length <= 5) {
@@ -3159,7 +3159,6 @@
 				if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH) != null) {
 					breakMo = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_MONTH));
 				}
-
 				var breakDa:Number = 1;
 				if (this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY) != null) {
 					breakDa = new Number(this.getProperty(this.PROPERTY_FISCAL_YEAR_BREAK_DAY));
@@ -3297,7 +3296,8 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="billingAdminMenu">
-		<menuitem label="Experiments"  icon="iconFlask"  />
+		<menuitem label="Experiments"  icon="iconFlask" >
+		</menuitem>
 		
 		<menuitem label="Billing" icon="iconBilling"   />
 		
@@ -3390,6 +3390,19 @@
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Protocols" icon="iconProtocol" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+		</menuitem>
+		
 	</mx:XMLList>
 	
 	<mx:XMLList id="adminPlateBasedMenu">
@@ -3428,6 +3441,7 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
+		
 		<menuitem label="Links..." icon="iconLinks" context="otherLinks">
 			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
@@ -3452,8 +3466,21 @@
 		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
 		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
-
- 		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+		
+		
+		<menuitem label="Configure..." icon="iconConfig"   >
+			<menuitem label="Configure Annotations" icon="iconConfig" />
+			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
+			<menuitem label="Protocols" icon="iconProtocol" />
+		</menuitem>
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
+		</menuitem>
+		
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
 			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
 		</menuitem>
 
@@ -3557,18 +3584,19 @@
 						<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							
 							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-							<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="lookupButton" 
 									   width="30"
 									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 						</mx:HBox>
 						<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
 							<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
-							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1"/>
+							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
 							<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
 							</mx:LinkButton>
 						</mx:HBox>
+						
 						<mx:Spacer width="100%"/>
 						
 						<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
@@ -3594,6 +3622,7 @@
 									alpha="1.0">
 							
 						</mx:MenuBar> 
+						
 
 				</mx:VBox>
 					
@@ -3617,9 +3646,6 @@
 					
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>  
-					
-					<reporting:ExperimentOverview id="experimentOverview" width="100%" height="100%" backgroundAlpha="1.0">
-					</reporting:ExperimentOverview>	
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
@@ -3675,9 +3701,6 @@
 					
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
-					
-					<dashboard:Dashboard id="homeDashboard" label="Dashboard" icon="@Embed('assets/house.png')" backgroundAlpha="1.0">
-					</dashboard:Dashboard>
 					
 				</mx:ViewStack>
 				

@@ -32,6 +32,7 @@
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.ProgressBar;
+			import mx.core.Application;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
@@ -45,13 +46,10 @@
 			import mx.utils.ObjectUtil;
 			
 			public function init():void {
-				
-	//			Alert.show("State of NH: " + currentState);
-				//Alert.show("State of DB from NH: " + parentApplication.currentState);
-				
+				Alert.show("Notification Hub State: " + parentApplication.currentState);
 				if(parentApplication.currentState == "AdminState"){
 					// Admin can do all.
-					
+/*
 					notificationTabs.getTabAt(0).includeInLayout = true;
 					notificationTabs.getTabAt(1).includeInLayout = true;
 					notificationTabs.getTabAt(2).includeInLayout = true;
@@ -60,11 +58,11 @@
 					notificationTabs.getTabAt(1).visible = true;
 					notificationTabs.getTabAt(2).visible = true;
 					notificationTabs.getTabAt(3).visible = true;
-					
+*/					
 				}
 				
 				if(parentApplication.currentState == "BillingAdminState"){
-					notificationTabs.getTabAt(0).includeInLayout = false;
+/*					notificationTabs.getTabAt(0).includeInLayout = false;
 					notificationTabs.getTabAt(1).includeInLayout = false;
 					notificationTabs.getTabAt(2).includeInLayout = false;
 					notificationTabs.getTabAt(3).includeInLayout = true;
@@ -72,10 +70,12 @@
 					notificationTabs.getTabAt(1).visible = false;
 					notificationTabs.getTabAt(2).visible = false;
 					notificationTabs.getTabAt(3).visible = true;
+*/
 				}
 				
 				if(parentApplication.currentState == "UserState"){
-					notificationTabs.getTabAt(0).includeInLayout = true;
+				//	notificationTabs.removeChild(workflowBox);
+					/*notificationTabs.getTabAt(0).includeInLayout = true;
 					notificationTabs.getTabAt(1).includeInLayout = false;
 					notificationTabs.getTabAt(2).includeInLayout = false;
 					notificationTabs.getTabAt(3).includeInLayout = false;
@@ -83,6 +83,7 @@
 					notificationTabs.getTabAt(1).visible = false;
 					notificationTabs.getTabAt(2).visible = false;
 					notificationTabs.getTabAt(3).visible = false;
+					*/
 				} 
 
 				// Initial retrieval of notifications.

@@ -9,33 +9,9 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
-			
-		//	var monitorVisible:Boolean = true;
-		//	var notificationVisible:Boolean = true;
-			
+		
 			public function init():void {
-				// Determine 3 states:
-					// * User
-					// * Billing
-					// * (Super) Admin
 				
-		//			Alert.show("PA state: " + parentApplication.currentState);
-		//			Alert.show("Current local state DB: " + currentState);
-					
-			//		monitorVisible = false;	
-				
-		//			if(currentState  == "user"){
-//					}
-					//notificationHub.currentState = "admin";
-				//	notificationHub.currentState = "";
-/*				}else if(parentApplication.hasPermission(parentApplication.CAN_ADMINISTER_ALL_CORE_FACILITIES)){
-					currentState = "billing";
-					notificationHub.currentState = "billing";
-					Alert.show("CAN Admin all core facs");
-				}else{
-					currentState = "user";
-					notificationHub.currentState = "user";
-					Alert.show("Just a user - default");*/
 			}
 		]]> 
 	</mx:Script>
@@ -57,7 +33,7 @@
 			<mx:Spacer height="10" />		
 			<mx:HBox>
 				<db:NotificationHub id="notificationHub" />
-				<db:RunStatusHub id="runMonitor" />
+				<db:RunStatusHub id="runMonitor" />	
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

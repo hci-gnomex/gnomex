@@ -109,7 +109,7 @@
 
 		public function showAddFAQ():void {
 			// Show detailed newsitem in popup.
-			var AddFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.homeDashboard, AddFAQ, true));
+			var AddFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.theBody, AddFAQ, true));
 			PopUpManager.centerPopUp(AddFAQWindow);
 		}		
 		
@@ -117,7 +117,7 @@
 </mx:Script>
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		<mx:HBox width="100%" paddingLeft="45" horizontalGap="80"  paddingTop="5" horizontalAlign="center">
+		<mx:HBox width="100%" paddingLeft="60" horizontalGap="75"  paddingTop="5" horizontalAlign="center">
 			<mx:Label id="mainTitle" text="Frequently Asked Questions" fontSize="18" />
 			<mx:LinkButton id="addFAQ" click="showAddFAQ()" 
 						   icon="@Embed(source='../../assets/table_row_insert.png')" width="22" 
