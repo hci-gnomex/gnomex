@@ -121,10 +121,24 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
     
     BSTSampleInformation info = (BSTSampleInformation)sess.load(BSTSampleInformation.class, sample.getIdSample());
     
+    //String spNumber = info.getNonNullString(info.getPatientSpNumber());
+    String spNumber = "SP00000 5D";
+    String blockId = "";
+    char breakChar = '&';
+    if (spNumber.lastIndexOf(' ') >= 0) {
+      breakChar = ' ';
+    } else if (spNumber.lastIndexOf('-') >= 0) {
+      breakChar = '-';
+    }
+    if (breakChar != '&') {
+      blockId = spNumber.substring(spNumber.lastIndexOf(' '));
+      spNumber = spNumber.substring(0, spNumber.lastIndexOf(' '));
+    }
+    
     String outString = template
         .replace("&260280&", info.getNonNullString(info.getQual260nmTo280nmRatio()))
         .replace("&birthdate&", getNonNullDateString(info.getBirthDate()))
-        .replace("&blockid&", info.getNonNullString(info.getBlockId()))
+        .replace("&blockid&", blockId)
         .replace("&percenttumor&", info.getNonNullString(info.getPercentTumor()))
         .replace("&datereceived&", getNonNullDateString(info.getCreateDate()))
         .replace("&resultsreported&", getNonNullDateString(info.getCompletedDate()))
@@ -134,7 +148,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
         .replace("&sex&", info.getNonNullString(info.getExpandedGender()))
         .replace("&acquisitiondate&", getNonNullDateString(info.getCollectDate()))
         .replace("&specimentested&", info.getNonNullString(info.getSpecimenTested()))
-        .replace("&spnumber&", info.getNonNullString(info.getPatientSpNumber()))
+        .replace("&spnumber&", spNumber)
         .replace("&concentration&", info.getNonNullString(info.getConcentration()));
             
     return outString;
