@@ -2237,7 +2237,6 @@
 			} else if (label == 'Notes to Core') {
 				showNotesToCoreWindow();
 			}
-
 		}
 
 		private function collapseLabNodes():void {
