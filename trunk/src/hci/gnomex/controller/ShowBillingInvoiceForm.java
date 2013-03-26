@@ -417,42 +417,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element body = new Element("BODY");
     root.addContent(body);
 
-    Element center = new Element("CENTER");
-    body.addContent(center);
-
-
-    // Show print and email link
-    Element emailLink = new Element("A");
-    emailLink.setAttribute("HREF",
-        "ShowBillingInvoiceForm.gx?idLab=" + idLab +
-        "&idBillingAccount=" + idBillingAccount + 
-        "&idBillingPeriod=" + idBillingPeriod +
-        "&idCoreFacility=" + idCoreFacility +
-        "&action=" + ACTION_EMAIL +
-    "&respondInHTML=Y");
-    String contactEmail = lab.getBillingNotificationEmail();
-    if (contactEmail == null || contactEmail.equals("")) {
-      contactEmail = "billing contact";
-    }
-    emailLink.addContent("Email " + contactEmail);
-
-    Element printLink = new Element("A");
-    printLink.setAttribute("HREF", "javascript:window.print()");
-    printLink.addContent("Print page");
-
-    Element linkTable = new Element("TABLE");   
-    Element row = new Element("TR");
-    linkTable.addContent(row);
-
-    Element cell = new Element("TD");
-    cell.setAttribute("ALIGN", "RIGHT");
-    row.addContent(cell);
-    cell.addContent(emailLink);    
-    cell.addContent("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    cell.addContent(printLink);            
-
-    center.addContent(linkTable);
-
 
     Element center1 = new Element("CENTER");
     body.addContent(center1);
@@ -547,7 +511,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     root.addContent(body);
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-    for(String idRequest : requests){
+    for(int i = 0; i < requests.length; i++){
+      String idRequest = requests[i];
       Request r = (Request) sess.get(Request.class, new Integer(idRequest));
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
       Lab lab = (Lab)sess.get(Lab.class, r.getIdLab());
@@ -578,42 +543,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
-    
-    Element center = new Element("CENTER");
-    body.addContent(center);
-
-
-    // Show print and email link
-    Element emailLink = new Element("A");
-    emailLink.setAttribute("HREF",
-        "ShowBillingInvoiceForm.gx?idLab=" + idLab +
-        "&idBillingAccount=" + idBillingAccount + 
-        "&idBillingPeriod=" + idBillingPeriod +
-        "&idCoreFacility=" + idCoreFacility +
-        "&action=" + ACTION_EMAIL +
-    "&respondInHTML=Y");
-    String contactEmail = lab.getBillingNotificationEmail();
-    if (contactEmail == null || contactEmail.equals("")) {
-      contactEmail = "billing contact";
-    }
-    emailLink.addContent("Email " + contactEmail);
-
-    Element printLink = new Element("A");
-    printLink.setAttribute("HREF", "javascript:window.print()");
-    printLink.addContent("Print page");
-
-    Element linkTable = new Element("TABLE");   
-    Element row = new Element("TR");
-    linkTable.addContent(row);
-
-    Element cell = new Element("TD");
-    cell.setAttribute("ALIGN", "RIGHT");
-    row.addContent(cell);
-    cell.addContent(emailLink);    
-    cell.addContent("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    cell.addContent(printLink);            
-
-    center.addContent(linkTable);
 
 
     Element center1 = new Element("CENTER");
@@ -678,9 +607,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       body.addContent(wrapDiv);
     }
     
-    Element p3 = new Element("P");
-    p3.setAttribute("style", "page-break-after:always");
-    body.addContent(p3);
+    if(i != requests.length - 1){
+      Element p3 = new Element("P");
+      p3.setAttribute("style", "page-break-after:always");
+      body.addContent(p3);
+    }
 
     }
     
