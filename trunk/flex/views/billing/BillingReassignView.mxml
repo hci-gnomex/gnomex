@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="{'Reassign Account for Experiment ' + request.@requestNumber}" 
-	width="606" height="142" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')" xmlns:renderers="views.renderers.*"> 
+	width="606" defaultButton="{saveButton}" titleIcon="@Embed(source='../../assets/account.png')" xmlns:renderers="views.renderers.*"> 
 
     <mx:HTTPService             
     id="getLab" 
