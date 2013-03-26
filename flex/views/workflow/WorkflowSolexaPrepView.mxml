@@ -3,6 +3,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
+	xmlns:renderers="views.renderers.*"
 	width="100%" height="100%" 
 	show="init()"
 	>
@@ -232,6 +233,14 @@
         		return item.@barcodeSequence;
         	}
         }
+		public function getIndexTagName(item:Object):String
+		{
+			if (item.@idOligoBarcode != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+			} else {
+				return item.@barcodeSequence;
+			}
+		}
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
@@ -322,13 +331,22 @@
 						</mx:headerRenderer>
 					</mx:DataGridColumn> 
 					<mx:DataGridColumn headerText="Index Tag"  width="20" 
-					dataField="@idOligoBarcode" 
-					   editorDataField="value"
-		               editable="true"  
-		               rendererIsEditor="false" 
-		               itemRenderer="mx.controls.Label"		
-		               labelFunction="getOligoBarcodeName"                
-					   itemEditor="{views.renderers.ComboBoxOligoBarcode.create()}"/>		                
+						dataField="@idOligoBarcode" 
+		               	editable="true"  
+		               	rendererIsEditor="false" 
+		               	itemRenderer="mx.controls.Label"		
+		               	labelFunction="getOligoBarcodeName">	
+						<mx:itemEditor>
+							<mx:Component>
+								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
+														  fontSize="10"
+														  labelFunction="{outerDocument.getIndexTagName}"
+														  prompt=""
+														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+								</renderers:FilterComboBox>
+							</mx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Seq Library Protocol"  width="44" 
 					dataField="@idSeqLibProtocol" 
 					   editorDataField="value"
