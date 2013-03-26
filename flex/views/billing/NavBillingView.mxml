@@ -1503,13 +1503,29 @@
 							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 						navigateToURL(showUrl, '_blank');
 					}
-				} else {
-					Alert.show("Please select a lab folder");
+				} else if (this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETED")){
+					Alert.show("Print all invoices for this folder?", "Warning", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
 				}
 			} else {
 				Alert.show("Please select a lab folder");
 			}
-		} 
+		}
+		
+		private function onPromptToPrintAll(event:CloseEvent):void{
+			if(event.detail == Alert.YES){
+				var idRequests:String = "";
+				for each(var lab:XML in this.requestTree.selectedItem.children()){
+					for each(var request:XML in lab.children()){
+						idRequests += request.@idRequest + ',';
+					}
+				}
+				idRequests.substring(0, idRequests.lastIndexOf(','));
+				var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' + 
+					'?idRequests=' + idRequests + 
+					'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
+				navigateToURL(showAllRequests, '_blank');
+			}
+		}
 		public function showBillingMonthendReport():void {
 			
 			if (lastSelectedBillingPeriod == null ||
@@ -2256,6 +2272,7 @@
 		}
 		
 		
+		
  	]]>
  </mx:Script>	
 
@@ -2449,7 +2466,7 @@
   						  <mx:HierarchicalData source="{pricingList}"/>
 				        </util:dataProvider>						  
 				        <util:columns>
-  						  <mx:AdvancedDataGridColumn dataField="@display"  headerText="" width="150"/> 
+  						  <mx:AdvancedDataGridColumn dataField="@display" headerText="" width="150"/> 
 						  <mx:AdvancedDataGridColumn dataField="@unitPriceCurrency"  headerText="Price" width="30" textAlign="right" showDataTips="true" /> 
 						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalAcademicCurrency"  headerText="Academic" width="30" textAlign="right" showDataTips="true" /> 
 						  <mx:AdvancedDataGridColumn dataField="@unitPriceExternalCommercialCurrency"  headerText="Commercial" width="30" textAlign="right" showDataTips="true" /> 
