@@ -3217,6 +3217,15 @@
 					Alert.show("This feature is not enabled for this site.");
 				}
 			}
+
+			public function escapeRegexChars(s:String):String
+			{
+				var newString:String = 
+					s.replace(
+						new RegExp("([{}\(\)\^$&.\*\?\/\+\|\[\\\\]|\]|\-)","g"),
+						"\\$1");
+				return newString;
+			}
 			
 		]]>
 	</mx:Script>
