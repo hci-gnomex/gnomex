@@ -1513,14 +1513,18 @@
 		
 		private function onPromptToPrintAll(event:CloseEvent):void{
 			if(event.detail == Alert.YES){
-				var idRequests:String = "";
+				var idLabs:String = "";
+				var idBillingAccounts:String = "";
 				for each(var lab:XML in this.requestTree.selectedItem.children()){
-					idRequests += lab.Request[0].@idRequest + ',';
+					idLabs += lab.@idLab + ',';
+					idBillingAccounts += lab.@idBillingAccount + ',';
+					
 				}
-				idRequests.substring(0, idRequests.lastIndexOf(','));
 				var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' + 
-					'?idRequests=' + idRequests + 
-					'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
+					'?idLabs=' + idLabs + 
+					'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
+					'&idBillingAccounts=' + idBillingAccounts + 
+					'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 				navigateToURL(showAllRequests, '_blank');
 			}
 		}
