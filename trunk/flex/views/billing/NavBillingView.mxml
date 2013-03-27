@@ -1503,7 +1503,7 @@
 							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 						navigateToURL(showUrl, '_blank');
 					}
-				} else if (this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETED")){
+				} else if (this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETE")){
 					Alert.show("Print all invoices for this folder?", "Warning", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
 				}
 			} else {
@@ -1515,9 +1515,7 @@
 			if(event.detail == Alert.YES){
 				var idRequests:String = "";
 				for each(var lab:XML in this.requestTree.selectedItem.children()){
-					for each(var request:XML in lab.children()){
-						idRequests += request.@idRequest + ',';
-					}
+					idRequests += lab.Request[0].@idRequest + ',';
 				}
 				idRequests.substring(0, idRequests.lastIndexOf(','));
 				var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' + 
