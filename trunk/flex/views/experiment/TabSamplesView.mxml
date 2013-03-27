@@ -1832,7 +1832,7 @@
 			if (currentState != null 
 				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') 
 				|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState' 
-				|| currentState == 'SequenomState' || parentDocument.isClinicalSequenomState()) {
+				/*|| currentState == 'SequenomState'*/ || parentDocument.isClinicalSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {

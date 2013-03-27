@@ -307,19 +307,20 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
             // If iscan request:
-            if ( request.getCodeRequestCategory() != null &&  request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY ) ) {
-              boolean isForIScan = false;
+            if ( request.getCodeRequestCategory() != null 
+                && (request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY ) || request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) ) {
+              boolean include = false;
               if (prop.getPlatformApplications() != null) {
                 for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
                   PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-                  if ( pa.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY )) {
-                    isForIScan = true;
+                  if ( pa.getCodeRequestCategory().equals( request.getCodeRequestCategory() )) {
+                    include = true;
                     break;
                   }   
                 }
 
               }
-              if ( !isForIScan ) {
+              if ( !include ) {
                 continue;
               }
             }

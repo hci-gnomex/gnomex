@@ -641,6 +641,16 @@ public class DictionaryHelper implements Serializable {
     return propertyList;
   }
   
+  public Property getPropertyByName(String name) {
+    for(Property p : propertyList) {
+      if (p.getName().equals(name)) {
+        return p;
+      }
+    }
+    
+    return null;
+  }
+  
   public Property getPropertyObject(Integer idProperty) {
     return propertyMap.get(idProperty);
   }

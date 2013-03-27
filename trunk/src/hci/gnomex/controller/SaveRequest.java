@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
@@ -54,6 +55,7 @@ import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemHybParser;
 import hci.gnomex.utility.RequestParser.HybInfo;
 import hci.dictionary.utility.DictionaryManager;
@@ -1157,6 +1159,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }     
     }
 
+    addStandardSampleProperties(sess, idSampleString, sample);
+    
     // Delete the existing sample treatments
     if (!isNewSample) {
       for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
@@ -2473,5 +2477,37 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-
+  // Adds standard sample properties as defined by STANDARD_SAMPLE_PROPERTIES dictionary proeprty.
+  // Note that the property must be set to apply to the request category of the request.  This
+  // only works for TEXT properties at this time.
+  private void addStandardSampleProperties(Session sess, String idSampleString, Sample sample) {
+    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
+    String s = propertyHelper.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.STANDARD_SAMPLE_PROPERTIES);
+    String[] propertyNames = Util.parseCommaDelimited(s);
+    Boolean addedProperty = false;
+    for(String name : propertyNames) {
+      Property prop = dh.getPropertyByName(name);
+      if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
+        for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+          PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+          if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
+              && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
+            PropertyEntry entry = new PropertyEntry();
+            entry.setIdSample(sample.getIdSample());
+            entry.setIdProperty(prop.getIdProperty());
+            entry.setValue("");
+            sess.save(entry);
+            addedProperty = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (addedProperty) {
+      sess.flush();
+    }
+  }
 }
