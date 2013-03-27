@@ -1097,8 +1097,7 @@
 				} else {
 					validNumberOfSamples = false;
 				}
-				
-				numberOfIScanSamplesValidator.validate();
+//				numberOfIScanSamplesValidator.validate();
 				
 				checkChipSetupCompleteness();
 			} 
