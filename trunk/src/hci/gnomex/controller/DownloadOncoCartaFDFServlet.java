@@ -130,8 +130,8 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
       breakChar = '-';
     }
     if (breakChar != '&') {
-      blockId = spNumber.substring(spNumber.lastIndexOf(' '));
-      spNumber = spNumber.substring(0, spNumber.lastIndexOf(' '));
+      blockId = spNumber.substring(spNumber.lastIndexOf(breakChar));
+      spNumber = spNumber.substring(0, spNumber.lastIndexOf(breakChar));
     }
     
     String outString = template
