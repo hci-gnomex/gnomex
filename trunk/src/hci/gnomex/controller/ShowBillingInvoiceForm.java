@@ -528,7 +528,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
       Lab lab = (Lab)sess.get(Lab.class, idLab);
       BillingAccount billingAccount = (BillingAccount) sess.get(BillingAccount.class, new Integer(billingAccounts[i]));
-      idBillingAccount = billingAccount.getIdBillingAccount();
+      idBillingAccount = new Integer(billingAccounts[i]);
       CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, new Integer(idCoreFacility));
       String queryString = "from Invoice where idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount and idCoreFacility=:idCoreFacility";
       Query query = sess.createQuery(queryString);
