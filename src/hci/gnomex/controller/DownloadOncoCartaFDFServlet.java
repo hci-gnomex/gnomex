@@ -130,7 +130,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
       breakChar = '-';
     }
     if (breakChar != '&') {
-      blockId = spNumber.substring(spNumber.lastIndexOf(breakChar));
+      blockId = spNumber.substring(spNumber.lastIndexOf(breakChar)+1);
       spNumber = spNumber.substring(0, spNumber.lastIndexOf(breakChar));
     }
     
@@ -154,6 +154,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
   }
   
   private void writeResponse(HttpServletResponse response, String outString) throws IOException {
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     response.setContentType("fdf");
     OutputStream out = response.getOutputStream();
     byte b[] = outString.getBytes();
