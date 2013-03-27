@@ -9,6 +9,12 @@ global {
 	fontSize:12;
 	fontFamily: "Open Sans";
 	color: #2E2D2C;
+	advancedAntiAliasing: true;
+	fontAntiAliasType: advanced;
+	fontSharpness: 200;
+	fontThickness: 100; 
+
+	
 }
 
 .titleLabel {
