@@ -63,7 +63,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private String           action = "show";
   private String           emailAddress = null;
   private Boolean          respondInHTML = false;
-  private String           idRequests;
+  private String           idLabs;
+  private String           idBillingAccounts;
 
 
   public void validate() {
@@ -71,13 +72,23 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (request.getParameter("idRequests") != null && !request.getParameter("idRequests").equals("")) {
-      idRequests = request.getParameter("idRequests");
+    if (request.getParameter("idLabs") != null && !request.getParameter("idLabs").equals("")) {
+      idLabs = request.getParameter("idLabs");
 
       if(request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")){
         idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
       } else {
         this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+      }
+      
+      if(request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")){
+        idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+      } else {
+        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
+      }
+      
+      if(request.getParameter("idBillingAccounts") != null && !request.getParameter("idBillingAccounts").equals("")){
+        idBillingAccounts = request.getParameter("idBillingAccounts");
       }
 
       if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
@@ -85,7 +96,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       }
     }
 
-    if(idRequests == null){
+    if(idLabs == null){
       if (request.getParameter("idLab") != null) {
         idLab = new Integer(request.getParameter("idLab"));
       } else {
@@ -134,10 +145,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       if (this.isValid()) {
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
 
-          if(idRequests != null){
-            String[] requests = idRequests.split(",");
+          if(idLabs != null){
+            String[] labs = idLabs.split(",");
+            String[] billingAccounts = idBillingAccounts.split(",");
               if (action.equals(ACTION_SHOW)) {
-                this.makeInvoiceReports(sess, requests);
+                this.makeInvoiceReports(sess, labs, billingAccounts);
               }
             }
 
@@ -490,7 +502,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
   }
 
-  private void makeInvoiceReports(Session sess, String[] requests) throws Exception {
+  private void makeInvoiceReports(Session sess, String[] labs, String[] billingAccounts) throws Exception {
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
@@ -511,16 +523,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     root.addContent(body);
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-    for(int i = 0; i < requests.length; i++){
-      String idRequest = requests[i];
-      Request r = (Request) sess.get(Request.class, new Integer(idRequest));
+    for(int i = 0; i < labs.length; i++){
+      idLab = new Integer(labs[i]);
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-      Lab lab = (Lab)sess.get(Lab.class, r.getIdLab());
-      idLab = r.getIdLab();
-      BillingAccount billingAccount = (BillingAccount) sess.get(BillingAccount.class, r.getIdBillingAccount());
-      idBillingAccount = r.getIdBillingAccount();
-      CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, r.getIdCoreFacility());
-      idCoreFacility = r.getIdCoreFacility();
+      Lab lab = (Lab)sess.get(Lab.class, idLab);
+      BillingAccount billingAccount = (BillingAccount) sess.get(BillingAccount.class, new Integer(billingAccounts[i]));
+      idBillingAccount = billingAccount.getIdBillingAccount();
+      CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, new Integer(idCoreFacility));
       String queryString = "from Invoice where idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount and idCoreFacility=:idCoreFacility";
       Query query = sess.createQuery(queryString);
       query.setParameter("idBillingPeriod", billingPeriod.getIdBillingPeriod());
@@ -607,7 +616,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       body.addContent(wrapDiv);
     }
     
-    if(i != requests.length - 1){
+    if(i != labs.length - 1){
       Element p3 = new Element("P");
       p3.setAttribute("style", "page-break-after:always");
       body.addContent(p3);
