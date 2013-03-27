@@ -1201,6 +1201,9 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
 				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
@@ -2518,6 +2521,9 @@
 					this.sampleSetupView.currentState = 'IScanState';
 					this.samplesView.currentState = 'IScanState';
 					this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
+					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+					
 					
 					for each(var chip:Object in sampleSetupView.iScanChipRepeater.dataProvider) {
 						if (chip.@idIScanChip == request.@idIScanChip) {
@@ -5493,7 +5499,6 @@
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<!--<mx:RemoveChild target="{annotationView}"/>-->
 			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
