@@ -342,7 +342,7 @@
 														  fontSize="10"
 														  labelFunction="{outerDocument.getIndexTagName}"
 														  prompt=""
-														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''; data.@barcodeSequence = ''}" >
 								</renderers:FilterComboBox>
 							</mx:Component>
 						</mx:itemEditor>
