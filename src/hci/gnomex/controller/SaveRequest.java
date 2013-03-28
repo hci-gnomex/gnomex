@@ -2477,30 +2477,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-  // Adds standard sample properties as defined by STANDARD_SAMPLE_PROPERTIES dictionary proeprty.
-  // Note that the property must be set to apply to the request category of the request.  This
-  // only works for TEXT properties at this time.
+  // Sequenom experiments add a default annotation that doesn't show up in submit but then
+  // shows up in view and edit.
   private void addStandardSampleProperties(Session sess, String idSampleString, Sample sample) {
-    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
-    String s = propertyHelper.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.STANDARD_SAMPLE_PROPERTIES);
-    String[] propertyNames = Util.parseCommaDelimited(s);
+    RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
     Boolean addedProperty = false;
-    for(String name : propertyNames) {
-      Property prop = dh.getPropertyByName(name);
-      if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
-        for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
-          PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-          if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
-              && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
-            PropertyEntry entry = new PropertyEntry();
-            entry.setIdSample(sample.getIdSample());
-            entry.setIdProperty(prop.getIdProperty());
-            entry.setValue("");
-            sess.save(entry);
-            addedProperty = true;
-            break;
+    if (requestCategory.getType().equals(RequestCategory.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategory.TYPE_CLINICAL_SEQUENOM)) {
+      Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
+      for(Property prop : dh.getPropertyList()) {
+        if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
+          for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+            PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+            if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
+                && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
+              PropertyEntry entry = new PropertyEntry();
+              entry.setIdSample(sample.getIdSample());
+              entry.setIdProperty(prop.getIdProperty());
+              entry.setValue("");
+              sess.save(entry);
+              addedProperty = true;
+              break;
+            }
           }
         }
       }
