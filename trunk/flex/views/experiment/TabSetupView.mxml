@@ -510,7 +510,7 @@
 				
 				selectDefaultUserProject();
 				
-				if (parentDocument.defaultCodeRequestCategory != null) {
+				if (parentDocument != null && parentDocument.defaultCodeRequestCategory != null) {
 					requestTypeGroup.selectedValue = parentDocument.defaultCodeRequestCategory;
 					callLater(parentDocument.setRequestCategoryName);
 					callLater(highlightRequestCategory);
