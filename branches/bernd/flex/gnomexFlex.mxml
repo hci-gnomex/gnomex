@@ -3217,6 +3217,15 @@
 					Alert.show("This feature is not enabled for this site.");
 				}
 			}
+
+			public function escapeRegexChars(s:String):String
+			{
+				var newString:String = 
+					s.replace(
+						new RegExp("([{}\(\)\^$&.\*\?\/\+\|\[\\\\]|\]|\-)","g"),
+						"\\$1");
+				return newString;
+			}
 			
 		]]>
 	</mx:Script>
@@ -3584,7 +3593,8 @@
 						<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							
 							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-							<mx:TextInput id="requestNumber"   toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
+							<mx:TextInput id="requestNumber"   
+										  toolTip="Enter experiment, analysis, data track, or topic #. Example: 6145R, A210, DT45, T21" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="lookupButton" 
 									   width="30"
 									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>

@@ -2951,7 +2951,7 @@
 						 dragExit="onDragExitPlate(event)"
 						 dragComplete="dragComplete(event)"
 						 click="{sampleTree.selectedIndex = -1;colorPick.selectNone();}"
-						 borderStyle="solid"
+						 borderStyle="none"
 						 backgroundColor="#FFFFFF"
 						 width="100%"
 						 paddingBottom="0"
@@ -3649,7 +3649,6 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
-			<mx:SetProperty target="{plateStack}" name="styleName" value="panelBox"/>
 			
 		</mx:State>
 		

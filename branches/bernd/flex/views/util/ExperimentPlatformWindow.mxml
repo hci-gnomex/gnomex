@@ -557,8 +557,8 @@
 				<mx:VBox label="blankView" width="100%" height="100%" 
 						 styleName="panelBox" paddingLeft="4" paddingTop="4" 
 						 paddingRight="4" paddingBottom="0"/>
-				<mx:VBox width="100%" height="100%" styleName="panelBox" 
-						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2">
+				<mx:VBox width="100%" height="100%" 
+						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2" backgroundAlpha="0">
 					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
 						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="5">
 							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">

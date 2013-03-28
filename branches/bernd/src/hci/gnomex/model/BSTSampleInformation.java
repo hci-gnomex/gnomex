@@ -21,7 +21,6 @@ public class BSTSampleInformation extends HibernateDetailObject {
   private java.sql.Date  completedDate;
   private String         gender;
   private java.sql.Date  createDate;
-  private String         blockId;
   private String         diagnosisIcd9Description;
   private BigDecimal     qual260nmTo280nmRatio;
   private BigDecimal     concentration;
@@ -97,13 +96,6 @@ public class BSTSampleInformation extends HibernateDetailObject {
   }
   public void setCreateDate(java.sql.Date createDate) {
     this.createDate = createDate;
-  }
-
-  public String getBlockId() {
-    return blockId;
-  }
-  public void setBlockId(String blockId) {
-    this.blockId = blockId;
   }
 
   public String getDiagnosisIcd9Description() {

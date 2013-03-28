@@ -270,8 +270,8 @@
 ]]>
 </mx:Script>	
 	
-<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody">
-	<mx:VBox styleName="form" id="idInfo" label="Info" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
+<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody" dropShadowEnabled="true" dropShadowColor="#E5E5E1">
+	<mx:VBox id="idInfo" label="Info" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">				    
 		<mx:HBox width="100%" >
 			<mx:Label text="Name:" width="120"/>
 			<mx:TextInput id="topicName" width="450" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyTopic.setDirty()" maxChars="2000"/>

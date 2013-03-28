@@ -105,6 +105,7 @@
 			appUsersForLab.sort = appUserSort;
 			appUsersForLab.refresh();
 			ownerCombo.dataProvider = appUsersForLab;
+			ownerCombo.dropdown.dataProvider = appUsersForLab;
 			ownerCombo.selectedItem = emptyNode;
 			for each(var a:Object in appUsersForLab) {
 				if (a.@idAppUser == currentOwnerId) {

@@ -69,7 +69,7 @@
 			public function checkSecurity():void {
 				if (parentApplication.currentState == "GuestState") {
 					if (parentApplication.isUniversityOnlyUser) {
-						this.currentState = parentApplication.isExternalDataSharingSite ? "UnivGuestESState" : "UnivGuestState"
+						this.currentState = "UnivGuestState"
 					} else {
 						this.currentState = "GuestState";
 					}

@@ -195,10 +195,18 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
-              Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + fileName.substring(fileName.lastIndexOf("\\")));
+              int lastIndex = fileName.lastIndexOf("\\");
+              if (lastIndex == -1) {
+                lastIndex = fileName.lastIndexOf("/");
+              }
+              String baseFileName = fileName;
+              if (lastIndex != -1) {
+                baseFileName = fileName.substring(lastIndex);
+              }
+              Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName);
               String mostRecentFile = "";
               if(duplicateUpload){
-                mostRecentFile = (String)fileNames.get(fileNames.indexOf(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + fileName.substring(fileName.lastIndexOf("\\"))));
+                mostRecentFile = (String)fileNames.get(fileNames.indexOf(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName));
               }
                 
               

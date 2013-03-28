@@ -1678,7 +1678,7 @@
 	   
    </mx:VBox>
 	  
-	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1">
+	<mx:HDividedBox height="100%" width="100%" id="hdividedbox1" dividerAlpha="0" dividerThickness="4" dividerAffordance="0">
 	
 	   
 			

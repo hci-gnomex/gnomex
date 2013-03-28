@@ -419,14 +419,17 @@
           } 
 			
           private function filterLab(item:Object):Boolean {
-			  if(labSearchText.text != "" && deptSearchText.text != ""){
-				return (item.@name.toString().match(new RegExp(labSearchText.text + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptSearchText.text, "i")));  
+			  
+			  var labString:String = parentApplication.escapeRegexChars(labSearchText.text);
+			  var deptString:String = parentApplication.escapeRegexChars(deptSearchText.text);
+			  if(labString != "" && deptString != ""){
+				return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
 			  }
-			  else if(labSearchText.text != ""){
-                return item.@name.toString().match(new RegExp(labSearchText.text + ".*", "i"));
+			  else if(labString != ""){
+                return item.@name.toString().match(new RegExp(labString + ".*", "i"));
 			  }
-			  else if(deptSearchText.text != ""){
-				  return item.@department.toString().match(new RegExp("^" + deptSearchText.text, "i"));
+			  else if(deptString != ""){
+				  return item.@department.toString().match(new RegExp("^" + deptString, "i"));
 			  }
 			  else{
 				  return true;
@@ -585,7 +588,7 @@
     
     
 
- <mx:HDividedBox height="100%" width="100%" paddingTop="6" paddingRight="0" paddingLeft="0" paddingBottom="6">    
+ <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
 	
     <mx:ViewStack id="navStack" width="260" height="100%">
 

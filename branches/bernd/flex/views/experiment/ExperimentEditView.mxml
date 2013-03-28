@@ -1201,6 +1201,9 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
 				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
@@ -1213,6 +1216,9 @@
 				this.samplesView.currentState = 'SequenomState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
+
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
 				
 				this.sampleSetupView.sequenomPanelContainer.visible = false;
 				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
@@ -1534,7 +1540,7 @@
 			}
 			
 			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState()) {
+			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState() || this.isSequenomState()) {
 				filterByPlatformApplication = true;	
 			}
 			
@@ -2498,6 +2504,17 @@
 					}
 				}
 			}
+
+			if (this.isSequenomState() ) {
+				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
+				this.propertyEntries.refresh();
+				this.annotationView.checkSecurity();
+				this.samplesView.showHideColumns();		
+				this.samplesView.initializeSamplesGrid(); 
+			}
 			
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
@@ -2518,6 +2535,9 @@
 					this.sampleSetupView.currentState = 'IScanState';
 					this.samplesView.currentState = 'IScanState';
 					this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
+					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+					
 					
 					for each(var chip:Object in sampleSetupView.iScanChipRepeater.dataProvider) {
 						if (chip.@idIScanChip == request.@idIScanChip) {
@@ -2540,6 +2560,7 @@
 					this.samplesView.initializeSamplesGrid(); 
 					this.notesView.setBioNoteVisibility(false);
 				}
+				
 			}
 
 			if ( this.theTab.contains(samplesView) && this.isDNASeqCoreState() ) {
@@ -5493,7 +5514,6 @@
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<!--<mx:RemoveChild target="{annotationView}"/>-->
 			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
@@ -5511,7 +5531,6 @@
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
@@ -5521,7 +5540,6 @@
 			<mx:RemoveChild target="{setupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
@@ -5535,9 +5553,11 @@
 		</mx:State>
 		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
 			<mx:RemoveChild target="{notesView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
 			<mx:RemoveChild target="{notesView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

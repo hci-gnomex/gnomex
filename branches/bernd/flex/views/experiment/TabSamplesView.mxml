@@ -1832,7 +1832,7 @@
 			if (currentState != null 
 				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') 
 				|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState' 
-				|| currentState == 'SequenomState' || parentDocument.isClinicalSequenomState()) {
+				/*|| currentState == 'SequenomState'*/ || parentDocument.isClinicalSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -2038,6 +2038,15 @@
 				return "";
 			} else {
 				return item.groupLabel;
+			}
+		}
+		
+		public function getIndexTagName(item:Object):String
+		{
+			if (item.@idOligoBarcode != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+			} else {
+				return '';
 			}
 		}
 	]]>
@@ -2282,11 +2291,28 @@
 							</mx:Component> 
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
-	                <util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColumn" visible="true" headerText="Index Tag" width="130" dataField="@idOligoBarcode" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
- 	                   itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}"                
- 	                   itemEditor="{hci.flex.controls.ComboBox.getFactory(barcodeList, '@display', '@value', '@idOligoBarcode', true)}"/>
-	                <mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
+	                <util:AdvancedDataGridColumnWithType propertyType="OPTION" 
+														 id="barcodeColumn" 
+														 visible="true" 
+														 headerText="Index Tag" 
+														 width="130" 
+														 dataField="@idOligoBarcode" 
+														 sortable="false" 
+														 editable="true" 
+														 rendererIsEditor="false" 
+ 	                   									 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}">
+						<util:itemEditor>
+							<mx:Component>
+								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
+														  fontSize="10"
+														  prompt=""
+														  labelFunction="{outerDocument.getIndexTagName}"
+														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+								</renderers:FilterComboBox>
+							</mx:Component>
+						</util:itemEditor> 					
+					</util:AdvancedDataGridColumnWithType>
+					<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
 						width="80"
  	                    itemRenderer="views.renderers.LabelBarcodeSequence"               
  	                    itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">

@@ -121,10 +121,23 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
     
     BSTSampleInformation info = (BSTSampleInformation)sess.load(BSTSampleInformation.class, sample.getIdSample());
     
+    String spNumber = info.getNonNullString(info.getPatientSpNumber());
+    String blockId = "";
+    char breakChar = '&';
+    if (spNumber.lastIndexOf(' ') >= 0) {
+      breakChar = ' ';
+    } else if (spNumber.lastIndexOf('-') >= 0) {
+      breakChar = '-';
+    }
+    if (breakChar != '&') {
+      blockId = spNumber.substring(spNumber.lastIndexOf(breakChar)+1);
+      spNumber = spNumber.substring(0, spNumber.lastIndexOf(breakChar));
+    }
+    
     String outString = template
         .replace("&260280&", info.getNonNullString(info.getQual260nmTo280nmRatio()))
         .replace("&birthdate&", getNonNullDateString(info.getBirthDate()))
-        .replace("&blockid&", info.getNonNullString(info.getBlockId()))
+        .replace("&blockid&", blockId)
         .replace("&percenttumor&", info.getNonNullString(info.getPercentTumor()))
         .replace("&datereceived&", getNonNullDateString(info.getCreateDate()))
         .replace("&resultsreported&", getNonNullDateString(info.getCompletedDate()))
@@ -134,13 +147,14 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
         .replace("&sex&", info.getNonNullString(info.getExpandedGender()))
         .replace("&acquisitiondate&", getNonNullDateString(info.getCollectDate()))
         .replace("&specimentested&", info.getNonNullString(info.getSpecimenTested()))
-        .replace("&spnumber&", info.getNonNullString(info.getPatientSpNumber()))
+        .replace("&spnumber&", spNumber)
         .replace("&concentration&", info.getNonNullString(info.getConcentration()));
             
     return outString;
   }
   
   private void writeResponse(HttpServletResponse response, String outString) throws IOException {
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     response.setContentType("fdf");
     OutputStream out = response.getOutputStream();
     byte b[] = outString.getBytes();

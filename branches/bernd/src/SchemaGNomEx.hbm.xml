@@ -2175,7 +2175,6 @@
     <property name="completedDate"                  column="completedDate"                type="java.sql.Date"/>
     <property name="gender"                         column="gender"                       type="string"/>
     <property name="createDate"                     column="createDate"                   type="java.sql.Date"/>
-    <property name="blockId"                        column="blockId"                      type="string"/>
     <property name="diagnosisIcd9Description"       column="diagnosisIcd9Description"     type="string"/>
     <property name="concentration"                  column="concentration"                type="big_decimal"/>
     <property name="qual260nmTo280nmRatio"          column="qual260nmTo280nmRatio"        type="big_decimal"/>
