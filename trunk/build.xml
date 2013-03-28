@@ -773,6 +773,24 @@
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
 		
+		<!-- Get rid of BST mapping file entries in hibernate.cfg.xml files -->
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>		
+		
 
 		<!-- Remove all references to hciEnv and hciFlex in scripts -->
 		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.sh"
