@@ -3566,7 +3566,7 @@
 	
 	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="4"   visible="true" 
+			 verticalGap="3"   visible="true" 
 			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
 			 paddingTop="0" paddingLeft="0" 
 			 paddingRight="0" paddingBottom="0">

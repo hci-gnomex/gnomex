@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
 		   label="Analysis" width="100%" height="100%" 
-		   xmlns:views="views.*"  backgroundColor="#FFFFFF"
+		   xmlns:views="views.*"
 		   xmlns:analysis="views.analysis.*" 
 		   xmlns:util="views.util.*"
 		   xmlns:renderers="views.renderers.*"
 		   creationPolicy="all" show="init()"
 		   defaultButton="{lookupButton}"
-		   cornerRadius="10"  backgroundAlpha="0" >
+		   cornerRadius="10"  backgroundAlpha="0">
 	
 	
 	<mx:HTTPService  
