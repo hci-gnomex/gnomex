@@ -339,7 +339,7 @@
 	<!-- Flex                                           -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="flex" depends="init" unless="flexUpToDate" description="Compile Flex application">
+	<target name="flex" depends="init" description="Compile Flex application">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Compiling flex app                                   +</echo>
@@ -1278,13 +1278,6 @@
         	<fileset dir="${lib.openejb.dir}" 		    includes="*.jar" />
         </path>		
 		
-		<!-- Up to date check on flex app -->
-		<uptodate property="flexUpToDate" targetfile="${build.dir}/${flexapp.name}.swf">
-		    	<srcfiles dir="${flexapp.dir}">
-	  	    	<include name="**/*.as"/>
-	    	  	<include name="**/*.mxml"/>
-	    		</srcfiles>
-	  	</uptodate>
 
 			
 	</target>
