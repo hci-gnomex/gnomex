@@ -868,6 +868,7 @@
 					this.qcStatusCol.visible = false;
 					reactionPlateCol.visible = true;
 					redoFlagCol.visible = true;
+					this.descriptionCol.visible = false;
 
 				} else if (isMitSeqState()) {
 					concentrationCol.visible = false; 
