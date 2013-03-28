@@ -926,6 +926,7 @@
  			if (this.requestTree.selectedItem == null) {
  				return;
  			}
+
 			billingStatusCombo.enabled = true;
  			lastSelectedItem = this.requestTree.selectedItem;
 			if (lastSelectedItem.hasOwnProperty("@idInvoice")) {
@@ -1503,8 +1504,10 @@
 							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 						navigateToURL(showUrl, '_blank');
 					}
-				} else if (this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETE")){
-					Alert.show("Print all invoices for this folder?", "Warning", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
+				} else if (!email && this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETE")){
+					Alert.show("Print all invoices for this folder?", "", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
+				} else{
+					Alert.show("Please select a lab folder");	
 				}
 			} else {
 				Alert.show("Please select a lab folder");
@@ -2297,7 +2300,7 @@
 							useHandCursor="true" fontSize="11" height="30">
 					<mx:XMLList>
 						<menuitem label="Print Invoice" icon="iconPrintInvoice" />
-						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
+						<menuitem label="Email Invoice" icon="iconEmailInvoice" />
 						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
 						<menuitem label="Reports..."  icon="iconReports" >
 							<menuitem label="Invoice Report" />
