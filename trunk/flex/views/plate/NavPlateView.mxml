@@ -2378,38 +2378,38 @@
 						  fontWeight="normal"
 						  id="runTitleLabel"
 						  text="Run"
-						  paddingRight="5" styleName="titleLabel"/>
-				<mx:HBox verticalAlign="middle" horizontalGap="4" paddingLeft="5">
+						  paddingRight="15" styleName="titleLabel"/>
+				<mx:HBox verticalAlign="middle" horizontalGap="4" paddingLeft="5" fontSize="11">
 					
 					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
 					<mx:RadioButton id="radioSEQ"
 									label="DNA (Sanger) Seq"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(SEQ)}"
-									selected="{reactionState==SEQ}"  styleName="labelSmall"/>
+									selected="{reactionState==SEQ}"  styleName="labelSmall" fontSize="11"/>
 					<mx:RadioButton id="radioMit"
 									label="Mitochondrial Seq"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(MIT)}"
-									selected="{reactionState==MIT}"  styleName="labelSmall"/>
+									selected="{reactionState==MIT}"  styleName="labelSmall" fontSize="11"/>
 					<mx:RadioButton id="radioFrag"
 									label="Fragment Analysis"
 									groupName="reactionTypeRadioGroup"
 									click="{toggleReactionType(FRAG)}"
-									selected="{reactionState==FRAG}"  styleName="labelSmall"/>
+									selected="{reactionState==FRAG}"  styleName="labelSmall" fontSize="11"/>
 					<mx:Spacer width="100%" height="100%" />
 					
 				</mx:HBox>
 				<mx:Spacer width="100%" height="100%" id="spacer1" />
 				<mx:LinkButton label="View"
-							   fontSize="10"
+							   fontSize="11"
 							   click="{switchToViewState()}"
 							   icon="@Embed(source='../../assets/page_white.png')"
 							   textDecoration="underline"
 							   id="viewButton"
 							   textAlign="left" />
 				<mx:LinkButton label="Edit"
-							   fontSize="10"
+							   fontSize="11"
 							   click="{switchToEditState()}"
 							   icon="@Embed(source='../../assets/tag_blue_edit.png')"
 							   textDecoration="underline"
@@ -2426,7 +2426,7 @@
 							   toolTip="Build new plate..."
 							   disabledIcon="@Embed(source='../../assets/plate_add_disable.png')"
 							   textDecoration="underline"
-							   fontSize="10" />
+							   fontSize="11" />
 				<mx:LinkButton label="New Run"
 							   id="newRunButton"
 							   click="{buildState=RUN;switchToNewState();}"
@@ -2438,7 +2438,7 @@
 							   toolTip="Build new run..."
 							   disabledIcon="@Embed(source='../../assets/run_add_disable.png')"
 							   textDecoration="underline"
-							   fontSize="10" />
+							   fontSize="11" />
 				
 			</mx:HBox>
 			<mx:HRule width="100%" height="10" />
@@ -2657,7 +2657,7 @@
 							   icon="@Embed('../../assets/action_refresh.gif')"
 							   toolTip="Refresh sample list"
 							   click="{this.refreshLists();}"
-							   fontSize="10" />
+							   fontSize="11" />
 				
 			</mx:HBox>
 			
@@ -2709,7 +2709,7 @@
 						
 						<mx:Tree width="100%"
 								 height="100%"
-								 fontSize="10"
+								 fontSize="12"
 								 showRoot="false"
 								 id="sampleTree"
 								 dataProvider="{samplesList}"
@@ -2799,7 +2799,7 @@
 								 height="100%"
 								 color="#000000"
 								 showRoot="false"
-								 fontSize="10"
+								 fontSize="12"
 								 id="plateTree"
 								 labelFunction="runTreeLabelFunction"
 								 dataTipFunction="plateTreeTipFunction"
@@ -2850,7 +2850,7 @@
 						<mx:Tree width="100%"
 								 height="100%"
 								 color="#000000"
-								 fontSize="10"
+								 fontSize="12"
 								 showRoot="false"
 								 id="runTree"
 								 labelFunction="runTreeLabelFunction"
@@ -3649,6 +3649,7 @@
 			<mx:RemoveChild target="{runNumberLabel}"/>
 			<mx:RemoveChild target="{label4}"/>
 			<mx:RemoveChild target="{spacer4}"/>
+			<mx:SetStyle target="{runTitleLabel}" name="paddingRight" value="15"/>
 			
 		</mx:State>
 		

@@ -12,7 +12,8 @@ global {
 	advancedAntiAliasing: true;
 	fontAntiAliasType: advanced;
 	fontSharpness: 200;
-	fontThickness: 100; 
+	fontThickness: 20;
+	fontStyle: normal; 
 
 	
 }

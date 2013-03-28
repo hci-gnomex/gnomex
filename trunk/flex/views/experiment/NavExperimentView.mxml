@@ -1554,13 +1554,13 @@
      
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
  
-  <mx:VBox width="100%" height="100%" id="vbox1"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="2" borderStyle="none" borderColor="#D2D2D2" backgroundAlpha="0">
-   <mx:VBox  width="100%" verticalGap="0" paddingRight="4" paddingTop="4" 
-			 id="vbox3" styleName="panelBox" paddingBottom="4" 
-			 paddingLeft="4" borderThickness="1">
+  <mx:VBox width="100%" height="100%" id="vbox1"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="1" borderStyle="none" borderColor="#D2D2D2" backgroundAlpha="0">
+   <mx:VBox  width="100%" verticalGap="1" paddingRight="6" paddingTop="6" 
+			 id="vbox3" styleName="panelBox" paddingBottom="6" 
+			 paddingLeft="6" borderThickness="1">
 		<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="4" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" id="hbox1"  width="100%">
 			<mx:HBox id="hbox4"  horizontalGap="8" paddingLeft="0" verticalAlign="middle"  width="100%">
-				<mx:Text text="Experiments"   styleName="titleLabel" fontSize="12"/>
+				<mx:Text text="Experiments"   styleName="titleLabel" paddingRight="20"/>
 				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 					
 					<mx:RadioButtonGroup id="experimentRadioGroup"/>
@@ -1575,7 +1575,7 @@
 						<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
 						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
-					<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" paddingRight="20">
+					<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
 						<mx:toolTip>All experiments I have access to</mx:toolTip>
 						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
@@ -1590,19 +1590,19 @@
 					<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
 						<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>		    		
-					<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" paddingRight="20" horizontalGap="0"   styleName="labelSmall">
+					<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingLeft="2" horizontalGap="0"   styleName="labelSmall">
 						<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:CheckBox>			
 				</mx:HBox>
 				<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="10" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)" includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
 					<mx:click>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				<mx:Spacer width="100%"/>
 				<mx:Label visible="true" text="CC Number" paddingBottom="0" styleName="labelSmall" paddingLeft="2" id="label1"/>
 				<mx:TextInput id="ccLookupText" fontSize="9"
 							  height="19"
 							  width="55" 
 							  enter="{ccNoLookupFieldEntered()}" visible="{parentApplication.isBSTLinkageSupported}" includeInLayout="{parentApplication.isBSTLinkageSupported}"/>
+				<mx:Spacer width="100%" id="spacer1"/>
 				<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2" paddingLeft="0"/>
 			</mx:HBox>
 			
@@ -1825,12 +1825,12 @@
 			<mx:SetProperty target="{NextGenSeqCheckbox}" name="label" value="Next Gen Seq"/>
 			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="2"/>
-			<mx:SetStyle target="{linkbutton2}" name="fontSize" value="10"/>
+			<mx:SetStyle target="{linkbutton2}" name="fontSize" value="11"/>
 			<mx:SetStyle target="{linkbutton2}" name="horizontalGap" value="0"/>
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
 			<mx:SetProperty target="{externalExperimentsOnlyCheckbox}" name="label" value="External"/>
-			<mx:SetStyle target="{linkbutton2}" name="paddingLeft" value="6"/>
 			<mx:SetStyle target="{vbox3}" name="paddingTop" value="6"/>
+			<mx:SetProperty target="{spacer1}" name="minWidth" value="0"/>
 
 		</mx:State>
 

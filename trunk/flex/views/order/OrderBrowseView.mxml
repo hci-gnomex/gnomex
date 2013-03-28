@@ -34,6 +34,12 @@
 			<mx:AddChild relativeTo="{dateCheckboxBar}" position="before">
 				<mx:VRule height = "20" />
 			</mx:AddChild>
+			<mx:SetStyle target="{vbox2}" name="paddingBottom" value="6"/>
+			<mx:SetStyle target="{vbox2}" name="paddingLeft" value="6"/>
+			<mx:SetStyle target="{vbox2}" name="paddingRight" value="6"/>
+			<mx:SetStyle target="{vbox2}" name="paddingTop" value="6"/>
+			<mx:SetStyle target="{linkbutton1}" name="fontSize" value="11"/>
+			<mx:SetStyle target="{orderGrid}" name="fontSize" value="10"/>
 		</mx:State>
 		<mx:State name="DNASeqCoreState">
 			
@@ -533,7 +539,7 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
-	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%">
+	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%" id="vbox2">
 		<mx:VBox width="100%">
 			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
 				<mx:HBox horizontalGap="0" width="90">
@@ -637,7 +643,7 @@
 							   label = "Refresh"
 							   click = "{this.getList();}"
 							   icon = "@Embed('../../assets/action_refresh.gif')"
-							   toolTip = "Refresh order list"  styleName="labelSmall"/>
+							   toolTip = "Refresh order list"  styleName="labelSmall" id="linkbutton1"/>
 			</mx:HBox>
 			
 		</mx:VBox>
