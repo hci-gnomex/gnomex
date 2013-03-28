@@ -403,7 +403,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war" depends="init, compile, flex">
+	<target name="war" depends="init, compile">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files                                   +</echo>
@@ -496,7 +496,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-tomcat" depends="init, jar-tomcat, flex">
+	<target name="war-tomcat" depends="init, jar-tomcat">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files  (tomcat)                         +</echo>
