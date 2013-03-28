@@ -2258,13 +2258,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     boolean send = false;
+    String emailInfo = "";
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (emailRecipients.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      
     }
     
     if (send) {
@@ -2272,7 +2274,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           null,
           (requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);      
     }
     
@@ -2344,12 +2346,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-        emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "<br><br>";
-        ccEmail = null;
-      }
+      send = true;
+      subject = subject + " (TEST)";
+      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "]<br><br>";
+      ccEmail = null;
     }    
 
     if (send) {
