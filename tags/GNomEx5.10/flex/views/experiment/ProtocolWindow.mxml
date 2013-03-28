@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="576" height="366" showCloseButton="true"  close="{mx.managers.PopUpManager.removePopUp(this)}">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" verticalGap="2" backgroundColor="#FFFFFF">
+		<mx:Text id="protocolDescription" width="100%" height="100%"/>
+	</mx:VBox>
+	
+</mx:TitleWindow>
