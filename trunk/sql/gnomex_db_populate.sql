@@ -786,7 +786,7 @@ INSERT INTO gnomex.`Organism` (`idOrganism`,`organism`,`sortOrder`,`binomialName
   
 
 INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
- (1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
+(1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
  (2,'qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
  (3,'workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
  (4,'workauth1_name','Work authorization (internal customers)','The name of the link', 'N'),
@@ -872,8 +872,15 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
  (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
  (95,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
- (96,'contact_remit_address_core_facility','Core Facility Remit Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility remittance address', 'N'),
- (97,'contact_address_core_facility','Core Facility Lab Address' + char(10) + '123 N 456 E Anywhere' + char(10) + 'Test City, UT 12345', 'Core facility lab address', 'N');
+ (96,'contact_remit_address_core_facility',
+'Core Facility Remit Address
+123 N 456 E Anywhere
+Test City, UT 12345', 
+'Core facility remittance address', 'N'),
+ (97,'contact_address_core_facility','Core Facility Lab Address
+ 123 N 456 E Anywhere
+ Test City, UT 12345', 
+ 'Core facility lab address', 'N');
  
  
 
