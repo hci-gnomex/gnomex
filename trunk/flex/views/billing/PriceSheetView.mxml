@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 	xmlns:util="views.util.*" 
 	title="{'Price Sheet ' + priceSheet.@name}" 
-	width="572" height="344" defaultButton="{saveButton}">
+	width="572" defaultButton="{saveButton}">
    
    <mx:HTTPService             
     id="savePriceSheet" 

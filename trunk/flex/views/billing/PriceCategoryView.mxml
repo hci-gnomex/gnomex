@@ -5,7 +5,7 @@
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:renderers="views.renderers.*" 
 	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
-	width="568" height="538" defaultButton="{saveButton}">
+	width="568"  defaultButton="{saveButton}">
    
    <mx:HTTPService             
     id="savePriceCategory" 
