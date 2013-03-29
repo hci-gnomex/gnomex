@@ -555,7 +555,7 @@
 			<mx:VBox verticalGap="0" width="100%" id="samplesConfirmContainer" paddingTop="4">
 				<mx:Label text="{'Samples (' + filteredSamples.length + ')'}" id="label1" styleName="formLabel"/>
 				<mx:DataGrid width="100%" id="samplesGridConfirm"  editable="false" dataProvider="{filteredSamples}" 
-					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{filteredSamples.length + longDescriptionRowCount}"
+					backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off" rowCount="{filteredSamples.length + longDescriptionRowCount + 1}"
 					sortableColumns="false" alpha="0.8" fontSize="11" variableRowHeight="true" selectable="false" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="40" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
