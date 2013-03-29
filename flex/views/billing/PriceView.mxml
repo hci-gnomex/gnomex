@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 	xmlns:util="views.util.*" 
 	title="{'Price ' + price.@name + ' (' + priceCategory.@name + ')'}" 
-	width="536" height="370" defaultButton="{saveButton}">
+	 defaultButton="{saveButton}">
    
    <mx:HTTPService             
     id="savePrice" 
@@ -136,11 +136,11 @@
     	<util:TextAreaWorkaround id="priceDescription" width="100%" text="{price.@description}"/>
     </mx:HBox>
 	<mx:HBox width="100%">
-		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="Unit price:" width="70" toolTip="Internal Unit Price"/>
 			<mx:TextInput id="unitPrice" width="50" text="{price.@unitPrice}" textAlign="right"/>
 		</mx:HBox>
-		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="External Academic:" toolTip="External Unit Price for Academic Labs"/>
 			<mx:TextInput id="unitPriceExternalAcademic" width="50" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
 		</mx:HBox>
