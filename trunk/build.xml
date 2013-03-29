@@ -838,6 +838,19 @@
 		    replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
 
+		<!-- Compile flex -->
+		<subant target="flex">
+			    <property name="opensource" value="true"/>
+				<property name="dist.dir" value="${dist.dir}"/>
+			    <property name="basedir" value="${basedir}"/>
+				<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+				<property name="lib.dir" value="${sandbox.dir}/lib"/>
+				<property name="src.dir" value="${basedir}/src"/>
+			    <property name="flex.appname" value="${flexapp.name}"/>
+			    <property name="flex.title" value="${flex.title}"/>
+			    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
 			
 		<!-- Build ear, allowing http (nonsecure) connections -->
 		<subant target="ear">
