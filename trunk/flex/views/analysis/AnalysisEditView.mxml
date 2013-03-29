@@ -1256,23 +1256,6 @@
 			</mx:HDividedBox>
 		</mx:Canvas>
 		
-		<mx:HBox width="100%" horizontalGap="0" label="Data Tracks"  >
-			<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingBottom="5" paddingTop="4" >
-				<mx:Repeater id="dataTrackRepeater" dataProvider="{analysis.DataTrackList.DataTrack}">
-					<mx:HBox horizontalGap="6" width="100%">
-						<mx:LinkButton label="{dataTrackRepeater.currentItem.@label}" 
-									   paddingTop="0" paddingBottom="2" 
-									   textDecoration="underline"
-									   icon="{dataTrackRepeater.currentItem.@codeVisibility == 'PUBLIC' ? parentApplication.iconDataTrackPublic : dataTrackRepeater.currentItem.@codeVisibility == 'INST' ? parentApplication.iconDataTrackInstitution : dataTrackRepeater.currentItem.@codeVisibility == 'OWNER' ? parentApplication.iconDataTrackOwner : parentApplication.iconDataTrackMember}"
-									   click="{parentApplication.showDataTrackForNumber(event.currentTarget.getRepeaterItem().@number)}" >
-						</mx:LinkButton>
-						<mx:Text width="100%" text="{dataTrackRepeater.currentItem.@fileName}"/>
-					</mx:HBox>
-				</mx:Repeater>
-			</mx:VBox>
-		</mx:HBox>
-
-		
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
       <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
