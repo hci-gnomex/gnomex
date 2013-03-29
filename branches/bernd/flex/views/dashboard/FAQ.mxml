@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 				xmlns:db="views.dashboard.*" 
 				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
-				creationComplete="init()">   
+				preinitialize="init()">   
 
 	<mx:HTTPService 
 		id="getFAQ" 
@@ -122,6 +122,7 @@
 			<mx:LinkButton id="addFAQ" click="showAddFAQ()" 
 						   icon="@Embed(source='../../assets/table_row_insert.png')" width="22" 
 						   includeInLayout="{parentApplication.isSuperAdmin}"
+						   visible="{parentApplication.isSuperAdmin}"
 						   toolTip="Add FAQ"
 						   paddingTop="6"
 						   />
@@ -143,12 +144,13 @@
 									   rollOut="{FAQTitle[event.target.instanceIndex].setStyle('color', 0x000000)}"
 									   textAlign="left"
 								/>
-							
+						<mx:VRule height="15" includeInLayout="{parentApplication.isSuperAdmin}" visible="{parentApplication.isSuperAdmin}"/>	
 						<mx:LinkButton id="FAQRemove"
 									   width="22"
 									   icon="@Embed(source='../../assets/table_row_delete.png')"
 									   click="FAQRemove_clickHandler(event.currentTarget.getRepeaterItem());"
 									   includeInLayout="{parentApplication.isSuperAdmin}"
+									   visible="{parentApplication.isSuperAdmin}"
 									   toolTip="Delete FAQ"
 								/>
 					</mx:HBox>						

@@ -3,7 +3,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
 		   width="500" height="430" backgroundAlpha="1"
-		   cornerRadius="12" show="init()"
+		   cornerRadius="12" initialize="init()"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
 
@@ -65,12 +65,28 @@
 		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
-			metrixInterface.send();
-			
-			// Set Connection status default
-			mainTitle.setStyle("fontWeight", "bold");
-			mainTitle.setStyle("color", "red");
-			conStatus = false;
+			checkSecurity();
+			// Only retrieve data when user is a superAdmin.
+			if(currentState == "AdminState"){
+				metrixInterface.send();
+						
+				// Set Connection status default
+				mainTitle.setStyle("fontWeight", "bold");
+				mainTitle.setStyle("color", "red");
+				conStatus = false;
+			}
+		}
+		
+		public function checkSecurity():void {
+			if (parentApplication.hasPermission("canReceiveAdminNotification")) {
+				currentState = "AdminState";
+			} else if (parentApplication.hasPermission("canReceiveBillingNotification")) {
+				currentState = "BillingState"; 
+			} else if (parentApplication.hasPermission("canReceiveWorkflowNotification")){
+				currentState = "WorkflowState";
+			} else {
+				currentState = "UserState";
+			}
 		}
 		
 		public function refreshData(e:TimerEvent):void{

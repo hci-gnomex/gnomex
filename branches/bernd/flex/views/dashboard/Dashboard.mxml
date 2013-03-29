@@ -33,7 +33,7 @@
 			<mx:Spacer height="10" />		
 			<mx:HBox>
 				<db:NotificationHub id="notificationHub" />
-				<db:RunStatusHub id="runMonitor" />	
+				<!--<db:RunStatusHub id="runMonitor" />-->	
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

@@ -53,6 +53,8 @@
 			import mx.utils.ObjectProxy;
 			import mx.utils.ObjectUtil;
 			
+			import views.workflow.NavWorkflowView;
+			
 			[Bindable]
 			public var notificationState:int;
 			
@@ -159,7 +161,7 @@
 				<mx:VBox  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
 					<mx:HBox id="notificationItem" width="465">
 						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" fontWeight="bold" />
-						<mx:Label id="noteText" text="{repeatHandler(repStatus)}" />
+						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" click="Application.application.showExperimentById(event.currentTarget.getRepeaterItem().@expId);" />
 					</mx:HBox>
 				</mx:VBox>
 			</mx:Repeater>
@@ -167,7 +169,7 @@
 		<mx:VBox includeInLayout="{notificationState == 2 ? true : false}">
 			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}">
 				<mx:HBox id="workflowItem" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
-					<mx:LinkButton id="wfStep" click="{parentApplication.externalViewSwitch(repWorkflow.currentItem.getRepeaterItem().@codeStep)}" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
+					<mx:LinkButton id="wfStep" click="Application.application.navWorkflowView.switchTo(event.currentTarget.getRepeaterItem().@codeStep);" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
 					<mx:Spacer width="100%" />
 					<mx:Label id="wfCount" text="{repWorkflow.currentItem.@count}" />
 				</mx:HBox>

@@ -4,8 +4,7 @@
 		   xmlns:util="views.util.*"
 		   xmlns:db="views.dashboard.*"
 		   creationPolicy="all" width="100%" height="100%"
-		   initialize="checkSecurity()"
-		   show="init()"
+		   preinitialize="checkSecurity()"
 		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
 	<mx:states> 
 		<mx:State name="GuestState">
@@ -62,37 +61,29 @@
 			}
 			
 			public function init():void {
-
 				checkSecurity();
 			}
 			
 			public function checkSecurity():void {
+				
 				if (parentApplication.currentState == "GuestState") {
 					if (parentApplication.isUniversityOnlyUser) {
 						this.currentState = "UnivGuestState"
 					} else {
 						this.currentState = "GuestState";
 					}
-				} else if (parentApplication.isAdminState) {
-				    currentState = "AdminState";
-				} else if (parentApplication.isBillingAdminState) {
+				} else if (parentApplication.hasPermission("canReceiveAdminNotification")) {
+					currentState = "AdminState";
+				}  else if (parentApplication.hasPermission("canReceiveBillingNotification")) {
 					currentState = "BillingAdminState";
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
 					currentState = "UserNonSubmitterState";
 				} else {
 					currentState = "UserState";
 				}
+				
+				Alert.show("Welcome view state " + currentState);
 			}
-			
-	/*		public function tabVis():void{
-				Alert.show("TabVis state = " + currentState);
-				if(currentState == "UserState"){
-					permissionBox.removeChild(runMonitor);			
-					notificationHub.notificationTabs.removeChildAt(1);
-					notificationHub.notificationTabs.removeChildAt(2);
-					notificationHub.notificationTabs.removeChildAt(3);
-				}
-			} */
 			
 			public function submitRequest():void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
@@ -307,7 +298,7 @@
 				<mx:Spacer height="10" />		
 				<mx:HBox id="permissionBox">
 					<db:NotificationHub id="notificationHub" />
-					<db:RunStatusHub id="runMonitor" />	
+					<db:RunStatusHub id="runMonitor" includeInLayout="{currentState == 'AdminState'}" visible="{currentState == 'AdminState'}"/>	
 				</mx:HBox>
 			</mx:VBox>
 		</mx:VBox>

@@ -77,7 +77,7 @@
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
 		} else {
-				//Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
 			}
 		}
 		

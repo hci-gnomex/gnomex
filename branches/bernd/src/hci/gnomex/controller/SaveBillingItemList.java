@@ -269,6 +269,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     if (lab != null && lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
       if (this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
         try {
+        	System.out.println("Checking email send line 272.");
           sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility);        
         } catch (Exception e) {
           log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
@@ -284,6 +285,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility) throws Exception {
     LogItem li = this.executionLogger.startLogItem("Format Email");
     dictionaryHelper = DictionaryHelper.getInstance(sess);
+    
+    System.out.println("Sending email invoice line 288.");
     
     BillingPeriod billingPeriod = dictionaryHelper.getBillingPeriod(idBillingPeriod);
     CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
