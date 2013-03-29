@@ -1,6 +1,73 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+5.10 (Mar 28, 2013)
+-------------------
+* Modify name auto generated for a DataTrack	Tarik Courdy	bioinformatics	GNOM-134
+* Create Folder for Analysis upon Creation	Tarik Courdy	bioinformatics	GNOM-142
+* Missing DataTrack info in Analysis Tab	Megan Bowler	bioinformatics	GNOM-417
+* Multiple AnalysisFile rows for a single file are created when file re-uploaded	Tarik Courdy	bioinformatics	GNOM-403
+* NullPointer error with dup upload check when trying to analysis file that belongs to a datatrack	Ben Spigle	bioinformatics	GNOM-459
+* Can't delete file in Analysis	Megan Bowler	bioinformatics	GNOM-402
+* Data Track support for VCF files	Unassigned	cvdc	GNOM-132
+* Add project name and description to Project/Experiment report	Tony Di Sera	cvdc	GNOM-405
+* Multi select dropdown annotations do not show up on Annotations tab for either Analysis or Data Track	Tarik Courdy	cvdc	GNOM-252
+* Let's show an * or italicize annotations with 'applies to' filters on Configure Annotations	Tarik Courdy	cvdc	GNOM-377
+* Project Report is breaking up descriptions into multiple cells.	Tony Di Sera	cvdc	GNOM-394
+* Post Experiment Data - Description tab disabled unless I re-type in fields	Tarik Courdy	cvdc	GNOM-386
+* Billing link to move all pending billing items to next billing period	Megan Bowler	dna_seq_core	GNOM-342
+* Manual Invoice Printing?	Tarik Courdy	dna_seq_core	GNOM-315
+* Make some improvements to Invoice base	Tarik Courdy	dna_seq_core	GNOM-372
+* Have 2 side-by-side pie charts of Disk Usage by Category chart	Tarik Courdy	general	GNOM-323
+* "Configure..." menu options available for 'Group'-role users.	Tony Di Sera	general	GNOM-329
+* Move all welcome view links to main nav menu	Tony Di Sera	general	GNOM-439
+* Core facility admins see visibility to all users	Tarik Courdy	general	GNOM-290
+* Lower file size to 300 MB for normal downloads (experiments, analysis, and data tracks)	Tarik Courdy	general	GNOM-397
+* Normal users can configure platform	Ben Spigle	general	GNOM-374
+* Reassigning lab on an experiment has some problems	Ben Spigle	general	GNOM-382
+* Need a human data curator to moderate GNomEx	Unassigned	infrastructure	GNOM-146
+* New genotyping results report for Tavtigan lab	Tony Di Sera	limsgcs	GNOM-396
+* Lib Prep Workflow - Need to filter and provide type-ahead for index tag selection	Megan Bowler	microarray	GNOM-461
+* Billing account gets updated with null idLab and then deleted by other core	Ben Spigle	microarray	GNOM-418
+* Lib Prep Workflow - Clear out Sample.barcodeSequence when oligo barcode dropdown set to blank option	Megan Bowler	microarray	GNOM-471
+* Hibernate error when trying to delete analysis A116 on B2B	Tony Di Sera	microarray	GNOM-460
+* Fix : NumberFormatException: For input string: "FC"	Ben Spigle	microarray	GNOM-433
+* Work Auth lab dropdown is not type ahead.	Tarik Courdy	microarray_core	GNOM-75
+* Flow Cell Edit - warn when samples with duplicate index tags are added to same flow cell channel	Tarik Courdy	microarray_core	GNOM-268
+* Test 'Configure Billing accounts' with billing accounts changes to make sure it isn't broken	Tony Di Sera	microarray_core	GNOM-431
+* Rework billing accounts tab on Group detail view	Tony Di Sera	microarray_core	GNOM-102
+* Multiplex Lane groupings incorrect when sequence lanes on one flow cell channel with same index tag	Tony Di Sera	microarray_core	GNOM-265
+* Register new user code fails when property CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER does not exist	Tarik Courdy	opensource	GNOM-391
+* Need to have a dropdown for core facility on Experiment Browse Window. (No need to add checkboxes for experiment types, since i think we are running out of room)	Megan Bowler	translational_oncology	GNOM-434
+* Main navigation windows for Translational Oncology Admins	Tony Di Sera	translational_oncology	GNOM-447
+* Find new icons for 2 new Sequenom Experiment platforms	Tony Di Sera	translational_oncology	GNOM-444
+* Submit instructions custom based on core facility	Megan Bowler	translational_oncology	GNOM-442
+* Have a link back to itBioPath on sample grid for every sample with CC Number. Perhaps URL annotation type could be used?	Megan Bowler	translational_oncology	GNOM-430
+* Introduce Sequenom Experiment	Megan Bowler	translational_oncology	GNOM-326
+* Confirmation email for Clinical Research Sequenome experiments	Megan Bowler	translational_oncology	GNOM-445
+* Sequenom printable form refinements	Megan Bowler	translational_oncology	GNOM-443
+* Status status to NEW for new Translational Oncology experiment orders so that they show up on Order Review window.	Ben Spigle	translational_oncology	GNOM-446
+* Plate name for research sequenom requests	Ben Spigle	translational_oncology	GNOM-469
+* Change ant script so that other hbm.xml files not included	Tony Di Sera	translational_oncology	GNOM-436
+* Omit bstx from gnomex opensource build script	Tony Di Sera	translational_oncology	GNOM-413
+* Trans. Onc. categories show up for external request submission.	Ben Spigle	translational_oncology	GNOM-456
+* Column Configuration for sequenom	Megan Bowler	translational_oncology	GNOM-452
+* Need sample conc as editable filed in experiment edit for Sequenom, also need 260/280	Megan Bowler	translational_oncology	GNOM-422
+* Show order review for translational oncology core	Megan Bowler	translational_oncology	GNOM-420
+* Lookup experiments by CC Number	Megan Bowler	translational_oncology	GNOM-450
+* Send new order email to core and others, make core facility property	Ben Spigle	translational_oncology	GNOM-421
+* Support Sequenom Experiment Type	Tony Di Sera	translational_oncology	GNOM-357
+* See if https download will work for Clinical Research Experiments	Ben Spigle	translational_oncology	GNOM-429
+* Actionscript error when launching Sequenom Clinical Research experiment from itBioPath on hci-as-dev	Ben Spigle	translational_oncology	GNOM-466
+* Need XBSTX integrated in GNomEx for Clinical Research Experiment types	Ben Spigle	translational_oncology	GNOM-398
+* OncoCarta fdf not parsing SP number correctly?	Ben Spigle	translational_oncology	GNOM-468
+* Ask Josh to set up separate directory for Translational Oncology	Tony Di Sera	translational_oncology	GNOM-448
+* On the info tab of the experiment edit view the lab group dropdown does not contain a list of all of the labs. This makes it impossible to assign the experiment to any lab.	Unassigned		GNOM-380
+* Opening request from topic aborts.	Ben Spigle		GNOM-407
+* After renaming name of lab group, group selection is blacked out in left-hand list	Ben Spigle		GNOM-462
+* Drag-and-drop experiment to diff project, owner dropdown empty labels	Tony Di Sera		GNOM-463
+
+
 5.9 (Mar 3, 2012)
 -----------------
 * MakeDataTrackIGVLink blocking db processes	Ben Spigle	bioinformatics
