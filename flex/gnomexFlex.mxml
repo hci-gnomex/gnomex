@@ -3012,10 +3012,12 @@
 					return;
 				}
 				showView(event.target.data);
+				mainMenu.selectedIndex = -1;
 			}
 			
 			private function onMenuSelect(event:MenuEvent):void {				
 				showView(event.item);
+				mainMenu.selectedIndex = -1;
 			}
 			
 			
@@ -3624,7 +3626,7 @@
 					<mx:HRule width="100%"   strokeWidth="1" strokeColor="#E9EBD1" alpha="0.64" id="hrule1"/>
 						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 									click="onMenuClick(event)"
-									itemClick="{onMenuSelect(event)}"  
+									itemClick="{onMenuSelect(event)}"
 									labelField="@label" iconField="@icon"    
 									useHandCursor="true"  
 									fillAlphas="[0, 0, 0, 0]" 
