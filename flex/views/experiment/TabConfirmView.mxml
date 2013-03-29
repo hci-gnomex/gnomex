@@ -446,11 +446,11 @@
 				    <mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" styleName="formLabel" paddingTop="4"/>								    	
 				    </mx:HBox>
 					<mx:VBox width="100%" id="vbox1">
-						<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"
+						<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"  horizontalScrollPolicy="off"
 							editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
-							backgroundAlpha="0"  alpha="0" 
-							sortableColumns="false"   fontSize="11" borderStyle="solid">
-							<mx:rowCount>{parentDocument.createBillingItems.lastResult..BillingItem.length() - 1}</mx:rowCount>
+							backgroundAlpha="0"  horizontalGridLines="false" verticalGridLines="false"  variableRowHeight="true" selectable="false" 
+							sortableColumns="false" fontSize="11"  borderStyle="none" >
+							<mx:rowCount>{parentDocument.createBillingItems.lastResult..BillingItem.length() + 1}</mx:rowCount>
 							<mx:columns>
 							   				<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
 							   				     <mx:itemRenderer>
