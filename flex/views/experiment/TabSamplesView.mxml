@@ -133,6 +133,17 @@
 			var emptyNode:XML = null;
 			var idOrganism:String = parentDocument.setupView.getIdOrganism();
 			var isValid:Boolean = true;
+			var analysisInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '';
+			analysisInstructions = analysisInstructions.replace("'", "&apos;");
+			analysisInstructions = analysisInstructions.replace("<", "&lt;");
+			analysisInstructions = analysisInstructions.replace(">", "&gt;");
+			analysisInstructions = analysisInstructions.replace("&", "&amp;");
+			var prepInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
+			prepInstructions = prepInstructions.replace("'", "&apos;");
+			prepInstructions = prepInstructions.replace("<", "&lt;");
+			prepInstructions = prepInstructions.replace(">", "&gt;");
+			prepInstructions = prepInstructions.replace("&", "&amp;");
+				
 			if (parentDocument.isSolexaState()) {
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
@@ -159,8 +170,8 @@
 					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-					" prepInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+					" analysisInstructions=\"" + (analysisInstructions) + "\"" +				
+					" prepInstructions=\"" + (prepInstructions) + "\"" +				
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" treatment=''"   +				
@@ -186,7 +197,7 @@
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
+					" analysisInstructions='" + (analysisInstructions) + "'" +				
 					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
@@ -1228,6 +1239,11 @@
 				lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
 			}
 			var laneStr:String = lanePlus.toString().substr(1);
+			var analysisInstructions:String = sample.@analysisInstructions.replace("\"", "&quot;");
+			analysisInstructions = analysisInstructions.replace("'", "&apos;");
+			analysisInstructions = analysisInstructions.replace("<", "&lt;");
+			analysisInstructions = analysisInstructions.replace(">", "&gt;");
+			analysisInstructions = analysisInstructions.replace("&", "&amp;");
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + laneStr + "'" +
 			    " notes='' " + 
@@ -1235,7 +1251,7 @@
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 				" idSample='" + sample.@idSample + "'" +
 				" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
-				" analysisInstructions='" + sample.@analysisInstructions + "'" +
+				" analysisInstructions='" + analysisInstructions + "'" +
 				"/>");
 			
 			parentDocument.lanes.addItem(emptyNode);
