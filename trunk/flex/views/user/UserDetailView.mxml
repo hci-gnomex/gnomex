@@ -99,7 +99,10 @@
 					}
 				} else { 
 					if (saveAppUser.lastResult.name() == "ERROR") {
-						Alert.show(saveAppUser.lastResult.@message);	
+						Alert.show(saveAppUser.lastResult.@message);
+					} else if(saveAppUser.lastResult.name() == "NULL_EMAIL_ERROR"){
+						Alert.show(saveAppUser.lastResult.@message, "Warning");
+						this.dirty.resetDirty();
 					} else {
 						Alert.show("An error occurred while saving the user record.");						
 					}
