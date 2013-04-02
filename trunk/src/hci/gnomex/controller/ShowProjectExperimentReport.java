@@ -165,20 +165,20 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     tray.setFormat(ReportFormats.CSV);
     
     Set columns = new TreeSet();
-    columns.add(makeReportColumn("Lab", 1));
-    columns.add(makeReportColumn("Experiment #", 2));
-    columns.add(makeReportColumn("Name", 3));
-    columns.add(makeReportColumn("Owner", 4));
-    columns.add(makeReportColumn("Submitter", 5));
-    columns.add(makeReportColumn("Category", 6));
-    columns.add(makeReportColumn("Application", 7));
-    columns.add(makeReportColumn("Date Created", 8));
-    columns.add(makeReportColumn("Last Modification", 9));
-    columns.add(makeReportColumn("Visibility", 10));
-    columns.add(makeReportColumn("Description", 11));
-    columns.add(makeReportColumn("Organism", 12));
-    columns.add(makeReportColumn("Project Name", 13));
-    columns.add(makeReportColumn("Project Description", 14));
+    columns.add(makeReportColumn("Project Name", 1));
+    columns.add(makeReportColumn("Project Description", 2));
+    columns.add(makeReportColumn("Lab", 3));
+    columns.add(makeReportColumn("Experiment #", 4));
+    columns.add(makeReportColumn("Name", 5));
+    columns.add(makeReportColumn("Owner", 6));
+    columns.add(makeReportColumn("Submitter", 7));
+    columns.add(makeReportColumn("Category", 8));
+    columns.add(makeReportColumn("Application", 9));
+    columns.add(makeReportColumn("Date Created", 10));
+    columns.add(makeReportColumn("Last Modification", 11));
+    columns.add(makeReportColumn("Visibility", 12));
+    columns.add(makeReportColumn("Description", 13));
+    columns.add(makeReportColumn("Organism", 14));
     columns.add(makeReportColumn("# Samples", 15));
     
     
@@ -238,6 +238,8 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
     String organism = dh.getOrganism(idOrganism);
     
+    values.add(surroundWithQuotes(projectName) );
+    values.add(surroundWithQuotes(projectDescription) );
     values.add(surroundWithQuotes(labName));
     values.add(surroundWithQuotes(number));
     values.add(surroundWithQuotes(requestName) );
@@ -250,8 +252,6 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     values.add(surroundWithQuotes(visibility) );
     values.add(surroundWithQuotes(description) );
     values.add(surroundWithQuotes(organism) );
-    values.add(surroundWithQuotes(projectName) );
-    values.add(surroundWithQuotes(projectDescription) );
     values.add(surroundWithQuotes(numSamples.toString()) );
    
     reportRow.setValues(values);
