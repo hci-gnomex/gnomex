@@ -135,10 +135,16 @@ public class GetLab extends GNomExCommand implements Serializable {
       
       Document doc = new Document(new Element("OpenLabList"));
       theLab.excludeMethodFromXML("getApprovedBillingAccounts");  // Added explicitly below
+      theLab.excludeMethodFromXML("getInternalBillingAccounts");  // Added explicitly below
+      theLab.excludeMethodFromXML("getPOBillingAccounts");  // Added explicitly below
+      theLab.excludeMethodFromXML("getCreditCardBillingAccounts");  // Added explicitly below
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       this.appendPossibleCollaborators(labNode, theLab);
       this.appendSubmitters(labNode, theLab);
-      this.appendApprovedBillingAccounts(labNode, theLab);
+      this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
+      this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
+      this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
+      this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode, theLab);
       doc.getRootElement().addContent(labNode);
       
       
@@ -183,7 +189,7 @@ public class GetLab extends GNomExCommand implements Serializable {
         this.appendPossibleCollaborators(labNode, theLab);
       }
       this.appendSubmitters(labNode, theLab);
-      this.appendApprovedBillingAccounts(labNode, theLab);
+      this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
       doc.getRootElement().addContent(labNode);        
           
       XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -319,11 +325,11 @@ public class GetLab extends GNomExCommand implements Serializable {
     
   }
   
-  private void appendApprovedBillingAccounts(Element labNode, Lab theLab) throws Exception {
-    Element accountsNode = new Element("approvedBillingAccounts");
+  private void appendBillingAccounts(List accounts, String nodeName, Element labNode, Lab theLab) throws Exception {
+    Element accountsNode = new Element(nodeName);
     labNode.addContent(accountsNode);
  
-    for(Iterator i = theLab.getApprovedBillingAccounts().iterator(); i.hasNext();) {
+    for(Iterator i = accounts.iterator(); i.hasNext();) {
       BillingAccount ba = (BillingAccount)i.next();
       Element node = ba.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       String users = "";
