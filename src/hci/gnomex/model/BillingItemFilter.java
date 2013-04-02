@@ -108,8 +108,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        lab.isExternalPricingCommercial, ");
     queryBuf.append("        bi.idInvoice, ");
     queryBuf.append("        lab.contactEmail, ");
-    queryBuf.append("        lab.billingContactEmail, ");
-    queryBuf.append("        lab.includePiInBillingEmails ");
+    queryBuf.append("        lab.billingContactEmail ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");

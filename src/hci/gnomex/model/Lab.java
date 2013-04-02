@@ -26,7 +26,6 @@ public class Lab extends HibernateDetailObject {
   private String  isActive;
   private String  excludeUsage;
   private String  billingContactEmail;
-  private String  includePiInBillingEmails;
   private Long    version;
   private Set     billingAccounts;
   private Set     members;
@@ -123,16 +122,7 @@ public class Lab extends HibernateDetailObject {
     this.billingContactEmail = billingContactEmail;
   }
   
-  
-  public String getIncludePiInBillingEmails() {
-    return includePiInBillingEmails;
-  }
-  
-  public void setIncludePiInBillingEmails(String includePiInBillingEmails) {
-    this.includePiInBillingEmails = includePiInBillingEmails;
-  }
-  
-  
+
   public Long getVersion() {
     return version;
   }
@@ -412,21 +402,21 @@ public class Lab extends HibernateDetailObject {
 
   // Includes PI email if requested.
   public String getBillingNotificationEmail() {
-    return formatBillingNotificationEmail(getIncludePiInBillingEmails(), getContactEmail(), getBillingContactEmail());
+    return formatBillingNotificationEmail(getContactEmail(), getBillingContactEmail());
   }
   
   // Always inclused PI
   public String getWorkAuthSubmitEmail() {
-    return formatBillingNotificationEmail("Y", getContactEmail(), getBillingContactEmail());
+    return formatBillingNotificationEmail(getContactEmail(), getBillingContactEmail());
   }
   
-  public static String formatBillingNotificationEmail(String includePiInBillingEmails, String contactEmail, String billingContactEmail) {
+  public static String formatBillingNotificationEmail(String contactEmail, String billingContactEmail) {
     String email = "";
     if (billingContactEmail != null) {
       email = billingContactEmail;
     }
     String piEmail = "";
-    if (includePiInBillingEmails != null && includePiInBillingEmails.equals("Y") && contactEmail != null) {
+    if (contactEmail != null) {
       piEmail = contactEmail;
     }
     if (piEmail.length() > 0) {
