@@ -3151,7 +3151,7 @@
 						this.confirmView.currentState = "";
 					}
 					
-					this.confirmView.billingConfirmGrid.rowCount = billingItems.length() > 1 ? billingItems.length() - 1 : billingItems.length();
+					this.confirmView.billingConfirmGrid.rowCount = billingItems.length();
 					this.confirmView.billingConfirmGrid.validateNow();
 				} else {
 					readyToSubmit = false;
