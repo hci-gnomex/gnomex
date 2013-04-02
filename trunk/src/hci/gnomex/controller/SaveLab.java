@@ -277,7 +277,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
   
           if (isNewLab) {
             lab = labScreen;
-            lab.setIncludePiInBillingEmails("Y"); // Default to include pi in billing emails on new labs.
             sess.save(lab);
             
           } else {
@@ -617,7 +616,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsActive(labScreen.getIsActive());
     lab.setExcludeUsage(labScreen.getExcludeUsage());
     lab.setBillingContactEmail(labScreen.getBillingContactEmail());
-    lab.setIncludePiInBillingEmails(labScreen.getIncludePiInBillingEmails());
 
   }
 

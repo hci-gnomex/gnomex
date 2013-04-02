@@ -197,10 +197,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       Integer idInvoice           = (Integer)row[13];
       String contactEmail         = (String)row[14];
       String billingContactEmail  = (String)row[15];
-      String includePiInBillingEmails = (String)row[16];
       
       String labName = Lab.formatLabName(labLastName, labFirstName);
-      String billingEmail = Lab.formatBillingNotificationEmail(includePiInBillingEmails, contactEmail, billingContactEmail);
+      String billingEmail = Lab.formatBillingNotificationEmail(contactEmail, billingContactEmail);
   
       
       String toolTip = requestNumber + " " + labName;

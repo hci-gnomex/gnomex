@@ -707,7 +707,6 @@
 				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
 				params.excludeUsage = this.excludeUsageCheckBox.selected ? "Y" : "N"; 
 				params.billingContactEmail = this.billingContactEmail.text;
-				params.includePiInBillingEmails = this.piInBillingEmailsCheckbox.selected ? "Y" : "N";
 				
 				var acct:Object;
 				for each(acct in billingAccountsToSave) {
@@ -1174,7 +1173,6 @@
 							</mx:HBox>
 							<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@contactEmail}" width="220"/>
 							<mx:Label text="PI gets billing emails + notifications." fontStyle="italic" textAlign="left" color="#076211" fontSize="10" textDecoration="none" fontWeight="normal"/>
-							<mx:CheckBox id="piInBillingEmailsCheckbox" selected="{parentDocument.fullLab.@includePiInBillingEmails == 'Y' ? true : false}" label="Include PI in billing emails" click="dirty.setDirty()" paddingTop="0" paddingBottom="0" visible="false" includeInLayout="false"/>
 						</mx:VBox>
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%">
