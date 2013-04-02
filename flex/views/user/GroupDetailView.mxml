@@ -966,7 +966,7 @@
 				}
 			}
 			
-			public function showEditBillingAcctWindow(billingAcct:XML):void{
+			private function showEditBillingAcctWindow(billingAcct:XML):void{
 				
 				var editAcctWindow:EditBillingAcctWindow = EditBillingAcctWindow(mx.managers.PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				editAcctWindow.parentView = this;
