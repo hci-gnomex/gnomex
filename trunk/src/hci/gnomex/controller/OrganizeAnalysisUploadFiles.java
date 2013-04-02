@@ -248,7 +248,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     }
                   }
                   else{
-                    af.setFileSize(new BigDecimal(new File(fileName).length()));
+                    if(new File(fileName).exists()){
+                      af.setFileSize(new BigDecimal(new File(fileName).length()));
+                    }
                   }
                   af.setQualifiedFilePath(qualifiedFilePath);
                   sess.save(af);
