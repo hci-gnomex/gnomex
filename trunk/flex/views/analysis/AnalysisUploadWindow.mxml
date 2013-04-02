@@ -647,6 +647,10 @@
 			}
 			
 			private function renameFile(event:MouseEvent):void{
+				if(this.dirty.isDirty()){
+					Alert.show("Please save changes before attempting to change the names of any files");
+					return;
+				}
 				if((downloadTree.selectedItem == null) || downloadTree.selectedIndex == 0){
 					return;
 				}	
