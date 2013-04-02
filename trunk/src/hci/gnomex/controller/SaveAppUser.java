@@ -104,6 +104,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         boolean isUsedUsername = false;
         boolean isUseduNID = false;
         boolean isManageFacilityError = false;
+        boolean isNullEmail = false;
         Object [] user = null;
         
         if (appUserScreen.getuNID() != null && 
@@ -195,8 +196,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 } else {
                   coreFacilityContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
                 }
-                
-                sendAccountActivatedEmail(appUser, coreFacilityContactEmail);
+                if(appUser.getEmail() != null){
+                  sendAccountActivatedEmail(appUser, coreFacilityContactEmail);
+                } else {
+                  this.addInvalidField("No email address", "The account has been activated however the user will not be notified by email since one can't be found on file for this user.");
+                  isNullEmail = true;
+                }
               }
             }
           }
@@ -223,16 +228,23 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if(isUsedUsername || isUseduNID || isManageFacilityError) {
+          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail) {
             String outMsg = "";
             if(isUsedUsername) {
               outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
             } else if (isUseduNID) {
               outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
-            } else {
+            } else if (isManageFacilityError) {
               outMsg = "Only Admin or Super Admin users can manage core facilities.";
+            } else{
+              outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
+              sess.flush();
             }
-            this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+            if(isNullEmail){
+              this.xmlResult = "<NULL_EMAIL_ERROR message=\"" + outMsg + "\"/>";
+            } else{
+              this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+            }
             setResponsePage(this.SUCCESS_JSP);            
           } else {
             setResponsePage(this.ERROR_JSP);            
