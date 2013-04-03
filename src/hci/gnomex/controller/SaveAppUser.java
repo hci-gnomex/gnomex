@@ -207,19 +207,30 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           }
 
         }
+        
+        // If setting the user to group permission kind, then remove any core facilities they manage.
+        if ( appUserScreen.getCodeUserPermissionKind().equals( UserPermissionKind.GROUP_PERMISSION_KIND )) {
+          for(Iterator j = managingCoreFacilityIds.iterator();j.hasNext();) {
+            CoreFacilityCheck chk = (CoreFacilityCheck)j.next();
+            chk.selected = "N";
+          }
+        }
 
-        // Only super admins can assign core facilities to labs.
+        // You can only edit core facilities you manage
+        // If you are not a super admin, check to see if you are editing core facilities legally
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-          if (!appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) 
-              && !appUserScreen.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
-            for(Iterator chkIter = managingCoreFacilityIds.iterator();chkIter.hasNext();) {
-              CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
-              if (chk.selected.equals("Y")) {
-                this.addInvalidField("Manage Core Facility", "Only Admin or Super Admin users can manage core facilities.");
+
+          for(Iterator chkIter = managingCoreFacilityIds.iterator();chkIter.hasNext();) {
+            CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
+            // Check to see if that core has been edited and if you have permission to edit it.
+            if ( checkCoreHasBeenEdited(chk,appUser)  ) {                 
+              if ( !checkCanEditCore(chk)) { 
+                this.addInvalidField("Manage Core Facility", "You may only change core facility permissions for the core facilities you manage.");
                 isManageFacilityError = true;
               }
             }
           }
+
         }
         
         if (this.isValid()) {
@@ -235,7 +246,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             } else if (isUseduNID) {
               outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
             } else if (isManageFacilityError) {
-              outMsg = "Only Admin or Super Admin users can manage core facilities.";
+              outMsg = "You may only change core facility permissions for the core facilities you manage.";
             } else{
               outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
               sess.flush();
@@ -326,6 +337,53 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       }
     
     
+  }
+  
+  private boolean checkCanEditCore (CoreFacilityCheck chk) {
+    boolean isValidToEdit = false;
+    
+    // Check through the core facilities which can be managed
+    for(Iterator i =  this.getSecAdvisor().getCoreFacilitiesIManage().iterator();i.hasNext();) {
+      CoreFacility facility = (CoreFacility)i.next();
+      // If the core facility in question is one of the core facilities the 
+      // current user manages, then editing is allowed.
+      if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
+        isValidToEdit = true;
+        break;
+      }
+    }
+    
+    
+    return isValidToEdit;
+  }
+  
+  private boolean checkCoreHasBeenEdited(CoreFacilityCheck chk, AppUser appUser) {
+    boolean hasBeenEdited = false;
+    boolean existingManagingCore = false;
+    
+    // Look through the app user's current list of managing core facilities
+    for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
+      CoreFacility facility = (CoreFacility)i.next();
+      
+      if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
+        // If the core facility is already being managed by the user, 
+        // check to see if it has been changed to NOT being managed by the user any more.
+        existingManagingCore = true;
+        if (chk.selected.equals("N")) {
+          hasBeenEdited = true;
+        }
+        break;
+      }
+    }
+    // If the core facility was not one that the user already manages, check to see if 
+    // it is being changed to one that the user is going to manage.
+    if ( !existingManagingCore ) {
+      if (chk.selected.equals("Y")) {
+        hasBeenEdited = true;
+      }
+    }
+    
+    return hasBeenEdited;
   }
   
   private void setCoreFacilities(Session sess, AppUser appUser) {
