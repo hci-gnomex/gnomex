@@ -8,7 +8,7 @@
 	close="{closeWindow()}"
 	title="Edit User Account Settings"
 	creationPolicy="all"
-	width="754" height="472" icon="@Embed('../../assets/user.png')">
+	height="472" icon="@Embed('../../assets/user.png')">
 
 	<mx:HTTPService 
     id="getAppUserPublic" 
