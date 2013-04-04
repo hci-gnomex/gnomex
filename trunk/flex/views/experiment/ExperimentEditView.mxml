@@ -356,9 +356,6 @@
 	 		// has been shown, perform 1-time-only
 	 		// initialization
 			if (!isInitialized) {
-
-				// Init url for sample sheet upload
-				parentApplication.setupSampleSheetUpload();
 				
 				// Set the base state
 				if (this.id == "amendRequestView") {
