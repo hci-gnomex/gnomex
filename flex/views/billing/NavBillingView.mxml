@@ -200,6 +200,8 @@
 
 <mx:Script>
  	<![CDATA[
+		import flash.utils.setTimeout;
+		
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		
@@ -221,6 +223,7 @@
 		import mx.events.MenuEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.formatters.CurrencyFormatter;
+		import mx.managers.CursorManager;
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.messaging.channels.StreamingAMFChannel;
@@ -232,6 +235,9 @@
 		import views.util.BillingPeriodSelectEvent;
 		import views.util.PickBillingPeriodView; 
 
+		private const TIMEOUT_DELAY:uint = 100;
+		private const NUM_DISPLAYED_BILLING_ITEMS:uint = 25;
+		
         private var revisionNumber:int = 1;
 		private var invoiceMap:Dictionary;
  		
@@ -941,66 +947,35 @@
 			
 			billingItemsDisplayed = new XMLListCollection();
 			
-			var invoicePrice:Number = new Number(0);
 			var request:XML = null;
 			var lab:XML = null;
-			var item:Object = null;
- 			if (selectedItem.name() == "Status" && 
- 			    selectedItem.@status == 'PENDING') {
- 				this.billingItemsDisplayed = new XMLListCollection();
- 				for each(request in selectedItem..Request) {
- 					for each(item in billingItems) {
-	 					if (item.@requestNumber == request.@requestNumber &&
-		 					item.@idBillingAccount == request.@idBillingAccount) {
-							billingItemsDisplayed.addItem(item);
-							invoicePrice = sumInvoicePrice(invoicePrice, item);
- 						}
- 					}  
- 					
- 				}
- 			} else if (selectedItem.name() == "Status") {
- 				this.billingItemsDisplayed = new XMLListCollection();
- 				for each(lab in selectedItem..Lab) {
-	 				for each(request in lab.Request) {
-	 					for each(item in billingItems) {
-		 					if (item.@requestNumber == request.@requestNumber &&
-		 					    item.@idBillingAccount == lab.@idBillingAccount) {
-								billingItemsDisplayed.addItem(item);
-								invoicePrice = sumInvoicePrice(invoicePrice, item);
-	 						}
-	 					}  
-	 					
- 					}
- 				}
- 			}  else if (selectedItem.name() == "Lab") {
- 				this.billingItemsDisplayed = new XMLListCollection();
- 				lab = XML(selectedItem); 
- 				for each(request in lab.Request) {
- 					for each(item in billingItems) {
-	 					if (item.@requestNumber == request.@requestNumber &&
-	 					    item.@idBillingAccount == lab.@idBillingAccount) {
-	 						billingItemsDisplayed.addItem(item);
-							invoicePrice = sumInvoicePrice(invoicePrice, item);
- 						}
- 					}  
- 				}
- 			} else if (selectedItem.name() == "Request") {
- 				for each(item in billingItems) { 
- 					if (item.@requestNumber == selectedItem.@requestNumber &&
- 					    item.@idBillingAccount == selectedItem.@idBillingAccount) {
-	 					billingItemsDisplayed.addItem(item);
-						invoicePrice = sumInvoicePrice(invoicePrice, item);
- 					}
- 				}
- 			}  
+
+			if (selectedItem.name() == "Status" && 
+				selectedItem.@status == 'PENDING') {
+				for each(request in selectedItem..Request) {					
+					billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount)));
+				}
+			} else if (selectedItem.name() == "Status") {
+				for each(lab in selectedItem..Lab) {
+					for each(request in lab.Request) {
+						billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));
+						
+					}
+				}
+			}  else if (selectedItem.name() == "Lab") {
+				lab = XML(selectedItem); 
+				for each(request in lab.Request) {		
+					billingItemsDisplayed.addAll( new XMLListCollection (billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));		
+				}
+			} else if (selectedItem.name() == "Request") {
+				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount)));
+			}  
+			
 			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
 			this.billingItemGrid.dataProvider.refresh();
 			
-			if (invoicePrice > 0) {
-				grandTotalPrice = currencyFormatter.format(invoicePrice.toFixed(2).toString());			
-			} else {
-				grandTotalPrice = "";
-			}
+			displayAllBox.visible=false;
+			displayAllBox.includeInLayout=false;
  		}
 		
 		private function gatherDisplayInfoShort(selectedItem:Object):void {
@@ -1019,7 +994,7 @@
 					for each(item in billingItems) {
 						if (item.@requestNumber == request.@requestNumber &&
 							item.@idBillingAccount == request.@idBillingAccount) {
-							if ( billingItemsDisplayed.length < 20){
+							if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
 								billingItemsDisplayed.addItem(item);
 							} else {
 								allDisplayed = false;
@@ -1036,7 +1011,7 @@
 						for each(item in billingItems) {
 							if (item.@requestNumber == request.@requestNumber &&
 								item.@idBillingAccount == lab.@idBillingAccount) {
-								if ( billingItemsDisplayed.length < 20){
+								if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
 									billingItemsDisplayed.addItem(item);
 								}else {
 									allDisplayed = false;
@@ -1054,7 +1029,7 @@
 					for each(item in billingItems) {
 						if (item.@requestNumber == request.@requestNumber &&
 							item.@idBillingAccount == lab.@idBillingAccount) {
-							if ( billingItemsDisplayed.length < 20){
+							if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
 								billingItemsDisplayed.addItem(item);
 							}else {
 								allDisplayed = false;
@@ -1067,7 +1042,7 @@
 				for each(item in billingItems) { 
 					if (item.@requestNumber == selectedItem.@requestNumber &&
 						item.@idBillingAccount == selectedItem.@idBillingAccount) {
-						if ( billingItemsDisplayed.length < 20){
+						if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
 							billingItemsDisplayed.addItem(item);
 						}else {
 							allDisplayed = false;
@@ -2140,7 +2115,42 @@
 			
 		}
 		
-		public function billingStatusCombo_changeHandler(event:ListEvent):void {
+		public function billingStatusCombo_changeHandler():void {
+			if ( billingItemGrid.selectedItems.length == 0 ) {
+				if ( displayAllBox.visible==true ) {
+					Alert.show( "Only the displayed billing items' statuses will be updated.  Would you like to load all billing items in the folder first?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToLoadAll,						
+						parentApplication.iconWarning);
+					return;
+				}
+			}
+			changeStatusImpl();
+		}
+		
+		public function onPromptToLoadAll(event:CloseEvent):void {
+			
+			if (event.detail==Alert.YES) {
+				if ( billingItemGrid.selectedItems.length == 0 ) {
+					if ( displayAllBox.visible!=false ) {
+						mx.managers.CursorManager.setBusyCursor();
+						setTimeout(loadAllImpl,TIMEOUT_DELAY);
+						mx.managers.CursorManager.setBusyCursor();
+						setTimeout(changeStatusImpl,TIMEOUT_DELAY);
+					}	
+				}
+			} else {
+				changeStatusImpl();
+			}
+		}
+		
+		public function loadAllImpl():void{
+			this.gatherDisplayInfo(this.requestTree.selectedItem);
+			mx.managers.CursorManager.removeBusyCursor();
+		}
+		
+		public function changeStatusImpl():void {
 			if ( billingItemGrid.selectedItems.length == 0 ) {
 				for each(var request:XML in billingItemsDisplayed){
 					for each(var bi:Object in request.BillingItem){
@@ -2163,6 +2173,7 @@
 			}
 			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
 			billingItemGrid.selectedIndex = -1;
+			mx.managers.CursorManager.removeBusyCursor();
 		}
 
 		private function getSelectedCoreFacilityId():String {
@@ -2347,20 +2358,20 @@
 			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
 				    <mx:Label text="Core Facility"/>
 				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
-							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()" fontSize="10"/>
+							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()"/>
 			    </mx:VBox>
 		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 					<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">
 						<mx:VBox verticalGap="0" paddingTop="0" paddingLeft="0" verticalAlign="middle">
 							<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" fontSize="9"/>
-							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130" fontSize="10"/>					
+							<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
 						</mx:VBox>
 						<mx:VBox verticalGap="0">
 							<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" fontSize="9"/>
 							<mx:ComboBox id="labCombo" 
 										 labelField="@name"
 										 dataProvider="{parentApplication.promptedLabList}"
-										 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()" fontSize="10">
+										 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()">
 							</mx:ComboBox>				   
 						</mx:VBox>
 					</mx:HBox>
@@ -2379,7 +2390,7 @@
 						</mx:HBox>
 						<mx:ComboBox id="billingAccountCombo" 
 							labelField="@accountNameDisplay"
-							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()" fontSize="10">
+							 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()">
 						</mx:ComboBox>
 						
 					</mx:VBox>
@@ -2505,9 +2516,9 @@
 						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontSize="11"/>
 						<mx:Spacer width="100%"/>
 						<mx:HBox id="displayAllBox"  verticalAlign="middle" horizontalGap="0" includeInLayout="false" visible="false">
-							<mx:Label text="(Only first 20 items displayed)" styleName="warningLabel" fontStyle="italic" fontWeight="bold"/>
+							<mx:Label text="{'(Only first ' + NUM_DISPLAYED_BILLING_ITEMS + ' items displayed)'}" styleName="warningLabel" fontStyle="italic" fontWeight="bold"/>
 							<mx:LinkButton label="Display All" textDecoration="underline"
-										   click="{this.gatherDisplayInfo(this.requestTree.selectedItem);displayAllBox.visible=false;displayAllBox.includeInLayout=false;}"   fontSize="10"/>
+										   click="{mx.managers.CursorManager.setBusyCursor();setTimeout(loadAllImpl,TIMEOUT_DELAY);}"   fontSize="10"/>
 						</mx:HBox>
 						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="10" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
@@ -2535,11 +2546,11 @@
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
 									 labelField="@display" 
 									 toolTip="Shift or ctrl + click will highlight multiple rows.  This will update the status for all the selected items.  If no items are selected, all of the items' statuses will update." 
-									 change="billingStatusCombo_changeHandler(event)" enabled="false"/>
+									 change="billingStatusCombo_changeHandler()" enabled="false"/>
 					</mx:HBox>
 				</mx:VBox>
 				
-        		<mx:AdvancedDataGrid width="100%" height="100%"  
+        		<mx:AdvancedDataGrid width="100%" height="100%" 
         			displayItemsExpanded="true"  
         			editable="true" 
         			sortExpertMode="true" 
@@ -2631,8 +2642,8 @@
 						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
 					</mx:columns>
         			 
-        		</mx:AdvancedDataGrid>     
-   
+        		</mx:AdvancedDataGrid> 
+				
 				<mx:ControlBar width="100%">
 				
 				      <mx:HBox width="100%" horizontalAlign="right" horizontalGap="0" verticalAlign="middle">
