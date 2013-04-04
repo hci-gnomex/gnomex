@@ -353,7 +353,12 @@
 			}
 			
 			public function getRequestCategory():Object {
-				requestCategory= parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', requestTypeGroup.selectedValue);
+				var code:Object = requestTypeGroup.selectedValue;
+				// Special code for CLINSEQ request from BST.
+				if (code == null && parentDocument.defaultCodeRequestCategory != null) {
+					code = parentDocument.defaultCodeRequestCategory;
+				}
+				requestCategory= parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', code);
 				return requestCategory;			 
 			}
 			
@@ -502,7 +507,6 @@
 				lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 				
 				refreshRequestCategories();
-				refreshBillingAccounts();
 				
 				if (parentDocument != null && !parentDocument.isAmendState()) {
 					parentDocument.filteredProjectList.refresh();	        	
@@ -514,6 +518,7 @@
 					requestTypeGroup.selectedValue = parentDocument.defaultCodeRequestCategory;
 					callLater(parentDocument.setRequestCategoryName);
 					callLater(highlightRequestCategory);
+					refreshBillingAccounts();
 				}
 				this.checkSetupCompleteness();
 				

@@ -357,6 +357,9 @@
 	 		// initialization
 			if (!isInitialized) {
 
+				// Init url for sample sheet upload
+				parentApplication.setupSampleSheetUpload();
+				
 				// Set the base state
 				if (this.id == "amendRequestView") {
 					this.currentState = 'AmendState';
@@ -1018,7 +1021,7 @@
 
 			requestCategory = getRequestCategory();
 		
-			if (requestCategory == null) {
+			if (requestCategory == null || request == null) {
 				return;
 			}
 			
