@@ -1406,18 +1406,20 @@
 							</mx:HBox>
 							<mx:DataGrid width="100%" height="100%" id="billingAccountGrid" editable="true"
 										 itemEditBeginning="verifyChartfieldEdit(event)" 
-										horizontalScrollPolicy="auto"   variableRowHeight="true" wordWrap="true" fontSize="10">
+										horizontalScrollPolicy="auto"   variableRowHeight="true" wordWrap="true" 
+										fontSize="10">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 								<mx:columns>
-									<mx:DataGridColumn editable="false" width="62" 	visible="{showApproveCol}">
+									<mx:DataGridColumn editable="false" width="40" 	visible="{showApproveCol}">
 										<mx:itemRenderer>
 											<mx:Component>
-												<mx:LinkButton  paddingLeft="0" paddingRight="0" textAlign="left" label="{data.@isApproved == 'Y' ? '' : 'Approve'}" 
+												<mx:LinkButton  fontSize="9" paddingLeft="0" paddingRight="0" textAlign="left" label="{data.@isApproved == 'Y' ? '' : 'Approve'}" 
+																
 																click="outerDocument.approveBillingAccount(event)" color="#13A513"   textDecoration="underline" fontWeight="bold"/>
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>
-									<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="165" 
+									<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="160" 
 													   editable="false">
 										<mx:itemRenderer>
 											<mx:Component>
@@ -1449,17 +1451,24 @@
 									<mx:DataGridColumn headerText="Bus"  dataField="@accountNumberBus" width="30" id="busCol"/>
 									<mx:DataGridColumn headerText="Org"   dataField="@accountNumberOrg" width="50" id="orgCol"/>
 									<mx:DataGridColumn headerText="Fund"  dataField="@accountNumberFund" width="50" id="fundCol"/>
-									<mx:DataGridColumn headerText="Activity"  dataField="@accountNumberActivity" width="60" id="activityCol"/>
-									<mx:DataGridColumn headerText="Project"  dataField="@accountNumberProject" width="60" id="projectCol"/>
-									<mx:DataGridColumn headerText="Acct"  dataField="@accountNumberAccount" width="50" id="accountCol"/>
-									<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="20" id="auCol"/>
+									<mx:DataGridColumn headerText="Activity"  dataField="@accountNumberActivity" width="50" id="activityCol"/>
+									<mx:DataGridColumn headerText="Project"  dataField="@accountNumberProject" width="50" id="projectCol"/>
+									<mx:DataGridColumn headerText="Acct"  dataField="@accountNumberAccount" width="40" id="accountCol"/>
+									<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="10" id="auCol"/>
 									<mx:DataGridColumn headerText="Funding agency" visible="false" dataField="@idFundingAgency" id="fundingAgencyCol" 
 													   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 													   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
 									<mx:DataGridColumn headerText="Total $ Amt"  dataField="@totalDollarAmount" width="60" visible="false" id="totalDollarAmtCol"/>
-									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="60" id="shortAcctCol"/>
-									<mx:DataGridColumn headerText=""  width="30" editable="false"> 
+									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="0" id="shortAcctCol"/>
+	
+									<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
+													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+													   dataField="@acctUsers"/>
+
+									<mx:DataGridColumn headerText="$ Billed"    textAlign="right" editable="false" 
+													   dataField="@totalChargesToDateDisplay" width="60"/>
+									<mx:DataGridColumn headerText=""  width="10" editable="false"> 
 										<mx:itemRenderer>
 											<mx:Component>
 												<mx:LinkButton textAlign="left"  toolTip="Delete Account"
@@ -1469,9 +1478,7 @@
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>								
-									<mx:DataGridColumn headerText="$ Billed"    textAlign="right" editable="false" 
-													   dataField="@totalChargesToDateDisplay" width="50"/>
-	
+									<mx:DataGridColumn headerText="" visible="false" width="0"/>
 								</mx:columns>
 							</mx:DataGrid>
 							
@@ -1485,7 +1492,7 @@
 											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
 									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
 									<mx:columns>
-										<mx:DataGridColumn headerText="PO" dataField="@accountName" width="200" 
+										<mx:DataGridColumn headerText="PO" dataField="@accountName" width="160" 
 														   editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
@@ -1516,7 +1523,7 @@
 														   editorDataField="selectedDate"/>
 										
 										
-										<mx:DataGridColumn headerText="Purchase Order Form"  width="140">
+										<mx:DataGridColumn headerText="Purchase Order Form"  width="200">
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:HBox horizontalGap="3" horizontalScrollPolicy="off">
@@ -1543,7 +1550,11 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText=""  width="10" editable="false"> 
+										<mx:DataGridColumn headerText="Users"   id="poAcctUsers"  width="150"
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+														   dataField="@acctUsers"/>
+										<mx:DataGridColumn headerText="$ Billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
+										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  toolTip="Delete Account"
@@ -1553,7 +1564,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>										
-										<mx:DataGridColumn headerText="$ Billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="40"/>
+										<mx:DataGridColumn headerText="" visible="false" width="0" />
 									</mx:columns>
 								</mx:DataGrid>
 								
@@ -1567,7 +1578,7 @@
 											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
-										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="40" 
+										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="150" 
 														   editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
@@ -1580,7 +1591,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
-										<mx:DataGridColumn dataField="@expirationDate" width="60" id="ccExpirationDateCol"
+										<mx:DataGridColumn dataField="@expirationDate" width="100" id="ccExpirationDateCol"
 														   headerText="Expires"   
 														   itemEditor="views.renderers.DateFieldExpiration" 
 														   itemRenderer="mx.controls.Label" 
@@ -1588,11 +1599,15 @@
 														   labelFunction="getExpirationDateString"
 														   editorDataField="selectedDate"/>
 										<mx:DataGridColumn headerText="Credit Card Company" dataField="@idCreditCardCompany" id="ccCreditCardCompanyCol" 
-														   editorDataField="value"  editable="true"  rendererIsEditor="false"  width="100"
+														   editorDataField="value"  editable="true"  rendererIsEditor="false"  width="120"
 														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany')}"
 														   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany', true)}"/>			                
-										<mx:DataGridColumn headerText="Zip" width="50" editable="true" dataField="@zipCode"/>
-										<mx:DataGridColumn headerText=""  width="5" editable="false"> 
+										<mx:DataGridColumn headerText="Zip" width="40" editable="true" dataField="@zipCode"/>
+										<mx:DataGridColumn headerText="Users"   id="ccAcctUsers"  width="140"
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
+														   dataField="@acctUsers"/>
+										<mx:DataGridColumn headerText="$ Billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
+										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  toolTip="Delete Credit Card"
@@ -1602,7 +1617,7 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>										
-										<mx:DataGridColumn headerText="$ Billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="40"/>
+										<mx:DataGridColumn headerText="" visible="false"  width="0"/>
 									</mx:columns>
 								</mx:DataGrid>
 								
