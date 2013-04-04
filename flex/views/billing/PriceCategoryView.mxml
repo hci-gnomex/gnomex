@@ -5,7 +5,7 @@
 	xmlns:hci="hci.flex.controls.*"
 	xmlns:renderers="views.renderers.*" 
 	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
-	width="568"  defaultButton="{saveButton}">
+	width="568"  defaultButton="{saveButton}" height="461">
    
    <mx:HTTPService             
     id="savePriceCategory" 
@@ -121,9 +121,9 @@
 </mx:Script>
 <mx:XMLListCollection id="priceCategorySteps" source="{priceCategory.steps.Step}"/>
 <mx:XMLListCollection id="steps" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Step').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
-<mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10">
+<mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="4">
     <mx:HBox width="100%">
-    	<mx:Label text="Name:" width="80"/>
+    	<mx:Label text="Name" width="80" styleName="formLabel"/>
     	<mx:TextInput id="priceCategoryName" width="100%" text="{priceCategory.@name}"/>
     </mx:HBox>
     <mx:HBox width="100%">
@@ -131,18 +131,18 @@
     	<mx:CheckBox  label="Active" id="priceCategoryIsActive" width="100%"  selected="{priceCategory.@isActive == 'Y' ? true : false}"/>
     </mx:HBox>
     <mx:HBox width="100%">
-    	<mx:Label text="Notes:" width="80"/>
+    	<mx:Label text="Notes" width="80" styleName="formLabel"/>
     	<util:TextAreaWorkaround id="priceCategoryDescription" width="100%" text="{priceCategory.@description}"/>
     </mx:HBox>
     <mx:HBox width="100%">
-    	<mx:Label text="Charge Kind:" width="80"/>
+    	<mx:Label text="Charge Kind" width="80" styleName="formLabel"/>
     	<hci:ComboBox id="chargeKindCombo" width="100%" 
     		 appendBlankRow="false"   selectedIndex="1"
     	     labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingChargeKind').DictionaryEntry.(@value != '')}"/>
     </mx:HBox>    
 
     <mx:VBox width="100%" verticalGap="4">
-    	<mx:Label text="Determine experiment's price using:" />
+    	<mx:Label text="Determine experiment's price using"  styleName="formLabel"/>
     	<mx:HBox width="100%">
     	    <mx:Spacer width="80">
     	    </mx:Spacer>
@@ -160,12 +160,12 @@
     </mx:VBox>
 
     <mx:HBox width="100%">
-    	<mx:Label text="Plugin Class:" width="80"/>
+    	<mx:Label text="Plugin Class" width="80" styleName="formLabel"/>
     	<mx:TextInput id="pluginClassName" width="100%" text="{priceCategory.@pluginClassName}"/>
     </mx:HBox>    
 
-	<mx:VBox verticalGap="1" height="100%" borderStyle="solid" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
-		<mx:Label text="Steps"/>
+	<mx:VBox verticalGap="1" height="100%" borderStyle="none" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+		<mx:Label text="Workflow Steps" styleName="formLabel"/>
 		<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
 			<renderers:FilterComboBox dataProvider="{steps}" 
 									  labelField="@display" 
@@ -178,7 +178,7 @@
 			</mx:Button>
 			<mx:Button click="removeStep()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{stepGrid.selectedItem != null}" width="25"/>
 		</mx:HBox>
-		<mx:DataGrid id="stepGrid" width="100%" dataProvider="{priceCategorySteps}" height="100%" showHeaders="false">
+		<mx:DataGrid id="stepGrid" width="100%" dataProvider="{priceCategorySteps}" height="84" showHeaders="false" fontSize="11">
 			<mx:columns>
 				<mx:DataGridColumn dataField="@step" headerText="Step"/>
 			</mx:columns>
