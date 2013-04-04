@@ -39,6 +39,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idSampleType;
   private String      otherSamplePrepMethod;
   private Integer     idSeqLibProtocol;
+  private Integer     idSampleSource;
   private String      codeBioanalyzerChipType;
   private Integer     idOligoBarcode;
   private Date        qualDate;
@@ -865,5 +866,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setSequenceLanes(Set sequenceLanes) {
     this.sequenceLanes = sequenceLanes;
+  }
+
+  public Integer getIdSampleSource() {
+    return idSampleSource;
+  }
+
+  public void setIdSampleSource(Integer idSampleSource) {
+    this.idSampleSource = idSampleSource;
   }
 }
