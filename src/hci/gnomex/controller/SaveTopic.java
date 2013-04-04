@@ -203,6 +203,10 @@ public class SaveTopic extends GNomExCommand implements Serializable {
       if (load.getIdLab() == null) {
         throw new Exception("Please assign this topic to a lab.");
       }
+      Lab lab = (Lab)sess.load(Lab.class, topic.getIdLab());
+      if (!lab.validateVisibilityInLab(topic)) {
+        throw new Exception("You must choose an institution when Institution visibility is chosen.");
+      }
     }
   }  
 }

@@ -99,8 +99,25 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
       
       this.initializeDataTrack(sess);      
       
-      if (this.getSecAdvisor().canUpdate(dataTrack)) {
+      if (!this.getSecAdvisor().canUpdate(dataTrack)) {
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save data track.");
+        setResponsePage(this.ERROR_JSP);
+      }
 
+      if (dataTrack.getIdLab() != null) {
+        Lab lab = (Lab)sess.load(Lab.class, dataTrack.getIdLab());
+        if (!lab.validateVisibilityInLab(dataTrack)) {
+          this.addInvalidField("Institution", "You must select an institution when visiblity is Institution");
+          setResponsePage(this.ERROR_JSP);
+        }
+        sess.save(dataTrack);
+        sess.flush();
+      } else {
+        this.addInvalidField("Lab", "You must select a lab.");
+        setResponsePage(this.ERROR_JSP);
+      }
+      
+      if (this.isValid()) {
         // Set collaborators
         if (collaboratorsXML != null && !collaboratorsXML.equals("")) {
           StringReader reader = new StringReader(collaboratorsXML);
@@ -292,9 +309,6 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
 
       
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save data track.");
-        setResponsePage(this.ERROR_JSP);
       }
       
     }catch (Exception e){
@@ -378,22 +392,6 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
     // Assign a file directory name
     dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
-    
-    if(dataTrack.getCodeVisibility().compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
-      if (dataTrack.getIdLab() != null) {
-        Lab lab = (Lab)sess.load(Lab.class, dataTrack.getIdLab());
-        Hibernate.initialize(lab.getInstitutions());
-        Iterator it = lab.getInstitutions().iterator();
-        while(it.hasNext()) {
-          Institution thisInst = (Institution) it.next();
-          if(thisInst.getIsDefault().compareTo("Y") == 0) {
-            dataTrack.setIdInstitution(thisInst.getIdInstitution());            
-          }
-        }
-      }
-    }    
-    
-    
     
     sess.flush();
 

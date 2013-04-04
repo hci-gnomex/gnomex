@@ -812,7 +812,6 @@
 					possibleCollaborators.addItemAt(emptyNode, 0);
 					possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
 					
-					this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
 					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 					if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
 						for each(var inst:Object in possibleInstitutions) {
@@ -1274,12 +1273,11 @@
 							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visbile to the submitter and the lab PI"/>
 							<mx:RadioButton value="MEM" selected="true" label="Members" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to all members of the lab group"/>
 						</mx:VBox>
-						<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
-							<mx:Text width="207" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}">									
-								<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-							</mx:Text>
-						</mx:VBox>
 					</mx:HBox>
+					<mx:Text width="100%" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}"
+							 includeInLayout="{this.radioInstitutionVisibility.enabled ? false : true}">									
+						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+					</mx:Text>
 					<mx:HBox horizontalGap="0" verticalAlign="middle">
 						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="82"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
