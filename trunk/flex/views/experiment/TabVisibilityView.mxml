@@ -95,11 +95,11 @@
 				    " idAppUser=''" +
 				    " displayName=''"  +
 					"/>");
-				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
+				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				possibleCollaborators = new XMLListCollection(lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
 				possibleCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
-				this.institutionCombo.enabled = this.possibleInstitutions.length > 1;
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				if (this.idInstitution != null && this.idInstitution != '') {
 					for each(inst in possibleInstitutions) {
@@ -112,7 +112,7 @@
 					var hasDefault:Boolean = false;
 					if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
 						for each(inst in possibleInstitutions) {
-							if (inst.@isDefault == 'Y') {
+							if (inst.@idInstitution == lab.@defaultIdInstitutionForLab) {
 								this.institutionCombo.selectedItem =  inst;
 								hasDefault = true;
 								break;

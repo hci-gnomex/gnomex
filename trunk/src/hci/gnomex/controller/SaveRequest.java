@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PropertyPlatformApplication;
@@ -275,6 +276,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
       requestParser.parse(sess);
+      
+
+      Lab lab = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+      if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
+        this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
+      }
       
       // The following code makes sure any ccNumbers that have been entered actually exist
       PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);

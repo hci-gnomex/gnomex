@@ -110,11 +110,15 @@
 			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab).institutions.Institution.(@isActive == 'Y')));
 			this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 			if (parentDocument.browseTree.selectedItem.@idInstitution != null && parentDocument.browseTree.selectedItem.@idInstitution != '') {
-				for each(var inst:Object in possibleInstitutions) {
-					if (inst.@idInstitution == parentDocument.browseTree.selectedItem.@idInstitution) {
-						this.institutionCombo.selectedItem =  inst;
-						break;
+				if (radioInstitutionVisibility.selected) {
+					for each(var inst:Object in possibleInstitutions) {
+						if (inst.@idInstitution == parentDocument.browseTree.selectedItem.@idInstitution) {
+							this.institutionCombo.selectedItem =  inst;
+							break;
+						}
 					}
+				} else {
+					this.institutionCombo.selectedItem = null;
 				}
 			} else {		
 				var hasDefault:Boolean = false;
@@ -243,6 +247,7 @@
 				parentDocument.refreshTopicsAndSelect(this.parentDocument.browseTree.selectedItem);
 			} else {
 				parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
+				parentDocument.treatAsTopicClick = true;
 				parentDocument.refreshTopics();
 			}		
 		} else {

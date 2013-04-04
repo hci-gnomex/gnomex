@@ -428,4 +428,46 @@ public class Lab extends HibernateDetailObject {
     
     return email;
   }
+  
+  public Boolean validateVisibilityInLab(VisibilityInterface object) {
+    Boolean valid = true;
+    if (object != null && object.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+      if (object.getIdInstitution() == null) {
+        valid = false;
+        Integer inst = getDefaultIdInstitutionForLab();
+        if (inst != null) {
+          valid = true;
+          object.setIdInstitution(inst);
+        }
+      }
+    }
+
+    return valid;
+  }
+  
+  public Integer getDefaultIdInstitutionForLab() {
+    Integer defaultInst = null;
+    Integer onlyInst = null;
+    Integer numActiveInstitutions = 0;
+    for(Institution inst : ((Set<Institution>)getInstitutions())) {
+      if (inst.getIsActive() != null && inst.getIsActive().equals("Y")) {
+        numActiveInstitutions++;
+        if (numActiveInstitutions.equals(1)) {
+          onlyInst = inst.getIdInstitution();
+        } else {
+          onlyInst = null;
+        }
+        if (inst.getIsDefault() != null && inst.getIsDefault().equals("Y")) {
+          defaultInst = inst.getIdInstitution();
+          break;
+        }
+      }
+    }
+    
+    if (defaultInst == null && onlyInst != null) {
+      defaultInst = onlyInst;
+    }
+    
+    return defaultInst;
+  }
 }
