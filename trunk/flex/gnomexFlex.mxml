@@ -3013,12 +3013,13 @@
 					return;
 				}
 				showView(event.target.data);
-//				mainMenu.selectedIndex = -1;
+				if(XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
+					mainMenu.selectedIndex = -1;
+				}
 			}
 			
 			private function onMenuSelect(event:MenuEvent):void {				
 				showView(event.item);
-//				mainMenu.selectedIndex = -1;
 			}
 			
 			
