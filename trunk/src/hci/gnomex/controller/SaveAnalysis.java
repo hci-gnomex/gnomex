@@ -670,12 +670,16 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
           continue;
         }
+        inCount++;
         if (!firstTime) {
           queryBuf.append(",");
         }
         queryBuf.append(idAnalysisFile);
         firstTime = false;
-      } 
+      }
+      if ( inCount == 0 ) {
+        return null;
+      }
       queryBuf.append(")");
     } else{
       for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
