@@ -1737,6 +1737,8 @@
 			}
 			
 			private function loggedInInit():void {
+				
+
 				appProgressBar = new AppProgressView();
 				appProgressBar.currentState = "ShowCreditsState";
 				PopUpManager.addPopUp(appProgressBar, theBody, false);
@@ -3040,7 +3042,7 @@
 					navAnalysisView.showNewAnalysisWindow();
 				} else if (label == "Add Services to Experiment Order") {
 					theViews.selectedChild = amendRequestView;
-				} else if (label == "Create (external) Experiment and upload Raw Data files" || label=="Create New Experiment and Upload Files") {
+				} else if (label == "Create new Experiment and upload your data (generated outside of core facility)" || label=="Create New Experiment and Upload Files") {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 						this.submitRequestView.startNewRequest();
@@ -3139,15 +3141,20 @@
 				} 
 			}
 			
-			
+			 
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 12;
-				if (this.mainMenu.menuBarItems.length <= 5) {
+				var screenResolutionX:Number = flash.system.Capabilities.screenResolutionX;
+				if (screenResolutionX >= 1200) {
 					menuBarSpacing = 30;
+				} 
+
+				if (this.mainMenu.menuBarItems.length <= 5) {
+					menuBarSpacing += 10;
 				} else if (this.mainMenu.menuBarItems.length <= 7) {
-					menuBarSpacing = 25;
+					menuBarSpacing += 7;
 				} else if (this.mainMenu.menuBarItems.length <= 8) {
-					menuBarSpacing = 14;
+					menuBarSpacing += 5;
 				}
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
 					item.width += menuBarSpacing;
@@ -3255,7 +3262,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
@@ -3468,7 +3475,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
@@ -3506,7 +3513,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create (external) Experiment and upload Raw Data files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
@@ -3577,16 +3584,17 @@
 		   
 		 
 		<mx:VBox width="100%"  id="navBar" 
-				 verticalGap="0"  
+				 verticalGap="0"   backgroundAlpha="1"
 				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"   
-				  visible="false" borderStyle="solid" dropShadowEnabled="true" dropShadowColor="#CAC9B7">
+				  visible="false" borderStyle="solid" dropShadowEnabled="true" dropShadowColor="#CAC9B7" 
+				  backgroundImage="@Embed(source='assets/navbar_gradient.png')" backgroundSize="100%">
 			
 			 
 			
 			<mx:VBox width="100%" verticalGap="0"  
 					 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" visible="false" id="vbox1">
 				
-				<mx:VBox width="100%" backgroundColor="#FFFFFF" verticalGap="0">
+				<mx:VBox width="100%" verticalGap="0">
 					<mx:HBox width="100%"  
 							 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
 							 paddingBottom="2" id="hbox1" 
@@ -3625,13 +3633,11 @@
 						</mx:HBox>
 					</mx:HBox>  
 					
-					<mx:HRule width="100%"   strokeWidth="1" strokeColor="#E9EBD1" alpha="0.64" id="hrule1"/>
 						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 									click="onMenuClick(event)"
 									itemClick="{onMenuSelect(event)}"
 									labelField="@label" iconField="@icon"    
-									fillAlphas="[0, 0, 0, 0]" 
-									fillColors="[#FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF]" 
+
 									alpha="1.0">
 							
 						</mx:MenuBar> 
@@ -3752,8 +3758,6 @@
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminMenu}"/>
-			<mx:SetStyle target="{hrule1}" name="strokeColor"/>
-			<mx:SetStyle target="{hrule1}" name="strokeWidth"/>
 		</mx:State>
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">
