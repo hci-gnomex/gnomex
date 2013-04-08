@@ -1616,7 +1616,7 @@
 			</mx:VBox>
 			
 			<mx:HBox horizontalGap="0" id="hbox5">
-				<mx:CheckBox label="Next Gen Seq"  id="NextGenSeqCheckbox"
+				<mx:CheckBox label="Illumina Seqencing"  id="NextGenSeqCheckbox"
 							 visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
 							 paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 					<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
