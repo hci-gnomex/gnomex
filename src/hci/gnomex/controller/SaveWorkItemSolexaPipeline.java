@@ -288,24 +288,23 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = request.getAppUser().getEmail();
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser() != null  &&
-          request.getAppUser().getEmail() != null && 
-          !request.getAppUser().getEmail().equals("") &&
-          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
+      MailUtil.send(emailRecipients, 
           null,
           dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);
     }
     
@@ -315,6 +314,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     bioIntroNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     bioIntroNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     bioIntroNote.append("<br>");
+    
+    emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
     
     if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
       bioIntroNote.append("<br><br><b>Genome Align To:   </b>" + genomeAlignTo);
@@ -338,21 +339,18 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         bioSend = true;
       }
     } else {
-      if (request.getAppUser() != null  &&
-          request.getAppUser().getEmail() != null && 
-          !request.getAppUser().getEmail().equals("") &&
-          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        bioSend = true;
-        subject = "TEST - " + subject;
-      }
+      bioSend = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     if (bioSend) {      
-      MailUtil.send(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS), 
+      MailUtil.send(emailRecipients, 
           null,
           dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           subject, 
-          bioEmailFormatter.format(),
+          emailInfo + bioEmailFormatter.format(),
           true);
     }
   }
