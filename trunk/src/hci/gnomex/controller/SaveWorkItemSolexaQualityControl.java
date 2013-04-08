@@ -216,27 +216,26 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = request.getAppUser().getEmail();
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser() != null  &&
-          request.getAppUser().getEmail() != null && 
-          !request.getAppUser().getEmail().equals("") &&
-          request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        emailSubject = "TEST - " + emailSubject;
-      }
+      send = true;
+      emailSubject = emailSubject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     if (send) {
       RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
       
       
-      MailUtil.send(request.getAppUser().getEmail(), 
+      MailUtil.send(emailRecipients, 
           null,
           dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
           emailSubject, 
-          emailFormatter.formatQualityControl(),
+          emailInfo + emailFormatter.formatQualityControl(),
           true);      
     }
     
