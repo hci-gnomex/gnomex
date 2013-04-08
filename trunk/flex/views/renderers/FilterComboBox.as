@@ -2221,7 +2221,7 @@ package views.renderers
 			}
 			else
 			{
-				filterString = "";
+				filterString = ( _removeFilterOnSelection ) ? "" : filterString;
 				displayDropdown(true, event);
 			}
 		}
