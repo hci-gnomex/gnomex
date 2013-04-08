@@ -20,8 +20,10 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
+				xmlns:reporting="views.reporting.*"
+				xmlns:dashboard="views.dashboard.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" xmlns:reporting="views.reporting.*">
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" >
 	
 	
 	
@@ -3139,9 +3141,10 @@
 					navigateToURL(new URLRequest(url), '_blank');
 				} else if (label == "Experiment Overview"){
 					theViews.selectedChild = experimentOverview;					
+				} else if (label == "Sequencer Overview"){
+					theViews.selectedChild = sequencerOverview;					
 				}
 			}
-			
 			
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 12;
@@ -3262,7 +3265,8 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
-			<menuitem label="Experiment Overview" icon="iconFlask" /> 
+			<menuitem label="Experiment Overview" icon="iconFlask" />
+			<menuitem label="Sequencer Overview" icon="iconFlask" /> 
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -3278,8 +3282,6 @@
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
-
-		<menuitem label="Workflow" icon="iconWorkflow"   />
 
 		<menuitem label="Billing" icon="iconBilling"   />
 		
@@ -3666,6 +3668,8 @@
 					
 					<reporting:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
 					
+					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
+					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
 					</experiment:ExperimentEditView>
@@ -3802,9 +3806,5 @@
 		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{adminPlateBasedMenu}"/>
 		</mx:State>
-		
-		
 	</mx:states>
-	
-	
 </mx:Application>

@@ -33,19 +33,19 @@
 				
 				if(currentState == "AdminState"){
 					// Admin can see all.
-					Alert.show("Admin state NotificationHub.mxml");
+	//				Alert.show("Admin state NotificationHub.mxml");
 				}
 				
 				if(currentState == "BillingAdminState"){
-					Alert.show("Billing state NotificationHub.mxml");
+	//				Alert.show("Billing state NotificationHub.mxml");
 				}
 				
 				if(currentState == "UserState"){
-					Alert.show("User state NotificationHub.mxml");
+	//				Alert.show("User state NotificationHub.mxml");
 				} 
 				
 				if(currentState == "WorkflowState"){
-					Alert.show("Workflow state NotificationHub.mxml");
+	//				Alert.show("Workflow state NotificationHub.mxml");
 				}
 			}
 			

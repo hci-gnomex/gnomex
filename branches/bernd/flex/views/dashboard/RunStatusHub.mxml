@@ -137,37 +137,13 @@
 	]]>
 </mx:Script>
 	<mx:VBox width="100%" height="100%">
-		<mx:VBox width="90%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			<mx:HBox width="497" horizontalAlign="center" paddingTop="5">
-				<mx:Label id="mainTitle" text="Sequencer Status" fontSize="18" />
+		<mx:HBox width="497" height="32" horizontalAlign="center" paddingTop="5">
+			<mx:Label id="mainTitle" height="24" fontSize="18" text="Sequencer Status"/>
+		</mx:HBox>
+		<mx:VBox verticalGap="3" label="Recent" width="90%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" fontSize="10">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+				<db:RunStatusTab filterState="0" />
 			</mx:HBox>
 		</mx:VBox>
-		<mx:TabNavigator width="90%" height="90%" verticalGap="5" id="notificationTabs" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" backgroundColor="#DEDEDE">
-			<mx:VBox verticalGap="6" label="Recent" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" fontSize="10">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<db:RunStatusTab filterState="0" />
-				</mx:HBox>
-			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Active ({activeRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" fontSize="10">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<db:RunStatusTab filterState="1" />
-				</mx:HBox>
-			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Halted ({haltedRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isSuperAdmin}" enabled="{haltedRuns != '0'}" fontSize="10">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<db:RunStatusTab filterState="3" />
-				</mx:HBox>
-			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Finished ({finishedRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isBillingAdmin}" enabled="{finishedRuns != '0'}" fontSize="10" >
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<db:RunStatusTab filterState="2" />
-				</mx:HBox>
-			</mx:VBox>
-			<mx:VBox verticalGap="6" label="Turn ({turnRuns})" width="90%" height="95%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" includeInLayout="{parentApplication.isBillingAdmin}" enabled="{turnRuns != '0'}" fontSize="10" >
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<db:RunStatusTab filterState="4" />
-				</mx:HBox>
-			</mx:VBox>
-		</mx:TabNavigator>
 	</mx:VBox>
 </mx:Canvas>

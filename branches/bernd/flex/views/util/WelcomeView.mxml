@@ -82,7 +82,7 @@
 					currentState = "UserState";
 				}
 				
-				Alert.show("Welcome view state " + currentState);
+				//Alert.show("Welcome view state " + currentState);
 			}
 			
 			public function submitRequest():void {

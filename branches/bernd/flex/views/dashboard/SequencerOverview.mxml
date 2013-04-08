@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Experiment Overview"   
+		   width="100%" height="100%"
+		   xmlns:views="views.*"
+		   xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*"
+		   creationComplete="init()">
+
+	<mx:HTTPService 
+		id="metrixInterface" 
+		url="MetrixServerInterface.gx"
+		resultFormat="e4x"
+		destination="MetrixServerInterface"
+		showBusyCursor="true"
+		result="onGetMetrixInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get metrix interface result', event)"
+		useProxy="false">
+		
+	</mx:HTTPService>
+	
+	<mx:XMLListCollection id="MIList" source="{metrixInterface.lastResult.Summary}"/> 	
+	
+	<mx:Script>
+
+		<![CDATA[
+			import flash.net.navigateToURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.Alert;
+			import mx.controls.ComboBase;
+			import mx.controls.RadioButton;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DragEvent;
+			import mx.events.ListEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import views.util.PromptXMLListCollection;
+			
+			public function init():void {
+				metrixInterface.send();
+			}
+
+			private function onGetMetrixInterface(event:ResultEvent):void {
+				if(event.result.name() == "SummaryCollection"){
+					
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+				}
+			}			
+			
+		]]>
+	</mx:Script>
+
+	<mx:VBox id="mainContainer" width="100%" height="100%">
+		<mx:VBox id="headerBox" width="100%" height="10%">
+			<mx:Label id="headerLabel" fontSize="16" fontWeight="bold" text="Sequencing Run Overview"/>
+
+		</mx:VBox>	
+
+		<mx:AdvancedDataGrid id="sequencerOverview" width="100%" height="100%"
+							 dragEnabled="false"  
+							 sortExpertMode="true"
+							 sortableColumns="true"
+							 editable="false"
+							 allowMultipleSelection="false">
+			<mx:dataProvider>
+				<mx:HierarchicalData source="{MIList}"/>
+			</mx:dataProvider> 
+			
+			<mx:columns>
+				<mx:AdvancedDataGridColumn  dataField="runId" editable="false" headerText="Run Id" width="100">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="runType" editable="false" headerText="Run Type" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="runSide" editable="false" headerText="Run Side" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" headerText="Run State" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="runPhase" editable="false" headerText="Run Phase"   width="28">
+				</mx:AdvancedDataGridColumn>	
+				<mx:AdvancedDataGridColumn  dataField="runDate" editable="false" headerText="Run Date"   width="25">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="lastUpdated"  editable="false" headerText="Last Updated"   width="32" />
+				<mx:AdvancedDataGridColumn  dataField="currentCycle" editable="false" headerText="Current Cycle" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="totalCycle" editable="false" headerText="Total Cycle" width="60">
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="instrument" editable="false" headerText="Instrument" width="60">
+				</mx:AdvancedDataGridColumn>
+			</mx:columns>
+			
+		</mx:AdvancedDataGrid>
+	</mx:VBox>
+</mx:Canvas>
