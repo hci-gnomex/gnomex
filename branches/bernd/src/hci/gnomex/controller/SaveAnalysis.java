@@ -104,8 +104,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                newAnalysisGroupDescription;
   private Integer               newAnalysisGroupId = new Integer(-1);
   
-  private String                codeVisibilityToUpdate;
-  
   private boolean               isBatchMode = false;
   private String                organism;
   private String                genomeBuild;
@@ -117,6 +115,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   private String                serverName;
   private String                visibility;
+  private Integer               idInstitution;
   
   
   public void validate() {
@@ -231,8 +230,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       propertiesXML = request.getParameter("propertiesXML");    
     }
     
-    if(request.getParameter("visibility") != null && !request.getParameter("visibility").equals("")){
-      visibility = request.getParameter("visibility");
+    if(request.getParameter("codeVisibility") != null && !request.getParameter("codeVisibility").equals("")){
+      visibility = request.getParameter("codeVisibility");
+    }
+    
+    if(request.getParameter("idInstitution") != null && !request.getParameter("idInstitution").equals("")){
+      idInstitution = Integer.parseInt(request.getParameter("idInstitution"));
     }
     
     serverName = request.getServerName();
@@ -270,25 +273,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       Analysis analysis = null;
       if (isNewAnalysis) {
         analysis = analysisScreen;
-        
-        if (visibility != null && visibility.length() > 0) {
-          analysis.setCodeVisibility(visibility);
-          if(visibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
-            if (analysis.getIdLab() != null) {
-              Lab lab = (Lab)sess.load(Lab.class, analysis.getIdLab());
-              Hibernate.initialize(lab.getInstitutions());
-              Iterator it = lab.getInstitutions().iterator();
-              while(it.hasNext()) {
-                Institution thisInst = (Institution) it.next();
-                if(thisInst.getIsDefault().compareTo("Y") == 0) {
-                  analysis.setIdInstitution(thisInst.getIdInstitution());            
-                }
-              }
-            }
-          }
-        } else {
-          analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-        }
+        setVisibility(sess, analysis);
+        analysis.setCodeVisibility(visibility);
+        analysis.setIdInstitution(idInstitution);
         
         if(analysisScreen.getIdAppUser() == null) {
           analysis.setIdAppUser(this.getSecAdvisor().getIdAppUser());
@@ -296,16 +283,22 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
           analysis.setIdAppUser(analysisScreen.getIdAppUser());
         }  
         analysis.setIdSubmitter(this.getSecAdvisor().getIdAppUser());
+        setVisibility(sess, analysis);
       } else {
         analysis = (Analysis)sess.load(Analysis.class, analysisScreen.getIdAnalysis());       
         originalIdLab = analysis.getIdLab();
         
         if (this.getSecAdvisor().canUpdate(analysis, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-          analysis.setCodeVisibility(codeVisibilityToUpdate);
+          setVisibility(sess, analysis);
         }
       }
       
-      if (this.getSecurityAdvisor().canUpdate(analysis)) {
+      if (!this.getSecurityAdvisor().canUpdate(analysis)) {
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save " + analysis.getNumber() + " analysis.");
+        setResponsePage(this.ERROR_JSP);
+      }
+      
+      if (this.isValid()) {
         if (analysisGroupParser != null) {
           analysisGroupParser.parse(sess);          
         }
@@ -607,9 +600,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo + "/>";
       
         setResponsePage(this.SUCCESS_JSP);
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save " + analysis.getNumber() + " analysis.");
-        setResponsePage(this.ERROR_JSP);
       }
       
     }catch (Exception e){
@@ -626,6 +616,28 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+
+  public void setVisibility(Session sess, Analysis analysis) {
+    if (visibility != null && visibility.length() > 0) {
+      analysis.setCodeVisibility(visibility);
+      analysis.setIdInstitution(idInstitution);
+      
+      if(visibility.compareTo(hci.gnomex.model.Visibility.VISIBLE_TO_INSTITUTION_MEMBERS) == 0) {
+        if (analysis.getIdLab() != null) {
+          Lab lab = (Lab)sess.load(Lab.class, analysis.getIdLab());
+          if (!lab.validateVisibilityInLab(analysis)) {
+            this.addInvalidField("Institution", "You must select an institution when visiblity is Institution");
+            setResponsePage(this.ERROR_JSP);
+          }
+        } else {
+          this.addInvalidField("Lab", "Analysis must be associated with a lab");
+          setResponsePage(this.ERROR_JSP);
+        }
+      }
+    } else {
+      analysis.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+    }
   }
   
   public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, Analysis a, Map filesToDeleteMap) throws UnknownPermissionException {
@@ -658,12 +670,16 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
           continue;
         }
+        inCount++;
         if (!firstTime) {
           queryBuf.append(",");
         }
         queryBuf.append(idAnalysisFile);
         firstTime = false;
-      } 
+      }
+      if ( inCount == 0 ) {
+        return null;
+      }
       queryBuf.append(")");
     } else{
       for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
@@ -834,8 +850,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     analysis.setIdAnalysisProtocol(analysisScreen.getIdAnalysisProtocol());
     analysis.setIdAnalysisType(analysisScreen.getIdAnalysisType());
     analysis.setIdOrganism(analysisScreen.getIdOrganism());
-    analysis.setCodeVisibility(analysisScreen.getCodeVisibility());
-    analysis.setIdInstitution(analysisScreen.getIdInstitution());
+    // Note visibility and institution set earlier.
     analysis.setPrivacyExpirationDate(analysisScreen.getPrivacyExpirationDate());
     analysis.setIdAppUser(analysisScreen.getIdAppUser());
   }

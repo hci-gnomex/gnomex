@@ -4,7 +4,6 @@
 	title="{'Add new data track to ' + parentName}"	
 	showCloseButton="true" 
 	width="458" 
-	height="240" 
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconDataTrackNew}"
 	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" >
@@ -23,6 +22,7 @@
          <idDataTrackFolder>{idParentDataTrackFolder}</idDataTrackFolder>
          <codeVisibility>{visibilityCombo.selectedItem != null ? visibilityCombo.selectedItem.@value : ''}</codeVisibility>
          <idLab>{this.labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : ''}</idLab>
+		 <idInstitution>{this.institutionCombo.selectedItem != null ? institutionCombo.selectedItem.@idInstitution : ''}</idInstitution>
       </mx:request>
     </mx:HTTPService> 
     
@@ -35,6 +35,8 @@
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+
+	import views.util.PromptXMLListCollection;
 	
 	
 	[Bindable]
@@ -53,6 +55,9 @@
 	private var itemToSelect:XML;
 		
 	private	var visibilitySetByDefault:Boolean = false;
+		
+	[Bindable]
+	private var possibleInstitutions:PromptXMLListCollection;
 
 	public function init(genomeBuild:Object, parent:Object, parentView:DisplayObject, idLab:Object):void {
 		this.parentView = parentView;
@@ -117,9 +122,41 @@
 			
 		}
 
+		setInstitutions();
+
 	}
 		
-	private function setDefaultVisibility():void {
+	private function visibilityChosen():void {
+		if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' && this.visibilityCombo.selectedItem != null && this.visibilityCombo.selectedItem.@value == "INST") {
+			var lab:Object = labCombo.selectedItem;
+			this.institutionCombo.enabled = true;
+			this.institutionLabel.enabled = true;
+			if (this.institutionCombo.selectedItem == null || this.institutionCombo.selectedItem.@idInstitution == '') {
+				for each(var inst:Object in this.possibleInstitutions) {
+					if (inst.@idInstitution == lab.@defaultIdInstitutionForLab) {
+						this.institutionCombo.selectedItem = inst;
+						break;
+					}
+				}
+			}
+		} else {
+			this.institutionCombo.enabled = false;
+			this.institutionCombo.selectedItem = null;
+			this.institutionLabel.enabled = false;
+		}
+	}
+
+	private function setInstitutions():void {
+		if (labCombo.selectedItem != null) {
+			// Set up institutions
+			var emptyInstNode:XML = <Institution idInstitution='' display=''/>;
+			possibleInstitutions = new PromptXMLListCollection(emptyInstNode, new XMLListCollection(labCombo.selectedItem.institutions.Institution.(@isActive == 'Y')));
+			this.institutionCombo.dataProvider = possibleInstitutions;
+			visibilityChosen();
+		}
+	}
+
+	private function onLabChosen():void {
 		if(!visibilitySetByDefault) {
 			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != "") {
 				for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
@@ -130,6 +167,8 @@
 				}
 			}
 		}
+		
+		setInstitutions();
 	}
 				
 	
@@ -183,17 +222,19 @@
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Lab:" fontWeight="bold">
 				</mx:Label>
-				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="100%" labelField="@name" change="{setDefaultVisibility()}">
+				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="100%" labelField="@name" change="{onLabChosen()}">
 				</mx:ComboBox>
 			</mx:VBox>
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Visibility:" width="100%" fontWeight="bold" id="label3"/>
 				<mx:HBox width="100%" id="visibilityBox">
-					<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%"></mx:ComboBox>							        					
+					<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%" close="{visibilityChosen()}"></mx:ComboBox>							        					
 				</mx:HBox>
 				<mx:Text id="institutionNote" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
 					<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
 				</mx:Text>
+				<mx:Label text="Institution:" width="100%" fontWeight="bold" id="institutionLabel"/>
+				<mx:ComboBox id="institutionCombo" labelField="@display" width="100%"></mx:ComboBox>							        					
 			</mx:VBox>
 			
 		</mx:VBox>

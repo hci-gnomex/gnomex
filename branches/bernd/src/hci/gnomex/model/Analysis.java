@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import org.jdom.Document;
 import org.jdom.Element;
 
-public class Analysis extends HibernateDetailObject {
+public class Analysis extends HibernateDetailObject implements VisibilityInterface {
 
   private Integer idAnalysis;
   private String number;

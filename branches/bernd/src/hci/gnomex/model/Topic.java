@@ -16,7 +16,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-public class Topic extends DetailObject implements Serializable {
+public class Topic extends DetailObject implements Serializable, VisibilityInterface {
 
   private Integer            idTopic;
   private String             name;

@@ -977,7 +977,8 @@
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
 			public var PROPERTY_DEFAULT_VISIBILITY_DATATRACK :String      = "default_visibility_datatrack";
-			public var PROPERTY_DEFAULT_VISIBILITY_ANALYSIS :String      = 	"default_visibility_analysis";
+			public var PROPERTY_DEFAULT_VISIBILITY_ANALYSIS :String       =	"default_visibility_analysis";
+			public var PROPERTY_DEFAULT_VISIBILITY_TOPIC :String          = "default_visibility_topic";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
 			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";
@@ -3009,10 +3010,13 @@
 			}	
 			
 			private function onMenuClick(event:MouseEvent):void {
-				if (event == null || event.target == null || event.target.data == null || event.target.data.@label == null) {
+				if (event == null || event.target == null || !event.target.hasOwnProperty("data") || event.target.data == null || !event.target.data.hasOwnProperty("@label") || event.target.data.@label == null) {
 					return;
 				}
 				showView(event.target.data);
+				if(XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
+					mainMenu.selectedIndex = -1;
+				}
 			}
 			
 			private function onMenuSelect(event:MenuEvent):void {				
@@ -3140,7 +3144,7 @@
 			
 			
 			private function resizeMenuItems():void{
-				var menuBarSpacing:int = 8;
+				var menuBarSpacing:int = 12;
 				if (this.mainMenu.menuBarItems.length <= 5) {
 					menuBarSpacing = 30;
 				} else if (this.mainMenu.menuBarItems.length <= 7) {
@@ -3246,9 +3250,9 @@
 	<mx:Sort id="experimentFactorSorter" compareFunction="sortExperimentFactors" unique="true"/> 
 	
 	
-	<mx:XMLList id="adminMenu">
+	<mx:XMLList id="adminMenu"> 
 		
-		<menuitem label="Orders" icon="iconOrders"   />
+		<menuitem label="Orders" icon="iconOrders" />
 
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
@@ -3570,7 +3574,7 @@
 	
 	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="4"   visible="true" 
+			 verticalGap="3"   visible="true" 
 			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
 			 paddingTop="0" paddingLeft="0" 
 			 paddingRight="0" paddingBottom="0">
@@ -3628,9 +3632,8 @@
 					<mx:HRule width="100%"   strokeWidth="1" strokeColor="#E9EBD1" alpha="0.64" id="hrule1"/>
 						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 									click="onMenuClick(event)"
-									itemClick="{onMenuSelect(event)}"  
+									itemClick="{onMenuSelect(event)}"
 									labelField="@label" iconField="@icon"    
-									useHandCursor="true"  
 									fillAlphas="[0, 0, 0, 0]" 
 									fillColors="[#FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF]" 
 									alpha="1.0">

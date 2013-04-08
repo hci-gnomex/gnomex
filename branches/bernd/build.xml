@@ -339,7 +339,7 @@
 	<!-- Flex                                           -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="flex" depends="init" unless="flexUpToDate" description="Compile Flex application">
+	<target name="flex" depends="init" description="Compile Flex application">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Compiling flex app                                   +</echo>
@@ -403,7 +403,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war" depends="init, compile, flex">
+	<target name="war" depends="init, compile">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files                                   +</echo>
@@ -492,7 +492,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-tomcat" depends="init, jar-tomcat, flex">
+	<target name="war-tomcat" depends="init, jar-tomcat">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files  (tomcat)                         +</echo>
@@ -769,6 +769,24 @@
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
 		
+		<!-- Get rid of BST mapping file entries in hibernate.cfg.xml files -->
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>		
+		
 
 		<!-- Remove all references to hciEnv and hciFlex in scripts -->
 		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.sh"
@@ -815,6 +833,19 @@
 			match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
 		    replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
+
+		<!-- Compile flex -->
+		<subant target="flex">
+			    <property name="opensource" value="true"/>
+				<property name="dist.dir" value="${dist.dir}"/>
+			    <property name="basedir" value="${basedir}"/>
+				<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+				<property name="lib.dir" value="${sandbox.dir}/lib"/>
+				<property name="src.dir" value="${basedir}/src"/>
+			    <property name="flex.appname" value="${flexapp.name}"/>
+			    <property name="flex.title" value="${flex.title}"/>
+			    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
 
 			
 		<!-- Build ear, allowing http (nonsecure) connections -->
@@ -1274,13 +1305,6 @@
         	<fileset dir="${lib.openejb.dir}" 		    includes="*.jar" />
         </path>		
 		
-		<!-- Up to date check on flex app -->
-		<uptodate property="flexUpToDate" targetfile="${build.dir}/${flexapp.name}.swf">
-		    	<srcfiles dir="${flexapp.dir}">
-	  	    	<include name="**/*.as"/>
-	    	  	<include name="**/*.mxml"/>
-	    		</srcfiles>
-	  	</uptodate>
 
 			
 	</target>

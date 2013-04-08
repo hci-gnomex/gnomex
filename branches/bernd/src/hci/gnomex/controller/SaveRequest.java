@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PropertyPlatformApplication;
@@ -277,6 +278,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
       requestParser.parse(sess);
+      
+
+      Lab lab = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+      if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
+        this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
+      }
       
       // The following code makes sure any ccNumbers that have been entered actually exist
       PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
@@ -2293,13 +2300,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     boolean send = false;
+    String emailInfo = "";
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (emailRecipients.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      
     }
     
     if (send) {
@@ -2307,7 +2316,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           null,
           (requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);      
     }
     
@@ -2381,12 +2390,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (requestParser.getRequest().getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-        emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "<br><br>";
-        ccEmail = null;
-      }
+      send = true;
+      subject = subject + " (TEST)";
+      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "]<br><br>";
+      ccEmail = null;
     }    
 
     if (send) {
@@ -2516,30 +2524,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-  // Adds standard sample properties as defined by STANDARD_SAMPLE_PROPERTIES dictionary proeprty.
-  // Note that the property must be set to apply to the request category of the request.  This
-  // only works for TEXT properties at this time.
+  // Sequenom experiments add a default annotation that doesn't show up in submit but then
+  // shows up in view and edit.
   private void addStandardSampleProperties(Session sess, String idSampleString, Sample sample) {
-    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
-    String s = propertyHelper.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.STANDARD_SAMPLE_PROPERTIES);
-    String[] propertyNames = Util.parseCommaDelimited(s);
+    RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
     Boolean addedProperty = false;
-    for(String name : propertyNames) {
-      Property prop = dh.getPropertyByName(name);
-      if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
-        for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
-          PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-          if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
-              && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
-            PropertyEntry entry = new PropertyEntry();
-            entry.setIdSample(sample.getIdSample());
-            entry.setIdProperty(prop.getIdProperty());
-            entry.setValue("");
-            sess.save(entry);
-            addedProperty = true;
-            break;
+    if (requestCategory.getType().equals(RequestCategory.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategory.TYPE_CLINICAL_SEQUENOM)) {
+      Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
+      for(Property prop : dh.getPropertyList()) {
+        if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
+          for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+            PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+            if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
+                && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
+              PropertyEntry entry = new PropertyEntry();
+              entry.setIdSample(sample.getIdSample());
+              entry.setIdProperty(prop.getIdProperty());
+              entry.setValue("");
+              sess.save(entry);
+              addedProperty = true;
+              break;
+            }
           }
         }
       }

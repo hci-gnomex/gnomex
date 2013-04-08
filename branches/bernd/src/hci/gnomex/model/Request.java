@@ -26,7 +26,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-public class Request extends HibernateDetailObject {
+public class Request extends HibernateDetailObject implements VisibilityInterface {
   
   private Integer         idRequest;
   private String          number;

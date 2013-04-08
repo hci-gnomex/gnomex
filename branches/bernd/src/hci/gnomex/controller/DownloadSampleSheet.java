@@ -8,6 +8,10 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.ProjectExperimentReportFilter;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SampleSource;
+import hci.gnomex.model.SampleType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.report.constants.ReportFormats;
@@ -17,11 +21,12 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,20 +38,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
 
-public class ShowProjectExperimentReport extends ReportCommand implements Serializable {
+public class DownloadSampleSheet extends ReportCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowProjectExperimentReport.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadSampleSheet.class);
   
   
   private SecurityAdvisor               secAdvisor;
-  private Integer                       idLab;
-  private ProjectExperimentReportFilter filter;
+  private Integer                       idRequest;
+  private HashMap                       columnNames;
+  private int                           columnCount = 1;
   
   private String                        today;
  
@@ -54,8 +59,8 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
-      idLab = Integer.valueOf(request.getParameter("idLab"));
+    if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
+      idRequest = Integer.valueOf(request.getParameter("idRequest"));
     } 
     
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -64,9 +69,6 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     }
     
     today = new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
-
-    filter = new ProjectExperimentReportFilter();
-    this.loadDetailObject(request, filter);
   }
 
   @SuppressWarnings("unchecked")
@@ -83,28 +85,22 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
          
       Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      columnNames = generateColumnNames();
+      List results = (List)sess.createQuery(generateQuery().toString()).list();
+      createReportTray((Object [])results.get(0), sess);
       
-      // Create the report and define the columns
-      createReportTray(sess, dh);
-    
-      // Get the results
-      StringBuffer queryBuf = filter.getQuery(secAdvisor);
+//      List properties = (List)sess.createQuery("SELECT DISTINCT prop.name from Sample as samp LEFT JOIN samp.propertyEntry as propEntry LEFT JOIN propEntry.property as prop where samp.idRequest= " + idRequest);
+//      for(Iterator j = properties.iterator(); j.hasNext();){
+//        Object[] propRow = (Object[])j.next();
+//        createReportTrayColumns(propRow);
+//      }
 
       if (this.isValid()) {
-        
         SimpleDateFormat dateFormat = new SimpleDateFormat();
-        List results = (List)sess.createQuery(queryBuf.toString()).list();
-        
-        Map<Integer, Integer> idsToExclude = secAdvisor.getBSTXSecurityIdsToExclude(sess, dh, results, ProjectExperimentReportFilter.COL_IDREQUEST, ProjectExperimentReportFilter.COL_CODE_REQUEST_CATEGORY);
         
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
-
-          if (idsToExclude.get((Integer)row[ProjectExperimentReportFilter.COL_IDREQUEST]) != null) {
-            // skip due to BSTX security
-            continue;
-          }
-          ReportRow reportRow = makeReportRow(row, dateFormat, dh);
+          ReportRow reportRow = makeReportRow(row, dateFormat, (Object [])results.get(0), sess);
           tray.addRow(reportRow);
         }
       }
@@ -145,16 +141,80 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     return this;
   }
   
-  private void createReportTray(Session sess, DictionaryHelper dh) {
-    // Get the lab
-    String labQualifier = "";
-    if (idLab != null) {
-      Lab lab = (Lab)sess.get(Lab.class, idLab);
-      labQualifier += "_" + lab.getLastName();
-    }
+  private HashMap<Integer, String> generateColumnNames(){
+    HashMap<Integer, String> columnNames = new HashMap<Integer, String>();
+    columnNames.put(0, "Sample Number");
+    columnNames.put(1, "Sample Name");
+    columnNames.put(2, "Concentration");
+    columnNames.put(3, "Concentration Unit");
+    columnNames.put(4, "Sample Type");
+    columnNames.put(5, "Organism");
+    columnNames.put(6, "Sample Source");
+    columnNames.put(7, "Code Bioanalyzer Chip Type");
+    columnNames.put(8, "Qual Failed");
+    columnNames.put(9, "Qual ByPassed");
+    columnNames.put(10, "Qual 260nm to 230nm Ratio");
+    columnNames.put(11, "Qual 260nm to 280nm Ratio");
+    columnNames.put(12, "Qual Calc Concentration");
+    columnNames.put(13, "Qual 28s to 18s Ribosomal Ratio");
+    columnNames.put(14, "Qual RIN number");
+    columnNames.put(15, "Fragment size from");
+    columnNames.put(16, "Fragment size to");
+    columnNames.put(17, "Seq prep by core");
+    columnNames.put(18, "Seq prep failed");
+    columnNames.put(19, "Seq prep bypassed");
+    columnNames.put(20, "Seq lib concentration");
+    columnNames.put(21, "Prep Instructions");
+    columnNames.put(22, "Barcode Sequence");
+    columnNames.put(23, "Multiplex group number");
+    columnNames.put(24, "Other organism");
+    columnNames.put(25, "Other sample prep method");
     
-    String title = "GNomEx Requests";
-    String fileName = "gnomex_request" + labQualifier + "_" + today;
+    return columnNames;
+    
+  }
+  
+  private StringBuffer generateQuery(){
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT     samp.number, ");
+    queryBuf.append("           samp.name, ");
+    queryBuf.append("           samp.concentration, ");
+    queryBuf.append("           samp.codeConcentrationUnit, ");
+    queryBuf.append("           samp.idSampleType, ");
+    queryBuf.append("           samp.idOrganism, ");
+    queryBuf.append("           samp.idSampleSource, ");
+    queryBuf.append("           samp.codeBioanalyzerChipType, ");
+    queryBuf.append("           samp.qualFailed, ");
+    queryBuf.append("           samp.qualBypassed, ");
+    queryBuf.append("           samp.qual260nmTo230nmRatio, ");
+    queryBuf.append("           samp.qual260nmTo280nmRatio, ");
+    queryBuf.append("           samp.qualCalcConcentration, ");
+    queryBuf.append("           samp.qual28sTo18sRibosomalRatio, ");
+    queryBuf.append("           samp.qualRINNumber, ");
+    queryBuf.append("           samp.fragmentSizeFrom, ");
+    queryBuf.append("           samp.fragmentSizeTo, ");
+    queryBuf.append("           samp.seqPrepByCore, ");
+    queryBuf.append("           samp.seqPrepFailed, ");
+    queryBuf.append("           samp.seqPrepBypassed, ");
+    queryBuf.append("           samp.seqPrepLibConcentration, ");
+    queryBuf.append("           samp.prepInstructions, ");
+    queryBuf.append("           samp.barcodeSequence, ");
+    queryBuf.append("           samp.multiplexGroupNumber, ");
+    queryBuf.append("           samp.otherOrganism, ");
+    queryBuf.append("           samp.otherSamplePrepMethod, ");
+    queryBuf.append("           samp.idSample ");
+    
+    queryBuf.append("FROM       Sample as samp ");
+    
+    queryBuf.append("WHERE      samp.idRequest = " + idRequest);
+    
+    return queryBuf;
+    
+  }
+  
+  private void createReportTray(Object [] row, Session sess) {
+    String title = "GNomEx Sample Sheet";
+    String fileName = "gnomex_sampleSheet_" + today;
     
     // set up the ReportTray
     tray = new ReportTray();
@@ -165,25 +225,35 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     tray.setFormat(ReportFormats.CSV);
     
     Set columns = new TreeSet();
-    columns.add(makeReportColumn("Project Name", 1));
-    columns.add(makeReportColumn("Project Description", 2));
-    columns.add(makeReportColumn("Lab", 3));
-    columns.add(makeReportColumn("Experiment #", 4));
-    columns.add(makeReportColumn("Name", 5));
-    columns.add(makeReportColumn("Owner", 6));
-    columns.add(makeReportColumn("Submitter", 7));
-    columns.add(makeReportColumn("Category", 8));
-    columns.add(makeReportColumn("Application", 9));
-    columns.add(makeReportColumn("Date Created", 10));
-    columns.add(makeReportColumn("Last Modification", 11));
-    columns.add(makeReportColumn("Visibility", 12));
-    columns.add(makeReportColumn("Description", 13));
-    columns.add(makeReportColumn("Organism", 14));
-    columns.add(makeReportColumn("# Samples", 15));
     
-    
+    for(int i = 0; i < row.length; i++){
+      if(row[i] != null && !row[i].equals("") && i < columnNames.size()){
+        columns.add(makeReportColumn((String)columnNames.get(i), columnCount));
+        columnCount++;
+      } else if (i == columnNames.size()){
+        Sample samp = (Sample)sess.load(Sample.class, (Integer)row[i]);
+        for(Object pe : samp.getPropertyEntries()){
+          PropertyEntry propEntry = (PropertyEntry) pe;
+          columns.add(makeReportColumn(propEntry.getProperty().getName(), columnCount));
+          columnCount++;
+        }
+        
+      }
+    }
     tray.setColumns(columns);
   }
+  
+//  private void createReportTrayColumns(Object[] row){
+//    Set columns = new TreeSet();
+//    
+//    for(int i = 0; i < row.length; i++){
+//      if(row[i] != null && !row[i].equals("")){
+//        columns.add(makeReportColumn((String)row[i], columnCount));
+//        columnCount++;
+//      }
+//    }
+//    tray.setColumns(columns);
+//  }
   
   private Column makeReportColumn(String name, int colNumber) {
     Column reportCol = new Column();
@@ -193,69 +263,39 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     return reportCol;
   }
 
-  private ReportRow makeReportRow(Object[] row, SimpleDateFormat dateFormat, DictionaryHelper dh) {
+  private ReportRow makeReportRow(Object[] row, SimpleDateFormat dateFormat, Object[] resultRow, Session sess) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
-    
-    
-    String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
-    description = this.cleanRichText(description);
-
-    String projectDescription = (String)row[ProjectExperimentReportFilter.COL_PROJECT_DESCRIPTION];
-    if (projectDescription == null) {
-      projectDescription = "";
-    } else {
-      projectDescription = projectDescription.replaceAll("\r", "\n");
+    for(int i = 0; i < resultRow.length - 1; i++){
+      if(resultRow[i] != null && !resultRow[i].equals("")){
+        if(row[i] instanceof Integer && columnNames.get(i).equals("Organism")){
+          Organism o = (Organism)sess.load(Organism.class, (Integer)row[i]);
+          values.add(surroundWithQuotes(o.getOrganism()));
+        } else if(row[i] instanceof Integer && columnNames.get(i).equals("Sample Type")){
+          SampleType st = (SampleType)sess.load(SampleType.class, (Integer)row[i]);
+          values.add(surroundWithQuotes(st.getSampleType()));
+        } else if(row[i] instanceof Integer && columnNames.get(i).equals("Sample Source")){
+          SampleSource ss = (SampleSource)sess.load(SampleSource.class, (Integer)row[i]);
+          values.add(surroundWithQuotes(ss.getSampleSource()));
+        } else if(row[i] instanceof BigDecimal){
+          values.add(surroundWithQuotes(row[i].toString()));
+        } else{
+          values.add(surroundWithQuotes(row[i]));
+        }
+      }
+      
     }
-
     
-    String labLastName = (String)row[ProjectExperimentReportFilter.COL_LAB_LASTNAME];
-    String labFirstName = (String)row[ProjectExperimentReportFilter.COL_LAB_FIRSTNAME];
-    String ownerLastName = (String)row[ProjectExperimentReportFilter.COL_OWNER_LASTNAME];
-    String ownerFirstName = (String)row[ProjectExperimentReportFilter.COL_OWNER_FIRSTNAME];
-    String number = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NUMBER];
-    String codeRequestCategory = (String)row[ProjectExperimentReportFilter.COL_CODE_REQUEST_CATEGORY];
-    String codeRequestApplication = (String)row[ProjectExperimentReportFilter.COL_CODE_REQUEST_APPLICATION];
-    Date createDate = (Date)row[ProjectExperimentReportFilter.COL_CREATE_DATE];
-    Date modifyDate = (Date)row[ProjectExperimentReportFilter.COL_MODIFY_DATE];
-    String codeVisibility = (String)row[ProjectExperimentReportFilter.COL_CODE_VISIBILITY];
-    Date completeDate = (Date)row[ProjectExperimentReportFilter.COL_COMPLETED_DATE];
-    Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
-    Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
-    String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
-    String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
-    String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
-    String projectName = (String)row[ProjectExperimentReportFilter.COL_PROJECT_NAME];
-
-    String labName = Lab.formatLabName(labLastName, labFirstName);
-    String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
-    String submitterName = AppUser.formatName(submitterLastName, submitterFirstName);
-    String requestCategory = dh.getRequestCategory(codeRequestCategory);
-    String application = dh.getApplication(codeRequestApplication);
-    String createDateString = createDate != null ? dateFormat.format(createDate) : "";
-    String modifyDateString = modifyDate != null ? dateFormat.format(modifyDate) : "";
-    String visibility = DictionaryManager.getDisplay("hci.gnomex.model.Visibility", codeVisibility);
-    String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
-    String organism = dh.getOrganism(idOrganism);
+    Sample s = (Sample)sess.load(Sample.class, (Integer)resultRow[26]);
+    for(Object pe : s.getPropertyEntries()){
+      PropertyEntry propEntry = (PropertyEntry) pe;
+      values.add(surroundWithQuotes(propEntry.getValue()));
+      columnCount++;
+    }
     
-    values.add(surroundWithQuotes(projectName) );
-    values.add(surroundWithQuotes(projectDescription) );
-    values.add(surroundWithQuotes(labName));
-    values.add(surroundWithQuotes(number));
-    values.add(surroundWithQuotes(requestName) );
-    values.add(surroundWithQuotes(ownerName) );
-    values.add(surroundWithQuotes(submitterName) );
-    values.add(surroundWithQuotes(requestCategory) );
-    values.add(surroundWithQuotes(application) );
-    values.add(surroundWithQuotes(createDateString) );
-    values.add(surroundWithQuotes(modifyDateString) );
-    values.add(surroundWithQuotes(visibility) );
-    values.add(surroundWithQuotes(description) );
-    values.add(surroundWithQuotes(organism) );
-    values.add(surroundWithQuotes(numSamples.toString()) );
-   
+    
+    
     reportRow.setValues(values);
-    
     return reportRow;
   }
   

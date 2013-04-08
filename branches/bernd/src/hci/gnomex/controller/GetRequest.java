@@ -234,8 +234,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
           
 
           // Initialize attributes from request category
+          RequestCategory requestCategory = null;
           if (request.getCodeRequestCategory() != null && !request.getCodeRequestCategory().equals("")) {
-            RequestCategory requestCategory = dh.getRequestCategoryObject(request.getCodeRequestCategory());
+            requestCategory = dh.getRequestCategoryObject(request.getCodeRequestCategory());
             requestNode.setAttribute("icon", requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
             requestNode.setAttribute("type", requestCategory.getType() != null ? requestCategory.getType() : "");            
             requestNode.setAttribute("requestCategory", requestCategory.getRequestCategory());
@@ -306,9 +307,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }
-            // If iscan request:
-            if ( request.getCodeRequestCategory() != null 
-                && (request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY ) || request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) ) {
+            // for sequenom and iscan types we only include properties that explicitly apply to the request category.
+            if ( requestCategory != null &&
+                (   requestCategory.getType().equals(RequestCategory.TYPE_ISCAN) ||
+                    requestCategory.getType().equals(RequestCategory.TYPE_SEQUENOM) ||
+                    requestCategory.getType().equals(RequestCategory.TYPE_CLINICAL_SEQUENOM))) {
               boolean include = false;
               if (prop.getPlatformApplications() != null) {
                 for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {

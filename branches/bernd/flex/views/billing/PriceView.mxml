@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 	xmlns:util="views.util.*" 
 	title="{'Price ' + price.@name + ' (' + priceCategory.@name + ')'}" 
-	width="536" height="370" defaultButton="{saveButton}">
+	 defaultButton="{saveButton}" width="520" height="380">
    
    <mx:HTTPService             
     id="savePrice" 
@@ -124,7 +124,7 @@
 </mx:Script>
 <mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
     <mx:HBox width="100%">
-    	<mx:Label text="Name:" width="70"/>
+    	<mx:Label text="Name" width="70" styleName="formLabel"/>
     	<mx:TextInput id="priceName" width="100%" text="{price.@name}"/>
     </mx:HBox>
     <mx:HBox width="100%">
@@ -132,32 +132,32 @@
     	<mx:CheckBox  label="Active" id="priceIsActive" width="100%"  selected="{price.@isActive == 'Y' ? true : false}"/>
     </mx:HBox>
     <mx:HBox width="100%">
-    	<mx:Label text="Notes:" width="70"/>
+    	<mx:Label text="Notes" width="70" styleName="formLabel"/>
     	<util:TextAreaWorkaround id="priceDescription" width="100%" text="{price.@description}"/>
     </mx:HBox>
 	<mx:HBox width="100%">
-		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label text="Unit price:" width="70" toolTip="Internal Unit Price"/>
+		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label text="Unit price" width="70" toolTip="Internal Unit Price" styleName="formLabel"/>
 			<mx:TextInput id="unitPrice" width="50" text="{price.@unitPrice}" textAlign="right"/>
 		</mx:HBox>
-		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label text="External Academic:" toolTip="External Unit Price for Academic Labs"/>
+		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label text="External Academic" toolTip="External Unit Price for Academic Labs" styleName="formLabel"/>
 			<mx:TextInput id="unitPriceExternalAcademic" width="50" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
 		</mx:HBox>
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label text="External Commercial:" toolTip="External Unit Price for Commercial Labs"/>
+			<mx:Label text="External Commercial" toolTip="External Unit Price for Commercial Labs" styleName="formLabel"/>
 			<mx:TextInput id="unitPriceExternalCommercial" width="50" text="{price.@unitPriceExternalCommercial}" textAlign="right"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:VBox width="100%"  verticalGap="0">
-			<mx:Label text="Price applies to:" paddingTop="4"/>
+			<mx:Label text="Price applies to" paddingTop="4" styleName="formLabel"/>
 			<mx:HBox>
 				<mx:LinkButton label="New criteria" id="newCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/attach_add.png')" click="addPriceCriteria()"/>
 				<mx:LinkButton label="Remove criteria" id="removeCriteriaButton" textDecoration="underline" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{criteriaGrid.selectedItem != null}" click="removePriceCriteria()"/>
 						
 			</mx:HBox>
 		<mx:HBox width="100%">
-			<mx:DataGrid id="criteriaGrid" dataProvider="{criteriaList}" width="100%" height="106"  editable="true">
+			<mx:DataGrid id="criteriaGrid" dataProvider="{criteriaList}" width="100%" height="106"  editable="true" fontSize="11">
 				<mx:columns>
 					<mx:DataGridColumn id="filter1Col" headerText="filter1"  editorDataField="value" dataField="@filter1"/>
 					<mx:DataGridColumn id="filter2Col" headerText="filter2"  editorDataField="value" dataField="@filter2"/>

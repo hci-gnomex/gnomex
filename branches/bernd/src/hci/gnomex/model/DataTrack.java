@@ -27,7 +27,7 @@ import hci.gnomex.utility.DataTrackUtil;
 
 
 
-public class DataTrack extends DetailObject implements Serializable, Owned {
+public class DataTrack extends DetailObject implements Serializable, Owned, VisibilityInterface {
 
 	public static final String PROP_NAME                = "name";
 	public static final String PROP_SUMMARY             = "summary";

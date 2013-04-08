@@ -356,7 +356,7 @@
 	 		// has been shown, perform 1-time-only
 	 		// initialization
 			if (!isInitialized) {
-
+				
 				// Set the base state
 				if (this.id == "amendRequestView") {
 					this.currentState = 'AmendState';
@@ -1014,11 +1014,11 @@
 		}		
 		
 		public function setRequestCategoryName():void {
-			setTabNotVisible("allVisible");
+			setTabsVisible();
 
 			requestCategory = getRequestCategory();
 		
-			if (requestCategory == null) {
+			if (requestCategory == null || request == null) {
 				return;
 			}
 			
@@ -1236,7 +1236,11 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
-				setTabNotVisible("Samples");
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
+				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).includeInLayout = false;
 
 				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
@@ -1338,18 +1342,13 @@
 			this.setupView.checkSecurity();
 		}
 			
-		private function setTabNotVisible(label:String):void {
+		private function setTabsVisible():void {
 			for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
-				if (theTab.getTabAt(tabIdx).label == label) {
-					theTab.getTabAt(tabIdx).visible = false;
-					theTab.getTabAt(tabIdx).includeInLayout = false;
-				} else {
-					theTab.getTabAt(tabIdx).visible = true;
-					theTab.getTabAt(tabIdx).includeInLayout = true;
-				}
+				theTab.getTabAt(tabIdx).visible = true;
+				theTab.getTabAt(tabIdx).includeInLayout = true;
 			}
-
 		}
+			
 		public function showHideBarcodingQuestion():void {
 			sampleSetupView.radioYesBarcoding.selected = true;
 			sampleSetupView.pickRadioBarcoding();
@@ -1540,7 +1539,7 @@
 			}
 			
 			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState() || this.isSequenomState()) {
+			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
 				filterByPlatformApplication = true;	
 			}
 			
@@ -2136,7 +2135,7 @@
 			currentState = '';
 			samplesView.currentState = '';
 			
-			setTabNotVisible('AllVisible');
+			setTabsVisible();
 			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
@@ -2505,7 +2504,7 @@
 				}
 			}
 
-			if (this.isSequenomState() ) {
+			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
 				
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
@@ -3152,7 +3151,7 @@
 						this.confirmView.currentState = "";
 					}
 					
-					this.confirmView.billingConfirmGrid.rowCount = billingItems.length() > 1 ? billingItems.length() - 1 : billingItems.length();
+					this.confirmView.billingConfirmGrid.rowCount = billingItems.length();
 					this.confirmView.billingConfirmGrid.validateNow();
 				} else {
 					readyToSubmit = false;
@@ -5553,11 +5552,9 @@
 		</mx:State>
 		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
 			<mx:RemoveChild target="{notesView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
 			<mx:RemoveChild target="{notesView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

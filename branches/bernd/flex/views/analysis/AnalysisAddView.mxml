@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
-	title="Add Analysis" height="410"
+	title="Add Analysis"
 	xmlns:util="views.util.*" 
 	xmlns:renderers="views.renderers.*" 
 	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
@@ -66,9 +66,10 @@
 		
 		import views.util.AboutView;
 		import views.util.DateUtils;
+		import views.util.GNomExStringUtil;
 		import views.util.OrganismsWindow;
 		import views.util.OrganismEvent; 
-		import views.util.GNomExStringUtil;
+		import views.util.PromptXMLListCollection;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -81,6 +82,9 @@
 		private var appUserSort:Sort;
 		
 		private var idLab:String;
+		
+		[Bindable]
+		private var possibleInstitutions:PromptXMLListCollection;
 		
 		
 		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
@@ -125,6 +129,13 @@
 			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
 				onOrganismRefreshed);		
 			
+			if (labCombo.selectedItem != null) {
+				// Set up institutions
+				var emptyInstNode:XML = <Institution idInstitution='' display=''/>;
+				possibleInstitutions = new PromptXMLListCollection(emptyInstNode, new XMLListCollection(labCombo.selectedItem.institutions.Institution.(@isActive == 'Y')));
+				this.institutionCombo.dataProvider = possibleInstitutions;
+				visibilityChosen();
+			}
 		}
 		
 		private function onOrganismRefreshed(event:Event):void{
@@ -195,7 +206,8 @@
 			
 			params.idAnalysis = 0;
 			params.idLab = labCombo.selectedItem.@idLab;
-			params.visibility = visibilityCombo.selectedItem.@value;
+			params.codeVisibility = visibilityCombo.selectedItem.@value;
+			params.idInstitution = institutionCombo.selectedItem == null ? '' : institutionCombo.selectedItem.@idInstitution;
 			if(parentApplication.navAnalysisView.currentState == 'AdminState') {
 				params.idAppUser = ownerCombo.selectedItem.@idAppUser;
 			}
@@ -243,7 +255,7 @@
 				PopUpManager.removePopUp(this);
 				
 			} else {
-				Alert.show("An error occurred while saving the analysis.");
+				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 			}			
 		}
 		
@@ -346,7 +358,13 @@
 						ownerCombo.selectedItem = a;
 						break;
 					}
-				}					
+				}			
+
+				// Set up institutions
+				var emptyInstNode:XML = <Institution idInstitution='' display=''/>;
+				possibleInstitutions = new PromptXMLListCollection(emptyInstNode, new XMLListCollection(lab.institutions.Institution.(@isActive == 'Y')));
+				this.institutionCombo.dataProvider = possibleInstitutions;
+				visibilityChosen();
 			}
 		}		
 			
@@ -397,6 +415,25 @@
 			}
 		}
 				
+		private function visibilityChosen():void {
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' && this.visibilityCombo.selectedItem != null && this.visibilityCombo.selectedItem.@value == "INST") {
+				var lab:Object = labCombo.selectedItem;
+				this.institutionCombo.enabled = true;
+				this.institutionLabel.enabled = true;
+				if (this.institutionCombo.selectedItem == null || this.institutionCombo.selectedItem.@idInstitution == '') {
+					for each(var inst:Object in this.possibleInstitutions) {
+						if (inst.@idInstitution == lab.@defaultIdInstitutionForLab) {
+							this.institutionCombo.selectedItem = inst;
+							break;
+						}
+					}
+				}
+			} else {
+				this.institutionCombo.enabled = false;
+				this.institutionLabel.enabled = false;
+				this.institutionCombo.selectedItem = null;
+			}
+		}
 		
 	]]>
 </mx:Script>
@@ -513,11 +550,15 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
 				<mx:Label text="Visibility" width="118"/>
-				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281"></mx:ComboBox>							        					
+				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281" close="{visibilityChosen()}"></mx:ComboBox>							        					
 			</mx:HBox>
 			<mx:Text id="institutionNote" paddingLeft="30" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
 				<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
 			</mx:Text>
+			<mx:HBox horizontalGap="0" verticalGap="0" width="100%">
+				<mx:Label text="Institution" width="118" id="institutionLabel"/>
+				<mx:ComboBox id="institutionCombo" labelField="@display" width="281" enabled="false"></mx:ComboBox>							        					
+			</mx:HBox>
 		</mx:VBox>
 		<mx:ControlBar width="451" horizontalAlign="right">
 			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>

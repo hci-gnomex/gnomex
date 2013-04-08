@@ -118,6 +118,12 @@
 			}
 		}
 		
+		private function downloadSampleSheet():void{
+			var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx' +			
+				'?idRequest=' +  parentDocument.request.@idRequest);
+			navigateToURL(showUrl, '_blank');
+		}
+		
 		private function downloadCompleteHandler(event:Event):void
 		{
 			mx.controls.Alert.show("Example sample sheet downloaded.");
@@ -133,6 +139,17 @@
 			var emptyNode:XML = null;
 			var idOrganism:String = parentDocument.setupView.getIdOrganism();
 			var isValid:Boolean = true;
+			var analysisInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '';
+			analysisInstructions = analysisInstructions.replace("'", "&apos;");
+			analysisInstructions = analysisInstructions.replace("<", "&lt;");
+			analysisInstructions = analysisInstructions.replace(">", "&gt;");
+			analysisInstructions = analysisInstructions.replace("&", "&amp;");
+			var prepInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
+			prepInstructions = prepInstructions.replace("'", "&apos;");
+			prepInstructions = prepInstructions.replace("<", "&lt;");
+			prepInstructions = prepInstructions.replace(">", "&gt;");
+			prepInstructions = prepInstructions.replace("&", "&amp;");
+				
 			if (parentDocument.isSolexaState()) {
 				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 				    parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
@@ -159,8 +176,8 @@
 					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-					" prepInstructions=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+					" analysisInstructions=\"" + (analysisInstructions) + "\"" +				
+					" prepInstructions=\"" + (prepInstructions) + "\"" +				
 					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 					" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" treatment=''"   +				
@@ -186,7 +203,7 @@
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-					" analysisInstructions='" + (parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text : '') + "'" +				
+					" analysisInstructions='" + (analysisInstructions) + "'" +				
 					" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 					" idSeqLibProtocol = ''" +
 					" seqPrepByCore = 'Y'" +
@@ -1228,6 +1245,11 @@
 				lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
 			}
 			var laneStr:String = lanePlus.toString().substr(1);
+			var analysisInstructions:String = sample.@analysisInstructions.replace("\"", "&quot;");
+			analysisInstructions = analysisInstructions.replace("'", "&apos;");
+			analysisInstructions = analysisInstructions.replace("<", "&lt;");
+			analysisInstructions = analysisInstructions.replace(">", "&gt;");
+			analysisInstructions = analysisInstructions.replace("&", "&amp;");
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + laneStr + "'" +
 			    " notes='' " + 
@@ -1235,7 +1257,7 @@
 				" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 				" idSample='" + sample.@idSample + "'" +
 				" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
-				" analysisInstructions='" + sample.@analysisInstructions + "'" +
+				" analysisInstructions='" + analysisInstructions + "'" +
 				"/>");
 			
 			parentDocument.lanes.addItem(emptyNode);
@@ -1546,8 +1568,6 @@
 			this.downloadExamplePlateButton.includeInLayout = hasPlates();
 			this.downloadExampleTubeButton.visible = parentDocument.isCapSeqState() && !hasPlates();
 			this.downloadExampleTubeButton.includeInLayout = parentDocument.isCapSeqState() && !hasPlates();
-			this.downloadExampleButton.visible = !parentDocument.isCapSeqState() && !parentDocument.isIScanState();
-			this.downloadExampleButton.includeInLayout = !parentDocument.isCapSeqState() && !parentDocument.isIScanState();
 			
 			buttonsContainer.visible = !parentDocument.isAmendState();
 			buttonsContainer.includeInLayout = buttonsContainer.visible;
@@ -1831,8 +1851,7 @@
 			// If this is a QC request, hide the annotation columns 
 			if (currentState != null 
 				&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState') 
-				|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState' 
-				/*|| currentState == 'SequenomState'*/ || parentDocument.isClinicalSequenomState()) {
+				|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState') {
 				// Make all annotation columns invisible
 				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 					if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -2073,7 +2092,7 @@
 					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline" id="downloadExamplePlateButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline" id="downloadExampleTubeButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-					<mx:LinkButton textDecoration="underline" id="downloadExampleButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+					<mx:LinkButton textDecoration="underline" id="downloadButton" includeInLayout="{parentDocument.samples.length > 0}" visible="{parentDocument.samples.length > 0}" label="Sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />

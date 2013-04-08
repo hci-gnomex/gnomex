@@ -868,6 +868,7 @@
 					this.qcStatusCol.visible = false;
 					reactionPlateCol.visible = true;
 					redoFlagCol.visible = true;
+					this.descriptionCol.visible = false;
 
 				} else if (isMitSeqState()) {
 					concentrationCol.visible = false; 
@@ -1088,7 +1089,7 @@
 				}    				
 			}
 
-			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() /*&& !isSequenomState()*/ && !isClinicalSequenomState() ) {
+			if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
 	       		for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 					if(annotation.@idProperty == "-1") {
 						continue;
