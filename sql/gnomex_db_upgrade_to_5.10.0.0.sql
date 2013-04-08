@@ -34,3 +34,9 @@ VALUES('contact_address_core_facility',
 address goes here
 city, state zip', 
 'Core facility lab address', 'N', 1);
+
+
+-- Add entries to suppress Workflow and Orders menus for super admin
+INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
+('menu_Orders', 'hide super', 'supress Orders main menu for super; it is in a submenu', 'N'),
+('menu_Workflow', 'hide super', 'supress Orders main menu for super; it is in a submenu', 'N');
