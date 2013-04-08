@@ -30,24 +30,26 @@ public class EmailHelper {
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Order " + request.getNumber() + " completed";
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = request.getAppUser().getEmail();
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
     
     if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
+      MailUtil.send(emailRecipients, 
           null,
           contactEmailCoreFacility, 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);
       
     }
@@ -75,24 +77,26 @@ public class EmailHelper {
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Order " + request.getNumber() + " - Sample(s) marked for redo";
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = request.getAppUser().getEmail();
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (request.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "TEST - " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
     
     if (send) {
-      MailUtil.send(request.getAppUser().getEmail(), 
+      MailUtil.send(emailRecipients, 
           null,
           contactEmailCoreFacility, 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);
       
     }
