@@ -71,6 +71,7 @@
 		private function init():void {
 			checkSecurity();
 			
+			
 			coreFacilities = new XMLListCollection;
 			coreFacilities.addItem(new XML("<DictionaryEntry display='' idCoreFacility=''/>"));
 			coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
@@ -128,6 +129,8 @@
 		private function onGetUsageData(event:ResultEvent):void {
 			if (getUsageData.lastResult.name() == "UsageData") {
 				// success
+				this.daysSinceLastUpload.refresh();
+
 				if(theTab.selectedChild == this.experimentTab){
 					chartStack.selectedChild = experimentsByLabPanel;
 					buttonStack.selectedIndex = 1;
@@ -237,8 +240,42 @@
 			}
 		}
 
+		public function compareDays(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var ed1:int = obj1.@days;
+				var ed2:int = obj2.@days;			
+				
+				if (ed1 < ed2) {
+					return 1;
+				} else if (ed1 > ed2) {
+					return -1;
+				} else {
+					ed1 = obj1.@label;
+					ed2 = obj2.@label;					
+					if (ed1 < ed2) {
+						return -1;
+					} else if (ed1 > ed2) {
+						return 1;
+					} else {				
+						return 0;
+					}
+				}
+			}
+		}
+		
 
 	]]></mx:Script> 
+	
+	<mx:XMLListCollection id="daysSinceLastUpload" 
+						  source="{getUsageData.lastResult.SummaryDaysSinceLastUpload.Entry}"
+						   sort="{sortDaysSinceLastUpload}"/>
+	<mx:Sort id="sortDaysSinceLastUpload" compareFunction="compareDays" />
 	
 	<mx:HDividedBox width="100%" height="100%">
 		<mx:VBox  height="100%" styleName="panelBox" width="245"
@@ -298,23 +335,22 @@
 				<mx:VBox id="daysSincePanel" width="100%" height="100%" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:Label text="Days since last Upload" fontWeight="bold"/> 
-					<mx:ColumnChart maxColumnWidth="30"  name="Days since last upload" id="daysSinceChart" dataProvider="{getUsageData.lastResult.SummaryDaysSinceLastUpload.Entry}" showDataTips="true" width="100%" height="100%">
-						<mx:horizontalAxis>
-							<mx:CategoryAxis 
-								dataProvider="{getUsageData.lastResult.SummaryDaysSinceLastUpload.Entry}" 
+					<mx:BarChart   name="Days since Last Upload" id="daysSinceChart" dataProvider="{getUsageData.lastResult.SummaryDaysSinceLastUpload.Entry}" showDataTips="true" width="100%" height="100%">
+						<mx:verticalAxis >
+							<mx:CategoryAxis  
+								dataProvider="{daysSinceLastUpload}" 
 								categoryField="@label"
 								/>
-						</mx:horizontalAxis>
-						<mx:verticalAxis>
-							<mx:LinearAxis  interval="1" />
 						</mx:verticalAxis>
 						<mx:series>
-							<mx:ColumnSeries 
-								yField="@days" 
-								displayName="Days"
-								/>
+							<mx:BarSeries id="barSeries"
+										  yField="@label"
+										  xField="@days"
+										  displayName="Days"
+										  barWidthRatio=".2" />
 						</mx:series>
-					</mx:ColumnChart>
+
+					</mx:BarChart>
 				</mx:VBox>
 				
 				
