@@ -165,6 +165,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     boolean send = false;
     boolean testEmail = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
+    String emailInfo = "";
+    String emailRecipients = submitterEmail;
     
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (facilityEmail == null || facilityEmail.equals("")) {
@@ -174,13 +176,12 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        testEmail = true;
-        submitterSubject = "TEST - " + submitterSubject;
-        coreSubject = "TEST - " + coreSubject;
-        facilityEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      }
+      send = true;
+      testEmail = true;
+      submitterSubject = "TEST - " + submitterSubject;
+      coreSubject = "TEST - " + coreSubject;
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
     submitterNote.append("The following work authorization " +
@@ -218,11 +219,11 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     if (send) {
       // Email submitter
       try {
-        MailUtil.send(submitterEmail, 
+        MailUtil.send(emailRecipients, 
             null,
             replyEmail, 
             submitterSubject, 
-            submitterNote.toString() + body.toString(),
+            emailInfo + submitterNote.toString() + body.toString(),
             true);             
       } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
@@ -234,13 +235,14 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
         String contactEmail = lab.getWorkAuthSubmitEmail();
         if (testEmail) {
+          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>"; 
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
         MailUtil.send(contactEmail, 
             null,
             replyEmail, 
             submitterSubject, 
-            submitterNote.toString() + body.toString(),
+            emailInfo + submitterNote.toString() + body.toString(),
             true);   
 
       }
@@ -248,11 +250,15 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       
       // Email core facility
       if (!facilityEmail.equals("")) {
+        if(testEmail){
+          emailInfo = "[If this were a production environment then this email would have been sent to: " + facilityEmail + "]<br><br>";
+          facilityEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+        }
         MailUtil.send(facilityEmail, 
             null,
             replyEmail,
             coreSubject,
-            coreNote.toString() + body.toString(),
+            emailInfo + coreNote.toString() + body.toString(),
             true);           
       }
       
