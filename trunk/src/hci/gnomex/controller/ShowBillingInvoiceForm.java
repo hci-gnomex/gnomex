@@ -652,16 +652,18 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
     String note = "";
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = contactEmail;
+    String ccList = emailFormatter.getCCList(sess, serverName);
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
         send = true;
       } else {
-        if (contactEmail.equals(dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-          send = true;
-          subject = "(TEST) " + subject;
-        } else {
-          note = "Bypassing send on test system.";
-        }
+        send = true;
+        subject = subject + "  (TEST)";
+        emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
+        emailRecipients = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+        ccList = null;
       }     
     } else {
       note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName();
@@ -670,10 +672,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     if (send) {
       try {
         MailUtil.send(contactEmail, 
-            emailFormatter.getCCList(sess, serverName),
+            ccList,
             PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
             subject, 
-            body,
+            emailInfo + body,
             true);
 
         note = "Billing invoice emailed to " + contactEmail + ".";
