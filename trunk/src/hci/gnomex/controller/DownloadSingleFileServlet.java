@@ -188,6 +188,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         List requestNumbers = new ArrayList<String>();
         Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear(), experiment.getCodeRequestCategory());
         StringBuffer keys = new StringBuffer();
+        keys.append(experiment.getKey(""));  // add base directory
         for(Iterator i = folders.iterator(); i.hasNext();) {
           String folder = (String)i.next();
           if (keys.length() > 0) {
@@ -227,7 +228,10 @@ public class DownloadSingleFileServlet extends HttpServlet {
         for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
           String directoryKey = (String)i1.next();
           String dirTokens[] = directoryKey.split(Constants.DOWNLOAD_KEY_SEPARATOR);
-          String theDirectory = dirTokens[1];
+          String theDirectory = "";
+          if (dirTokens.length > 1) {
+            theDirectory = dirTokens[1];
+          }
           
           List   theFiles     = (List)directoryMap.get(directoryKey);
           for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
