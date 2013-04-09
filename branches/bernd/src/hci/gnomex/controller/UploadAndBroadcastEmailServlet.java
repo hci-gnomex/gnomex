@@ -184,22 +184,24 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 
           boolean send = false;
           String theSubject = subject;
+          String emailInfo = "";
+          String emailRecipients = appUser.getEmail();
           if (dh.isProductionServer(req.getServerName())) {
             send = true;
           } else {
-            if (appUser.getEmail().equals(dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-              send = true;
-              theSubject = "TEST - " + subject;
-            }
+            send = true;
+            theSubject = subject + "  (TEST)";
+            emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+            emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
           }
 
           // Email app user
           if (send) {
-            MailUtil.send(appUser.getEmail(), 
+            MailUtil.send(emailRecipients, 
                 null,
                 fromAddress,
                 theSubject,
-                body.toString(),
+                emailInfo + body.toString(),
                 format.equalsIgnoreCase("HTML") ? true : false); 
             userCount++;
 

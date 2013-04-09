@@ -871,11 +871,20 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (92,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
  (93,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
  (94,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
- (95,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
- (96,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
- (97,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
- (98,'contact_remit_address_core_facility','Core Facility Remit Address 123 N 456 E Anywhere Test City, UT 12345', 'Core facility remittance address', 'N'),
- (99,'contact_address_core_facility','Core Facility Lab Address  123 N 456 E Anywhere Test City, UT 12345', 'Core facility lab address', 'N');
+ (95,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
+ (96,'contact_remit_address_core_facility',
+'Core Facility Remit Address
+123 N 456 E Anywhere
+Test City, UT 12345', 
+'Core facility remittance address', 'N'),
+ (97,'contact_address_core_facility','Core Facility Lab Address
+ 123 N 456 E Anywhere
+ Test City, UT 12345', 
+ 'Core facility lab address', 'N'),
+ (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
+ (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N')
+ (100,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
+ (101,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'); 
 
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)

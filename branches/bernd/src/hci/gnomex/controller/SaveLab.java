@@ -637,15 +637,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
 
     boolean isTestEmail = false;
+    String emailInfo = "";
+    String emailRecipients = submitterEmail;
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (submitterEmail.equals(dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        isTestEmail = true;
-        submitterSubject = "TEST - " + submitterSubject;
-        facilityEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      }
+      isTestEmail = true;
+      send = true;
+      submitterSubject = submitterSubject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
     submitterNote.append("The following work authorization " +
@@ -674,11 +675,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     if (send) {
       // Email submitter
-      MailUtil.send(submitterEmail, 
+      MailUtil.send(emailRecipients, 
           null,
           from, 
           submitterSubject, 
-          submitterNote.toString() + body.toString(),
+          emailInfo + submitterNote.toString() + body.toString(),
           false); 
 
 
@@ -692,7 +693,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
             null,
             from, 
             isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
-                submitterNote.toString() + body.toString(),
+                emailInfo + submitterNote.toString() + body.toString(),
                 false); 
 
       }

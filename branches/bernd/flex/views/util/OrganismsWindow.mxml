@@ -251,6 +251,10 @@
 		
 		params.genomeBuildsXMLString = "<genomeBuilds>";
 		for each(var temp:Object in genomeBuilder){
+			if(temp.buildDate == null || temp.buildDate == ""){
+				Alert.show("Please specify a build date for each genome build.");
+				return;
+			}
 			params.genomeBuildsXMLString += "<GenomeBuild " +
 			" idGenomeBuild=" + "\"" +  temp.idGenomeBuild + "\""+ 
 			" genomeBuildName=" + "\""+ temp.genomeBuildName + "\""+ 

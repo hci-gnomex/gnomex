@@ -49,15 +49,16 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.validators.NumberValidator;
-        import mx.events.ValidationResultEvent;
         import mx.collections.ArrayCollection;
         import mx.collections.XMLListCollection;
-        import mx.rpc.events.FaultEvent; 
-        import mx.rpc.events.ResultEvent;   
         import mx.controls.Alert;
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
+        import mx.events.ValidationResultEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.validators.NumberValidator;
+        
         import views.renderers.ComboBox;
 
 		[Bindable]
@@ -225,7 +226,7 @@
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
         }
-		private function getOligoBarcodeName(item:Object,col:DataGridColumn):String
+		public function getOligoBarcodeName(item:Object,col:DataGridColumn):String
         {
         	if (item.@idOligoBarcode != '') {
 	        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
@@ -239,6 +240,14 @@
 				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
 			} else {
 				return item.@barcodeSequence;
+			}
+		}
+		public function getBarcode(item:Object):Object {
+			var barcode:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
+			if (barcode.length() == 1) {
+				return barcode;
+			} else {
+				return new Object();
 			}
 		}
 		private function getSampleType(item:Object,col:DataGridColumn):String
@@ -330,7 +339,7 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn> 
-					<mx:DataGridColumn headerText="Index Tag"  width="20" 
+					<mx:DataGridColumn headerText="Index Tag"  width="20" id="indexTagCol"
 						dataField="@idOligoBarcode" 
 		               	editable="true"  
 		               	rendererIsEditor="false" 
@@ -339,10 +348,15 @@
 						<mx:itemEditor>
 							<mx:Component>
 								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
+														  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
+														  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
+														  selectedIndex="{outerDocument.barcodes.getItemIndex(outerDocument.getBarcode(data))}"
 														  fontSize="10"
 														  labelFunction="{outerDocument.getIndexTagName}"
-														  prompt=""
-														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''; data.@barcodeSequence = ''}" >
+														  prompt="{null}"
+														  removeFilterOnSelection="false"
+														  removeInputOnFocusOut="false"
+														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''}" >
 								</renderers:FilterComboBox>
 							</mx:Component>
 						</mx:itemEditor>

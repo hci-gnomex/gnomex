@@ -306,23 +306,27 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipients = lab.getBillingNotificationEmail();
+    String ccList = emailFormatter.getCCList(sess, serverName); 
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
-      if (lab.getContactEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-        send = true;
-        subject = "(TEST) " + subject;
-      }
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      ccList = null;
     }
     this.executionLogger.endLogItem(li);
     
     li = this.executionLogger.startLogItem("Send email");
     if (send) {
-      MailUtil.send(lab.getBillingNotificationEmail(), 
-          emailFormatter.getCCList(sess, serverName),
+      MailUtil.send(emailRecipients, 
+          ccList,
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true); 
       
       // Set last email date

@@ -112,7 +112,6 @@ public class InstrumentRunEmailServlet extends GNomExCommand implements Serializ
 
             String theSubject = subject;
 
-            // Email app user //CHANGE BACK TO recipientAddress after testing!!!!!!!!!!!!!!
             MailUtil.send(recipientAddress, 
                 null,
                 senderAddress,

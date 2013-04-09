@@ -232,14 +232,16 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   req.getNumber() + (req.getIsExternal().equals("Y") ? " registered" : " submitted");
     
     boolean send = false;
+    String emailInfo = "";
+    String emailRecipient = req.getAppUser().getEmail();
     if (req.getAppUser().getEmail() != null) {
       if (dictionaryHelper.isProductionServer(serverName)) {
         send = true;
       } else {
-        if (req.getAppUser().getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-          send = true;
-          subject = "TEST - " + subject;
-        }
+        send = true;
+        subject = subject + "  (TEST)";
+        emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipient + "]<br><br>";
+        emailRecipient = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       }
     }
     
@@ -247,11 +249,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
     
     if (send) {
-      MailUtil.send(req.getAppUser().getEmail(), 
+      MailUtil.send(emailRecipient, 
           null,
           (req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
-          emailFormatter.format(),
+          emailInfo + emailFormatter.format(),
           true);      
     }
     

@@ -2059,7 +2059,14 @@
 				return item.groupLabel;
 			}
 		}
-		
+		public function getBarcode(item:Object):Object {
+			var barcode:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
+			if (barcode.length() == 1) {
+				return barcode;
+			} else {
+				return new Object();
+			}
+		}
 		public function getIndexTagName(item:Object):String
 		{
 			if (item.@idOligoBarcode != '') {
@@ -2324,7 +2331,12 @@
 							<mx:Component>
 								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
 														  fontSize="10"
-														  prompt=""
+														  prompt="{null}"
+														  filterString="{outerDocument.getIndexTagName(data)}"
+														  text="{outerDocument.getIndexTagName(data)}"
+														  selectedIndex="{outerDocument.barcodes.getItemIndex(outerDocument.getBarcode(data))}"
+														  removeFilterOnSelection="false"
+														  removeInputOnFocusOut="false"
 														  labelFunction="{outerDocument.getIndexTagName}"
 														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
 								</renderers:FilterComboBox>
