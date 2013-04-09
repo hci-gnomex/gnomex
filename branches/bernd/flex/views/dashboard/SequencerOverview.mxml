@@ -30,24 +30,57 @@
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
-			import mx.controls.ComboBase;
-			import mx.controls.RadioButton;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.DragEvent;
 			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			
 			import views.util.PromptXMLListCollection;
+			private var _dateformatter:DateFormatter = new DateFormatter();
 			
 			public function init():void {
 				metrixInterface.send();
 			}
+			
+			private function formatDate(item:Object,column:AdvancedDataGridColumn):String
+			{
+				var rawDate:String = item[column.dataField];
+				var yr:String = rawDate.substr(0,2);
+				var mn:String = rawDate.substr(2,2);
+				var dy:String = rawDate.substr(4,2);
+				
+				var year:String = "20"+yr;
 
+				var date:String = dy+"/"+mn+"/"+year;
+				
+				return date;
+			}
+
+			private function formatState(item:Object,column:AdvancedDataGridColumn):String
+			{
+				var rawState:int = item[column.dataField];
+				
+				if(rawState == 1){
+					return "Running";
+				}else if(rawState == 2){
+					return "Finished";
+				}else if(rawState == 3){
+					return "Error";
+				}else if(rawState == 4){
+					return "Needs turning";
+				}else if(rawState == 5){
+					return "Initializing";
+				}else{
+					return "Unknown";
+				}
+			}			
+			
 			private function onGetMetrixInterface(event:ResultEvent):void {
 				if(event.result.name() == "SummaryCollection"){
 					
@@ -60,8 +93,8 @@
 	</mx:Script>
 
 	<mx:VBox id="mainContainer" width="100%" height="100%">
-		<mx:VBox id="headerBox" width="100%" height="10%">
-			<mx:Label id="headerLabel" fontSize="16" fontWeight="bold" text="Sequencing Run Overview"/>
+		<mx:VBox id="headerBox" width="100%" height="3%">
+			<mx:Label id="headerLabel" fontSize="16" fontWeight="bold" text="Sequencing Run Overview" paddingTop="6"/>
 
 		</mx:VBox>	
 
@@ -70,24 +103,17 @@
 							 sortExpertMode="true"
 							 sortableColumns="true"
 							 editable="false"
-							 allowMultipleSelection="false">
-			<mx:dataProvider>
-				<mx:HierarchicalData source="{MIList}"/>
-			</mx:dataProvider> 
-			
+							 allowMultipleSelection="false"
+							 dataProvider="{MIList}">
+			 
 			<mx:columns>
 				<mx:AdvancedDataGridColumn  dataField="runId" editable="false" headerText="Run Id" width="100">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="runType" editable="false" headerText="Run Type" width="60">
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="runSide" editable="false" headerText="Run Side" width="60">
+				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" labelFunction="formatState" headerText="Run State" width="60">
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" headerText="Run State" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="runPhase" editable="false" headerText="Run Phase"   width="28">
-				</mx:AdvancedDataGridColumn>	
-				<mx:AdvancedDataGridColumn  dataField="runDate" editable="false" headerText="Run Date"   width="25">
-				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn headerText="Date" dataField="runDate" labelFunction="formatDate" editable="false" width="60"/>
 				<mx:AdvancedDataGridColumn  dataField="lastUpdated"  editable="false" headerText="Last Updated"   width="32" />
 				<mx:AdvancedDataGridColumn  dataField="currentCycle" editable="false" headerText="Current Cycle" width="60">
 				</mx:AdvancedDataGridColumn>
