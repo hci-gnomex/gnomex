@@ -1822,7 +1822,6 @@
 			<mx:SetProperty target="{MitSeqCheckbox}" name="label" value="Mit Seq" />
 			<mx:SetStyle target="{vbox1}" name="verticalGap" value="3"/>
 			<mx:SetStyle target="{hbox1a}" name="horizontalGap" value="6"/>
-			<mx:SetProperty target="{NextGenSeqCheckbox}" name="label" value="Next Gen Seq"/>
 			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="2"/>
 			<mx:SetStyle target="{linkbutton2}" name="fontSize" value="11"/>
