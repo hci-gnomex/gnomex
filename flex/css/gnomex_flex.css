@@ -877,7 +877,7 @@ MenuBar {
 	fontSize: 13;
 	fontWeight: normal;
 	borderColor: #FFFFFF;
-	highlightAlphas: 0, .5;
+	highlightAlphas: .25, .9;
 	disabledColor: #071002;
 	errorColor: #ACE788;
 	rollOverColor: #ACE2F2;
