@@ -1461,6 +1461,7 @@
 													   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 													   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
+									<mx:DataGridColumn headerText="Submitter email"  dataField="@submitterEmail" width="150"/>
 									<mx:DataGridColumn headerText="Total $ Amt"  dataField="@totalDollarAmount" width="40" visible="false" id="totalDollarAmtCol"/>
 									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="0" id="shortAcctCol"/>
 	
