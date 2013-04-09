@@ -169,10 +169,10 @@ HDividedBox {
 }
 
 TitleWindow {
-	borderColor: #FFFFFF;
-	backgroundColor: #FFFFFF;
+	borderColor: #EEEEEB;
+	backgroundColor: #EEEEEB;
 	cornerRadius: 4;
-	borderThicknessTop: 2;
+	borderThicknessTop: 4;
 	borderThicknessBottom: 2;
 	borderThicknessLeft: 2;
 	borderThicknessRight: 2;
