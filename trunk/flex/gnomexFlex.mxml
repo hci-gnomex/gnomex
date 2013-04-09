@@ -3015,7 +3015,7 @@
 					return;
 				}
 				showView(event.target.data);
-				if(XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
+				if(mainMenu.selectedIndex != -1 && XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
 					mainMenu.selectedIndex = -1;
 				}
 			}
