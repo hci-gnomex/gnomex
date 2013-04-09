@@ -126,6 +126,7 @@
 				// Get the list of all users
 				parentApplication.navUsersView.getAppUserList.send();
 				
+				
 				appUsers.refresh();
 				activeAppUsers.refresh();
 				
@@ -357,16 +358,17 @@
 					" isCreditCard='" + isCreditCard + "'" +
 					" zipCode=''" +
 					" isApproved='Y'" +
+					" totalChargesToDateDisplay=''" +
 					" orderFormFileType='Y'" +
 					" isSelectedPeerReviewedFunding='false'" + 
 					"/>");
 				
 				if (this.poCheckBox.selected) {
-					this.poBillingAccounts.addItem(node);
+					this.poBillingAccounts.addItemAt(node, 0);
 				} else if (this.creditCardCheckBox.selected) {
-					this.creditCardBillingAccounts.addItem(node);
+					this.creditCardBillingAccounts.addItemAt(node, 0);
 				} else {
-					this.billingAccounts.addItem(node);
+					this.billingAccounts.addItemAt(node, 0);
 				}
 				
 				allBillingAccounts.addItem(node);				
@@ -1410,7 +1412,7 @@
 										fontSize="10">
 								<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 								<mx:columns>
-									<mx:DataGridColumn editable="false" width="40" 	visible="{showApproveCol}">
+									<mx:DataGridColumn editable="false" width="80" 	visible="{showApproveCol}">
 										<mx:itemRenderer>
 											<mx:Component>
 												<mx:LinkButton  fontSize="9" paddingLeft="0" paddingRight="0" textAlign="left" label="{data.@isApproved == 'Y' ? '' : 'Approve'}" 
@@ -1419,7 +1421,7 @@
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>
-									<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="160" 
+									<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="230" 
 													   editable="false">
 										<mx:itemRenderer>
 											<mx:Component>
@@ -1459,10 +1461,10 @@
 													   editorDataField="value" editable="true"  rendererIsEditor="false"  width="130"
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency')}"
 													   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry, '@display', '@value', '@idFundingAgency', true)}"/>			                
-									<mx:DataGridColumn headerText="Total $ Amt"  dataField="@totalDollarAmount" width="60" visible="false" id="totalDollarAmtCol"/>
+									<mx:DataGridColumn headerText="Total $ Amt"  dataField="@totalDollarAmount" width="40" visible="false" id="totalDollarAmtCol"/>
 									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="0" id="shortAcctCol"/>
 	
-									<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100"
+									<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="50"
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
 													   dataField="@acctUsers"/>
 
@@ -1471,10 +1473,13 @@
 									<mx:DataGridColumn headerText=""  width="10" editable="false"> 
 										<mx:itemRenderer>
 											<mx:Component>
-												<mx:LinkButton textAlign="left"  toolTip="Delete Account"
-															   icon="@Embed(source='../../assets/momentum_trash_can_delete.png')"
-															   textDecoration="underline"
-															   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountGrid)}"/>
+													<mx:LinkButton textAlign="left"  toolTip="Delete Account" 
+																   fontSize="9"
+																   textDecoration="underline"    
+																   color="0x0a4894"
+																   label="{data.@totalChargesToDateDisplay   == '' ? 'Remove' : ''}"   
+																   enabled="{data.@totalChargesToDateDisplay == '' ? true : false}"																   
+																   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountGrid)}"/>
 											</mx:Component>
 										</mx:itemRenderer>
 									</mx:DataGridColumn>								
@@ -1523,7 +1528,7 @@
 														   editorDataField="selectedDate"/>
 										
 										
-										<mx:DataGridColumn headerText="Purchase Order Form"  width="200">
+										<mx:DataGridColumn headerText="Purchase Order Form"  width="120">
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:HBox horizontalGap="3" horizontalScrollPolicy="off">
@@ -1550,16 +1555,19 @@
 												</mx:Component>
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Users"   id="poAcctUsers"  width="150"
+										<mx:DataGridColumn headerText="Users"   id="poAcctUsers"  width="70"
 														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
 														   dataField="@acctUsers"/>
 										<mx:DataGridColumn headerText="$ Billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
-										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
+										<mx:DataGridColumn headerText=""  width="70" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  toolTip="Delete Account"
-																   icon="@Embed(source='../../assets/momentum_trash_can_delete.png')"
-																   textDecoration="underline"
+																   fontSize="9"
+																   textDecoration="underline"    
+																   color="0x0a4894"
+																   label="{data.@totalChargesToDateDisplay   == '' ? 'Remove' : ''}"   
+																   enabled="{data.@totalChargesToDateDisplay == '' ? true : false}"																   
 																   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountPOGrid)}"/>
 												</mx:Component>
 											</mx:itemRenderer>
@@ -1578,7 +1586,7 @@
 											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
-										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="150" 
+										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="75" 
 														   editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
@@ -1603,16 +1611,19 @@
 														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany')}"
 														   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany', true)}"/>			                
 										<mx:DataGridColumn headerText="Zip" width="40" editable="true" dataField="@zipCode"/>
-										<mx:DataGridColumn headerText="Users"   id="ccAcctUsers"  width="140"
+										<mx:DataGridColumn headerText="Users"   id="ccAcctUsers"  width="80"
 														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters)}" 
 														   dataField="@acctUsers"/>
 										<mx:DataGridColumn headerText="$ Billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
-										<mx:DataGridColumn headerText=""  width="20" editable="false"> 
+										<mx:DataGridColumn headerText=""  width="70" editable="false"> 
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:LinkButton textAlign="left"  toolTip="Delete Credit Card"
-																   icon="@Embed(source='../../assets/momentum_trash_can_delete.png')"
-																   textDecoration="underline"
+																   fontSize="9"
+																   textDecoration="underline"    
+																   color="0x0a4894"
+																   label="{data.@totalChargesToDateDisplay   == '' ? 'Remove' : ''}"   
+																   enabled="{data.@totalChargesToDateDisplay == '' ? true : false}"																   
 																   click="{outerDocument.removeBillingAccount(outerDocument.billingAccountCreditCardGrid)}"/>
 												</mx:Component>
 											</mx:itemRenderer>
