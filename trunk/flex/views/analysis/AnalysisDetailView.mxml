@@ -488,16 +488,15 @@
 						<mx:VBox verticalGap="0" width="100%">
 							<mx:Text text="Genome Builds"  width="110" styleName="formLabel" textAlign="left"/>
 							<mx:VBox paddingLeft="30" width="100%">
-								<mx:DataGrid id="genomeBuildGrid" width="298" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]" >
+								<mx:DataGrid id="genomeBuildGrid" width="298" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]"  height="70">
 									<mx:columns>
 										<mx:DataGridColumn dataField="@display"/>
 									</mx:columns>
 								</mx:DataGrid>
 							</mx:VBox>
 						</mx:VBox>
-						<mx:Spacer height="100%"/>
 						<mx:HBox verticalGap="0" horizontalGap="0">
-							<mx:Text text="Analysis Groups"  width="110"  styleName="formLabel" textAlign="right"/>
+							<mx:Text text="Analysis Groups"  width="110"  styleName="formLabel" textAlign="left"/>
 							<mx:Text  text="{analysis.@analysisGroupNames}" width="218"/>
 						</mx:HBox>
 						
