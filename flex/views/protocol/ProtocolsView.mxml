@@ -475,7 +475,7 @@
 					</mx:Canvas>
 			<mx:ControlBar width="100%"  horizontalAlign="right">
 			    <util:DirtyNote id="dirty"/>
-				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 
 		</mx:VBox>
