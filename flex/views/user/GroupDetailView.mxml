@@ -1420,7 +1420,7 @@
 																click="outerDocument.approveBillingAccount(event)" color="#13A513"   textDecoration="underline" fontWeight="bold"/>
 											</mx:Component>
 										</mx:itemRenderer>
-									</mx:DataGridColumn>
+									</mx:DataGridColumn>  
 									<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="230" 
 													   editable="false">
 										<mx:itemRenderer>
