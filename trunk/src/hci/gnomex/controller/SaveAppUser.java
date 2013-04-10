@@ -49,6 +49,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private AppUser                         appUserScreen;
   private boolean                         isNewAppUser = false;
   private ArrayList<CoreFacilityCheck>    managingCoreFacilityIds;
+  private String                          url;
   
   
   public void validate() {
@@ -56,6 +57,14 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
+    
+    try {
+      url = this.getLaunchAppURL(request);
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveAppUser", e);
+    }
+
+
     appUserScreen = new AppUser();
     HashMap errors = this.loadDetailObject(request, appUserScreen);
     this.addInvalidFields(errors);
@@ -285,19 +294,19 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   }
   
   private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail)  throws NamingException, MessagingException {
-    StringBuffer intro = new StringBuffer();
-    intro.append("Your GNomEx account has been approved and activated by the core facility staff.");
     
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
     }
     
+    String gnomexURL =  "<a href='" + url + "'>Click here</a> to login.";
+    
     MailUtil.send(
         appUser.getEmail(),
         "",
         coreFacilityContactEmail,
-        "GNomEx User Account Request Activated",
-        "Your GNomEx account has been approved and activated by the core facility staff.",
+        "Your GNomEx account is now active",
+        "Welcome to GNomEx.  Your user account has been activated. " + gnomexURL,
         true
       );
   }

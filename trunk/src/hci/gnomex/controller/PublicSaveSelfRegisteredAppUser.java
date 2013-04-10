@@ -58,6 +58,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private String         idFacility = null;
   private String         department = null;
   private String         serverName;
+  private List           activeFacilities;
   
   public String responsePageSuccess = null;
   public String responsePageError = null;
@@ -167,7 +168,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       
       // Get core facilities.
-      List activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
+      activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
       if (activeFacilities.size() == 1) {
         facility = (CoreFacility)activeFacilities.get(0);
       } else if (idFacility != null && idFacility.length() > 0) {
@@ -287,16 +288,19 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
   private String getEmailBody(AppUser appUser) {
     StringBuffer body = new StringBuffer();
-    body.append("Requested User Account:<br><br>");
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
     if (existingLab) {
-      body.append("</td></tr><tr><td>Requested lab:</td><td>" + this.getNonNullString(requestedLabName));
-      body.append("</td></tr><tr><td>Requested Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
+      body.append("</td></tr><tr><td>Lab:</td><td>" + this.getNonNullString(requestedLabName));
+      if (activeFacilities.size() > 1) {
+        body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
+      }
     } else {
-      body.append("</td></tr><tr><td>Requested lab(New):</td><td>" + this.getNonNullString(requestedLabName));
-      body.append("</td></tr><tr><td>Requested Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
-      body.append("</td></tr><tr><td>Requested Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
+      body.append("</td></tr><tr><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+      body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
+      if (activeFacilities.size() > 1) {
+        body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
+      }
     }
     body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
     body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));
@@ -313,7 +317,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   
   private void sendUserEmail(AppUser appUser)  throws NamingException, MessagingException {
     StringBuffer intro = new StringBuffer();
-    intro.append("Your request for a GNomEx account has been received.  The core facility staff will verify the information and then activate your account.<br><br>");
+    intro.append("Thank you for signing up for a GNomEx account.  We will send you an email once your user account has been activated.<br><br>");
     
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
@@ -324,7 +328,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         appUser.getEmail(),
         "",
         coreFacilityEmail,
-        "GNomEx User Account Request Received",
+        "Your GNomEx user account has been created",
         intro.toString() + getEmailBody(appUser),
         true
       );
@@ -374,13 +378,13 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       } 
     }
     StringBuffer introForAdmin = new StringBuffer();
-    introForAdmin.append("The following person requested a GNomEx user account.  The user account has been created but not activated.<br><br>");
-    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to edit the new account.<br><br>");
+    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
+    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to review and activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     MailUtil.send(
         toAddress,
         "",
         coreFacilityEmail,
-        "GNomEx User Account Request for " + appUser.getFirstName() + " " + appUser.getLastName(),
+        "GNomEx user account pending approval for " + appUser.getFirstName() + " " + appUser.getLastName(),
         introForAdmin.toString() + getEmailBody(appUser),
         true
       );
