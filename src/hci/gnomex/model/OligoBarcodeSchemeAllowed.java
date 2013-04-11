@@ -9,31 +9,23 @@ public class OligoBarcodeSchemeAllowed extends DictionaryEntry implements Serial
   
   private Integer            idOligoBarcodeSchemeAllowed;
   private Integer            idOligoBarcodeScheme;
-  private String             codeRequestCategory;
+  private Integer            idSeqLibProtocol;
   private OligoBarcodeScheme oligoBarcodeScheme;
-  private RequestCategory    requestCategory;
-  
+  private SeqLibProtocol     seqLibProtocol;
+ 
   
   public String getDisplay() {
-    String display =  (getOligoBarcodeScheme() != null ? getOligoBarcodeScheme().getOligoBarcodeScheme() : "?") + 
+    String display =  (getSeqLibProtocol() != null ? getSeqLibProtocol().getDisplay() : "?") + 
     " - " + 
-    (getRequestCategory() != null ? getRequestCategory().getRequestCategory() : "?");
-return display;
+    (getOligoBarcodeScheme() != null ? getOligoBarcodeScheme().getOligoBarcodeScheme() : "?");
+
+    return display;
   }
 
   public String getValue() {
     return getIdOligoBarcodeSchemeAllowed().toString();
   }
   
-  public String getCodeRequestCategory() {
-    return codeRequestCategory;
-  }
-
-  
-  public void setCodeRequestCategory(String codeRequestCategory) {
-    this.codeRequestCategory = codeRequestCategory;
-  }
-
   
   public Integer getIdOligoBarcodeScheme() {
     return idOligoBarcodeScheme;
@@ -54,17 +46,26 @@ return display;
     this.oligoBarcodeScheme = oligoBarcodeScheme;
   }
 
-  
-  private RequestCategory getRequestCategory() {
-    return requestCategory;
+    
+  public Integer getIdSeqLibProtocol() {
+    return idSeqLibProtocol;
   }
 
   
-  public void setRequestCategory(RequestCategory requestCategory) {
-    this.requestCategory = requestCategory;
+  public void setIdSeqLibProtocol( Integer idSeqLibProtocol ) {
+    this.idSeqLibProtocol = idSeqLibProtocol;
   }
 
   
+  private SeqLibProtocol getSeqLibProtocol() {
+    return seqLibProtocol;
+  }
+
+  
+  public void setSeqLibProtocol( SeqLibProtocol seqLibProtocol ) {
+    this.seqLibProtocol = seqLibProtocol;
+  }
+
   public Integer getIdOligoBarcodeSchemeAllowed() {
     return idOligoBarcodeSchemeAllowed;
   }

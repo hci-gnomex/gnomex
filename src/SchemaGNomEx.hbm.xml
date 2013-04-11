@@ -1471,10 +1471,10 @@
 			<generator class="native"/>
 		</id>
 		<property name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer"/>
-		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+    <property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
 		<many-to-one name="oligoBarcodeScheme"  column="idOligoBarcodeScheme" class="hci.gnomex.model.OligoBarcodeScheme" cascade="none" insert="false" update="false" />
-		<many-to-one name="requestCategory"  column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
-	</class>	
+		<many-to-one name="seqLibProtocol"  column="idSeqLibProtocol" class="hci.gnomex.model.SeqLibProtocol" cascade="none" insert="false" update="false" />
+  </class>	
 
 	<!-- hci.gnomex.model.Organism -->
 	<class name="hci.gnomex.model.Organism" table="Organism">

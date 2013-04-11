@@ -136,14 +136,15 @@
         	}else if (parentDocument.isSolexaState()) {
 	        	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
 	        	
-	        		if (this.currentState == 'BarcodeState') {
-						if (this.numberSamplesPerChannel.value > 0 && this.barcodes.length > 0) {
+					isComplete = true;
+	        		 if (this.currentState == 'BarcodeState') {
+						if (this.numberSamplesPerChannel.value > 0){ // && this.barcodes.length > 0) {
 							isComplete = true;							
 						}        			
 	        		} else {
 		        		isComplete = true;
 	        			
-	        		}
+	        		} 
 	        	    
 	        	 }
         	
@@ -174,7 +175,7 @@
         	
         }
         
-        private function initializeBarcodes():void {
+         private function initializeBarcodes():void {
         	barcodes = new XMLListCollection();
 
         	var bestFitBarcodeCount:int = 99;
@@ -183,10 +184,15 @@
     	    		// Only use scheme if it is allowed for this request category
     	    		var keepScheme:Boolean = false;
     	    		for each (var x:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idOligoBarcodeScheme == barcodeScheme.@idOligoBarcodeScheme)) {
-    	    			if (x.@codeRequestCategory == parentDocument.getRequestCategory().@codeRequestCategory.toString()) {
-    	    				keepScheme = true;
-    	    				break;
-    	    			}
+						for each ( var seqLibProt:XML in parentDocument.seqLibProtocolList){
+							if ( x.@idSeqLibProtocol == seqLibProt.@idSeqLibProtocol) {
+								keepScheme = true;
+								break;
+							}
+						}
+						if (keepScheme) {
+							break;
+						}
     	    		}
     	    		if (!keepScheme) {
     	    			continue;
@@ -214,9 +220,9 @@
         		barcodes = new XMLListCollection();
         	}
         	
-        }
+        } 
         
-        private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
+         private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
 				return 0;
 			} else if (obj1 == null) {
@@ -241,10 +247,10 @@
 					}
 				}
 			}			
-		}			
+		} 			
 
         
-        public function pickBarcodeScheme():void {
+         public function pickBarcodeScheme():void {
 			if (parentApplication.submitInternalExperiment()) {
 				if (parentDocument.sampleSetupView.radioYesBarcoding != null && (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
 					((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected))) {
@@ -264,7 +270,7 @@
         		currentState = '';
         	}
         	this.initializeBarcodes();
-        }
+        } 
 		
         public function propagateBarcode():void {
         	if (parentDocument == null || parentDocument.currentState == "SolexaLaneAmendState" || parentDocument.isEditState()) {
