@@ -242,14 +242,6 @@
 				return item.@barcodeSequence;
 			}
 		}
-		public function getBarcode(item:Object):Object {
-			var barcode:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
-			if (barcode.length() == 1) {
-				return barcode;
-			} else {
-				return new Object();
-			}
-		}
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
@@ -339,37 +331,38 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn> 
+					<mx:DataGridColumn headerText="Seq Library Protocol"  width="44" 
+									   dataField="@idSeqLibProtocol" 
+									   editorDataField="value"
+									   editable="true"  
+									   rendererIsEditor="false" 
+									   itemRenderer="mx.controls.Label"		
+									   labelFunction="getSeqLibProtocol"                
+									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
+
 					<mx:DataGridColumn headerText="Index Tag"  width="20" id="indexTagCol"
-						dataField="@idOligoBarcode" 
-		               	editable="true"  
-		               	rendererIsEditor="false" 
-		               	itemRenderer="mx.controls.Label"		
-		               	labelFunction="getOligoBarcodeName">	
+										dataField="@idOligoBarcode" 
+						               	editable="true"  
+						               	rendererIsEditor="false" 
+						               	itemRenderer="mx.controls.Label"		
+						               	labelFunction="getOligoBarcodeName">	
 						<mx:itemEditor>
 							<mx:Component>
-								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
-														  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
-														  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
-														  selectedIndex="{outerDocument.barcodes.getItemIndex(outerDocument.getBarcode(data))}"
-														  fontSize="10"
-														  labelFunction="{outerDocument.getIndexTagName}"
-														  prompt="{null}"
-														  removeFilterOnSelection="false"
-														  removeInputOnFocusOut="false"
-														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''}" >
-								</renderers:FilterComboBox>
+								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																	  parentApp="{outerDocument.parentApplication}"
+																	  fontSize="10"
+																	  prompt="{null}"
+																	  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
+																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
+																	  labelFunction="{outerDocument.getIndexTagName}"
+																	  removeFilterOnSelection="false"
+																	  removeInputOnFocusOut="false"
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''}" >
+								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Seq Library Protocol"  width="44" 
-					dataField="@idSeqLibProtocol" 
-					   editorDataField="value"
-		               editable="true"  
-		               rendererIsEditor="false" 
-		               itemRenderer="mx.controls.Label"		
-		               labelFunction="getSeqLibProtocol"                
-					   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
-
+					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"

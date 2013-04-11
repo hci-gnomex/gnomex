@@ -1308,10 +1308,10 @@ DROP TABLE IF EXISTS `gnomex`.`OligoBarcodeSchemeAllowed`;
 CREATE TABLE `gnomex`.`OligoBarcodeSchemeAllowed` (
   `idOligoBarcodeSchemeAllowed` INT(10) NOT NULL AUTO_INCREMENT,
   `idOligoBarcodeScheme` INT(10) NOT NULL,
-  `codeRequestCategory` VARCHAR(10) NOT NULL,
+  `idSeqLibProtocol` INT(10) NOT NULL,
   PRIMARY KEY (`idOligoBarcodeSchemeAllowed`),
-  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_RequestCategory` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_RequestCategory` (`codeRequestCategory`)
-    REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
+  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` (`idSeqLibProtocol`)
+    REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_OligoBarcodeSchemeAllowed_idOligoBarcodeScheme` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_idOligoBarcodeScheme` (`idOligoBarcodeScheme`)
