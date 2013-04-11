@@ -1,6 +1,13 @@
 use gnomex;
 
 -- Change barcode scheme allowed to be determined by seq lib protocol instead of request category
+alter table OligoBarcodeSchemeAllowed add idSeqLibProtocol Integer;
+alter table OligoBarcodeSchemeAllowed add
+  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` (`idSeqLibProtocol`)
+    REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
 insert into OligoBarcodeSchemeAllowed (idOligoBarcodeScheme, idSeqLibProtocol) 
 select distinct OligoBarcodeSchemeAllowed.idOligoBarcodeScheme, SeqLibProtocol.idSeqLibProtocol from OligoBarcodeSchemeAllowed
   join RequestCategory on OligoBarcodeSchemeAllowed.codeRequestCategory = requestCategory.codeRequestCategory
@@ -9,10 +16,5 @@ select distinct OligoBarcodeSchemeAllowed.idOligoBarcodeScheme, SeqLibProtocol.i
   join SeqLibProtocolApplication on Application.codeApplication = SeqLibProtocolApplication.codeApplication
   join SeqLibProtocol on SeqLibProtocolApplication.idSeqLibProtocol = SeqLibProtocol.idSeqLibProtocol
 delete from OligoBarcodeSchemeAllowed where codeRequestCategory is not null
-alter table OligoBarcodeSchemeAllowed add idSeqLibProtocol Integer;
-alter table OligoBarcodeSchemeAllowed add
-  CONSTRAINT `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` (`idSeqLibProtocol`)
-    REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION;
+
 alter table OligoBarcodeSchemeAllowed drop column codeRequestCategory;
