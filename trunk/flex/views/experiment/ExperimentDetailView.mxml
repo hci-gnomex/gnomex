@@ -38,6 +38,7 @@
 		import views.experiment.ExperimentEditView;
 		import views.order.NavOrderView;
 		import views.renderers.MultiselectRenderer;
+		import views.renderers.Text;
 		import views.renderers.URLRenderer;
 		import views.util.RunAlignmentWindow;
 		
@@ -1130,15 +1131,16 @@
 						newCol.itemRenderer = URLRenderer.create(false);
 					} else if (property.@codePropertyType == 'CHECK') {
 						// checkbox is just normal label renderer
-					} else if (property.@codePropertyType == 'OPTION') {
-						             
+					} else if (property.@codePropertyType == 'OPTION') {             
 						newCol.itemRenderer = views.renderers.DropdownLabel.create(
 							parentApplication.getPropertyOptions(annotation.@idProperty), 
 							'@option', 
 							'@idPropertyOption', 
 							"@ANNOT" + annotation.@idProperty,
 							false);                
-					} 
+					} else{
+						newCol.wordWrap = true;
+					}
 					
 	
 					// Place the new column right after the description column
