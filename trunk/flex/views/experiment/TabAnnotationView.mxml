@@ -354,20 +354,23 @@
 				} else  {
 					// Assume text
 					newCol.editable   = true;
-					newCol.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+					newCol.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
 					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
 					newCol.editorDataField="value";
+					newCol.wordWrap = true;
 					
 					if (colExisting != null) {
 						colExisting.editable   = true;
-						colExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colExisting.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
 						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
 						colExisting.editorDataField="value";
+						colExisting.wordWrap = true;
 					}
 					if (colConfirmExisting != null) {
 						colConfirmExisting.editable   = true;
-						colConfirmExisting.itemRenderer = views.renderers.Label.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colConfirmExisting.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
 						colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
+						colExisting.wordWrap = true;
 					}
 				}
 				
