@@ -7,6 +7,7 @@ alter table OligoBarcodeSchemeAllowed add
     REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+alter table OligoBarcodeSchemeAllowed alter column codeRequestCategory varchar(10) null 
     
 insert into OligoBarcodeSchemeAllowed (idOligoBarcodeScheme, idSeqLibProtocol) 
 select distinct OligoBarcodeSchemeAllowed.idOligoBarcodeScheme, SeqLibProtocol.idSeqLibProtocol from OligoBarcodeSchemeAllowed
@@ -18,3 +19,4 @@ select distinct OligoBarcodeSchemeAllowed.idOligoBarcodeScheme, SeqLibProtocol.i
 delete from OligoBarcodeSchemeAllowed where codeRequestCategory is not null
 
 alter table OligoBarcodeSchemeAllowed drop column codeRequestCategory;
+alter table OligoBarcodeSchemeAllowed alter column idSeqLibProtocol Integer not null 
