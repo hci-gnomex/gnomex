@@ -102,6 +102,11 @@ public class SavePrice extends GNomExCommand implements Serializable {
           PriceCriteria criteria = (PriceCriteria)criteriaParser.getPriceCriteriaMap().get(idPriceCriteria);
           criteria.setIdPrice(price.getIdPrice());
           
+          // We don't want to save price criteria if filter1 and filter2 are null
+          if (criteria.getFilter1() == null) {
+            continue;
+          }
+          
           if (criteria.getIdPriceCriteria() == null) {
             sess.save(criteria);
             criteriaJustAdded.put(criteria.getIdPriceCriteria(), null);

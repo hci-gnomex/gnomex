@@ -3018,7 +3018,7 @@
 					return;
 				}
 				showView(event.target.data);
-				if(XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
+				if(mainMenu.selectedIndex != -1 && XML(XMLListCollection(mainMenu.dataProvider).getItemAt(mainMenu.selectedIndex)).children().length() == 0){
 					mainMenu.selectedIndex = -1;
 				}
 			}
@@ -3583,7 +3583,7 @@
 	
 	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="3"   visible="true" 
+			 verticalGap="2"    visible="true" 
 			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
 			 paddingTop="0" paddingLeft="0" 
 			 paddingRight="0" paddingBottom="0">
@@ -3592,7 +3592,7 @@
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"   backgroundAlpha="1"
 				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"   
-				  visible="false" borderStyle="solid" dropShadowEnabled="true" dropShadowColor="#CAC9B7" 
+				  visible="false" borderStyle="solid"  borderThickness="0" dropShadowEnabled="true" dropShadowColor="#A5A5A8" 
 				  backgroundImage="@Embed(source='assets/navbar_gradient.png')" backgroundSize="100%">
 			
 			 
@@ -3764,6 +3764,7 @@
 			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
 			<mx:SetProperty target="{theBody}" name="visible" value="true"/>
 			<mx:SetProperty name="visible" value="true"/>
+			<mx:SetStyle target="{navBar}" name="dropShadowColor" value="#B0AF9C"/>
 			
 		</mx:State>
 		<mx:State name="AdminState" basedOn="enabledState">

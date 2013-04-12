@@ -797,6 +797,15 @@
 				if (parentDocument == null) {
 					return;
 				}
+				
+				if(requestTypeGroup.numRadioButtons > 0){
+					noServicesText.includeInLayout = false;
+					noServicesText.visible = false;
+				} else{
+					noServicesText.includeInLayout = true;
+					noServicesText.visible = true;
+				}
+				
 				if (!isComplete) {
 					if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
 						parentDocument.seqSetupView.enabled = false;
@@ -1125,10 +1134,10 @@
 										value="{requestCategoryRepeater.currentItem.@value}" 
 										paddingBottom="0" paddingTop="0" fontSize="11"
 										click="parentDocument.setRequestCategoryName();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
-						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="10"/>							
+						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="10"/>
 					</mx:HBox>
 				</mx:Repeater>
-				
+				<mx:Label id="noServicesText" text="No experiment platforms are associated with this lab. Please contact customer support." includeInLayout="false" visible="false" />
 			</mx:VBox>
 		</mx:HBox>
 		<mx:VBox id="accountBox" width="100%" verticalGap="0"> 

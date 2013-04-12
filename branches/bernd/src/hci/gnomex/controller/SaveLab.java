@@ -43,6 +43,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -336,8 +337,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
               this.sendApprovedBillingAccountEmail(sess, ba, lab);
             }
           }
-         // lab.setBillingAccounts(billingAccountsToSave);
-          //sess.flush();
   
           // Remove billing accounts no longer in the billing account list
           List billingAccountsToRemove = new ArrayList();
@@ -353,210 +352,224 @@ public class SaveLab extends GNomExCommand implements Serializable {
               ba.setUsers( null );
               lab.getBillingAccounts().remove(ba);
               sess.delete(ba);
-            }
-          }
-  
-          //
-          // Save lab institutions
-          //
-          TreeSet institutions = new TreeSet(new InstitutionComparator());
-          for(Iterator i = labInstitutionParser.getInstititionMap().keySet().iterator(); i.hasNext();) {
-            Integer idInstitution = (Integer)i.next();
-            Institution institution = (Institution)labInstitutionParser.getInstititionMap().get(idInstitution);     
-            institutions.add(institution);
-          }
-          lab.setInstitutions(institutions);
-  
-          sess.flush();
-  
-          //
-          // Save lab members
-          //
-          // Lab members to keep
-          TreeSet members = new TreeSet(new AppUserComparator());
-          for(Iterator i = labMemberParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-            Integer idAppUser = (Integer)i.next();
-            AppUser appUser = (AppUser)labMemberParser.getAppUserMap().get(idAppUser);     
-            members.add(appUser);
-          }
-          
-          // Lab members to remove
-          List membersToRemove = new ArrayList();
-          if (lab.getMembers() != null) {
-            for(Iterator i = lab.getMembers().iterator(); i.hasNext();) {
-              AppUser user = (AppUser)i.next();
-              if (!labMemberParser.getAppUserMap().containsKey(user.getIdAppUser())) {
-                membersToRemove.add(user);
+              
+              try {
+                sess.flush();
+              } catch (ConstraintViolationException e) {
+                String message = "Billing account " + ba.getAccountName() + " cannot be deleted because charges are posted to this account. Instead, please set expiration date to inactivate.";
+                this.addInvalidField("bifk", message);
+                throw new RollBackCommandException(message);
               }
             }
-            // Remove the lab member from any accounts they are users on
-            if (lab.getBillingAccounts() != null) {
-              for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
-                BillingAccount ba = (BillingAccount)i.next();
-                for(Iterator i2 = membersToRemove.iterator(); i2.hasNext();) {
-                  AppUser user = (AppUser)i2.next(); 
-                    ba.getUsers().remove( user );
+          }
+          
+          if (this.isValid()) {
+            //
+            // Save lab institutions
+            //
+            TreeSet institutions = new TreeSet(new InstitutionComparator());
+            for(Iterator i = labInstitutionParser.getInstititionMap().keySet().iterator(); i.hasNext();) {
+              Integer idInstitution = (Integer)i.next();
+              Institution institution = (Institution)labInstitutionParser.getInstititionMap().get(idInstitution);     
+              institutions.add(institution);
+            }
+            lab.setInstitutions(institutions);
+    
+            sess.flush();
+    
+            //
+            // Save lab members
+            //
+            // Lab members to keep
+            TreeSet members = new TreeSet(new AppUserComparator());
+            for(Iterator i = labMemberParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+              Integer idAppUser = (Integer)i.next();
+              AppUser appUser = (AppUser)labMemberParser.getAppUserMap().get(idAppUser);     
+              members.add(appUser);
+            }
+            
+            // Lab members to remove
+            List membersToRemove = new ArrayList();
+            if (lab.getMembers() != null) {
+              for(Iterator i = lab.getMembers().iterator(); i.hasNext();) {
+                AppUser user = (AppUser)i.next();
+                if (!labMemberParser.getAppUserMap().containsKey(user.getIdAppUser())) {
+                  membersToRemove.add(user);
                 }
               }
-            }
-          }
-          // Save the members who are still part of the lab
-          lab.setMembers(members);
-  
-          sess.flush();
-  
-  
-          //
-          // Save lab collaborators
-          //
-          TreeSet collaborators = new TreeSet(new AppUserComparator());
-          for(Iterator i = collaboratorParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-            Integer idAppUser = (Integer)i.next();
-            AppUser appUser = (AppUser)collaboratorParser.getAppUserMap().get(idAppUser);     
-            collaborators.add(appUser);
-          }
-          lab.setCollaborators(collaborators);
-  
-          sess.flush();
-  
-  
-  
-          //
-          // Save lab managers
-          //
-          TreeSet managers = new TreeSet(new AppUserComparator());
-          for(Iterator i = managerParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
-            Integer idAppUser = (Integer)i.next();
-            AppUser appUser = (AppUser)managerParser.getAppUserMap().get(idAppUser);     
-            managers.add(appUser);
-          }
-          lab.setManagers(managers);
-  
-          sess.flush();
-          
-          //
-          // delete any empty projects where user is no longer associated with this lab
-          //
-          ArrayList<Integer> labAssociatedIds = new ArrayList<Integer>();
-          for(Iterator i=lab.getManagers().iterator();i.hasNext();) {
-            AppUser a = (AppUser)i.next();
-            labAssociatedIds.add(a.getIdAppUser());
-          }
-          for(Iterator i=lab.getCollaborators().iterator();i.hasNext();) {
-            AppUser a = (AppUser)i.next();
-            labAssociatedIds.add(a.getIdAppUser());
-          }
-          for(Iterator i=lab.getMembers().iterator();i.hasNext();) {
-            AppUser a = (AppUser)i.next();
-            labAssociatedIds.add(a.getIdAppUser());
-          }
-          if (labAssociatedIds.size() == 0) {
-            labAssociatedIds.add(-1);
-          }
-          String deleteProjectString = "select p from Project p " +
-            "where p.idLab is not null " +
-            "and p.idAppUser not in (:ids) " +
-            "and p.idProject not in (select d.idProject from ExperimentDesignEntry d) " +
-            "and p.idProject not in (select f.idProject from ExperimentFactorEntry f) " +
-            "and p.idProject not in (select q.idProject from QualityControlStepEntry q) " +
-            "and p.idProject not in (select r.idProject from Request r) " + 
-            "and p.idLab=:idLab ";
-          Query query = sess.createQuery(deleteProjectString);
-          query.setParameterList("ids", labAssociatedIds);
-          query.setParameter("idLab", lab.getIdLab());
-          List projectsToDelete = query.list();
-          for(Iterator i=projectsToDelete.iterator();i.hasNext();) {
-            sess.delete(i.next());
-          }
-          sess.flush();
-          
-          //
-          // Create default user projects
-          //
-          HashMap<Integer, List<Project>> userProjectMap = new HashMap<Integer, List<Project>>();
-          HashMap<Integer, AppUser> userMap = new HashMap<Integer, AppUser>(); 
-          initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getMembers());
-          initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getManagers());
-          hashProjects(userProjectMap, lab);
-          // Now iterate through the hash and create a default project for each user
-          // where one is not present
-          for (Integer idAppUser : userProjectMap.keySet()) {
-            List<Project> defaultProjects = userProjectMap.get(idAppUser);
-            if (defaultProjects == null || defaultProjects.isEmpty()) {
-              Project project = new Project();
-              project.setIdAppUser(idAppUser);
-              project.setIdLab(lab.getIdLab());
-              AppUser theUser = userMap.get(idAppUser);
-              project.setName("Experiments for " + theUser.getFirstLastDisplayName());
-              sess.save(project);
-            }
-          }
-          sess.flush();
-  
-          //
-          // Save core facilities
-          //
-          if (this.isNewLab) {
-            // If a core admin (not a super admin) is adding the lab,
-            // assign lab to same core facilty that the admin manages;            
-            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
-                this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) &&
-                this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
-              TreeSet facilities = new TreeSet(new CoreFacilityComparator());
-              for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-                CoreFacility facility = (CoreFacility)i.next();
-                facilities.add(facility);
-              }
-              lab.setCoreFacilities(facilities);
-              sess.flush();
-            } else {
-              // If a super admin is adding the lab (or an admin that isn't managing a core facility),
-              // see if there is just one core facility.  in this case, assign the lab to that
-              // core facility.
-              int coreFacilityCount = 0;
-              CoreFacility coreFacilityDefault = null;
-              for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
-                DictionaryEntry de = (DictionaryEntry)i.next();
-                if (de instanceof NullDictionaryEntry) {
-                  continue;
-                }
-                CoreFacility cf = (CoreFacility)de;
-                if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
-                  coreFacilityCount++;
-                  if (coreFacilityDefault == null) {
-                    coreFacilityDefault = cf;
+              // Remove the lab member from any accounts they are users on
+              if (lab.getBillingAccounts() != null) {
+                for(Iterator i = lab.getBillingAccounts().iterator(); i.hasNext();) {
+                  BillingAccount ba = (BillingAccount)i.next();
+                  for(Iterator i2 = membersToRemove.iterator(); i2.hasNext();) {
+                    AppUser user = (AppUser)i2.next(); 
+                      ba.getUsers().remove( user );
                   }
                 }
               }
-              if (coreFacilityCount ==  1) {
-                TreeSet coreFacilities = new TreeSet(new CoreFacilityComparator());
-                coreFacilities.add(coreFacilityDefault);
-                lab.setCoreFacilities(coreFacilities);
+            }
+            // Save the members who are still part of the lab
+            lab.setMembers(members);
+    
+            sess.flush();
+    
+    
+            //
+            // Save lab collaborators
+            //
+            TreeSet collaborators = new TreeSet(new AppUserComparator());
+            for(Iterator i = collaboratorParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+              Integer idAppUser = (Integer)i.next();
+              AppUser appUser = (AppUser)collaboratorParser.getAppUserMap().get(idAppUser);     
+              collaborators.add(appUser);
+            }
+            lab.setCollaborators(collaborators);
+    
+            sess.flush();
+    
+    
+    
+            //
+            // Save lab managers
+            //
+            TreeSet managers = new TreeSet(new AppUserComparator());
+            for(Iterator i = managerParser.getAppUserMap().keySet().iterator(); i.hasNext();) {
+              Integer idAppUser = (Integer)i.next();
+              AppUser appUser = (AppUser)managerParser.getAppUserMap().get(idAppUser);     
+              managers.add(appUser);
+            }
+            lab.setManagers(managers);
+    
+            sess.flush();
+            
+            //
+            // delete any empty projects where user is no longer associated with this lab
+            //
+            ArrayList<Integer> labAssociatedIds = new ArrayList<Integer>();
+            for(Iterator i=lab.getManagers().iterator();i.hasNext();) {
+              AppUser a = (AppUser)i.next();
+              labAssociatedIds.add(a.getIdAppUser());
+            }
+            for(Iterator i=lab.getCollaborators().iterator();i.hasNext();) {
+              AppUser a = (AppUser)i.next();
+              labAssociatedIds.add(a.getIdAppUser());
+            }
+            for(Iterator i=lab.getMembers().iterator();i.hasNext();) {
+              AppUser a = (AppUser)i.next();
+              labAssociatedIds.add(a.getIdAppUser());
+            }
+            if (labAssociatedIds.size() == 0) {
+              labAssociatedIds.add(-1);
+            }
+            String deleteProjectString = "select p from Project p " +
+              "where p.idLab is not null " +
+              "and p.idAppUser not in (:ids) " +
+              "and p.idProject not in (select d.idProject from ExperimentDesignEntry d) " +
+              "and p.idProject not in (select f.idProject from ExperimentFactorEntry f) " +
+              "and p.idProject not in (select q.idProject from QualityControlStepEntry q) " +
+              "and p.idProject not in (select r.idProject from Request r) " + 
+              "and p.idLab=:idLab ";
+            Query query = sess.createQuery(deleteProjectString);
+            query.setParameterList("ids", labAssociatedIds);
+            query.setParameter("idLab", lab.getIdLab());
+            List projectsToDelete = query.list();
+            for(Iterator i=projectsToDelete.iterator();i.hasNext();) {
+              sess.delete(i.next());
+            }
+            sess.flush();
+            
+            //
+            // Create default user projects
+            //
+            HashMap<Integer, List<Project>> userProjectMap = new HashMap<Integer, List<Project>>();
+            HashMap<Integer, AppUser> userMap = new HashMap<Integer, AppUser>(); 
+            initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getMembers());
+            initializeUserProjectMap(userProjectMap, userMap, (Set<AppUser>)lab.getManagers());
+            hashProjects(userProjectMap, lab);
+            // Now iterate through the hash and create a default project for each user
+            // where one is not present
+            for (Integer idAppUser : userProjectMap.keySet()) {
+              List<Project> defaultProjects = userProjectMap.get(idAppUser);
+              if (defaultProjects == null || defaultProjects.isEmpty()) {
+                Project project = new Project();
+                project.setIdAppUser(idAppUser);
+                project.setIdLab(lab.getIdLab());
+                AppUser theUser = userMap.get(idAppUser);
+                project.setName("Experiments for " + theUser.getFirstLastDisplayName());
+                sess.save(project);
+              }
+            }
+            sess.flush();
+    
+            //
+            // Save core facilities
+            //
+            if (this.isNewLab) {
+              // If a core admin (not a super admin) is adding the lab,
+              // assign lab to same core facilty that the admin manages;            
+              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
+                  this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) &&
+                  this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
+                TreeSet facilities = new TreeSet(new CoreFacilityComparator());
+                for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+                  CoreFacility facility = (CoreFacility)i.next();
+                  facilities.add(facility);
+                }
+                lab.setCoreFacilities(facilities);
+                sess.flush();
+              } else {
+                // If a super admin is adding the lab (or an admin that isn't managing a core facility),
+                // see if there is just one core facility.  in this case, assign the lab to that
+                // core facility.
+                int coreFacilityCount = 0;
+                CoreFacility coreFacilityDefault = null;
+                for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+                  DictionaryEntry de = (DictionaryEntry)i.next();
+                  if (de instanceof NullDictionaryEntry) {
+                    continue;
+                  }
+                  CoreFacility cf = (CoreFacility)de;
+                  if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
+                    coreFacilityCount++;
+                    if (coreFacilityDefault == null) {
+                      coreFacilityDefault = cf;
+                    }
+                  }
+                }
+                if (coreFacilityCount ==  1) {
+                  TreeSet coreFacilities = new TreeSet(new CoreFacilityComparator());
+                  coreFacilities.add(coreFacilityDefault);
+                  lab.setCoreFacilities(coreFacilities);
+                  sess.flush();
+                }
+              }
+
+            } else {
+              if ((this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().getCoreFacilitiesIManage().size()>0) 
+                  && coreFacilityParser != null) {
+                TreeSet facilities = new TreeSet(new CoreFacilityComparator());
+                for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
+                  Integer idCoreFacility = (Integer)i.next();
+                  CoreFacility facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
+                  facilities.add(facility);
+                }
+                lab.setCoreFacilities(facilities);
+        
                 sess.flush();
               }
             }
-
+            
+            this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
+    
+            setResponsePage(this.SUCCESS_JSP);
+            
           } else {
-            if ((this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().getCoreFacilitiesIManage().size()>0) 
-                && coreFacilityParser != null) {
-              TreeSet facilities = new TreeSet(new CoreFacilityComparator());
-              for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
-                Integer idCoreFacility = (Integer)i.next();
-                CoreFacility facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
-                facilities.add(facility);
-              }
-              lab.setCoreFacilities(facilities);
-      
-              sess.flush();
-            }
+            setResponsePage(this.ERROR_JSP);
           }
-          
-          this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
   
-          setResponsePage(this.SUCCESS_JSP);
+      } else {
+        setResponsePage(this.ERROR_JSP);
       }
-
-      
 
     }catch (Exception e){
       log.error("An exception has occurred in SaveLab ", e);

@@ -1160,7 +1160,12 @@
 							this.myLabsExperimentsCheckbox.selected = false;
 							this.publicExperimentsOtherGroupsCheckbox.selected = false;
 							this.userAllExperimentsCheckbox.selected = true;
-						} else {
+						} else if(parentApplication.manageLabList.length > 0) {
+							this.myExperimentsCheckbox.selected = false;
+							this.myLabsExperimentsCheckbox.selected = true;
+							this.publicExperimentsOtherGroupsCheckbox.selected = false;
+							this.userAllExperimentsCheckbox.selected = false;
+						} else{
 							this.myExperimentsCheckbox.selected = true;
 							this.myLabsExperimentsCheckbox.selected = false;
 							this.publicExperimentsOtherGroupsCheckbox.selected = false;
@@ -1564,10 +1569,10 @@
 				<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
 					
 					<mx:RadioButtonGroup id="experimentRadioGroup"/>
-					<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted" selected="true">
+					<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted">
 						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>
-					<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+					<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="true">
 						<mx:toolTip><![CDATA[Experiments of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
 						<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 					</mx:RadioButton>

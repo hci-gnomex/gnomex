@@ -694,10 +694,6 @@ INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeS
 VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
        (2, 'HiSeq 12 sequence tag scheme', 'HiSeq 12 sequence tag scheme, allows for 2-12 samples per flowcell channel', 'Y');
 
-INSERT INTO `gnomex`.`OligoBarcodeSchemeAllowed`(`idOligoBarcodeSchemeAllowed`, `idOligoBarcodeScheme`, `codeRequestCategory`)
-VALUES (1, 1, 'SOLEXA'),
-       (2, 2, 'HISEQ'),
-       (3, 2, 'MISEQ');
 
 INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
 VALUES (1,  'GAII Tag 1', 'AAT', 1, 'Y', 1),

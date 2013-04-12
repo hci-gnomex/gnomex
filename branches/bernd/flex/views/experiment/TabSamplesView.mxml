@@ -1245,11 +1245,16 @@
 				lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
 			}
 			var laneStr:String = lanePlus.toString().substr(1);
-			var analysisInstructions:String = sample.@analysisInstructions.replace("\"", "&quot;");
-			analysisInstructions = analysisInstructions.replace("'", "&apos;");
-			analysisInstructions = analysisInstructions.replace("<", "&lt;");
-			analysisInstructions = analysisInstructions.replace(">", "&gt;");
-			analysisInstructions = analysisInstructions.replace("&", "&amp;");
+			
+			var analysisInstructions:String  = "";
+			if (sample != null && sample.hasOwnProperty("@analysisInstructions") && sample.@analysisInstructions != null) {
+				analysisInstructions = sample.@analysisInstructions.replace("\"", "&quot;");
+				analysisInstructions = analysisInstructions.replace("'", "&apos;");
+				analysisInstructions = analysisInstructions.replace("<", "&lt;");
+				analysisInstructions = analysisInstructions.replace(">", "&gt;");
+				analysisInstructions = analysisInstructions.replace("&", "&amp;");
+							
+			}
 			var emptyNode:XML = new XML("<SequenceLane " +
 			    " idSequenceLane='" + "SequenceLane" + laneStr + "'" +
 			    " notes='' " + 
@@ -2059,14 +2064,6 @@
 				return item.groupLabel;
 			}
 		}
-		public function getBarcode(item:Object):Object {
-			var barcode:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
-			if (barcode.length() == 1) {
-				return barcode;
-			} else {
-				return new Object();
-			}
-		}
 		public function getIndexTagName(item:Object):String
 		{
 			if (item.@idOligoBarcode != '') {
@@ -2317,6 +2314,10 @@
 							</mx:Component> 
 						</mx:headerRenderer> 
 				    </mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+											   editorDataField="value" sortable="false" editable="false" rendererIsEditor="false"
+											   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.seqLibProtocolList.copy(), '@display', '@value', '@idSeqLibProtocol')}"/>
+
 	                <util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 														 id="barcodeColumn" 
 														 visible="true" 
@@ -2329,17 +2330,17 @@
  	                   									 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}">
 						<util:itemEditor>
 							<mx:Component>
-								<renderers:FilterComboBox dataProvider="{outerDocument.barcodes}" 
-														  fontSize="10"
-														  prompt="{null}"
-														  filterString="{outerDocument.getIndexTagName(data)}"
-														  text="{outerDocument.getIndexTagName(data)}"
-														  selectedIndex="{outerDocument.barcodes.getItemIndex(outerDocument.getBarcode(data))}"
-														  removeFilterOnSelection="false"
-														  removeInputOnFocusOut="false"
-														  labelFunction="{outerDocument.getIndexTagName}"
-														  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
-								</renderers:FilterComboBox>
+								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																	  parentApp="{outerDocument.parentApplication}"
+																	  fontSize="10"
+																	  prompt="{null}"
+																	  filterString="{outerDocument.getIndexTagName(data)}"
+																	  text="{outerDocument.getIndexTagName(data)}"
+																	  labelFunction="{outerDocument.getIndexTagName}"
+																	  removeFilterOnSelection="false"
+																	  removeInputOnFocusOut="false"
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</util:itemEditor> 					
 					</util:AdvancedDataGridColumnWithType>
@@ -2398,11 +2399,7 @@
 							</mx:Component>
 						</mx:headerRenderer>
  	                </mx:AdvancedDataGridColumn>          
-                    <mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
-	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
- 	                   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
-	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
-
+                    
 					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 							width="140" dataField="@otherSamplePrepMethod" 
 							itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 

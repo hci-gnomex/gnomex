@@ -273,9 +273,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   public static void appendDataTrackNodes(SecurityAdvisor secAdvisor, Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
    
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT dt, af FROM DataTrack dt ");
+    queryBuf.append("SELECT DISTINCT dt FROM DataTrack dt ");
     queryBuf.append("JOIN dt.dataTrackFiles dtf ");
-    queryBuf.append("JOIN dtf.analysisFile af ");
     queryBuf.append("WHERE dtf.idAnalysisFile IN (");
     for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
       AnalysisFile af = (AnalysisFile)i.next();
@@ -290,9 +289,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     aNode.setAttribute("dataTrackCount", Integer.valueOf(dataTracks.size()).toString());
 
     for (Iterator i = dataTracks.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      DataTrack dt         = (DataTrack)row[0];
-      AnalysisFile afFile = (AnalysisFile)row[1];
+      DataTrack dt         = (DataTrack)i.next();
       
       Element dtNode = new Element("DataTrack");
       aNode.addContent(dtNode);
@@ -301,9 +298,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       dtNode.setAttribute("number", dt.getNumber());
       dtNode.setAttribute("name", secAdvisor.canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)");
       dtNode.setAttribute("createdBy", dt.getCreatedBy() != null ? dt.getCreatedBy() : "");
-      dtNode.setAttribute("idAnalysisFile", afFile.getIdAnalysisFile().toString());
       dtNode.setAttribute("label", dt.getNumber() + " " + (secAdvisor.canRead(dt) ? (dt.getName() != null ? dt.getName() : "") : "(Not authorized)"));
-      dtNode.setAttribute("fileName", afFile.getQualifiedFileName() != null ? afFile.getQualifiedFileName() : "");
       dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
     }
   }

@@ -849,14 +849,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
         appendStepNode(statusNode, "Submitted");
         appendStepNode(statusNode, "Sample QC");
         appendStepNode(statusNode, "Library Prep");
-        appendStepNode(statusNode, "Sequencing");
-        appendStepNode(statusNode, "Data Pipeline");
+        appendStepNode(statusNode, "Sequence in Progress");
+        appendStepNode(statusNode, "Data Available");
         statusNode.setAttribute("numberOfSteps", "5");
       } else {
         appendStepNode(statusNode, "Submitted");
         appendStepNode(statusNode, "Library QC");
-        appendStepNode(statusNode, "Sequencing");
-        appendStepNode(statusNode, "Data Pipeline");
+        appendStepNode(statusNode, "Sequence in Progress");
+        appendStepNode(statusNode, "Data Available");
         statusNode.setAttribute("numberOfSteps", "4");
       }        
     } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {

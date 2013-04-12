@@ -371,7 +371,7 @@
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
 	  <mx:VBox styleName="panelBox"  width="240" height="100%"  >
-		<mx:Label id="titleLabel123"   text="Materials &amp; Methods"/>
+		<mx:Label id="titleLabel123"   text="Protocols"/>
 		  
 		<mx:Canvas  alpha="1" width="100%" height="100%" >
 				<mx:Tree  
@@ -410,11 +410,11 @@
 		</mx:Canvas>
 		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle" id="hbox2">
-				<mx:Label text="Name:" fontWeight="bold" width="100"/>
+				<mx:Label text="Name" fontWeight="normal" width="120" styleName="formLabel"/>
 				<mx:Label text="{fullProtocol.name}" width="100%"/>
 			</mx:HBox>
-			<mx:HBox top="36" styleName="formDisplay" left="10" height="18" right="10" verticalAlign="middle" id="hbox1">
-				<mx:Label text="Kind of Request:" fontWeight="bold" width="100" id="label2"/>
+			<mx:HBox top="36" styleName="formDisplay" left="10"  right="10" verticalAlign="middle" id="hbox1">
+				<mx:Label text="Experiment Platform" fontWeight="normal" width="120" id="label2" styleName="formLabel"/>
 				<mx:Label 
 					id="kindDisplay"
 					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.RequestCategory', fullProtocol.codeRequestCategory)}"
@@ -422,30 +422,30 @@
 					</mx:Label>
 			</mx:HBox>
 			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
-				<mx:Label text="Active:" fontWeight="bold" width="100"/>
+				<mx:Label text="Active" fontWeight="normal" width="120" styleName="formLabel"/>
 				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
 			</mx:HBox>
 			<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
 			    <mx:HBox  styleName="formDisplay" verticalAlign="middle">
-				    <mx:Label text="URL:" fontWeight="bold" width="100"/>
+				    <mx:Label text="URL" fontWeight="normal" width="120" styleName="formLabel"/>
 			    	<mx:Label text="{fullProtocol.url}" width="100%"/>
 			    </mx:HBox>
-					<mx:LinkButton paddingLeft="110"  id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
+					<mx:LinkButton paddingLeft="130"  id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
 			</mx:VBox>
 			<mx:VBox top="134" bottom="10" left="10" right="10">
-				<mx:Label text="Protocol Description:" fontWeight="bold"/>
+				<mx:Label text="Protocol Description" fontWeight="normal" styleName="formLabel"/>
 				<mx:Text text="{protocolDescription}" height="100%" width="100%"/>
 			</mx:VBox>	
 		</mx:Canvas>		
 		<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
 		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10" id="hbox3">
-			<mx:VBox height="46" left="10" top="10" right="394" width="100%">
-				<mx:Label text="Name:" width="100"/>
+			<mx:VBox  left="10" top="10" right="394" width="100%" verticalGap="0">
+				<mx:Label text="Name" width="100" styleName="formLabel"/>
 				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
-			<mx:VBox height="46" top="10" width="100%" right="121" id="vbox1">
+			<mx:VBox  top="10" width="100%" right="121" id="vbox1" verticalGap="0">
 				<mx:visible>{fullProtocol.protocolClassName != 'hci.gnomex.model.SeqLibProtocol'}</mx:visible>
-				<mx:Label text="Kind of Request:" width="100" id="label1"/>
+				<mx:Label text="Experiment Platform" id="label1" styleName="formLabel"/>
 				<mx:ComboBox
 					id="codeRequestCategory"
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
@@ -458,14 +458,14 @@
 			</mx:VBox>
 			</mx:HBox>
 			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
-			<mx:VBox height="46" left="10" top="64" right="121" width="100%">
-				<mx:Label text="URL:" width="100"/>
+			<mx:VBox  left="10" top="64" right="121" width="100%" verticalGap="0">
+				<mx:Label text="URL" width="100" styleName="formLabel"/>
 				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>
 				<mx:LinkButton id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>
 			</mx:HBox>
-			<mx:VBox top="118" left="10" right="10" bottom="10">
-				<mx:Label text="Protocol Description:"/>
+			<mx:VBox top="118" left="10" right="10" bottom="10" verticalGap="0">
+				<mx:Label text="Protocol Description" styleName="formLabel"/>
 				<util:TextAreaWorkaround id="description" text="{protocolDescription}" height="100%" width="100%" change="dirty.setDirty()"/>
 			</mx:VBox>	
 			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
@@ -475,7 +475,7 @@
 					</mx:Canvas>
 			<mx:ControlBar width="100%"  horizontalAlign="right">
 			    <util:DirtyNote id="dirty"/>
-				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" width="70" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
 
 		</mx:VBox>
@@ -497,7 +497,7 @@
 					</hci:ComboBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox2}" position="before">
-				<mx:VBox height="46" width="100%" id="vbox0">
+				<mx:VBox  width="100%" id="vbox0">
 					<mx:Label text="Owner:" width="100" id="label0"/>
 					<hci:ComboBox
 						id="appUserCombo" 
