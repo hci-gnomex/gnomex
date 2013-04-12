@@ -20,6 +20,7 @@
 		import mx.controls.TextInput;
 		import mx.events.CloseEvent;
 		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
 		import mx.events.ValidationResultEvent;
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
@@ -60,10 +61,10 @@
 
 		public  var multiplexGroupNumberImported:Boolean = false;
 		
-		public function uploadSampleSheet():void {
+		private function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
-			var fieldList:Dictionary = null;
+			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
 			var numPlates:int = 0;
 			var nextPlate:int = 0;
 			if (hasPlates()) {
@@ -71,9 +72,6 @@
 					numPlates = parentDocument.numIScanPlates;
 				} else {
 					numPlates = parentDocument.numCapSeqPlates; 
-					fieldList = new Dictionary();
-					fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
-					fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
 				}
 				for each (var sample:Object in parentDocument.samples) {
 					var thisPlate:int = 0;
@@ -93,7 +91,24 @@
 					nextPlate = 0;
 				}
 			}
-			if (parentDocument.isFragAnalState()) {
+
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup(), parentDocument.getAnnotationView());
+			if (parentDocument.isEditState()) {
+				uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
+			}
+		}
+		
+		public function uploadComplete(event:Event):void {
+			Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
+		}
+		
+		private function getSampleSheetSpecifiedFieldList():Dictionary {
+			var fieldList:Dictionary = null;
+			if (hasPlates() && parentDocument.isCapSeqState()) {
+				fieldList = new Dictionary();
+				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
+				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
+			} else if (parentDocument.isFragAnalState()) {
 				fieldList = new Dictionary();
 				fieldList[this.sampleNameCol.dataField] = this.sampleNameCol;
 				fieldList[this.descriptionColumn.dataField] = this.descriptionColumn;
@@ -103,7 +118,13 @@
 					}
 				}
 			}
-			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup());
+			
+			return fieldList;
+		}
+		
+		private function getSampleSheetFieldList():XMLListCollection {
+			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
+			return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), true);
 		}
 		
 		private function downloadSampleSheetExample(fileName:String):void {
@@ -119,8 +140,29 @@
 		}
 		
 		private function downloadSampleSheet():void{
-			var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx' +			
-				'?idRequest=' +  parentDocument.request.@idRequest);
+			var fieldList:XMLListCollection = getSampleSheetFieldList();
+			var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
+			var uv:URLVariables = new URLVariables();
+			var names:String = "<NameList>"
+			for each (var node : XML in fieldList){
+				names += node.toXMLString();
+			}
+
+			// clean up samples
+			if (parentDocument.isEditState()) {
+				parentDocument.request.replace("samples", <samples></samples>); 
+				for each(var sample:Object in parentDocument.samples) {
+					if (sample.@name != null && sample.@name != '') {
+						parentDocument.request.samples.appendChild(sample);
+					}
+				}
+			}
+			
+			names += "</NameList>";
+			uv.names = names;
+			uv.requestXMLString = parentDocument.request.toXMLString();
+			showUrl.data = uv;
+			showUrl.method = URLRequestMethod.POST;
 			navigateToURL(showUrl, '_blank');
 		}
 		
@@ -2093,10 +2135,10 @@
 			<mx:Spacer width="8"/>
 		    <mx:HBox width="100%">
 				<mx:HBox id="buttonsContainer" horizontalGap="2">
-					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline" id="downloadExamplePlateButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:LinkButton textDecoration="underline" id="downloadExampleTubeButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-					<mx:LinkButton textDecoration="underline" id="downloadButton" includeInLayout="{parentDocument.samples.length > 0}" visible="{parentDocument.samples.length > 0}" label="Sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+					<mx:LinkButton textDecoration="underline" id="downloadButton" includeInLayout="{parentDocument.samples.length > 0}" visible="{parentDocument.samples.length > 0}" label="Download Sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+					<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 					<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 					<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 					<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />

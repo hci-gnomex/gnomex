@@ -51,6 +51,19 @@
 				
 			}
 				
+			public function selectAnnotation(dataField:String):void {
+				if (dataField.substr(0, 6) == '@ANNOT') {
+					var idProperty:String = dataField.substr(6);
+					if (parentDocument != null) {
+						for each(var node:XML in parentDocument.propertyEntries) {
+							if (node.@idProperty == idProperty) {
+								node.@isSelected = true;
+								showSampleAnnotationColumn(idProperty, true);
+							}
+						}
+					}
+				}
+			}
 			
 			public function showSampleAnnotationColumn(idProperty:String, show:Boolean):void {
 				if (parentDocument.samplesView.samplesGrid == null) {

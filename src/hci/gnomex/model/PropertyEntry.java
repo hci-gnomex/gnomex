@@ -92,6 +92,7 @@ public class PropertyEntry extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getProperty");
     this.excludeMethodFromXML("getExcludedMethodsMap");
+    this.excludeMethodFromXML("getValueForDisplay");
   }
 
   public Integer getIdDataTrack() {
@@ -109,4 +110,21 @@ public class PropertyEntry extends HibernateDetailObject {
   public void setIdAnalysis(Integer id) {
     idAnalysis = id;
   }
+  
+  public String getValueForDisplay() {
+    String v = this.getValue();
+    if (this.getProperty() != null && 
+        (this.getProperty().getCodePropertyType().equals(PropertyType.OPTION) || this.getProperty().getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
+      v = "";
+      for(PropertyOption option : (Set<PropertyOption>)this.getOptions()) {
+        if (v.length() > 0) {
+          v += ",";
+        }
+        v += option.getDisplay();
+      }
+    }
+    
+    return v;
+  }
+  
 }
