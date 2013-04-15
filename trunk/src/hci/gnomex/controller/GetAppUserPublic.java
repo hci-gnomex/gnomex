@@ -65,7 +65,7 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       AppUserPublic theAppUser = (AppUserPublic)sess.get(AppUserPublic.class, appUser.getIdAppUser());
-
+      
       Document doc = new Document(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
 
       Statement stmt = null;
