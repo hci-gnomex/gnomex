@@ -8,7 +8,7 @@
 	show="init()"
 	>
 <mx:HBox verticalAlign="middle">
-	<mx:Image source="{parentApplication.iconSamplePrep}"/>
+	<mx:Image source="{parentApplication.iconLibPrep}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" 
 		text="" />	
 </mx:HBox>
