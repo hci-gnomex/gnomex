@@ -258,17 +258,6 @@
 		</mx:request>
 	</mx:HTTPService>	
 	
-	<mx:HTTPService  
-		id="getSampleSheetUploadURL" 
-		url="UploadSampleSheetURLServlet.gx"
-		resultFormat="e4x"
-		showBusyCursor="true" 
-		result="onGetSampleSheetUploadURL(event)" 
-		fault="parentApplication.onFailHttpRequest('Failed to get sample sheet upload URL', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService>	    	
-	
 	
 	<mx:HTTPService 
 		id="getAccountFieldsConfiguration" 
@@ -349,9 +338,7 @@
 			private var userPublicView:UserPublicView;
 			
 			private var cursorID:Number = 0; 
-
-			public var uploadSampleSheetURL:String = null;
-
+			
 			[Bindable]  
 			public var siteLogo:String = "";
 			
@@ -473,7 +460,7 @@
 			public var iconUsage:Class;
 			
 			[Bindable]
-			[Embed(source="assets/chart_line.png")]
+			[Embed(source="assets/data-accept.png")]
 			public var iconQC:Class;
 			
 			[Bindable]
@@ -730,6 +717,24 @@
 			[Embed(source="assets/folder_add.png")]
 			public var iconFolderAdd:Class;
 			
+			[Bindable]
+			[Embed(source="assets/microarray_small.png")]
+			public var iconExtraction:Class;
+
+			[Bindable]
+			[Embed(source="assets/flask.png")]
+			public var iconLibPrep:Class;
+
+			[Bindable]
+			[Embed(source="assets/server_go.png")]
+			public var iconPipeline:Class;
+
+			
+			[Bindable]
+			[Embed(source="assets/rectangle.png")]
+			public var iconFlowCell:Class;
+
+			
 			
 			[Bindable]
 			[@Embed(source="assets/ding.mp3")]
@@ -754,6 +759,7 @@
 					<item label="" icon="assets/iscan.png" />
 					<item label="" icon="assets/sequenom_clinical.png" />
 					<item label="" icon="assets/sequenom_plate.png" />
+					<item label="" icon="assets/data-accept.png" />
 				</items>    
 			);
 			
@@ -1527,26 +1533,23 @@
 				navSearchView.init();
 			}
 			
+			
 			public function showUserPublicView():void {
+				if (isGuest) {
+					return;
+				}
 				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
-				userPublicView.currentState = "editPublicAppUserState";
+				if (isExternalUser) {
+					userPublicView.currentState = "externalUserState";
+				} else {
+					userPublicView.currentState = "universityUserState";
+				}
+				
+				
 				PopUpManager.centerPopUp(userPublicView);
 				userPublicView.init();
 			}
 			
-			public function accountSignup():void {
-				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
-				if (isUnivUserAuth) {
-					userPublicView.currentState = "universityUserState";					
-				} else {
-					userPublicView.currentState = "externalInterfaceOnlyState";
-				}
-				
-				
-				userPublicView.radioUniversityUser.selected = true;
-				PopUpManager.centerPopUp(userPublicView);
-				//userPublicView.init();
-			}
 			
 			public function showDictionaries():void {
 				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, DictionaryEditor, true));
@@ -1928,10 +1931,17 @@
 				if (!showPurchaseSupplies) {
 					hideMenusByContext(navMenu, "purchaseSuppliesLink");
 				}
+				if (!usesKindOfRequestCategory("MISEQ")) {
+					hideMenusByContext(navMenu, "MISEQ");
+				}
+				if (!usesKindOfRequestCategory("SOLEXA")) {
+					hideMenusByContext(navMenu, "SOLEXA");
+				}
 				
 				hideMenusByProperties(navMenu);
 				
 				addPricingMenus(navMenu);
+				
 			}
 			
 			private function addPricingMenus(navMenu:XMLList):void {
@@ -2000,22 +2010,20 @@
 				
 				// If this user doesn't use any experiment types that deal with 
 				// analysis, then we want to exclude bioinformatics specific menus
-				if (!this.showBioinformaticsLinks) {
-					while (foundSomethingToDelete) {
-						foundSomethingToDelete = false;
-						for (var i:int = 0; i < navMenu.length(); i++) {
-							if (navMenu[i].@context == context) {
-								delete navMenu[i];
-								foundSomethingToDelete = true;
-								break;
-							} else {
-								var cn:XMLList = XMLList(navMenu[i].children());
-								for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
-									if (cn[j].@context == context) {
-										delete cn[j];
-										foundSomethingToDelete = true;
-										break;
-									}
+				while (foundSomethingToDelete) {
+					foundSomethingToDelete = false;
+					for (var i:int = 0; i < navMenu.length(); i++) {
+						if (navMenu[i].@context == context) {
+							delete navMenu[i];
+							foundSomethingToDelete = true;
+							break;
+						} else {
+							var cn:XMLList = XMLList(navMenu[i].children());
+							for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+								if (cn[j].@context == context) {
+									delete cn[j];
+									foundSomethingToDelete = true;
+									break;
 								}
 							}
 						}
@@ -2418,7 +2426,7 @@
 				}
 				return false;
 			}
-			private function usesExperimentType(experimentType:String):Boolean {
+			public function usesExperimentType(experimentType:String):Boolean {
 				if (isGuest) {
 					return false;
 				}
@@ -2434,6 +2442,25 @@
 				}
 				return false;
 			}
+			
+			public function usesKindOfRequestCategory(codeRequestCategory:String):Boolean {
+				if (isGuest) {
+					return false;
+				}
+				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
+							requestCategory.@isActive == 'Y') {
+							return true;
+							break;
+						}
+					}
+				}
+				return false;
+			}
+			
+
 
 			
 			private function onGetSessionTimeout(event:ResultEvent):void {
@@ -3041,6 +3068,8 @@
 			private function showView(menuitem:Object):void {
 				var label:String = menuitem.@label;
 				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
+				var codeStepNext:String = menuitem.hasOwnProperty("@codeStepNext") ? menuitem.@codeStepNext : "";
+				var codeSequencingPlatform:String = menuitem.hasOwnProperty("@codeSequencingPlatform") ? menuitem.@codeSequencingPlatform : "";
 				
 				if (label == 'Analysis') {
 					theViews.selectedChild = navAnalysisView;
@@ -3106,8 +3135,6 @@
 					theViews.selectedChild = this.navDataTrackView;
 				} else if (label == "Topics") {
 					theViews.selectedChild = navTopicsView;
-				} else if (label == "Workflow" || label == "Workflow ") {
-					theViews.selectedChild = navWorkflowView;
 				} else if (label == "Billing") {
 					theViews.selectedChild = navBillingView;
 				} else if (label == "Users & Groups") {
@@ -3149,10 +3176,22 @@
 					this.showPurchaseSuppliesLink();
 				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
+				} else if (codeStepNext != "") {
+					navWorkflowView.codeStepNext = codeStepNext;
+					navWorkflowView.codeSequencingPlatform = codeSequencingPlatform;
+					if (theViews.selectedChild == navWorkflowView) {
+						// If we are already on nav workflow view, we need to make the \
+						// call to showView directly.
+						navWorkflowView.showView();
+					} else {
+						// In this case, the init function will call show view.
+						theViews.selectedChild = navWorkflowView;						
+					}
 				} else if (url != "") {
 					navigateToURL(new URLRequest(url), '_blank');
-				} 
+				}
 			}
+			
 			
 			 
 			private function resizeMenuItems():void{
@@ -3251,19 +3290,6 @@
 				return newString;
 			}
 			
-			public function setupSampleSheetUpload():void {
-				if (uploadSampleSheetURL == null) {
-					uploadSampleSheetURL = null;
-					getSampleSheetUploadURL.send();
-				}
-			}
-			
-			private function onGetSampleSheetUploadURL(event:ResultEvent):void {
-				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
-					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
-				}
-			}				
-
 		]]>
 	</mx:Script>
 	
@@ -3308,7 +3334,36 @@
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
 
-		<menuitem label="Workflow" icon="iconWorkflow"   />
+		<menuitem label="Workflow" icon="iconWorkflow">
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
+			<menuitem type="separator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
+			<menuitem type="separator"/>
+			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
+			</menuitem>
+			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
+			</menuitem>
+			<menuitem label="Microarray..." icon="iconMicroarray"   >
+				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
+				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
+				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
+			</menuitem>
+			<menuitem type="separator"/>
+			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
+			
+		</menuitem>
+			
 
 		<menuitem label="Billing" icon="iconBilling"   />
 		
