@@ -13,7 +13,10 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleSource;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.SampleSheetColumnNamesParser;
 import hci.report.constants.ReportFormats;
 import hci.report.model.Column;
 import hci.report.model.ReportRow;
@@ -21,6 +24,8 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
+import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.sql.SQLException;
@@ -40,7 +45,11 @@ import javax.servlet.http.HttpSession;
 
 import java.util.regex.Pattern;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 public class DownloadSampleSheet extends ReportCommand implements Serializable {
@@ -49,25 +58,41 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
   
   
   private SecurityAdvisor               secAdvisor;
-  private Integer                       idRequest;
-  private HashMap                       columnNames;
-  private int                           columnCount = 1;
-  
   private String                        today;
+  private SampleSheetColumnNamesParser  parser = null;
+  private RequestParser                 requestParser = null;
  
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
-      idRequest = Integer.valueOf(request.getParameter("idRequest"));
-    } 
-    
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
       this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
     }
     
+    String columnString = request.getParameter("names");
+    StringReader reader = new StringReader(columnString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      Document doc = sax.build(reader);
+      parser = new SampleSheetColumnNamesParser(doc);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse names", je );
+      this.addInvalidField( "names", "Invalid sample name xml");
+    }
+
+    String requestXMLString = request.getParameter("requestXMLString");
+    StringReader requestReader = new StringReader(requestXMLString);
+    try {
+      SAXBuilder sax = new SAXBuilder();
+      Document doc = sax.build(requestReader);
+      requestParser = new RequestParser(doc, secAdvisor);
+    } catch (JDOMException je ) {
+      log.error( "Cannot parse requestXMLString", je );
+      this.addInvalidField( "requestXMLString", "Invalid request xml");
+    }
+
     today = new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
   }
 
@@ -85,23 +110,23 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
          
       Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      columnNames = generateColumnNames();
-      List results = (List)sess.createQuery(generateQuery().toString()).list();
-      createReportTray((Object [])results.get(0), sess);
-      
-//      List properties = (List)sess.createQuery("SELECT DISTINCT prop.name from Sample as samp LEFT JOIN samp.propertyEntry as propEntry LEFT JOIN propEntry.property as prop where samp.idRequest= " + idRequest);
-//      for(Iterator j = properties.iterator(); j.hasNext();){
-//        Object[] propRow = (Object[])j.next();
-//        createReportTrayColumns(propRow);
-//      }
 
+      parser.parse(sess);
+      requestParser.parse(sess);
+      createReportTray();
+      
       if (this.isValid()) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
-        
-        for(Iterator i = results.iterator(); i.hasNext();) {
-          Object[] row = (Object[])i.next();
-          ReportRow reportRow = makeReportRow(row, dateFormat, (Object [])results.get(0), sess);
+        if (requestParser.getSampleIds().size() == 0) {
+          ReportRow reportRow = makeReportRow(new Sample(), dateFormat, sess);
           tray.addRow(reportRow);
+        } else {
+          for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+            String idSampleString = (String)i.next();
+            Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+            ReportRow reportRow = makeReportRow(sample, dateFormat, sess);
+            tray.addRow(reportRow);
+          }
         }
       }
       
@@ -112,22 +137,22 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       }
     
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      log.error("An exception has occurred in DownloadSampleSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      log.error("An exception has occurred in DownloadSampleSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      log.error("An exception has occurred in DownloadSampleSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      log.error("An exception has occurred in DownloadSampleSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
@@ -141,78 +166,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     return this;
   }
   
-  private HashMap<Integer, String> generateColumnNames(){
-    HashMap<Integer, String> columnNames = new HashMap<Integer, String>();
-    columnNames.put(0, "Sample Number");
-    columnNames.put(1, "Sample Name");
-    columnNames.put(2, "Concentration");
-    columnNames.put(3, "Concentration Unit");
-    columnNames.put(4, "Sample Type");
-    columnNames.put(5, "Organism");
-    columnNames.put(6, "Sample Source");
-    columnNames.put(7, "Code Bioanalyzer Chip Type");
-    columnNames.put(8, "Qual Failed");
-    columnNames.put(9, "Qual ByPassed");
-    columnNames.put(10, "Qual 260nm to 230nm Ratio");
-    columnNames.put(11, "Qual 260nm to 280nm Ratio");
-    columnNames.put(12, "Qual Calc Concentration");
-    columnNames.put(13, "Qual 28s to 18s Ribosomal Ratio");
-    columnNames.put(14, "Qual RIN number");
-    columnNames.put(15, "Fragment size from");
-    columnNames.put(16, "Fragment size to");
-    columnNames.put(17, "Seq prep by core");
-    columnNames.put(18, "Seq prep failed");
-    columnNames.put(19, "Seq prep bypassed");
-    columnNames.put(20, "Seq lib concentration");
-    columnNames.put(21, "Prep Instructions");
-    columnNames.put(22, "Barcode Sequence");
-    columnNames.put(23, "Multiplex group number");
-    columnNames.put(24, "Other organism");
-    columnNames.put(25, "Other sample prep method");
-    
-    return columnNames;
-    
-  }
-  
-  private StringBuffer generateQuery(){
-    StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT     samp.number, ");
-    queryBuf.append("           samp.name, ");
-    queryBuf.append("           samp.concentration, ");
-    queryBuf.append("           samp.codeConcentrationUnit, ");
-    queryBuf.append("           samp.idSampleType, ");
-    queryBuf.append("           samp.idOrganism, ");
-    queryBuf.append("           samp.idSampleSource, ");
-    queryBuf.append("           samp.codeBioanalyzerChipType, ");
-    queryBuf.append("           samp.qualFailed, ");
-    queryBuf.append("           samp.qualBypassed, ");
-    queryBuf.append("           samp.qual260nmTo230nmRatio, ");
-    queryBuf.append("           samp.qual260nmTo280nmRatio, ");
-    queryBuf.append("           samp.qualCalcConcentration, ");
-    queryBuf.append("           samp.qual28sTo18sRibosomalRatio, ");
-    queryBuf.append("           samp.qualRINNumber, ");
-    queryBuf.append("           samp.fragmentSizeFrom, ");
-    queryBuf.append("           samp.fragmentSizeTo, ");
-    queryBuf.append("           samp.seqPrepByCore, ");
-    queryBuf.append("           samp.seqPrepFailed, ");
-    queryBuf.append("           samp.seqPrepBypassed, ");
-    queryBuf.append("           samp.seqPrepLibConcentration, ");
-    queryBuf.append("           samp.prepInstructions, ");
-    queryBuf.append("           samp.barcodeSequence, ");
-    queryBuf.append("           samp.multiplexGroupNumber, ");
-    queryBuf.append("           samp.otherOrganism, ");
-    queryBuf.append("           samp.otherSamplePrepMethod, ");
-    queryBuf.append("           samp.idSample ");
-    
-    queryBuf.append("FROM       Sample as samp ");
-    
-    queryBuf.append("WHERE      samp.idRequest = " + idRequest);
-    
-    return queryBuf;
-    
-  }
-  
-  private void createReportTray(Object [] row, Session sess) {
+  private void createReportTray() {
     String title = "GNomEx Sample Sheet";
     String fileName = "gnomex_sampleSheet_" + today;
     
@@ -225,85 +179,112 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     tray.setFormat(ReportFormats.CSV);
     
     Set columns = new TreeSet();
+    Integer columnCount = 0;
     
-    for(int i = 0; i < row.length; i++){
-      if(row[i] != null && !row[i].equals("") && i < columnNames.size()){
-        columns.add(makeReportColumn((String)columnNames.get(i), columnCount));
-        columnCount++;
-      } else if (i == columnNames.size()){
-        Sample samp = (Sample)sess.load(Sample.class, (Integer)row[i]);
-        for(Object pe : samp.getPropertyEntries()){
-          PropertyEntry propEntry = (PropertyEntry) pe;
-          columns.add(makeReportColumn(propEntry.getProperty().getName(), columnCount));
-          columnCount++;
-        }
-        
-      }
+    for(String[] names : parser.getColumnList()) {
+      String propertyName = names[SampleSheetColumnNamesParser.PROPERTY_NAME_IDX];
+      String gridLabel = names[SampleSheetColumnNamesParser.GRID_LABEL_IDX];
+      columns.add(makeReportColumn(propertyName, gridLabel, columnCount));
+      columnCount++;
     }
+
     tray.setColumns(columns);
   }
   
-//  private void createReportTrayColumns(Object[] row){
-//    Set columns = new TreeSet();
-//    
-//    for(int i = 0; i < row.length; i++){
-//      if(row[i] != null && !row[i].equals("")){
-//        columns.add(makeReportColumn((String)row[i], columnCount));
-//        columnCount++;
-//      }
-//    }
-//    tray.setColumns(columns);
-//  }
-  
-  private Column makeReportColumn(String name, int colNumber) {
+  private Column makeReportColumn(String name, String caption, int colNumber) {
     Column reportCol = new Column();
     reportCol.setName(name);
-    reportCol.setCaption(name);
+    reportCol.setCaption(caption);
     reportCol.setDisplayOrder(new Integer(colNumber));
     return reportCol;
   }
 
-  private ReportRow makeReportRow(Object[] row, SimpleDateFormat dateFormat, Object[] resultRow, Session sess) {
+  private ReportRow makeReportRow(Sample sample, SimpleDateFormat dateFormat, Session sess) {
     ReportRow reportRow = new ReportRow();
-    List values  = new ArrayList();
-    for(int i = 0; i < resultRow.length - 1; i++){
-      if(resultRow[i] != null && !resultRow[i].equals("")){
-        if(row[i] instanceof Integer && columnNames.get(i).equals("Organism")){
-          Organism o = (Organism)sess.load(Organism.class, (Integer)row[i]);
-          values.add(surroundWithQuotes(o.getOrganism()));
-        } else if(row[i] instanceof Integer && columnNames.get(i).equals("Sample Type")){
-          SampleType st = (SampleType)sess.load(SampleType.class, (Integer)row[i]);
-          values.add(surroundWithQuotes(st.getSampleType()));
-        } else if(row[i] instanceof Integer && columnNames.get(i).equals("Sample Source")){
-          SampleSource ss = (SampleSource)sess.load(SampleSource.class, (Integer)row[i]);
-          values.add(surroundWithQuotes(ss.getSampleSource()));
-        } else if(row[i] instanceof BigDecimal){
-          values.add(surroundWithQuotes(row[i].toString()));
-        } else{
-          values.add(surroundWithQuotes(row[i]));
-        }
+    List values = new ArrayList();
+    for(String[] names : parser.getColumnList()) {
+      String propertyName = names[SampleSheetColumnNamesParser.PROPERTY_NAME_IDX];
+      String gridLabel = names[SampleSheetColumnNamesParser.GRID_LABEL_IDX];
+      String value = getSpecialValue(sample, propertyName);
+      if (value == null) {
+        value = getPropertyValue(sample, gridLabel);
+      }
+      if (value == null) {
+        value = getValueByReflection(sample, propertyName);
+      }
+      if (value == null) {
+        // hmmm... hopefully won't happen.  If it does we have problems.
+        value = "";
       }
       
+      values.add(surroundWithQuotes(value));
     }
-    
-    Sample s = (Sample)sess.load(Sample.class, (Integer)resultRow[26]);
-    for(Object pe : s.getPropertyEntries()){
-      PropertyEntry propEntry = (PropertyEntry) pe;
-      values.add(surroundWithQuotes(propEntry.getValue()));
-      columnCount++;
-    }
-    
-    
     
     reportRow.setValues(values);
     return reportRow;
   }
   
-  private Object surroundWithQuotes(Object value) {
-    if (value == null) {
-      value = "";
+  private String getSpecialValue(Sample sample, String column) {
+    String retVal = null;
+    if (column.equals("idSampleType")) {
+      retVal = getDictionaryValue(sample.getIdSampleType(), "hci.gnomex.model.SampleType");
+    } else if (column.equals("idOrganism")) {
+      retVal = getDictionaryValue(sample.getIdOrganism(), "hci.gnomex.model.OrganismLite");
+    } else if (column.equals("idOligoBarcode")) {
+      retVal = getDictionaryValue(sample.getIdOligoBarcode(), "hci.gnomex.model.OligoBarcode");
+    } else if (column.equals("idSampleSource")) {
+      retVal = getDictionaryValue(sample.getIdSampleSource(), "hci.gnomex.model.SampleSource");
     }
-    return "\"" + value.toString() + "\"";
+    
+    return retVal;
+  }
+  
+  private String getDictionaryValue(Integer id, String cls) {
+    if (id != null) {
+      return DictionaryManager.getDisplay(cls, id.toString());
+    } else {
+      return "";
+    }
+  }
+  
+  private String getPropertyValue(Sample sample, String name) {
+    String retVal = null;
+    if (sample.getPropertyEntries() != null) {
+      for(PropertyEntry pe : (Set<PropertyEntry>)sample.getPropertyEntries()) {
+        if (pe.getProperty().getName().equals(name)) {
+          retVal = pe.getValueForDisplay();
+          break;
+        }
+      }
+    }
+    
+    return retVal;
+  }
+  
+  private String getValueByReflection(Sample sample, String column) {
+    String retVal = null;
+    String methodName = "get" + column.substring(0, 1).toUpperCase() + column.substring(1);
+    try {
+      Method m = sample.getClass().getMethod(methodName, new Class[] {});
+      Object ret = m.invoke(sample, new Object[] {});
+      if (ret != null) {
+        retVal = ret.toString();
+      }
+    } catch(Exception ex) {
+    }
+    
+    return retVal;
+  }
+  
+  private Object surroundWithQuotes(Object value) {
+    String s;
+    if (value == null) {
+      s = "";
+    } else {
+      s = value.toString();
+      s = s.replace("\"", "\"\"");
+    }
+    return "\"" + s + "\"";
   }
   
   private String cleanText(String description) {

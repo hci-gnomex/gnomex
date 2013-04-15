@@ -356,6 +356,9 @@
 	 		// has been shown, perform 1-time-only
 	 		// initialization
 			if (!isInitialized) {
+
+				// Init url for sample sheet upload
+				parentApplication.setupSampleSheetUpload();
 				
 				// Set the base state
 				if (this.id == "amendRequestView") {
@@ -3407,6 +3410,25 @@
 		
 		private function saveRequest():void {
 			
+			updateRequestProperties()
+
+			var params:Object = new Object();
+			params.requestXMLString = request.toXMLString();
+			params.idProject = request.@idProject;
+			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
+			if (this.isMitSeqState()) {
+				params.primersXMLString = parentApplication.navExperimentView.experimentDetailView.detail.primers.toXMLString();
+			}
+			if (this.isFragAnalState()) {
+				params.assaysXMLString = this.selectedAssaysCollection;
+			}
+			
+			saveExistingRequest.send(params);			
+			
+		}
+			
+		private function updateRequestProperties():void {
+			
 			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 			if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
 				hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;					
@@ -3421,7 +3443,7 @@
 				} else {
 					request.@codeApplication = lastSelectedApplication;
 				}				
-								
+				
 			} 			
 			
 			if (this.isCapSeqState()) {
@@ -3445,7 +3467,7 @@
 			if (isMicroarrayState()) {
 				for each(var hyb:Object in hybs) {
 					request.hybridizations.appendChild(hyb);
-				 }
+				}
 			}
 			request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
 			if (isSolexaState()) {
@@ -3497,19 +3519,14 @@
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
 			request.@name = notesView.experimentName.text;
 
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
-			params.idProject = request.@idProject;
-			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
-			if (this.isMitSeqState()) {
-				params.primersXMLString = parentApplication.navExperimentView.experimentDetailView.detail.primers.toXMLString();
+		}
+	
+		public function getAnnotationView():TabAnnotationView {
+			if (theTab.contains(annotationView)) {
+				return annotationView;
+			} else {
+				return null;
 			}
-			if (this.isFragAnalState()) {
-				params.assaysXMLString = this.selectedAssaysCollection;
-			}
-			
-			saveExistingRequest.send(params);			
-			
 		}
 			
 		public function promptToSubmitRequest():void {
