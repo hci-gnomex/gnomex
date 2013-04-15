@@ -6,6 +6,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ChromatogramFilter;
+import hci.gnomex.model.SampleType;
 
 import java.io.File;
 import java.io.Serializable;
@@ -103,6 +104,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         String lane = row[26] != null ? ((Integer)row[26]).toString() : "";
         Integer wellPos = row[27] != null ? (Integer)row[27] : null;
         Integer quadrant = row[28] != null ? (Integer)row[28] : null;
+        Integer idSampleType = row[29] != null ? (Integer)row[29] : null;
 
         // Convert well position and quadrant from 0-based to 1-based
         String wellPosDisplay = "";
@@ -143,6 +145,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         
         String submitter = AppUser.formatShortName(submitterLastName, submitterFirstName);
 
+        SampleType sampleType = (SampleType) sess.get( SampleType.class, idSampleType );
         
         Element cNode = new Element("Chromatogram");
         cNode.setAttribute("idChromatogram", idChromatogram.toString());
@@ -178,6 +181,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         cNode.setAttribute("lane", lane);
         cNode.setAttribute("wellPosition", wellPosDisplay);
         cNode.setAttribute("quadrant", quadrantDisplay);
+        cNode.setAttribute("sampleType", sampleType != null ? sampleType.getDisplay() : "");
         
         doc.getRootElement().addContent(cNode);
 
