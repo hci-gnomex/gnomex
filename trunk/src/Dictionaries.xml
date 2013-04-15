@@ -14,11 +14,11 @@
 	<Dictionary displayName="General - Institution" className="hci.gnomex.model.Institution"  >
 	  	  <Filter className="YN" filterField="isDefault"/>
 	</Dictionary>
-	<Dictionary displayName="Administration - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y">
+	<Dictionary displayName="Admin - Property" className="hci.gnomex.model.PropertyDictionary" scrub="Y">
       <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
 	</Dictionary>
-  <Dictionary displayName="Admin - State" className="hci.gnomex.model.State" />
-	<Dictionary displayName="Admin - Vendor" className="hci.gnomex.model.Vendor" />
+  <Dictionary displayName="General- State" className="hci.gnomex.model.State" />
+	<Dictionary displayName="General - Vendor" className="hci.gnomex.model.Vendor" />
 
 	<Dictionary displayName="Experiment Design" className="hci.gnomex.model.ExperimentDesign" >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
