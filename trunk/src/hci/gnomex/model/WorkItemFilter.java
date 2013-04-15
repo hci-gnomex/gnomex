@@ -76,6 +76,19 @@ public class WorkItemFilter extends DetailObject {
     addWorkItemCriteria();
     addSecurityCriteria();
     
+    // We have control break login for Seq Assemble so that seq lanes are grouped by
+    // multiplex group number.  So we need this sort so that the control break logic
+    // evaluates all sequence lanes for a muliplex group number sequentially.  
+    // For each new multiplex lane group, we want the seq lanes to be ordered by the 
+    // the order they were submitted.  Ideally, we would sort by the sequence lane number
+    // so that they would be order by sample number, then the order for the number
+    // of times sequenced for this sample.
+    if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN) ||
+        this.codeStepNext.equals(Step.HISEQ_CLUSTER_GEN) ||
+        this.codeStepNext.equals(Step.MISEQ_CLUSTER_GEN)) {
+      queryBuf.append(" order by req.idRequest, s.multiplexGroupNumber, l ");
+    }
+    
     
     return queryBuf;
     
@@ -223,7 +236,9 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    l.idNumberSequencingCycles, ");
       queryBuf.append("    s.idOligoBarcode, ");
       queryBuf.append("    s.barcodeSequence, ");
-      queryBuf.append("    s.multiplexGroupNumber ");
+      queryBuf.append("    s.multiplexGroupNumber, ");
+      queryBuf.append("    lab.lastName, ");
+      queryBuf.append("    lab.firstName ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
                 this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");
@@ -263,6 +278,7 @@ public class WorkItemFilter extends DetailObject {
     } else if (level == LANE_LEVEL) {
       queryBuf.append(" JOIN         wi.request as req ");
       queryBuf.append(" JOIN         req.appUser as appUser ");
+      queryBuf.append(" JOIN         req.lab as lab ");
       queryBuf.append(" JOIN         wi.sequenceLane l ");
       queryBuf.append(" JOIN         l.sample s ");
       queryBuf.append(" LEFT JOIN    req.collaborators as collab ");
