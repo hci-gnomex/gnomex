@@ -848,7 +848,9 @@
 								   headerText="Sample"
 								   width="70" minWidth="15" />
 				
-				
+				<mx:DataGridColumn dataField="@sampleType"
+								   headerText="Type" 
+								   width="90" minWidth="20" visible="{this.parentDocument is NavDataView}" />
 					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
 									   width="70" id="releasedCheckBox">
 					<mx:itemRenderer>
