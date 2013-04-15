@@ -8,7 +8,7 @@
 	close="{closeWindow()}"
 	title="Edit User Account Settings"
 	creationPolicy="all"
-	height="472" icon="@Embed('../../assets/user.png')">
+	height="472" icon="@Embed('../../assets/user.png')" width="720">
 
 	<mx:HTTPService 
     id="getAppUserPublic" 
@@ -34,15 +34,6 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
-	<mx:HTTPService 
-		id="publicSaveSelfRegisteredAppUser" 
-		url="PublicSaveSelfRegisteredAppUser.gx"
-		showBusyCursor="true"
-		resultFormat="e4x"
-		result="onPublicSaveSelfRegisteredAppUser(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to save self register info', event)"
-		useProxy="false">
-	</mx:HTTPService >
 
 	<mx:XMLListCollection id="notificationLabs" source="{publicUser.notificationLabs.Lab}"/>
     	
@@ -68,6 +59,12 @@
 			
 			private function resultHandler(event:ResultEvent):void {
 				publicUser = getAppUserPublic.lastResult;
+				
+				if (publicUser.@userNameExternal != '' && publicUser.@uNID == '') {
+					this.radioExternalUser.selected = true;
+				} else {
+					this.radioUniversityUser.selected = true;
+				}
 			}
 			
 			private function closeWindow():void {
@@ -101,84 +98,57 @@
 			
 			private function save():void {
 				var params:Object = new Object();
-				if(this.currentState == "editPublicAppUserState") {
-					params.idAppUser = parentApplication.idAppUser;
-					params.lastName = lastName.text;
-					params.firstName = firstName.text;
-					params.institute = institute.text;
-					params.department = department.text;
-					params.email = email.text;
-					params.phone = phone.text;
-					params.ucscUrl = ucsc.text;
-					
-					params.userNotificationLabsXMLString = "<userNotificationLabs>" + notificationLabs.toXMLString() + "</userNotificationLabs>";
-					
-					saveAppUserPublic.send(params);				  
-				} else {
-					var missingFields:String = "";
-					
-					params.firstName = firstName.text;
-					if(firstName.text.length == 0) {
-						missingFields += "\t\t\tFirst Name\n";
-					}
-					
-					params.lastName = lastName.text;
-					if(lastName.text.length == 0) {
-						missingFields += "\t\t\tLast Name\n";
-					}
-					
-					params.lab = lab.text;
-					if(lab.text.length == 0) {
-						missingFields += "\t\t\tLab\n";
-					}
-					
-					params.institute = institute.text;
-					params.department = department.text;
-					
-					params.email = email.text;
-					if(email.text.length == 0) {
-						missingFields += "\t\t\tEmail\n";
-					}
-					
-					params.phone = phone.text;
-					if(this.currentState == "externalInterfaceOnlyState") {
-						params.userNameExternal = externalUserName_1.text;
-						if(externalUserName_1.text.length == 0) {
-							missingFields += "\t\t\tUser name\n";
-						}
-						
-						params.passwordExternal = externalUserPassword_1.text;
-						if(externalUserPassword_1.text.length == 0) {
-							missingFields += "\t\t\tPassword\n";
-						}
-					} 
-					if (this.currentState == "externalUserState") {
-						params.userNameExternal = externalUserName.text;
-						if(externalUserName.text.length == 0) {
-							missingFields += "\t\t\tUser name\n";
-						}
-						
-						params.passwordExternal = externalUserPassword.text;
-						if(externalUserPassword.text.length == 0) {
-							missingFields += "\t\t\tPassword\n";
-						}
-					}
-					if (this.currentState == "universityUserState") {
-						params.uNID = uNID.text;
-						if(uNID.text.length == 0) {
-							missingFields += "\t\t\tuNID\n";
-						}
-					}
-					params.isActive = "N";
-					
-					if(missingFields.length > 0) {
-						Alert.show("Please complete the following:\n\n" + missingFields, "Missing Fields");
-						return;
-					}
-					
-					publicSaveSelfRegisteredAppUser.send(params);				  
+				params.idAppUser = parentApplication.idAppUser;
+				
+				var missingFields:String = "";
+				
+				params.firstName = firstName.text;
+				if(firstName.text.length == 0) {
+					missingFields += "\t\t\tFirst Name\n";
 				}
 				
+				params.lastName = lastName.text;
+				if(lastName.text.length == 0) {
+					missingFields += "\t\t\tLast Name\n";
+				}
+				
+				
+				params.institute = institute.text;
+				params.department = department.text;
+				
+				params.email = email.text;
+				if(email.text.length == 0) {
+					missingFields += "\t\t\tEmail\n";
+				}
+				
+				params.phone = phone.text;
+				params.ucscUrl = ucsc.text;
+
+				if (this.currentState == "externalUserState") {
+					params.userNameExternal = externalUserName.text;
+					if(externalUserName.text.length == 0) {
+						missingFields += "\t\t\tUser name\n";
+					}
+					params.passwordExternal = externalUserPassword.text;
+					if(externalUserPassword.text.length == 0) {
+						missingFields += "\t\t\tPassword\n";
+					}
+				} else if (this.currentState == "universityUserState") {
+					params.uNID = uNID.text;
+					if(uNID.text.length == 0) {
+						missingFields += "\t\t\tuNID\n";
+					}
+				}
+				params.isActive = "Y";
+				
+				if(missingFields.length > 0) {
+					Alert.show("Please complete the following:\n\n" + missingFields, "Missing Fields");
+					return;
+				}
+				
+				params.userNotificationLabsXMLString = "<userNotificationLabs>" + notificationLabs.toXMLString() + "</userNotificationLabs>";
+				
+				saveAppUserPublic.send(params);				  
 			}
 			
 			private function onSaveAppUserPublic(event:ResultEvent):void {
@@ -190,19 +160,7 @@
 				}	
 			}
 			
-			private function onPublicSaveSelfRegisteredAppUser(event:ResultEvent):void {
-				if (publicSaveSelfRegisteredAppUser.lastResult.name() == "SUCCESS") {
-					dirty.resetDirty();
-					closeWindow();
-				} else { 
-					if (publicSaveSelfRegisteredAppUser.lastResult.name() == "ERROR") {
-						Alert.show(publicSaveSelfRegisteredAppUser.lastResult.@message);	
-					} else {
-						Alert.show("An error occurred while saving the self register info.");						
-					}
-					
-				}
-			}
+
 			
 			
 			
@@ -214,12 +172,8 @@
 			private function onUserAccountChange():void {
 				if (this.radioUniversityUser.selected) {
 					currentState = "universityUserState";
-					externalUserName.text = "";
-					this.externalUserPassword.text = "";
-				} else {            		
+				} else if (this.radioExternalUser.selected){            		
 					currentState = "externalUserState";
-					uNID.text = "";
-					
 				}
 			}			
 			
@@ -243,40 +197,36 @@
 			
 			<mx:VBox  width="100%" verticalGap="10">
 				<mx:HBox verticalAlign="bottom">
-					<mx:VBox verticalGap="1"  width="100%">
-						<mx:Label text="First name"/>
+					<mx:VBox verticalGap="0"  width="100%">
+						<mx:Label text="First name" styleName="formLabel"/>
 						<mx:TextInput id="firstName" maxChars="200" text="{publicUser.@firstName}" width="170" change="setDirty()"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="1" width="100%" id="vbox3">
-						<mx:Label text="Last name"/>
+					<mx:VBox verticalGap="0" width="100%" id="vbox3">
+						<mx:Label text="Last name" styleName="formLabel"/>
 						<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{publicUser.@lastName}" width="170" change="setDirty()"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="1" width="100%" id="labContainer">
-						<mx:Label text="Lab:"/>
-						<mx:TextInput id="lab" maxChars="200" editable="true" enabled="true" width="170" change="setDirty()"/>
-					</mx:VBox>	
-					<mx:VBox verticalGap="1" width="100%">
-						<mx:Label text="UCSC Url" id="Label5"/>
-						<mx:TextInput id="ucsc" text="{publicUser.@ucscUrl}" width="200" change="setDirty()"/>
-					</mx:VBox>						
-				</mx:HBox>
-				<mx:HBox verticalAlign="middle">
-					<mx:VBox verticalGap="1"   width="100%" >
-						<mx:Label text="Institution (optional)" id="Label2"/>
-						<mx:TextInput width="170" id="institute" text="{publicUser.@institute}" change="setDirty()"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="1"   width="100%" >
-						<mx:Label text="Department (optional)" id="Label1"/>
-						<mx:TextInput id="department" text="{publicUser.@department}" width="170" change="setDirty()"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="1"  width="100%" >
-						<mx:Label text="Email" id="Label"/>
+					<mx:VBox verticalGap="0"  width="100%" >
+						<mx:Label text="Email" id="Label" styleName="formLabel"/>
 						<mx:TextInput id="email" text="{publicUser.@email}" width="200" change="setDirty()"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="1"  width="100%" >
-						<mx:Label text="Phone" id="Label0"/>
-						<mx:TextInput id="phone" text="{publicUser.@phone}" width="130" change="setDirty()"/>
+					<mx:VBox verticalGap="0"  width="100%" >
+						<mx:Label text="Phone" id="Label0" styleName="formLabel"/>
+						<mx:TextInput id="phone" text="{publicUser.@phone}" width="120" change="setDirty()"/>
 					</mx:VBox>
+				</mx:HBox>
+				<mx:HBox verticalAlign="middle">
+					<mx:VBox verticalGap="0"   width="100%" >
+						<mx:Label text="Institution (optional)" id="Label2" styleName="formLabel"/>
+						<mx:TextInput width="170" id="institute" text="{publicUser.@institute}" change="setDirty()"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0"   width="100%" >
+						<mx:Label text="Department (optional)" id="Label1" styleName="formLabel"/>
+						<mx:TextInput id="department" text="{publicUser.@department}" width="170" change="setDirty()"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0" width="100%">
+						<mx:Label text="UCSC Url" id="Label5" styleName="formLabel"/>
+						<mx:TextInput id="ucsc" text="{publicUser.@ucscUrl}" width="200" change="setDirty()" fontSize="11"/>
+					</mx:VBox>						
 					
 				</mx:HBox>
 				<mx:VBox id="userTypeContainer" borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0">
@@ -287,19 +237,18 @@
 						</mx:RadioButton>
 						
 					</mx:HBox>	
-					<mx:HBox paddingLeft="0">	  	      
-						<mx:VBox verticalGap="1" id="unidContainer" width="100">
-							<mx:Label text="uNID" />
+					<mx:HBox paddingLeft="0" id="hbox1">	  	      
+						<mx:VBox verticalGap="0" id="unidContainer" width="100">
+							<mx:Label text="uNID"  styleName="formLabel"/>
 							<mx:TextInput id="uNID" 
-										  text="{parentDocument.fullUser.@uNID}" 
-										  width="100" change="setDirty()"/>
+										  width="100" change="setDirty()" text="{publicUser.@uNID}"/>
 						</mx:VBox>		  	    	
 					</mx:HBox>		  		
 				</mx:VBox>
 			</mx:VBox>
 			
 			<mx:VBox id="labAlertsContainer" height="100%" verticalGap="0">
-				<mx:Label text="Select labs for which you would like to receive upload notifications:"/>
+				<mx:Label text="Select labs for which you would like to receive upload notifications" styleName="formLabel"/>
 				<mx:HBox width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" height="100%">
 					<mx:DataGrid change="setDirty()" id="userNotificationLabs" dataProvider="{notificationLabs}" height="100%" width="100%" fontSize="11" wordWrap="true">
 						<mx:columns>
@@ -333,62 +282,26 @@
 	</mx:ControlBar>
 	
 	<mx:states>
-		<mx:State name="editPublicAppUserState">
-			<mx:RemoveChild target="{userTypeContainer}"/>
-			<mx:RemoveChild target="{labContainer}"/>
-		</mx:State>
 		<mx:State name="externalUserState">
-			<mx:AddChild relativeTo="{unidContainer}" position="before">
+			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
 				<mx:HBox width="100%" >
 					<mx:VBox verticalGap="1"   id="vbox2">
-						<mx:Label text="User name" />
+						<mx:Label text="User name"  styleName="formLabel"/>
 						<mx:TextInput id="externalUserName" 
-									  width="120" text="{parentDocument.fullUser.@userNameExternal}" change="setDirty()"/>
+									  width="120" text="{publicUser.@userNameExternal}" change="setDirty()"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="1"  >
-						<mx:Label text="Password"/>
+						<mx:Label text="Password" styleName="formLabel"/>
 						<mx:TextInput id="externalUserPassword" 
-									  text="{parentDocument.fullUser.@passwordExternalEntered}" 
+									  text="{publicUser.@passwordExternalEntered}" 
 									  width="167" displayAsPassword="true"  change="setDirty()"/>
 					</mx:VBox>
 				</mx:HBox>
 				
 			</mx:AddChild>
 			<mx:RemoveChild target="{unidContainer}"/>
-			<mx:RemoveChild target="{labAlertsContainer}"/>
-			<mx:SetProperty 
-				target="{this}" 
-				name="height" value="300"/>
 		</mx:State>
 		<mx:State name="universityUserState">
-			<mx:RemoveChild target="{labAlertsContainer}"/>
-			<mx:SetProperty 
-				target="{this}" 
-				name="height" value="300"/>
 		</mx:State>
-		<mx:State name="externalInterfaceOnlyState">
-			<mx:AddChild relativeTo="{unidContainer}" position="before">
-				<mx:HBox width="100%" >
-					<mx:VBox verticalGap="1" id="vbox4">
-						<mx:Label text="User name" />
-						<mx:TextInput id="externalUserName_1" 
-									  width="120" text="{parentDocument.fullUser.@userNameExternal}" change="setDirty()"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="1"  >
-						<mx:Label text="Password"/>
-						<mx:TextInput id="externalUserPassword_1" 
-									  text="{parentDocument.fullUser.@passwordExternalEntered}" 
-									  width="167" displayAsPassword="true"  change="setDirty()"/>
-					</mx:VBox>
-				</mx:HBox>
-				
-			</mx:AddChild>
-			<mx:RemoveChild target="{radioUnivOrExternalBox}"/>
-			<mx:RemoveChild target="{unidContainer}"/>
-			<mx:RemoveChild target="{labAlertsContainer}"/>
-			<mx:SetProperty 
-				target="{this}" 
-				name="height" value="300"/>
-		</mx:State>		
 	</mx:states>
 </mx:TitleWindow>
