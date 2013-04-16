@@ -74,9 +74,11 @@ public class UploadDownloadHelper {
       
       String directoryName = null;
       String theBaseDir;
+      String fullBaseDir;
       if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
         directoryName = baseDirFlowCell  + createYear + "/" + resultDirectory;
         theBaseDir = baseDirFlowCell;
+        fullBaseDir = baseDirFlowCell  + createYear + "/";
         
         //Make sure flow cell is for this request
         String flowCellNumber = resultDirectory;
@@ -85,6 +87,7 @@ public class UploadDownloadHelper {
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
         directoryName = baseDir + "/" + createYear + "/" + requestNumberBase + "/" + resultDirectory;
         theBaseDir = baseDir;
+        fullBaseDir = baseDir + "/" + createYear + "/" + requestNumberBase + "/";
       }
       
       // We want the list to be ordered the same way as the original keys,
@@ -94,7 +97,7 @@ public class UploadDownloadHelper {
       }
       
       List theFiles = new ArrayList();    
-      getFileNames(theBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
+      getFileNames(theBaseDir, fullBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
       
       // Hash the list of file names (by directory name)
       directoryMap.put(directoryKey, theFiles);
@@ -110,7 +113,7 @@ public class UploadDownloadHelper {
     }
   }      
       
-  private static void getFileNames(String theBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {
+  private static void getFileNames(String theBaseDir, String fullBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {
     File fd = new File(directoryName);
     
 
@@ -154,8 +157,13 @@ public class UploadDownloadHelper {
         if (f1.isDirectory()) {
           FileDescriptor dirFileDescriptor = new FileDescriptor(requestNumber, f1.getName(), f1, zipEntryName);
           dirFileDescriptor.setType("dir");
+          String dirName = "";
+          if (directoryName.startsWith(fullBaseDir)) {
+            dirName = directoryName.substring(fullBaseDir.length());
+          }
+          dirFileDescriptor.setDirectoryName(dirName);
           theFiles.add(dirFileDescriptor);
-          getFileNames(theBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
+          getFileNames(theBaseDir, fullBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
         } else {
           boolean include = true;
           if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {
@@ -165,6 +173,11 @@ public class UploadDownloadHelper {
             
             
             FileDescriptor fileDescriptor = new FileDescriptor(requestNumber, displayName, f1, zipEntryName);
+            String dirName = "";
+            if (directoryName.startsWith(fullBaseDir)) {
+              dirName = directoryName.substring(fullBaseDir.length());
+            }
+            fileDescriptor.setDirectoryName(dirName);
             fileDescriptor.setFlowCellIndicator(flowCellIndicator);
             theFiles.add(fileDescriptor);
           }

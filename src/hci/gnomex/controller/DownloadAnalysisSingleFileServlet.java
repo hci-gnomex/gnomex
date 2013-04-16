@@ -51,7 +51,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     baseDir = null;
     idAnalysis = null;
     fileName = null;
-    dir = null;
+    dir = "";
     emailAddress = "";
     
     // restrict commands to local host if request is not secure
@@ -283,8 +283,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     }
     theDirectory = theDirectory.replace("\\", "/");
     
-    if (fdFileName.endsWith(fileName) &&
-        (dir == null || dir.equals(theDirectory))) {
+    if (fdFileName.endsWith(fileName) && dir.equals(theDirectory)) {
       return fd;
     } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
