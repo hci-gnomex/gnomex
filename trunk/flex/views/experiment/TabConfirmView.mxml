@@ -91,7 +91,6 @@
 				}
 			}
 			
-			
 			if (this.parentDocument.isSolexaState()) {
 				if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
 					this.confirmContainer.removeChild(this.hybsConfirmContainer);
@@ -142,9 +141,9 @@
 				} else {
 					this.sampleDropOffLocationVbox.visible = false;	
 				}
-				this.vbox4.visible = !parentDocument.isDNASeqCoreState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox4.visible = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-				this.vbox4.includeInLayout = !parentDocument.isDNASeqCoreState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox4.includeInLayout = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
 				this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
 				this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
@@ -158,23 +157,20 @@
 			this.showHideColumns();
 			this.confirmContainer.validateNow();
 			
-		
-			
 		} 
 
         public function showHideColumns():void {
-			this.sampleTypeColumn.visible = true;
-			this.sampleNameColumn.visible = true;
 			this.filteredSamples.removeAll();
 			for each(var sample:Object in parentDocument.samples) {
 				if (sample.@name != null && sample.@name != '') {
 					this.filteredSamples.addItem(sample);
 				}
 			}
-
+			
 			this.label1.text = 'Samples (' + filteredSamples.length + ')';
-
-			if (parentDocument.isDNASeqCoreState()) {
+			
+			// Edit buttons shown
+			if (parentDocument.isSequencingState()) {
 				this.parentDocument.submitButton.label = 'Save';
 				this.parentDocument.submitButton.enabled = true;
 				this.parentDocument.agreeCheckbox.selected = true;
@@ -186,10 +182,16 @@
 				this.parentDocument.agreeBox.visible = true;
 				this.parentDocument.agreeBox.includeInLayout = true;
 				this.parentDocument.agreeCheckbox.selected = false;
-			}			
+			}		
+			
+			// Edit columns shown
+			this.sampleTypeColumn.visible = true;
+			this.sampleNameColumn.visible = true;
+			
 			concentrationCol.visible = parentApplication.isInternalExperimentSubmission
-									   && !parentDocument.isDNASeqCoreState()
-									   && !parentDocument.isSequenomState()  && !parentDocument.isClinicalSequenomState();
+									   && !parentDocument.isSequencingState()
+									   && !parentDocument.isSequenomState()  
+									   && !parentDocument.isClinicalSequenomState();
 			
 			wellNameCol.visible = false;
 			if (parentDocument.samplesView.hasPlates()) {
@@ -263,7 +265,27 @@
 				this.destinationWell.visible = false;
 			}
 			
-        	if (parentDocument.isSolexaState()) {
+			if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+				concentrationUnitConfirmColumn.visible = false;
+				sampleOrganismConfirmColumn.visible = false;
+				otherOrganismCol.visible = false;
+				chipTypeConfirmColumn.visible = false; 
+				otherSamplePrepMethodConfirmCol.visible = false;
+				preppedByCoreCol.visible = false;
+				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
+				this.sampleRowNumberCol.visible = true;
+				this.sampleTypeColumn.visible = true;
+				this.descriptionColumn.visible = false;
+				if ( parentDocument.isClinicalSequenomState() ) {
+					this.sampleNameColumn.visible = false;
+				} 
+				if ( parentDocument.isIScanState() ) {
+					this.sampleTypeColumn.visible = false;
+				}
+				
+			} else if (parentDocument.isSolexaState()) {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
@@ -302,52 +324,7 @@
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;
 
-
-			} else if (parentDocument.isCapSeqState()) {
-				concentrationUnitConfirmColumn.visible = false;
-				sampleOrganismConfirmColumn.visible = false;
-				otherOrganismCol.visible = false;
-				chipTypeConfirmColumn.visible = false; 
-				otherSamplePrepMethodConfirmCol.visible = false;
-				preppedByCoreCol.visible = false;
-				seqLibProtocolConfirmCol.visible = false;
-				this.numberOfSequencingCyclesCol.visible = false;
-				this.seqRunTypeCol.visible = false;
-				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = true;
-
-			} else if (parentDocument.isFragAnalState() || parentDocument.isMitSeqState() || parentDocument.isCherryPickState() || parentDocument.isIScanState()) {
-				concentrationUnitConfirmColumn.visible = false;
-				sampleOrganismConfirmColumn.visible = false;
-				otherOrganismCol.visible = false;
-				chipTypeConfirmColumn.visible = false; 
-				otherSamplePrepMethodConfirmCol.visible = false;
-				preppedByCoreCol.visible = false;
-				seqLibProtocolConfirmCol.visible = false;
-				this.numberOfSequencingCyclesCol.visible = false;
-				this.seqRunTypeCol.visible = false;
-				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = false;
-				this.descriptionColumn.visible = false;
-				
-			}  else if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
-				concentrationUnitConfirmColumn.visible = false;
-				sampleOrganismConfirmColumn.visible = false;
-				otherOrganismCol.visible = false;
-				chipTypeConfirmColumn.visible = false; 
-				otherSamplePrepMethodConfirmCol.visible = false;
-				preppedByCoreCol.visible = false;
-				seqLibProtocolConfirmCol.visible = false;
-				this.numberOfSequencingCyclesCol.visible = false;
-				this.seqRunTypeCol.visible = false;
-				this.sampleRowNumberCol.visible = true;
-				this.sampleTypeColumn.visible = true;
-				this.descriptionColumn.visible = false;
-				if ( parentDocument.isClinicalSequenomState() ) {
-					this.sampleNameColumn.visible = false;
-				}
-				
-			}else {
+			} else {
 				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				otherOrganismCol.visible = false;
@@ -360,10 +337,10 @@
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;
 
-
 			}
 			// If this is a QC request, hide the annotation columns 
-			if (parentDocument.currentState == 'QCState' || (parentDocument.isDNASeqCoreState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+			if (parentDocument.currentState == 'QCState' || 
+				(parentDocument.isSequencingState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -412,7 +389,7 @@
 				<mx:VBox height="100%" verticalGap="0" width="170" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
-					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isDNASeqCoreState()}"/>
+					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isSequencingState()}"/>
 					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" 
 							 id="appLabel0" width="140" />
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >

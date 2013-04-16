@@ -2565,7 +2565,7 @@
 				
 			}
 
-			if ( this.theTab.contains(samplesView) && this.isDNASeqCoreState() ) {
+			if ( this.theTab.contains(samplesView) && this.isSequencingState() ) {
 				if ( samplesView.showCCNumberCheckbox != null ) {
 					samplesView.showCCNumberCheckbox.selected = false;
 				}
@@ -2821,7 +2821,7 @@
 				var sourceWellCount:int = 0;
 				for each(var s1:Object in samples) {
 					// duplicate names ok for dna seq requests
-					if (s.@name == s1.@name && !this.isDNASeqCoreState()) {
+					if (s.@name == s1.@name && !this.isSequencingState()) {
 						sampleCount++;
 					}
 					if (this.isCherryPickState()) {
@@ -2891,7 +2891,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isDNASeqCoreState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -3108,10 +3108,7 @@
 				agreeCheckbox.visible = readyToSubmit;				
 			}
 		}
-			
-		public function isDNASeqCoreState():Boolean {
-			return this.isCapSeqState() || this.isCherryPickState() || this.isFragAnalState() || this.isMitSeqState() || this.isIScanState();			
-		}
+
 		
 		public function getEstimatedBilling():void {
 			initializeRequestXML();
@@ -3148,7 +3145,7 @@
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
 					
-					if (isDNASeqCoreState()) { 
+					if (isSequencingState()) { 
 						this.confirmView.currentState = "DNASeqCoreState";
 					} else {
 						this.confirmView.currentState = "";
@@ -3287,7 +3284,7 @@
 					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
-				if (currentState != 'QCState' && !isDNASeqCoreState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3617,7 +3614,7 @@
 					} else {
 						message = 'Request #  ' + submittedRequestNumber + '\n' + 
 							       parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
-						if (this.isDNASeqCoreState()) {
+						if (this.isSequencingState()) {
 							title = "Experiment request saved";		
 						} else {
 							title = "Request Submitted";
@@ -3639,7 +3636,7 @@
 					externalIdRequest = submittedIdRequest;
 					showPromptToUpload = true;
 				} else {
-					if (!this.isDNASeqCoreState()) {
+					if (!this.isSequencingState()) {
 						showPrintableRequestForm();
 					}
 				}
