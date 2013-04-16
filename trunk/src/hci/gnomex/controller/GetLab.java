@@ -12,6 +12,7 @@ import hci.framework.utilities.XMLReflectException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -328,19 +329,30 @@ public class GetLab extends GNomExCommand implements Serializable {
   private void appendBillingAccounts(List accounts, String nodeName, Element labNode, Lab theLab) throws Exception {
     Element accountsNode = new Element(nodeName);
     labNode.addContent(accountsNode);
- 
+
     for(Iterator i = accounts.iterator(); i.hasNext();) {
       BillingAccount ba = (BillingAccount)i.next();
       Element node = ba.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-      String users = "";
+      ArrayList users = new ArrayList();
+      String userIds = "";
       for(Iterator j = ba.getUsers().iterator();j.hasNext();) {
         AppUser user = (AppUser)j.next();
-        if (users.length() > 0) {
-          users += ',';
+        Element userNode = user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        if (user.getIdAppUser() == null) {
+          userNode.setAttribute("value", "-1");
+        } else {
+          userNode.setAttribute("value", user.getIdAppUser().toString());
         }
-        users += user.getIdAppUser().toString();
+        userNode.setAttribute("display", user.getDisplayName()); 
+        users.add(userNode); 
+
+        if (userIds.length() > 0) {
+          userIds += ',';
+        }
+        userIds += user.getIdAppUser().toString();
       }
-      node.setAttribute("acctUsers", users);
+      node.setAttribute("acctUsers", userIds); 
+      node.setChildren(users);
       accountsNode.addContent(node);
     }
   }
