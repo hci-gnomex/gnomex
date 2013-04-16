@@ -170,6 +170,10 @@
 		<property name="department" column="department" type="string"/>
 		<property name="institute" column="institute" type="string"/>
 		<property name="ucscUrl" column="ucscUrl" type="string"/>
+		<property name="uNID" column="uNID" type="string"/>
+		<property name="userNameExternal" column="userNameExternal" type="string"/>
+		<property name="passwordExternal" column="passwordExternal" type="string"/>
+		
 	</class>	
 	
 	

@@ -282,6 +282,10 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   public void setUcscUrl(String ucscUrl) {
     this.ucscUrl = ucscUrl;
   }  
+  
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getPasswordExternal");
+  }
 
 
 }

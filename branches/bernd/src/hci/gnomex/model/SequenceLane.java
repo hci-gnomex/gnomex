@@ -523,10 +523,7 @@ public class SequenceLane extends HibernateDetailObject {
       } else {
         Element multiplexLaneNode = new Element("MultiplexLane");
         // The multiplex group identifier will be either the flow cell number and channel number
-        // if the lane has been sequenced or the multiplex group number.  This identifier is
-        // in the third token of the key, separated by a dash.  
-//        String[] tokens = key.split("-");
-//        String mutiplexGroupID = tokens[2];
+        // if the lane has been sequenced or the multiplex group number.  \
         multiplexLaneNode.setAttribute("number", key);
 
         parentNode.addContent(multiplexLaneNode);
@@ -591,7 +588,15 @@ public class SequenceLane extends HibernateDetailObject {
       String key = (String)i.next();
       List theLanes = (List)laneMap.get(key);
       
-      List laneGroups = SequenceLane.getMultiplexLaneGroups(theLanes);
+      List laneGroups = null;
+      // If the lanes are loaded on a flow cell channel, don't partition based up barcode sequence.  We
+      // just want to show all of the lanes that are on the flow cell channel, even if there are duplicate
+      // barcode sequences.
+      if (key.startsWith("0-0-")) {
+        laneGroups = SequenceLane.getMultiplexLaneGroupsOfOne(theLanes);
+      } else {
+        laneGroups = SequenceLane.getMultiplexLaneGroupsConsiderDupIndexTags(theLanes);
+      }
       
       for(Iterator i1 = laneGroups.iterator(); i1.hasNext();) {
         Set lanesInGroup = (Set)i1.next();
@@ -609,9 +614,11 @@ public class SequenceLane extends HibernateDetailObject {
           
         } else {
           String multiplexLaneID = "";
+          // Call the grouping by the flow cell channel
           if (key.startsWith("0-0-")) {
             multiplexLaneID = key.substring(4);
           } else {
+            // Or if not in a flow cell channel, just give it an ordinal designation
             multiplexLaneID = Integer.valueOf(idx++).toString();
           }
           multiplexLaneMap.put(multiplexLaneID, lanesInGroup);
@@ -625,11 +632,9 @@ public class SequenceLane extends HibernateDetailObject {
   
   /*
    * This method will just return an array with one element
-   * which is the list of lanes.  We have deprecated
-   * the method that used to split the lanes into multiple
-   * groups when duplicate sequence tags were encountered.
+   * which is the list of lanes. 
    */
-  private static List getMultiplexLaneGroups(List seqLanes) {
+  private static List getMultiplexLaneGroupsOfOne(List seqLanes) {
     
     Set theLanes = new TreeSet(new SequenceLaneNumberComparator());
     theLanes.addAll(seqLanes);

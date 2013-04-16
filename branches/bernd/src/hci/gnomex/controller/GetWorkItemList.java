@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Step;
@@ -42,7 +43,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetWorkItemList.class);
   
   private WorkItemFilter filter;
-  
+
+  private DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
+  private String labName = "";
+
   
   public void validate() {
   }
@@ -208,7 +212,6 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         String prevFlowCellNumber = "";
         
         
-        DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
         
         TreeMap clusterGenMap = new TreeMap();
       
@@ -220,7 +223,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           
           String requestNumber = (String)row[1];
+          String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
           String flowCellNumber = null; 
+          labName = "";
           
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
               filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
@@ -245,365 +250,54 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
             
           }
-          
-          String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
             
-          
-          Element n = new Element("WorkItem");
-          n.setAttribute("key",                    key);
-          n.setAttribute("isSelected",             "N");
-          n.setAttribute("altColor",               new Boolean(alt).toString());
-          
-          n.setAttribute("idRequest",              row[0] == null ? "" : ((Integer)row[0]).toString());
-          n.setAttribute("requestNumber",          row[1] == null ? "" : (String)row[1]);
-          n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.util.Date)row[2]));
-          n.setAttribute("codeRequestCategory",    row[3] == null ? "" :  (String)row[3]);
-          n.setAttribute("codeRequestCategory1",   row[3] == null ? "" :  (String)row[3]);
-          n.setAttribute("idAppUser",              row[4] == null ? "" :  ((Integer)row[4]).toString());
-          n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
-          n.setAttribute("idWorkItem",            ((Integer)row[6]).toString());
-          n.setAttribute("codeStepNext",           row[7] == null ? "" :  (String)row[7]);
-
-          n.setAttribute("idSample",               row[9] == null ? "" :  ((Integer)row[9]).toString());
-          n.setAttribute("sampleNumber",           row[10] == null ? "" :  (String)row[10]);
-          n.setAttribute("idHybridization",        row[11] == null ? "" :  ((Integer)row[11]).toString());
-          if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
-              filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
-              filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            n.setAttribute("laneNumber",           row[12] == null ? "" :  (String)row[12]);              
-            n.setAttribute("number",               row[12] == null ? "" :  (String)row[12]);  
-          } else {
-            n.setAttribute("hybNumber",            row[12] == null ? "" :  (String)row[12]);
-          }
-          n.setAttribute("workItemCreateDate",     row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
-          
-          String appUserName = "";
-          if (row[14] != null) {
-            appUserName = (String)row[14];
-          }
-          if (row[15] != null) {
-            if (appUserName.length() > 0) {
-              appUserName += ", ";
-            }
-            appUserName += (String)row[15];
-          }
-          n.setAttribute("appUserName",            appUserName);
-          n.setAttribute("isDirty","N");
+          // Create a WorkItem XML node.
+          Element n = createWorkItemNode(row, key, alt);
           
           
+          // Fill the XML node with the specific fields for the worklist step.
           if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
               filter.getCodeStepNext().equals(Step.SEQ_QC) ||
               filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
               filter.getCodeStepNext().equals(Step.MISEQ_QC)) {
-            n.setAttribute("qualDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-            n.setAttribute("qualCompleted",              row[16] == null ? "N" : "Y");
-            n.setAttribute("qualFailed",                 row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("qual260nmTo280nmRatio",      row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-            n.setAttribute("qual260nmTo230nmRatio",      row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
-            n.setAttribute("qualCalcConcentration",      row[20] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[20]));
-            n.setAttribute("qual28sTo18sRibosomalRatio", row[21] == null ? "" :  ((BigDecimal)row[21]).toString());
-            n.setAttribute("qualRINNumber",              row[22] == null ? "" :  ((String)row[22]));
-            n.setAttribute("qualBypassed",               row[23] == null ? "" :  (String)row[23]);
-            n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
-            n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
-            n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
-            n.setAttribute("requestCategoryType",        row[28] == null ? "" :  (String)row[28]);
-            Integer idSampleType                       = row[27] == null ? 0 : (Integer)row[27];
-
-            String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
-            n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
-            
-            String experimentType = "";
-            if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory) || 
-                RequestCategory.isIlluminaRequestCategory(codeRequestCategory)) {
-              experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
-            } else {
-              experimentType = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", n.getAttributeValue("qualCodeBioanalyzerChipType"));
-              if(experimentType == null || experimentType.length()==0) {
-                // If nothing in BioanalyzerChipType then use RequestCategory so the column isn't blank
-                experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
-              }
-            }
-            n.setAttribute("experimentType", experimentType == null ? "" : experimentType);
-            
-            String qualStatus = "";
-            if (n.getAttributeValue("qualCompleted").equals("Y")) {
-              qualStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("qualFailed").equals("Y")) {
-              qualStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("qualBypassed").equals("Y")) {
-              qualStatus = Constants.STATUS_BYPASSED;
-            } else {
-              qualStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            n.setAttribute("qualStatus", qualStatus);
+            fillQC(n, row, codeRequestCategory);
             
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
-            n.setAttribute("labelingDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-            n.setAttribute("labelingCompleted",          row[16] == null ? "N" : "Y");
-            n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[17]).toString();
-            n.setAttribute("labelingYield",              row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-            n.setAttribute("idLabel",                    row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("idLabelingProtocol",         row[20] == null ? "" :  ((Integer)row[20]).toString());
-            n.setAttribute("idLabeledSample",            row[21] == null ? "" :  ((Integer)row[21]).toString());
-            n.setAttribute("codeLabelingReactionSize",   row[22] == null ? "" :  (String)row[22]);
-            n.setAttribute("numberOfReactions",          row[23] == null ? "" :  ((Integer)row[23]).toString());
-            n.setAttribute("labelingBypassed",           row[24] == null ? "" :  (String)row[24]);
-            
-            String labelingStatus = "";
-            if (n.getAttributeValue("labelingCompleted").equals("Y")) {
-              labelingStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("labelingFailed").equals("Y")) {
-              labelingStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("labelingBypassed").equals("Y")) {
-              labelingStatus = Constants.STATUS_BYPASSED;
-            } else {
-              labelingStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            
-            n.setAttribute("labelingStatus", labelingStatus);
+            fillLabeling(n, row, codeRequestCategory);
             
           } else if (filter.getCodeStepNext().equals(Step.HYB_STEP)) {
-            n.setAttribute("hybDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-            n.setAttribute("hybCompleted",              row[16] == null ? "N" : "Y");
-            n.setAttribute("hybFailed",                 row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("idHybProtocol",             row[18] == null ? "" :  ((Integer)row[18]).toString());
-            n.setAttribute("idSlide",                   row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("slideBarcode",              row[20] == null ? "" :  (String)row[20]);
-            n.setAttribute("idSlideDesign",             row[21] == null ? "" :  ((Integer)row[21]).toString());
-            n.setAttribute("idArrayCoordinate",         row[22] == null ? "" :  ((Integer)row[22]).toString());
-            n.setAttribute("arrayCoordinate",           row[23] == null ? "" :  (String)row[23]);
-            n.setAttribute("hybBypassed",               row[24] == null ? "" :  (String)row[24]);
-            n.setAttribute("slideDesignName",           row[25] == null ? "" :  (String)row[25]);
-            n.setAttribute("arraysPerSlide",            row[26] == null ? "" :  ((Integer)row[26]).toString());
-
-            String hybStatus = "";
-            if (n.getAttributeValue("hybCompleted").equals("Y")) {
-              hybStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("hybFailed").equals("Y")) {
-              hybStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("hybBypassed").equals("Y")) {
-              hybStatus = Constants.STATUS_BYPASSED;
-            } else {
-              hybStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            
-            n.setAttribute("hybStatus", hybStatus);
+            fillHyb(n, row, codeRequestCategory);
 
           } else if (filter.getCodeStepNext().equals(Step.SCAN_EXTRACTION_STEP)) {
-            n.setAttribute("extractionDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-            n.setAttribute("extractionCompleted",          row[16] == null ? "N" : "Y");
-            n.setAttribute("idScanProtocol",               row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("idFeatureExtractionProtocol",  row[18] == null ? "" :  ((Integer)row[18]).toString());
-            n.setAttribute("extractionFailed",             row[19] == null ? "" :  (String)row[19]);
-            n.setAttribute("extractionBypassed",           row[20] == null ? "" :  (String)row[20]);
-            
-
-            String extractionStatus = "";
-            if (n.getAttributeValue("extractionCompleted").equals("Y")) {
-              extractionStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("extractionFailed").equals("Y")) {
-              extractionStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("extractionBypassed").equals("Y")) {
-              extractionStatus = Constants.STATUS_BYPASSED;
-            } else {
-              extractionStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            n.setAttribute("extractionStatus", extractionStatus);
+            fillExtraction(n, row, codeRequestCategory);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
                        filter.getCodeStepNext().equals(Step.MISEQ_PREP)) {
-            n.setAttribute("idSeqLibProtocol",                  row[16] == null ? "" :  ((Integer)row[16]).toString());
-            n.setAttribute("seqPrepByCore",                     row[17] == null ? "" :  (String)row[17]);
-            n.setAttribute("seqPrepLibConcentration",           row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-            n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[19] == null ? "" :  (String)row[19]);
-            n.setAttribute("seqPrepGelFragmentSizeFrom",        row[20] == null ? "" :  ((Integer)row[20]).toString());
-            n.setAttribute("seqPrepGelFragmentSizeTo",          row[21] == null ? "" :  ((Integer)row[21]).toString());
-            n.setAttribute("seqPrepDate",                       row[22] == null ? "" :  this.formatDate((java.sql.Date)row[22]));
-            n.setAttribute("seqPrepFailed",                     row[23] == null ? "" :  (String)row[23]);
-            n.setAttribute("seqPrepBypassed",                   row[24] == null ? "" :  (String)row[24]);
-            n.setAttribute("idSampleType",                      row[25] == null ? "" :  ((Integer)row[25]).toString());
-            // Fill in the seq lib protocol with the default specified in dictionary
-            // SampleTypeApplication.
-            String codeApplication = (String)row[26];
-            if (codeApplication != null) {
-              Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
-              if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
-                  n.getAttributeValue("idSeqLibProtocol").equals("") &&
-                  idSeqLibProtocolDefault != null) {
-                n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
-              }              
-            }
-            n.setAttribute("idOligoBarcode",                      row[27] == null ? "" :  ((Integer)row[27]).toString());
-            n.setAttribute("barcodeSequence",                     row[28] == null ? "" :  ((String)row[28]));
-            n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
-
-            String seqPrepStatus = "";
-            if (!n.getAttributeValue("seqPrepDate").equals("")) {
-              seqPrepStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("seqPrepFailed").equals("Y")) {
-              seqPrepStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("seqPrepBypassed").equals("Y")) {
-              seqPrepStatus = Constants.STATUS_BYPASSED;
-            } else {
-              seqPrepStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            n.setAttribute("seqPrepStatus", seqPrepStatus);
+            fillSeqPrep(n, row, codeRequestCategory, seqLibProtocolMap);
           
           }   else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
-            n.setAttribute("seqPrepStockLibVol",         row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-            n.setAttribute("seqPrepStockEBVol",          row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
-            n.setAttribute("seqPrepStockDate",           row[18] == null ? "" :  this.formatDate((java.sql.Date)row[18]));
-            n.setAttribute("seqPrepStockFailed",         row[19] == null ? "" :  (String)row[19]);
-            n.setAttribute("seqPrepStockBypassed",       row[20] == null ? "" :  (String)row[20]);
-
-            String seqPrepStockStatus = "";
-            if (!n.getAttributeValue("seqPrepStockDate").equals("")) {
-              seqPrepStockStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("seqPrepStockFailed").equals("Y")) {
-              seqPrepStockStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("seqPrepStockBypassed").equals("Y")) {
-              seqPrepStockStatus = Constants.STATUS_BYPASSED;
-            } else {
-              seqPrepStockStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            n.setAttribute("seqPrepStockStatus", seqPrepStockStatus);
-          
+            fillFlowCellStock(n, row, codeRequestCategory);
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
-            n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
-            n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
-            n.setAttribute("idNumberSequencingCycles",     row[19] == null ? "" :  ((Integer)row[19]).toString());
-            n.setAttribute("idOligoBarcode",               row[20] == null ? "" :  ((Integer)row[20]).toString());
-            n.setAttribute("barcodeSequence",              row[21] == null ? "" :  ((String)row[21]));
-            n.setAttribute("multiplexGroupNumber",         row[22] == null ? "" :  ((Integer)row[22]).toString());
-            n.setAttribute("isControl",                    "false");            
-            n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
-            
-            
-            
-            Integer idSample = (Integer)row[9];
-            Integer idSequenceLane = (Integer)row[16];
-            
-            StringBuffer infoBuf = new StringBuffer();
-            List infoList = (List)relatedFlowCellInfoMap.get(idSample);
-            if (infoList != null) {
-              for(Iterator i2 = infoList.iterator(); i2.hasNext();) {
-                RelatedFlowCellInfo info = (RelatedFlowCellInfo)i2.next();
-                if (info.idSequenceLane.equals(idSequenceLane)) {
-                  continue;
-                } 
-                
-                infoBuf.append(info.toString());
-                if (i2.hasNext()) { 
-                  infoBuf.append("\n");
-                }
-                
-              }  
-              n.setAttribute("relatedFlowCellInfo", infoBuf.toString());             
-            }
-          
+            fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             
-           
-            FlowCell fc = (FlowCell)row[16];
-            FlowCellChannel ch = (FlowCellChannel)row[17];
-            
-            n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
-            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType() != null ? fc.getIdSeqRunType().toString() : "");
-            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles() != null ? fc.getIdNumberSequencingCycles().toString() : "");
-            n.setAttribute("number",                       ch.getContentNumbers());
-            n.setAttribute("channelNumber",                ch.getNumber().toString());
-            n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
-            n.setAttribute("firstCycleDate",               ch.getFirstCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
-            n.setAttribute("firstCycleCompleted",          ch.getFirstCycleDate() == null ? "N" : "Y");
-            n.setAttribute("firstCycleFailed",             ch.getFirstCycleFailed() == null ? "" :  ((String)ch.getFirstCycleFailed()));
-            n.setAttribute("lastCycleDate",                ch.getLastCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getLastCycleDate()));
-            n.setAttribute("lastCycleCompleted",           ch.getLastCycleDate() == null ? "N" : "Y");
-            n.setAttribute("lastCycleFailed",              ch.getLastCycleFailed() == null ? "" :  ((String)ch.getLastCycleFailed()));
-            n.setAttribute("firstCycleStartDate",          ch.getFirstCycleDate() == null ? "" :   this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
-            n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
-            n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
-            n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
-            n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
-            n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
-
-
-            String firstCycleStatus = "";
-            if (n.getAttributeValue("firstCycleCompleted").equals("Y")) {
-              firstCycleStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("firstCycleFailed").equals("Y")) {
-              firstCycleStatus = Constants.STATUS_TERMINATED;
-            } else if (n.getAttributeValue("firstCycleStartDate") != "") {
-              firstCycleStatus = Constants.STATUS_IN_PROGRESS;
-            } 
-            
-            
-            n.setAttribute("firstCycleStatus", firstCycleStatus);
-          
-            String lastCycleStatus = "";
-            if (n.getAttributeValue("lastCycleCompleted").equals("Y")) {
-              lastCycleStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("lastCycleFailed").equals("Y")) {
-              lastCycleStatus = Constants.STATUS_TERMINATED;
-            }  else {
-              lastCycleStatus = row[8] == null ? "" :  (String)row[8];
-            }
-            n.setAttribute("lastCycleStatus", lastCycleStatus);
+            fillSeqRun(n, row, codeRequestCategory);
           
          
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
                        filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
-
-            FlowCell fc = (FlowCell)row[16];
-            FlowCellChannel ch = (FlowCellChannel)row[17];
-           
-            n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
-            n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
-            n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles().toString());
-            n.setAttribute("number",                       ch.getContentNumbers());
-            n.setAttribute("channelNumber",                ch.getNumber().toString());
-            n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
-            n.setAttribute("pipelineDate",                 ch.getPipelineDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getPipelineDate()));
-            n.setAttribute("pipelineCompleted",            ch.getPipelineDate() == null ? "N" : "Y");
-            n.setAttribute("pipelineFailed",               ch.getPipelineFailed() == null ? "" :  ((String)ch.getPipelineFailed()));
-            n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
-            n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
-            n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
-            n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
-            n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
-            n.setAttribute("phiXErrorRate",                ch.getPhiXErrorRate()  == null ? "" :  ch.getPhiXErrorRate().toString());
-            n.setAttribute("read1ClustersPassedFilterM",   ch.getRead1ClustersPassedFilterM()  == null ? "" :  ch.getRead1ClustersPassedFilterM().toString());
-            n.setAttribute("q30PercentForDisplay",         ch.getQ30PercentForDisplay());
-            
-
-            String pipelineStatus = "";
-            if (n.getAttributeValue("pipelineCompleted").equals("Y")) {
-              pipelineStatus = Constants.STATUS_COMPLETED;
-            } else if (n.getAttributeValue("pipelineFailed").equals("Y")) {
-              pipelineStatus = Constants.STATUS_TERMINATED;
-            } else {
-              pipelineStatus = row[8] == null ? "" :  (String)row[8];
-            }
-               
-            
-            n.setAttribute("pipelineStatus", pipelineStatus);
-          
-         
+            fillSeqDataPipeline(n, row, codeRequestCategory);
           }
-          
-          
-
 
           // Cluster gen work items are organized in a hierarchical fashion
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            String clusterGenKey = requestNumber + "-" + codeRequestCategory;
+            String clusterGenKey = requestNumber + "-" + codeRequestCategory + "-" + labName;
             List nodes = (List)clusterGenMap.get(clusterGenKey);
             
             if (nodes == null) {
@@ -630,47 +324,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             prevFlowCellNumber = flowCellNumber;
           }
           
-        }
+        }  // End of for loop of each row from query
         
         // Organize cluster gen workitems.  Under experiment number,
         // we organize sequence lanes under multiplex group number.
         if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-          for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
-            String clusterGenKey = (String)i.next();
-            String [] tokens = clusterGenKey.split("-");
-            String requestNumber = tokens[0];
-            String codeRequestCategory = tokens[1];
-            
-            List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
-            Element requestNode = new Element("Request");
-            requestNode.setAttribute("number", requestNumber);
-            requestNode.setAttribute("codeRequestCategory", codeRequestCategory);
-            doc.getRootElement().addContent(requestNode);
-            
-            HashMap seqTags = new HashMap();
-            Element multiplexLaneNode = null;
-            int multiplexLaneIdx = 1;
-            String prevMultiplexGroupNumber = "%%%%%";
-            for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
-              Element n = (Element)i1.next();
-              String barcodeSequence = n.getAttributeValue("barcodeSequence");
-              String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
-              if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
-                multiplexLaneNode = new Element("MultiplexLane");
-                multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
-                requestNode.addContent(multiplexLaneNode);
-                seqTags.clear();
-              }
-              
-              multiplexLaneNode.addContent(n);
-              seqTags.put(barcodeSequence, null);
-              prevMultiplexGroupNumber = multiplexGroupNumber;
-            }
-          }
+          organizeSeqAssembleNodes(doc, clusterGenMap);
         }
-      
+        
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       
@@ -707,6 +370,405 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     return this;
   }
   
+  private Element createWorkItemNode(Object[] row, String key, boolean alt) {
+    Element n = new Element("WorkItem");
+    n.setAttribute("key",                    key);
+    n.setAttribute("isSelected",             "N");
+    n.setAttribute("altColor",               new Boolean(alt).toString());
+    
+    n.setAttribute("idRequest",              row[0] == null ? "" : ((Integer)row[0]).toString());
+    n.setAttribute("requestNumber",          row[1] == null ? "" : (String)row[1]);
+    n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.util.Date)row[2]));
+    n.setAttribute("codeRequestCategory",    row[3] == null ? "" :  (String)row[3]);
+    n.setAttribute("codeRequestCategory1",   row[3] == null ? "" :  (String)row[3]);
+    n.setAttribute("idAppUser",              row[4] == null ? "" :  ((Integer)row[4]).toString());
+    n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
+    n.setAttribute("idWorkItem",            ((Integer)row[6]).toString());
+    n.setAttribute("codeStepNext",           row[7] == null ? "" :  (String)row[7]);
+
+    n.setAttribute("idSample",               row[9] == null ? "" :  ((Integer)row[9]).toString());
+    n.setAttribute("sampleNumber",           row[10] == null ? "" :  (String)row[10]);
+    n.setAttribute("idHybridization",        row[11] == null ? "" :  ((Integer)row[11]).toString());
+    if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
+        filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
+        filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
+      n.setAttribute("laneNumber",           row[12] == null ? "" :  (String)row[12]);              
+      n.setAttribute("number",               row[12] == null ? "" :  (String)row[12]);  
+    } else {
+      n.setAttribute("hybNumber",            row[12] == null ? "" :  (String)row[12]);
+    }
+    n.setAttribute("workItemCreateDate",     row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
+    
+    String appUserName = "";
+    if (row[14] != null) {
+      appUserName = (String)row[14];
+    }
+    if (row[15] != null) {
+      if (appUserName.length() > 0) {
+        appUserName += ", ";
+      }
+      appUserName += (String)row[15];
+    }
+    n.setAttribute("appUserName",            appUserName);
+    n.setAttribute("isDirty","N");
+
+
+    return n;
+  }
+  
+  private void fillQC(Element n, Object[] row, String codeRequestCategory) {
+    n.setAttribute("qualDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+    n.setAttribute("qualCompleted",              row[16] == null ? "N" : "Y");
+    n.setAttribute("qualFailed",                 row[17] == null ? "" :  (String)row[17]);
+    n.setAttribute("qual260nmTo280nmRatio",      row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+    n.setAttribute("qual260nmTo230nmRatio",      row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
+    n.setAttribute("qualCalcConcentration",      row[20] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[20]));
+    n.setAttribute("qual28sTo18sRibosomalRatio", row[21] == null ? "" :  ((BigDecimal)row[21]).toString());
+    n.setAttribute("qualRINNumber",              row[22] == null ? "" :  ((String)row[22]));
+    n.setAttribute("qualBypassed",               row[23] == null ? "" :  (String)row[23]);
+    n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
+    n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
+    n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
+    n.setAttribute("requestCategoryType",        row[28] == null ? "" :  (String)row[28]);
+    Integer idSampleType                       = row[27] == null ? 0 : (Integer)row[27];
+
+    String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
+    n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
+    
+    String experimentType = "";
+    if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory) || 
+        RequestCategory.isIlluminaRequestCategory(codeRequestCategory)) {
+      experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
+    } else {
+      experimentType = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", n.getAttributeValue("qualCodeBioanalyzerChipType"));
+      if(experimentType == null || experimentType.length()==0) {
+        // If nothing in BioanalyzerChipType then use RequestCategory so the column isn't blank
+        experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
+      }
+    }
+    n.setAttribute("experimentType", experimentType == null ? "" : experimentType);
+    
+    String qualStatus = "";
+    if (n.getAttributeValue("qualCompleted").equals("Y")) {
+      qualStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("qualFailed").equals("Y")) {
+      qualStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("qualBypassed").equals("Y")) {
+      qualStatus = Constants.STATUS_BYPASSED;
+    } else {
+      qualStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    n.setAttribute("qualStatus", qualStatus);
+    
+  }
+  
+  private void fillLabeling(Element n, Object[] row, String codeRequestCategory) {
+    n.setAttribute("labelingDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+    n.setAttribute("labelingCompleted",          row[16] == null ? "N" : "Y");
+    n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[17]).toString();
+    n.setAttribute("labelingYield",              row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+    n.setAttribute("idLabel",                    row[19] == null ? "" :  ((Integer)row[19]).toString());
+    n.setAttribute("idLabelingProtocol",         row[20] == null ? "" :  ((Integer)row[20]).toString());
+    n.setAttribute("idLabeledSample",            row[21] == null ? "" :  ((Integer)row[21]).toString());
+    n.setAttribute("codeLabelingReactionSize",   row[22] == null ? "" :  (String)row[22]);
+    n.setAttribute("numberOfReactions",          row[23] == null ? "" :  ((Integer)row[23]).toString());
+    n.setAttribute("labelingBypassed",           row[24] == null ? "" :  (String)row[24]);
+    
+    String labelingStatus = "";
+    if (n.getAttributeValue("labelingCompleted").equals("Y")) {
+      labelingStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("labelingFailed").equals("Y")) {
+      labelingStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("labelingBypassed").equals("Y")) {
+      labelingStatus = Constants.STATUS_BYPASSED;
+    } else {
+      labelingStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    
+    n.setAttribute("labelingStatus", labelingStatus);
+    
+  }
+  
+  private void fillHyb(Element n, Object[] row, String codeRequestCategory) {
+    n.setAttribute("hybDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+    n.setAttribute("hybCompleted",              row[16] == null ? "N" : "Y");
+    n.setAttribute("hybFailed",                 row[17] == null ? "" :  (String)row[17]);
+    n.setAttribute("idHybProtocol",             row[18] == null ? "" :  ((Integer)row[18]).toString());
+    n.setAttribute("idSlide",                   row[19] == null ? "" :  ((Integer)row[19]).toString());
+    n.setAttribute("slideBarcode",              row[20] == null ? "" :  (String)row[20]);
+    n.setAttribute("idSlideDesign",             row[21] == null ? "" :  ((Integer)row[21]).toString());
+    n.setAttribute("idArrayCoordinate",         row[22] == null ? "" :  ((Integer)row[22]).toString());
+    n.setAttribute("arrayCoordinate",           row[23] == null ? "" :  (String)row[23]);
+    n.setAttribute("hybBypassed",               row[24] == null ? "" :  (String)row[24]);
+    n.setAttribute("slideDesignName",           row[25] == null ? "" :  (String)row[25]);
+    n.setAttribute("arraysPerSlide",            row[26] == null ? "" :  ((Integer)row[26]).toString());
+  
+    String hybStatus = "";
+    if (n.getAttributeValue("hybCompleted").equals("Y")) {
+      hybStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("hybFailed").equals("Y")) {
+      hybStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("hybBypassed").equals("Y")) {
+      hybStatus = Constants.STATUS_BYPASSED;
+    } else {
+      hybStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    
+    n.setAttribute("hybStatus", hybStatus);
+  }
+
+  private void fillExtraction(Element n, Object[] row, String codeRequestCategory) {
+    n.setAttribute("extractionDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
+    n.setAttribute("extractionCompleted",          row[16] == null ? "N" : "Y");
+    n.setAttribute("idScanProtocol",               row[17] == null ? "" :  ((Integer)row[17]).toString());
+    n.setAttribute("idFeatureExtractionProtocol",  row[18] == null ? "" :  ((Integer)row[18]).toString());
+    n.setAttribute("extractionFailed",             row[19] == null ? "" :  (String)row[19]);
+    n.setAttribute("extractionBypassed",           row[20] == null ? "" :  (String)row[20]);
+    
+
+    String extractionStatus = "";
+    if (n.getAttributeValue("extractionCompleted").equals("Y")) {
+      extractionStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("extractionFailed").equals("Y")) {
+      extractionStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("extractionBypassed").equals("Y")) {
+      extractionStatus = Constants.STATUS_BYPASSED;
+    } else {
+      extractionStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    n.setAttribute("extractionStatus", extractionStatus);
+  }
+
+  private void fillSeqPrep(Element n, Object[] row, String codeRequestCategory, HashMap<String, Integer> seqLibProtocolMap) {
+    n.setAttribute("idSeqLibProtocol",                  row[16] == null ? "" :  ((Integer)row[16]).toString());
+    n.setAttribute("seqPrepByCore",                     row[17] == null ? "" :  (String)row[17]);
+    n.setAttribute("seqPrepLibConcentration",           row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
+    n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[19] == null ? "" :  (String)row[19]);
+    n.setAttribute("seqPrepGelFragmentSizeFrom",        row[20] == null ? "" :  ((Integer)row[20]).toString());
+    n.setAttribute("seqPrepGelFragmentSizeTo",          row[21] == null ? "" :  ((Integer)row[21]).toString());
+    n.setAttribute("seqPrepDate",                       row[22] == null ? "" :  this.formatDate((java.sql.Date)row[22]));
+    n.setAttribute("seqPrepFailed",                     row[23] == null ? "" :  (String)row[23]);
+    n.setAttribute("seqPrepBypassed",                   row[24] == null ? "" :  (String)row[24]);
+    n.setAttribute("idSampleType",                      row[25] == null ? "" :  ((Integer)row[25]).toString());
+    // Fill in the seq lib protocol with the default specified in dictionary
+    // SampleTypeApplication.
+    String codeApplication = (String)row[26];
+    if (codeApplication != null) {
+      Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
+      if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
+          n.getAttributeValue("idSeqLibProtocol").equals("") &&
+          idSeqLibProtocolDefault != null) {
+        n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
+      }              
+    }
+    n.setAttribute("idOligoBarcode",                      row[27] == null ? "" :  ((Integer)row[27]).toString());
+    n.setAttribute("barcodeSequence",                     row[28] == null ? "" :  ((String)row[28]));
+    n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
+
+
+    String seqPrepStatus = "";
+    if (!n.getAttributeValue("seqPrepDate").equals("")) {
+      seqPrepStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("seqPrepFailed").equals("Y")) {
+      seqPrepStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("seqPrepBypassed").equals("Y")) {
+      seqPrepStatus = Constants.STATUS_BYPASSED;
+    } else {
+      seqPrepStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    n.setAttribute("seqPrepStatus", seqPrepStatus);
+  }
+  
+  private void fillFlowCellStock(Element n, Object[] row, String codeRequestCategory) {
+    n.setAttribute("seqPrepStockLibVol",         row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
+    n.setAttribute("seqPrepStockEBVol",          row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
+    n.setAttribute("seqPrepStockDate",           row[18] == null ? "" :  this.formatDate((java.sql.Date)row[18]));
+    n.setAttribute("seqPrepStockFailed",         row[19] == null ? "" :  (String)row[19]);
+    n.setAttribute("seqPrepStockBypassed",       row[20] == null ? "" :  (String)row[20]);
+
+    String seqPrepStockStatus = "";
+    if (!n.getAttributeValue("seqPrepStockDate").equals("")) {
+      seqPrepStockStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("seqPrepStockFailed").equals("Y")) {
+      seqPrepStockStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("seqPrepStockBypassed").equals("Y")) {
+      seqPrepStockStatus = Constants.STATUS_BYPASSED;
+    } else {
+      seqPrepStockStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    n.setAttribute("seqPrepStockStatus", seqPrepStockStatus);
+  
+    
+  }
+
+  private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap) {
+    n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
+    n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
+    n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
+    n.setAttribute("idNumberSequencingCycles",     row[19] == null ? "" :  ((Integer)row[19]).toString());
+    n.setAttribute("numberSequencingCycles",       row[19] == null ? "" : dh.getNumberSequencingCycles((Integer)row[19]));
+    n.setAttribute("idOligoBarcode",               row[20] == null ? "" :  ((Integer)row[20]).toString());
+    n.setAttribute("barcodeSequence",              row[21] == null ? "" :  ((String)row[21]));
+    n.setAttribute("multiplexGroupNumber",         row[22] == null ? "" :  ((Integer)row[22]).toString());
+    n.setAttribute("isControl",                    "false");            
+    n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
+    
+    String labLastName = (String)row[23];            
+    String labFirstName = (String)row[24];
+    labName = Lab.formatLabName(labLastName, labFirstName);
+    
+    n.setAttribute("labName", labName);
+    n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
+
+    
+    Integer idSample = (Integer)row[9];
+    Integer idSequenceLane = (Integer)row[16];
+    
+    StringBuffer infoBuf = new StringBuffer();
+    List infoList = (List)relatedFlowCellInfoMap.get(idSample);
+    if (infoList != null) {
+      for(Iterator i2 = infoList.iterator(); i2.hasNext();) {
+        RelatedFlowCellInfo info = (RelatedFlowCellInfo)i2.next();
+        if (info.idSequenceLane.equals(idSequenceLane)) {
+          continue;
+        } 
+        
+        infoBuf.append(info.toString());
+        if (i2.hasNext()) { 
+          infoBuf.append("\n");
+        }
+        
+      }  
+      n.setAttribute("relatedFlowCellInfo", infoBuf.toString());             
+    }
+  
+
+  }
+
+  private void fillSeqRun(Element n, Object[] row, String codeRequestCategory) {
+    FlowCell fc = (FlowCell)row[16];
+    FlowCellChannel ch = (FlowCellChannel)row[17];
+    
+    n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
+    n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType() != null ? fc.getIdSeqRunType().toString() : "");
+    n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles() != null ? fc.getIdNumberSequencingCycles().toString() : "");
+    n.setAttribute("number",                       ch.getContentNumbers());
+    n.setAttribute("channelNumber",                ch.getNumber().toString());
+    n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
+    n.setAttribute("firstCycleDate",               ch.getFirstCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+    n.setAttribute("firstCycleCompleted",          ch.getFirstCycleDate() == null ? "N" : "Y");
+    n.setAttribute("firstCycleFailed",             ch.getFirstCycleFailed() == null ? "" :  ((String)ch.getFirstCycleFailed()));
+    n.setAttribute("lastCycleDate",                ch.getLastCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getLastCycleDate()));
+    n.setAttribute("lastCycleCompleted",           ch.getLastCycleDate() == null ? "N" : "Y");
+    n.setAttribute("lastCycleFailed",              ch.getLastCycleFailed() == null ? "" :  ((String)ch.getLastCycleFailed()));
+    n.setAttribute("firstCycleStartDate",          ch.getFirstCycleDate() == null ? "" :   this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+    n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
+    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
+    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+    n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
+    n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+
+
+    String firstCycleStatus = "";
+    if (n.getAttributeValue("firstCycleCompleted").equals("Y")) {
+      firstCycleStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("firstCycleFailed").equals("Y")) {
+      firstCycleStatus = Constants.STATUS_TERMINATED;
+    } else if (n.getAttributeValue("firstCycleStartDate") != "") {
+      firstCycleStatus = Constants.STATUS_IN_PROGRESS;
+    } 
+    
+    
+    n.setAttribute("firstCycleStatus", firstCycleStatus);
+  
+    String lastCycleStatus = "";
+    if (n.getAttributeValue("lastCycleCompleted").equals("Y")) {
+      lastCycleStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("lastCycleFailed").equals("Y")) {
+      lastCycleStatus = Constants.STATUS_TERMINATED;
+    }  else {
+      lastCycleStatus = row[8] == null ? "" :  (String)row[8];
+    }
+    n.setAttribute("lastCycleStatus", lastCycleStatus);
+
+  }
+
+  private void fillSeqDataPipeline(Element n, Object[] row, String codeRequestCategory) {
+
+    FlowCell fc = (FlowCell)row[16];
+    FlowCellChannel ch = (FlowCellChannel)row[17];
+   
+    n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
+    n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
+    n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles().toString());
+    n.setAttribute("number",                       ch.getContentNumbers());
+    n.setAttribute("channelNumber",                ch.getNumber().toString());
+    n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
+    n.setAttribute("pipelineDate",                 ch.getPipelineDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getPipelineDate()));
+    n.setAttribute("pipelineCompleted",            ch.getPipelineDate() == null ? "N" : "Y");
+    n.setAttribute("pipelineFailed",               ch.getPipelineFailed() == null ? "" :  ((String)ch.getPipelineFailed()));
+    n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
+    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
+    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+    n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
+    n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+    n.setAttribute("phiXErrorRate",                ch.getPhiXErrorRate()  == null ? "" :  ch.getPhiXErrorRate().toString());
+    n.setAttribute("read1ClustersPassedFilterM",   ch.getRead1ClustersPassedFilterM()  == null ? "" :  ch.getRead1ClustersPassedFilterM().toString());
+    n.setAttribute("q30PercentForDisplay",         ch.getQ30PercentForDisplay());
+    
+
+    String pipelineStatus = "";
+    if (n.getAttributeValue("pipelineCompleted").equals("Y")) {
+      pipelineStatus = Constants.STATUS_COMPLETED;
+    } else if (n.getAttributeValue("pipelineFailed").equals("Y")) {
+      pipelineStatus = Constants.STATUS_TERMINATED;
+    } else {
+      pipelineStatus = row[8] == null ? "" :  (String)row[8];
+    }
+       
+    
+    n.setAttribute("pipelineStatus", pipelineStatus);
+
+  }
+  
+  private void organizeSeqAssembleNodes(Document doc, Map clusterGenMap) {
+    
+    for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
+      String clusterGenKey = (String)i.next();
+      String [] tokens = clusterGenKey.split("-");
+      String requestNumber = tokens[0];
+      String theCodeRequestCategory = tokens[1];
+      String theLabName = tokens[2];
+      
+      List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
+      Element requestNode = new Element("Request");
+      requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
+      requestNode.setAttribute("labName", labName);
+      requestNode.setAttribute("number", requestNumber + " " + theLabName);
+      doc.getRootElement().addContent(requestNode);
+      
+      HashMap seqTags = new HashMap();
+      Element multiplexLaneNode = null;
+      int multiplexLaneIdx = 1;
+      String prevMultiplexGroupNumber = "%%%%%";
+      for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
+        Element n = (Element)i1.next();
+        String barcodeSequence = n.getAttributeValue("barcodeSequence");
+        String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
+        if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
+          multiplexLaneNode = new Element("MultiplexLane");
+          multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+          requestNode.addContent(multiplexLaneNode);
+          seqTags.clear();
+        }
+        
+        multiplexLaneNode.addContent(n);
+        seqTags.put(barcodeSequence, null);
+        prevMultiplexGroupNumber = multiplexGroupNumber;
+      }
+    }
+  }
+
   public static class  SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
@@ -841,6 +903,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
     }
   }  
+  
   public static class  FlowCellChannelComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;

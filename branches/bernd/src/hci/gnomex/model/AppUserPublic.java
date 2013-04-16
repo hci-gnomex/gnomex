@@ -19,6 +19,10 @@ public class AppUserPublic extends HibernateDetailObject implements Serializable
   private String  department;
   private String  institute;
   private String  ucscUrl;
+  private String  uNID;
+  private String  userNameExternal;
+  private String  passwordExternal;
+
 
   
   public String getDepartment() {
@@ -99,6 +103,43 @@ public class AppUserPublic extends HibernateDetailObject implements Serializable
     return name;
   }
   
+  public String getuNID() {
+    return uNID;
+  }
+
+  public void setuNID(String uNID) {
+    this.uNID = uNID;
+  }
+
+  public String getUserNameExternal() {
+    return userNameExternal;
+  }
+
+  public void setUserNameExternal(String userNameExternal) {
+    this.userNameExternal = userNameExternal;
+  }
+
+  public String getPasswordExternal() {
+    return passwordExternal;
+  }
+
+  public void setPasswordExternal(String passwordExternal) {
+    this.passwordExternal = passwordExternal;
+  }
+  
+  public String getPasswordExternalEntered() {
+    if (this.passwordExternal != null && !this.passwordExternal.equals("")) {
+      return MASKED_PASSWORD;      
+    } else {
+      return "";
+    }
+  }
+
+  public void registerMethodsToExcludeFromXML() {
+    this.excludeMethodFromXML("getPasswordExternal");
+  }
+
+
   public int compareTo(Object o) {
     if (o instanceof AppUserPublic) {
       AppUserPublic other = (AppUserPublic)o;      

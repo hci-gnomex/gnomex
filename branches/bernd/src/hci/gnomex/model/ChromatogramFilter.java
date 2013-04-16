@@ -68,7 +68,8 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        c.idReleaser, ");
     queryBuf.append("        c.lane, ");
     queryBuf.append("        pw.position, ");
-    queryBuf.append("        plate.quadrant ");
+    queryBuf.append("        plate.quadrant, ");
+    queryBuf.append("        sample.idSampleType ");
         
     getQueryBody(queryBuf);
 

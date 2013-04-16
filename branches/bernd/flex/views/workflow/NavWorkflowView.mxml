@@ -24,6 +24,9 @@
 			public var solexaFlowCellChannels:int = 0;
 			
 			private var qcWorklistInit:Boolean = false;
+			
+			public var codeStepNext:String = null;
+			public var codeSequencingPlatform:String = null;
 
 			public function switchTo(codeStep:String):void {
 				if (codeStep == 'HSEQPREP') {
@@ -60,47 +63,24 @@
 			}
 					
 			private function init():void {
+				qcWorklistInit = false;
+				qcLinkBar.dataProvider = combinedQCTabItems;
+
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'SOLEXA');
 				solexaFlowCellChannels = requestCategory.@numberOfChannels;
 				
-				var rcList:XMLList;
-				
-				var rcGAII:Object = null;
-				if (requestCategory != null) {
-					if (requestCategory is XMLList) {
-						rcList = XMLList(requestCategory);
-						if (rcList.length() > 0) {
-							rcGAII = rcList[0];
-						}
-					} else {
-						rcGAII = requestCategory;
-					} 
-				} 
-				if (rcGAII == null || rcGAII.@isActive == 'N') {
+				if (!parentApplication.usesKindOfRequestCategory("SOLEXA")) {
 					if (navBar.contains(solexaTab)) {
 						navBar.removeChild(solexaTab);
 						combinedQCTabItems.splice(5, 1);
 					}
 				}
-				qcWorklistInit = false;
-				qcLinkBar.dataProvider = combinedQCTabItems;
 				
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'MISEQ');
 				miSeqFlowCellChannels = requestCategory.@numberOfChannels;
 				
-				var miSeq:Object = null;
-				if (requestCategory != null) {
-					if (requestCategory is XMLList) {
-						rcList = XMLList(requestCategory);
-						if (rcList.length() > 0) {
-							miSeq = rcList[0];
-						}
-					} else {
-						miSeq = requestCategory;
-					} 
-				} 
-				if (miSeq == null || miSeq.@isActive == 'N') {
-					if (navBar.contains(miSeqTab)) {
+				if (!parentApplication.usesKindOfRequestCategory("MISEQ")) {
+				 	if (navBar.contains(miSeqTab)) {
 						navBar.removeChild(miSeqTab);
 					}
 				}
@@ -108,6 +88,69 @@
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'HISEQ');
 				hiSeqFlowCellChannels = requestCategory.@numberOfChannels;
 							
+				callLater(showView);
+			}
+			
+			public function showView():void {
+				if (codeStepNext == null) {
+					return;
+				}
+				
+				if (codeStepNext == "ALL") {
+					navBar.selectedIndex = 0;
+					onCombinedQCTabChange();
+					showNav();
+					return;
+				}
+				
+				
+				hideNav();
+				if (codeStepNext == "QC") {
+					navBar.selectedIndex = 0;
+					onCombinedQCTabChange();
+				} else if (codeStepNext == "LABEL") {
+					navBar.selectedChild = microarrayTab;
+					this.detailViews.selectedChild = this.microarrayViews;
+					this.microarrayViews.selectedChild = workflowLabelingView;
+					workflowLabelingView.getWorkList.send();
+				} else if (codeStepNext == "HYB") {
+					navBar.selectedChild = microarrayTab;
+					this.detailViews.selectedChild = this.microarrayViews;
+					this.microarrayViews.selectedChild = workflowHybView;
+					workflowHybView.getWorkList.send();
+					
+				} else if (codeStepNext == "EXT") {
+					navBar.selectedChild = microarrayTab;
+					this.detailViews.selectedChild = this.microarrayViews;
+					this.microarrayViews.selectedChild = workflowExtractionView;
+					workflowExtractionView.getWorkList.send();
+					
+				} else if (codeStepNext == "FLOWCELL") {
+					showFlowCellView();
+				}else {
+					this.switchTo(codeStepNext);
+				}
+			}
+			
+			private function hideNav():void {
+				this.navBarBox.width = 12;
+				this.showNavLink.visible = true;
+				this.hideNavLink.visible = false;
+			}
+			
+			private function showNav():void {
+				this.navBarBox.width = 170;				
+				this.showNavLink.visible = false;
+				this.hideNavLink.visible = true;
+			}
+			
+
+			
+			private function showFlowCellView():void {
+				solexaViews.selectedChild=this.blankSolexa;
+				detailViews.selectedChild = flowCellView;
+				flowCellView.codeSequencingPlatform = codeSequencingPlatform;
+				flowCellView.clearAndRefreshList();				
 			}
 			
 			public function checkDirty():void {
@@ -145,7 +188,10 @@
 				detailViews.visible = true;
 	        }
 				
-			private function onCombinedQCTabChange():void {
+			public function onCombinedQCTabChange():void {
+				if  (combinedWorkflowQCView == null) {
+					return;
+				}
 				if(!qcWorklistInit) {
 					combinedWorkflowQCView.getWorkListQC.send();
 					qcWorklistInit = true;
@@ -264,125 +310,150 @@
     </mx:Script>
 	
 	<mx:Array id="combinedQCTabItems">
-		<mx:Object label="All"
-				   ico="@Embed('../../assets/chart_curve.png')" />
+		<mx:Object label="All"/>
+		
 		<mx:Object label="Illumina HiSeq"
-				   ico="{parentApplication.iconHiSeq}" />
+				   />
 		<mx:Object label="Illumina MiSeq"
-				   ico="{parentApplication.iconMiSeq}" />
-		<mx:Object label="Microarray"
-				   ico="{parentApplication.iconMicroarray}" />
-		<mx:Object label="Sample Quality"
-				   ico="{parentApplication.iconQC}" />
+				    />
 		<mx:Object label="GAIIX"
-				   ico="{parentApplication.iconSolexa}" />
+				   />
+		<mx:Object label="Microarray"
+				   />
+		<mx:Object label="Sample Quality"
+				    />
 	</mx:Array>
+	
+<mx:VBox width="100%" height="100%" verticalGap="0">
 
-	<mx:HDividedBox width="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" height="100%" dividerThickness="4">
-		<mx:TabNavigator id="navBar" styleName="navTabNavigator" width="170"  height="100%" change="onTabChange()">
-			<mx:Canvas id="combinedQCTab" width="100%" height="100%" icon="@Embed('../../assets/chart_curve.png')" toolTip="QC Worklist" fontSize="12">
-				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-					<mx:Text text="QC Worklist" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
-					<mx:LinkBar id="qcLinkBar" dataProvider="" iconField="ico"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onCombinedQCTabChange()"  height="202"  width="116" paddingTop="4" separatorWidth="0" separatorColor="#FFFFFF">
-					</mx:LinkBar> 
-				</mx:VBox>
-			</mx:Canvas>			
-			<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
-				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-					
-					<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="11" separatorWidth="0" separatorColor="#FFFFFF">
-					</mx:LinkBar> 
-					
-					<mx:Spacer height="20"/>			  		
-					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
-				</mx:VBox>
-			</mx:Canvas>
-			<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow" fontSize="11">
-				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-					
-					<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12" separatorColor="#FFFFFF" separatorWidth="0">
-					</mx:LinkBar> 
-					
-					<mx:Spacer height="20"/>			  		
-					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
-				</mx:VBox>
-			</mx:Canvas>			
-			<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow" fontSize="11"> 
-				<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
-			  		<mx:Text text="Microarray" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
-			  		
-			  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="3"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12" separatorWidth="0" separatorColor="#FFFFFF">
-			  		</mx:LinkBar>
+	
+	<mx:HBox width="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" 
+			 paddingRight="0" height="100%" horizontalGap="2">
+		<mx:VBox id="navBarBox" verticalGap="0" width="170" height="100%" >
+			<mx:HBox width="100%" fontWeight="bold" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" height="15">
+				<mx:LinkButton id="showNavLink" visible="false" click="{showNav()}" 
+							   textDecoration="none" 
+							   horizontalGap="0" 
+	 						   paddingLeft="0" paddingRight="0" 
+							   paddingTop="0" paddingBottom="0" 
+							   toolTip="Expand navigation panel"
+							   icon="@Embed(source='../../assets/arrow_right.gif')" width="15" height="15"/>
 				
-				</mx:VBox>
-			</mx:Canvas >
-			<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
-				<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-					
-					<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4"  separatorColor="#FFFFFF" separatorWidth="0">
-					</mx:LinkBar>  
-					
-					<mx:Spacer height="20"/>			  		
-					<mx:Spacer height="10"/>			  		
-					<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{solexaViews.selectedChild=this.blankSolexa;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
+				<mx:Spacer width="100%"/>
+				<mx:LinkButton id="hideNavLink" click="{hideNav()}" visible="true" 
+							   textDecoration="none" 
+							   horizontalGap="0" 
+							   paddingLeft="0" 
+							   paddingTop="0" paddingBottom="0" paddingRight="0" 
+							   toolTip="Minimize navigation panel" 
+							   icon="@Embed(source='../../assets/arrow_left.gif')" width="15" height="15"/>
+			</mx:HBox>
 
-				</mx:VBox>
-			</mx:Canvas>			
-		</mx:TabNavigator>
-		    
+			<mx:TabNavigator id="navBar" styleName="navTabNavigator" visible="{hideNavLink.visible ? true : false}" width="100%"  height="100%" change="onTabChange()" creationPolicy="all">
+				<mx:Canvas id="combinedQCTab" width="100%" height="100%" icon="{parentApplication.iconQC}" toolTip="QC Worklist" fontSize="12">
+					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+						<mx:Text text="QC Worklist" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
+						<mx:LinkBar id="qcLinkBar" dataProvider="" iconField="ico"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onCombinedQCTabChange()"  height="202"  width="116" paddingTop="4" separatorWidth="0" separatorColor="#FFFFFF">
+						</mx:LinkBar> 
+					</mx:VBox>
+				</mx:Canvas>			
+				<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
+					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+						
+						<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="11" separatorWidth="0" separatorColor="#FFFFFF">
+						</mx:LinkBar> 
+						
+						<mx:Spacer height="20"/>			  		
+						<mx:Spacer height="10"/>			  		
+						<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{hiSeqViews.selectedChild=this.blankHiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
+					</mx:VBox>
+				</mx:Canvas>
+				<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow" fontSize="11">
+					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+						
+						<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12" separatorColor="#FFFFFF" separatorWidth="0">
+						</mx:LinkBar> 
+						
+						<mx:Spacer height="20"/>			  		
+						<mx:Spacer height="10"/>			  		
+						<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{miSeqViews.selectedChild=this.blankMiSeq;detailViews.selectedChild = flowCellView;flowCellView.clearAndRefreshList();}" fontSize="12"/>
+					</mx:VBox>
+				</mx:Canvas>			
+				<mx:Canvas id="microarrayTab" width="100%" height="100%"  icon="{parentApplication.iconMicroarray}" toolTip="Microarray workflow" fontSize="11"> 
+					<mx:VBox styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="2" paddingRight="2" paddingLeft="2" paddingBottom="4">
+				  		<mx:Text text="Microarray" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
+				  		
+				  		<mx:LinkBar dataProvider="microarrayViews"   styleName="navLinkBar" direction="vertical"   selectedIndex="3"  itemClick="onMicroarrayWorklistChange()"  height="131"  fontSize="12" separatorWidth="0" separatorColor="#FFFFFF">
+				  		</mx:LinkBar>
+					
+					</mx:VBox>
+				</mx:Canvas >
+				<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
+					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+						
+						<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4"  separatorColor="#FFFFFF" separatorWidth="0">
+						</mx:LinkBar>  
+						
+						<mx:Spacer height="20"/>			  		
+						<mx:Spacer height="10"/>			  		
+						<mx:LinkButton label="Flow Cells"  styleName="navLinkBar"  click="{showFlowCellView()}" fontSize="12"/>
+	
+					</mx:VBox>
+				</mx:Canvas>			
+			</mx:TabNavigator>
+			</mx:VBox>
+  
 			
 	
-		<mx:ViewStack id="detailViews" width="100%" height="100%">
-			<mx:ViewStack id="microarrayViews"  visible="true" height="100%" width="100%"  >
+		<mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
+			<mx:ViewStack id="microarrayViews"  visible="true" height="100%" width="100%" creationPolicy="all" >
 
-	           <workflow:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="@Embed('../../assets/asterisk_yellow.png')"/>
+	           <workflow:WorkflowLabelingView label="Labeling" id="workflowLabelingView" icon="{parentApplication.iconLabeling}"/>
 	    
-	           <workflow:WorkflowHybView label="Hybridization" id="workflowHybView" icon="@Embed('../../assets/basket_put.png')"/>
+	           <workflow:WorkflowHybView label="Hybridization" id="workflowHybView" icon="{parentApplication.iconHyb}"/>
 	
-	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="{parentApplication.iconExperiment}"/>
+	           <workflow:WorkflowExtractionView label="Scan / FE" id="workflowExtractionView" icon="{parentApplication.iconExtraction}"/>
                
                <mx:Canvas id="blankMicroarray" label=""> 
                </mx:Canvas>
                 
             </mx:ViewStack>
-			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
+			<mx:ViewStack id="solexaViews"  visible="true" height="100%" width="100%" selectedIndex="3" creationPolicy="all"  >
 			
-			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="@Embed('../../assets/chart_line.png')"/>
+			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="{parentApplication.iconLibPrep}"/>
 
 			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 
-			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
 			   <mx:Canvas id="blankSolexa" label=""/>
 			   
 			</mx:ViewStack>
-		   <mx:ViewStack id="hiSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
+		   <mx:ViewStack id="hiSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3" creationPolicy="all" >
 			
-			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView" icon="@Embed('../../assets/chart_line.png')"/>
+			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconHiSeq}"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 
-			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
 			   <mx:Canvas id="blankHiSeq" label=""/>
 			   
 			</mx:ViewStack>
-			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3"  >
+			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3" creationPolicy="all" >
 				
-				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="@Embed('../../assets/chart_line.png')"/>
+				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
 				
-				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconMiSeq}"/> 	           
+				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 				
-				<workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowMiSeqPipelineView" icon="@Embed('../../assets/server_go.png')"/> 	           
+				<workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowMiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 				
 				<mx:Canvas id="blankMiSeq" label=""/>
 				
 			</mx:ViewStack>	
-			<mx:ViewStack id="combinedQCViews"  visible="true" height="100%" width="100%" selectedIndex="1"  >
+			<mx:ViewStack id="combinedQCViews"  visible="true" height="100%" width="100%" selectedIndex="1" creationPolicy="all" >
 				
-				<workflow:WorkflowQCView id="combinedWorkflowQCView" icon="@Embed('../../assets/chart_curve.png')"/>
+				<workflow:WorkflowQCView id="combinedWorkflowQCView" icon="{parentApplication.iconQC}"/>
 				
 				<mx:Canvas id="blankCombinedQCView" label=""/>
 				
@@ -393,10 +464,9 @@
 		</mx:ViewStack>
 		
 	
-	</mx:HDividedBox>
-	
+	</mx:HBox>
 	
   		
-	
+</mx:VBox>	
     
 </mx:Canvas>
