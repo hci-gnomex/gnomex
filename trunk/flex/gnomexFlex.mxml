@@ -259,6 +259,18 @@
 	</mx:HTTPService>	
 	
 	
+	<mx:HTTPService  
+		id="getSampleSheetUploadURL" 
+		url="UploadSampleSheetURLServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetSampleSheetUploadURL(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to get sample sheet upload URL', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	    	
+	
+	
 	<mx:HTTPService 
 		id="getAccountFieldsConfiguration" 
 		url="GetAccountFieldsConfiguration.gx"
@@ -338,6 +350,8 @@
 			private var userPublicView:UserPublicView;
 			
 			private var cursorID:Number = 0; 
+			
+			public var uploadSampleSheetURL:String = null;
 			
 			[Bindable]  
 			public var siteLogo:String = "";
@@ -3289,6 +3303,19 @@
 						"\\$1");
 				return newString;
 			}
+			
+			public function setupSampleSheetUpload():void {
+				if (uploadSampleSheetURL == null) {
+					uploadSampleSheetURL = null;
+					getSampleSheetUploadURL.send();
+				}
+			}
+			
+			private function onGetSampleSheetUploadURL(event:ResultEvent):void {
+				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
+					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
+				}
+			}				
 			
 		]]>
 	</mx:Script>
