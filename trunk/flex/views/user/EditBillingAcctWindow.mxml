@@ -127,7 +127,7 @@
 		[Bindable]
 		public var coreFacilities:XMLListCollection = new XMLListCollection();
 		[Bindable]
-		public var activeSubmitters:XMLList;
+		public var activeSubmitters:XMLListCollection;
 		[Bindable]
 		public var ba:XML;
 		[Bindable]
