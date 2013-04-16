@@ -937,8 +937,28 @@
 					coreFacilityCheckbox[x].setStyle("fundWeight", coreFacilityCheckbox[x].selected ? "bold" : "normal");
 					coreFacilityCheckbox[x].setStyle("fontStyle", coreFacilityCheckbox[x].selected ? "italic" : "normal");
 				}
-				activeSubmitters = new XMLList(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
+				activeSubmitters = new XMLListCollection(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
+				addApprovedBillingAccountUsers(billingAccounts);
+				addApprovedBillingAccountUsers(poBillingAccounts);
+				addApprovedBillingAccountUsers(creditCardBillingAccounts);
 				refreshBillingTab();
+			}
+			
+			private function addApprovedBillingAccountUsers(billingAccountList:XMLListCollection):void{
+				for each(var ba:XML in billingAccountList.source){
+					for each(var appUser:XML in ba.children()){
+						var found:Boolean = false;
+						for each(var u:XML in activeSubmitters){
+							if(appUser.@idAppUser == u.@idAppUser){
+								found = true;
+								break;
+							}
+						}
+						if(!found){
+							activeSubmitters.addItem(appUser);
+						}
+					}
+				}
 			}
 			
 			public function showEditPurchaseOrderWindow(event:MouseEvent):void{
@@ -1141,7 +1161,7 @@
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
-	<mx:XMLList id="activeSubmitters"/>
+	<mx:XMLListCollection id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
