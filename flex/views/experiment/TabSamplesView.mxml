@@ -1692,6 +1692,13 @@
 				
 				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 				
+				this.concentrationCol.visible = !isExternal;
+				this.otherOrganismCol.visible = !isExternal;
+				this.sampleOrganismColumn.visible = !isExternal;
+				this.preppedByCoreCol.visible = !isExternal;
+				this.otherSamplePrepMethodCol.visible = !isExternal;
+				this.seqLibProtocolCol.visible = !isExternal;
+				
 				if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState() ) {
 					this.concentrationCol.visible = false;
 					this.otherOrganismCol.visible = false;
@@ -1711,16 +1718,32 @@
 					this.qualFragSizeToCol.visible = false;
 					this.qualRINCol.visible = false;
 					this.qualStatusCol.visible = false;
-				} else {
-					this.concentrationCol.visible = !isExternal;
-					this.otherOrganismCol.visible = !isExternal;
-					this.sampleOrganismColumn.visible = !isExternal;
-					this.preppedByCoreCol.visible = !isExternal;
-					this.otherSamplePrepMethodCol.visible = !isExternal;
-					this.seqLibProtocolCol.visible = !isExternal;
-				}
-				
-				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
+					
+					if (currentState == 'CapSeqState') {
+						if (isEditState) { 
+							this.sampleTypeCol.visible = true;
+						} else {
+							this.sampleTypeCol.visible = false;
+						} 
+						
+					} else if (currentState == 'SequenomState') {
+						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
+						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
+						this.descriptionColumn.visible = false;
+						if ( parentDocument.isClinicalSequenomState() ) {
+							this.sampleNameCol.visible = false;
+						}
+						
+					} else if (currentState == 'ClinicalSequenomState') {
+						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
+						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
+						this.descriptionColumn.visible = false;
+						if ( parentDocument.isClinicalSequenomState() ) {
+							this.sampleNameCol.visible = false;
+						}
+						
+					}
+				} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
 					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 					numberSequencingLanesCol.editable = true;
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
@@ -1768,29 +1791,6 @@
 						chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBionanalyzerState' ? true : false;
 					}
 					labelColumn.visible = false;
-					
-				} else if (currentState == 'CapSeqState') {
-					if (isEditState) { 
-						this.sampleTypeCol.visible = true;
-					} else {
-						this.sampleTypeCol.visible = false;
-					} 
-					
-				}  else if (currentState == 'SequenomState') {
-					this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
-					this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
-					this.descriptionColumn.visible = false;
-					if ( parentDocument.isClinicalSequenomState() ) {
-						this.sampleNameCol.visible = false;
-					}
-					
-				} else if (currentState == 'ClinicalSequenomState') {
-					this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
-					this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
-					this.descriptionColumn.visible = false;
-					if ( parentDocument.isClinicalSequenomState() ) {
-						this.sampleNameCol.visible = false;
-					}
 					
 				} else {
 					numberSequencingLanesCol.visible = false;
