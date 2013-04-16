@@ -257,6 +257,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
       // Only allow viewing for files under 50 MB
       if (this.fileSize < Math.pow(2, 20) * 50) {
         String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+        dirParm.replace("/", "&#47;");
         viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
     }
