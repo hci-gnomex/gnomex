@@ -20,3 +20,8 @@ delete from OligoBarcodeSchemeAllowed where codeRequestCategory is not null
 
 alter table OligoBarcodeSchemeAllowed drop column codeRequestCategory;
 alter table OligoBarcodeSchemeAllowed alter column idSeqLibProtocol Integer not null 
+
+
+-- Add adapter Sequence columns to seq lib protocol table.  In gnomex these are known as 3' reads and 5' reads
+alter table SeqLibProtocol add adapterSequenceRead1 varchar(500);
+alter table SeqLibProtocol add adapterSequenceRead2 varchar(500);
