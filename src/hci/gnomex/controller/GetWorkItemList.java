@@ -213,7 +213,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         
         
-        TreeMap clusterGenMap = new TreeMap();
+        TreeMap clusterGenMap = new TreeMap(new ClusterGenComparator());
       
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
@@ -768,6 +768,47 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
     }
   }
+  
+  public static int compareRequestNumbers(String reqNumber1, String reqNumber2) {
+    int comp = 0;
+    
+    String firstChar1 = getReqFirstChar(reqNumber1);
+    String firstChar2 = getReqFirstChar(reqNumber2);
+    
+    Integer num1 = getReqNumber(reqNumber1);
+    Integer num2 = getReqNumber(reqNumber2);
+    
+    if (firstChar1.equals(firstChar2)) {
+      comp = num1.compareTo(num2);
+    } else {
+      comp = firstChar1.compareTo(firstChar2);
+    }
+    
+    return comp;
+  }
+  
+  private static String getReqFirstChar(String reqNumber) {
+    String c = "0";
+    if ("0123456789".indexOf(reqNumber.substring(0,1)) < 0) {
+      c = reqNumber.substring(0, 1);
+    }
+    
+    return c;
+  }
+  
+  private static Integer getReqNumber(String reqNumber) {
+    String intStr = reqNumber;
+    if ("0123456789".indexOf(intStr.substring(0,1)) < 0) {
+      intStr = intStr.substring(1);
+    }
+    if (intStr.indexOf("R") >= 0) {
+      intStr = intStr.substring(0, intStr.indexOf("R"));
+    }
+    
+    Integer num = Integer.parseInt(intStr);
+    
+    return num;
+  }
 
   public static class  SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
@@ -794,11 +835,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (reqNumber1.equals(reqNumber2)) {
         return new Integer(number1).compareTo(new Integer(number2));        
       } else {
-        return reqNumber1.compareTo(reqNumber2);
+        return compareRequestNumbers(reqNumber1, reqNumber2);
       }
       
     }
   }
+  
   public static class  HybComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
@@ -896,7 +938,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             return multiplexNumber1.compareTo(multiplexNumber2);
           }
         } else {
-          return reqNumber1.compareTo(reqNumber2);
+          return compareRequestNumbers(reqNumber1, reqNumber2);
         }        
       } else {
         return status1.compareTo(status2);
@@ -979,7 +1021,32 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
     }
   }
-  
+
+  public static class  ClusterGenComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+
+      
+      
+      String[] tokens1 = key1.split("-");
+      String[] tokens2 = key2.split("-");
+      
+      String reqNumber1    = tokens1[0];
+      String remainder1    = key1.substring(key1.indexOf("-"));
+      
+      String reqNumber2    = tokens2[0];
+      String remainder2    = key2.substring(key2.indexOf("-"));
+
+      if (reqNumber1.equals(reqNumber2)) {
+        return remainder1.compareTo(remainder2);        
+      } else {
+        return compareRequestNumbers(reqNumber1, reqNumber2);
+      }
+      
+    }
+  }
+
   public static class RelatedFlowCellInfo {
     private Integer     clustersPerTile;
     private BigDecimal  sampleConcentrationpM;
