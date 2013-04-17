@@ -91,7 +91,46 @@ public class SecurityManager extends SimpleUserManager  {
       return result;
   }
   
-  
+  private boolean isInactiveGNomExUniversityUser(String uid) {
+    
+      boolean result = false;
+
+      Connection con = null;
+      PreparedStatement stmt = null;
+      ResultSet rs = null;
+
+      try {
+        con = this.getConnection();
+
+        stmt = con.prepareStatement("SELECT isActive, uNID FROM AppUser WHERE uNID = ?");
+
+        stmt.setString(1, uid);
+
+        rs = stmt.executeQuery();
+
+        while (rs.next()) {
+          String isActive = rs.getString("isActive");
+          if (isActive != null && isActive.equalsIgnoreCase("Y")) {
+              result = false;
+          } else {
+            result = true;
+          }
+        }
+
+      } catch (ClassNotFoundException cnfe) {
+        System.err.println("FATAL: The JDBC driver was not found on the classpath \n" + cnfe.getMessage());
+        return false;
+      } catch (SQLException ex) {
+        System.err.println("FATAL: Unable to initialize hci.gnomex.security.SecurityManager");
+        ex.printStackTrace(System.err);
+        return false;
+      } finally {
+        this.closeConnection(con);
+      }
+
+      return result;
+  }
+
   private boolean isAuthenticatedGNomExExternalUser(String uid, String password) {
     
     boolean result = false;
@@ -151,6 +190,8 @@ public class SecurityManager extends SimpleUserManager  {
       // If this is a GNomEx external user, check credentials 
       // against the GNomEx encrypted password
       return true;
+    } else if (this.isInactiveGNomExUniversityUser(uid)) {
+      return false;  // if user has account that has been marked inactive do not allow login.
     } else {
       // Otherwise, if this is not a GNomEx user, check the credentials
       // against the Univ of Utah LDAP
