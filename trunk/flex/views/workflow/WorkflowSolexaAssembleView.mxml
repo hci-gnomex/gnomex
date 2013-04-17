@@ -109,6 +109,8 @@
 		
 		private var maxFlowCellCount:int;
 		
+		private var draggedItems:Array = null;
+		
 		public function initializeData(maxFlowCells:int):void {
 			maxFlowCellCount = maxFlowCells;
 			if(codeStepNext == 'SEQASSEM') {
@@ -533,12 +535,32 @@
 			}
 		}
 		
+		private function onDragComplete(event:DragEvent) : void {
+			
+			event.preventDefault(); 
+			for each (var draggedItem : XML in draggedItems) { 
+				var idx:int = 0;
+				for each (var workItem:Object in workList) {					
+					// Is this request node the parent of the dragged item or the dragged item?
+					if (workItem.@idRequest == draggedItem.@idRequest) {
+						// We only delete request nodes that don't have children
+						if (workItem.children().length() == 0) {
+							this.workList.removeItemAt(idx);
+							break;
+						}
+					}
+					idx++;
+				}
+			}
+			
+		}
+		
 	  	private function onDragDropLane(event:DragEvent) : void
 		{
 	       // retrieve the data associated with the "items" format. This will be the data that
 	       // the dragInitiator has copied into the DragSource.
 	       var draggedFormat:String = event.dragSource.formats[0];
-		   var items:Array  = event.dragSource.dataForFormat(draggedFormat) as Array;	
+		   draggedItems  = event.dragSource.dataForFormat(draggedFormat) as Array;	
 	
 	       // determine where in the grid the drop occurs and select that node by the index; followed by 
 	       // retrieving the node itself. 
@@ -548,7 +570,7 @@
 	        
 
 	       // Disallow operation if seq run is of different type
-	       for each (var dragItem:XML in items) {
+	       for each (var dragItem:XML in draggedItems) {
 	       		if (dragItem.name() == "DictionaryEntry") {
 	       			continue;
     	   		}
@@ -588,8 +610,8 @@
 	
 	       // taking all of the items in the DragSouce, move to work items
 	       // to the dirtyWorkItems list
-	       for(var i:Number=0; i < items.length; i++) {
-		       	var dragNode:XML = items[i] as XML;
+	       for(var i:Number=0; i < draggedItems.length; i++) {
+		       	var dragNode:XML = draggedItems[i] as XML;
 		       	if (dragNode.name() == "MultiplexLane") {
 					// Drag all work item in multiplex lane
 		       		for each(var workItemNode:XML in dragNode.children()) {
@@ -676,16 +698,7 @@
 		    	}
 	    	}
 
-	    	if (requestNode.children().length() == 0) {
-				var idx:int = 0;
-				for each (var workItem:Object in workList) {					
-					if (workItem.@idRequest == requestNode.@idRequest) {
-						this.workList.removeItemAt(idx);
-						break;
-					}
-					idx++;
-				}
-	    	}
+
 			
 		}
 		
@@ -1001,13 +1014,14 @@
 	    <mx:VDividedBox width="50%" height="100%"   paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2"  borderStyle="solid">
 			<mx:VBox width="100%" height="100%"   verticalGap="0">	
 				<mx:HBox width="100%">
-					<mx:Label text="{'Pending Sequence Lanes (' + workList.length + ')' }" fontWeight="normal" styleName="formLabel" fontSize="12"/>
+					<mx:Label text="Pending Sequence Lanes" fontWeight="normal" styleName="formLabel" fontSize="12"/>
 					<mx:Spacer width="100%"/>
+					<mx:Label text="{'(' + workList.length + ' experiments)'}" fontWeight="normal" fontSize="11" fontStyle="italic"/>
 				</mx:HBox>
 			    <mx:HBox paddingTop="0" width="100%" verticalAlign="middle" paddingBottom="1" horizontalGap="8">
 					<mx:HBox verticalAlign="middle" paddingLeft="4" horizontalGap="0">
 						<mx:Label text="# Cycles" styleName="labelSmall"/>
-						<mx:TextInput width="30" id="numberOfCyclesFilter" change="{reloadWorklist()}" enter="{reloadWorklist()}" />
+						<mx:TextInput width="30" id="numberOfCyclesFilter" change="{reloadWorklist()}" enter="{reloadWorklist()}"  fontSize="11"/>
 					</mx:HBox>
 					<mx:HBox horizontalGap="1" borderStyle="none" cornerRadius="10" borderColor="#466D88" styleName="labelSmall">
 						<mx:RadioButtonGroup id="radiogroupSeqRunTypeFilter"/>
@@ -1039,7 +1053,7 @@
 				</mx:HBox>
 
 				<mx:AdvancedDataGrid id="pendingLanesGrid" width="100%" height="100%" 
-					dragEnabled="true"  
+					dragEnabled="true"  dragComplete="onDragComplete(event)"
 					sortExpertMode="true"
 				    sortableColumns="false"
 				    displayItemsExpanded="true"
@@ -1159,8 +1173,8 @@
 				 dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
 				 dropEnabled="true" 
 				 editable="true" 
-				 dragDrop="onDragDropLane(event)"	 
-				 selectionMode="multipleRows" fontSize="10">	 
+				 dragDrop="onDragDropLane(event)"	  
+				 selectionMode="multipleRows" fontSize="10" >	 
 				<mx:columns>
 			        <mx:AdvancedDataGridColumn headerText="Control" 
 			        	width="15"        
