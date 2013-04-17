@@ -261,6 +261,18 @@
 	</mx:HTTPService>	
 	
 	
+	<mx:HTTPService  
+		id="getSampleSheetUploadURL" 
+		url="UploadSampleSheetURLServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetSampleSheetUploadURL(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to get sample sheet upload URL', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>	    	
+	
+	
 	<mx:HTTPService 
 		id="getAccountFieldsConfiguration" 
 		url="GetAccountFieldsConfiguration.gx"
@@ -340,6 +352,8 @@
 			private var userPublicView:UserPublicView;
 			
 			private var cursorID:Number = 0; 
+			
+			public var uploadSampleSheetURL:String = null;
 			
 			[Bindable]  
 			public var siteLogo:String = "";
@@ -3292,6 +3306,19 @@
 				return newString;
 			}
 			
+			public function setupSampleSheetUpload():void {
+				if (uploadSampleSheetURL == null) {
+					uploadSampleSheetURL = null;
+					getSampleSheetUploadURL.send();
+				}
+			}
+			
+			private function onGetSampleSheetUploadURL(event:ResultEvent):void {
+				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
+					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
+				}
+			}				
+			
 		]]>
 	</mx:Script>
 	
@@ -3331,7 +3358,33 @@
 		<menuitem label="Topics" icon="iconTopic" context="bioinformatics"   />
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
-			<menuitem label="Workflow " icon="iconWorkflow"   />
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
+			<menuitem type="separator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
+			<menuitem type="separator"/>
+			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
+			</menuitem>
+			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
+			</menuitem>
+			<menuitem label="Microarray..." icon="iconMicroarray"   >
+				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
+				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
+				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
+			</menuitem>
+			<menuitem type="separator"/>
+			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
+			<menuitem type="separator"/>
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />

@@ -57,7 +57,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     baseDirFlowCell = null;
     requestNumber = null;
     fileName = null;
-    dir = null;
+    dir = "";
     view = "N";
     
     serverName = req.getServerName();
@@ -323,13 +323,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
     String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
     
     
-    if (fdFileName.endsWith(fileName) &&
-        (dir == null || dir.equals(theDirectory))) {
+    if (fdFileName.endsWith(fileName) && dir.equals(theDirectory)) {
       return fd;
     } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
         FileDescriptor childFd = (FileDescriptor)i.next();
-        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, theDirectory);
+        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getDirectoryName());
         if (matchingFd != null) {
           return matchingFd;
         }

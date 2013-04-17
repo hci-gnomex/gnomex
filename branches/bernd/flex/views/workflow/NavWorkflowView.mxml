@@ -147,9 +147,12 @@
 
 			
 			private function showFlowCellView():void {
+				this.flowCellView.codeSequencingPlatform = "MISEQ";
+				flowCellView.codeSequencingPlatform = codeSequencingPlatform;
+				var experimentPlatform:String =  parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SequencingPlatform', codeSequencingPlatform);
+				this.flowCellView.titleLabel.text = experimentPlatform + ' Flow Cells';
 				solexaViews.selectedChild=this.blankSolexa;
 				detailViews.selectedChild = flowCellView;
-				flowCellView.codeSequencingPlatform = codeSequencingPlatform;
 				flowCellView.clearAndRefreshList();				
 			}
 			
