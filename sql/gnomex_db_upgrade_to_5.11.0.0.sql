@@ -28,3 +28,6 @@ alter table SeqLibProtocol add adapterSequenceRead2 varchar(500);
 
 -- codeRequestCategory in PropertyDictionary
 alter table PropertyDictionary add codeRequestCategory VARCHAR(10) NULL;
+
+-- remove includePIInBilling
+alter table Lab drop column includePiInBillingEmails;
