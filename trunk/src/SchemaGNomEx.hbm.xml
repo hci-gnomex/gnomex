@@ -1831,6 +1831,8 @@
 		<property name="description" column="description" type="string"/>
 		<property name="url" column="url" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="adapterSequenceRead1" column="adapterSequenceRead1" type="string"/>
+		<property name="adapterSequenceRead2" column="adapterSequenceRead2" type="string"/>
 	</class>	
 
 	<!-- hci.gnomex.model.SeqLibProtocolApplication -->
