@@ -953,6 +953,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           message.append(msg + "\n");
         }              
       }
+      
+     // Add to BILLING Notification to table.
+     sendNotification(requestParser.getRequest(), sess, "NEW", "BILLING", "REQUEST");      
+      
     }        
     return message.toString();
     
@@ -1053,18 +1057,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     } 
     
     // Bernd added.
-    sendNotification(request, sess, state, "ADMIN");
-    sendNotification(request, sess, state, "USER");
+    sendNotification(request, sess, state, "ADMIN", "REQUEST");
+    sendNotification(request, sess, state, "USER", "REQUEST");
     
     originalRequestNumber = request.getNumber();
     
     sess.flush();  
   }
   
-  private void sendNotification(Request req, Session sess, String state, String targetGroup){
+  private void sendNotification(Request req, Session sess, String state, String targetGroup, String source){
 	  Notification note = new Notification();
 	  note.setSourceType(targetGroup);
-	  note.setType("REQUEST");
+	  note.setType(source);
 	  note.setExpID(Integer.parseInt(req.getRequestNumberNoR(req.getNumber())));
 	  note.setDate(new java.sql.Date(System.currentTimeMillis()));
 	  note.setIdLabTarget(req.getIdLab());
@@ -2246,7 +2250,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     if (requestParser.isExternalExperiment()) {
@@ -2404,9 +2407,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           subject, 
           emailInfo + emailBody.toString(),
           true);
-      // Add to Notification table.
-      	sendNotification(requestParser.getRequest(), sess, state, "BILLING");
     }
+    // Add to BILLING Notification table.
+  	//sendNotification(requestParser.getRequest(), sess, state, "BILLING");
     
   }  
   

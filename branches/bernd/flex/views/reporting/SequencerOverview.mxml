@@ -104,12 +104,13 @@
 							 sortableColumns="true"
 							 editable="false"
 							 allowMultipleSelection="false"
+							 dataProvider="{MIList}"
 							>
 			 
-			<mx:dataProvider>
+<!--			<mx:dataProvider>
 				<mx:HierarchicalData source="{MIList}" />
 			</mx:dataProvider>
-			
+-->			
 			<mx:columns>
 				<mx:AdvancedDataGridColumn  dataField="runId" editable="false" headerText="Run Id" width="100">
 				</mx:AdvancedDataGridColumn>

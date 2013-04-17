@@ -3,7 +3,7 @@
 		   xmlns:db="views.dashboard.*"  
 		   width="500" height="430" backgroundAlpha="1" cornerRadius="12"
 		   preinitialize="checkSecurity()"
-		   initialize="init()" horizontalScrollPolicy="off">   
+		   horizontalScrollPolicy="off">   
 
 	<mx:Script>
 
@@ -30,30 +30,6 @@
 			import mx.utils.ObjectUtil;
 			
 			public function init():void {
-			//	checkSecurity();
-				
-				if(currentState == "AdminState"){
-					// Admin can see all.
-	//				Alert.show("Admin state NotificationHub.mxml");
-				}
-				
-				if(currentState == "BillingAdminState"){
-	//				Alert.show("Billing state NotificationHub.mxml");
-				}
-				
-				if(currentState == "UserState"){
-	//				Alert.show("User state NotificationHub.mxml");
-//					notificationTabs.getTabAt(3).visible = false;
-	//				notificationTabs.getTabAt(2).visible = false;
-		//			notificationTabs.getTabAt(1).visible = false;
-					adminBox.includeInLayout = false;
-					adminBox.visible = false;
-				} 
-				
-				if(currentState == "WorkflowState"){
-	//				Alert.show("Workflow state NotificationHub.mxml");
-			//		notificationTabs.getTabAt(3).visible = false;
-				}
 			}
 			
 			public function checkSecurity():void {
@@ -69,7 +45,31 @@
 			}
 
 		]]>
+		
 	</mx:Script>
+
+	<mx:states>
+		<mx:State name="AdminState">
+			<!-- Dont remove anything.-->
+		</mx:State>
+		<mx:State name="BillingAdminState">
+			<mx:RemoveChild target="{adminBox}" />
+			<mx:RemoveChild target="{userBox}" />
+			<mx:RemoveChild target="{workflowBox}" />
+		</mx:State>
+		<mx:State name="WorkflowState">
+			<mx:RemoveChild target="{adminBox}" />
+			<mx:RemoveChild target="{billingBox}" />
+			<mx:RemoveChild target="{userBox}" />
+			</mx:State>
+		<mx:State name="UserState">
+			<mx:RemoveChild target="{adminBox}" />
+			<mx:RemoveChild target="{billingBox}" />
+			<mx:RemoveChild target="{workflowBox}" />
+		</mx:State>
+		
+	</mx:states>
+	
 	<mx:VBox width="100%" height="100%">
 		<mx:VBox width="90%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 			<mx:HBox width="497" horizontalAlign="center" paddingTop="5">
