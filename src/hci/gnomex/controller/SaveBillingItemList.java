@@ -305,7 +305,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = lab.getBillingNotificationEmail();
-    String ccList = emailFormatter.getCCList(sess, serverName); 
+    String ccList = emailFormatter.getCCList(sess); 
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
