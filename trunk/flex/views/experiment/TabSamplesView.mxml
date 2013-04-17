@@ -123,7 +123,11 @@
 			
 			private function getSampleSheetFieldList():XMLListCollection {
 				var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
-				return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), true);
+				var addAllAnnotations:Boolean = true;
+				if (parentDocument.isIScanState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+					addAllAnnotations = false;
+				}
+				return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), addAllAnnotations);
 			}
 			
 			private function downloadSampleSheetExample(fileName:String):void {
