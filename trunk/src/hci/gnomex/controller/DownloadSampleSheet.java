@@ -207,6 +207,9 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       String gridLabel = names[SampleSheetColumnNamesParser.GRID_LABEL_IDX];
       String value = getSpecialValue(sample, propertyName);
       if (value == null) {
+        value = getAssayValue(sample, propertyName);
+      }
+      if (value == null) {
         value = getPropertyValue(sample, gridLabel);
       }
       if (value == null) {
@@ -237,6 +240,23 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     }
     
     return retVal;
+  }
+  
+  private String getAssayValue(Sample sample, String propertyName) {
+    String value = null;
+    if (propertyName.startsWith("hasAssay")) {
+      value = "N";
+      String assayName = propertyName.substring(8);
+      ArrayList<String> assays = requestParser.getAssays(sample.getIdSampleString());
+      for(String a : assays) {
+        if (a.equals(assayName)) {
+          value = "Y";
+          break;
+        }
+      }
+    } 
+    
+    return value;
   }
   
   private String getDictionaryValue(Integer id, String cls) {
