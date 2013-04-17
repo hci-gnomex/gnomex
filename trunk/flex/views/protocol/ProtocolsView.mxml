@@ -7,7 +7,7 @@
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
 	creationPolicy="all" show="init()"
 	width="100%" height="100%">
-
+	
 	<mx:HTTPService
 		id="getProtocolList"
 		url="GetProtocolList.gx"
@@ -16,9 +16,9 @@
 		useProxy="false"
 		method="POST"		
 		result="resultHandler(event)"
-	    fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
+		fault="parentApplication.onFailHttpRequest('Failed to get protocol list', event)">
 		<mx:request>
-		  <protocolClassName>{targetProtocolClassName}</protocolClassName>
+			<protocolClassName>{targetProtocolClassName}</protocolClassName>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -30,7 +30,7 @@
 		useProxy="false"
 		method="POST"		
 		result="resultHandler(event)"
-	    fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)">
+		fault="parentApplication.onFailHttpRequest('Failed to get protocol', event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -43,7 +43,7 @@
 		resultFormat="e4x"
 		useProxy="false"
 		result="resultHandler(event)"
-	    fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">
+		fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService>
@@ -56,7 +56,7 @@
 		useProxy="false"
 		method="POST"
 		result="resultHandler(event)"
-	    fault="parentApplication.onFailHttpRequest('Failed to delete protocol', event)">
+		fault="parentApplication.onFailHttpRequest('Failed to delete protocol', event)">
 		<mx:request>
 			<idProtocol>
 				{fullProtocol.id}
@@ -83,7 +83,7 @@
 			import views.util.GNomExStringUtil;
 			
 			import views.protocol.CreateNewProtocolPopUp;
-
+			
 			
 			
 			[Bindable]
@@ -107,12 +107,12 @@
 			[Bindable]
 			public var lastSelectedProtocolClass:Object = null;
 			[Bindable]
-	        [Embed(source="../../assets/brick_add.png")]
-	        public var iconProtocolAdd:Class;
-	        
-	        [Bindable]
-	        [Embed(source="../../assets/brick_delete.png")]
-	        public var iconProtocolDelete:Class;
+			[Embed(source="../../assets/brick_add.png")]
+			public var iconProtocolAdd:Class;
+			
+			[Bindable]
+			[Embed(source="../../assets/brick_delete.png")]
+			public var iconProtocolDelete:Class;
 			
 			public var createNewProtocol:CreateNewProtocolPopUp;
 			
@@ -122,7 +122,7 @@
 			public var selectedIdx:int;
 			
 			[Bindable]
-            public var open:Object = new Object();
+			public var open:Object = new Object();
 			
 			[Bindable]
 			public var refreshData:Boolean = false;
@@ -137,7 +137,7 @@
 			
 			public function checkDirty():void {
 			}
-						
+			
 			public function initializeData(targetProtocolClassName:String=null):void {
 				this.targetProtocolClassName = targetProtocolClassName;
 				currentState = "";
@@ -163,8 +163,8 @@
 				params.idProtocol = idProtocol.text;
 				params.protocolName = protocolName.text;
 				if (this.currentState == "AnalysisEditState") {
-				 	params.idAnalysisType = analysisTypeCombo.selectedItem != null ? analysisTypeCombo.selectedItem.@value : "";
-				 	params.idAppUser = appUserCombo.selectedItem != null ? appUserCombo.selectedItem.@value : "";
+					params.idAnalysisType = analysisTypeCombo.selectedItem != null ? analysisTypeCombo.selectedItem.@value : "";
+					params.idAppUser = appUserCombo.selectedItem != null ? appUserCombo.selectedItem.@value : "";
 				} else {
 					params.codeRequestCategory = codeRequestCategory.selectedItem != null ? codeRequestCategory.selectedItem.@value : "";					
 				}
@@ -174,6 +174,8 @@
 				params.protocolUrl = url.text;
 				params.isActive = isActive.selected ? "Y" : "N";
 				params.protocolClassName =  protocolClassName.text;
+				params.adapterSequenceRead1 = this.adapterSequenceRead1Input.text;
+				params.adapterSequenceRead2 = this.adapterSequenceRead2Input.text;
 				var call:Object = saveProtocol.send(params);
 				call.marker = "doneSaveProtocol";
 				open = browseProtocols.openItems;
@@ -214,7 +216,7 @@
 				} else if (call.marker == "doneDeleteProtocol") {
 					fullProtocol = null;
 					lastSavedProtocolId = null;
-			 		protocolViews.selectedChild = blankProtocol;
+					protocolViews.selectedChild = blankProtocol;
 					this.saveProtocolButton.enabled = false;
 					this.deleteProtocolButton.enabled = false;
 					this.titleLabelText = "Protocol: ";
@@ -230,7 +232,7 @@
 				var idx:int = 0;
 				var pos:int = -1;
 				if (this.lastSelectedProtocolClass == null  ||
-				    this.lastSavedProtocolId == null) {
+					this.lastSavedProtocolId == null) {
 					return;    	
 				}
 				for each(var protocolsNode:Object in getProtocolList.lastResult.Protocols) {
@@ -238,7 +240,7 @@
 					for each(var protocolNode:Object in protocolsNode.Protocol) {
 						idx++;
 						if (protocolsNode.@protocolClassName == this.lastSelectedProtocolClass &&
-						    protocolNode.@id.toString() == this.lastSavedProtocolId) {
+							protocolNode.@id.toString() == this.lastSavedProtocolId) {
 							pos = --idx;
 							break;
 						}
@@ -252,7 +254,7 @@
 					this.browseProtocols.scrollToIndex(pos);
 					this.onBrowseProtocols(null);
 				}
-					
+				
 			}
 			
 			public function initTree():void {
@@ -334,7 +336,7 @@
 					testForURL();
 				}
 				
-			
+				
 			}
 			
 			public function testForURL():void {
@@ -363,17 +365,17 @@
 			public function removeCreateProtocolPopUp():void {
 				PopUpManager.removePopUp(createNewProtocol);
 			}
-            
+			
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="protocols" source="{protocolList}"/>
 	
 	<mx:HDividedBox right="0" left="0" top="0" bottom="0" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-	  <mx:VBox styleName="panelBox"  width="240" height="100%"  >
-		<mx:Label id="titleLabel123"   text="Protocols"/>
-		  
-		<mx:Canvas  alpha="1" width="100%" height="100%" >
+		<mx:VBox styleName="panelBox"  width="240" height="100%"  >
+			<mx:Label id="titleLabel123"   text="Protocols"/>
+			
+			<mx:Canvas  alpha="1" width="100%" height="100%" >
 				<mx:Tree  
 					id="browseProtocols" 
 					right="0" left="0" bottom="0" top="0"
@@ -386,7 +388,7 @@
 					change="onBrowseProtocols(event);"
 					> 
 				</mx:Tree>
-		</mx:Canvas>
+			</mx:Canvas>
 			<mx:ControlBar horizontalAlign="left" width="80%" >
 				<mx:VBox verticalGap="0">
 					<mx:LinkButton id="addProtocolButton" click="prepareToAddProtocol()" icon="@Embed('../../assets/brick_add.png')" toolTip="Add protocol" label="New protocol" enabled="false" disabledIcon="@Embed(source='../../assets/brick_add_disable.png')" textDecoration="underline"/>
@@ -397,87 +399,109 @@
 				</mx:VBox>
 				<mx:LinkButton label="Refresh" id="refreshButton0" click="callGetProtocolList()" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh list" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" textDecoration="underline"/>
 			</mx:ControlBar>
-	  </mx:VBox>
-	  <mx:VBox styleName="panelBox"  id="bodyPanel"  
-	  	height="100%" dropShadowEnabled="true" width="100%" >
-		<mx:Label id="titleLabel" styleName="titleLabel" text="{titleLabelText}"/>
-		
-		<mx:Canvas width="100%" height="100%" >
+		</mx:VBox>
+		<mx:VBox styleName="panelBox"  id="bodyPanel"  
+				 height="100%" dropShadowEnabled="true" width="100%" >
+			<mx:Label id="titleLabel" styleName="titleLabel" text="{titleLabelText}"/>
 			
-		<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0" creationPolicy="all">
-		<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:Label text="" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
-		</mx:Canvas>
-		<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-			<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle" id="hbox2">
-				<mx:Label text="Name" fontWeight="normal" width="120" styleName="formLabel"/>
-				<mx:Label text="{fullProtocol.name}" width="100%"/>
-			</mx:HBox>
-			<mx:HBox top="36" styleName="formDisplay" left="10"  right="10" verticalAlign="middle" id="hbox1">
-				<mx:Label text="Experiment Platform" fontWeight="normal" width="120" id="label2" styleName="formLabel"/>
-				<mx:Label 
-					id="kindDisplay"
-					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.RequestCategory', fullProtocol.codeRequestCategory)}"
-					width="100%">
-					</mx:Label>
-			</mx:HBox>
-			<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
-				<mx:Label text="Active" fontWeight="normal" width="120" styleName="formLabel"/>
-				<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
-			</mx:HBox>
-			<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
-			    <mx:HBox  styleName="formDisplay" verticalAlign="middle">
-				    <mx:Label text="URL" fontWeight="normal" width="120" styleName="formLabel"/>
-			    	<mx:Label text="{fullProtocol.url}" width="100%"/>
-			    </mx:HBox>
-					<mx:LinkButton paddingLeft="130"  id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
-			</mx:VBox>
-			<mx:VBox top="134" bottom="10" left="10" right="10">
-				<mx:Label text="Protocol Description" fontWeight="normal" styleName="formLabel"/>
-				<mx:Text text="{protocolDescription}" height="100%" width="100%"/>
-			</mx:VBox>	
-		</mx:Canvas>		
-		<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
-		<mx:HBox y="10" verticalAlign="bottom" left="10" right="10" id="hbox3">
-			<mx:VBox  left="10" top="10" right="394" width="100%" verticalGap="0">
-				<mx:Label text="Name" width="100" styleName="formLabel"/>
-				<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
-			</mx:VBox>
-			<mx:VBox  top="10" width="100%" right="121" id="vbox1" verticalGap="0">
-				<mx:visible>{fullProtocol.protocolClassName != 'hci.gnomex.model.SeqLibProtocol'}</mx:visible>
-				<mx:Label text="Experiment Platform" id="label1" styleName="formLabel"/>
-				<mx:ComboBox
-					id="codeRequestCategory"
-					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
-					labelField="@display"
-					width="100%" change="dirty.setDirty()">
-				</mx:ComboBox>
-			</mx:VBox>
-			<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
-				<mx:CheckBox id="isActive" data="{fullProtocol.isActive.toString() == 'Y' ? true : false}" label="Active" click="dirty.setDirty()"/>
-			</mx:VBox>
-			</mx:HBox>
-			<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
-			<mx:VBox  left="10" top="64" right="121" width="100%" verticalGap="0">
-				<mx:Label text="URL" width="100" styleName="formLabel"/>
-				<mx:TextInput id="url" text="{fullProtocol.url}" width="100%" change="dirty.setDirty()"/>
-			</mx:VBox>
-				<mx:LinkButton id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>
-			</mx:HBox>
-			<mx:VBox top="118" left="10" right="10" bottom="10" verticalGap="0">
-				<mx:Label text="Protocol Description" styleName="formLabel"/>
-				<util:TextAreaWorkaround id="description" text="{protocolDescription}" height="100%" width="100%" change="dirty.setDirty()"/>
-			</mx:VBox>	
-			<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
-			<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
-		</mx:Canvas>
-		</mx:ViewStack>
+			<mx:Canvas width="100%" height="100%" >
+				
+				<mx:ViewStack id="protocolViews" right="0" left="0" top="0" bottom="0" creationPolicy="all">
+					<mx:Canvas id="blankProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+						<mx:Label text="" fontSize="20" color="#A1A79D" textAlign="right" right="10" top="10" width="308"/>
 					</mx:Canvas>
+					<mx:Canvas id="viewProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+						<mx:HBox left="10" top="10" right="10" styleName="formDisplay" verticalAlign="middle" id="hbox2">
+							<mx:Label text="Name" fontWeight="normal" width="120" styleName="formLabel"/>
+							<mx:Label text="{fullProtocol.name}" width="100%"/>
+						</mx:HBox>
+						<mx:HBox top="36" styleName="formDisplay" left="10"  right="10" verticalAlign="middle" id="hbox1">
+							<mx:Label text="Experiment Platform" fontWeight="normal" width="120" id="label2" styleName="formLabel"/>
+							<mx:Label 
+								id="kindDisplay"
+								text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.RequestCategory', fullProtocol.codeRequestCategory)}"
+								width="100%">
+							</mx:Label>
+						</mx:HBox>
+						<mx:HBox height="18" top="62" styleName="formDisplay" left="10" right="10" verticalAlign="middle">
+							<mx:Label text="Active" fontWeight="normal" width="120" styleName="formLabel"/>
+							<mx:Label text="{fullProtocol.isActive.toString()}" width="100%"/>
+						</mx:HBox>
+						<mx:VBox left="10" top="88" right="10"  verticalGap="0" >
+							<mx:HBox  styleName="formDisplay" verticalAlign="middle">
+								<mx:Label text="URL" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="{fullProtocol.url}" width="100%"/>
+							</mx:HBox>
+							<mx:LinkButton paddingLeft="130"  id="viewUrlButton2" enabled="false" label="View URL" width="100%" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>				
+						</mx:VBox>
+						<mx:VBox left="10" top="136" right="10"  verticalGap="0" styleName="formDisplay" visible="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}" includeInLayout="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}">
+							<mx:HBox styleName="formDisplay" verticalAlign="middle">
+								<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="{fullProtocol.adapterSequenceRead1}" width="100%" />
+							</mx:HBox>
+							<mx:HBox styleName="formDisplay" verticalAlign="middle">
+								<mx:Label text="5' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="{fullProtocol.adapterSequenceRead2}" width="100%" />
+							</mx:HBox>
+						</mx:VBox>
+						<mx:VBox top="180" bottom="10" left="10" right="10">
+							<mx:Label text="Protocol Description" fontWeight="normal" styleName="formLabel"/>
+							<mx:Text text="{protocolDescription}" height="100%" width="100%"/>
+						</mx:VBox>	
+					</mx:Canvas>		
+					<mx:Canvas id="editProtocol" left="0" right="0" top="0" bottom="0" styleName="form" width="100%" height="100%">
+						<mx:HBox y="10" verticalAlign="bottom" left="10" right="10" id="hbox3">
+							<mx:VBox  left="10" top="10" right="394" width="100%" verticalGap="0">
+								<mx:Label text="Name" width="100" styleName="formLabel"/>
+								<mx:TextInput id="protocolName" text="{fullProtocol.name}" width="100%" change="dirty.setDirty()"/>
+							</mx:VBox>
+							<mx:VBox  top="10" width="100%" right="121" id="vbox1" verticalGap="0">
+								<mx:visible>{fullProtocol.protocolClassName != 'hci.gnomex.model.SeqLibProtocol'}</mx:visible>
+								<mx:Label text="Experiment Platform" id="label1" styleName="formLabel"/>
+								<mx:ComboBox
+									id="codeRequestCategory"
+									dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}"
+									labelField="@display"
+									width="100%" change="dirty.setDirty()">
+								</mx:ComboBox>
+							</mx:VBox>
+							<mx:VBox right="10" top="10" width="70" horizontalAlign="left" verticalAlign="bottom" bottom="637" id="vbox2">
+								<mx:CheckBox id="isActive" data="{fullProtocol.isActive.toString() == 'Y' ? true : false}" label="Active" click="dirty.setDirty()"/>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:HBox y="64" verticalAlign="bottom" right="10" left="10">
+							<mx:VBox  left="10" top="64" right="121" width="100%" verticalGap="0" height="47">
+								<mx:Label text="URL" width="100" styleName="formLabel"/>
+								<mx:TextInput id="url" text="{fullProtocol.url}" width="100%" change="dirty.setDirty()"/>
+							</mx:VBox>
+							<mx:LinkButton id="viewUrlButton" enabled="false" label="View URL" width="100" disabledIcon="@Embed(source='../../assets/page_go_disabled.png')" icon="@Embed(source='../../assets/page_go.png')" textAlign="left" click="openProtocolUrl(event)" textDecoration="underline"/>
+						</mx:HBox>
+						<mx:VBox top="108" left="10" right="10" bottom="10" verticalGap="0">
+							<mx:Label text="Protocol Description" styleName="formLabel"/>
+							<util:TextAreaWorkaround id="description" text="{protocolDescription}" height="230" width="100%" change="dirty.setDirty()"/>
+						</mx:VBox>
+						<mx:VBox left="10" top="360" right="10"  verticalGap="0" id="adapterSequenceBox" visible="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}" includeInLayout="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}">
+							<mx:HBox verticalAlign="middle">
+								<mx:VBox>
+									<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
+									<mx:TextInput text="{fullProtocol.adapterSequenceRead1}" width="100%" id="adapterSequenceRead1Input" change="dirty.setDirty()" />
+								</mx:VBox>
+								<mx:VBox>
+									<mx:Label text="5' adapter sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
+									<mx:TextInput text="{fullProtocol.adapterSequenceRead2}" width="100%" id="adapterSequenceRead2Input" change="dirty.setDirty()" />
+								</mx:VBox>
+							</mx:HBox>
+						</mx:VBox>
+						<mx:TextInput editable="false" enabled="false" visible="false" id="idProtocol" text="{fullProtocol.id}" left="0" top="0"/>
+						<mx:TextInput editable="false" enabled="false" visible="false" id="protocolClassName" text="{fullProtocol.protocolClassName}" left="0" top="0"/>
+					</mx:Canvas>
+				</mx:ViewStack>
+			</mx:Canvas>
 			<mx:ControlBar width="100%"  horizontalAlign="right">
-			    <util:DirtyNote id="dirty"/>
+				<util:DirtyNote id="dirty"/>
 				<mx:Button id="saveProtocolButton" label="Save" click="callSaveProtocol();" icon="@Embed(source='../../assets/save.png')" toolTip="Save protocol" enabled="false" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			</mx:ControlBar>
-
+			
 		</mx:VBox>
 		
 		
@@ -494,7 +518,7 @@
 					dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}"
 					value="{fullProtocol.idAnalysisType}"
 					width="195" change="dirty.setDirty()">
-					</hci:ComboBox>
+				</hci:ComboBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{vbox2}" position="before">
 				<mx:VBox  width="100%" id="vbox0">
@@ -504,7 +528,7 @@
 						dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}"
 						value="{fullProtocol.idAppUser}"
 						width="195" change="dirty.setDirty()">
-						</hci:ComboBox>
+					</hci:ComboBox>
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
@@ -516,14 +540,14 @@
 					id="analysisTypeDisplay"
 					text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AnalysisType', fullProtocol.idAnalysisType)}"
 					width="195">
-					</mx:Label>
+				</mx:Label>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox2}" position="lastChild">
 				<mx:HBox styleName="formDisplay" verticalAlign="middle">
 					<mx:Label text="Owner:" fontWeight="bold" width="100" visible="{fullProtocol.idAppUser != '' ? true : false}"/>
 					<mx:Label 
-					  text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', fullProtocol.idAppUser)}"
-					  width="195"/>
+						text ="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', fullProtocol.idAppUser)}"
+						width="195"/>
 				</mx:HBox>
 			</mx:AddChild>
 			
