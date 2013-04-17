@@ -166,8 +166,26 @@
             checkRequiredChipType();
         }
 		private function onNumberOfSamplesChanged():void {
-			parentDocument.samplesView.initializeSamplesGrid();
-			checkSampleSetupCompleteness();
+			if ( currentState=='IScanState' ){
+				
+				if (this.iScanChipRadioGroup.selectedValue != null && 
+					(this.iScanChipRadioGroup.selectedValue.@samplesPerChip != null && this.iScanChipRadioGroup.selectedValue.@samplesPerChip != '')) {
+					numberOfSamplesValidator.maxValue = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
+					
+				} else {
+					numberOfSamplesValidator.maxValue = 1;
+				}
+				
+			} else {
+				this.numberOfSamplesValidator.maxValue = 384;
+			}
+			if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && 
+				parseInt(this.numberOfSamples.text) < numberOfSamplesValidator.maxValue && parseInt(this.numberOfSamples.text) > 0 ) {
+				validNumberOfSamples = true;
+			} else {
+				validNumberOfSamples = false;
+			}
+			parentDocument.samplesView.initializeSamplesGrid();			
 		}
         
         public function checkRequiredChipType():void {
@@ -397,8 +415,24 @@
 	        	}
 			}  else if (parentDocument.isIScanState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-					isComplete = true;
+					if ( this.numberOfChips.text != null && this.numberOfChips.text != '' ) {
+						isComplete = true;
+					}
 				}
+				
+				if (this.iScanChipRadioGroup.selectedValue == null || 
+					(this.iScanChipRadioGroup.selectedValue.@idIScanChip == null || this.iScanChipRadioGroup.selectedValue.@idIScanChip == '')) {
+					isComplete = false;
+					
+				}
+			 
+				if ( this.iScanNumSourcePlates == null || this.iScanNumSourcePlates.text == '' 
+					|| parseInt(this.iScanNumSourcePlates.text) > 12 || parseInt(this.iScanNumSourcePlates.text) < 1 ) {
+					isComplete = false;
+				} 
+				numberOfChipsValidator.validate();
+				iScanNumSourcePlatesValidator.validate();
+				
 			} else if (parentDocument.isSequenomState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
@@ -482,14 +516,6 @@
         	
         }
         
-        private function handleInvalidNumberOfSamples(eventObject:Event):void {
-        	this.validNumberOfSamples = false;
-        	this.checkSampleSetupCompleteness();
-        }
-        private function handleValidNumberOfSamples(eventObject:Event):void {
-        	this.validNumberOfSamples = true;
-        	this.checkSampleSetupCompleteness();
-        }
         private function handleInvalidConcentration(eventObject:Event):void {
         	this.validConcentration = false;
         	this.checkSampleSetupCompleteness();
@@ -597,7 +623,6 @@
 				propagateSampleType();
 				parentDocument.samplesView.initializeSamplesGrid();
 
-				checkSampleSetupCompleteness();
 				return;
 			}
 			// Select the default organism on sample setup if the request category specifies one
@@ -622,14 +647,9 @@
 			propagateSampleType();
 			parentDocument.samplesView.initializeSamplesGrid();
 
-			checkSampleSetupCompleteness();
 			this.checkForSampleTypeCompatibility();
 		}
 		
-		private function pickSampleDropOffLocation():void {
-			parentDocument.samplesView.initializeSamplesGrid();
-			checkSampleSetupCompleteness();
-		}
 		
 		private function pickOrganism():void {
 			
@@ -638,7 +658,6 @@
 				otherOrganism.text = '';
 				propagateOtherSampleOrganism();
 			}			
-			parentDocument.samplesView.initializeSamplesGrid();
 			
 			if (parentDocument.annotationView != null) {
 				parentDocument.annotationView.onPropertyRefreshed(null);
@@ -649,7 +668,8 @@
 			}
 			
 			propagateSampleOrganism();
-			checkSampleSetupCompleteness();
+			parentDocument.samplesView.initializeSamplesGrid();
+			
 
 			if (this.currentState == 'SolexaSetupState' ||
 			    this.currentState == 'SolexaSetupPreppedState' ||
@@ -664,9 +684,8 @@
 		private function pickSeqLibProtocol():void {
 			parentDocument.samplesView.initializeSamplesGrid();
 			propagateSeqLibProtocol();
-			checkSampleSetupCompleteness();
-			parentDocument.filteredSeqRunTypeList.refresh();	
 			
+			parentDocument.filteredSeqRunTypeList.refresh();	
 			
 		}
 		
@@ -742,6 +761,7 @@
 			}
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();
 			
 			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
@@ -781,6 +801,7 @@
 			}
 			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();
 			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 				parentDocument.confirmView.showHideColumns();
@@ -857,7 +878,7 @@
 				plate.@name = getPlateName(idx);
 				idx++;
 			}
-			checkSampleSetupCompleteness();
+			
 			parentDocument.samplesView.initializeSamplesGrid();		
 			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
 		}
@@ -1035,7 +1056,7 @@
 			}
 			propogatePlateNames(plateNumber);
 			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-				parentDocument.samplesView.initializeSamplesGrid();		
+			parentDocument.samplesView.initializeSamplesGrid();		
 		}
 		
 		private function onAssayCheckBoxChanged():void {
@@ -1047,7 +1068,7 @@
 					parentDocument.selectedAssaysCollection.addItem(assayXML);
 				}
 			}
-			checkSampleSetupCompleteness();
+			
 			parentDocument.samplesView.initializeSamplesGrid();
 		}
 		
@@ -1082,89 +1103,19 @@
 				this.iScanChipBox.styleName = "requiredBox";
 			}
 			
-			this.checkIScanSampleCount();
+			this.onNumberOfSamplesChanged();
 		}
 		
-		public function checkIScanSampleCount():void {
-			if (this.iScanChipRadioGroup.selectedValue != null && 
-				(this.iScanChipRadioGroup.selectedValue.@samplesPerChip != null && this.iScanChipRadioGroup.selectedValue.@samplesPerChip != '')) {
 				
-				maxNumberOfIScanSamples = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
-				numberOfIScanSamplesValidator.maxValue = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
-				
-				if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && parseInt(this.numberOfSamples.text) <= this.maxNumberOfIScanSamples ) {
-					validNumberOfSamples = true;
-				} else {
-					validNumberOfSamples = false;
-				}
-//				numberOfIScanSamplesValidator.validate();
-				
-				checkChipSetupCompleteness();
-			} 
-			
-		}
-		
-		public function checkChipSetupCompleteness():Boolean {
-			var isComplete:Boolean = false;
-			if (parentDocument.isEditState() || parentDocument.isIScanState()) {
-				if (this.iScanChipRadioGroup.selectedValue != null && 
-					(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
-					if ( validNumberOfSamples ) {
-						isComplete = true;
-					}
-				}
-			} 
-			
-			if ( this.iScanNumSourcePlates != null && this.iScanNumSourcePlates.text != '' && parseInt(this.iScanNumSourcePlates.text) <= 12 ) {
-				
-			} else {
-				isComplete = false;
-			}
-			numberOfChipsValidator.validate();
-			iScanNumSourcePlatesValidator.validate();
-			
-			parentDocument.samplesView.enabled = isComplete; 
-			
-			if (!parentDocument.isAmendState() && validNumberOfSamples) {
-				parentDocument.samplesView.initializeSamplesGrid();
-			}
-			
-			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-				parentDocument.annotationView.enabled = isComplete;        			
-			}
-			parentDocument.enableNextButtons();
-			
-			callLater(postChipSetupCompleteness, [isComplete]);
-			
-			return isComplete;
-		}
-		
-		private function postChipSetupCompleteness(isComplete:Boolean):void {
-			
-			if (!isComplete) {
-				parentDocument.confirmView.enabled = false;
-			} else {
-				parentDocument.samplesView.checkSamplesCompleteness();
-			}
-			
-		}
-		
-		private function handleInvalidNumberOfIScanSamples():void {
-			this.validNumberOfSamples = false;
-			parentDocument.samplesView.enabled = validNumberOfSamples;
-			this.checkIScanSampleCount();
-		}
-		private function handleValidNumberOfIScanSamples():void {
-			this.validNumberOfSamples = true;
-			this.checkIScanSampleCount();
-		}
-		
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
-    <mx:NumberValidator enabled="{currentState!='IScanState'}" id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
-         required="true" allowNegative="false" domain="int" maxValue="384" />
-    <mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
+    <mx:NumberValidator enabled="{currentState!='IScanState'}" 
+						id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
+						requiredFieldError="Please enter the number of samples you are submitting."
+						required="true" 
+						lowerThanMinError="You must submit at least 1 sample." minValue="1" allowNegative="false" domain="int" maxValue="384" />	
+	<mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
          required="false" />
     <mx:NumberValidator id="organismValidator"
         source="{this.sampleOrganismCombo}"
@@ -1181,17 +1132,14 @@
 						lowerThanMinError="This field is required."
 						property="selectedIndex"
 						minValue="1" />
-	<mx:NumberValidator id="numberOfIScanSamplesValidator" enabled="{currentState=='IScanState'}" source="{numberOfSamples}" property="text" 
-						required="true" allowNegative="false" domain="int" 
-						requiredFieldError="Please enter the number of samples you are submitting."
-						exceedsMaxError="{'This chip handles ' + iScanChipRadioGroup.selectedValue.@samplesPerChip + ' samples; you have requested ' + numberOfChips.text + ' chips. The maximum number of samples you can submit is ' + maxNumberOfIScanSamples.toString() + '.'}" />
 	<mx:NumberValidator id="numberOfChipsValidator" source="{numberOfChips}" property="text" 
 						required="true" allowNegative="false" domain="int"  maxValue="4" minValue="4"
 						lowerThanMinError="A kit contains 4 chips; you must submit samples for all 4 chips."
 						exceedsMaxError="A kit contains 4 chips; you cannot submit samples for more than 4 chips."
 						requiredFieldError="Please enter the number of chips you want." />
 	<mx:NumberValidator enabled="{currentState=='IScanState'}" id="iScanNumSourcePlatesValidator" source="{iScanNumSourcePlates}" property="text" 
-						required="true" allowNegative="false" domain="int" maxValue="12"
+						required="true" allowNegative="false" domain="int" maxValue="12" minValue="1"
+						lowerThanMinError="You must submit your samples on at least 1 plate."
 						requiredFieldError="Please enter the number of plates you are submitting your samples on."
 						exceedsMaxError="You can only submit up to 12 plates per order."/>
 	
@@ -1203,7 +1151,7 @@
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
 			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
 				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
-				<mx:TextInput width="40" id="numberOfSamples" valid="handleValidNumberOfSamples(event)" invalid="handleInvalidNumberOfSamples(event)">
+				<mx:TextInput width="40" id="numberOfSamples" >
 					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
@@ -1458,7 +1406,9 @@
                   <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
                   	<mx:Label text="(5) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
                   	<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
-                  				 change="pickSampleDropOffLocation()" dataProvider="{parentDocument.filteredSampleDropOffLocationList}" close="pickSampleDropOffLocation()">							
+                  				 change="parentDocument.samplesView.initializeSamplesGrid();" 
+								 dataProvider="{parentDocument.filteredSampleDropOffLocationList}" 
+								 close="parentDocument.samplesView.initializeSamplesGrid();">							
                   	</mx:ComboBox>
                   </mx:HBox>
              </mx:AddChild>
@@ -1480,7 +1430,6 @@
 				   </mx:Tile>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <!--<mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>-->
 	   </mx:State>
 	   <mx:State name="MitSeqState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -1536,7 +1485,6 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <!--<mx:SetEventHandler target="{numberOfSamples}" name="change" handler="checkSampleSetupCompleteness();"/>-->
 	   </mx:State>
 	   <mx:State name="CherryPickState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -1667,8 +1615,8 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:HBox horizontalGap="0" verticalAlign="middle">
 				   <mx:Label text="(2) How many chips do you want?" width="334" />
-				   <mx:TextInput width="40" id="numberOfChips" change="checkIScanSampleCount();parentDocument.request.@numberIScanChips = numberOfChips.text;">
-					   <mx:focusOut>checkIScanSampleCount();parentDocument.request.@numberIScanChips = numberOfChips.text;</mx:focusOut>
+				   <mx:TextInput width="40" id="numberOfChips" change="onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;">
+					   <mx:focusOut>onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;</mx:focusOut>
 				   </mx:TextInput>							
 			   </mx:HBox>
 		   </mx:AddChild>
@@ -1679,7 +1627,7 @@
 			   <mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
 				   <mx:Label text="(4) How many source plates will you be submitting?" width="334"  id="iScanNumSourcePlatesLabel"/>
 				   <mx:TextInput width="40" id="iScanNumSourcePlates" 
-								 change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();checkSampleSetupCompleteness()">
+								 change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();">
 				   </mx:TextInput>							
 			   </mx:HBox>
 		   </mx:AddChild>
@@ -1752,9 +1700,6 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="focusOut" handler="checkIScanSampleCount()"/>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="invalid" handler="handleInvalidNumberOfIScanSamples()"/>
-		   <mx:SetEventHandler target="{numberOfSamples}" name="valid" handler="handleValidNumberOfIScanSamples()"/>
 		   
 	   </mx:State>
 	   <mx:State name="SequenomState">
