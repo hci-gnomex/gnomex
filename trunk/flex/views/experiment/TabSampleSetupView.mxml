@@ -1015,7 +1015,6 @@
 				parentDocument.iScanPlateListCollection.addItem(node);
 			}
 			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-			parentDocument.samplesView.initializeSamplesGrid();
 		}
 		
 		public function propogatePlateNames(plateNumber:int):void {
