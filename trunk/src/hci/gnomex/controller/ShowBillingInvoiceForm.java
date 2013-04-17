@@ -654,7 +654,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = contactEmail;
-    String ccList = emailFormatter.getCCList(sess, serverName);
+    String ccList = emailFormatter.getCCList(sess);
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
         send = true;
