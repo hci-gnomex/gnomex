@@ -46,6 +46,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
   private DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
   private String labName = "";
+  private static final String DELIM = "%%%";
 
   
   public void validate() {
@@ -221,7 +222,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
           Object[] row = (Object[])allRows.get(key);
           
-          
+          Integer idRequest = (Integer)row[0];
           String requestNumber = (String)row[1];
           String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
           String flowCellNumber = null; 
@@ -297,7 +298,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            String clusterGenKey = requestNumber + "-" + codeRequestCategory + "-" + labName;
+            String clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
             List nodes = (List)clusterGenMap.get(clusterGenKey);
             
             if (nodes == null) {
@@ -735,15 +736,17 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
     for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
       String clusterGenKey = (String)i.next();
-      String [] tokens = clusterGenKey.split("-");
+      String [] tokens = clusterGenKey.split(DELIM);
       String requestNumber = tokens[0];
       String theCodeRequestCategory = tokens[1];
       String theLabName = tokens[2];
+      String idRequest = tokens[3];
       
       List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
       Element requestNode = new Element("Request");
       requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
       requestNode.setAttribute("labName", labName);
+      requestNode.setAttribute("idRequest", idRequest);
       requestNode.setAttribute("number", requestNumber + " " + theLabName);
       doc.getRootElement().addContent(requestNode);
       
@@ -758,6 +761,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
           multiplexLaneNode = new Element("MultiplexLane");
           multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+          multiplexLaneNode.setAttribute("idRequest",  idRequest);
           requestNode.addContent(multiplexLaneNode);
           seqTags.clear();
         }
@@ -1029,19 +1033,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
       
       
-      String[] tokens1 = key1.split("-");
-      String[] tokens2 = key2.split("-");
+      String[] tokens1 = key1.split(DELIM);
+      String[] tokens2 = key2.split(DELIM);
       
-      String reqNumber1    = tokens1[0];
-      String remainder1    = key1.substring(key1.indexOf("-"));
+      Integer idRequest1    = Integer.valueOf(tokens1[3]);
+      String number1        = tokens1[0];
       
-      String reqNumber2    = tokens2[0];
-      String remainder2    = key2.substring(key2.indexOf("-"));
+      Integer idRequest2    = Integer.valueOf(tokens2[3]);
+      String number2        = tokens2[0];
 
-      if (reqNumber1.equals(reqNumber2)) {
-        return remainder1.compareTo(remainder2);        
+      if (idRequest1.equals(idRequest2)) {
+        return number1.compareTo(number2);        
       } else {
-        return compareRequestNumbers(reqNumber1, reqNumber2);
+        return idRequest1.compareTo(idRequest2);
       }
       
     }
