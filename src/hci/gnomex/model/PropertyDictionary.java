@@ -106,6 +106,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   private String        propertyDescription;
   private String        forServerOnly;
   private Integer       idCoreFacility;
+  private String        codeRequestCategory;
 
   public Integer getIdPropertyDictionary() {
     return idPropertyDictionary;
@@ -178,5 +179,15 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
+  }
+
+  
+  public String getCodeRequestCategory() {
+    return codeRequestCategory;
+  }
+
+  
+  public void setCodeRequestCategory(String codeRequestCategory) {
+    this.codeRequestCategory = codeRequestCategory;
   }
 }

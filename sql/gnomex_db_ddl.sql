@@ -1465,6 +1465,7 @@ CREATE TABLE `gnomex`.`PropertyDictionary` (
   `propertyDescription` VARCHAR(2000) NULL,
   `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
   `idCoreFacility` INT(10) NULL,
+  `codeRequestCategory` VARCHAR(10) NULL,
   PRIMARY KEY (`idPropertyDictionary`)
 )
 ENGINE = INNODB;

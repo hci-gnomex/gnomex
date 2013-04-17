@@ -25,3 +25,6 @@ alter table OligoBarcodeSchemeAllowed alter column idSeqLibProtocol Integer not 
 -- Add adapter Sequence columns to seq lib protocol table.  In gnomex these are known as 3' reads and 5' reads
 alter table SeqLibProtocol add adapterSequenceRead1 varchar(500);
 alter table SeqLibProtocol add adapterSequenceRead2 varchar(500);
+
+-- codeRequestCategory in PropertyDictionary
+alter table PropertyDictionary add codeRequestCategory VARCHAR(10) NULL;
