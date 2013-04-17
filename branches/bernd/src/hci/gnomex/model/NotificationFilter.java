@@ -27,7 +27,6 @@ public class NotificationFilter extends DetailObject {
     
     // Get Base query. 
     return getQuery();
-
   }
 
   private StringBuffer getQuery() {
@@ -37,8 +36,6 @@ public class NotificationFilter extends DetailObject {
     addBaseColumns(queryBuf);
     addBaseQueryBody(queryBuf);
     addRequestCriteria();
-    
-//    System.out.println("Query: " + idUserTarget+ " --- " + queryBuf);
     
     return queryBuf;
   }
@@ -58,7 +55,7 @@ public class NotificationFilter extends DetailObject {
   
   private void addRequestCriteria() {
 	// Search by idNotification 
-	    if (idNotification != null && idNotification != 0){
+	    if (idNotification != null){
 	      this.addWhereOrAnd();
 	      queryBuf.append(" n.idNotification = '");
 	      queryBuf.append(idNotification);
@@ -66,7 +63,7 @@ public class NotificationFilter extends DetailObject {
 	    }
 	    
 	// Search by userID
-	    if(idUserTarget != null && idUserTarget != 0){
+	    if(idUserTarget != null){
 	    	this.addWhereOrAnd();
 	    	queryBuf.append("n.idUserTarget = '");
 	    	queryBuf.append(idUserTarget);
@@ -74,7 +71,7 @@ public class NotificationFilter extends DetailObject {
 	    }
 	    
 	// Search by labID
-	    if(idLabTarget != null && idLabTarget != 0){
+	    if(idLabTarget != null){
 	    	this.addWhereOrAnd();
 	    	queryBuf.append("n.idLabTarget = '");
 	    	queryBuf.append(idLabTarget);

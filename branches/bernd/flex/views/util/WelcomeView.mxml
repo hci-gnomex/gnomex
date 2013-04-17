@@ -15,6 +15,8 @@
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:SetProperty target="{text5}" name="text" value="Admin privileges&#xa;"/>
+			<mx:SetProperty target="{runMonitor}" name="visible" value="true" />
+			<mx:SetProperty target="{runMonitor}" name="includeInLayout" value="true" />
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:AddChild relativeTo="{spacer2}" position="before"> 
@@ -27,6 +29,7 @@
 		<mx:State name="UserState">
 			<mx:SetProperty target="{text5}" name="text" value=""/>
 			<mx:SetProperty target="{notificationHub.adminBox}" name="visible" value="false" />
+			<mx:SetProperty target="{notificationHub.adminBox}" name="includeInLayout" value="false"/>
 		</mx:State>
 
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
@@ -81,8 +84,6 @@
 				} else {
 					currentState = "UserState";
 				}
-				
-				//Alert.show("Welcome view state " + currentState);
 			}
 			
 			public function submitRequest():void {
@@ -298,7 +299,7 @@
 				<mx:Spacer height="10" />		
 				<mx:HBox id="permissionBox">
 					<db:NotificationHub id="notificationHub" />
-					<db:RunStatusHub id="runMonitor" includeInLayout="{currentState == 'AdminState'}" visible="{currentState == 'AdminState'}"/>	
+					<db:RunStatusHub id="runMonitor" visible="false" includeInLayout="false"/>	
 				</mx:HBox>
 			</mx:VBox>
 		</mx:VBox>

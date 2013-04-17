@@ -69,15 +69,27 @@
 				if(MIList.length == 0){
 //					mainTitle.text = "No runs retrieved";
 					refreshTimer.delay = 60000;
+					emptySpace.width = 40;
+					overViewButton.visible = false;
+					emptyText.visible = true;
+					failText.visible = false;
+					failText.includeInLayout = false;
 				}else{
 					refreshTimer.delay = 600000;
+					overViewButton.enabled = true;
+					emptySpace.includeInLayout = true;
 				}
 
 				// Set timer -- Polling with dynamic interval.
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
 		} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+				//Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+				failText.visible = true;
+				failText.includeInLayout = true;
+				emptySpace.width = 100;
+				emptySpace.includeInLayout = false;
+				emptySpace.visible = true;
 			}
 		}
 		
@@ -170,10 +182,18 @@
 			PopUpManager.centerPopUp(rsd);
 		}
 		
-		protected function openRunOverview(event:MouseEvent):void
+		private function formatDate(item:String):String
 		{
-			// TODO Auto-generated method stub
-			Alert.show("Overview Windows Change Event.");
+			var rawDate:String = item;
+			var yr:String = rawDate.substr(0,2);
+			var mn:String = rawDate.substr(2,2);
+			var dy:String = rawDate.substr(4,2);
+			
+			var year:String = "20"+yr;
+			
+			var date:String = dy+"/"+mn+"/"+year;
+			
+			return date;
 		}
 		
 	]]>
@@ -181,7 +201,10 @@
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
 		<mx:HBox id="overViewBar"  width="100%" >
-			<mx:Spacer width="100%" />
+			<mx:Spacer id="emptySpace" includeInLayout="true" width="100%" />
+			<mx:Text id="emptyText" includeInLayout="false" visible="false" text="No data retrieved" color="0xFF8000" />
+			<mx:Text id="failText" includeInLayout="false" visible="false" text="Error Connecting to Server" fontStyle="italic" color="0xE10000"/>
+				
 			<mx:LinkButton id="overViewButton" fontWeight="bold" label="Overview" click="Application.application.theViews.selectedChild = parentApplication.sequencerOverview"/>
 		</mx:HBox>
 		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
@@ -206,14 +229,14 @@
 				</mx:HBox>
 				<mx:HBox width="100%" fontSize="10"  height="16">
 					<mx:Label id="runDate" fontWeight="bold" text="Start date: " />
-					<mx:Label id="runDateVal" text="{repStatus.currentItem.runDate}"/> <!-- Start date of run -->
+					<mx:Label id="runDateVal" text="{formatDate(repStatus.currentItem.runDate)}"/> <!-- Start date of run -->
 					<mx:VRule height="6" />
 					<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
 					<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
 					<mx:Spacer width="20%" /> 
-					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" click="showRunDetails()"/>
+					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" enabled="false" click="showRunDetails()"/>
 				</mx:HBox>
-			</mx:VBox>					
+			</mx:VBox>
 		</mx:Repeater>
 	</mx:VBox>
 </mx:Canvas>

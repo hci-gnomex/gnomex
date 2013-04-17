@@ -74,6 +74,7 @@
 				mainTitle.setStyle("fontWeight", "bold");
 				mainTitle.setStyle("color", "red");
 				conStatus = false;
+				runStatusTab.overViewButton.enabled = false;
 			}
 		}
 		
@@ -131,7 +132,7 @@
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
 			} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
+				
 			}
 		}
 	]]>
@@ -142,7 +143,7 @@
 		</mx:HBox>
 		<mx:VBox verticalGap="3" label="Recent" width="90%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" fontSize="10">
 			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-				<db:RunStatusTab filterState="0" />
+				<db:RunStatusTab id="runStatusTab" filterState="0" />
 			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>

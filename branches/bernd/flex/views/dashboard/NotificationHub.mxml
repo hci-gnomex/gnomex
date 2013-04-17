@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 		   xmlns:db="views.dashboard.*"  
-		   width="500" height="430" backgroundAlpha="1" cornerRadius="12" 
+		   width="500" height="430" backgroundAlpha="1" cornerRadius="12"
+		   preinitialize="checkSecurity()"
 		   initialize="init()" horizontalScrollPolicy="off">   
 
 	<mx:Script>
@@ -29,7 +30,7 @@
 			import mx.utils.ObjectUtil;
 			
 			public function init():void {
-				checkSecurity();
+			//	checkSecurity();
 				
 				if(currentState == "AdminState"){
 					// Admin can see all.
@@ -42,10 +43,16 @@
 				
 				if(currentState == "UserState"){
 	//				Alert.show("User state NotificationHub.mxml");
+//					notificationTabs.getTabAt(3).visible = false;
+	//				notificationTabs.getTabAt(2).visible = false;
+		//			notificationTabs.getTabAt(1).visible = false;
+					adminBox.includeInLayout = false;
+					adminBox.visible = false;
 				} 
 				
 				if(currentState == "WorkflowState"){
 	//				Alert.show("Workflow state NotificationHub.mxml");
+			//		notificationTabs.getTabAt(3).visible = false;
 				}
 			}
 			

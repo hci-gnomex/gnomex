@@ -413,6 +413,8 @@ public class SequenceLane extends HibernateDetailObject {
     this.excludeMethodFromXML("getFlowCellChannel");
     this.excludeMethodFromXML("getSample");
     this.excludeMethodFromXML("getRequest");
+    this.excludeMethodFromXML("getSeqRunType");
+    this.excludeMethodFromXML("getNumberSeqCycles");
   }
 
   

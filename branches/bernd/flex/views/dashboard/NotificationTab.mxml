@@ -17,11 +17,6 @@
 		fault="parentApplication.onFailHttpRequest('Unable to get notification interface result', event)"
 		useProxy="false">
 		
-		<mx:request>
-			<workflowCoreFacility>1</workflowCoreFacility>
-
-		</mx:request>
-		
 	</mx:HTTPService>
 
 	<mx:XMLListCollection id="userData" />

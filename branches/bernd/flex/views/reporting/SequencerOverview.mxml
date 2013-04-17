@@ -104,8 +104,12 @@
 							 sortableColumns="true"
 							 editable="false"
 							 allowMultipleSelection="false"
-							 dataProvider="{MIList}">
+							>
 			 
+			<mx:dataProvider>
+				<mx:HierarchicalData source="{MIList}" />
+			</mx:dataProvider>
+			
 			<mx:columns>
 				<mx:AdvancedDataGridColumn  dataField="runId" editable="false" headerText="Run Id" width="100">
 				</mx:AdvancedDataGridColumn>
@@ -114,7 +118,7 @@
 				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" labelFunction="formatState" headerText="Run State" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn headerText="Date" dataField="runDate" labelFunction="formatDate" editable="false" width="60"/>
-				<mx:AdvancedDataGridColumn  dataField="lastUpdated"  editable="false" headerText="Last Updated"   width="32" />
+				<mx:AdvancedDataGridColumn  dataField="lastUpdated"  editable="false" headerText="Last Indexed"   width="32" />
 				<mx:AdvancedDataGridColumn  dataField="currentCycle" editable="false" headerText="Current Cycle" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="totalCycle" editable="false" headerText="Total Cycle" width="60">

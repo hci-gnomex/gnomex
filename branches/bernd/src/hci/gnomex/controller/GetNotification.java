@@ -66,14 +66,17 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         // Foreach step in permission level (user, admin, billing, workflow) create subnodes.
         // Get sourceType and determine parsing type.
         Element x = null;
-        for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
+      for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
             Object[] row = (Object[]) i1.next();
             x = null;
             String sourceType = (String)row[1].toString();
+
             if(sourceType.equals("ADMIN")){
             	if(adminAuth){
             		// Set admin level notification node
             		x = new Element("admin");
+            	}else{
+            		continue;
             	}
             }else if(sourceType.equals("USER")){
             	// Set user level notification node
@@ -84,7 +87,9 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             		if(billingAuth){
             			x = new Element("billing");
             		}
-            	}	
+            	}else{
+            		continue;
+            	}
             }else{ // Unknown
             	x = new Element("Unknown");
             }
@@ -98,13 +103,13 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
     		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
     		x.setAttribute("fullNameUser", 		row[8] == null ? "" : (String)row[8]);
-            
+           
             // Add node content to rootElement XML output.
             if(row[0] != null){
             	doc.getRootElement().addContent(x);	
             }
         }
-  	  
+
         // If authorized for workflow management 
         	if(workflowAuth){
                 StringBuffer buf = new StringBuffer();
