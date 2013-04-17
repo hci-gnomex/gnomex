@@ -355,14 +355,15 @@
 			<mx:TabNavigator id="navBar" styleName="navTabNavigator" visible="{hideNavLink.visible ? true : false}" width="100%"  height="100%" change="onTabChange()" creationPolicy="all">
 				<mx:Canvas id="combinedQCTab" width="100%" height="100%" icon="{parentApplication.iconQC}" toolTip="QC Worklist" fontSize="12">
 					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-						<mx:Text text="QC Worklist" width="100%" fontWeight="normal" color="#000000" paddingTop="4"/>
+						<mx:Text text="QC Worklist" width="100%" fontWeight="normal" color="#000000" paddingTop="4" paddingLeft="2"/>
 						<mx:LinkBar id="qcLinkBar" dataProvider="" iconField="ico"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onCombinedQCTabChange()"  height="202"  width="116" paddingTop="4" separatorWidth="0" separatorColor="#FFFFFF">
 						</mx:LinkBar> 
 					</mx:VBox>
 				</mx:Canvas>			
 				<mx:Canvas id="hiSeqTab" width="100%" height="100%" icon="{parentApplication.iconHiSeq}" toolTip="HiSeq workflow">
 					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-						
+						<mx:Text text="HiSeq" width="100%" fontWeight="normal" color="#000000" paddingTop="4" paddingLeft="2"/>
+
 						<mx:LinkBar dataProvider="hiSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onHiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="11" separatorWidth="0" separatorColor="#FFFFFF">
 						</mx:LinkBar> 
 						
@@ -373,7 +374,8 @@
 				</mx:Canvas>
 				<mx:Canvas id="miSeqTab" width="100%" height="100%" icon="{parentApplication.iconMiSeq}" toolTip="MiSeq workflow" fontSize="11">
 					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
-						
+						<mx:Text text="MiSeq" width="100%" fontWeight="normal" color="#000000" paddingTop="4" paddingLeft="2"/>
+
 						<mx:LinkBar dataProvider="miSeqViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onMiSeqWorklistChange()"  height="202"  width="116" paddingTop="4" fontSize="12" separatorColor="#FFFFFF" separatorWidth="0">
 						</mx:LinkBar> 
 						
@@ -393,6 +395,7 @@
 				</mx:Canvas >
 				<mx:Canvas id="solexaTab" width="100%" height="100%" icon="{parentApplication.iconSolexa}" toolTip="GAIIx workflow" visible="true">
 					<mx:VBox  styleName="panelTabBody" horizontalAlign="center" width="100%" height="100%" paddingTop="4">
+						<mx:Text text="GAIIx" width="100%" fontWeight="normal" color="#000000" paddingTop="4" paddingLeft="2"/>
 						
 						<mx:LinkBar dataProvider="solexaViews"  styleName="navLinkBar" textDecoration="underline"  direction="vertical"   itemClick="onSolexaWorklistChange()"  height="202"  width="116" paddingTop="4"  separatorColor="#FFFFFF" separatorWidth="0">
 						</mx:LinkBar>  
