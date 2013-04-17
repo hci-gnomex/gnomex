@@ -681,7 +681,7 @@
 				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 			 }
 			 
-			 if (this.isIScanState() || this.isSequenomState() ) {
+			 if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType) ) {
 				 parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 			 }
 			 
@@ -691,7 +691,8 @@
 			 parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 			 
-			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()) {
+			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()
+				 && !parentDocument.parentDocument.experimentEditView.isSequenomState()) {
 				 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
 			 }
