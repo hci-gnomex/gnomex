@@ -2105,6 +2105,8 @@ CREATE TABLE `gnomex`.`SeqLibProtocol` (
   `description` LONGTEXT NULL,
   `url` VARCHAR(500) NULL,
   `isActive` CHAR(1) NULL,
+  `adapterSequenceRead1` VARCHAR(500) NULL,
+  `adapterSequenceRead2` VARCHAR(500) NULL,
   PRIMARY KEY (`idSeqLibProtocol`)
 )
 ENGINE = INNODB;
