@@ -40,6 +40,8 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
   private String    codeRequestCategory;
   private Integer   idAnalysisType;
   private Integer   idAppUser;
+  private String    adapterSequenceRead1;
+  private String    adapterSequenceRead2;
   
   private Integer   idProtocolSaved;
   
@@ -82,6 +84,12 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
     }
     if (protocolName == null) {
       this.addInvalidField("protocolName", "protocolName is required");
+    }
+    if (request.getParameter("adapterSequenceRead1") != null && !request.getParameter("adapterSequenceRead1").equals("")) {
+      adapterSequenceRead1 = request.getParameter("adapterSequenceRead1");
+    }
+    if (request.getParameter("adapterSequenceRead2") != null && !request.getParameter("adapterSequenceRead2").equals("")) {
+      adapterSequenceRead2 = request.getParameter("adapterSequenceRead2");
     }
     
 
@@ -188,6 +196,8 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((SeqLibProtocol)protocol).setDescription(protocolDescription);
             ((SeqLibProtocol)protocol).setIsActive(isActive);
             ((SeqLibProtocol)protocol).setUrl(protocolUrl);
+            ((SeqLibProtocol)protocol).setAdapterSequenceRead1(adapterSequenceRead1);
+            ((SeqLibProtocol)protocol).setAdapterSequenceRead2(adapterSequenceRead2);
           } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
             protocol =  (DictionaryEntry)sess.load(AnalysisProtocol.class, idProtocol);
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
