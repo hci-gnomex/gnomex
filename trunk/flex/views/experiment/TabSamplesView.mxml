@@ -1617,16 +1617,6 @@
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				showCCNumberCheckbox.width = isExternal ? 0 : 250;
 				
-				
-				// Edit buttons shown
-				
-				this.downloadExamplePlateButton.visible = hasPlates() && !isEditState;
-				this.downloadExamplePlateButton.includeInLayout = hasPlates() && !isEditState;
-				this.downloadExampleTubeButton.visible = parentDocument.isCapSeqState() && !hasPlates() && !isEditState;
-				this.downloadExampleTubeButton.includeInLayout = parentDocument.isCapSeqState() && !hasPlates() && !isEditState;
-				this.downloadButton.visible = !parentDocument.isCapSeqState() || isEditState;
-				this.downloadButton.includeInLayout = !parentDocument.isCapSeqState() || isEditState;
-				
 				buttonsContainer.visible = !parentDocument.isAmendState();
 				buttonsContainer.includeInLayout = buttonsContainer.visible;
 				
@@ -2056,8 +2046,6 @@
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%">
 			<mx:HBox id="buttonsContainer" horizontalGap="2">
-				<mx:LinkButton textDecoration="underline" id="downloadExamplePlateButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton textDecoration="underline" id="downloadExampleTubeButton" label="Sample sheet (example)" click="{downloadSampleSheetExample('example_sample_sheet_wells_bycol.xls')}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 				<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download Sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
