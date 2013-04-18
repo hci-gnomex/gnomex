@@ -781,7 +781,7 @@
 			if (selectedIdRequest != null) {
 				if(getRequest.lastResult.Request.(@idRequest == selectedIdRequest).@isExternal == 'Y') {
 					addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest == selectedIdRequest).PropertyEntries, 
-						getRequest.lastResult..Request.(@idRequest == selectedIdRequest).@hasSampleDescription=="Y");			
+						getRequest.lastResult.Request.(@idRequest == selectedIdRequest).@hasSampleDescription=="Y");			
 				}	
 				selectedExperiment = getRequest.lastResult.Request.(@idRequest == selectedIdRequest);			
 			} else {
