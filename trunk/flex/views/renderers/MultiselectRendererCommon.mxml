@@ -16,12 +16,11 @@
 			import mx.core.IFactory;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
-			import mx.collections.XMLListCollection;
 			
 			private var _listData:DataGridListData;
 			
 			[Bindable]
-			public var allOptions:XMLListCollection;
+			public var allOptions:XMLList;
 			
 			[Bindable]
 			public var title:String;
@@ -37,7 +36,7 @@
 			
 			private var pop:MultiselectPopupCommon;
 			
-			public static function create(title:String, allOptions:XMLListCollection, isEditable:Boolean=true, isRequired:Boolean=false, showEditPrompt:Boolean=false):IFactory {
+			public static function create(title:String, allOptions:XMLList, isEditable:Boolean=true, isRequired:Boolean=false, showEditPrompt:Boolean=false):IFactory {
 				return RendererFactory.create(MultiselectRendererCommon, {title:title, allOptions:allOptions, isEditable:isEditable, showEditPrompt:showEditPrompt});
 			}		
 			override public function set data(value:Object):void {
