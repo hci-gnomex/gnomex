@@ -3382,7 +3382,8 @@
 				request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 				
 			} else {
-				request.@codeVisibility = 'MEM';
+				// If we don't have a visiblity tab, the request XML is already
+				// initialized with the defaults from GetRequest
 			}
 			
 			// Collaborators
