@@ -728,7 +728,7 @@
 	
 	<mx:VBox height="100%" width="100%" verticalGap="4" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="poHBox">
-			<mx:Label text="Type of Account" width="120"/>
+			<mx:Label text="Type of Account" width="120" styleName="formLabel"/>
 			<mx:RadioButtonGroup id="typeRadioGroup"/>
 			<mx:RadioButton id="internalCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO !='Y' &amp;&amp; ba.@isCreditCard != 'Y'}" click="{toggleType(0); }" label="{parentApplication.isUnivUserAuth ? 'Chartfield' : 'Internal'}"/>   
 			<mx:RadioButton id="poCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO=='Y'}" click="{toggleType(1)}" label="PO"/>   
@@ -736,11 +736,11 @@
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="labNameHBox">
-			<mx:Label text="Lab" width="120"/>
+			<mx:Label text="Lab" width="120" styleName="formLabel"/>
 			<mx:Label text="{labName}" width="100%"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" visible="false" includeInLayout="false" id="labComboHBox">
-			<mx:Label text="Lab" width="120"/>
+			<mx:Label text="Lab" width="120" styleName="formLabel"/>
 			<renderers:FilterComboBox width="492" id="labCombo"
 									  labelField="@name" 
 									  prompt="Select a lab..."
@@ -750,17 +750,17 @@
 		</mx:HBox>
 
 		<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" id="accountNameHBox">
-			<mx:Text text="{ba.@isCreditCard == 'Y' ? 'Credit Card Last 4 digits' : 'Title of Account'}" width="120"/>
+			<mx:Text text="{ba.@isCreditCard == 'Y' ? 'Credit Card Last 4 digits' : 'Title of Account'}" styleName="formLabel" width="120"/>
 			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = accountName.text}"></mx:TextInput>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="shortAcctHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
-			<mx:Label text="Short Account" width="120" id="shortAcctLabel" />
+			<mx:Label text="Short Account" width="120" id="shortAcctLabel" styleName="formLabel"/>
 			<mx:TextInput width="120" id="shortAcct" text="{ba.@shortAcct}" focusOut="{ba.@shortAcct = shortAcct.text}"></mx:TextInput>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4">
-			<mx:Label text="Core Facility" width="120"/>
+			<mx:Label text="Core Facility" width="120" styleName="formLabel"/>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
 		</mx:HBox>
@@ -768,7 +768,7 @@
 		
 		<mx:VBox verticalGap="0" visible="{!poCheckbox.selected &amp;&amp; !creditCardCheckbox.selected}" includeInLayout="{!poCheckbox.selected  &amp;&amp; !creditCardCheckbox.selected}">
 			<mx:HBox horizontalGap="4" width="100%">
-				<mx:Text text="Chartfield to be charged" textAlign="left" width="120" id="chartFieldLabel"/>
+				<mx:Text text="Chartfield to be charged" textAlign="left" width="120" id="chartFieldLabel" styleName="formLabel"/>
 				<mx:HBox width="100%" id='internalChartFieldHBox'>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Bus"/>
@@ -811,7 +811,7 @@
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
 				 horizontalGap="4" id="fundingAgencyHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
-			<mx:Label text="Funding Agency" width="120" id="fundingAgencyLabel" />
+			<mx:Label text="Funding Agency" width="120" id="fundingAgencyLabel" styleName="formLabel"/>
 			<mx:ComboBox width="522" id="fundingAgencyCombo" labelField="@display"
 						 			  dataProvider="{fundingAgencies}" 
 						              change="{if (fundingAgencyCombo.selectedItem != null) ba.@idFundingAgency = fundingAgencyCombo.selectedItem.@value; else ba.@idFundingAgency='';}"/>
@@ -819,38 +819,38 @@
 
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
 				 horizontalGap="4" id="creditCardTypeHBox" visible="{creditCardCheckbox.selected}"  includeInLayout="{creditCardCheckbox.selected}">
-			<mx:Text text="Credit Card Company" width="120" id="creditCardTypeLabel" />
+			<mx:Text text="Credit Card Company" width="120" id="creditCardTypeLabel" styleName="formLabel"/>
 			<mx:ComboBox width="120" id="creditCardCompanyCombo" labelField="@display"
 						 dataProvider="{creditCardCompanies}" 
 						 change="{if (creditCardCompanyCombo.selectedItem != null) ba.@idCreditCardCompany = creditCardCompanyCombo.selectedItem.@value; else ba.@idCreditCard='';}"/>
 		</mx:HBox>
 		<mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="4" id="zipCodeHBox"
 				 visible="{creditCardCheckbox.selected}"  includeInLayout="{creditCardCheckbox.selected}">
-			<mx:Label text="Zip Code" width="120" id="zipCodeLabel"/>
+			<mx:Label text="Zip Code" width="120" id="zipCodeLabel" styleName="formLabel"/>
 			<mx:TextInput id="zipCode" width="120" text="{ba.@zipCode}" focusOut="{ba.@zipCode = zipCode.text}"/>
 		</mx:HBox>
 
         <mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="dateDollarHBox" >
 			<mx:HBox id="startDateHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}" horizontalGap="4" verticalAlign="middle">
-				<mx:Label text="Start Date" width="120" id="startDateLabel" />
+				<mx:Label text="Start Date" width="120" id="startDateLabel" styleName="formLabel"/>
 				<mx:DateField id="startDatePicker" change="ba.@startDateOther=startDatePicker.text"  width="120"/>
 				<mx:Spacer width="5"/>
 			</mx:HBox>
 			<mx:HBox id="expirationDateHBox" verticalAlign="middle">
-	        	<mx:Label text="{ba.@isCreditCard == 'Y' ? 'Expiration Date' : 'Effective Until'}" paddingRight="5" id="expirationDateLabel"  width="120"/>
+	        	<mx:Label text="{ba.@isCreditCard == 'Y' ? 'Expiration Date' : 'Effective Until'}"  id="expirationDateLabel" styleName="formLabel" width="120"/>
 				<mx:DateField id="expirationDatePicker" change="ba.@expirationDateOther=expirationDatePicker.text"  width="120"/>
 	        	<mx:Spacer width="5"/>
 			</mx:HBox>
         </mx:HBox>
         <mx:HBox id="totalDollarAmountHBox" verticalAlign="middle" horizontalGap="4">
-              	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount" paddingRight="5"/>
+              	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount" styleName="formLabel" paddingRight="5" width="120"/>
               	<mx:TextInput id="totalDollarAmount" height="25" width="120" 
               	text="{ba.@totalDollarAmountDisplay}" focusOut="{totalDollarAmount.text=dollarFormatter.format(totalDollarAmount.text); ba.@totalDollarAmountDisplay = totalDollarAmount.text;}"/>
         </mx:HBox>
         
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="acctUsersHBox">
-			<mx:Label text="Approved Users" width="120"/>
+			<mx:Label text="Approved Users" width="120" styleName="formLabel"/>
 			<mx:DataGrid  showHeaders="false" editable="true" dataProvider="{ba}" selectable="false" minHeight="0" rowCount="1" width="100%" height="25" rowHeight="25">
 				<mx:columns>
 					<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100" 
@@ -861,7 +861,7 @@
 		</mx:HBox>
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="submitterEmailHBox">
-			<mx:Label text="Submitter Email" width="120" id="submitterEmailLabel"/>
+			<mx:Label text="Submitter Email" width="120" id="submitterEmailLabel" styleName="formLabel"/>
 			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = submitterEmail.text}"/>
 		</mx:HBox>
 		
