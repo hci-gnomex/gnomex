@@ -278,10 +278,11 @@
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = true;
 				this.descriptionColumn.visible = false;
-				if ( parentDocument.isClinicalSequenomState() ) {
+				if ( parentDocument.isCapSeqState() ) {
+					this.descriptionColumn.visible = true;
+				} else if ( parentDocument.isClinicalSequenomState() ) {
 					this.sampleNameColumn.visible = false;
-				} 
-				if ( parentDocument.isIScanState() ) {
+				} else if ( parentDocument.isIScanState() ) {
 					this.sampleTypeColumn.visible = false;
 				}
 				
