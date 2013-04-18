@@ -291,7 +291,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     String note = "";
     String emailInfo = "";
     String emailRecipients = contactEmail;
-    String ccList = emailFormatter.getCCList(sess, serverName);
+    String ccList = emailFormatter.getCCList(sess);
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {

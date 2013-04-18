@@ -899,7 +899,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
       sess.refresh(requestParser.getRequest());
       if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-        String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
+        String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
         if ((requestParser.getRequest().getAppUser() != null
               && requestParser.getRequest().getAppUser().getEmail() != null
               && !requestParser.getRequest().getAppUser().getEmail().equals(""))

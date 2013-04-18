@@ -138,7 +138,7 @@
 			<mx:Text id="text1" keyUp="checkForCompleteness()">
 				<mx:htmlText>(1) Name your experiment. (Required)</mx:htmlText>
 			</mx:Text>
-			<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request.@name}"  width="301" maxChars="200"/>
+			<mx:TextInput id="experimentName" focusOut="propagateName()" keyUp="checkForCompleteness()" text="{parentDocument.request.@name}"  width="301" maxChars="200"/>
 			<mx:Spacer width="10"/>
 		</mx:HBox>	
 		<mx:Spacer height="10" />

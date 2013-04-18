@@ -161,6 +161,11 @@
         
         private function onGetWorkList(event:ResultEvent):void {
         	if (event.result.name() == "WorkItemList") {
+				var sort:Sort = new Sort();
+				sort.compareFunction = this.sortSampleNumber;
+				workList.sort = sort;
+				requestNumberCombo.selectedIndex = 0;
+				workList.refresh();
     	    	refreshRequestNumbers();
 	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
         	} else {
@@ -284,6 +289,59 @@
 				
 			}			
 		}			
+			
+			private function sortSampleNumber(item1:Object, item2:Object, fields:Array=null):int {
+				var n1:String  = item1.@sampleNumber;
+				var n2:String  = item2.@sampleNumber;
+				
+				var parts:Array = n1.split("X");
+				var num1:String = parts[0];
+				var rem1:String = parts[1];
+				var firstChar1:String = num1.substr(0,1);
+				if ("0123456789".indexOf(firstChar1) >= 0) {
+					firstChar1 = "0";
+				} else {
+					num1 = num1.substr(1);
+				}
+				
+				parts = n2.split("X");
+				var num2:String = parts[0];
+				var rem2:String = parts[1];
+				var firstChar2:String = num2.substr(0,1);
+				if ("0123456789".indexOf(firstChar2) >= 0) {
+					firstChar2 = "0";
+				} else {
+					num2 = num2.substr(1);
+				}
+				
+				var comp:int = stringCompare(firstChar1, firstChar2);
+				
+				if (comp == 0) {
+					var number1:Number = Number(num1);
+					var number2:Number = Number(num2);
+					if (number1 > number2) {
+						comp = 1;
+					} else if (number2 > number1) {
+						comp = -1;
+					}
+				}
+				
+				if (comp == 0) {
+					comp = stringCompare(rem1, rem2);
+				}
+				
+				return comp;
+			}
+			
+			private static function stringCompare(s1:String, s2:String):int {
+				if (s1 > s2) {
+					return 1;
+				} else if (s2 > s1) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
 
         ]]>
     </mx:Script> 
@@ -304,7 +362,7 @@
 			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
-	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber"/>
+	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber" sortCompareFunction="sortSampleNumber"/>
 	                
 					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@appUserName" />
 					<mx:DataGridColumn editable="false" width="9" dataField="@seqPrepByCore">

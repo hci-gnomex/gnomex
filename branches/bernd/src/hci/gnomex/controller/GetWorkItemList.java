@@ -46,6 +46,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
   private DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
   private String labName = "";
+  private static final String DELIM = "%%%";
 
   
   public void validate() {
@@ -213,7 +214,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         
         
-        TreeMap clusterGenMap = new TreeMap();
+        TreeMap clusterGenMap = new TreeMap(new ClusterGenComparator());
       
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
@@ -221,7 +222,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
           Object[] row = (Object[])allRows.get(key);
           
-          
+          Integer idRequest = (Integer)row[0];
           String requestNumber = (String)row[1];
           String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
           String flowCellNumber = null; 
@@ -297,7 +298,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            String clusterGenKey = requestNumber + "-" + codeRequestCategory + "-" + labName;
+            String clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
             List nodes = (List)clusterGenMap.get(clusterGenKey);
             
             if (nodes == null) {
@@ -735,15 +736,17 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
     for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
       String clusterGenKey = (String)i.next();
-      String [] tokens = clusterGenKey.split("-");
+      String [] tokens = clusterGenKey.split(DELIM);
       String requestNumber = tokens[0];
       String theCodeRequestCategory = tokens[1];
       String theLabName = tokens[2];
+      String idRequest = tokens[3];
       
       List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
       Element requestNode = new Element("Request");
       requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
       requestNode.setAttribute("labName", labName);
+      requestNode.setAttribute("idRequest", idRequest);
       requestNode.setAttribute("number", requestNumber + " " + theLabName);
       doc.getRootElement().addContent(requestNode);
       
@@ -758,6 +761,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
           multiplexLaneNode = new Element("MultiplexLane");
           multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+          multiplexLaneNode.setAttribute("idRequest",  idRequest);
           requestNode.addContent(multiplexLaneNode);
           seqTags.clear();
         }
@@ -767,6 +771,47 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         prevMultiplexGroupNumber = multiplexGroupNumber;
       }
     }
+  }
+  
+  public static int compareRequestNumbers(String reqNumber1, String reqNumber2) {
+    int comp = 0;
+    
+    String firstChar1 = getReqFirstChar(reqNumber1);
+    String firstChar2 = getReqFirstChar(reqNumber2);
+    
+    Integer num1 = getReqNumber(reqNumber1);
+    Integer num2 = getReqNumber(reqNumber2);
+    
+    if (firstChar1.equals(firstChar2)) {
+      comp = num1.compareTo(num2);
+    } else {
+      comp = firstChar1.compareTo(firstChar2);
+    }
+    
+    return comp;
+  }
+  
+  private static String getReqFirstChar(String reqNumber) {
+    String c = "0";
+    if ("0123456789".indexOf(reqNumber.substring(0,1)) < 0) {
+      c = reqNumber.substring(0, 1);
+    }
+    
+    return c;
+  }
+  
+  private static Integer getReqNumber(String reqNumber) {
+    String intStr = reqNumber;
+    if ("0123456789".indexOf(intStr.substring(0,1)) < 0) {
+      intStr = intStr.substring(1);
+    }
+    if (intStr.indexOf("R") >= 0) {
+      intStr = intStr.substring(0, intStr.indexOf("R"));
+    }
+    
+    Integer num = Integer.parseInt(intStr);
+    
+    return num;
   }
 
   public static class  SampleComparator implements Comparator, Serializable {
@@ -794,11 +839,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (reqNumber1.equals(reqNumber2)) {
         return new Integer(number1).compareTo(new Integer(number2));        
       } else {
-        return reqNumber1.compareTo(reqNumber2);
+        return compareRequestNumbers(reqNumber1, reqNumber2);
       }
       
     }
   }
+  
   public static class  HybComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
@@ -896,7 +942,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             return multiplexNumber1.compareTo(multiplexNumber2);
           }
         } else {
-          return reqNumber1.compareTo(reqNumber2);
+          return compareRequestNumbers(reqNumber1, reqNumber2);
         }        
       } else {
         return status1.compareTo(status2);
@@ -979,7 +1025,32 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
     }
   }
-  
+
+  public static class  ClusterGenComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+
+      
+      
+      String[] tokens1 = key1.split(DELIM);
+      String[] tokens2 = key2.split(DELIM);
+      
+      Integer idRequest1    = Integer.valueOf(tokens1[3]);
+      String number1        = tokens1[0];
+      
+      Integer idRequest2    = Integer.valueOf(tokens2[3]);
+      String number2        = tokens2[0];
+
+      if (idRequest1.equals(idRequest2)) {
+        return number1.compareTo(number2);        
+      } else {
+        return idRequest1.compareTo(idRequest2);
+      }
+      
+    }
+  }
+
   public static class RelatedFlowCellInfo {
     private Integer     clustersPerTile;
     private BigDecimal  sampleConcentrationpM;

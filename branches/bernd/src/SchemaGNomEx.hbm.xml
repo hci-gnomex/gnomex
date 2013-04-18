@@ -1639,6 +1639,7 @@
 		<property name="propertyDescription" column="propertyDescription" type="string"/>
 		<property name="forServerOnly"       column="forServerOnly" type="string"/>
     <property name="idCoreFacility"      column="idCoreFacility" type="integer"/>
+    <property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 	</class>
 	
 	<!-- hci.gnomex.model.ProtocolType -->
@@ -1851,6 +1852,8 @@
 		<property name="description" column="description" type="string"/>
 		<property name="url" column="url" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
+		<property name="adapterSequenceRead1" column="adapterSequenceRead1" type="string"/>
+		<property name="adapterSequenceRead2" column="adapterSequenceRead2" type="string"/>
 	</class>	
 
 	<!-- hci.gnomex.model.SeqLibProtocolApplication -->

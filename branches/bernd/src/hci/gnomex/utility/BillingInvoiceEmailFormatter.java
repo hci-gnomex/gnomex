@@ -82,7 +82,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     return subject;
   }
   
-  public String getCCList(Session sess, String serverName) {
+  public String getCCList(Session sess) {
     String ccList = "";
     if (billingAccount.getIsPO() != null && billingAccount.getIsPO().equals("Y")) {
       String queryString = "select distinct user from AppUser user join user.managingCoreFacilities cores where cores.idCoreFacility = :id";
@@ -94,13 +94,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
         Boolean send = false;
         if (manager.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
           if (manager.getEmail() != null && !manager.getEmail().equals("")) {
-            if (dictionaryHelper.isProductionServer(serverName)) {
-              send = true;
-            } else {
-              if (manager.getEmail().equals(dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-                send = true;
-              }
-            }     
+            send = true;    
           }
         }
         if (send) {

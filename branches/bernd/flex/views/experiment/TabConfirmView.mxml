@@ -299,8 +299,6 @@
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				
-				//corePrepInstructionsConfirmColumn.visible = true;
-
 				this.sampleRowNumberCol.visible = false;
 				
 				if (!parentApplication.submitInternalExperiment()) {
@@ -319,7 +317,6 @@
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
-				//corePrepInstructionsConfirmColumn.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;
@@ -332,7 +329,6 @@
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
-				//corePrepInstructionsConfirmColumn.visible = false;
 				this.numberOfSequencingCyclesCol.visible = false;
 				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;

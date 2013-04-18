@@ -624,7 +624,7 @@
 			}
 			
 			public static function getFieldList(tabSamplesView:TabSamplesView, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, 
-												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, forDownload:Boolean = false):XMLListCollection {
+												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, addAllAnnotations:Boolean = false):XMLListCollection {
 				
 				var samplesViewState:String = tabSamplesView.currentState;
 				
@@ -661,8 +661,15 @@
 					if ((col.dataField == '@multiplexGroupNumber' && allowMultiPlexGroupNumber) && (samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState')) {
 						addColumn = true;
 					}
-					if (isAnnotation && forDownload && tabAnnotationView != null) {
-						addColumn = true;
+					if (isAnnotation && addAllAnnotations && tabAnnotationView != null) {
+						var idString:String = col.dataField.substr(6);	// remove @ANNOT
+						// Make sure annotation is ok for current request category, etc.
+						for each (var x:XML in tabAnnotationView.parentDocument.propertyEntries) {
+							if (x.@idProperty == idString) {
+								addColumn = true;
+								break;
+							}
+						} 
 					}
 					
 					if (addColumn || isAnnotation) {

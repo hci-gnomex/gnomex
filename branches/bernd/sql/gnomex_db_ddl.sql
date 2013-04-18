@@ -1063,7 +1063,6 @@ CREATE TABLE `gnomex`.`Lab` (
   `isActive` VARCHAR(1) NULL,
   `excludeUsage` VARCHAR(1) NULL,
   `billingContactEmail` VARCHAR(200) NULL,
-  `includePiInBillingEmails` CHAR(1) NULL,
   `version` BIGINT(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
@@ -1465,6 +1464,7 @@ CREATE TABLE `gnomex`.`PropertyDictionary` (
   `propertyDescription` VARCHAR(2000) NULL,
   `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
   `idCoreFacility` INT(10) NULL,
+  `codeRequestCategory` VARCHAR(10) NULL,
   PRIMARY KEY (`idPropertyDictionary`)
 )
 ENGINE = INNODB;
@@ -2105,6 +2105,8 @@ CREATE TABLE `gnomex`.`SeqLibProtocol` (
   `description` LONGTEXT NULL,
   `url` VARCHAR(500) NULL,
   `isActive` CHAR(1) NULL,
+  `adapterSequenceRead1` VARCHAR(500) NULL,
+  `adapterSequenceRead2` VARCHAR(500) NULL,
   PRIMARY KEY (`idSeqLibProtocol`)
 )
 ENGINE = INNODB;

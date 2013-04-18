@@ -137,6 +137,9 @@ public class PropertyDictionaryHelper implements Serializable {
     for (Iterator i = properties.iterator(); i.hasNext();) {
       PropertyDictionary prop = (PropertyDictionary)i.next();
       String name = prop.getPropertyName();
+      if (prop.getCodeRequestCategory() != null) {
+        name = prop.getCodeRequestCategory() + "\t" + name;
+      }
       if (prop.getIdCoreFacility() != null) {
         name = prop.getIdCoreFacility().toString() + "\t" + name;
       }
@@ -171,6 +174,21 @@ public class PropertyDictionaryHelper implements Serializable {
     return propertyValue;
   }
   
+  public String getCoreFacilityRequestCategoryProperty(Integer idCoreFacility, String codeRequestCategory, String name) {
+    String propertyValue = "";
+    if (name != null && !name.equals("") && idCoreFacility != null) {
+      propertyValue = null;
+      if (codeRequestCategory != null && codeRequestCategory.length() > 0) {
+        String qualName = idCoreFacility.toString() + "\t" + codeRequestCategory + "\t" + name;
+        propertyValue = (String)propertyMap.get(qualName);
+      }
+      if (propertyValue == null) {
+        propertyValue = getCoreFacilityProperty(idCoreFacility, name);
+      }
+    }
+    
+    return propertyValue;
+  }
   
   public String getQualifiedProperty(String name, String serverName) {
     // First try to get property that is 
