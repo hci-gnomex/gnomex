@@ -56,6 +56,8 @@
 		[Bindable]
 		private var visibilityName:String;
 		[Bindable]
+		private var institutionName:String;
+		[Bindable]
 		private var relatedDataTitle:String = "Related Data";
 		
 		[Bindable]
@@ -288,6 +290,7 @@
 			getExperimentCategoryName();
 			getSeqLibTreatments();
 			getVisibilityName();
+			getInstitutionName();
 			callLater(showHideColumns);
 			this.addNonStandardSampleColumns();
 			
@@ -595,6 +598,15 @@
 			}
 		}
 		
+		private function getInstitutionName():void {
+			var institution:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Institution', this.selectedExperiment[0].@idInstitution);
+			if (institution is XMLList) {
+				institutionName = institution[0].@display.toString();			
+			} else {
+				institutionName = institution.@display.toString();
+			}
+		}
+
 		public function showDownloads():void {
 			this.theTab.selectedChild = this.filesView;
 			downloadExpandedFilesButtonView.visible = true;
@@ -1390,6 +1402,10 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 								<mx:Text  width="100" text="Visibility"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{visibilityName}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+								<mx:Text  width="100" text="Institution"  styleName="formLabel" textAlign="left"/>
+								<mx:Text  text="{institutionName}" width="200"/>
 							</mx:HBox>
 							
 						</mx:VBox>
