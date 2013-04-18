@@ -3717,9 +3717,9 @@
 		
 		private function onGetRequest(event:ResultEvent):void {
 			if(!parentApplication.isInternalExperimentSubmission) {
-				addDescriptionFieldToAnnotations(getRequest.lastResult..Request.(@idRequest = request.@idRequest).PropertyEntries);			
+				addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest = request.@idRequest).PropertyEntries);			
 			}	
-			request = getRequest.lastResult..Request.(@idRequest = request.@idRequest);
+			request = getRequest.lastResult.Request.(@idRequest = request.@idRequest);
 			
 			// this refreshes the request from the db.
 			if (parentDocument is NavOrderView) {
