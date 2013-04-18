@@ -19,6 +19,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +67,7 @@ import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
+import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
 
 
@@ -126,9 +128,30 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.setCanUpdateSamples(true);
         
         PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+        
+        // Set the default visibility if there is a property
         String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_EXPERIMENT);
         if (defaultVisibility != null && defaultVisibility.length() > 0) {
           request.setCodeVisibility(defaultVisibility);
+        }
+        
+        // We can't set to institution level visibility if the default institution was not provided.
+        if (request.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+          String idInstitutionString = propertyHelper.getProperty(PropertyDictionary.ID_DEFAULT_INSTITUTION);
+          if (idInstitutionString == null || idInstitutionString.equals("")) {
+            request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+          } else {
+            request.setIdInstitution(Integer.valueOf(idInstitutionString));
+          }
+        }
+        
+        // Set the default privacy expiration date
+        String expirationInMonths = propertyHelper.getProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION);
+        if (expirationInMonths != null && !expirationInMonths.equals("") && !expirationInMonths.equals("0")) {
+          Integer expireMonths = Integer.valueOf(expirationInMonths);
+          GregorianCalendar cal = new GregorianCalendar();
+          cal.add(GregorianCalendar.MONTH, expireMonths);
+          request.setPrivacyExpirationDate(new java.sql.Date(cal.getTimeInMillis()));
         }
 
       } else if (idRequest != null) {
