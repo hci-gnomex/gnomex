@@ -1624,8 +1624,8 @@
 				this.downloadExamplePlateButton.includeInLayout = hasPlates() && !isEditState;
 				this.downloadExampleTubeButton.visible = parentDocument.isCapSeqState() && !hasPlates() && !isEditState;
 				this.downloadExampleTubeButton.includeInLayout = parentDocument.isCapSeqState() && !hasPlates() && !isEditState;
-				this.downloadButton.visible = !parentDocument.isCapSeqState || isEditState;
-				this.downloadButton.includeInLayout = !parentDocument.isCapSeqState || isEditState;
+				this.downloadButton.visible = !parentDocument.isCapSeqState() || isEditState;
+				this.downloadButton.includeInLayout = !parentDocument.isCapSeqState() || isEditState;
 				
 				buttonsContainer.visible = !parentDocument.isAmendState();
 				buttonsContainer.includeInLayout = buttonsContainer.visible;
