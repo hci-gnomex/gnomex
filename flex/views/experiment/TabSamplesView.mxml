@@ -37,6 +37,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
+			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
 			
@@ -1711,8 +1712,10 @@
 					this.qualFragSizeToCol.visible = false;
 					this.qualRINCol.visible = false;
 					this.qualStatusCol.visible = false;
+					this.descriptionColumn.visible = false;
 					
 					if (currentState == 'CapSeqState') {
+						this.descriptionColumn.visible = true;
 						if (isEditState) { 
 							this.sampleTypeCol.visible = true;
 						} else {
@@ -1722,7 +1725,6 @@
 					} else if (currentState == 'SequenomState') {
 						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
 						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
-						this.descriptionColumn.visible = false;
 						if ( parentDocument.isClinicalSequenomState() ) {
 							this.sampleNameCol.visible = false;
 						}
@@ -1730,7 +1732,6 @@
 					} else if (currentState == 'ClinicalSequenomState') {
 						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
 						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
-						this.descriptionColumn.visible = false;
 						if ( parentDocument.isClinicalSequenomState() ) {
 							this.sampleNameCol.visible = false;
 						}
@@ -2046,15 +2047,18 @@
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%">
 			<mx:HBox id="buttonsContainer" horizontalGap="2">
-				<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download Sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet" />
+				<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+							   label="Upload help" 
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 			</mx:HBox>
-
 		</mx:HBox>
 
 		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
@@ -2503,7 +2507,7 @@
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Fill in other details about the samples.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
@@ -2513,7 +2517,7 @@
 			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
 		</mx:State>
 		<mx:State name="SequenomState">			
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
