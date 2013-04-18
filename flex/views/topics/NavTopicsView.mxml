@@ -409,7 +409,7 @@
 		}
 
 		if(this.browseTree.selectedItem.name() == "Request") {
-			parentApplication.showExperiment(browseTree.selectedItem.@idRequest, false);
+			parentApplication.showExperimentById(browseTree.selectedItem.@idRequest);
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
 			parentApplication.showAnalysisForNumber(browseTree.selectedItem.@number);
 		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
