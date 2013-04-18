@@ -35,6 +35,7 @@
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+			import mx.controls.menuClasses.MenuItemRenderer;
 			import mx.core.Application;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
@@ -54,7 +55,6 @@
 			public var notificationState:int;
 			
 			public function init():void {
-				
 				notificationInterface.send();
 			}
 			
@@ -72,6 +72,15 @@
 						billingData.source = notificationInterface.lastResult.billing;
 						noteData = billingData;
 					}
+					
+					var mySort:Sort = new Sort();
+					var sortField:SortField = new SortField("@notificationId");
+					sortField.descending = true;
+					sortField.numeric = true;
+					
+					mySort.fields = [sortField];
+					noteData.sort = mySort;
+					noteData.refresh();
 					
 					userData.refresh();
 					workflowData.refresh();
@@ -147,12 +156,26 @@
 				
 				return notification;
 			}
+			
+			private function genXMLTag(item:Object):Object{
+					var codeStep:String = item.@codeStep;
+					var codeStepName:String = item.@codeStepName;
+
+					if(codeStep.indexOf("QC") >= 0){
+						codeStep = "QC";						
+					}
+					
+					var outXml:String = '<menuitem label="'+ codeStepName + '" icon="iconLibPrep" codeStepNext="' + codeStep + '" />';
+					var xml:XML = new XML(outXml);
+					
+					return xml;
+			}
 		]]>
 	</mx:Script>
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="6">
 		<mx:VBox includeInLayout="{notificationState != 2 ? true : false}">
-			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="6">
+			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="8">
 				<mx:VBox  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
 					<mx:HBox id="notificationItem" width="465">
 						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" fontWeight="bold" />
@@ -162,9 +185,9 @@
 			</mx:Repeater>
 		</mx:VBox>
 		<mx:VBox includeInLayout="{notificationState == 2 ? true : false}">
-			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}">
+			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}" count="8">
 				<mx:HBox id="workflowItem" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
-					<mx:LinkButton id="wfStep" click="Application.application.navWorkflowView.switchTo(event.currentTarget.getRepeaterItem().@codeStep);" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
+					<mx:LinkButton id="wfStep" click="Application.application.showView(genXMLTag(event.currentTarget.getRepeaterItem()));" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
 					<mx:Spacer width="100%" />
 					<mx:Label id="wfCount" text="{repWorkflow.currentItem.@count}" />
 				</mx:HBox>

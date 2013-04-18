@@ -37,7 +37,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 	
     filter = new NotificationFilter();
-    filter.setIdUserTarget(this.getSecAdvisor().getIdAppUser());
+ //   filter.setIdUserTarget(this.getSecAdvisor().getIdAppUser());
     HashMap errors = this.loadDetailObject(request, filter);
     if(request.getParameter("workflowCoreFacility") != null){
     	workflowCoreFacility = Integer.parseInt(request.getParameter("workflowCoreFacility"));	
@@ -66,6 +66,9 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         // Foreach step in permission level (user, admin, billing, workflow) create subnodes.
         // Get sourceType and determine parsing type.
         Element x = null;
+        
+        Integer idUser = this.getSecAdvisor().getIdAppUser();
+        
       for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
             Object[] row = (Object[]) i1.next();
             x = null;
@@ -80,7 +83,17 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             	}
             }else if(sourceType.equals("USER")){
             	// Set user level notification node
-            	x = new Element("user");
+            	Integer uid = null;
+            	
+            	if((Integer) row[4] != null){
+            		uid = (Integer) row[4];
+            	}
+            	
+            	if(uid.equals(idUser)){
+            		x = new Element("user");
+            	}else{
+            		continue;
+            	}
             }else if(sourceType.equals("BILLING")){
             	if(billingAuth){
             		// Set billing level notification node

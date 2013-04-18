@@ -87,7 +87,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 				
 				// Set a value for command
 				sendCommand.setFormat("XML");
-				sendCommand.setState(12); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
+				sendCommand.setState(1); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
 				sendCommand.setCommand("FETCH");
 				sendCommand.setMode("CALL");
 				oos.writeObject(sendCommand);

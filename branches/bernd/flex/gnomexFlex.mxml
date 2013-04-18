@@ -3081,7 +3081,7 @@
 			}
 			
 			
-			private function showView(menuitem:Object):void {
+			public function showView(menuitem:Object):void {
 				var label:String = menuitem.@label;
 				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
 				var codeStepNext:String = menuitem.hasOwnProperty("@codeStepNext") ? menuitem.@codeStepNext : "";
