@@ -2737,6 +2737,19 @@
 				warningMessage = "Samples from this order are already on a reaction plate.\n\n";
 			}
 			
+			// Validate institution
+			if (this.theTab.contains(visibilityView) && visibilityView != null && visibilityView.enabled) {
+				if (visibilityView.visibilityRadioGroup.selectedValue != null && visibilityView.visibilityRadioGroup.selectedValue != '') {
+					
+					if (visibilityView.visibilityRadioGroup.selectedValue == 'INST') {
+						if (visibilityView.institutionCombo.selectedItem == null || !visibilityView.institutionCombo.selectedItem.hasOwnProperty("@idInstitution") 
+							|| visibilityView.institutionCombo.selectedItem.@idInstitution == '') {
+							errorMessage += "You must select and Institution for institution visibility.  Please select an institution or change to a different visiblity level.\n\n";
+						}					
+					}
+				} 
+			}
+			
 			if (isCapSeqState()) {
 				if (samples.length < 32 && this.request.@containerType == 'PLATE') {
 					errorMessage += "You may not have less than 32 samples in a Plate container.\n\n";
