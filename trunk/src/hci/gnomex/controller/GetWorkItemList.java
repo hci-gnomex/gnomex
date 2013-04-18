@@ -12,6 +12,7 @@ import hci.gnomex.model.WorkItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.Util;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -772,47 +773,6 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       }
     }
   }
-  
-  public static int compareRequestNumbers(String reqNumber1, String reqNumber2) {
-    int comp = 0;
-    
-    String firstChar1 = getReqFirstChar(reqNumber1);
-    String firstChar2 = getReqFirstChar(reqNumber2);
-    
-    Integer num1 = getReqNumber(reqNumber1);
-    Integer num2 = getReqNumber(reqNumber2);
-    
-    if (firstChar1.equals(firstChar2)) {
-      comp = num1.compareTo(num2);
-    } else {
-      comp = firstChar1.compareTo(firstChar2);
-    }
-    
-    return comp;
-  }
-  
-  private static String getReqFirstChar(String reqNumber) {
-    String c = "0";
-    if ("0123456789".indexOf(reqNumber.substring(0,1)) < 0) {
-      c = reqNumber.substring(0, 1);
-    }
-    
-    return c;
-  }
-  
-  private static Integer getReqNumber(String reqNumber) {
-    String intStr = reqNumber;
-    if ("0123456789".indexOf(intStr.substring(0,1)) < 0) {
-      intStr = intStr.substring(1);
-    }
-    if (intStr.indexOf("R") >= 0) {
-      intStr = intStr.substring(0, intStr.indexOf("R"));
-    }
-    
-    Integer num = Integer.parseInt(intStr);
-    
-    return num;
-  }
 
   public static class  SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
@@ -839,7 +799,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (reqNumber1.equals(reqNumber2)) {
         return new Integer(number1).compareTo(new Integer(number2));        
       } else {
-        return compareRequestNumbers(reqNumber1, reqNumber2);
+        return Util.compareRequestNumbers(reqNumber1, reqNumber2);
       }
       
     }
@@ -942,7 +902,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             return multiplexNumber1.compareTo(multiplexNumber2);
           }
         } else {
-          return compareRequestNumbers(reqNumber1, reqNumber2);
+          return Util.compareRequestNumbers(reqNumber1, reqNumber2);
         }        
       } else {
         return status1.compareTo(status2);
