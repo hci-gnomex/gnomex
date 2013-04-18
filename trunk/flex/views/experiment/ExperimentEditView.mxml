@@ -5539,7 +5539,6 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
