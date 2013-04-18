@@ -5194,9 +5194,8 @@
     			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
 					<mx:HBox verticalGap="0" width="100%" horizontalGap="2" verticalAlign="middle">
 					    <mx:Label text="Account"  
-					    	fontStyle="normal"
 					       	 visible="{this.request.@isExternal != 'Y'}"
-					    	fontWeight="bold"/>
+					    	styleName="formLabel"/>
 					    <mx:ComboBox id="requestEditBillingAccountCombo"
 					       	  labelField="@accountName" 
 					       	  dataProvider="{billingAccounts}" 
@@ -5314,7 +5313,7 @@
 							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 							<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 						</mx:ComboBox>
-						<mx:Label text="Please specify" paddingLeft="6">
+						<mx:Label text="Please specify" paddingLeft="6" styleName="formLabel">
 							<mx:visible>{parentDocument.selectedExperiment.@isExternal == 'Y' &amp;&amp; sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 						</mx:Label>
 						<mx:TextInput width="250" id="otherOrganism" maxChars="200" text="{request.@otherOrganism}" change="pickOrganism()">
@@ -5428,7 +5427,7 @@
 		<mx:State name="SequencingEditState" basedOn="EditState">
 			<mx:AddChild relativeTo="{this.completedBox}" position="after">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
-					<mx:Text  width="100" text="Status" />
+					<mx:Text  width="100" text="Status" styleName="formLabel" />
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -5457,13 +5456,13 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Container" />
+					<mx:Text  width="100" text="Container"  styleName="formLabel" />
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Drop Off Loc." />
+					<mx:Text  width="100" text="Drop Off Loc." styleName="formLabel" />
 					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" dataProvider="{this.filteredSampleDropOffLocationList}"/>							
 				</mx:HBox>
 			</mx:AddChild>
@@ -5560,7 +5559,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Container" />
+					<mx:Text  width="100" text="Container" styleName="formLabel" />
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -5619,7 +5618,7 @@
             </mx:AddChild>
 			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
-					<mx:Text text="Application" width="100" id="labelApplication"/>
+					<mx:Text text="Application" width="100" id="labelApplication" styleName="formLabel"/>
 					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" enabled="{parentApplication.isAdminState ? true : false}">							
 						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
 					</mx:ComboBox>
