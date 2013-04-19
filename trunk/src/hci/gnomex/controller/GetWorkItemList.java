@@ -7,6 +7,7 @@ import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -48,6 +50,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   private DecimalFormat clustersPerTileFormat = new DecimalFormat("###,###,###");
   private String labName = "";
   private static final String DELIM = "%%%";
+  
+  private TreeMap<String, List<Element>> clusterGenNodeMap = null;
+  private TreeMap<String, List<SequenceLane>> clusterGenLaneMap = null;
+  private String clusterGenKey = "";
+
 
   
   public void validate() {
@@ -168,6 +175,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
+
             String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "";
             // Sort the 'On hold' items so they are at the bottom of the list
             // for cluster gen
@@ -215,8 +223,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         
         
         
-        TreeMap clusterGenMap = new TreeMap(new ClusterGenComparator());
-      
+        clusterGenNodeMap = new TreeMap<String, List<Element>>(new ClusterGenComparator());
+        clusterGenLaneMap = new TreeMap<String, List<SequenceLane>>(new ClusterGenComparator());
+       
+        
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
@@ -282,7 +292,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap);
+            clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
+            fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap, clusterGenKey);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             
@@ -299,12 +310,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            String clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
-            List nodes = (List)clusterGenMap.get(clusterGenKey);
+            List nodes = (List)clusterGenNodeMap.get(clusterGenKey);
             
             if (nodes == null) {
               nodes = new ArrayList();
-              clusterGenMap.put(clusterGenKey, nodes);              
+              clusterGenNodeMap.put(clusterGenKey, nodes);              
             }
             nodes.add(n);
             
@@ -333,7 +343,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-          organizeSeqAssembleNodes(doc, clusterGenMap);
+          organizeSeqAssembleNodes(doc);
         }
         
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -603,7 +613,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
   }
 
-  private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap) {
+  private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap, String clusterGenKey) {
     n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
     n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
     n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
@@ -622,6 +632,14 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("labName", labName);
     n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
 
+    SequenceLane lane = (SequenceLane)row[25];
+    List theLanes = clusterGenLaneMap.get(clusterGenKey);
+    if (theLanes == null) {
+      theLanes = new ArrayList();
+      clusterGenLaneMap.put(clusterGenKey, theLanes);
+    }
+    theLanes.add(lane);
+    
     
     Integer idSample = (Integer)row[9];
     Integer idSequenceLane = (Integer)row[16];
@@ -733,17 +751,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
   }
   
-  private void organizeSeqAssembleNodes(Document doc, Map clusterGenMap) {
+  private void organizeSeqAssembleNodes(Document doc) {
     
-    for(Iterator i = clusterGenMap.keySet().iterator(); i.hasNext();) {
+    for(Iterator i = clusterGenNodeMap.keySet().iterator(); i.hasNext();) {
       String clusterGenKey = (String)i.next();
+      List theLanes = clusterGenLaneMap.get(clusterGenKey);
+      
       String [] tokens = clusterGenKey.split(DELIM);
       String requestNumber = tokens[0];
       String theCodeRequestCategory = tokens[1];
       String theLabName = tokens[2];
       String idRequest = tokens[3];
       
-      List theWorkItemNodes = (List)clusterGenMap.get(clusterGenKey);
+      List<Element> theWorkItemNodes = clusterGenNodeMap.get(clusterGenKey);
       Element requestNode = new Element("Request");
       requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
       requestNode.setAttribute("labName", labName);
@@ -751,26 +771,36 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       requestNode.setAttribute("number", requestNumber + " " + theLabName);
       doc.getRootElement().addContent(requestNode);
       
-      HashMap seqTags = new HashMap();
-      Element multiplexLaneNode = null;
+      // Get a group of lane lists.  Each lane list represents a multiplex lane node.
+      List<Set<SequenceLane>> laneGroups = SequenceLane.getMultiplexLaneGroupsConsiderDupIndexTags(theLanes);
       int multiplexLaneIdx = 1;
-      String prevMultiplexGroupNumber = "%%%%%";
-      for (Iterator i1 = theWorkItemNodes.iterator(); i1.hasNext();) {
-        Element n = (Element)i1.next();
-        String barcodeSequence = n.getAttributeValue("barcodeSequence");
-        String multiplexGroupNumber = n.getAttributeValue("multiplexGroupNumber");
-        if (!multiplexGroupNumber.equals(prevMultiplexGroupNumber) || seqTags.containsKey(barcodeSequence) || seqTags.isEmpty()) {
-          multiplexLaneNode = new Element("MultiplexLane");
-          multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
-          multiplexLaneNode.setAttribute("idRequest",  idRequest);
-          requestNode.addContent(multiplexLaneNode);
-          seqTags.clear();
-        }
+      for (Set<SequenceLane> lanesToMultiplex : laneGroups) {
+        Element multiplexLaneNode = new Element("MultiplexLane");
+        multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+        multiplexLaneNode.setAttribute("idRequest",  idRequest);
+        requestNode.addContent(multiplexLaneNode);
+
+        // Now iterate through the lanes in one multiplex to find
+        // the matching WorkItem node (for the lane).  Add
+        // those matching WorkItem nodes to the MultiplexLaneNode.
+        for (SequenceLane theLane : lanesToMultiplex) {
+          Element matchingNode = null;
+          for (Element workItemNode : theWorkItemNodes) {
+            String idSeqLaneString = workItemNode.getAttributeValue("idSequenceLane");
+            Integer idSequenceLane = Integer.valueOf(idSeqLaneString);
+            if (idSequenceLane.equals(theLane.getIdSequenceLane())) {
+              matchingNode = workItemNode;
+              break;
+            }
+          }
+          if (matchingNode != null) {
+            multiplexLaneNode.addContent(matchingNode);
+          }
         
-        multiplexLaneNode.addContent(n);
-        seqTags.put(barcodeSequence, null);
-        prevMultiplexGroupNumber = multiplexGroupNumber;
+        }
+        multiplexLaneIdx++;
       }
+      
     }
   }
 

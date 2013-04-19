@@ -635,14 +635,11 @@ public class SequenceLane extends HibernateDetailObject {
   }
   
   /*
-   * This is a deprecated method.  When duplicate index tags exist in 
-   * a multiplex group or a flow cell channel, this method was separating
-   * the lanes out into separate lane groups.  But in a sense, this
-   * is not helpful since it "hides" the sequence lane from its "real"
-   * multiplex group.  
-   * @deprecated
+   * When duplicate index tags exist in 
+   * a multiplex group or a flow cell channel, this method will separate
+   * the lanes out into separate lane groups.  
    */
-  private static List getMultiplexLaneGroupsConsiderDupIndexTags(List seqLanes) {
+  public static List getMultiplexLaneGroupsConsiderDupIndexTags(List seqLanes) {
     List laneGroups = new ArrayList();
 
     // First create a hash map key=barcode sequence, value=list of lanes holding this sequence
