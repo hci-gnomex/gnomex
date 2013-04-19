@@ -2056,19 +2056,30 @@
 						if (property.@propertyValue == "hide") {
 							if (property.@idCoreFacility != "" && !isSuperAdmin) {
 								if (coreFacilitiesICanManage.length() > 0) {
-									for each (var cf:Object in coreFacilitiesICanManage) {
-										if (property.@idCoreFacility == cf.@idCoreFacility) {
-											menuToHide = property.@propertyName.toString().substr(5);
-											break;
+									// Only hide a menu for a core facility admin when
+									// the menu_ property matches the core facility
+									// the admin manages and there is only ONE core
+									// facility the admin manages.
+									if (coreFacilitiesICanManage.length() < 2) {
+										for each (var cf:Object in coreFacilitiesICanManage) {
+											if (property.@idCoreFacility == cf.@idCoreFacility) {
+												menuToHide = property.@propertyName.toString().substr(5);
+												break;
+											}
 										}
 									}
 								} else {
 									
 									if (menuToHide == null) {
-										for each (var cf1:Object in  myCoreFacilities) {
-											if (property.@idCoreFacility == cf1.@idCoreFacility) {
-												menuToHide = property.@propertyName.toString().substr(5);
-												break;
+										// Only hide a menu when the menu_ property matches the
+										// core facility and the user is only associated with ONE
+										// core facility
+										if (myCoreFacilities.length() < 2) {
+											for each (var cf1:Object in  myCoreFacilities) {
+												if (property.@idCoreFacility == cf1.@idCoreFacility) {
+													menuToHide = property.@propertyName.toString().substr(5);
+													break;
+												}
 											}
 										}
 										
