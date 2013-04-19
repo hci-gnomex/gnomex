@@ -292,8 +292,14 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
+            
+            String labLastName = (String)row[23];            
+            String labFirstName = (String)row[24];
+            labName = Lab.formatLabName(labLastName, labFirstName);
+
             clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
-            fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap, clusterGenKey);
+            
+            fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap, clusterGenKey, labName);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
                        filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             
@@ -613,7 +619,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
   }
 
-  private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap, String clusterGenKey) {
+  private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap, String clusterGenKey, String theLabName) {
     n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
     n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
     n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
@@ -625,11 +631,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("isControl",                    "false");            
     n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
     
-    String labLastName = (String)row[23];            
-    String labFirstName = (String)row[24];
-    labName = Lab.formatLabName(labLastName, labFirstName);
     
-    n.setAttribute("labName", labName);
+    n.setAttribute("labName", theLabName);
     n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
 
     SequenceLane lane = (SequenceLane)row[25];
@@ -766,7 +769,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       List<Element> theWorkItemNodes = clusterGenNodeMap.get(clusterGenKey);
       Element requestNode = new Element("Request");
       requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
-      requestNode.setAttribute("labName", labName);
+      requestNode.setAttribute("labName", theLabName);
       requestNode.setAttribute("idRequest", idRequest);
       requestNode.setAttribute("number", requestNumber + " " + theLabName);
       doc.getRootElement().addContent(requestNode);
