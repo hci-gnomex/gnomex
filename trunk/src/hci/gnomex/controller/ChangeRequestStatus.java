@@ -98,6 +98,27 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         if ( oldRequestStatus!=null ) {
           if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
             req.setCreateDate(new java.util.Date());
+            
+            String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
+            if ((req.getAppUser() != null
+                  && req.getAppUser().getEmail() != null
+                  && !req.getAppUser().getEmail().equals(""))
+                || (otherRecipients != null && otherRecipients.length() > 0)) {
+              try {
+                // confirmation email for dna seq requests is sent at submit time.
+                sendConfirmationEmail(sess, req, otherRecipients);
+              } catch (Exception e) {
+                String msg = "Unable to send confirmation email notifying submitter that request "
+                  + req.getNumber()
+                  + " has been submitted.  " + e.toString();
+                log.error(msg);
+              }
+            } else {
+              String msg = ( "Unable to send confirmation email notifying submitter that request "
+                  + req.getNumber()
+                  + " has been submitted.  Request submitter or request submitter email is blank.");
+              log.error(msg);
+            }
           }
         }
 
@@ -208,48 +229,52 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   }
   
   
-  private void sendConfirmationEmail(Session sess, Request req) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request req, String otherRecipients) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + req.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    if (req.getIsExternal().equals("Y")) {
-      introNote.append("Experiment " + req.getNumber() + " has been registered in the GNomEx repository.");   
-      introNote.append("<br><br>To view the experiment details, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
-      
-    } else {
-      introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-        ".  You will receive email notification when the experiment is complete.");   
-      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
-      
-    }
+    
+    introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+      ".  You will receive email notification when the experiment is complete.");   
+    introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+          
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, req, "", req.getSamples(), new HashSet(), new HashSet(), introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(req.getCodeRequestCategory()) + 
                   (req.getIsExternal().equals("Y") ? " Experiment " : " Experiment Request ") + 
                   req.getNumber() + (req.getIsExternal().equals("Y") ? " registered" : " submitted");
     
-    boolean send = false;
-    String emailInfo = "";
-    String emailRecipient = req.getAppUser().getEmail();
-    if (req.getAppUser().getEmail() != null) {
-      if (dictionaryHelper.isProductionServer(serverName)) {
-        send = true;
-      } else {
-        send = true;
-        subject = subject + "  (TEST)";
-        emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipient + "]<br><br>";
-        emailRecipient = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      }
-    }
     
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+    String emailRecipients = "";
+    if (req.getAppUser() != null && req.getAppUser().getEmail() != null) {
+      emailRecipients = req.getAppUser().getEmail();
+    }
+    if (otherRecipients != null && otherRecipients.length() > 0) {
+      if (emailRecipients.length() > 0) {
+        emailRecipients += ",";
+      }
+      emailRecipients += otherRecipients;
+    }
+    
+    boolean send = false;
+    String emailInfo = "";
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      send = true;
+    } else {
+      send = true;
+      subject = subject + "  (TEST)";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    
     
     if (send) {
-      MailUtil.send(emailRecipient, 
+      MailUtil.send(emailRecipients, 
           null,
           (req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
           subject, 
