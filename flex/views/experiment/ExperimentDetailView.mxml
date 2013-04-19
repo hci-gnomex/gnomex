@@ -590,20 +590,24 @@
 			}
 		}
 		private function getVisibilityName():void {
-			var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment[0].@codeVisibility);
-			if (visibility is XMLList) {
-				visibilityName = visibility[0].@display.toString();			
-			} else {
-				visibilityName = visibility.@display.toString();
+			if (selectedExperiment[0].hasOwnProperty("@codeVisibility")) {
+				var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment[0].@codeVisibility);
+				if (visibility is XMLList) {
+					visibilityName = visibility[0].@display.toString();			
+				} else {
+					visibilityName = visibility.@display.toString();
+				}
 			}
 		}
 		
 		private function getInstitutionName():void {
-			var institution:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Institution', this.selectedExperiment[0].@idInstitution);
-			if (institution is XMLList) {
-				institutionName = institution[0].@display.toString();			
-			} else {
-				institutionName = institution.@display.toString();
+			if (selectedExperiment[0].hasOwnProperty("@idInstitution")) {
+				var institution:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Institution', this.selectedExperiment[0].@idInstitution);
+				if (institution is XMLList) {
+					institutionName = institution[0].@display.toString();			
+				} else {
+					institutionName = institution.@display.toString();
+				}
 			}
 		}
 
