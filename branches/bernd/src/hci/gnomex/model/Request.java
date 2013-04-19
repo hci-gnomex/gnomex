@@ -1061,6 +1061,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("projectLabName",         projectLabName);
     root.setAttribute("projectName",            projectName);
     root.setAttribute("codeVisibility",         this.getNonNullString(this.getCodeVisibility()));
+    root.setAttribute("idInstitution",          this.getIdInstitution() != null ? this.getIdInstitution().toString() : "");
     root.setAttribute("ownerFirstName",         ownerFirstName);
     root.setAttribute("ownerLastName",          ownerLastName);
     root.setAttribute("isExternal",             this.getNonNullString(this.getIsExternal()));
@@ -1132,7 +1133,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     
     root.setAttribute("idRequest", this.getNonNullString(this.getIdRequest()));
     root.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
-    root.setAttribute("label", "(Restricted Visibility)");
+    root.setAttribute("label", this.getNumber() + " (Restricted Visibility)");
     return doc;
   }  
  

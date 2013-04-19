@@ -13,15 +13,12 @@
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:SetStyle target="{vbox2}" name="borderStyle" value="none"/>
-			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
 			<mx:SetStyle target="{topBar}" name="paddingRight" value="4"/>
 			<mx:SetStyle target="{topBar}" name="paddingLeft" value="4"/>
 		</mx:State>
 		<mx:State name="UserState">
-			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
 		</mx:State>
 		<mx:State name="GuestState">
-			<mx:SetStyle target="{topBar}" name="borderStyle" value="solid"/>
 		</mx:State>
 	</mx:states>
 
@@ -402,14 +399,14 @@
 	}
 	
 	private function onTreeDoubleClick():void {
-		if ((this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label == "(Restricted Visibility)")
+		if ((this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label.toString().indexOf("(Restricted Visibility)") > -1)
 			|| ((this.browseTree.selectedItem.name() == "Analysis" || this.browseTree.selectedItem.name() == "DataTrack")  
-				&& this.browseTree.selectedItem.@number == "(Restricted Visibility)")) {
+				&& this.browseTree.selectedItem.@number.toString().indexOf("(Restricted Visibility)") > -1)) {
 			return;
 		}
 
 		if(this.browseTree.selectedItem.name() == "Request") {
-			parentApplication.showExperiment(browseTree.selectedItem.@idRequest, false);
+			parentApplication.showExperimentById(browseTree.selectedItem.@idRequest);
 		} else if (this.browseTree.selectedItem.name() == "Analysis") {
 			parentApplication.showAnalysisForNumber(browseTree.selectedItem.@number);
 		} else if (this.browseTree.selectedItem.name() == "DataTrack") {
@@ -421,9 +418,9 @@
 		if (this.browseTree.selectedItem == null 
 			|| this.browseTree.selectedItem.name() == "Folder"
 			|| this.browseTree.selectedItem.name() == "Category"
-			|| (this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label == "(Restricted Visibility)")
+			|| (this.browseTree.selectedItem.name() == "Request" && this.browseTree.selectedItem.@label.toString().indexOf("(Restricted Visibility)") > -1)
 			|| ((this.browseTree.selectedItem.name() == "Analysis" || this.browseTree.selectedItem.name() == "DataTrack")  
-				&& this.browseTree.selectedItem.@number == "(Restricted Visibility)")) {
+				&& this.browseTree.selectedItem.@number.toString().indexOf("(Restricted Visibility)") > -1 )) {
 			this.mainViewStack.selectedChild = this.blankView;
 			return;
 		}
@@ -1012,13 +1009,13 @@
 		var retValue:String = "";
 		if (item.name() == "Analysis") { 
 			retValue = item.@number;
-			if(retValue != "(Restricted Visibility)") {
-				retValue += " (" + item.@name + ")";
+			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
+				retValue;
 			}
 			return retValue;
 		} else if (item.name() == "DataTrack") {
 			retValue = item.@number;
-			if(retValue != "(Restricted Visibility)") {
+			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
 				retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
 			}
 			return retValue;

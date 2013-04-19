@@ -12,11 +12,13 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,9 @@ import org.jdom.output.XMLOutputter;
 public class GetBillingRequestList extends GNomExCommand implements Serializable {
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetBillingRequestList.class);
+  
+  private static final String DELIM = "\t";
+  private static final String DISK_USAGE_PREFIX = "ZZDiskUsage";
   
   private BillingItemFilter billingItemFilter;
   
@@ -84,7 +89,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     
     Element statusNode = new Element("Status");
 
-    TreeMap requestToStatusMap = new TreeMap();
+    TreeMap requestToStatusMap = new TreeMap(new RequestNumberBilledComparator());
     HashMap requestNodeMap = new HashMap();
     HashMap statusToLabNodeMap = new HashMap();
     
@@ -142,7 +147,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
       
         String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
-        String requestNumberBilled = requestNumber + labBillingName;
+        String requestNumberBilled = requestNumber + DELIM + labBillingName;
 
         // Hash the status node.
         List statusList = (List)requestToStatusMap.get(requestNumberBilled);
@@ -158,7 +163,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         
         TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
         if (requestNodes == null) {
-          requestNodes = new TreeMap();
+          requestNodes = new TreeMap(new RequestNumberBilledComparator());
           requestNodeMap.put(requestNumberBilled, requestNodes);
         }
         requestNodes.put(requestNumberBilled, node);
@@ -205,7 +210,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String toolTip = requestNumber + " " + labName;
       
       String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
-      String requestNumberBilled = requestNumber + labBillingName;
+      String requestNumberBilled = requestNumber + DELIM + labBillingName;
       
       if (createDate != null) {
         toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
@@ -280,7 +285,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       // accounts.  Keep a hash map of these different request nodes.
       TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
       if (requestNodes == null) {
-        requestNodes = new TreeMap();
+        requestNodes = new TreeMap(new RequestNumberBilledComparator());
         requestNodeMap.put(requestNumberBilled, requestNodes);
       }
       requestNodes.put(requestNumberBilled, node);
@@ -323,7 +328,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String toolTip = "Disk Usage Charge for " + labName;
       
       String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
-      String requestNumberBilled = "DiskUsage" + idDiskUsage.toString() + labBillingName;
+      String requestNumberBilled = DISK_USAGE_PREFIX + idDiskUsage.toString() + DELIM + labBillingName;
       
       if (asOfDate != null) {
         toolTip += "\ncomputed as of " + this.formatDate(asOfDate, this.DATE_OUTPUT_DASH_SHORT);
@@ -393,7 +398,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       // accounts.  This should never happen for disk usage, but keeping the code anyway.
       TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
       if (requestNodes == null) {
-        requestNodes = new TreeMap();
+        requestNodes = new TreeMap(new RequestNumberBilledComparator());
         requestNodeMap.put(requestNumberBilled, requestNodes);
       }
       requestNodes.put(requestNumberBilled, node);
@@ -598,6 +603,33 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     }
     
     return this;
+  }
+
+  public static class  RequestNumberBilledComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      String key1 = (String)o1;
+      String key2 = (String)o2;
+
+
+      if (key1.startsWith(DISK_USAGE_PREFIX) || key2.startsWith(DISK_USAGE_PREFIX)) {
+        return key1.compareTo(key2);
+      } else {
+        String[] tokens1 = key1.split(DELIM);
+        String[] tokens2 = key2.split(DELIM);
+        
+        String reqNumber1    = tokens1[0];
+        String remainder1    = tokens1[1];
+        
+        String reqNumber2    = tokens2[0];
+        String remainder2    = tokens2[1];
+  
+        if (reqNumber1.equals(reqNumber2)) {
+          return remainder1.compareTo(remainder2);        
+        } else {
+          return Util.compareRequestNumbers(reqNumber1, reqNumber2);
+        }
+      }      
+    }
   }
 
 }

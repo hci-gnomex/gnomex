@@ -185,7 +185,7 @@ public class TopicQuery implements Serializable {
     addCriteria(REQUEST_LEVEL);
     
     if (isRestricted) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, true);
     }
     
     addWhere = secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "request");
@@ -608,7 +608,7 @@ public class TopicQuery implements Serializable {
             
             if(isRestrictedAnalysis) {
               anNode = new Element("Analysis");
-              anNode.setAttribute("number", "(Restricted Visibility)");
+              anNode.setAttribute("number", an.getNumber() + " (Restricted Visibility)");
               anNode.setAttribute("idAnalysis", an.getIdAnalysis().toString());
             } else {
               anNode = an.getXML(secAdvisor, dictionaryHelper).getRootElement();
@@ -642,7 +642,7 @@ public class TopicQuery implements Serializable {
             
             if(isRestrictedDataTrack) {
               dtNode = new Element("DataTrack");
-              dtNode.setAttribute("number", "(Restricted Visibility)");
+              dtNode.setAttribute("number", dt.getNumber() + " (Restricted Visibility)");
               dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
               dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
             } else {

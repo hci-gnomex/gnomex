@@ -26,4 +26,45 @@ public class Util {
       return tokens;
     }
   }
+  
+  public static int compareRequestNumbers(String reqNumber1, String reqNumber2) {
+    int comp = 0;
+    
+    String firstChar1 = getReqFirstChar(reqNumber1);
+    String firstChar2 = getReqFirstChar(reqNumber2);
+    
+    Integer num1 = getReqNumber(reqNumber1);
+    Integer num2 = getReqNumber(reqNumber2);
+    
+    if (firstChar1.equals(firstChar2)) {
+      comp = num1.compareTo(num2);
+    } else {
+      comp = firstChar1.compareTo(firstChar2);
+    }
+    
+    return comp;
+  }
+  
+  private static String getReqFirstChar(String reqNumber) {
+    String c = "0";
+    if ("0123456789".indexOf(reqNumber.substring(0,1)) < 0) {
+      c = reqNumber.substring(0, 1);
+    }
+    
+    return c;
+  }
+  
+  private static Integer getReqNumber(String reqNumber) {
+    String intStr = reqNumber;
+    if ("0123456789".indexOf(intStr.substring(0,1)) < 0) {
+      intStr = intStr.substring(1);
+    }
+    if (intStr.indexOf("R") >= 0) {
+      intStr = intStr.substring(0, intStr.indexOf("R"));
+    }
+    
+    Integer num = Integer.parseInt(intStr);
+    
+    return num;
+  }
 }

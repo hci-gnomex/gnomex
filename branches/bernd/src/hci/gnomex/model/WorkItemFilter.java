@@ -86,7 +86,7 @@ public class WorkItemFilter extends DetailObject {
     if (this.codeStepNext.equals(Step.SEQ_CLUSTER_GEN) ||
         this.codeStepNext.equals(Step.HISEQ_CLUSTER_GEN) ||
         this.codeStepNext.equals(Step.MISEQ_CLUSTER_GEN)) {
-      queryBuf.append(" order by req.idRequest, s.multiplexGroupNumber, l ");
+      queryBuf.append(" order by req.idRequest, s.multiplexGroupNumber, l.idSequenceLane ");
     }
     
     
@@ -238,7 +238,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.barcodeSequence, ");
       queryBuf.append("    s.multiplexGroupNumber, ");
       queryBuf.append("    lab.lastName, ");
-      queryBuf.append("    lab.firstName ");
+      queryBuf.append("    lab.firstName, ");
+      queryBuf.append("    l");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
                 this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");

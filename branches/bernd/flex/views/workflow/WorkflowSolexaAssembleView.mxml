@@ -944,9 +944,14 @@
 		public function filterWorklist(item:Object):Boolean {
 			if ((this.labCombo.selectedItem == null || this.labCombo.selectedItem.@idLab == '') &&
 				this.numberOfCyclesFilter.text == '' && 
+				this.lookupExperimentNumber.text == '' &&
 				(this.radiogroupSeqRunTypeFilter.selectedValue == null || 
 				 this.radiogroupSeqRunTypeFilter.selectedValue == '')) {
 				return true;
+			}
+			
+			if (this.lookupExperimentNumber.text != '') {
+				return item.@number.toString().match(new RegExp(this.lookupExperimentNumber.text + ".*", "i"));
 			}
 
 			for each(var workItem:Object in item..WorkItem) {
@@ -1019,29 +1024,34 @@
 					<mx:Label text="{'(' + workList.length + ' experiments)'}" fontWeight="normal" fontSize="11" fontStyle="italic"/>
 				</mx:HBox>
 			    <mx:HBox paddingTop="0" width="100%" verticalAlign="middle" paddingBottom="1" horizontalGap="8">
-					<mx:HBox verticalAlign="middle" paddingLeft="4" horizontalGap="0">
-						<mx:Label text="# Cycles" styleName="labelSmall"/>
-						<mx:TextInput width="30" id="numberOfCyclesFilter" change="{reloadWorklist()}" enter="{reloadWorklist()}"  fontSize="11"/>
+					<mx:HBox verticalAlign="middle"  horizontalGap="0">
+						<mx:Label text="# Cycles" styleName="labelSmall" width="70"/>
+						<mx:TextInput width="60" id="numberOfCyclesFilter" change="{lookupExperimentNumber.text='';reloadWorklist()}" enter="{lookupExperimentNumber.text='';reloadWorklist();}"  fontSize="10"/>
 					</mx:HBox>
 					<mx:HBox horizontalGap="1" borderStyle="none" cornerRadius="10" borderColor="#466D88" styleName="labelSmall">
 						<mx:RadioButtonGroup id="radiogroupSeqRunTypeFilter"/>
 						<mx:Repeater id="seqRunTypeRepeaterFilter" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @display != '')}">
 							<mx:RadioButton groupName="radiogroupSeqRunTypeFilter" 
-											id="seqRunTypeFilter"  click="{reloadWorklist()}"
+											id="seqRunTypeFilter"  click="{lookupExperimentNumber.text='';reloadWorklist()}"
 											label="{seqRunTypeRepeaterFilter.currentItem.@display}" 
 											value="{seqRunTypeRepeaterFilter.currentItem.@value}" 
 											paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" 
 											textAlign="left" horizontalGap="0" verticalGap="0" height="100%" styleName="labelSmall">
 							</mx:RadioButton>
 						</mx:Repeater>
-						<mx:RadioButton value="ANY" groupName="radiogroupSeqRunTypeFilter" label="Either" click="{reloadWorklist()}" 
+						<mx:RadioButton value="ANY" groupName="radiogroupSeqRunTypeFilter" label="Either" click="{lookupExperimentNumber.text='';reloadWorklist()}" 
 										horizontalGap="0" styleName="labelSmall" selected="true"/>
 					</mx:HBox>
 			    </mx:HBox>
-				<mx:HBox width="100%" paddingBottom="2">
+				<mx:HBox width="100%"  horizontalGap="8" paddingBottom="2" paddingTop="2">
+					<mx:HBox verticalAlign="middle"   horizontalGap="0">
+						<mx:Label text="Experiment #" styleName="labelSmall" width="70"/>
+						<mx:TextInput width="60" id="lookupExperimentNumber" change="{reloadWorklist()}" enter="{reloadWorklist()}"  fontSize="10"/>
+					</mx:HBox>
+
 					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 											  labelField="@name" fontSize="11"
-											  prompt="Select a lab..." close="{this.reloadWorklist()}" 
+											  prompt="Select a lab..." close="{lookupExperimentNumber.text='';this.reloadWorklist();}" 
 											  width="170"
 											  id="labCombo" >
 					</renderers:FilterComboBox>
@@ -1115,11 +1125,11 @@
 			        <mx:Label text="Flow Cell to Assemble" styleName="formLabel" fontSize="12"/>
 			        <mx:HBox width="100%" verticalAlign="middle">
 				    	<mx:Label text="Barcode" styleName="formLabel" width="70"/>
-				    	<mx:TextInput id="flowCellBarcode" width="130" fontSize="11"/>
+				    	<mx:TextInput id="flowCellBarcode" width="130" fontSize="10"/>
 						<mx:Label text="Run #" styleName="formLabel"/>
-						<mx:TextInput id="runNumber" width="40" restrict="0-9" fontSize="11"/>
+						<mx:TextInput id="runNumber" width="40" restrict="0-9" fontSize="10"/>
 				    	<mx:Label text="Create Date" styleName="formLabel" width="83" textAlign="right"/>
-				    	<mx:DateField id="flowCellDate" showToday="true" fontSize="11"/>
+				    	<mx:DateField id="flowCellDate" showToday="true" fontSize="10"/>
 				    </mx:HBox>
 					<mx:HBox width="100%" verticalAlign="middle">
 						<mx:Label text="Instrument" styleName="formLabel" width="70"/>
@@ -1138,7 +1148,7 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="20" verticalAlign="middle">
 						<mx:Label text="# Cycles" styleName="formLabel" width="60"/>
-						<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" fontSize="11"/>
+						<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" fontSize="10"/>
 						<mx:HBox horizontalGap="0" borderStyle="none" cornerRadius="10" borderColor="#466D88">
 							<mx:RadioButtonGroup id="radiogroupSeqRunType"/>
 							<mx:Repeater id="seqRunTypeRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @display != '')}">

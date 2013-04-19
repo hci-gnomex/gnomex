@@ -3,7 +3,6 @@
 	title="{'Add new data track folder to ' + parentName}"
 	showCloseButton="true" 
 	width="452" 
-	height="128"
 	verticalGap="0"
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconDataTrackFolderForGroup}"

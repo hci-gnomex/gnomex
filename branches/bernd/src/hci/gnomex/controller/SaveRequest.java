@@ -301,6 +301,25 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
         }          
       }
+      
+      // If the default visibility is Institute level, make sure that the institution set for the
+      // Request is an institution the lab is associated with.  If not, set the default visibility
+      // to Member level.
+      if (requestParser.isNewRequest()) {
+        boolean foundInstitution = false;
+        if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+          for (Institution inst : (Set<Institution>)lab.getInstitutions()) {
+            if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
+              foundInstitution = true;
+              break;
+            }
+          }
+        }
+        if (!foundInstitution) {
+          requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+          requestParser.getRequest().setIdInstitution(null);
+        }
+      }
             
       if (this.isValid()) {
         List labels = sess.createQuery("SELECT label from Label label").list();
