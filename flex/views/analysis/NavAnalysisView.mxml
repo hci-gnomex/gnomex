@@ -975,10 +975,13 @@
 
 			
 			private function browseTreeDrop(e:DragEvent):void {
+				e.preventDefault();
+				
 				if(browseTree.selectedItems.length > 1){
 					Alert.show("Sorry, you may only move one analysis item at a time");
+					return;
 				}
-				e.preventDefault();
+				
 				browseTree.hideDropFeedback(e);
 				var obj:Object = e.dragSource.dataForFormat("treeItems");
 				var dragParent:XML = XML(obj.parent);
