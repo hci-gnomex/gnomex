@@ -189,7 +189,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
               t.excludeMethodFromXML("getAppUser");
               t.excludeMethodFromXML("getLab");
             }
-            
           }
          
           request.excludeMethodFromXML("getBillingItems");

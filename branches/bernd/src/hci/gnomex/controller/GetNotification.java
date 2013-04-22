@@ -97,9 +97,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             }else if(sourceType.equals("BILLING")){
             	if(billingAuth){
             		// Set billing level notification node
-            		if(billingAuth){
-            			x = new Element("billing");
-            		}
+           			x = new Element("billing");
             	}else{
             		continue;
             	}

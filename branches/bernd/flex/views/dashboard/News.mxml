@@ -98,6 +98,18 @@
 		
 		private function onGetNewsInterface(event:ResultEvent):void {
 			if(event.result.name() == "NewsItemList"){
+				
+				if(newsItemList.length < 1){
+					newsRep.includeInLayout = false;
+					newsNote.includeInLayout = true;
+					newsNote.visible = true;
+				}else{
+					newsRep.includeInLayout = true;
+					newsRep.visible = true;
+					newsNote.includeInLayout = false;
+					newsNote.visible = false;
+				}
+				
 				//newsItemList.refresh();
 				sortXLC();
 			} else {
@@ -153,6 +165,7 @@
 		public function showAddNewsItem():void {
 			var AddNewsItemWindow:AddNewsItem = AddNewsItem(PopUpManager.createPopUp(parentApplication.theBody, AddNewsItem, true));
 			PopUpManager.centerPopUp(AddNewsItemWindow);
+			callLater(init);
 		}
 	]]>
 </mx:Script>
@@ -205,6 +218,9 @@
 										/>
 							</mx:HBox>
 				</mx:Repeater>
+				<mx:HBox id="newsNote" horizontalAlign="center" paddingLeft="175" height="200" verticalAlign="middle">
+					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>	
+				</mx:HBox>
 			</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

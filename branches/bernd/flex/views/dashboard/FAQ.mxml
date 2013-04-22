@@ -47,6 +47,7 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
 				
 		// Variables
 		[Bindable]
@@ -70,6 +71,17 @@
 			// Set timer -- Polling with dynamic interval.
 			refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 			refreshTimer.start();
+			
+			if(FAQList.length < 1){
+				faqRep.includeInLayout = false;
+				faqNote.includeInLayout = true;
+				faqNote.visible = true;
+			}else{
+				faqRep.includeInLayout = true;
+				faqRep.visible = true;
+				faqNote.includeInLayout = false;
+				faqNote.visible = false;
+			}
 			
 		} else {
 				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Faq Interface.");
@@ -111,6 +123,7 @@
 			// Show detailed newsitem in popup.
 			var AddFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.theBody, AddFAQ, true));
 			PopUpManager.centerPopUp(AddFAQWindow);
+			callLater(init);
 		}		
 		
 	]]>
@@ -156,6 +169,9 @@
 								/>
 					</mx:HBox>						
 				</mx:Repeater>
+				<mx:HBox id="faqNote" horizontalAlign="center" paddingLeft="175" height="200" verticalAlign="middle">
+					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>	
+				</mx:HBox>
 			</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

@@ -91,7 +91,6 @@
 			private function onSaveNewsItem(event:ResultEvent):void {
 				if (saveNewsItem.lastResult.name() == "SUCCESS") {
 					// Success.
-					parentApplication.theViews.homeDashboard.newsHub.getNewsItem.send();
 				}else{
 					Alert.show("Error in saving newsitem.");
 				}

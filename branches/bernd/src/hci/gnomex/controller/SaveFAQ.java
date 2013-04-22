@@ -42,9 +42,6 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
-      System.out.println("Title: " + title);
-      System.out.println("URL: " + url);
-      
       if(title == null || title.equals("")) {
         this.addInvalidField("FAQ Title", "FAQ title is required.");
         this.setResponsePage(this.ERROR_JSP);

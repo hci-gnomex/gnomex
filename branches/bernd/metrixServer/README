@@ -1,0 +1,38 @@
+Metrix - A server / client interface for Illumina Sequencing Metrics.
+Metrics are collected by parsing the binary InterOp sequencer statistics.
+
+Currently supports Illumina's HiSeq 2000 and MiSeq formats. 
+Tested on HiSeq 2000 and MiSeq.
+
+Copyright (C) 2013 Bernd van der Veen
+Email: b.vd.veen[at]nki.nl
+
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions; for more information please see LICENSE.txt
+
+How to get started:
+
+1) Modify the metrix.properties file to reflect your setup
+2) Insert the table metrix.sql into your database
+3) If needed, make the desired modifications to the source code.
+4) Compile the jar using:
+	
+	/[PATH_TO_JAVA_7.0_OR_HIGHER]/bin/javac *.java
+
+5) Create the jar file include mysql connector in classpath:
+	jar cvfm MetrixDaemon.jar META-INF/MANIFEST.MF metrix.properties nki/
+
+6) Run the jar with mysql connector library included in classpath:
+	/[PATH_TO_JAVA_7.0_OR_HIGHER]/bin/java -cp lib/mysql-connector-java-5.1.6.jar:. -Dproperties=metrix.properties MetrixDaemon
+
+7) If all correct, the server and watcher service has started and all run folders will be parsed and inserted in the SQL database.
+
+8) Only the clientside has not been fully implemented. Please modify this source file to reflect your needs. 
+
+9) Run MetrixClient with the java binary. Support for multi format object returns, Summary / SummaryCollection POJO or a XML string.
+
+10) Documentation on how to adapt the client side will follow in the future. If you've familiarized yourself with java and this source, 
+feel free to contribute code and / or answers.
+
+
