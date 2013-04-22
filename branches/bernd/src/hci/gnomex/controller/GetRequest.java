@@ -136,7 +136,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         }
         
         // We can't set to institution level visibility if the default institution was not provided.
-        if (request.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+        if (request.getCodeVisibility() != null && request.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
           String idInstitutionString = propertyHelper.getProperty(PropertyDictionary.ID_DEFAULT_INSTITUTION);
           if (idInstitutionString == null || idInstitutionString.equals("")) {
             request.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
