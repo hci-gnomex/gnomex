@@ -292,6 +292,10 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     String emailInfo = "";
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
+    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new Exception("Invalid email " + emailRecipients);
+    }
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
@@ -308,9 +312,12 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     }
 
     if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       try {
         MailUtil.send(emailRecipients, ccList,
-            PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+            fromAddress,
             subject, 
             emailInfo + body,
             true);
