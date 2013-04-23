@@ -16,7 +16,7 @@ select distinct OligoBarcodeSchemeAllowed.idOligoBarcodeScheme, SeqLibProtocol.i
   join RequestCategoryApplication on requestCategory.codeRequestCategory = RequestCategoryApplication.codeRequestCategory
   join Application on RequestCategoryApplication.codeApplication = Application.codeApplication
   join SeqLibProtocolApplication on Application.codeApplication = SeqLibProtocolApplication.codeApplication
-  join SeqLibProtocol on SeqLibProtocolApplication.idSeqLibProtocol = SeqLibProtocol.idSeqLibProtocol
+  join SeqLibProtocol on SeqLibProtocolApplication.idSeqLibProtocol = SeqLibProtocol.idSeqLibProtocol;
 
 delete from OligoBarcodeSchemeAllowed where codeRequestCategory is not null;
 
