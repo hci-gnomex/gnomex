@@ -41,6 +41,7 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
+		import mx.events.ValidationResultEvent;
 		  
 		[Bindable]	
 		private var fileSelected:Boolean = false;
@@ -177,10 +178,19 @@
 				}
 			}
 		}
+		
+		private function checkEmailValidity(event:KeyboardEvent):void {
+			var validationEvent:ValidationResultEvent = emailValidator.validate(this.fromAddress.text);
+			if(validationEvent.type==ValidationResultEvent.VALID && (fileSelected || this.body.text != '') && subject.text != '' && fromAddress.text != '' && coreFacilitySelected){
+				saveButton.enabled = true;
+			} else{
+				saveButton.enabled = false;
+			}
+		}
 	]]>
 </mx:Script>
 	
-	<mx:EmailValidator required="true" source="{fromAddress}" property="text" />
+	<mx:EmailValidator id="emailValidator" required="true" source="{fromAddress}" property="text" />
 	
 	
 	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
@@ -198,7 +208,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 			<mx:Label text="From" width="80" styleName="formLabel"/>
-			<mx:TextInput width="100%" id="fromAddress"/>
+			<mx:TextInput width="100%" id="fromAddress" keyUp="checkEmailValidity(event)"/>
 		</mx:HBox>
 		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
 			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
