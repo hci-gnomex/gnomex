@@ -130,7 +130,6 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
           	  	buf.append(" JOIN    s.request as req ");
           	  	buf.append(" LEFT JOIN	 s.workItems wi ");
           	  	
-          	  	
           	  	if(workflowCoreFacility != null){
           	  		buf.append(" WHERE req.idCoreFacility='");
           	  		buf.append(workflowCoreFacility);
