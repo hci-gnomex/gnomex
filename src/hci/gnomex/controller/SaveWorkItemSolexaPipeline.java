@@ -290,6 +290,11 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email: " + emailRecipients);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -300,9 +305,12 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
     
     if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          fromAddress, 
           subject, 
           emailInfo + emailFormatter.format(),
           true);
@@ -316,6 +324,19 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     bioIntroNote.append("<br>");
     
     emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
+    if(emailRecipients.contains(",")){
+      for(String e : emailRecipients.split(",")){
+        if(!MailUtil.isValidEmail(e)){
+          throw new MessagingException("Invalid email address: " + e);
+        }
+      }
+    } else if(!MailUtil.isValidEmail(emailRecipients)){
+        throw new MessagingException("Invalid email address: " + emailRecipients);
+    }
+    
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email: " + emailRecipients);
+    }
     
     if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
       bioIntroNote.append("<br><br><b>Genome Align To:   </b>" + genomeAlignTo);
@@ -348,7 +369,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     if (bioSend) {      
       MailUtil.send(emailRecipients, 
           null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          fromAddress, 
           subject, 
           emailInfo + bioEmailFormatter.format(),
           true);
