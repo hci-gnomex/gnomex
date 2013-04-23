@@ -2,7 +2,11 @@ package hci.gnomex.utility;
 
 import hci.gnomex.controller.GNomExFrontController;
 
+
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -16,6 +20,8 @@ import javax.mail.URLName;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.validator.routines.EmailValidator;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -41,6 +47,14 @@ public class MailUtil
       Session session = GNomExFrontController.getMailSession();
       send(session, to, cc, "", from, subject, body, formatHtml);        
 
+    }
+    
+    public static Boolean isValidEmail(String emailAddress){
+      EmailValidator ev = EmailValidator.getInstance();
+      if(ev.isValid(emailAddress)){
+        return true;
+      }   
+      return false;
     }
     
     public static void send_bcc( String to,
