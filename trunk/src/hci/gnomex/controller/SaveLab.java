@@ -652,6 +652,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
     boolean isTestEmail = false;
     String emailInfo = "";
     String emailRecipients = submitterEmail;
+    if(!MailUtil.isValidEmail(submitterEmail)){
+      throw new MessagingException("Invalid Email: " + submitterEmail);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -688,6 +691,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     if (send) {
       // Email submitter
+      if(!MailUtil.isValidEmail(from)){
+        from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
           from, 
