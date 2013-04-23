@@ -254,11 +254,22 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     if (req.getAppUser() != null && req.getAppUser().getEmail() != null) {
       emailRecipients = req.getAppUser().getEmail();
     }
+    
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address " + emailRecipients);
+    }
+    
     if (otherRecipients != null && otherRecipients.length() > 0) {
       if (emailRecipients.length() > 0) {
         emailRecipients += ",";
       }
       emailRecipients += otherRecipients;
+    }
+    
+    for(String e : emailRecipients.split(",")){
+      if(!MailUtil.isValidEmail(e)){
+        throw new MessagingException("Invalid email address " + e);  
+      }
     }
     
     boolean send = false;
@@ -274,9 +285,13 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     
     if (send) {
+      String fromAddress = req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility;
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
-          (req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
+          fromAddress, 
           subject, 
           emailInfo + emailFormatter.format(),
           true);      
