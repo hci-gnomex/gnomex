@@ -779,7 +779,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       int multiplexLaneIdx = 1;
       for (Set<SequenceLane> lanesToMultiplex : laneGroups) {
         Element multiplexLaneNode = new Element("MultiplexLane");
-        multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx++).toString());
+        multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx).toString());
         multiplexLaneNode.setAttribute("idRequest",  idRequest);
         requestNode.addContent(multiplexLaneNode);
 
