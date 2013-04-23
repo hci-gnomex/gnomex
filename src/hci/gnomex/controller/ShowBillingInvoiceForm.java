@@ -655,6 +655,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     String emailInfo = "";
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
+    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new Exception("Invalid email address " + emailRecipients);
+    }
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
         send = true;
@@ -670,10 +674,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     }
 
     if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       try {
-        MailUtil.send(contactEmail, 
+        MailUtil.send(emailRecipients, 
             ccList,
-            PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+            fromAddress,
             subject, 
             emailInfo + body,
             true);
