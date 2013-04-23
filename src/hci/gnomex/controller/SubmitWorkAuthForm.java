@@ -167,6 +167,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String submitterEmail = billingAccount.getSubmitterEmail();
     String emailInfo = "";
     String emailRecipients = submitterEmail;
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address: " + emailRecipients);
+    }
     
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (facilityEmail == null || facilityEmail.equals("")) {
@@ -217,6 +220,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if (send) {
+      if(!MailUtil.isValidEmail(replyEmail)){
+        replyEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       // Email submitter
       try {
         MailUtil.send(emailRecipients, 
@@ -234,6 +240,10 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       // Email lab contact email address(es)
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
         String contactEmail = lab.getWorkAuthSubmitEmail();
+        if(!MailUtil.isValidEmail(contactEmail)){
+          throw new MessagingException("Invalid email address: " + contactEmail);
+        }
+        
         if (testEmail) {
           emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>"; 
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
@@ -250,6 +260,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       
       // Email core facility
       if (!facilityEmail.equals("")) {
+        if(!MailUtil.isValidEmail(facilityEmail)){
+          throw new MessagingException("Invalid email address: " + facilityEmail);
+        }
         if(testEmail){
           emailInfo = "[If this were a production environment then this email would have been sent to: " + facilityEmail + "]<br><br>";
           facilityEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
