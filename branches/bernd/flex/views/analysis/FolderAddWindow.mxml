@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add folder" width="374" height="120" defaultButton="{okButton}" titleIcon="@Embed(source='../../assets/folder_add.png')">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Add folder" width="374" defaultButton="{okButton}" titleIcon="@Embed(source='../../assets/folder_add.png')">
   
 
 <mx:Script>
