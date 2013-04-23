@@ -96,14 +96,17 @@ public class InstrumentRunEmailServlet extends GNomExCommand implements Serializ
         idRequests.remove(null);
         
         List<String> appUserEmail = new ArrayList<String>();
-
+       
         if (body != null && body.length() > 0) {
+          if(!MailUtil.isValidEmail(senderAddress)){
+            senderAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+          }
 
           for (Iterator i = idRequests.iterator(); i.hasNext();) {
             Request request = (Request)sess.load(Request.class, (Integer)i.next());
             AppUser appUser = request.getAppUser();
             String recipientAddress = appUser.getEmail();
-            if(recipientAddress == null || recipientAddress.equals("") || appUserEmail.contains(recipientAddress)){
+            if(recipientAddress == null || recipientAddress.equals("") || appUserEmail.contains(recipientAddress) || !MailUtil.isValidEmail(recipientAddress)){
               continue;
             }
             else{
