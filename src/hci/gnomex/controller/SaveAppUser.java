@@ -114,6 +114,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         boolean isUseduNID = false;
         boolean isManageFacilityError = false;
         boolean isNullEmail = false;
+        boolean isBadEmail = false;
         Object [] user = null;
         
         if (appUserScreen.getuNID() != null && 
@@ -135,6 +136,11 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               this.addInvalidField("uNID exists", "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.");
               isUseduNID = true;
             }            
+          }
+          
+          if(!MailUtil.isValidEmail(appUser.getEmail())){
+            this.addInvalidField("invalid email", "The email address " + appUser.getEmail() + " is not formatted properly.");
+            isBadEmail = true; 
           }
           
           if (this.isValid()) {
@@ -248,7 +254,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail) {
+          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail) {
             String outMsg = "";
             if(isUsedUsername) {
               outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
@@ -256,9 +262,11 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
             } else if (isManageFacilityError) {
               outMsg = "You may only change core facility permissions for the core facilities you manage.";
-            } else{
+            } else if (isNullEmail){
               outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
               sess.flush();
+            } else{
+              outMsg = "The email address " + appUser.getEmail() + " is not formatted properly.";
             }
             if(isNullEmail){
               this.xmlResult = "<NULL_EMAIL_ERROR message=\"" + outMsg + "\"/>";
