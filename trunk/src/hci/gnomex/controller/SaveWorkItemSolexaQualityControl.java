@@ -218,6 +218,10 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address: " + emailRecipients);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -229,11 +233,13 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     
     if (send) {
       RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
-      
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       
       MailUtil.send(emailRecipients, 
           null,
-          dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), 
+          fromAddress, 
           emailSubject, 
           emailInfo + emailFormatter.formatQualityControl(),
           true);      
