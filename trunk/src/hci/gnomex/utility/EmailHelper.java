@@ -32,6 +32,9 @@ public class EmailHelper {
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address: " + emailRecipients);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -45,6 +48,9 @@ public class EmailHelper {
 
     
     if (send) {
+      if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
+        contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
           contactEmailCoreFacility, 
@@ -79,6 +85,9 @@ public class EmailHelper {
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
+    if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address: " + emailRecipients);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -92,6 +101,9 @@ public class EmailHelper {
 
     
     if (send) {
+      if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
+        contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
           contactEmailCoreFacility, 
