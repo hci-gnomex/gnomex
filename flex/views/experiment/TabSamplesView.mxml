@@ -147,6 +147,7 @@
 				var fieldList:XMLListCollection = getSampleSheetFieldList();
 				var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
 				var uv:URLVariables = new URLVariables();
+				showUrl.contentType = "application/x-www-form-urlencoded";
 				var names:String = "<NameList>"
 				for each (var node : XML in fieldList){
 					names += node.toXMLString();
