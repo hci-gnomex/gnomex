@@ -50,6 +50,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private boolean                         isNewAppUser = false;
   private ArrayList<CoreFacilityCheck>    managingCoreFacilityIds;
   private String                          url;
+  private String                          isWebForm = "Y";
   
   
   public void validate() {
@@ -62,6 +63,9 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       url = this.getLaunchAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveAppUser", e);
+    }
+    if (request.getParameter("isWebForm") != null && !request.getParameter("isWebForm").equals("")) {
+      isWebForm = request.getParameter("isWebForm");
     }
 
 
@@ -138,8 +142,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             }            
           }
           
-          if(!MailUtil.isValidEmail(appUser.getEmail())){
-            this.addInvalidField("invalid email", "The email address " + appUser.getEmail() + " is not formatted properly.");
+          if(appUserScreen.getEmail() != null && !appUserScreen.getEmail().equals("") && !MailUtil.isValidEmail(appUserScreen.getEmail())){
+            this.addInvalidField("invalid email", "The email address " + appUserScreen.getEmail() + " is not formatted properly.");
             isBadEmail = true; 
           }
           
@@ -181,6 +185,13 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               isUseduNID = true;
             }            
           }          
+          
+          if(appUserScreen.getEmail() != null && !appUserScreen.getEmail().equals("") && !MailUtil.isValidEmail(appUserScreen.getEmail())){
+            this.addInvalidField("invalid email", "The email address " + appUserScreen.getEmail() + " is not formatted properly.");
+            isBadEmail = true; 
+          }
+          
+
           
           if (this.isValid()) {
             appUser = (AppUser)sess.load(AppUser.class, appUserScreen.getIdAppUser());
@@ -255,36 +266,36 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           setResponsePage(this.SUCCESS_JSP);
         } else {
           if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail) {
-            String outMsg = "";
-            if(isUsedUsername) {
-              outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
-            } else if (isUseduNID) {
-              outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
-            } else if (isManageFacilityError) {
-              outMsg = "You may only change core facility permissions for the core facilities you manage.";
-            } else if (isNullEmail){
-              outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
-              sess.flush();
-            } else{
-              outMsg = "The email address " + appUser.getEmail() + " is not formatted properly.";
+            if (isWebForm.equals("Y")) {
+              String outMsg = "";
+              if(isUsedUsername) {
+                outMsg = "Username '" + appUserScreen.getUserNameExternal() + "' is already being used. Please select a different username.";              
+              } else if (isUseduNID) {
+                outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
+              } else if (isManageFacilityError) {
+                outMsg = "You may only change core facility permissions for the core facilities you manage.";
+              } else if (isNullEmail){
+                outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
+                sess.flush();
+              } else{
+                outMsg = "The email address " + appUser.getEmail() + " is not formatted properly.";
+              }
+              if(isNullEmail){
+                this.xmlResult = "<NULL_EMAIL_ERROR message=\"" + outMsg + "\"/>";
+              } else{
+                this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+              }
+              setResponsePage(this.SUCCESS_JSP);            
+            } else {
+              setResponsePage(this.ERROR_JSP);            
             }
-            if(isNullEmail){
-              this.xmlResult = "<NULL_EMAIL_ERROR message=\"" + outMsg + "\"/>";
-            } else{
-              this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
-            }
-            setResponsePage(this.SUCCESS_JSP);            
+                      
           } else {
-            setResponsePage(this.ERROR_JSP);            
+            this.addInvalidField("Insufficient permissions", "Insufficient permission to save member.");
+            setResponsePage(this.ERROR_JSP);
           }
         }
-      
-      } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save member.");
-        setResponsePage(this.ERROR_JSP);
-      }
-      
-      
+      }      
     }catch (Exception e){
       log.error("An exception has occurred in SaveAppUser ", e);
       e.printStackTrace();
