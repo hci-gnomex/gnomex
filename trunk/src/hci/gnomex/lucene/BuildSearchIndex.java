@@ -13,6 +13,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Topic;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
@@ -406,7 +407,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   ls1.sample as s1 ");
     buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
     buf.append("LEFT JOIN   ls2.sample as s2 ");
-    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_MICROARRAY + "' ");
+    buf.append("WHERE       reqCat.type = '" + RequestCategoryType.TYPE_MICROARRAY + "' ");
     buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
@@ -480,7 +481,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.requestCategory as reqCat ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.samples as s1 ");
-    buf.append("WHERE       reqCat.type in ('" + RequestCategory.TYPE_QC + "', '" + RequestCategory.TYPE_CAP_SEQ + "', '" + RequestCategory.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategory.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategory.TYPE_CHERRY_PICKING + "') ");
+    buf.append("WHERE       reqCat.type in ('" + RequestCategoryType.TYPE_QC + "', '" + RequestCategoryType.TYPE_CAP_SEQ + "', '" + RequestCategoryType.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategoryType.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategoryType.TYPE_CHERRY_PICKING + "') ");
     buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     
@@ -555,7 +556,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.sequenceLanes as lane ");
     buf.append("LEFT JOIN   lane.sample as s1 ");
-    buf.append("WHERE       reqCat.type = '" + RequestCategory.TYPE_ILLUMINA + "' ");
+    buf.append("WHERE       reqCat.type = '" + RequestCategoryType.TYPE_ILLUMINA + "' ");
     buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     

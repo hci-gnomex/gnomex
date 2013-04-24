@@ -30,37 +30,23 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   CLINICAL_SEQUENOM_REQUEST_CATEGORY = "CLINSEQ";
   public static final String   SEQUENOM_REQUEST_CATEGORY = "SEQUENOM";
   
-  
-  
-  public static final String   TYPE_MICROARRAY          = "MICROARRAY";
-  public static final String   TYPE_QC                  = "QC";
-  public static final String   TYPE_ILLUMINA            = "ILLUMINA";
-  public static final String   TYPE_CAP_SEQ             = "CAPSEQ";
-  public static final String   TYPE_FRAGMENT_ANALYSIS   = "FRAGANAL";
-  public static final String   TYPE_MITOCHONDRIAL_DLOOP = "MITSEQ";
-  public static final String   TYPE_CHERRY_PICKING      = "CHERRYPICK";
-  public static final String   TYPE_ISCAN               = "ISCAN";
-  public static final String   TYPE_CLINICAL_SEQUENOM   = "CLINSEQ";
-  public static final String   TYPE_SEQUENOM            = "SEQUENOM";
-  public static final String   TYPE_GENERIC             = "GENERIC";
-
-  
-  private String   codeRequestCategory;
-  private String   requestCategory;
-  private Integer  idVendor;
-  private Integer  idCoreFacility;
-  private String   isActive;
-  private Integer  numberOfChannels;
-  private String   notes;
-  private String   icon;
-  private String   type;
-  private Integer  sortOrder;
-  private Integer  idOrganism;
-  private String   isSampleBarcodingOptional;
-  private String   isInternal;
-  private String   isExternal;
-  private String   refrainFromAutoDelete;
-  private String   isClinicalResearch;
+  private String                codeRequestCategory;
+  private String                requestCategory;
+  private Integer               idVendor;
+  private Integer               idCoreFacility;
+  private String                isActive;
+  private Integer               numberOfChannels;
+  private String                notes;
+  private String                icon;
+  private String                type;
+  private Integer               sortOrder;
+  private Integer               idOrganism;
+  private String                isSampleBarcodingOptional;
+  private String                isInternal;
+  private String                isExternal;
+  private String                refrainFromAutoDelete;
+  private String                isClinicalResearch;
+  private RequestCategoryType   categoryType;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
@@ -98,7 +84,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public boolean isMicroarrayRequestCategory() {
     if (this.type != null && !this.type.equals("")) {
-      return type.equals(TYPE_MICROARRAY);
+      return type.equals(RequestCategoryType.TYPE_MICROARRAY);
     } else {
       return isMicroarrayRequestCategory(this.getCodeRequestCategory());
     }
@@ -106,7 +92,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public boolean isNextGenSeqRequestCategory() {
     if (this.type != null && !this.type.equals("")) {
-      return type.equals(TYPE_ILLUMINA);
+      return type.equals(RequestCategoryType.TYPE_ILLUMINA);
     } else {
       return isIlluminaRequestCategory(this.getCodeRequestCategory());
     }
@@ -115,7 +101,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public boolean isQCRequestCategory() {
     if (this.type != null && !this.type.equals("")) {
-      return type.equals(TYPE_QC);
+      return type.equals(RequestCategoryType.TYPE_QC);
     } else {
       return codeRequestCategory.equals(this.QUALITY_CONTROL_REQUEST_CATEGORY);
     }
@@ -298,5 +284,11 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     this.isClinicalResearch = isClinicalResearch;
   }
   
-
+  public RequestCategoryType getCategoryType() {
+    return categoryType;
+  }
+  
+  public void setCategoryType(RequestCategoryType categoryType) {
+    this.categoryType = categoryType;
+  }
 }

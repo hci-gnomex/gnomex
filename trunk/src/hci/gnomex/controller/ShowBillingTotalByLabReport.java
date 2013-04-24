@@ -11,6 +11,7 @@ import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.report.constants.ReportFormats;
@@ -120,25 +121,25 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
           TreeMap labMap = new TreeMap();
 
           TreeMap illuminaMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_ILLUMINA, labMap, illuminaMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_ILLUMINA, labMap, illuminaMap);
           
           TreeMap qcMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_QC, labMap, qcMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_QC, labMap, qcMap);
           
           TreeMap microarrayMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_MICROARRAY, labMap, microarrayMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_MICROARRAY, labMap, microarrayMap);
           
           TreeMap capSeqMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_CAP_SEQ, labMap, capSeqMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_CAP_SEQ, labMap, capSeqMap);
           
           TreeMap mitSeqMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_MITOCHONDRIAL_DLOOP, labMap, mitSeqMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_MITOCHONDRIAL_DLOOP, labMap, mitSeqMap);
           
           TreeMap fragAnalMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_FRAGMENT_ANALYSIS, labMap, fragAnalMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_FRAGMENT_ANALYSIS, labMap, fragAnalMap);
           
           TreeMap cherryPickMap = new TreeMap();
-          getBillingItems(sess, RequestCategory.TYPE_CHERRY_PICKING, labMap, cherryPickMap);
+          getBillingItems(sess, RequestCategoryType.TYPE_CHERRY_PICKING, labMap, cherryPickMap);
 
           TreeMap diskUsageMap = new TreeMap();
           getBillingItems(sess, DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY, labMap, diskUsageMap);
@@ -608,19 +609,19 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       if (totalPrice != null) {
         grandTotal = grandTotal.add(totalPrice);
         
-        if (requestCategoryType.equals(RequestCategory.TYPE_ILLUMINA)) {
+        if (requestCategoryType.equals(RequestCategoryType.TYPE_ILLUMINA)) {
           grandTotalIllumina = grandTotalIllumina.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_QC)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_QC)) {
           grandTotalQC = grandTotalQC.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_MICROARRAY)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_MICROARRAY)) {
           grandTotalMicroarray = grandTotalMicroarray.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_CAP_SEQ)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_CAP_SEQ)) {
           grandTotalCapSeq = grandTotalCapSeq.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_MITOCHONDRIAL_DLOOP)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_MITOCHONDRIAL_DLOOP)) {
           grandTotalMitSeq = grandTotalMitSeq.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_FRAGMENT_ANALYSIS)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_FRAGMENT_ANALYSIS)) {
           grandTotalFragAnal = grandTotalFragAnal.add(totalPrice);
-        }else if (requestCategoryType.equals(RequestCategory.TYPE_CHERRY_PICKING)) {
+        }else if (requestCategoryType.equals(RequestCategoryType.TYPE_CHERRY_PICKING)) {
           grandTotalCherryPick = grandTotalCherryPick.add(totalPrice);
         } else if (requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
           grandTotalDiskUsage = grandTotalDiskUsage.add(totalPrice);
