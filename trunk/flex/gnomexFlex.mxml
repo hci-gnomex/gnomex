@@ -3352,8 +3352,8 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 		</menuitem>
@@ -3582,6 +3582,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3620,8 +3621,8 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3658,8 +3659,8 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
-			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Create new Experiment and upload your data (generated outside of core facility)" icon="iconAddExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
