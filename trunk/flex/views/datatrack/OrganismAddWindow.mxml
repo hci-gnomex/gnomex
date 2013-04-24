@@ -2,8 +2,8 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="New Species"
 	showCloseButton="true" 
-	width="390" 
-	height="245"
+	width="446" 
+	height="265"
 	verticalGap="0"
 	close="closeWindow()"
 	defaultButton="{saveButton}"	
@@ -62,24 +62,25 @@
 	]]>
     </mx:Script>
     
-    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0">
+	
+    <mx:VBox width="100%" height="100%" styleName="form" verticalGap="0" paddingLeft="4" paddingRight="4">
 		<mx:HBox width="100%" paddingTop="4">
-			<mx:Label text="Common name:"  width="100"/>
+			<mx:Label text="Common name"  width="100" styleName="formLabel"/>
 			<mx:TextInput id="commonName" width="100%" maxChars="100"/>
 		</mx:HBox>
-		<mx:Label text="Example: Human" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:Label text="Example: Human" width="100%" textAlign="right" fontSize="10" fontStyle="italic"/>
 		<mx:HBox width="100%" paddingTop="10">
-			<mx:Label text="Binomial name:" width="100"/>
+			<mx:Label text="Binomial name" width="100" styleName="formLabel"/>
 			<mx:TextInput id="binomialName"  width="100%" maxChars="200"/>
 		</mx:HBox>
-		<mx:Label text="Example: Homo sapiens" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:Label text="Example: Homo sapiens" width="100%" textAlign="right" fontSize="10" fontStyle="italic"/>
 		<mx:HBox width="100%" paddingTop="10">
-			<mx:Label text="DAS2 name:" width="100"/>
+			<mx:Label text="DAS2 name" width="100" styleName="formLabel"/>
 			<mx:TextInput id="das2Name"  width="100%" maxChars="200"/>
 		</mx:HBox>
-		<mx:Label text="Example: H_sapiens" width="100%" textAlign="right" fontSize="9" fontStyle="italic"/>
+		<mx:Label text="Example: H_sapiens" width="100%" textAlign="right" fontSize="10" fontStyle="italic"/>
 		<mx:HBox width="100%" paddingTop="10">
-			<mx:Label text="Active:" width="100"/>
+			<mx:Label text="Active" width="100" styleName="formLabel"/>
 			<mx:CheckBox id="isActive" selected="true"/>
 		</mx:HBox>
     	

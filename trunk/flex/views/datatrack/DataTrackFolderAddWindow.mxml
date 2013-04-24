@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="{'Add new data track folder to ' + parentName}"
 	showCloseButton="true" 
-	width="452" 
+	width="468" 
 	verticalGap="0"
 	close="closeWindow()"
 	titleIcon="{parentApplication.iconDataTrackFolderForGroup}"
@@ -99,12 +99,12 @@
     </mx:Script>
     <mx:VBox width="100%" height="100%"  verticalGap="10">
 		<mx:HBox  width="100%" paddingTop="4">
-			<mx:Label text="Folder name:" width="105"/>
-			<mx:TextInput id="dataTrackFolderName" width="320" maxChars="2000"/>
+			<mx:Label text="Folder name" width="70" styleName="formLabel"/>
+			<mx:TextInput id="dataTrackFolderName" width="370" maxChars="2000"/>
 	</mx:HBox>
 		<mx:HBox width="100%" id="hbox2">
-			<mx:Label text="Lab:" width="105"/>
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="320" labelField="@name"></mx:ComboBox>
+			<mx:Label text="Lab" width="70" styleName="formLabel"/>
+			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="370" labelField="@name"></mx:ComboBox>
 		</mx:HBox>
     	
     </mx:VBox>
