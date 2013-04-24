@@ -37,6 +37,7 @@
         <![CDATA[
             import mx.controls.Alert;
             import mx.events.CloseEvent;
+            import mx.events.ValidationResultEvent;
             import mx.rpc.events.FaultEvent;
             import mx.rpc.events.ResultEvent;
             
@@ -124,11 +125,21 @@
             		
             	}
             }
+			
+			private function checkEmailValidity(event:KeyboardEvent):void {
+				var validationEvent:ValidationResultEvent = emailValidator.validate(this.email.text);
+				if(validationEvent.type==ValidationResultEvent.VALID){
+					saveButton.enabled = true;
+				} else{
+					saveButton.enabled = false;
+				}
+			}
             
         ]]>
     </mx:Script>
 
 
+	<mx:EmailValidator id="emailValidator" required="true" source="{email}" property="text" />
     
 	<mx:VBox height="100%" width="100%"  styleName="form">
     
@@ -158,7 +169,7 @@
 				</mx:VBox>
 				<mx:VBox verticalGap="1"   >
 					<mx:Label text="Email" id="Label" styleName="formLabel"/>
-					<mx:TextInput id="email" text="{parentDocument.fullUser.@email}" width="200" change="dirty.setDirty()"/>
+					<mx:TextInput id="email" keyUp="checkEmailValidity(event)" text="{parentDocument.fullUser.@email}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
 				<mx:VBox verticalGap="1"  >
 					<mx:Label text="UCSC Url" id="Label5" styleName="formLabel"/>
@@ -273,7 +284,7 @@
 	  <mx:HBox width="100%" horizontalAlign="right">
 	    <util:DirtyNote id="dirty"/>
 	  
-		<mx:Button id="saveButton" label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')"/>
+		<mx:Button id="saveButton" label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed('../../assets/save_disable.png')"/>
 	  </mx:HBox>	
 	</mx:ControlBar>
 </mx:VBox>

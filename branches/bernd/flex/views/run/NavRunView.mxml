@@ -430,13 +430,13 @@
 						 horizontalAlign = "right"
 						 paddingLeft = "5"
 						 paddingRight = "5">
-					<mx:VBox verticalGap="0">
+					<mx:VBox verticalGap="0" paddingRight="5">
 						<mx:HBox horizontalGap="0">
 							<mx:CheckBox id = "lastWeekCheckboxCreated"
 										 label = "Created in last week"
 										 paddingRight = "0" 
 										 horizontalGap = "0"
-										 paddingLeft = "0"
+										 paddingLeft = "0"  width="115"
 										 styleName = "labelSmall" paddingTop="0">
 								<mx:click>
 									toggleCreateDateCheckboxes( 1 );
@@ -486,13 +486,13 @@
 							
 						</mx:HBox>
 						<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == runBrowseView}"
-								 visible="{theViews.selectedChild == runBrowseView}">
+								 visible="{theViews.selectedChild == runBrowseView}" >
 							<mx:CheckBox id = "lastWeekCheckbox"
 										 label = "Run in last week"
 										 paddingRight = "0"
 										 horizontalGap = "0"
 										 paddingLeft = "0"
-										 styleName = "labelSmall" width="122">
+										 styleName = "labelSmall" width="115">
 								<mx:click>
 									toggleCreateDateCheckboxes( 1 );
 									getList();
@@ -576,7 +576,7 @@
 					</mx:VBox>
 					
 					<mx:VRule height="20"/>
-					<mx:HBox horizontalGap="0" paddingLeft="2" paddingRight="0"
+					<mx:HBox horizontalGap="0" paddingLeft="5" paddingRight="0"
 							 horizontalAlign = "right" verticalAlign="middle" includeInLayout="{theViews.selectedChild == plateBrowseView}"
 							 visible="{theViews.selectedChild == plateBrowseView}">
 						<mx:Label text="Plate Name:" />
@@ -593,7 +593,7 @@
 					<mx:VBox visible="{theViews.selectedChild == runBrowseView}" 
 							 includeInLayout="{theViews.selectedChild == runBrowseView}" horizontalAlign="right" 
 							 verticalAlign="middle" paddingLeft="5">
-						<mx:HBox>
+						<mx:HBox verticalAlign="middle">
 							<mx:Label text="Run Name" />
 							
 							<mx:TextInput id="lookupRunNameField"
@@ -605,25 +605,16 @@
 
 							
 						</mx:HBox>
-						<mx:HBox>
-							
-							<mx:LinkButton textDecoration = "underline"
-										   label = "Refresh"
-										   click = "{getList();}"
-										   icon = "@Embed('../../assets/action_refresh.gif')"
-										   toolTip = "Refresh run list"  paddingBottom="0" paddingTop="0"
-										   paddingRight="2" width="115"/>
-						</mx:HBox>
 					</mx:VBox>
 					
 				</mx:HBox>
-				<mx:Spacer width="100%" visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}" />
+				<mx:Spacer width="100%"  />
 				<mx:LinkButton textDecoration = "underline"
 							   label = "Refresh"
 							   click = "{getList();}"
 							   icon = "@Embed('../../assets/action_refresh.gif')"
-							   toolTip = "Refresh plate list"  paddingBottom="0" paddingTop="0"
-							   visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}"/>
+							   toolTip = "{theViews.selectedChild == plateBrowseView ? 'Refresh plate list' : 'Refresh run list'}"  paddingBottom="0" paddingTop="0"/>
+				
 			</mx:HBox>
 			
 		</mx:VBox>

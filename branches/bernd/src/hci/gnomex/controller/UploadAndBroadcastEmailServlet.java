@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
@@ -176,6 +177,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
             
         
       int userCount = 0;
+      List<String> invalidEmails = new ArrayList<String>();
       if (body != null && body.length() > 0) {
 
         
@@ -186,6 +188,11 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
           String theSubject = subject;
           String emailInfo = "";
           String emailRecipients = appUser.getEmail();
+          if(!MailUtil.isValidEmail(emailRecipients)){
+            invalidEmails.add(emailRecipients);
+            continue;
+          }
+
           if (dh.isProductionServer(req.getServerName())) {
             send = true;
           } else {
@@ -197,6 +204,9 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 
           // Email app user
           if (send) {
+            if(!MailUtil.isValidEmail(fromAddress)){
+              fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+            }
             MailUtil.send(emailRecipients, 
                 null,
                 fromAddress,
@@ -236,7 +246,17 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
       link.addAttribute("href", baseURL + "/css/message.css");
       Element body = root.addElement("BODY");
       Element h3 = body.addElement("H3");
-      h3.addCDATA("The email has been successfully sent to " + userCount + " GNomEx users.");
+      h3.addCDATA("The email has been successfully sent to " + userCount + " GNomEx users.\n\n");
+      if(invalidEmails.size() > 0){
+        h3.addCDATA("The email was not sent to the following user(s): ");
+        for(Iterator i = invalidEmails.iterator(); i.hasNext();){
+          String email = (String)i.next();
+          h3.addCDATA(email);
+          if(i.hasNext()){
+            h3.addCDATA(", ");
+          }
+        }
+      }
       body.addElement("BR");
       body.addElement("BR");
       writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);            

@@ -2314,6 +2314,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
+    if(emailRecipients != "" && !MailUtil.isValidEmail(emailRecipients)){
+      throw new MessagingException("Invalid email address " + emailRecipients);
+    }
     if (otherRecipients != null && otherRecipients.length() > 0) {
       if (emailRecipients.length() > 0) {
         emailRecipients += ",";
@@ -2321,8 +2324,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       emailRecipients += otherRecipients;
     }
     
+    if(emailRecipients.contains(",")){
+      for (String e: emailRecipients.split(",")){
+        if(!MailUtil.isValidEmail(e)){
+          throw new MessagingException("Invalid email address: " + e);
+        }
+      }
+    }
+    
     boolean send = false;
     String emailInfo = "";
+    String fromAddress = requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility;
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -2334,9 +2346,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           null,
-          (requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility), 
+          fromAddress, 
           subject, 
           emailInfo + emailFormatter.format(),
           true);      
@@ -2409,6 +2424,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     String emailInfo = "";
     boolean send = false;
+    
+    if(contactEmail.contains(",")){
+      for(String e: contactEmail.split(",")){
+        if(!MailUtil.isValidEmail(e)){
+          throw new MessagingException("Invalid email address: " + e);
+        }
+      }
+    } else{
+      if(!MailUtil.isValidEmail(contactEmail)){
+        throw new MessagingException("Invalid email address: " + contactEmail);
+      }
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -2420,6 +2447,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }    
 
     if (send) {
+      if(!MailUtil.isValidEmail(senderEmail)){
+        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(contactEmail, 
           ccEmail,
           senderEmail, 

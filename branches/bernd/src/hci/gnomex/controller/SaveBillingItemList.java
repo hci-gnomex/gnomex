@@ -308,7 +308,17 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = lab.getBillingNotificationEmail();
-    String ccList = emailFormatter.getCCList(sess); 
+    String ccList = emailFormatter.getCCList(sess);
+    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    if(emailRecipients.contains(",")){
+      for(String e : emailRecipients.split(",")){
+        if(!MailUtil.isValidEmail(e)){
+          throw new Exception("Invalid email address " + e);
+        }
+      }
+    } else if(!MailUtil.isValidEmail(emailRecipients)){
+      throw new Exception("Invalid email address " + emailRecipients);
+    }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -322,9 +332,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     
     li = this.executionLogger.startLogItem("Send email");
     if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(emailRecipients, 
           ccList,
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY),
+          fromAddress,
           subject, 
           emailInfo + emailFormatter.format(),
           true); 

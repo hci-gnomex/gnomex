@@ -201,7 +201,10 @@
     	    		
     	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
     	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
-    	    		   	if (theBarcodes.length < bestFitBarcodeCount) {
+						// Inactive barcode schemes will have a barcode length of 0 based on E4x.  Temporarily
+						// working around problem by making sure that barocodes length > 0
+						// to consider for best fit
+    	    		   	if (theBarcodes.length > 0 && theBarcodes.length < bestFitBarcodeCount) {
     	    		   		// Sort barcodes by sortOrder
     	    		   		barcodesSort = new Sort();
 	        				barcodesSort.compareFunction = this.sortBarcodes;
@@ -214,7 +217,7 @@
     	    		}
         		}
         		if (barcodes.length == 0) {
-        			mx.controls.Alert.show("Unable to initialize barcodes.", "Error");
+        			// mx.controls.Alert.show("Unable to initialize barcodes.", "Error");
         		}
         	} else {
         		barcodes = new XMLListCollection();

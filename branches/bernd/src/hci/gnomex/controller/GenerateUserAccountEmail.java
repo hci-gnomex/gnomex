@@ -188,6 +188,11 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     boolean send = false;
     String theSubject = "";
     String emailInfo = "";
+    
+    if(!MailUtil.isValidEmail(sendTo)){
+      throw new MessagingException();
+    }
+
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
       theSubject = subject;
@@ -204,6 +209,9 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       from = this.getSecAdvisor().getAppUser().getEmail();
     }
     if (send) {
+      if(!MailUtil.isValidEmail(from)){
+        from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
       MailUtil.send(sendTo, 
           ccTo,
           from, 
