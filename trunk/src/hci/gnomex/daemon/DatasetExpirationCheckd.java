@@ -186,7 +186,7 @@ public class DatasetExpirationCheckd extends TimerTask {
 
   }
   
-  private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate) throws AddressException, NamingException, MessagingException {
+  private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate, String typeName) throws AddressException, NamingException, MessagingException {
     // Build message body in html
     StringBuffer body = new StringBuffer("");
     
@@ -209,7 +209,7 @@ public class DatasetExpirationCheckd extends TimerTask {
     body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
     body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
 
-    String subject = "Restricted visibility expiration";
+    String subject = "Restricted visibility expiration for " + typeName + " " + number;
     if (!dictionaryHelper.isProductionServer(serverName)) {
       subject = subject + "  (TEST)";
       body.append("[If this were a production environment then this email would have been sent to: " + emailTo + "]<br><br>");
@@ -218,8 +218,8 @@ public class DatasetExpirationCheckd extends TimerTask {
     }
     
     body.append("<table width='400' cellpadding='0' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='10'>&nbsp;</td><td valign='top' align='left'>");
-    body.append("This is a courtesy notification to inform you that visiblity for analysis " + number + " is set to expire on " + dateFormatter.format(expireDate) + ".");
-    body.append(" If you do not change the visibility expiration date, visibility will change to " + Visibility.VISIBLE_TO_PUBLIC + " at that time.<br><br>");
+    body.append("This is to inform you that visiblity for " + typeName + " " + number + " is set to expire on " + dateFormatter.format(expireDate) + ".");
+    body.append(" If you do not change the visibility expiration date, visibility will change to " + Visibility.VISIBLE_TO_PUBLIC + ".<br><br>");
     body.append(" You are receiving this notice because you and/or your group is listed as owner.");
     
     body.append("</td></tr></table></body></html>");
@@ -307,7 +307,7 @@ public class DatasetExpirationCheckd extends TimerTask {
         
         String emailTo = getEmailTo(a.getAppUser(), a.getLab());
         if(emailTo.length() > 0) {
-          emailExpirationWarning(emailTo, a.getNumber(), a.getPrivacyExpirationDate());
+          emailExpirationWarning(emailTo, a.getNumber(), a.getPrivacyExpirationDate(), "analysis");
         }
       }         
 
@@ -319,7 +319,7 @@ public class DatasetExpirationCheckd extends TimerTask {
         
         String emailTo = getEmailTo(r.getAppUser(), r.getLab());
         if(emailTo.length() > 0) {
-          emailExpirationWarning(emailTo, r.getNumber(), r.getPrivacyExpirationDate());
+          emailExpirationWarning(emailTo, r.getNumber(), r.getPrivacyExpirationDate(), "request");
         }
       }         
     }
