@@ -14,6 +14,7 @@
             <firstName>{firstName.text}</firstName>
             <codeUserPermissionKind>LAB</codeUserPermissionKind>
             <isActive>Y</isActive>
+		    <isWebForm>N</isWebForm>
     </mx:request>
     </mx:HTTPService >
     
