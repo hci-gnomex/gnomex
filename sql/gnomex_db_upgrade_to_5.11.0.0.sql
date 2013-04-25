@@ -35,3 +35,11 @@ alter table PropertyDictionary add codeRequestCategory VARCHAR(10) NULL;
 
 -- remove includePIInBilling
 alter table Lab drop column includePiInBillingEmails;
+
+-- Add table for RequestCategoryType (Alter if necessary)
+DROP TABLE IF EXISTS `gnomex`.`RequestCategoryType`;
+CREATE TABLE `gnomex`.`RequestCategoryType` (
+  codeRequestCategoryType VARCHAR(100) NOT NULL,
+  isIllumina VARCHAR(10) NOT NULL
+)
+ENGINE = INNODB;
