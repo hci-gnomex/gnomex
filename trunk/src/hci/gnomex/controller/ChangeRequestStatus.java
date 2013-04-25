@@ -256,7 +256,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     }
     
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException("Invalid email address " + emailRecipients);
+      log.error("Invalid email address " + emailRecipients);
     }
     
     if (otherRecipients != null && otherRecipients.length() > 0) {
@@ -267,8 +267,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     }
     
     for(String e : emailRecipients.split(",")){
-      if(!MailUtil.isValidEmail(e)){
-        throw new MessagingException("Invalid email address " + e);  
+      if(!MailUtil.isValidEmail(e.trim())){
+        log.error("Invalid email address " + e);  
       }
     }
     
