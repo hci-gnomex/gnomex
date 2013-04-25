@@ -240,7 +240,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException("Invalid email address: " + emailRecipients);
+      log.error("Invalid email address: " + emailRecipients);
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
