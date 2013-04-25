@@ -5380,12 +5380,16 @@
 					</mx:HBox>
 				   
 					
-					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
+					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" 
+							 visible="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"
+							 includeInLayout="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}">
 						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 					
-					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" includeInLayout="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}" visible="{requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N'}">
+					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" 
+							 visible="{request.@avgInsertSizeFrom != '' || request.avgInsertSizeTo != '' || (requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}" 
+							 includeInLayout="{request.@avgInsertSizeFrom != '' || request.avgInsertSizeTo != '' || (requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"> 
 						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size" styleName="formLabel"/>
 						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
 						<mx:Text fontWeight="normal" text=" to "/>
