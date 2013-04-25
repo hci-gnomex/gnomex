@@ -50,12 +50,45 @@ public class MailUtil
     }
     
     public static Boolean isValidEmail(String emailAddress){
+      if (emailAddress == null || emailAddress.equals("")) {
+        return false;
+      }
+      
+      List<String> emailAddresses = new ArrayList<String>();
+      String[] tokens = null;
+      if (emailAddress.contains(", ")) {
+        tokens = emailAddress.split(", ");
+      } else if (emailAddress.contains(",")) {
+        tokens = emailAddress.split(",");
+      } else if (emailAddress.contains(" ")) {
+        tokens = emailAddress.split(" ");
+      } else {
+        emailAddresses.add(emailAddress);
+      }
+      if (tokens != null) {
+        for (int x = 0; x < tokens.length; x++) {
+          emailAddresses.add(tokens[x]);
+        }
+      }
+      
+      boolean isValid = true;
+      for (String theEmailAddress : emailAddresses) {
+        if (!isValidEmailImpl(theEmailAddress)) {
+          isValid = false;
+          break;
+        }   
+      }
+      return isValid;
+    }
+    
+    private static Boolean isValidEmailImpl(String emailAddress){
       EmailValidator ev = EmailValidator.getInstance();
       if(ev.isValid(emailAddress)){
         return true;
       }   
       return false;
     }
+
     
     public static void send_bcc( String to,
               String cc,
