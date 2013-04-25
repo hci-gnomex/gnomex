@@ -309,12 +309,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     if(emailRecipients.contains(",")){
       for(String e : emailRecipients.split(",")){
-        if(!MailUtil.isValidEmail(e)){
-          throw new Exception("Invalid email address " + e);
+        if(!MailUtil.isValidEmail(e.trim())){
+          log.error("Invalid email address " + e);
         }
       }
     } else if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new Exception("Invalid email address " + emailRecipients);
+      log.error("Invalid email address " + emailRecipients);
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
