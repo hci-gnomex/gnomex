@@ -653,7 +653,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     String emailInfo = "";
     String emailRecipients = submitterEmail;
     if(!MailUtil.isValidEmail(submitterEmail)){
-      throw new MessagingException("Invalid Email: " + submitterEmail);
+      log.error("Invalid Email: " + submitterEmail);
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
