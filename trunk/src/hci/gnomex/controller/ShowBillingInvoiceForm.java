@@ -428,7 +428,39 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
     Element body = new Element("BODY");
     root.addContent(body);
+    
+    
+    Element center = new Element("CENTER");
+    body.addContent(center);
+      
+      
+    // Show print and email link
+    Element emailLink = new Element("A");
+    emailLink.setAttribute("HREF",
+        "ShowBillingInvoiceForm.gx?idLab=" + idLab +
+        "&idBillingAccount=" + idBillingAccount + 
+        "&idBillingPeriod=" + idBillingPeriod +
+        "&idCoreFacility=" + idCoreFacility +
+        "&action=" + ACTION_EMAIL +
+        "&respondInHTML=Y");
+    String contactEmail = lab.getBillingNotificationEmail();
+    if (contactEmail == null || contactEmail.equals("")) {
+      contactEmail = "billing contact";
+    }
+    emailLink.addContent(contactEmail);
 
+    Element linkTable = new Element("TABLE");   
+    Element row = new Element("TR");
+    linkTable.addContent(row);
+
+    Element cell = new Element("TD");
+    cell.setAttribute("ALIGN", "RIGHT");
+    row.addContent(cell);
+    cell.addContent(emailLink);    
+
+    center.addContent(linkTable);
+    
+    
 
     Element center1 = new Element("CENTER");
     body.addContent(center1);
