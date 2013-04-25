@@ -59,6 +59,7 @@ import hci.gnomex.model.Primer;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -331,9 +332,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
             if ( requestCategory != null &&
-                (   requestCategory.getType().equals(RequestCategory.TYPE_ISCAN) ||
-                    requestCategory.getType().equals(RequestCategory.TYPE_SEQUENOM) ||
-                    requestCategory.getType().equals(RequestCategory.TYPE_CLINICAL_SEQUENOM))) {
+                (   requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
+                    requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
               boolean include = false;
               if (prop.getPlatformApplications() != null) {
                 for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
@@ -888,7 +889,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
       appendStepNode(statusNode, "Hybridization");
       appendStepNode(statusNode, "Extraction");
       statusNode.setAttribute("numberOfSteps", "5");
-    } else if (request.getRequestCategory().getType().equals(RequestCategory.TYPE_QC)) {
+    } else if (request.getRequestCategory().getType().equals(RequestCategoryType.TYPE_QC)) {
       appendStepNode(statusNode, "Submitted");
       appendStepNode(statusNode, "Sample QC");    
       statusNode.setAttribute("numberOfSteps", "2");

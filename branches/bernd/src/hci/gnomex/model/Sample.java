@@ -803,7 +803,7 @@ public class Sample extends HibernateDetailObject {
         } else {
           step = new Integer(lastStep - 3).toString();
         }
-    } else if (request.getRequestCategory().getType().equals(RequestCategory.TYPE_QC)) {
+    } else if (request.getRequestCategory().getType().equals(RequestCategoryType.TYPE_QC)) {
       if (this.getQualDate() != null) {
         step = "2";
       } else {

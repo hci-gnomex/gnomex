@@ -4,15 +4,20 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.controller.CacheAnalysisFileDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.model.VisibilityInterface;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,6 +37,7 @@ import javax.mail.internet.MimeMessage;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Level;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.xml.sax.EntityResolver;
@@ -64,6 +70,11 @@ public class DatasetExpirationCheckd extends TimerTask {
   
   private boolean runAsDaemon = false;
 
+  private boolean warningOnly = false;
+  
+  private boolean catchUpWarnings = false;
+  
+  private boolean sendMail = true;
   
   public DatasetExpirationCheckd(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -73,14 +84,27 @@ public class DatasetExpirationCheckd extends TimerTask {
         wakeupHour = Integer.valueOf(args[++i]);
       } else if (args[i].equals ("-runAsDaemon")) {
         runAsDaemon = true;
+      } else if (args[i].equals ("-warningOnly")) {
+        warningOnly = true;
+      } else if (args[i].equals ("-doNotSendMail")) {
+        sendMail = false;
+      } else if (args[i].equals ("-catchUpWarnings")) {
+        catchUpWarnings = true;
       }
     } 
 
-    try {
-      mailProps = new BatchMailer().getMailProperties();
-    } catch (Exception e){
-      System.err.println("Cannot initialize mail properties");
+    if (catchUpWarnings && !warningOnly) {
+      System.err.println("-warningOnly must be specified if -catchUpWarnings is specified.");
       System.exit(0);
+    }
+    
+    if (sendMail) {
+      try {
+        mailProps = new BatchMailer().getMailProperties();
+      } catch (Exception e){
+        System.err.println("Cannot initialize mail properties");
+        System.exit(0);
+      }
     }
   }
   
@@ -148,7 +172,9 @@ public class DatasetExpirationCheckd extends TimerTask {
       
       sendExpirationWarnings(sess);
       
-      changeVisibilityIfExpired(sess);
+      if (!warningOnly) {
+        changeVisibilityIfExpired(sess);
+      }
       
     
       app.disconnect();      
@@ -160,11 +186,11 @@ public class DatasetExpirationCheckd extends TimerTask {
 
   }
   
-  private void emailExpirationWarning(String emailTo, Analysis a) throws AddressException, NamingException, MessagingException {
+  private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate, String typeName) throws AddressException, NamingException, MessagingException {
     // Build message body in html
     StringBuffer body = new StringBuffer("");
     
-    
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
     
     //if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
     
@@ -174,28 +200,82 @@ public class DatasetExpirationCheckd extends TimerTask {
     if(replyEmail == null || replyEmail.length() == 0) {
       replyEmail = "DoNotReply@hci.utah.edu";
     }    
-
     
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess); 
+
     body.append("<html><head><title>Restricted Visiblity Expiration</title><meta http-equiv='content-style-type' content='text/css'></head>");
     body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
     body.append("<style>.fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;}");
     body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
     body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
+
+    String subject = "Restricted visibility expiration for " + typeName + " " + number;
+    if (!dictionaryHelper.isProductionServer(serverName)) {
+      subject = subject + "  (TEST)";
+      body.append("[If this were a production environment then this email would have been sent to: " + emailTo + "]<br><br>");
+      emailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      
+    }
+    
     body.append("<table width='400' cellpadding='0' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='10'>&nbsp;</td><td valign='top' align='left'>");
-    body.append("This is a courtesy notification to inform you that visiblity for analysis " + a.getNumber() + " is set to expire in " + this.expWarningDays + " days.");
-    body.append(" If you do not change the visibility expiration date, visibility will change to " + Visibility.VISIBLE_TO_PUBLIC + " at that time.<br><br>");
+    body.append("This is to inform you that visiblity for " + typeName + " " + number + " is set to expire on " + dateFormatter.format(expireDate) + ".");
+    body.append(" If you do not change the visibility expiration date, visibility will change to " + Visibility.VISIBLE_TO_PUBLIC + ".<br><br>");
     body.append(" You are receiving this notice because you and/or your group is listed as owner.");
     
-    if(emailTo.contains(contactEmailSoftwareTester)) {
-      // If the software tester email is present then send only to the tester
-      body.append("<br><br><br>Sent to software tester. Ordinarily this would have been sent to: " + emailTo);
-      emailTo = contactEmailSoftwareTester;
-    }       
-    
     body.append("</td></tr></table></body></html>");
-    MailUtil.send(mailProps, emailTo, "", replyEmail, "Restricted visibility expiration", body.toString(), true);  
+    if (sendMail) {
+      MailUtil.send(mailProps, emailTo, "", replyEmail, subject, body.toString(), true);
+    }
   }
-  
+
+  private String getEmailTo(AppUser appUser, Lab lab) {
+    String ownerEmail = "";
+    if(appUser != null) {
+      ownerEmail = appUser.getEmail();
+      if (ownerEmail == null || ownerEmail.equals("")) {
+        ownerEmail = "";
+      }
+    }
+    
+    String managerEmails = "";
+    if(lab != null && lab.getManagers() != null) {
+      for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
+        AppUser manager = (AppUser)i1.next();
+        if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
+          String currentManagerEmail = manager.getEmail();
+          if (currentManagerEmail == null || currentManagerEmail.equals("")) {
+            currentManagerEmail = "";
+          }                            
+          if(managerEmails.length() == 0) {
+            managerEmails = currentManagerEmail;
+          } else {
+            managerEmails = managerEmails + ", " + currentManagerEmail;
+          }                
+        }
+      }           
+    }                
+
+    String labEmail = "";
+    if(lab != null) {
+      labEmail = lab.getContactEmail();
+      if (labEmail == null || labEmail.equals("")) {
+        labEmail = "";
+      }
+    }
+    
+    String emailTo = "";        
+    if(ownerEmail.length() == 0) {
+      emailTo = managerEmails;
+    } else {
+      if(managerEmails.length() == 0) {
+        emailTo = ownerEmail;
+      } else {
+        emailTo = ownerEmail + ", " + managerEmails;
+      }
+    }
+    
+    return emailTo;
+  }
 
   private void sendExpirationWarnings(Session sess) throws Exception{
     if(expWarningDays <= 0) {
@@ -203,67 +283,43 @@ public class DatasetExpirationCheckd extends TimerTask {
     }
     
     try {
-      StringBuffer queryBuf = new StringBuffer();
+      Date futureDate = new Date();
+      Calendar cal = Calendar.getInstance();
+      cal.clear();
+      cal.setTime(futureDate);
+      cal.clear(Calendar.HOUR);
+      cal.clear(Calendar.MINUTE);
+      cal.clear(Calendar.SECOND);
+      cal.clear(Calendar.MILLISECOND);
+      cal.add(Calendar.DATE, expWarningDays);
+      futureDate = cal.getTime();
       
-      queryBuf.append(" SELECT a");
-      queryBuf.append(" from Analysis a");
-      queryBuf.append(" where ");
-      queryBuf.append("   DATEDIFF(day, getDate(), privacyExpirationDate) = " + expWarningDays);
-      queryBuf.append("   and codeVisibility <> '" + Visibility.VISIBLE_TO_PUBLIC + "'");
-      
-      List aItems = (List)sess.createQuery(queryBuf.toString()).list();
+      String whereClause = " where privacyExpirationDate is not null and privacyExpirationDate = :futureDate and codeVisibility <> '" + Visibility.VISIBLE_TO_PUBLIC + "'";
+      if (catchUpWarnings) {
+        whereClause = " where privacyExpirationDate is not null and privacyExpirationDate <= :futureDate and codeVisibility <> '" + Visibility.VISIBLE_TO_PUBLIC + "'";
+      }
 
-      
+      Query aQuery = sess.createQuery("SELECT a from Analysis a " + whereClause);
+      aQuery.setDate("futureDate", futureDate);
+      List aItems = (List)aQuery.list();
       for(Iterator<Analysis> i = aItems.iterator(); i.hasNext();) {
         Analysis a = i.next();
         
-        String ownerEmail = "";
-        if(a.getAppUser() != null) {
-          ownerEmail = a.getAppUser().getEmail();
-          if (ownerEmail == null || ownerEmail.equals("")) {
-            ownerEmail = "";
-          }
-        }
-        
-        String managerEmails = "";
-        if(a.getLab() != null && a.getLab().getManagers() != null) {
-          for(Iterator i1 = a.getLab().getManagers().iterator(); i1.hasNext();) {
-            AppUser manager = (AppUser)i1.next();
-            if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
-              String currentManagerEmail = manager.getEmail();
-              if (currentManagerEmail == null || currentManagerEmail.equals("")) {
-                currentManagerEmail = "";
-              }                            
-              if(managerEmails.length() == 0) {
-                managerEmails = currentManagerEmail;
-              } else {
-                managerEmails = managerEmails + ", " + currentManagerEmail;
-              }                
-            }
-          }           
-        }                
-
-        String labEmail = "";
-        if(a.getAppUser() != null) {
-          labEmail = a.getLab().getContactEmail();
-          if (labEmail == null || labEmail.equals("")) {
-            labEmail = "";
-          }
-        }
-        
-        String emailTo = "";        
-        if(ownerEmail.length() == 0) {
-          emailTo = managerEmails;
-        } else {
-          if(managerEmails.length() == 0) {
-            emailTo = ownerEmail;
-          } else {
-            emailTo = ownerEmail + ", " + managerEmails;
-          }
-        }
-        
+        String emailTo = getEmailTo(a.getAppUser(), a.getLab());
         if(emailTo.length() > 0) {
-          emailExpirationWarning(emailTo, a);
+          emailExpirationWarning(emailTo, a.getNumber(), a.getPrivacyExpirationDate(), "analysis");
+        }
+      }         
+
+      Query rQuery = sess.createQuery("SELECT r from Request r " + whereClause);
+      rQuery.setDate("futureDate", futureDate);
+      List rItems = (List)rQuery.list();
+      for(Iterator<Request> i = rItems.iterator(); i.hasNext();) {
+        Request r = i.next();
+        
+        String emailTo = getEmailTo(r.getAppUser(), r.getLab());
+        if(emailTo.length() > 0) {
+          emailExpirationWarning(emailTo, r.getNumber(), r.getPrivacyExpirationDate(), "request");
         }
       }         
     }
@@ -277,27 +333,25 @@ public class DatasetExpirationCheckd extends TimerTask {
   
   private void changeVisibilityIfExpired(Session sess) throws Exception{
     try {
-      StringBuffer queryBuf = new StringBuffer();
+      Date today = new Date();
+      Calendar cal = Calendar.getInstance();
+      cal.clear(Calendar.HOUR);
+      cal.clear(Calendar.MINUTE);
+      cal.clear(Calendar.SECOND);
+      cal.clear(Calendar.MILLISECOND);
+      today = cal.getTime();
+
+      String whereClause = " where privacyExpirationDate is not null and privacyExpirationDate < :today and codeVisibility != '" + Visibility.VISIBLE_TO_PUBLIC + "'";
       
-      queryBuf.append(" SELECT a");
-      queryBuf.append(" from Analysis a");
-      queryBuf.append(" where ");
-      queryBuf.append("   privacyExpirationDate is not null and ");
-      queryBuf.append("   privacyExpirationDate <= GETDATE() and");
-      queryBuf.append("   codeVisibility <> '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+      Query aQuery = sess.createQuery(" SELECT a from Analysis a " + whereClause);
+      aQuery.setDate("today", today);
+      List<VisibilityInterface> aItems = (List<VisibilityInterface>)aQuery.list();
+      changeVisibilityIfExpired(sess, aItems);
       
-      List aItems = (List)sess.createQuery(queryBuf.toString()).list();
-      
-      Transaction trans = sess.beginTransaction();
-      
-      for(Iterator<Analysis> i = aItems.iterator(); i.hasNext();) {
-        Analysis a = i.next();
-        //System.out.println("" + a.getIdAnalysis() + " " + a.getCodeVisibility());
-        a.setCodeVisibility(Visibility.VISIBLE_TO_PUBLIC);
-        sess.save(a);
-        sess.flush();   
-      }      
-      trans.commit();     
+      Query rQuery = sess.createQuery(" SELECT r from Request r " + whereClause);
+      rQuery.setDate("today", today);
+      List<VisibilityInterface> rItems = (List<VisibilityInterface>)rQuery.list();
+      changeVisibilityIfExpired(sess, rItems);
     }
 
     catch (Exception ex) {
@@ -305,6 +359,17 @@ public class DatasetExpirationCheckd extends TimerTask {
       throw new RollBackCommandException();
     }        
   }  
+
+  private void changeVisibilityIfExpired(Session sess, List<VisibilityInterface> objects) throws Exception {
+    Transaction trans = sess.beginTransaction();
+    
+    for(VisibilityInterface vis : objects) {
+      vis.setCodeVisibility(Visibility.VISIBLE_TO_PUBLIC);
+      sess.save(vis);
+      sess.flush();   
+    }      
+    trans.commit();     
+  }
   
   private static Date getWakeupTime(){
     Calendar tomorrow = new GregorianCalendar();
@@ -341,34 +406,5 @@ public class DatasetExpirationCheckd extends TimerTask {
       }
 
   } 
-  
-  public void postMail( String recipients, String subject, String message , String from) throws MessagingException
-  {
-    //Set the host smtp address
-    Properties props = new Properties();
-    props.put("mail.smtp.host", "hci-mail.hci.utah.edu");
-
-    // create some properties and get the default Session
-
-    javax.mail.Session session = javax.mail.Session.getDefaultInstance(props, null);
-
-    // create a message
-    Message msg = new MimeMessage(session);
-
-    // set the from and to address
-    InternetAddress addressFrom = new InternetAddress(from);
-    msg.setFrom(addressFrom);
-
-    msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse( recipients, false ));
-
-
-    // Optional : You can also set your custom headers in the Email if you Want
-   // msg.addHeader("MyHeaderName", "myHeaderValue");
-
-    // Setting the Subject and Content Type
-    msg.setSubject(subject);
-    msg.setContent(message, "text/plain");
-    Transport.send(msg);
-  }  
   
 }

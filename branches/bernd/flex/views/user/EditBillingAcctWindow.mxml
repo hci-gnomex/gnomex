@@ -604,7 +604,14 @@
 					"After the account information is reviewed and approved, " +
 					"you will be notified by email that experiment " +
 					"requests can now be submitted against this account in GNomEx.");
+				
+				if (submitWorkAuthForm.lastResult.hasOwnProperty("@emailWarning") &&
+					submitWorkAuthForm.lastResult.@emailWarning != '') {
+					Alert.show(submitWorkAuthForm.lastResult.@emailWarning, 
+						"Warning");
+				}
 				PopUpManager.removePopUp(this);
+
 			} else {
 				Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
 			}        	

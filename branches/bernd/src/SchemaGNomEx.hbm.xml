@@ -2189,6 +2189,14 @@
     <property name="patientSpNumber"                column="patientSpNumber"               type="string"/>
     <property name="percentTumor"                   column="percentTumor"                 type="big_decimal"/>
   </class>  
+  
+  <!-- hci.gnomex.model.RequestCategoryType -->
+  <class name="hci.gnomex.model.RequestCategoryType" table="RequestCategoryType">
+    <id name="codeRequestCategoryType" column="codeRequestCategoryType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="isIllumina" column="isIllumina" type="string"/>
+  </class>
 	
 	<!-- hci.gnomex.model.NewsItem -->
 	<class name="hci.gnomex.model.NewsItem" table="NewsItem">

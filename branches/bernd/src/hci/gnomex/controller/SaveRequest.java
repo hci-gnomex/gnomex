@@ -29,6 +29,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
@@ -867,7 +868,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
           this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
-        else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.TYPE_QC))){
+        else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))){
           this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
@@ -2582,7 +2583,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
     Boolean addedProperty = false;
-    if (requestCategory.getType().equals(RequestCategory.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategory.TYPE_CLINICAL_SEQUENOM)) {
+    if (requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
       Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
       for(Property prop : dh.getPropertyList()) {
         if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {

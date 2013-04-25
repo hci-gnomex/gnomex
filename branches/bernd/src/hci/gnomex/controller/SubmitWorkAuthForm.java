@@ -119,10 +119,15 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
           
           facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
   
+          String emailWarning = "";
+          try {
+            this.sendConfirmationEmail(sess);
+          } catch (MessagingException me) {
+            emailWarning = "Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
+          }
   
-          this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" />";
+          this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
         
-          this.sendConfirmationEmail(sess);
           
           setResponsePage(this.SUCCESS_JSP);
         } else {
@@ -149,6 +154,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   
 
   private void sendConfirmationEmail(Session sess) throws NamingException, MessagingException {
+    StringBuffer invalidEmails = new StringBuffer();
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
@@ -168,7 +174,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String emailInfo = "";
     String emailRecipients = submitterEmail;
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException("Invalid email address: " + emailRecipients);
+      throw new MessagingException(emailRecipients);
     }
     
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
@@ -241,7 +247,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
         String contactEmail = lab.getWorkAuthSubmitEmail();
         if(!MailUtil.isValidEmail(contactEmail)){
-          throw new MessagingException("Invalid email address: " + contactEmail);
+          throw new MessagingException(contactEmail);
         }
         
         if (testEmail) {
@@ -261,7 +267,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       // Email core facility
       if (!facilityEmail.equals("")) {
         if(!MailUtil.isValidEmail(facilityEmail)){
-          throw new MessagingException("Invalid email address: " + facilityEmail);
+          throw new MessagingException(facilityEmail);
         }
         if(testEmail){
           emailInfo = "[If this were a production environment then this email would have been sent to: " + facilityEmail + "]<br><br>";
