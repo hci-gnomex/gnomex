@@ -294,7 +294,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     String emailRecipients = request.getAppUser().getEmail();
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException("Invalid email: " + emailRecipients);
+      log.error("Invalid email: " + emailRecipients);
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
