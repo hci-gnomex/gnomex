@@ -689,7 +689,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new Exception("Invalid email address " + emailRecipients);
+      log.error("Invalid email address " + emailRecipients);
     }
     if (contactEmail != null && !contactEmail.equals("")) {
       if (dh.isProductionServer(serverName)) {
