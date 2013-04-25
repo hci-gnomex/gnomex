@@ -2278,7 +2278,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
     if(emailRecipients != "" && !MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException("Invalid email address " + emailRecipients);
+      log.error("Invalid email address " + emailRecipients);
     }
     if (otherRecipients != null && otherRecipients.length() > 0) {
       if (emailRecipients.length() > 0) {
@@ -2289,8 +2289,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if(emailRecipients.contains(",")){
       for (String e: emailRecipients.split(",")){
-        if(!MailUtil.isValidEmail(e)){
-          throw new MessagingException("Invalid email address: " + e);
+        if(!MailUtil.isValidEmail(e.trim())){
+          log.error("Invalid email address: " + e);
         }
       }
     }
@@ -2388,13 +2388,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if(contactEmail.contains(",")){
       for(String e: contactEmail.split(",")){
-        if(!MailUtil.isValidEmail(e)){
-          throw new MessagingException("Invalid email address: " + e);
+        if(!MailUtil.isValidEmail(e.trim())){
+          log.error("Invalid email address: " + e);
         }
       }
     } else{
       if(!MailUtil.isValidEmail(contactEmail)){
-        throw new MessagingException("Invalid email address: " + contactEmail);
+        log.error("Invalid email address: " + contactEmail);
       }
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
