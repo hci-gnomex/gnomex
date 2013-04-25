@@ -877,8 +877,8 @@ Test City, UT 12345',
  123 N 456 E Anywhere
  Test City, UT 12345', 
  'Core facility lab address', 'N'),
- (97,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
- (98,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N');
+ (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
+ (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N');
  
  
  
