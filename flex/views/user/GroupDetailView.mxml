@@ -106,9 +106,11 @@
 			import mx.events.ItemClickEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
+			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.validators.ValidationResult;
 			
 			import views.util.InstitutionWindow;
 			
@@ -1140,6 +1142,56 @@
 					Alert.show(deletePurchaseForm.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
+			
+			private function checkEmailValidity(event:KeyboardEvent, idTextField:String):void {
+				var email:String = "";
+				if(idTextField == contactEmail.id){
+					email = contactEmail.text;
+				} else{
+					email = billingContactEmail.text;
+				}
+				var emails:Array = email.split(",");
+				var validationEvent:ValidationResultEvent = new ValidationResultEvent("");
+				
+				if(emails.length > 0){
+					for each(var e:String in emails){
+						validationEvent = emailValidator.validate(e.replace(" ", ""));
+						if(validationEvent.type==ValidationResultEvent.VALID){
+							button1.enabled = true;
+							if(idTextField == contactEmail.id){
+								contactEmail.errorString = "";
+							} else{
+								billingContactEmail.errorString = "";
+							}
+						} else{
+							button1.enabled = false;
+							if(idTextField == contactEmail.id){
+								contactEmail.errorString = validationEvent.message;
+							} else{
+								billingContactEmail.errorString = validationEvent.message;
+							}
+							break;
+						}
+					}
+				} else{
+					validationEvent = emailValidator.validate(email);
+					if(validationEvent.type==ValidationResultEvent.VALID){
+						button1.enabled = true;
+						if(idTextField == contactEmail.id){
+							contactEmail.errorString = "";
+						} else{
+							billingContactEmail.errorString = "";
+						}
+					} else{
+						button1.enabled = false;
+						if(idTextField == contactEmail.id){
+							contactEmail.errorString = "";
+						} else{
+							billingContactEmail.errorString = "";
+						}
+					}
+				}
+			}
 
 				
 
@@ -1163,6 +1215,7 @@
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
 	<mx:XMLListCollection id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	<mx:EmailValidator id="emailValidator" property="text" />
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
 		
@@ -1193,14 +1246,14 @@
 								<mx:Label text="PI Email(s)" toolTip="For multiple email addresses, place a comma between emails."  styleName="formLabel"/>
 								<mx:Label text="Place , between emails" fontStyle="italic" textAlign="left" color="#076211" fontSize="10" fontWeight="normal"/>
 							</mx:HBox>
-							<util:TextAreaWorkaround id="contactEmail" text="{parentDocument.fullLab.@contactEmail}" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@contactEmail}" width="220"/>
+							<util:TextAreaWorkaround id="contactEmail" keyUp="checkEmailValidity(event, this.contactEmail.id)" text="{parentDocument.fullLab.@contactEmail}" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@contactEmail}" width="220"/>
 							<mx:Label text="PI gets billing emails + notifications." fontStyle="italic" textAlign="left" color="#076211" fontSize="10" textDecoration="none" fontWeight="normal"/>
 						</mx:VBox>
 						<mx:VBox  verticalGap="0">
 							<mx:HBox width="100%">
 								<mx:Label text="Billing Contact Email(s)"  styleName="formLabel" toolTip="For multiple email addresses, place a comma between emails."/>
 							</mx:HBox>
-							<util:TextAreaWorkaround id="billingContactEmail" text="{parentDocument.fullLab.@billingContactEmail}" width="260" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@billingContactEmail}"/>
+							<util:TextAreaWorkaround id="billingContactEmail" keyUp="checkEmailValidity(event, this.billingContactEmail.id)" text="{parentDocument.fullLab.@billingContactEmail}" width="260" change="dirty.setDirty()" height="50" toolTip="{parentDocument.fullLab.@billingContactEmail}"/>
 							<mx:Label text="Billing contact gets only billing emails." fontStyle="italic" textAlign="left" color="#076211" fontSize="10"/>
 						</mx:VBox>
 					</mx:HBox>
@@ -1668,7 +1721,7 @@
 			<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Send email to verify users"/>
 			<mx:Spacer width="100%"/>
 			<util:DirtyNote id="dirty"/>
-			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="validateAndSave()" id="button1"/>
+			<mx:Button label="Save" icon="@Embed('../../assets/action_save.gif')" click="validateAndSave()" disabledIcon="@Embed('../../assets/save_disable.png')" id="button1"/>
 		</mx:HBox>
 	</mx:ControlBar>
 	
