@@ -82,15 +82,23 @@
 		[Bindable]
 		private var paramDelete:Object = new Object();
 		
+		[Bindable]
+		private var idItem:int;
+		
 		// Init method
 		public function init():void {
 			getNewsItem.send();
 		}
 		
+		protected function onClose(ev:Event):void
+		{
+			getNewsItem.send();
+		}   
+		
 		private function onDeleteNewsInterface(event:ResultEvent):void {
 			if (deleteNewsItem.lastResult.name() == "SUCCESS") {
 				// Success.
-				getNewsItem.send();
+				wipe_click();
 			}else{
 				Alert.show("Error in deleting newsitem.");
 			}
@@ -164,11 +172,22 @@
 		
 		public function showAddNewsItem():void {
 			var AddNewsItemWindow:AddNewsItem = AddNewsItem(PopUpManager.createPopUp(parentApplication.theBody, AddNewsItem, true));
+			AddNewsItemWindow.saveButton.addEventListener("testEvent", onClose);
 			PopUpManager.centerPopUp(AddNewsItemWindow);
-			callLater(init);
+		}
+		
+		private function wipe_click():void {
+			delWipe.stop();
+			var rem:HBox = newsItem[idItem];
+			delWipe.play([rem]);
+			getNewsItem.send();
 		}
 	]]>
 </mx:Script>
+	
+	<mx:Sequence id="delWipe">
+		<mx:Fade duration="1500" alphaFrom="1.0" alphaTo="0.0" />
+	</mx:Sequence>
 	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" paddingLeft="200" horizontalGap="150"  paddingTop="5">
@@ -186,7 +205,7 @@
 				<mx:Repeater id="newsRep" dataProvider="{newsItemList}" count="6">
 							<mx:HBox id="newsItem" width="100%" height="25" backgroundColor="#E6E6E6" 
 									 cornerRadius="7" borderStyle="solid" borderThickness="0"
-									 paddingTop="2" paddingLeft="2" paddingRight="2"
+									 paddingTop="2" paddingLeft="2" paddingRight="2" alpha="1.0"
 									 >
 								<mx:Label id="newsItemDate" width="85" height="20"
 										  fontWeight="bold"
@@ -212,14 +231,14 @@
 								<mx:LinkButton id="newsItemRemove"
 											width="22"
 											icon="@Embed(source='../../assets/table_row_delete.png')"
-											click="newsItemRemove_clickHandler(event.currentTarget.getRepeaterItem());"
+											click="newsItemRemove_clickHandler(event.currentTarget.getRepeaterItem()); idItem = event.target.instanceIndex;"
 											includeInLayout="{parentApplication.isSuperAdmin}" visible="{parentApplication.isSuperAdmin}"
 											toolTip="Delete NewsItem"
 										/>
 							</mx:HBox>
 				</mx:Repeater>
 				<mx:HBox id="newsNote" horizontalAlign="center" paddingLeft="175" height="200" verticalAlign="middle">
-					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>	
+					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>
 				</mx:HBox>
 			</mx:VBox>
 	</mx:VBox>

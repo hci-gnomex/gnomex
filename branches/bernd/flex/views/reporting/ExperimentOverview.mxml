@@ -131,7 +131,7 @@
 					return;
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting lab list");
-				} 
+				}
 			}
 		
 			private function resultHandler(event:ResultEvent):void {
@@ -200,6 +200,11 @@
 			
 			protected function exportType_changeHandler(event:ListEvent):void
 			{	
+				if(experimentList.length == 0){
+					Alert.show("Your search criteria did not return any results.",'Export conflict', mx.controls.Alert.OK);	
+					return;
+				}
+				
 				if(exportType.selectedItem.data != ""){
 					experimentList.refresh();
 						// Embed Export options as attributes in root node.
@@ -238,7 +243,6 @@
 				workflowStatusFilter.selectedIndex = -1;
 				workflowStatus = null;
 				cfSelector.selectedIndex = -1;
-		//		CF = null;
 				experimentTypeFilter.selectedIndex = -1;
 				expType = null;
 				requesterFilter.selectedIndex = -1;
@@ -292,7 +296,7 @@
 
 		]]>
 	</mx:Script>
-		<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
 		
 	<mx:VBox id="mainContainer" width="100%" height="100%">
 		<mx:VBox id="headerBox" width="100%" height="10%">
@@ -304,7 +308,7 @@
 					<mx:Label id="coreFacilitySelectLabel" text="Core Facility: " />
 				</mx:HBox>
 
-				<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="1" /> 
+				<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="0" /> 
 				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(0).@display}" visible="{coreFacilities.length &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length &lt; 2 ? true : false}" />
 				
 			</mx:HBox>			

@@ -118,7 +118,6 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 
 					if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
 						srvResp = (String) serverAnswer;
-				//		System.out.println("ANSWER " + srvResp);
 						log.info("Server replied with XML");
 						listen = false;
 					}

@@ -51,15 +51,33 @@
 			
 			import views.workflow.NavWorkflowView;
 			
+			// Variables
 			[Bindable]
 			public var notificationState:int;
+			
+			[Bindable]
+			public var userName:String;
+			
+			[Bindable]
+			private var refreshTimer:Timer = new Timer(300000);
 			
 			public function init():void {
 				notificationInterface.send();
 			}
 			
+						
+			public function refreshData(e:TimerEvent):void{
+				notificationInterface.send();
+				refreshTimer.removeEventListener(TimerEvent.TIMER, refreshData);
+			}
+			
 			private function onGetNotificationInterface(event:ResultEvent):void {
 				if(event.result.name() == "NotificationCollection"){
+					
+					// Set timer -- Polling with dynamic interval.
+					refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
+					refreshTimer.start();
+					
 					if(notificationState == 1){										// User Data
 						userData.source = notificationInterface.lastResult.user;
 						noteData = userData;

@@ -30,6 +30,8 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ArrayUtil;
+			
+			import views.util.WelcomeView;
 
 			[Bindable]
 			public var CFS:String; // CoreFacilitySender
@@ -53,11 +55,13 @@
 			public var idAppUser:int; // User ID 
 			
 			public function init():void {
+				
 				if(coreFacilities.length < 2){
 					CFT = coreFacilities.getItemAt(0).@idCoreFacility;
 				}else{
 					CFT = cfSelector.selectedItem.@idCoreFacility;
 				}
+				
 			}
 			
 			private function save():void {
@@ -91,6 +95,7 @@
 			private function onSaveNewsItem(event:ResultEvent):void {
 				if (saveNewsItem.lastResult.name() == "SUCCESS") {
 					// Success.
+					saveButton.dispatchEvent(new Event("testEvent",true, false));
 				}else{
 					Alert.show("Error in saving newsitem.");
 				}
@@ -110,7 +115,7 @@
 		</mx:HBox>
 		<mx:HBox>
 			<mx:Label fontWeight="bold" text="Recipient Core Facility: "/>
-			<mx:ComboBox id="cfSelector" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="1" /> 
+			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="0" /> 
 			<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(0).@display}" visible="{coreFacilities.length &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length &lt; 2 ? true : false}" />
 		</mx:HBox>
 

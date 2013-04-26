@@ -28,8 +28,11 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
 			
 			public function init():void {
+				
 			}
 			
 			public function checkSecurity():void {
@@ -43,14 +46,14 @@
 					currentState = "UserState";
 				}
 			}
-
 		]]>
 		
 	</mx:Script>
 
 	<mx:states>
 		<mx:State name="AdminState">
-			<!-- Dont remove anything.-->
+			<!-- User notification are of no use to admin -->
+			<!-- <mx:RemoveChild target="{userBox}" /> -->
 		</mx:State>
 		<mx:State name="BillingAdminState">
 			<mx:RemoveChild target="{adminBox}" />
@@ -67,17 +70,17 @@
 			<mx:RemoveChild target="{billingBox}" />
 			<mx:RemoveChild target="{workflowBox}" />
 		</mx:State>
-		
 	</mx:states>
 	
 	<mx:VBox width="100%" height="100%">
 		<mx:VBox width="90%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-			<mx:HBox width="497" horizontalAlign="center" paddingTop="5">
+			<mx:HBox width="497" horizontalAlign="center" paddingTop="5"> 
 				<mx:Label id="mainTitle" text="Notifications" fontSize="18" />
 			</mx:HBox>
 		</mx:VBox>
 		<mx:TabNavigator width="90%" height="90%" verticalGap="5" id="notificationTabs" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" backgroundColor="#DEDEDE">
 			<mx:VBox id="userBox" verticalGap="6" label="User" width="90%" height="95%">
+				
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 					<db:NotificationTab id="userTab" notificationState="1" />	
 				</mx:HBox>
@@ -98,5 +101,6 @@
 				</mx:HBox>
 			</mx:VBox>
 		</mx:TabNavigator>
+	
 	</mx:VBox>
 </mx:Canvas>
