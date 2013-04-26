@@ -86,10 +86,12 @@
 			import hci.flex.controls.DropdownLabel;
 			
 			import mx.controls.Alert;
+			import mx.core.ScrollPolicy;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			
 			import views.util.PromptXMLListCollection;
 			
 			
@@ -819,7 +821,7 @@
 				
 			</mx:HBox>
 			
-			<mx:DataGrid id = "orderGrid" 
+			<mx:DataGrid id = "orderGrid" minWidth="0" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 						 wordWrap="true"
 						 variableRowHeight="true"
 						 allowMultipleSelection="true"
@@ -844,7 +846,7 @@
 									   headerRenderer = "views.renderers.CheckBoxHeader"
 									   draggable="false"/>
 					
-					<mx:DataGridColumn   minWidth="28" width="85" headerText="#"  sortCompareFunction="sortRequestNumber">
+					<mx:DataGridColumn  width="60" headerText="#"  sortCompareFunction="sortRequestNumber">
 						<mx:itemRenderer>
 							<mx:Component >
 								<mx:HBox paddingLeft="1" horizontalGap="0"   horizontalScrollPolicy="off">
@@ -861,11 +863,10 @@
 					
 					<mx:DataGridColumn dataField = "@name"
 									   headerText = "Name"
-									   width = "160"
 									   draggable="false">
 					</mx:DataGridColumn>
 					
-					<mx:DataGridColumn headerText="Action" width="140" editable="false">
+					<mx:DataGridColumn headerText="Action" width="85" editable="false">
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
@@ -877,9 +878,9 @@
 					</mx:DataGridColumn>
 										
 					
-					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "65" />
+					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "55" />
 					
-					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="60"
+					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="65"
 									   visible="{currentState=='DNASeqCoreState'}"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
@@ -889,16 +890,16 @@
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry, '@display', '@value', '@codeRequestStatus')}"/>
 					
 					<mx:DataGridColumn dataField = "@codeRequestCategory" 
-									   headerText = "Type" width = "80" 
+									   headerText = "Type" width = "130" 
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry, '@display', '@value', '@codeRequestCategory')}"/>
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
-					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "105" />
+					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "60" />
 					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110" 
 									   visible="{currentState=='DNASeqCoreState'}"/>
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110" 
 									   visible="{currentState=='DNASeqCoreState'}"/>
-					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="70" 
+					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="50" 
 									   visible="{currentState=='DNASeqCoreState'}"/>
 					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
