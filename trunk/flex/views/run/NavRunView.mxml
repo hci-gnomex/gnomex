@@ -436,7 +436,7 @@
 										 label = "Created in last week"
 										 paddingRight = "0" 
 										 horizontalGap = "0"
-										 paddingLeft = "0"  width="115"
+										 paddingLeft = "0"  width="120"
 										 styleName = "labelSmall" paddingTop="0">
 								<mx:click>
 									toggleCreateDateCheckboxes( 1 );
@@ -492,7 +492,7 @@
 										 paddingRight = "0"
 										 horizontalGap = "0"
 										 paddingLeft = "0"
-										 styleName = "labelSmall" width="115">
+										 styleName = "labelSmall" width="120">
 								<mx:click>
 									toggleCreateDateCheckboxes( 1 );
 									getList();
