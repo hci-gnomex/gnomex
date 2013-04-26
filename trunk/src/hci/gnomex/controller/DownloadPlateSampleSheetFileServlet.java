@@ -123,7 +123,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
 
         
         // Header
-        response.getOutputStream().print( "Sample Name\tSample Description\t\n" );
+        response.getOutputStream().print( "Sample Name\t\n" );
         
         
         
@@ -140,7 +140,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
               sampleName = "";
             }
 
-            response.getOutputStream().print( sampleName + "\t\t\n" );
+            response.getOutputStream().print( sampleName + "\t\n" );
 
           }
 
