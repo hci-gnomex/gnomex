@@ -260,11 +260,12 @@ try {
         <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" id="passwordExternal" class="textWide"></div>
       </div>
 
-      <div style="float:left;"><div class="message"> <strong><%= message %></strong></div></div>
+      <div class="emptySmall"></div>
+      <div style="display:block;" class="textWide"><div class="message"> <strong><%= message %></strong></div></div>
       <div>   
           <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
       </div>
-
+  <div class="emptySmall"></div>
   </div>
 
 </div>
