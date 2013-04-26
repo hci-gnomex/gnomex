@@ -27,16 +27,16 @@
 	
 	<mx:Script> 
 		<![CDATA[
-			import mx.controls.Alert;
-			
-			import views.renderers.Label;
-			
 			import hci.flex.controls.DropdownLabel;
 			
+			import mx.controls.Alert;
+			import mx.core.ScrollPolicy;
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.Label;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -213,6 +213,14 @@
 				return item.@isSelected == true;
 			} 	
 			
+			public function createSampleSheetFile(event:MouseEvent):void {
+				var idPlate:int = (int)(plateList[plateGrid.selectedIndex].@idPlate);
+			
+				var url:URLRequest = new URLRequest('DownloadPlateSampleSheetFileServlet.gx' +
+					'?idPlate=' + idPlate);
+				navigateToURL( url, '_blank' );
+				
+			}
 			
 		]]>
 	</mx:Script>    	
@@ -234,7 +242,7 @@
 				
 			</mx:HBox>
 			
-			<mx:DataGrid id = "plateGrid"
+			<mx:DataGrid id = "plateGrid" minWidth="0" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 						 allowMultipleSelection="true"
 						 click="{selectedPlates.refresh()}"
 						 itemClick="gridItemClick(event)"
@@ -292,12 +300,20 @@
 									   headerText= "Plate Type"
 									   width="100" itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.PlateType').DictionaryEntry, '@display', '@value', '@codePlateType')}"/>
 					
-					<mx:DataGridColumn dataField = "@creator" headerText = "Created by" width = "75" />
+					<mx:DataGridColumn dataField = "@creator" headerText = "Created by" width = "95" />
 					
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Created on" width = "80" />
 					
+					<mx:DataGridColumn headerText="Export Samples" headerWordWrap="true" editable="false" width="110">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:LinkButton label="Export Samples" click="outerDocument.createSampleSheetFile(event)" color="#0000FF" textDecoration = "underline" textAlign="left"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
 					<mx:DataGridColumn dataField = "@codeReactionType" 
-									   headerText = "Reaction Type" width = "100"
+									   headerText = "Reaction Type" width = "120"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ReactionType').DictionaryEntry, '@display', '@value', '@codeReactionType')}"/>
 					
 					<mx:DataGridColumn dataField = "@codeSealType" 

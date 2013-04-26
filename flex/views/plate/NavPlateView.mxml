@@ -659,6 +659,13 @@
 				Alert.show( "The .plt file has been created and the status has been updated to running." );
 			}
 			
+			// Create the sample Sheet file
+			private function createSampleSheet():void {
+				var url:URLRequest = new URLRequest('DownloadPlateSampleSheetFileServlet.gx' +
+					'?idPlate=' + activePlate.idPlate);
+				navigateToURL( url, '_blank' );
+			}
+			
 						
 			// ------------------------------------
 			// Plate display and change handlers
@@ -2918,6 +2925,14 @@
 									   id="pltButton" 
 									   visible="{run.idRun != '0' &amp;&amp; !this.isDirty}"
 									   includeInLayout="{run.idRun != '0' &amp;&amp; !this.isDirty}"/>
+						<mx:LinkButton label="Export Sample Names"
+									   paddingRight="1"
+									   paddingLeft="1"
+									   click="createSampleSheet()"
+									   textDecoration="underline"
+									   id="sampleSheetButton"
+									   visible="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"
+									   includeInLayout="{activePlate.idPlate != -1 &amp;&amp; !this.isDirty}"/>
 						<mx:LinkButton label="Plate Report"
 									   paddingRight="1"
 									   paddingLeft="1"
@@ -3622,6 +3637,7 @@
 			<mx:SetProperty target="{deleteRunLink}" name="label" value="Clear Run" />
 			<mx:SetProperty target="{deletePlateLink}" name="label" value="Clear Plate" />
 			<mx:RemoveChild target="{redoReportButton}"/>
+			<mx:RemoveChild target="{sampleSheetButton}"/>
 		</mx:State>
 		<mx:State id="newStateRun" name="newStateRun" basedOn="newState">
 			<mx:RemoveChild target="{savePlateButton}" />
