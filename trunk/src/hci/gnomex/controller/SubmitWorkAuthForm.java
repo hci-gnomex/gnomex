@@ -123,7 +123,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
           try {
             this.sendConfirmationEmail(sess);
           } catch (MessagingException me) {
-            emailWarning = "Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
+            emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
           }
   
           this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
