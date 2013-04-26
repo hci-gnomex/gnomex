@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-				title="Email Invoice" width="500" height="154" defaultButton="{sendButton}"
+				title="Email Invoice" width="500" height="164" defaultButton="{sendButton}"
 				xmlns:util="views.util.*">
 	<mx:HTTPService                
 		id="showBillingInvoiceForm" 
@@ -18,6 +18,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.events.ValidationResultEvent;
 
 			public var idBillingPeriod:String;
 			public var labNode:Object;
@@ -41,12 +42,43 @@
 				var e:CloseEvent = new CloseEvent(CloseEvent.CLOSE, true);
 				var dis:Boolean = dispatchEvent(e);
 			}
+			
+			private function checkEmailValidity(event:KeyboardEvent):void {
+				var emails:Array = emailText.text.split(",");
+				var validationEvent:ValidationResultEvent = new ValidationResultEvent("");
+				
+				if(emails.length > 0){
+					for each(var e:String in emails){
+						validationEvent = emailValidator.validate(e.replace(" ", ""));
+						if(validationEvent.type==ValidationResultEvent.VALID){
+							sendButton.enabled = true;
+							emailText.errorString = "";
+						} else{
+							sendButton.enabled = false;
+							emailText.errorString = validationEvent.message;
+							break;
+						}
+					}
+				} else{
+					validationEvent = emailValidator.validate(emailText.text);
+					if(validationEvent.type==ValidationResultEvent.VALID){
+						sendButton.enabled = true;
+						emailText.errorString = "";
+					} else{
+						sendButton.enabled = false;
+						emailText.errorString = validationEvent.message;
+					}
+				}
+			}
 		]]>
 	</mx:Script>
+	
+	<mx:EmailValidator id="emailValidator" property="text"/>
 	<mx:HBox width="100%">
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="emailVBox">
 			<mx:Label text="Email Address(es)"/>
-			<mx:TextArea id="emailText" width="482" height="60" fontSize="11"/>
+			<mx:TextArea id="emailText" width="482" height="60" fontSize="11" keyUp="checkEmailValidity(event)"/>
+			<mx:Label text="*Please separate multiple email addresses with a comma" fontSize="9"/>
 		</mx:VBox>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">

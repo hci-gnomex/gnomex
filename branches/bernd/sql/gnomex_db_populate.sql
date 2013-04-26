@@ -878,10 +878,9 @@ Test City, UT 12345',
  Test City, UT 12345', 
  'Core facility lab address', 'N'),
  (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
- (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N')
+ (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
  (100,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
  (101,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'); 
-
 
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),

@@ -2436,6 +2436,7 @@
 			}
 			
 			private function doesManagePlateBasedWorkflow():Boolean {
+				
 				if (!isGuest) {
 					for each (var cf:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
 						for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
@@ -2456,6 +2457,18 @@
 				if (isGuest) {
 					return false;
 				}
+				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					var found:Boolean = false;
+					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (rc.@type == experimentType &&
+							rc.@isActive == 'Y') {
+							found = true;
+							break;
+						}
+					}
+					return found;
+				} 
+				
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
@@ -2473,6 +2486,19 @@
 				if (isGuest) {
 					return false;
 				}
+				
+				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					var found:Boolean = false;
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
+							requestCategory.@isActive == 'Y') {
+							found = true;
+							break;
+						}
+					}
+					return found;
+				}
+				
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&

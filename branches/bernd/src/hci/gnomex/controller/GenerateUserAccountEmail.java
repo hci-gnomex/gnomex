@@ -190,7 +190,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     String emailInfo = "";
     
     if(!MailUtil.isValidEmail(sendTo)){
-      throw new MessagingException();
+      log.error("Invalid email " + sendTo);
     }
 
     if (dictionaryHelper.isProductionServer(serverName)) {

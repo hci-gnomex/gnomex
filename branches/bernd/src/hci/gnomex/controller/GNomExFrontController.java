@@ -246,8 +246,7 @@ public class GNomExFrontController extends HttpServlet {
         else {
           log.error(e.getClass().getName() + " while executing command " + commandClass);
           log.error("The stacktrace for the error:");
-          log.error(e.getMessage());
-          e.printStackTrace();
+          log.error(e.getMessage(), e);
           
         	this.forwardWithError(request, response);
         }

@@ -140,13 +140,14 @@
 			
 			
 			var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
-			if(selectedExperiment.@captureLibDesignId != ""){
+			if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
 				libDesignAndInsertBox.visible = true;
 				libDesignAndInsertBox.includeInLayout = true;
 				designAndInsertLabel.text = "Cap Lib Design";
 				designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 			}
-			else if(requestApplication != null && requestApplication.@value != '' && requestApplication.@avgInsertSizeFrom != '' && selectedExperiment.@isExternal == 'N'){
+			else if( (requestApplication != null && requestApplication.@value != '' && requestApplication.@avgInsertSizeFrom != '' && selectedExperiment.@isExternal == 'N') ||
+				selectedExperiment.@avgInsertSizeFrom != "" || selectedExperiment.@avgInsertSizeTo != ""){
 				libDesignAndInsertBox.visible = true;
 				libDesignAndInsertBox.includeInLayout = true;
 				designAndInsertLabel.text = "Avg Insert Size";

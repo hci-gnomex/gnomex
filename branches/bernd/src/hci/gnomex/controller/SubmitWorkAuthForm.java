@@ -174,7 +174,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String emailInfo = "";
     String emailRecipients = submitterEmail;
     if(!MailUtil.isValidEmail(emailRecipients)){
-      throw new MessagingException(emailRecipients);
+      log.error(emailRecipients);
     }
     
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
@@ -247,7 +247,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
         String contactEmail = lab.getWorkAuthSubmitEmail();
         if(!MailUtil.isValidEmail(contactEmail)){
-          throw new MessagingException(contactEmail);
+          log.error("Invalid email " + contactEmail);
         }
         
         if (testEmail) {
@@ -267,7 +267,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       // Email core facility
       if (!facilityEmail.equals("")) {
         if(!MailUtil.isValidEmail(facilityEmail)){
-          throw new MessagingException(facilityEmail);
+          log.error("Invalid email " + facilityEmail);
         }
         if(testEmail){
           emailInfo = "[If this were a production environment then this email would have been sent to: " + facilityEmail + "]<br><br>";

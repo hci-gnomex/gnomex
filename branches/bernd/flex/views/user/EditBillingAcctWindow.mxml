@@ -119,6 +119,7 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
+		import mx.events.ValidationResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
 		
@@ -716,6 +717,18 @@
 				
 			}
 		}
+		
+		private function checkEmailValidity(event:KeyboardEvent):void {
+			var validationEvent:ValidationResultEvent = emailValidator.validate(this.submitterEmail.text);
+			if(validationEvent.type == ValidationResultEvent.VALID){
+				saveButton.enabled = true;
+				submitterEmail.errorString = "";
+			} else{
+				saveButton.enabled = false;
+				submitterEmail.errorString = validationEvent.message;
+			}
+		}
+		
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="fundingAgencies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry}"/>
@@ -869,7 +882,7 @@
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="submitterEmailHBox">
 			<mx:Label text="Submitter Email" width="120" id="submitterEmailLabel" styleName="formLabel"/>
-			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = submitterEmail.text}"/>
+			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = submitterEmail.text}" keyUp="checkEmailValidity(event)"/>
 		</mx:HBox>
 		
 		<mx:VBox verticalGap="0" width="100%" id="iAgreeHBox" visible="false" includeInLayout="false">
