@@ -746,6 +746,7 @@
 					refreshBillingTab();
 					
 					dirty.resetDirty();
+					parentApplication.dictionaryManager.call("reload", "");
 				} else {
 					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 				}
