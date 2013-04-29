@@ -47,7 +47,6 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		import mx.utils.ObjectUtil;
 				
 		// Variables
 		[Bindable]
@@ -113,18 +112,18 @@
 				deleteFAQ.send(paramDelete);
 			}
 		}
-		
-		public function repeatHandler(event:Object, current:String, total:String, stateArg:String, instrument:String):void
-		{
-
-		}
 
 		public function showAddFAQ():void {
 			// Show detailed newsitem in popup.
-			var AddFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.theBody, AddFAQ, true));
-			PopUpManager.centerPopUp(AddFAQWindow);
-			callLater(init);
-		}		
+			var addFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.theBody, AddFAQ, true));
+			addFAQWindow.saveButton.addEventListener("testEvent", onClose);
+			PopUpManager.centerPopUp(addFAQWindow);
+		}
+		
+		protected function onClose(ev:Event):void
+		{
+			getFAQ.send();
+		}   
 		
 	]]>
 </mx:Script>

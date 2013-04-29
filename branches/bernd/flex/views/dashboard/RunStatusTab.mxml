@@ -42,7 +42,6 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		import mx.utils.ObjectUtil;
 		
 		// Variables
 		[Bindable]
@@ -67,7 +66,6 @@
 				filterXLC();
 			 	
 				if(MIList.length == 0){
-//					mainTitle.text = "No runs retrieved";
 					refreshTimer.delay = 60000;
 					emptySpace.width = 40;
 					overViewButton.visible = false;
@@ -84,7 +82,6 @@
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
 		} else {
-				//Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
 				failText.visible = true;
 				failText.includeInLayout = true;
 				emptySpace.width = 100;
@@ -178,7 +175,6 @@
 		protected function showRunDetails():void {
 			// Show detailed newsitem in popup.
 			var rsd:RunStatusDetails = RunStatusDetails(PopUpManager.createPopUp(parentApplication.theBody, RunStatusDetails, true));
-			//rsd.runName = ci.@runId;
 			PopUpManager.centerPopUp(rsd);
 		}
 		

@@ -117,8 +117,7 @@
 					newsNote.includeInLayout = false;
 					newsNote.visible = false;
 				}
-				
-				//newsItemList.refresh();
+
 				sortXLC();
 			} else {
 				Alert.show(event.result..ERROR.@message.toString(), "Error setting up News Interface.");
@@ -148,10 +147,14 @@
 		}
 
 		private function sortXLC():void {
-			var dateSort:Sort = new Sort();
-			dateSort.fields = [new SortField('@date', true, false)];	// Set sort properties
-			dateSort.reverse();											// Reverse the sort list
-			newsItemList.sort = dateSort;								// Apply sort
+			
+			var mySort:Sort = new Sort();
+			var sortField:SortField = new SortField("@idNewsItem"); // Set sort properties
+			sortField.descending = true;							// Reverse the sort list
+			sortField.numeric = true;
+			
+			mySort.fields = [sortField];
+			newsItemList.sort = mySort;
 			newsItemList.refresh();										// Refresh datasource
 		}		
 		

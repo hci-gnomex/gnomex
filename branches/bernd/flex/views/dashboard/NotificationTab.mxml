@@ -46,8 +46,6 @@
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import mx.utils.ObjectProxy;
-			import mx.utils.ObjectUtil;
 			
 			import views.workflow.NavWorkflowView;
 			

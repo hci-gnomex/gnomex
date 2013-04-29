@@ -10,22 +10,6 @@
 				title="Run details for: {runName}"
 				>   
 
-<!--	<mx:HTTPService
-		id="detailInterface"
-		url="MetrixDetailInterface.gx"
-		resultFormat="e4x"
-		destination="MetrixDetailInterface"
-		showBusyCursor="true"
-		result="onGetMetrixInterface(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to get metrix interface result', event)"
-		useProxy="false"
-		>
-		
-	</mx:HTTPService>
-	-->
-	<!-- Run Summary XMLListCollection. -->
-<!--	<mx:XMLListCollection id="runSummary" source="{detailInterface.lastResult.Summary}"/> -->  
-
 <mx:Script>
 	<![CDATA[
 		

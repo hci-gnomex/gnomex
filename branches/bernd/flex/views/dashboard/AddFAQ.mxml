@@ -61,6 +61,7 @@
 			private function onSaveFAQ(event:ResultEvent):void {
 				if (saveFAQ.lastResult.name() == "SUCCESS") {
 					// Success.
+					saveButton.dispatchEvent(new Event("testEvent",true, false));
 				}else{
 					Alert.show("Error in saving FAQ.");
 				}
