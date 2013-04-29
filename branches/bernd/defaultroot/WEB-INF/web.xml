@@ -81,6 +81,12 @@
 		</servlet-class>
 	</servlet>
 	
+  <servlet>
+    <servlet-name>DownloadPlateSampleSheetFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.DownloadPlateSampleSheetFileServlet
+    </servlet-class>
+  </servlet>
 	
 	<servlet>
 		<servlet-name>FastDataTransferDownloadExpServlet</servlet-name>
@@ -301,6 +307,11 @@
 		<url-pattern>DownloadFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>DownloadPlateSampleSheetFileServlet</servlet-name>
+    <url-pattern>/DownloadPlateSampleSheetFileServlet.gx</url-pattern>
+  </servlet-mapping>
+  
 	<servlet-mapping>
 		<servlet-name>FastDataTransferDownloadExpServlet</servlet-name>
 		<url-pattern>FastDataTransferDownloadExpServlet.gx</url-pattern>
