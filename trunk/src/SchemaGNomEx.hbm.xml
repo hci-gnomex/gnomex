@@ -1252,6 +1252,7 @@
     <property name="name" column="name" type="string"/>
     <property name="costPerSample" column="costPerSample" type="big_decimal"/>
     <property name="samplesPerChip" column="samplesPerChip" type="integer"/>
+    <property name="chipsPerKit" column="chipsPerKit" type="integer"/>
     <property name="markersPerSample" column="markersPerSample" type="string"/>
     <property name="catalogNumber" column="catalogNumber" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
