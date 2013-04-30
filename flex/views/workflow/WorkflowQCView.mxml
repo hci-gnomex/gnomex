@@ -299,7 +299,13 @@
 			}
 			
 			if (comp == 0) {
-				comp = stringCompare(rem1, rem2);
+				var remNum1:Number = Number(rem1);
+				var remNum2:Number = Number(rem2);
+				if (remNum1 > remNum2) {
+					comp = 1
+				} else if (remNum2 > remNum1) {
+					comp = -1;
+				}
 			}
 			
 			return comp;
