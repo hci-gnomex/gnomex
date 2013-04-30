@@ -1636,6 +1636,10 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   CONSTRAINT `FK_RequestCategory_CoreFacility` FOREIGN KEY `FK_RequestCategory_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategory_RequestCategoryType` FOREIGN KEY `FK_RequestCategory_RequestCategoryType` (`type`)
+    REFERENCES `gnomex`.`RequestCategoryType` (`codeRequestCategoryType`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
@@ -2940,6 +2944,17 @@ CREATE TABLE `gnomex`.`PriceCategoryStep` (
     REFERENCES `gnomex`.`Step` (`codeStep`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`RequestCategoryType`;
+CREATE TABLE `gnomex`.`RequestCategoryType` (
+  codeRequestCategoryType VARCHAR(10) NOT NULL,
+  description VARCHAR(50) NOT NULL,
+  defaultIcon VARCHAR(100) NOT NULL,
+  isIllumina CHAR(1) NOT NULL,
+  hasChannels CHAR(1) NOT NULL,
+  PRIMARY KEY (`codeRequestCategoryType`)
 )
 ENGINE = INNODB;
 
