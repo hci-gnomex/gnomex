@@ -12,6 +12,7 @@ public class IScanChip extends DictionaryEntry implements Serializable {
   private String      name;
   private BigDecimal  costPerSample;
   private Integer     samplesPerChip;
+  private Integer     chipsPerKit;
   private String      markersPerSample;
   private String      catalogNumber;
   private String      isActive;
@@ -56,6 +57,16 @@ public class IScanChip extends DictionaryEntry implements Serializable {
   }
 
   
+  
+  public Integer getChipsPerKit() {
+    return chipsPerKit;
+  }
+
+  
+  public void setChipsPerKit( Integer chipsPerKit ) {
+    this.chipsPerKit = chipsPerKit;
+  }
+
   public String getMarkersPerSample() {
     return markersPerSample;
   }

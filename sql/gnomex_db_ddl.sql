@@ -1035,6 +1035,7 @@ CREATE TABLE `gnomex`.`IScanChip` (
   `name` VARCHAR(500) NULL,
   `costPerSample` DECIMAL(5, 2) NULL,
   `samplesPerChip` INT(10) NULL,
+  `chipsPerKit` INT(10) NULL,
   `markersPerSample` VARCHAR(100) NULL,
   `catalogNumber` VARCHAR(100) NULL,
   `isActive` CHAR(1) NULL,
