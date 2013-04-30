@@ -323,7 +323,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
     
     
-    if (fdFileName.endsWith(fileName) && dir.equals(theDirectory)) {
+    if (fdFileName.endsWith(fileName) && (dir.equals(theDirectory) || (dir.length() == 0 && theDirectory.equals("upload_staging")))) {
       return fd;
     } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
