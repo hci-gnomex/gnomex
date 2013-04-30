@@ -52,8 +52,14 @@ public class AnalysisGroupFilter extends DetailObject {
   public static final int       PROPCOL_PROPERTY_MULTI_VALUE = 5;
   public static final int       PROPCOL_PROPERTY_OPTION = 6;
   
+  private boolean               isCreateReport = false;
   
-  public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
+  
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor){
+    return getQuery(secAdvisor, false);
+  }
+  
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
     addWhere = true;
@@ -81,14 +87,21 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        owner.firstName, ");
     queryBuf.append("        a.idAppUser ");
     
+    if(isCreateReport){
+      this.isCreateReport = true;
+    }
     getQueryBody(queryBuf);
     
     return queryBuf;
     
   }
   
+  
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
+    return getAnnotationQuery(secAdvisor, false);
+  }
 
-  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
@@ -102,6 +115,9 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" value.value, ");
     queryBuf.append(" option.option ");
     
+    if(isCreateReport){
+      this.isCreateReport = true;
+    }
     getAnnotationQueryBody(queryBuf);
     
     return queryBuf;
@@ -156,17 +172,20 @@ public class AnalysisGroupFilter extends DetailObject {
 
     // Only add selection criteria when "all analysis" is not turned on
     addAnalysisCriteria();
+
     addExperimentItemCriteria();
     
     addSecurityCriteria();
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
     
     
     queryBuf.append(" order by aglab.lastName, aglab.firstName, ag.name, a.number ");
   
   }
-  
+   
   public void getAnnotationQueryBody(StringBuffer queryBuf) {
-    
     queryBuf.append(" FROM                AnalysisGroup as ag ");
     queryBuf.append(" JOIN                ag.lab as aglab ");
     queryBuf.append(" LEFT JOIN           ag.analysisItems as a ");
@@ -182,6 +201,10 @@ public class AnalysisGroupFilter extends DetailObject {
     addAnalysisCriteria();
     addExperimentItemCriteria();
     
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
+    
     addSecurityCriteria();
   }
   
@@ -191,6 +214,14 @@ public class AnalysisGroupFilter extends DetailObject {
       return true;
     } else {
       return false;
+    }
+  }
+  
+  private void filterByExcludeUsage(){
+    //If getting lab info for all labs don't include labs with excludeUsage == 'Y'
+    if(idLab == null){
+      this.addWhereOrAnd();
+      queryBuf.append(" aglab.excludeUsage != 'Y' ");
     }
   }
   
