@@ -1599,19 +1599,13 @@
 			   </mx:HBox>
 		   </mx:AddChild>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
-			   <!--<mx:HBox horizontalGap="0" verticalAlign="middle">
-				   <mx:Label text="(2) How many chips do you want?" width="334" />
-				   <mx:TextInput width="40" id="numberOfChips" change="onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;">
-					   <mx:focusOut>onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;</mx:focusOut>
-				   </mx:TextInput>							
-			   </mx:HBox>-->
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
 		   <mx:AddChild relativeTo="{hbox6}" position="before" target="{hbox3}"/>
-		   <mx:SetProperty target="{label5}" name="text" value="(3) How many samples will you be submitting?"/>
+		   <mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(4) How many source plates will you be submitting?" width="334"  id="iScanNumSourcePlatesLabel"/>
+				   <mx:Label text="(3) How many source plates will you be submitting?" width="334"  id="iScanNumSourcePlatesLabel"/>
 				   <mx:TextInput width="40" id="iScanNumSourcePlates" 
 								 change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();">
 				   </mx:TextInput>							
@@ -1619,7 +1613,7 @@
 		   </mx:AddChild>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:VBox horizontalGap="0" id="iScanPlateNamesBox" verticalAlign="middle" visible="{parentDocument.request.@idRequest == '0'}" includeInLayout="{parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(5) Name your plates." width="334"/>
+				   <mx:Label text="(4) Name your plates." width="334"/>
 				   <mx:HBox horizontalGap="10" verticalAlign="middle">
 					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate1Box" visible="false">
 						   <mx:Label text="Plate 1:"/>

@@ -2487,24 +2487,32 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="FragAnalState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
