@@ -61,6 +61,8 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
   private static final String       TARGET_ANALYSIS = "ANALYSIS";
   private static final String       TARGET_DATATRACK = "DATATRACK";
   
+  private static final Boolean      IS_CREATE_REPORT = true;
+  
   private String                    today;
  
   public void validate() {
@@ -128,11 +130,11 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       // Get the results
       StringBuffer queryBuf = null;
       if (target.equals(TARGET_SAMPLE)) {
-        queryBuf = sampleFilter.getQuery(secAdvisor);
+        queryBuf = sampleFilter.getQuery(secAdvisor, IS_CREATE_REPORT);
       } else if (target.equals(TARGET_ANALYSIS)) {
-        queryBuf = analysisFilter.getQuery(secAdvisor);
+        queryBuf = analysisFilter.getQuery(secAdvisor, IS_CREATE_REPORT);
       } else if (target.equals(TARGET_DATATRACK)) {
-        queryBuf = dataTrackQuery.getDataTrackQuery(secAdvisor);
+        queryBuf = dataTrackQuery.getDataTrackQuery(secAdvisor, IS_CREATE_REPORT);
       } else {
         this.addInvalidField("target incorrect", "Incorrect target parameter provided");
       }
@@ -143,11 +145,11 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
 
         // Get the annotations
         if (target.equals(TARGET_SAMPLE)) {
-          queryBuf = sampleFilter.getAnnotationQuery(secAdvisor);
+          queryBuf = sampleFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
         } else if (target.equals(TARGET_ANALYSIS)) {
-          queryBuf = analysisFilter.getAnnotationQuery(secAdvisor);
+          queryBuf = analysisFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
         }  else if (target.equals(TARGET_DATATRACK)) {
-          queryBuf = dataTrackQuery.getAnnotationQuery(secAdvisor);
+          queryBuf = dataTrackQuery.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
         }      
         hashAnnotations(sess, dh, queryBuf);
         
@@ -227,6 +229,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
               
               String labName = dataTrack.getLab() != null ? dataTrack.getLab().getName() : "";
               String ownerName = dataTrack.getAppUser() != null ? dataTrack.getAppUser().getDisplayName() : "";
+              
               
               values.add(labName);
               values.add(ownerName);
