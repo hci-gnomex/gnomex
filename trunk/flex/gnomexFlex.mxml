@@ -958,6 +958,8 @@
 			
 			private var properties:Object;
 			
+			private var requestCategoryTypeMap:Object;
+			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
@@ -2370,6 +2372,11 @@
 					}
 				}
 				
+				requestCategoryTypeMap = new Object();
+				for each (var rct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType")) {
+					requestCategoryTypeMap[rct.@codeRequestCategoryType] = rct;
+				}
+				
 				// Determine if the admin uses the Plate Based workflow screens (Fill Plate, Build Run, Review results)
 				this.managesPlateBasedWorkflow = this.doesManagePlateBasedWorkflow();
 				
@@ -2386,7 +2393,7 @@
 				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isCoreGenomics = true;
 				} else {
-					if (usesExperimentType(this.TYPE_ILLUMINA) ||
+					if (usesIlluminaExperimentType() ||
 						usesExperimentType(this.TYPE_MICROARRAY)) {
 						isCoreGenomics = true;
 					}
@@ -2430,7 +2437,7 @@
 				} else {
 					this.useConfigurableBillingAccounts = false;
 				}
-				
+
 				getSessionTimeout.send();
 			}
 			
@@ -2444,6 +2451,38 @@
 								(requestCategory.@type == this.TYPE_CAP_SEQ ||
 									requestCategory.@type == this.TYPE_MIT_SEQ ||
 									requestCategory.@type == this.TYPE_FRAG_ANAL) ) {
+								return true;
+								break;
+							}
+						}
+					}
+				}
+				return false;
+			}
+			
+			public function usesIlluminaExperimentType():Boolean {
+				if (isGuest) {
+					return false;
+				}
+				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					var found:Boolean = false;
+					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (rc.@isActive == 'Y') {
+							var rct:Object = requestCategoryTypeMap[rc.@type];
+							if (rct.@isIllumina == 'Y') {
+								found = true;
+								break;
+							}
+						}
+					}
+					return found;
+				} 
+				
+				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@isActive == 'Y' && requestCategory.@idCoreFacility == cf.@idCoreFacility) {
+							var rct1:Object = requestCategoryTypeMap[requestCategory.@type];
+							if (rct1.@isIllumina == 'Y') {
 								return true;
 								break;
 							}
