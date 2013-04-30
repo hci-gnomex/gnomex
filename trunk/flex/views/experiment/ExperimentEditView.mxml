@@ -881,6 +881,9 @@
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
 					sampleSetupView.iScanChipRadioGroup.selectedValue = '';
 				}
+				if ( sampleSetupView.numberIScanSamples != null ){
+					sampleSetupView.numberIScanSamples.selectedIndex = -1;
+				}
 				if ( sampleSetupView.iScanNumSourcePlates != null ) {
 					sampleSetupView.iScanNumSourcePlates.text = '';
 					sampleSetupView.onIScanNumSourcePlatesChanged();
@@ -1051,6 +1054,9 @@
 				} 
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
 					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
+				}
+				if ( sampleSetupView.numberIScanSamples != null ){
+					sampleSetupView.numberIScanSamples.selectedIndex = -1;
 				}
 				if ( sampleSetupView.iScanChipBox != null ){
 					sampleSetupView.iScanChipBox.styleName = "requiredBox";
@@ -2562,6 +2568,13 @@
 						if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
 							if ( sampleSetupView.iScanChipBox != null ) {
 								sampleSetupView.iScanChipBox.styleName = "normalBox";
+							}
+						}
+					}
+					if ( sampleSetupView.numberIScanSamples != null ){
+						for each (var item:XML in sampleSetupView.numberIScanSamples.dataProvider ) {
+							if ( item.@numberOfSamples == request.samples.Sample.(@name!='').length() ) {
+								sampleSetupView.numberIScanSamples.selectedItem = item;
 							}
 						}
 					}
@@ -5499,6 +5512,7 @@
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:RemoveChild target="{rangeBox}"/>
 		</mx:State>
 		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{downloadView}"/>
