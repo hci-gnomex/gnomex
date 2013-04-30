@@ -206,7 +206,6 @@
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
-			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
 			import views.util.GNomExStringUtil;
@@ -4648,12 +4647,6 @@
 				
 			}
 		}
-		
-		public function showConvertIlluminaRequest():void {
-   			var convertWindow:ConvertIlluminaRequestWindow = ConvertIlluminaRequestWindow(PopUpManager.createPopUp(DisplayObject(this), ConvertIlluminaRequestWindow, false));
-   			PopUpManager.centerPopUp(convertWindow);
-   			convertWindow.init(this.request);
-    	}
     	
     	public static function showExperimentUploadWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));

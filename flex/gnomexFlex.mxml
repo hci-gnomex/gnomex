@@ -963,7 +963,8 @@
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
-			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
+			public  var TYPE_HISEQ:String         = 'HISEQ';
+			public  var TYPE_MISEQ:String         = 'MISEQ';
 			public  var TYPE_QC:String            = 'QC';
 			public  var TYPE_CAP_SEQ:String       = "CAPSEQ";
 			public  var TYPE_FRAG_ANAL:String	  = "FRAGANAL";
