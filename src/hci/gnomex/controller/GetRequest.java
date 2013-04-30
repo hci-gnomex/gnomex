@@ -332,6 +332,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
+            Boolean autoSelect = false;
             if ( requestCategory != null &&
                 (   requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
                     requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
@@ -342,6 +343,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                   PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
                   if ( pa.getCodeRequestCategory().equals( request.getCodeRequestCategory() )) {
                     include = true;
+                    autoSelect = true;
                     break;
                   }   
                 }
@@ -356,7 +358,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null || 
-                                              (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY )) ? "true" : "false");
+                                              autoSelect ? "true" : "false");
             peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
