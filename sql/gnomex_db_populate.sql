@@ -910,6 +910,18 @@ values
 ('CHERRY',  'Cherry Picking', 'Y'),
 ('FRAG',  'Fragment Analysis', 'Y');
 
+insert into RequestCategoryType values('CAPSEQ','Capillary Sequencing','assets/dna-helix-icon.png','N','N');
+insert into RequestCategoryType values('CHERRYPICK','Cherry Picking','assets/cherrypick.png','N','N');
+insert into RequestCategoryType values('CLINSEQ','Clinical Sequenom','assets/cherrypick.png','N','N');
+insert into RequestCategoryType values('FRAGANAL','Fragment Analysis Panels','assets/fraganal.png','N','N');
+insert into RequestCategoryType values('HISEQ','Illumina Sequencing','assets/DNA_diag.png','Y','Y');
+insert into RequestCategoryType values('MISEQ','Illumina Sequencing','assets/DNA_diag.png','Y','Y');
+insert into RequestCategoryType values('ISCAN','iScan','assets/iscan.png','N','N');
+insert into RequestCategoryType values('MICROARRAY','Microarray','assets/microarray_small.png','N','Y');
+insert into RequestCategoryType values('MITSEQ','Mitochondrial D-Loop Sequencing','assets/mitseq.png','N','N');
+insert into RequestCategoryType values('QC','Sample Quality','assets/chart_line.png','N','N');
+insert into RequestCategoryType values('SEQUENOM', 'Sequenom', 'assets/cherrypick.png', 'N', 'N');
+
 INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal, idCoreFacility, refrainFromAutoDelete)
 VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
@@ -917,10 +929,10 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y', 1, 'Y'),
-  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
-  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
+  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
+  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
-  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'ILLUMINA', 'Y', 'Y', 1, 'Y'),
+  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'MISEQ', 'Y', 'Y', 1, 'Y'),
   ('ISCAN', 'iScan', null, 'Y', null, '', 'assets/iscan.png', 'ISCAN', 'Y', 'Y', 1, 'Y'),
   ('CAPSEQ', 'Capillary Sequencing', 8, 'Y', 1, '', 'assets/dna-helix-icon.png', 'CAPSEQ', 'Y', 'Y', 1, 'Y');
 
