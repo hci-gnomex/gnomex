@@ -103,7 +103,12 @@ public class ProjectExperimentReportFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-    } 
+    }
+    
+    if(idLab == null){
+      this.addWhereOrAnd();
+      queryBuf.append(" lab.excludeUsage != 'Y' ");
+    }
   }
   
   private void addSecurityCriteria() {
