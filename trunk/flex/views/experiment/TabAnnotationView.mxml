@@ -253,7 +253,7 @@
 				
 				
 				if ( parentDocument.isIScanState() ) {
-					annotation.@isSelected = 'true'
+					annotation.@isSelected = 'true';
 				}
 				
 				// new column for sample grid
@@ -401,7 +401,7 @@
 					
 				}
 				
-				// Add to confirm samples grid     (if this is a submit request, not an edit request)  				
+				// Add to confirm samples grid (if this is a submit request, not an edit request)  				
 				if (addNewColumn && !parentDocument.isEditState()) {
 					
 					var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
