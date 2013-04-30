@@ -40,6 +40,8 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   private void getSolexaQueryBody(StringBuffer queryBuf) {
      
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
@@ -50,14 +52,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
 
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory IN (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-    queryBuf.append("') ");
+    queryBuf.append(" reqType.isIllumina = 'Y' ");
     
 
     queryBuf.append(" order by req.createDate desc, req.number desc , s.number asc");
@@ -82,6 +77,8 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   private void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
@@ -90,14 +87,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory IN (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-    queryBuf.append("') ");
+    queryBuf.append(" reqType.isIllumina = 'Y' ");
 
     queryBuf.append("        group by s.number ");
     
@@ -141,6 +131,8 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   private void getSolexaLaneSeqStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
     queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
@@ -151,14 +143,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory IN (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-    queryBuf.append("') ");
+    queryBuf.append(" reqType.isIllumina = 'Y' ");
 
     queryBuf.append("        group by s.number, ch.lastCycleDate ");
     
@@ -173,6 +158,8 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
   private void getSolexaLanePipelineStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
     queryBuf.append(" LEFT JOIN      l.flowCellChannel as ch ");
@@ -183,14 +170,7 @@ public class RequestProgressSolexaFilter extends RequestProgressFilter {
     addSecurityCriteria();
     
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory IN (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-    queryBuf.append("') ");
+    queryBuf.append(" reqType.isIllumina = 'Y' ");
 
     queryBuf.append("        group by s.number, ch.pipelineDate ");
     

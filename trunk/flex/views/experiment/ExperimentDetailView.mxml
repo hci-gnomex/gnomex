@@ -201,10 +201,7 @@
 					currentState = 'ExternalQCState';
 				}
 				
-			} else if (this.selectedExperiment.@isExternal != 'Y' &&
-				       (this.selectedExperiment.@codeRequestCategory == 'SOLEXA' ||
-			           this.selectedExperiment.@codeRequestCategory == 'HISEQ' ||
-					   this.selectedExperiment.@codeRequestCategory == 'MISEQ')) {
+			} else if (this.selectedExperiment.@isExternal != 'Y' && requestCategory.@isIlluminaType == 'Y') {
 				currentState = 'SolexaState';
 			} else if (requestCategory.@type == 'MICROARRAY') {
 				if (this.selectedExperiment.@isExternal != 'Y') {
@@ -220,7 +217,7 @@
 					currentState = 'ExternalMicroarrayState';
 				}
 
-			} else if (requestCategory.@type == 'ILLUMINA' && this.selectedExperiment.@isExternal == 'Y') {
+			} else if (requestCategory.@isIlluminaType == 'Y' && this.selectedExperiment.@isExternal == 'Y') {
 				currentState = 'ExternalSeqState';
 				if(headerBox != null) {
 					headerBox.visible = false;

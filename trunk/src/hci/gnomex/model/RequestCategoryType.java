@@ -18,10 +18,13 @@ public class RequestCategoryType extends DictionaryEntry implements Comparable, 
   public static final String   TYPE_GENERIC             = "GENERIC";
 
   private String                codeRequestCategoryType;
+  private String                description;
+  private String                defaultIcon;
   private String                isIllumina;
+  private String                hasChannels;
   
   public String getDisplay() {
-    String display = this.getNonNullString(getCodeRequestCategoryType());
+    String display = this.getNonNullString(getDescription());
     return display;
   }
 
@@ -33,18 +36,35 @@ public class RequestCategoryType extends DictionaryEntry implements Comparable, 
   public String getCodeRequestCategoryType() {
     return codeRequestCategoryType;
   }
-
-  
   public void setCodeRequestCategoryType(String codeRequestCategoryType) {
     this.codeRequestCategoryType = codeRequestCategoryType;
   }
 
-  public String getisIllumina() {
-    return isIllumina;
+  public String getDescription() {
+    return description;
+  }
+  public void setDescription(String description) {
+    this.description = description;
   }
 
-  
-  public void setisIllumina(String isIllumina) {
+  public String getIsIllumina() {
+    return isIllumina;
+  }
+  public void setIsIllumina(String isIllumina) {
     this.isIllumina = isIllumina;
+  }
+
+  public String getDefaultIcon() {
+    return defaultIcon;
+  }
+  public void setDefaultIcon(String defaultIcon) {
+    this.defaultIcon = defaultIcon;
+  }
+
+  public String getHasChannels() {
+    return hasChannels;
+  }
+  public void setHasChannels(String hasChannels) {
+    this.hasChannels = hasChannels;
   }
 }

@@ -577,17 +577,18 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         //
         if(currentView.equals(EXPERIMENTS_VIEW)){
           queryBuf = new StringBuffer("SELECT app.application, count(*) ");
-          queryBuf.append(" FROM Request r, Application app, RequestCategory rc ");
+          queryBuf.append(" FROM Request r, Application app, RequestCategory rc, RequestCategoryType rct ");
           queryBuf.append(" WHERE r.codeApplication = app.codeApplication ");
           queryBuf.append(" AND r.codeRequestCategory  = rc.codeRequestCategory ");
-          queryBuf.append(" AND rc.type  = 'ILLUMINA' ");
+          queryBuf.append(" AND rct.codeRequestCategoryType  = rc.type ");
+          queryBuf.append(" AND rct.isIllumina  = 'Y' ");
           if (idCoreFacility != null) {
             queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
           }
           queryBuf.append(" GROUP BY app.application");
           queryBuf.append(" ORDER BY count(*) desc ");
           summaryRows = sess.createQuery(queryBuf.toString()).list();
-          queryBuf = new StringBuffer("SELECT count(*) FROM Request r, Application app, RequestCategory rc WHERE r.codeApplication = app.codeApplication AND r.codeRequestCategory = rc.codeRequestCategory AND rc.type = 'ILLUMINA'");
+          queryBuf = new StringBuffer("SELECT count(*) FROM Request r, Application app, RequestCategory rc, RequestCategoryType rct WHERE r.codeApplication = app.codeApplication AND r.codeRequestCategory = rc.codeRequestCategory AND rct.codeRequestCategoryType = rc.type AND rct.isIllumina = 'Y'");
           if(idCoreFacility != null){
             queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
           }
