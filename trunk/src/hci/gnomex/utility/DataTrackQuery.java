@@ -268,7 +268,10 @@ public class DataTrackQuery implements Serializable {
 	  
 	}
 
-	public StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor) throws Exception {
+	public StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor) throws Exception{
+	  return getDataTrackQuery(secAdvisor, false);
+	}
+	public StringBuffer getDataTrackQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) throws Exception {
 		
 		addWhere = true;
 		queryBuf = new StringBuffer();
@@ -277,18 +280,24 @@ public class DataTrackQuery implements Serializable {
 		queryBuf.append("            gb, ");
 		queryBuf.append("            folder, ");
 		queryBuf.append("            parentFolder, ");
-		queryBuf.append("            dataTrack  ");
+		queryBuf.append("            dataTrack,  ");
+		queryBuf.append("            lab  ");
 		queryBuf.append(" FROM       Organism as org ");
 		queryBuf.append(" JOIN       org.genomeBuilds as gb ");
 		queryBuf.append(" JOIN       gb.dataTrackFolders as folder ");
 		queryBuf.append(" LEFT JOIN  folder.parentFolder as parentFolder ");
 		queryBuf.append(" LEFT JOIN  folder.dataTracks as dataTrack ");
+		queryBuf.append(" JOIN       dataTrack.lab as lab ");
 		queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
 		
 
 		addWhere = true;
 
 		addCriteria(DATATRACK_LEVEL);
+		if(isCreateReport){
+		  filterByExcludeUsage();
+		}
+
 		
 		if (secAdvisor != null) {
 		  addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
@@ -316,8 +325,11 @@ public class DataTrackQuery implements Serializable {
 	}
 
 
+	public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
+	  return getAnnotationQuery(secAdvisor, false);
+	}
 
-  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
     addWhere = true;
     queryBuf = new StringBuffer();
     
@@ -328,7 +340,8 @@ public class DataTrackQuery implements Serializable {
     queryBuf.append("            prop.name, ");
     queryBuf.append("            propEntry.value, ");
     queryBuf.append("            value.value, ");
-    queryBuf.append("            option.option ");
+    queryBuf.append("            option.option, ");
+    queryBuf.append("            lab ");
     queryBuf.append(" FROM       Organism as org ");
     queryBuf.append(" JOIN       org.genomeBuilds as gb ");
     queryBuf.append(" JOIN       gb.dataTrackFolders as folder ");
@@ -336,6 +349,7 @@ public class DataTrackQuery implements Serializable {
     queryBuf.append(" LEFT JOIN  folder.dataTracks as dataTrack ");
     queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
     queryBuf.append(" JOIN        dataTrack.propertyEntries as propEntry ");
+    queryBuf.append(" JOIN        dataTrack.lab as lab ");
     queryBuf.append(" JOIN        propEntry.property as prop ");
     queryBuf.append(" LEFT JOIN   propEntry.values as value ");
     queryBuf.append(" LEFT JOIN   propEntry.options as option ");
@@ -344,6 +358,11 @@ public class DataTrackQuery implements Serializable {
     addWhere = true;
 
     addCriteria(DATATRACK_LEVEL);
+    
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
+
     
     if (secAdvisor != null) {
       addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
@@ -1028,6 +1047,13 @@ public class DataTrackQuery implements Serializable {
     }
   
 
+    private void filterByExcludeUsage(){
+      //If getting lab info for all labs don't include labs with excludeUsage == 'Y'
+      if(idLab == null){
+        this.AND();
+        queryBuf.append(" lab.excludeUsage != 'Y' ");
+      }
+    }
 	private void addCriteria(int joinLevel) {
 	  
 	  this.AND();
