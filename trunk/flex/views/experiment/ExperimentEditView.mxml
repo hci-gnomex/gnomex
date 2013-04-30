@@ -1518,7 +1518,7 @@
 			return keep;
 		}
 			
-		public function filterPropertyEntry(sce:Object):Boolean {
+		private function filterPropertyEntry(sce:Object):Boolean {
 			var keep:Boolean = false;
 			
 			var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
@@ -1535,7 +1535,7 @@
 		}
 			
 			
-		public function isApplicableProperty(property:XML):Boolean {
+		private function isApplicableProperty(property:XML):Boolean {
 			var filterByOrganism:Boolean = false;
 			if (property.descendants("Organism").length() > 0) {
 				filterByOrganism = true;	
