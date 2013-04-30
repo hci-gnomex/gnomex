@@ -553,10 +553,11 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("LEFT JOIN   proj.lab as labProj ");
     buf.append("LEFT JOIN   req.lab as labReq ");
     buf.append("LEFT JOIN   req.requestCategory as reqCat ");
+    buf.append("LEFT JOIN   reqCat.categoryType as reqType ");
     buf.append("LEFT JOIN   req.appUser as reqOwner ");
     buf.append("LEFT JOIN   req.sequenceLanes as lane ");
     buf.append("LEFT JOIN   lane.sample as s1 ");
-    buf.append("WHERE       reqCat.type = '" + RequestCategoryType.TYPE_ILLUMINA + "' ");
+    buf.append("WHERE       reqType.isIllumina = 'Y' ");
     buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
     buf.append("ORDER BY proj.idProject, req.idRequest ");
     

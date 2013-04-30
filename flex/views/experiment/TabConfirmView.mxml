@@ -59,14 +59,14 @@
 			parentDocument.getEstimatedBilling();
 			parentDocument.getMultiplexLanes();
 			
-			if(parentDocument.request.@captureLibDesignId != "" && parentDocument.requestCategory.@type == parentApplication.TYPE_ILLUMINA){
+			if(parentDocument.request.@captureLibDesignId != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
 				capLibDesignBox.visible = true;
 				capLibDesignBox.includeInLayout = true;
 				avgInsertSizeBox.includeInLayout = false;
 				avgInsertSizeBox.visible = false;
 				capLibLabel.text = parentDocument.request.@captureLibDesignId;
 			}
-			else if(parentDocument.request.@avgInsertSizeFrom != "" && parentDocument.requestCategory.@type == parentApplication.TYPE_ILLUMINA){
+			else if(parentDocument.request.@avgInsertSizeFrom != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
 				avgInsertSizeBox.visible = true;
 				avgInsertSizeBox.includeInLayout = true;
 				capLibDesignBox.includeInLayout = false;

@@ -123,7 +123,7 @@
 				params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
 				params.requestCategory = this.platformName.text;
 				params.notes = this.notes.text;
-				params.type = this.typeRadioGroup.selectedValue != null ? this.typeRadioGroup.selectedValue : '';
+				params.type = this.typeCombo.selectedItem != null ? this.typeCombo.selectedItem.@value : '';
 				params.idCoreFacility = coreFacilities.getItemAt(coreFacilityCombo.selectedIndex).@idCoreFacility;
 				params.sortOrder = this.sortOrder.text;
 				params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
@@ -152,39 +152,11 @@
 			
 			private function pickType():void {
 				var iconToCheck:String = "";
-				if (this.typeRadioGroup.selectedValue == 'QC') {
-					iconToCheck = "assets/chart_line.png";
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'MICROARRAY') {
-					iconToCheck = "assets/microarray_small.png";
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'ILLUMINA') {
-					iconToCheck = "assets/DNA_diag.png";				
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'CHERRYPICK') {
-					iconToCheck = "assets/cherrypick.png";
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'FRAGANAL') {
-					iconToCheck = "assets/fraganal.png";				
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'MITSEQ') {
-					iconToCheck = "assets/mitseq.png";
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'CAPSEQ') {
-					iconToCheck = "assets/dna-helix-icon.png";				
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'ISCAN') {
-					iconToCheck = "assets/iscan.png";				
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'CLINSEQ') {
-					iconToCheck = "assets/cherrypick.png";
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'SEQUENOM') {
+				dirty.setDirty();
+				if (this.typeCombo.selectedItem != null && typeCombo.selectedItem.@value != '') {
+					iconToCheck = typeCombo.selectedItem.@defaultIcon;
+				} else {
 					iconToCheck = "assets/cherrypick.png";				
-					dirty.setDirty();
-				} else if (this.typeRadioGroup.selectedValue == 'GENERIC') {
-					iconToCheck = "assets/cherrypick.png";				
-					dirty.setDirty();
 				}
 				
 				if(iconToCheck.length > 0) {
@@ -265,6 +237,7 @@
 					vendorCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
 					organismCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
 					coreFacilityCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategory.@idCoreFacility);
+					typeCombo.selectedItem = dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
 					var expIconLst:XMLList = parentApplication.expIcons.item; 
 					iconCombo.selectedIndex = 0;
 					for(var i:Number = 0; i < expIconLst.length(); i++) {
@@ -276,7 +249,7 @@
 
 					dirty.resetDirty();
 					
-					if(typeRadioGroup.selectedValue == 'ILLUMINA') {
+					if(this.typeCombo.selectedItem != null && this.typeCombo.selectedItem.@isIllumina=='Y') {
 						channelLabel.width = 160;
 						channelLabel.text = "Number of flowcell channels";
 						numberOfChannelsStepper.maximum = 8;
@@ -294,16 +267,16 @@
 			}
 			
 			private function showHideAppColumns():void {
-				labelingProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-				hybProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-				scanProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
-				feProtocolCol.visible = typeRadioGroup.selectedValue == 'MICROARRAY' ? true : false; 
+				labelingProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				hybProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				scanProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				feProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
 				
 				appGrid.invalidateList();
 				appGrid.invalidateDisplayList();
 				
-				applicationThemeCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false;
-				seqLibProtocolCol.visible = typeRadioGroup.selectedValue == 'ILLUMINA' ? true : false; 
+				applicationThemeCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@isIllumina == 'Y' ? true : false;
+				seqLibProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@isIllumina == 'Y' ? true : false; 
 				
 				appGrid.invalidateList();
 				appGrid.invalidateDisplayList();
@@ -541,6 +514,7 @@
 	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
 	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
 	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
+	<mx:XMLListCollection id="types" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
 		<mx:HBox width="100%" verticalAlign="middle">
@@ -598,31 +572,14 @@
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0" fontSize="11">
 								<mx:Label text="Type" width="73" fontSize="12" styleName="formLabel"/>
-								<mx:RadioButtonGroup  id="typeRadioGroup" selectedValue="{requestCategory.@type}"/>
-								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Illumina sequencing" value="ILLUMINA" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="Microarray" value="MICROARRAY" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
-									<mx:RadioButton label="Sample quality" value="QC" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
-								</mx:VBox>
-								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Capillary Sequencing" value="CAPSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="Mitochondrial D-Loop Sequencing" value="MITSEQ" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="Fragment Analysis Panels" value="FRAGANAL" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="Cherry Picking" value="CHERRYPICK" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="iScan" value="ISCAN" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-								</mx:VBox>
-								<mx:VBox verticalGap="0" paddingLeft="0">
-									<mx:RadioButton label="Sequenom Mass Array (Clinical Reserarch)" value="CLINSEQ" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
-									<mx:RadioButton label="Sequenom MassArray" value="SEQUENOM" groupName="typeRadioGroup" click="pickType()" paddingBottom="0" paddingTop="0" horizontalGap="0"/>
-									<mx:RadioButton label="Generic" value="GENERIC" groupName="typeRadioGroup" click="pickType()" paddingTop="0" paddingBottom="0" horizontalGap="0"/>
-								</mx:VBox>
+								<mx:ComboBox id="typeCombo" dataProvider="{types}" labelField="@display" width="100%" change="{pickType()}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 								<mx:Text text="Security" 
 										 width="80"  styleName="formLabel"/>
 								<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" click="{dirty.setDirty()}" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" />
 							</mx:HBox>
-							<mx:HBox visible="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" includeInLayout="{typeRadioGroup.selectedValue == 'ILLUMINA' || typeRadioGroup.selectedValue == 'MICROARRAY'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+							<mx:HBox visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" includeInLayout="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
 								<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>
 								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
 							</mx:HBox>
@@ -661,7 +618,7 @@
 											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
 								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()" fontSize="10"/>
 								<mx:Text text="Enter min and max insert size or check Capture Lib Design to require submitter to enter values on new experiment." 
-										 styleName="linkMenuButton" fontStyle="normal" visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" fontSize="10" color="#2863C6" fontWeight="normal"/>
+										 styleName="linkMenuButton" fontStyle="normal" visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" fontSize="10" color="#2863C6" fontWeight="normal"/>
 							</mx:HBox>
 							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
 										 dataProvider="{applications}" editable="true"
@@ -695,13 +652,13 @@
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 													   dataField="@idSeqLibProtocols"/>
 									<mx:DataGridColumn headerWordWrap="true" headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
-													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" width="50"/>
+													   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" width="50"/>
 									<mx:DataGridColumn headerWordWrap="true" headerText="Max Insert Size" id="insertSizeMax" dataField="@avgInsertSizeTo" editable="true"
-													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" width="50"/>
+													   visible="{typeCombo.selectedItem.@isIllumina == 'Y'}" width="50"/>
 									<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
 													   wordWrap="true" width="60"
-													   visible="{typeRadioGroup.selectedValue == 'ILLUMINA'}" editorDataField="selected" editable="false"/>
-									<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeRadioGroup.selectedValue == 'MICROARRAY'}" dataField="idLabelingProtocol"  
+													   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false"/>
+									<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@value == 'MICROARRAY'}" dataField="idLabelingProtocol"  
 													   editorDataField="value" sortable="true" editable="true" rendererIsEditor="false"  
 													   wordWrap="true"
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
@@ -790,7 +747,7 @@
 							</mx:VBox>
 						</mx:VBox>
 						
-						<mx:VBox width="100%" enabled="{typeRadioGroup.selectedValue == 'ILLUMINA'}" height="100%" label="Illumina Seq" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+						<mx:VBox width="100%" enabled="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" height="100%" label="Illumina Seq" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 							<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
 								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 									<mx:Label text="Sample Index Tags" width="150" styleName="formLabel"/>

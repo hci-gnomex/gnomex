@@ -112,6 +112,8 @@ public class RequestDownloadFilter extends DetailObject {
   public void getMicroarrayResultQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" JOIN           req.hybridizations as hyb ");
     queryBuf.append(" JOIN           hyb.labeledSampleChannel1 as ls1 ");
     queryBuf.append(" JOIN           ls1.sample as s1 ");
@@ -135,6 +137,8 @@ public class RequestDownloadFilter extends DetailObject {
   public void getQualityControlResultQueryBody(StringBuffer queryBuf) {
      
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
@@ -175,6 +179,8 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaResultQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
@@ -207,6 +213,8 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.sample as s ");
@@ -240,6 +248,8 @@ public class RequestDownloadFilter extends DetailObject {
   public void getSolexaFlowCellQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM           Request as req ");
+    queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
+    queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" JOIN           req.sequenceLanes as l ");
     queryBuf.append(" JOIN           l.flowCellChannel as ch ");
@@ -375,15 +385,7 @@ public class RequestDownloadFilter extends DetailObject {
     // Search for Solexa requests
     if (isSolexa.equals("Y")) {
       this.addWhereOrAnd();
-      queryBuf.append(" req.codeRequestCategory IN (");
-      queryBuf.append("'");
-      queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-      queryBuf.append("', '");
-      queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-      queryBuf.append("', '");
-      queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-      queryBuf.append("' ");
-      queryBuf.append(") ");
+      queryBuf.append(" reqType.isIllumina = 'Y'");
     }  else if (isBioanalyzer.equals("Y")) {
       // Search for bioanalyzer requests
       this.addWhereOrAnd();
@@ -435,15 +437,7 @@ public class RequestDownloadFilter extends DetailObject {
 
   private void addSolexaCriteria() {
     this.addWhereOrAnd();
-    queryBuf.append(" req.codeRequestCategory IN (");
-    queryBuf.append("'");
-    queryBuf.append(RequestCategory.SOLEXA_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
-    queryBuf.append("', '");
-    queryBuf.append(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
-    queryBuf.append("' ");
-    queryBuf.append(") ");
+    queryBuf.append(" reqType.isIllumina = 'Y'");
   }
 
   private void addQualityControlCriteria() {

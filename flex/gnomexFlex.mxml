@@ -2452,6 +2452,7 @@
 				}
 				return false;
 			}
+			
 			public function usesExperimentType(experimentType:String):Boolean {
 				if (isGuest) {
 					return false;
@@ -2499,10 +2500,10 @@
 				}
 				
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
-					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
-							requestCategory.@isActive == 'Y') {
+					for each (var requestCategory1:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory1.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory1.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
+							requestCategory1.@isActive == 'Y') {
 							return true;
 							break;
 						}

@@ -1,6 +1,9 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
+import hci.gnomex.utility.DictionaryHelper;
+
 import java.io.Serializable;
 
 
@@ -62,14 +65,16 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   }  
   
   public static boolean isIlluminaRequestCategory(String codeRequestCategory) {
-    if (codeRequestCategory.equals(SOLEXA_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(ILLUMINA_HISEQ_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+    DictionaryHelper dh = DictionaryHelper.getInstance(null);
+    RequestCategory cat = dh.getRequestCategoryObject(codeRequestCategory);
+    RequestCategoryType type = dh.getRequestCategoryType(cat.getType());
+    if (type != null && type.getIsIllumina().equals("Y")) {
       return true;
     } else {
       return false;
     }
   }
+  
   public static boolean isDNASeqCoreRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory != null && (codeRequestCategory.equals(CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(FRAGMENT_ANALYSIS_REQUEST_CATEGORY) ||
@@ -91,11 +96,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   }
   
   public boolean isNextGenSeqRequestCategory() {
-    if (this.type != null && !this.type.equals("")) {
-      return type.equals(RequestCategoryType.TYPE_ILLUMINA);
-    } else {
-      return isIlluminaRequestCategory(this.getCodeRequestCategory());
-    }
+    return isIlluminaRequestCategory(this.getCodeRequestCategory());
   }
   
   
@@ -290,5 +291,9 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public void setCategoryType(RequestCategoryType categoryType) {
     this.categoryType = categoryType;
+  }
+  
+  public String getIsIlluminaType() {
+    return this.getCategoryType().getIsIllumina();
   }
 }
