@@ -13,10 +13,10 @@
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
-		
 		[Bindable]
 		public var barcodeQuestionVisible:Boolean = true;
-	
+		public var numIScanChips:int = 0;
+		
 		public function setPrimerDefaults():void {
 			if (parentDocument.isMitSeqState()) {
 				// Set defaults for primers				
@@ -166,18 +166,15 @@
             checkRequiredChipType();
         }
 		private function onNumberOfSamplesChanged():void {
-			if ( currentState=='IScanState' ){
-				
-				if (this.iScanChipRadioGroup.selectedValue != null && 
-					(this.iScanChipRadioGroup.selectedValue.@samplesPerChip != null && this.iScanChipRadioGroup.selectedValue.@samplesPerChip != '')) {
-					numberOfSamplesValidator.maxValue = parseInt( iScanChipRadioGroup.selectedValue.@samplesPerChip ) * parseInt(numberOfChips.text);
-					
-				} else {
-					numberOfSamplesValidator.maxValue = 1;
+			if ( parentDocument.isIScanState() ) {
+				numberOfSamplesValidator.maxValue = 600;
+				if ( this.numberIScanSamples.selectedItem != null){
+					this.numberOfSamples.text = this.numberIScanSamples.selectedItem.@numberOfSamples;
+					this.numIScanChips = this.numberIScanSamples.selectedItem.@numberOfChips;
+					parentDocument.request.@numberIScanChips = this.numIScanChips;
 				}
-				
 			} else {
-				this.numberOfSamplesValidator.maxValue = 384;
+				numberOfSamplesValidator.maxValue = 384;
 			}
 			if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && 
 				parseInt(this.numberOfSamples.text) < numberOfSamplesValidator.maxValue && parseInt(this.numberOfSamples.text) > 0 ) {
@@ -414,23 +411,19 @@
 					isComplete = true;	        	    	
 	        	}
 			}  else if (parentDocument.isIScanState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-					if ( this.numberOfChips.text != null && this.numberOfChips.text != '' ) {
-						isComplete = true;
-					}
+				if ( this.numberIScanSamples.selectedItem!=null){
+					isComplete = true;
 				}
 				
 				if (this.iScanChipRadioGroup.selectedValue == null || 
 					(this.iScanChipRadioGroup.selectedValue.@idIScanChip == null || this.iScanChipRadioGroup.selectedValue.@idIScanChip == '')) {
 					isComplete = false;
-					
 				}
 			 
 				if ( this.iScanNumSourcePlates == null || this.iScanNumSourcePlates.text == '' 
 					|| parseInt(this.iScanNumSourcePlates.text) > 12 || parseInt(this.iScanNumSourcePlates.text) < 1 ) {
 					isComplete = false;
 				} 
-				numberOfChipsValidator.validate();
 				iScanNumSourcePlatesValidator.validate();
 				
 			} else if (parentDocument.isSequenomState()) {
@@ -1090,9 +1083,6 @@
 			checkSampleSetupCompleteness();
 		}
 		
-		[Bindable]
-		private var maxNumberOfIScanSamples:int;
-		
 		private function pickChip():void {
 			if (this.iScanChipRadioGroup.selectedValue != null && 
 				(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
@@ -1131,11 +1121,6 @@
 						lowerThanMinError="This field is required."
 						property="selectedIndex"
 						minValue="1" />
-	<mx:NumberValidator id="numberOfChipsValidator" source="{numberOfChips}" property="text" 
-						required="true" allowNegative="false" domain="int"  maxValue="4" minValue="4"
-						lowerThanMinError="A kit contains 4 chips; you must submit samples for all 4 chips."
-						exceedsMaxError="A kit contains 4 chips; you cannot submit samples for more than 4 chips."
-						requiredFieldError="Please enter the number of chips you want." />
 	<mx:NumberValidator enabled="{currentState=='IScanState'}" id="iScanNumSourcePlatesValidator" source="{iScanNumSourcePlates}" property="text" 
 						required="true" allowNegative="false" domain="int" maxValue="12" minValue="1"
 						lowerThanMinError="You must submit your samples on at least 1 plate."
@@ -1589,9 +1574,10 @@
 				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%" styleName="requiredBox">
 					   <mx:HBox width="100%">
 						   <mx:Label width="200" fontSize="10" fontWeight="bold" text="Chip" paddingLeft="25"/>
-						   <mx:Label width="125" fontSize="10" fontWeight="bold"  text="Samples per Chip"/>
+						   <mx:Label width="110" fontSize="10" fontWeight="bold"  text="Samples per Chip"/>
 						   <mx:Label width="125" fontSize="10" fontWeight="bold" text="Markers per Sample" />
-						   <mx:Label width="125" fontSize="10" fontWeight="bold" text="Cost per Sample" />
+						   <mx:Label width="145" fontSize="10" fontWeight="bold" text="Illumina Cost per Sample" />
+						   <mx:Label width="85" fontSize="10" fontWeight="bold" text="Chips per Kit" />
 					   </mx:HBox>
 					   <mx:RadioButtonGroup id="iScanChipRadioGroup"/>
 					   <mx:Repeater id="iScanChipRepeater" dataProvider="{parentApplication.iScanChipList}"> 
@@ -1601,10 +1587,11 @@
 												value="{iScanChipRepeater.currentItem}" 
 												click="{pickChip()}"
 												groupName="iScanChipRadioGroup" width="200"/>
-							   <mx:Text width="125" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
+							   <mx:Text width="110" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
 							   <mx:Text width="125" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
-							   <mx:Text width="125" fontSize="9" 
+							   <mx:Text width="145" fontSize="9" 
 										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
+							   <mx:Text width="85" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
 						   </mx:HBox>
 					   </mx:Repeater>
 					   
@@ -1612,12 +1599,12 @@
 			   </mx:HBox>
 		   </mx:AddChild>
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
-			   <mx:HBox horizontalGap="0" verticalAlign="middle">
+			   <!--<mx:HBox horizontalGap="0" verticalAlign="middle">
 				   <mx:Label text="(2) How many chips do you want?" width="334" />
 				   <mx:TextInput width="40" id="numberOfChips" change="onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;">
 					   <mx:focusOut>onNumberOfSamplesChanged();parentDocument.request.@numberIScanChips = numberOfChips.text;</mx:focusOut>
 				   </mx:TextInput>							
-			   </mx:HBox>
+			   </mx:HBox>-->
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
 		   <mx:AddChild relativeTo="{hbox6}" position="before" target="{hbox3}"/>
@@ -1699,6 +1686,19 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{numberOfSamples}" position="before">
+			   <renderers:FilterComboBoxNumberIScanSamples id="numberIScanSamples"
+				   										   iScanChip="{iScanChipRadioGroup.selectedValue}"
+														   labelField="@display"
+													 	   fontSize="10"
+													 	   prompt="Select number of samples"
+													 	   removeFilterOnSelection="true"
+													 	   removeInputOnFocusOut="false"
+													 	   focusOut="{onNumberOfSamplesChanged()}">
+			   </renderers:FilterComboBoxNumberIScanSamples>
+		   </mx:AddChild>
+		   <mx:SetProperty target="{numberOfSamples}" name="editable" value="false"/>
+		   <mx:SetProperty target="{numberOfSamples}" name="visible" value="false"/>
 		   
 	   </mx:State>
 	   <mx:State name="SequenomState">

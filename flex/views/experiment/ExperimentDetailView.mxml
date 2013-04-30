@@ -243,7 +243,6 @@
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
-				parentDocument.parentDocument.experimentEditView.sampleSetupView.numberOfChips.text = '';
 				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();		
 				if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
@@ -2045,14 +2044,7 @@
 				<mx:Text  width="280" text="{this.selectedExperiment.@iScanChipName}"  />
 			</mx:HBox>
 		</mx:AddChild>
-		<mx:AddChild relativeTo="{hbox3}" position="before">
-			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="Number of Chips" width="100" styleName="formLabel"/>
-				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
-			</mx:HBox>
-		</mx:AddChild>
 		<mx:RemoveChild target="{noteToBioBox}"/>
-		
 	</mx:State>
 	<mx:State name="SequenomState">
 		<mx:RemoveChild target="{hbox4}"/>

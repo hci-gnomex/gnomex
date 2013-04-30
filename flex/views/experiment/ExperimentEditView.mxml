@@ -882,9 +882,6 @@
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
 					sampleSetupView.iScanChipRadioGroup.selectedValue = '';
 				}
-				if ( sampleSetupView.numberOfChips != null ){
-					sampleSetupView.numberOfChips.text = '';
-				}
 				if ( sampleSetupView.iScanNumSourcePlates != null ) {
 					sampleSetupView.iScanNumSourcePlates.text = '';
 					sampleSetupView.onIScanNumSourcePlatesChanged();
@@ -2569,7 +2566,6 @@
 							}
 						}
 					}
-					sampleSetupView.numberOfChips.text = request.@numberIScanChips;
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 					this.propertyEntries.refresh();
 					this.annotationView.checkSecurity();
@@ -3477,7 +3473,7 @@
 			}
 			if (this.isIScanState()) {
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
-				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
+				request.@numberIScanChips = sampleSetupView.numIScanChips;
 				request.@codeApplication = "";
 				request.@codeBioanalyzerChipType = "";
 			}
