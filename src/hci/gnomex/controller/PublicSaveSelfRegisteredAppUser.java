@@ -8,6 +8,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -258,7 +259,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
 
       if (this.isValid()) {
-        sendAdminEmail(appUser);
+        sendAdminEmail(appUser, sess);
+        sendLabManagerEmail(appUser, sess);
       }
       
       if (this.isValid()) {
@@ -334,15 +336,18 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       );
   }
   
-  private void sendAdminEmail(AppUser appUser)  throws NamingException, MessagingException {
+  private void sendAdminEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
     //This is to send it to the right application server, without hard coding
     String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
     }
 
     String toAddress = "";
+    String subject = "GNomEx user account pending approval for " + appUser.getFirstName() + " " + appUser.getLastName();
+    String testEmailInfo = "";
     if (facility != null) {
       toAddress = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
     } else if (requestedLab != null) {
@@ -358,6 +363,37 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
     }
     
+    if (!dictionaryHelper.isProductionServer(serverName)) {
+      subject = subject + "  (TEST)";
+      testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
+      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    
+    StringBuffer introForAdmin = new StringBuffer();
+    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
+    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to review and activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
+    MailUtil.send(
+        toAddress,
+        "",
+        coreFacilityEmail,
+        subject,
+        testEmailInfo + introForAdmin.toString() + getEmailBody(appUser),
+        true
+      );
+
+  }
+  
+  private void sendLabManagerEmail(AppUser appUser, Session sess) throws NamingException, MessagingException{
+    String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+
+    if (appUser.getEmail().equals("bademail@bad.com")) {
+      throw new AddressException("'bademail@bad.com' not allowed");
+    }
+    
+    String toAddress = "";
+    String subject = "GNomEx user account requested for " + appUser.getFirstName() + " " + appUser.getLastName();
+    String testEmailInfo = "";
     if(requestedLab != null){
       if ( requestedLab.getContactEmail() != null ) {
         if(!toAddress.equals("") && !requestedLab.getContactEmail().equals("")){
@@ -377,18 +413,23 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
       } 
     }
+    
+    if (!dictionaryHelper.isProductionServer(serverName)) {
+      subject = subject + "  (TEST)";
+      testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
+      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    
     StringBuffer introForAdmin = new StringBuffer();
-    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
-    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to review and activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
+    introForAdmin.append("This email is being sent to notify you that the following person has signed up for a GNomEx user account and has requested to be a member of your lab.<br><br>");
     MailUtil.send(
         toAddress,
         "",
         coreFacilityEmail,
-        "GNomEx user account pending approval for " + appUser.getFirstName() + " " + appUser.getLastName(),
-        introForAdmin.toString() + getEmailBody(appUser),
+        subject,
+        testEmailInfo + introForAdmin.toString() + getEmailBody(appUser),
         true
       );
-
   }
   
   public void validate() {
