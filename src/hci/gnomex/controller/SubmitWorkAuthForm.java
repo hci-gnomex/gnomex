@@ -98,11 +98,11 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             billingAccount.getAccountNumberAccount() == null || billingAccount.getAccountNumberAccount().length() != 5 ||
             (hasActivity && (billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1)) || 
             ((billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().equals("")) && (billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().length() !=5)) ||
-            ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8))) {
+            ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8)) ||
+            billingAccount.getExpirationDate() == null || billingAccount.getStartDate() == null) {
           
+          this.addInvalidField("Work Authorization Error", "Please make sure all fields are entered and that the correct number of digits are used for each account number field.");
           this.setResponsePage(this.ERROR_JSP);
-          this.addInvalidField("Account Number Length", "There is something wrong with your account number.  Please double check that you entered the correct number of digits for each field.");
-          setResponsePage(this.ERROR_JSP);
         }
       }
 
