@@ -204,6 +204,12 @@
 					// ba.@startDateOther is set in update function since startDatePicker doesn't set text until display
 				}
 			}
+			if (ba.@expirationDate.toString().length == 0 && expirationDateHBox.visible) {
+				if (ba.@idBillingAccount == null || ba.@idBillingAccount.toString().length == 0 || ba.@idBillingAccount.toString().indexOf("Billing") != -1) {
+					expirationDatePicker.selectedDate = new Date();
+					// ba.@expirationDateOther is set in update function since startDatePicker doesn't set text until display
+				}
+			}
 		}
 		
 		private function initWorkAuthState():void {
