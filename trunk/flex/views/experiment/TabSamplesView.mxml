@@ -2534,8 +2534,8 @@
 			<mx:SetEventHandler target="{samplesGrid}" name="itemFocusIn" handler="countSamples()"/>
 			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
 			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
-			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC Number"/>
-			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="287"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC #"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="350"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="selected" value="true"/>
