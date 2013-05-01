@@ -14,6 +14,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -139,7 +140,19 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
             billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
           }
+          
+          // Send a confirmation email
+
+          try {
+            EmailHelper.sendConfirmationEmail(sess, req, this.getSecAdvisor(), launchAppURL, appURL, serverName);                  
+          } catch (Exception e) {
+            log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() + 
+                " is complete. " + e.toString());
+          }
+          
+          
         }
+        
         sess.flush();
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
