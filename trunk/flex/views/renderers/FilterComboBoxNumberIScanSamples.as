@@ -45,7 +45,7 @@ package views.renderers
 			do {
 				var item:XML = new XML("<IScanSampleNumberItem/>");
 				item.@numberOfSamples = numberOfSamples;
-				item.@numberofChips = numberOfChips;
+				item.@numberOfChips = numberOfChips;
 				item.@numberOfKits = numberOfKits;
 				item.@display = numberOfSamples + " samples (" + numberOfKits + " kits)";
 				dp.addItem(item);
