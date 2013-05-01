@@ -326,6 +326,10 @@
 				var isPO:String = "N";
 				var isCreditCard:String = "N";
 				
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = "MM/DD/YYYY";
+				var todaysDate:String = df.format(new Date());
+				
 				if (this.getSelectedCoreFacilityId() == '') {
 					Alert.show("Please select the core facility from the dropdown.");
 					return;
@@ -341,8 +345,8 @@
 					" idBillingAccount='" + "BillingAccount" + isCreditCard + isPO + accountName.text + "'" + 
 					" accountName='" + accountName.text + "'" +
 					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
-					" expirationDateOther=''" + 
-					" startDateOther=''" +
+					" expirationDateOther='" + todaysDate + "'" + 
+					" startDateOther='" + todaysDate + "'" +
 					" accountNumberBus=''" + 
 					" accountNumberOrg=''" + 
 					" accountNumberFund=''" + 
