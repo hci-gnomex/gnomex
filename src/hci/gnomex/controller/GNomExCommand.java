@@ -112,8 +112,11 @@ public abstract class GNomExCommand extends Command implements Serializable {
   }
   
   public String getAppURL(HttpServletRequest request) throws Exception {
+    String requestURL = request.getRequestURL().toString();
+    String servletPath = request.getServletPath();
+    String appURL = requestURL.substring(0, requestURL.indexOf(servletPath));
     boolean isLocalHost = request.getServerName().equalsIgnoreCase("localhost") || request.getServerName().equals("127.0.0.1")  || InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress();
-    return "http"+ (isLocalHost ? "://" : "s://") + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();    
+    return "http"+ (isLocalHost ? "://" : "s://") + appURL + ":" + request.getServerPort() + request.getContextPath();    
   }
   
   public String getLaunchAppURL(HttpServletRequest request) throws Exception {
