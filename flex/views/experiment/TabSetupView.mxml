@@ -584,8 +584,8 @@
 					var sortOrder1:Number = obj1.@sortOrder == "" ? 999 : obj1.@sortOrder;
 					var sortOrder2:Number = obj2.@sortOrder == "" ? 999 : obj2.@sortOrder;
 					
-					var display1:Number = obj1.@display;
-					var display2:Number = obj2.@display;
+					var display1:String = obj1.@display;
+					var display2:String = obj2.@display;
 					
 					if (idCore1 < idCore2) {
 						return -1;
