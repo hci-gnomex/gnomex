@@ -738,20 +738,25 @@
 			
 			private function onSaveGroup(event:ResultEvent):void {
 				if (saveGroup.lastResult.name() == "SUCCESS") {
-					savedIdLab = saveGroup.lastResult.@idLab;
-					
-					var params:Object = new Object();
-					params.idLab = savedIdLab;
-					getLab.send(params);
-					
-					refreshBillingTab();
-					
-					dirty.resetDirty();
+					parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 					parentApplication.dictionaryManager.call("reload", "");
 				} else {
 					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 				}
 				
+			}
+
+			private function onDictionariesLoaded(event:Event):void {
+				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+
+				savedIdLab = saveGroup.lastResult.@idLab;
+				
+				var params:Object = new Object();
+				params.idLab = savedIdLab;
+				//getLab.send(params);
+				parentDocument.callGetLab();
+				
+				dirty.resetDirty();
 			}
 			
 			private function refreshBillingTab():void {
@@ -814,7 +819,7 @@
 				parentApplication.navUsersView.refreshGroupList();
 				parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
 				
-				refreshBillingTab();
+				callLater(this.initializeLab);
 			}
 			
 			public function promptToVerifyUserAccounts():void {

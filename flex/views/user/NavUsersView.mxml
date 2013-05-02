@@ -368,7 +368,7 @@
           	call.marker = "doneGetLabList";
           }
           
-          private function callGetLab():void
+          public function callGetLab():void
           {
           	var call:Object = getLab.send();
           	call.marker = "doneGetLab";
