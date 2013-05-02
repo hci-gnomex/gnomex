@@ -2047,8 +2047,8 @@
 		</mx:HBox>
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%">
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 			<mx:HBox id="buttonsContainer" horizontalGap="2">
-				<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
 				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
 							   label="Upload help" 
