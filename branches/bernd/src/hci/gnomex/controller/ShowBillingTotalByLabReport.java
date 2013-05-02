@@ -45,6 +45,8 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingTotalByLabReport.class);
   
+  private final static String  ILLUMINA_FLAG = "Illumina";
+  
   
   private java.sql.Date    startDate;
   private java.sql.Date    endDate;
@@ -66,8 +68,6 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   private BigDecimal grandTotalCherryPick = new BigDecimal("0");
   private BigDecimal grandTotalDiskUsage = new BigDecimal("0");
   private BigDecimal grandTotal = new BigDecimal("0");
-
-  
  
   public void validate() {
   }
@@ -121,7 +121,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
           TreeMap labMap = new TreeMap();
 
           TreeMap illuminaMap = new TreeMap();
-          getBillingItems(sess, RequestCategoryType.TYPE_ILLUMINA, labMap, illuminaMap);
+          getBillingItems(sess, ILLUMINA_FLAG, labMap, illuminaMap);
           
           TreeMap qcMap = new TreeMap();
           getBillingItems(sess, RequestCategoryType.TYPE_QC, labMap, qcMap);
@@ -550,19 +550,24 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   private void getBillingItems(Session sess, String requestCategoryType, Map labMap, Map map) throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT lab, bi.invoicePrice ");
-    if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
-      buf.append("FROM   Request req ");
-      buf.append("JOIN   req.requestCategory as rc ");
-      buf.append("JOIN   req.billingItems bi ");
-    } else {
+    if (requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
       buf.append("FROM   DiskUsageByMonth dsk ");
       buf.append("JOIN   dsk.billingItems bi ");
+    } else {
+      buf.append("FROM   Request req ");
+      buf.append("JOIN   req.requestCategory as rc ");
+      if (requestCategoryType.equals(ILLUMINA_FLAG)) {
+        buf.append("JOIN    rc.categoryType as rct ");
+      }
+      buf.append("JOIN   req.billingItems bi ");
     }
     buf.append("JOIN   bi.lab as lab ");
     buf.append("JOIN   bi.billingPeriod as bp ");
     buf.append("WHERE  bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
     buf.append("AND    bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "' ");
-    if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
+    if (requestCategoryType.equals(ILLUMINA_FLAG)) {
+      buf.append("AND    rct.isIllumina = 'Y'");
+    } else if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
       buf.append("AND    rc.type = '" + requestCategoryType + "'");
     }
   
@@ -579,8 +584,6 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     fillMap(requestCategoryType, labMap, map, results);
     
   }
-  
-  
   
   private void fillMap(String requestCategoryType, Map labMap, Map map, List results) {
     for(Iterator i = results.iterator(); i.hasNext();) {
@@ -609,7 +612,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       if (totalPrice != null) {
         grandTotal = grandTotal.add(totalPrice);
         
-        if (requestCategoryType.equals(RequestCategoryType.TYPE_ILLUMINA)) {
+        if (requestCategoryType.equals(ILLUMINA_FLAG)) {
           grandTotalIllumina = grandTotalIllumina.add(totalPrice);
         }else if (requestCategoryType.equals(RequestCategoryType.TYPE_QC)) {
           grandTotalQC = grandTotalQC.add(totalPrice);

@@ -357,6 +357,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     // TODO:  Use standard way of supported mime types instead of hardcoded list
     if (fileName.toLowerCase().endsWith(".pdf") ||
         fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".png") ||
         fileName.toLowerCase().endsWith(".gif") ||
         fileName.toLowerCase().endsWith(".rtf") ||
         fileName.toLowerCase().endsWith(".txt") ||

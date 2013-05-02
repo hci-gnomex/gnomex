@@ -206,7 +206,6 @@
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
-			import views.experiment.ConvertIlluminaRequestWindow;
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
 			import views.util.GNomExStringUtil;
@@ -882,8 +881,8 @@
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
 					sampleSetupView.iScanChipRadioGroup.selectedValue = '';
 				}
-				if ( sampleSetupView.numberOfChips != null ){
-					sampleSetupView.numberOfChips.text = '';
+				if ( sampleSetupView.numberIScanSamples != null ){
+					sampleSetupView.numberIScanSamples.selectedIndex = -1;
 				}
 				if ( sampleSetupView.iScanNumSourcePlates != null ) {
 					sampleSetupView.iScanNumSourcePlates.text = '';
@@ -1056,6 +1055,9 @@
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
 					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
 				}
+				if ( sampleSetupView.numberIScanSamples != null ){
+					sampleSetupView.numberIScanSamples.selectedIndex = -1;
+				}
 				if ( sampleSetupView.iScanChipBox != null ){
 					sampleSetupView.iScanChipBox.styleName = "requiredBox";
 				}
@@ -1069,7 +1071,7 @@
 				} 				
 			}			
 
-			if (requestCategory.@type == parentApplication.TYPE_ILLUMINA) {
+			if (requestCategory.@isIlluminaType == 'Y') {
 				this.currentState = parentApplication.submitInternalExperiment() ? 'SolexaBaseState' : 'SolexaBaseExternalState';
 				if (parentApplication.submitInternalExperiment()) {
 					this.sampleSetupView.currentState = 'SolexaSetupState';
@@ -1518,7 +1520,7 @@
 			return keep;
 		}
 			
-		public function filterPropertyEntry(sce:Object):Boolean {
+		private function filterPropertyEntry(sce:Object):Boolean {
 			var keep:Boolean = false;
 			
 			var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
@@ -1535,7 +1537,7 @@
 		}
 			
 			
-		public function isApplicableProperty(property:XML):Boolean {
+		private function isApplicableProperty(property:XML):Boolean {
 			var filterByOrganism:Boolean = false;
 			if (property.descendants("Organism").length() > 0) {
 				filterByOrganism = true;	
@@ -1584,8 +1586,22 @@
 			return keep;
 		}
 		
+		private function isIlluminaAmendRequestType():Boolean {
+			var codeRequestCategory:String = getAmendRequestCategory();
+			if (codeRequestCategory != '') {
+				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', codeRequestCategory);
+				if (requestCategory.@isIlluminaType == 'Y') {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+			
+		}
 
-		
+				
 		private function getAmendRequestType():String {
 			var codeRequestCategory:String = getAmendRequestCategory();
 			if (codeRequestCategory != '') {
@@ -1596,6 +1612,7 @@
 			}
 			
 		}
+
 		private function getAmendRequestCategory():String {
 			if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != '') {
 				if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0) {
@@ -2190,7 +2207,7 @@
 				samplesView.clearSamplesButton.visible = false;
 			}
 			
-			if (requestCategory.@type == parentApplication.TYPE_ILLUMINA) {
+			if (requestCategory.@isIlluminaType == 'Y') {
 				currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
 
 				this.annotationView.checkSecurity();			
@@ -2554,7 +2571,13 @@
 							}
 						}
 					}
-					sampleSetupView.numberOfChips.text = request.@numberIScanChips;
+					if ( sampleSetupView.numberIScanSamples != null ){
+						for each (var item:XML in sampleSetupView.numberIScanSamples.dataProvider ) {
+							if ( item.@numberOfSamples == request.samples.Sample.(@name!='').length() ) {
+								sampleSetupView.numberIScanSamples.selectedItem = item;
+							}
+						}
+					}
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 					this.propertyEntries.refresh();
 					this.annotationView.checkSecurity();
@@ -3462,7 +3485,7 @@
 			}
 			if (this.isIScanState()) {
 				request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
-				request.@numberIScanChips = sampleSetupView.numberOfChips.text;
+				request.@numberIScanChips = sampleSetupView.numIScanChips;
 				request.@codeApplication = "";
 				request.@codeBioanalyzerChipType = "";
 			}
@@ -4084,7 +4107,6 @@
 					}
 				}
 				ownerCombo.enabled = true;
-				
 			}			
 
 		}
@@ -4132,7 +4154,7 @@
 				if (this.radioGroupAmendType.selectedValue.toString().indexOf("ADD-LANES-") == 0) {
 					this.currentState = "SolexaLaneAmendState";
 					setAmendTitle();
-				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_ILLUMINA) {
+				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.isIlluminaAmendRequestType()) {
 					this.filteredAppList.refresh();
 					this.currentState = "SolexaBaseAmendState";
 					setAmendTitle();
@@ -4597,7 +4619,7 @@
 				
 		
 		private function onGetLabForAddingServices(event:ResultEvent):void {			
-			var lab:Object = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			lab = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			
 	        
 	        if (parentApplication.hasPermission('canWriteAnyObject')) {
@@ -4611,6 +4633,10 @@
 	        	}
 	        }
 	        this.getCandidateAmendExperiments();
+			
+			
+			this.qcAmendRequestCategories.refresh();
+			this.addLanesAmendRequestCategories.refresh();
 		}
 			
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -4634,12 +4660,6 @@
 				
 			}
 		}
-		
-		public function showConvertIlluminaRequest():void {
-   			var convertWindow:ConvertIlluminaRequestWindow = ConvertIlluminaRequestWindow(PopUpManager.createPopUp(DisplayObject(this), ConvertIlluminaRequestWindow, false));
-   			PopUpManager.centerPopUp(convertWindow);
-   			convertWindow.init(this.request);
-    	}
     	
     	public static function showExperimentUploadWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
@@ -4938,6 +4958,47 @@
 					this.defaultRequestCategory = null;
 				}
 			}
+			
+			private function filterQCAmendRequestCategory(item:Object):Boolean {
+				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; ( @type == parentApplication.TYPE_MICROARRAY ||  @isIlluminaType == 'Y')) 
+				var keep:Boolean = filterRequestCategoryByCore(item);
+				if (item.@type != parentApplication.TYPE_MICROARRAY && item.@isIlluminaType != 'Y') {
+					keep = false;
+				}
+				return keep;
+			}
+			
+			private function filterAddLanesAmendRequestCategory(item:Object):Boolean {
+				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @isIlluminaType == 'Y')				var keep:Boolean = false;
+				var keep:Boolean = filterRequestCategoryByCore(item);
+				if (item.@isIlluminaType != 'Y') {
+					keep = false;
+				}
+				return keep;
+			}
+			
+			private function filterRequestCategoryByCore(item:Object):Boolean {
+				var keep:Boolean = false;
+				if (item.@isActive == 'Y' && item.@value != '' && item.@isInternal == 'Y') {
+					if (item.@isClinicalResearch == null || item.@isClinicalResearch != 'Y') {
+						if (item.@idCoreFacility == null) {
+							// If a request category is not associated with a core facility,
+							// include it in the list.
+							keep = true;
+						} else if (lab != null) {
+							// filter by the lab's core facility
+							for each(var cf:Object in lab..CoreFacility) {
+								if (cf.@idCoreFacility == item.@idCoreFacility) {
+									keep = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+				return keep;
+				
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
@@ -4965,6 +5026,9 @@
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
 	
 	<mx:XMLListCollection id="filteredLabList" filterFunction="filterLabList" source="{parentApplication.submitRequestLabList.source}"/>
+
+	<mx:XMLListCollection id="qcAmendRequestCategories" filterFunction="filterQCAmendRequestCategory" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" />
+	<mx:XMLListCollection id="addLanesAmendRequestCategories" filterFunction="filterAddLanesAmendRequestCategory" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" />
 
 	<mx:NumberValidator id="minRangeValidator"
 						source="{rangeFrom}"
@@ -5448,6 +5512,7 @@
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:RemoveChild target="{rangeBox}"/>
 		</mx:State>
 		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{downloadView}"/>
@@ -5679,7 +5744,7 @@
                 		<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="194"/>
                 		<mx:VBox width="100%" height="100%" verticalGap="8" fontSize="11">							
                 		  <mx:VBox width="100%" height="100%" verticalGap="0">							
-							<mx:Repeater id="requestCategoryRepeater1" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; ( @type == parentApplication.TYPE_MICROARRAY ||  @type == parentApplication.TYPE_ILLUMINA)) }">
+							<mx:Repeater id="requestCategoryRepeater1" dataProvider="{qcAmendRequestCategories}">
 								<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 								    <mx:HBox horizontalAlign="center">
 								     <mx:Image 						    	
@@ -5695,7 +5760,7 @@
 	                 	  </mx:VBox>
                 		  <mx:HRule width="100%"/>
                 		  <mx:VBox width="100%" height="100%" verticalGap="0">							
-							<mx:Repeater id="requestCategoryRepeater2" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != ''  != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @type == parentApplication.TYPE_ILLUMINA)}">
+							<mx:Repeater id="requestCategoryRepeater2" dataProvider="{addLanesAmendRequestCategories}">
 								<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 								    <mx:HBox horizontalAlign="center">
 								     <mx:Image 						    	

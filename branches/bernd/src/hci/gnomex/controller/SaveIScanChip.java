@@ -111,6 +111,7 @@ public class SaveIScanChip extends GNomExCommand implements Serializable {
     chip.setName(chipScreen.getName());
     chip.setCostPerSample(chipScreen.getCostPerSample());
     chip.setSamplesPerChip(chipScreen.getSamplesPerChip());
+    chip.setChipsPerKit(chipScreen.getChipsPerKit());
     chip.setMarkersPerSample(chipScreen.getMarkersPerSample());
     chip.setIsActive(chipScreen.getIsActive());
     chip.setCatalogNumber(chipScreen.getCatalogNumber());

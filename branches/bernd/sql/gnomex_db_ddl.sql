@@ -1035,6 +1035,7 @@ CREATE TABLE `gnomex`.`IScanChip` (
   `name` VARCHAR(500) NULL,
   `costPerSample` DECIMAL(5, 2) NULL,
   `samplesPerChip` INT(10) NULL,
+  `chipsPerKit` INT(10) NULL,
   `markersPerSample` VARCHAR(100) NULL,
   `catalogNumber` VARCHAR(100) NULL,
   `isActive` CHAR(1) NULL,
@@ -1634,6 +1635,10 @@ CREATE TABLE `gnomex`.`RequestCategory` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategory_CoreFacility` FOREIGN KEY `FK_RequestCategory_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategory_RequestCategoryType` FOREIGN KEY `FK_RequestCategory_RequestCategoryType` (`type`)
+    REFERENCES `gnomex`.`RequestCategoryType` (`codeRequestCategoryType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2984,8 +2989,16 @@ CREATE TABLE `gnomex`.`FAQ` (
   PRIMARY KEY (`idFAQ`)
 )
 ENGINE = INNODB;
-
-SET FOREIGN_KEY_CHECKS = 1;
+DROP TABLE IF EXISTS `gnomex`.`RequestCategoryType`;
+CREATE TABLE `gnomex`.`RequestCategoryType` (
+  codeRequestCategoryType VARCHAR(10) NOT NULL,
+  description VARCHAR(50) NOT NULL,
+  defaultIcon VARCHAR(100) NOT NULL,
+  isIllumina CHAR(1) NOT NULL,
+  hasChannels CHAR(1) NOT NULL,
+  PRIMARY KEY (`codeRequestCategoryType`)
+)
+ENGINE = INNODB;SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------
 -- EOF

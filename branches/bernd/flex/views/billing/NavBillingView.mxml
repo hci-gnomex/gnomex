@@ -1073,6 +1073,8 @@
  			var price:String = billingItem.@invoicePrice;
  			price = price.replace('$', '');
  			price = price.replace(',', '');
+			price = price.replace("(", "-");
+			price = price.replace(")", "");
 			invoicePrice += (price != '' ? new Number(price) : 0);
  			return invoicePrice;
  		}

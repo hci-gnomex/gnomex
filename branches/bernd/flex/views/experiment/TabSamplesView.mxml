@@ -1671,7 +1671,6 @@
 				this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 					&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				
-				seqPrepQualBioanalyzerMethodCol.visible = isEditState && !isExternal && parentDocument.isSolexaState();
 				seqPrepStatus.visible = isEditState && !isExternal && parentDocument.isSolexaState();
 				
 				wellNameCol.visible = (hasPlates() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) ? true : false;
@@ -1742,6 +1741,7 @@
 					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
 					numberSequencingLanesCol.editable = true;
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
+					this.qual260_230Col.visible = false;
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
@@ -2416,10 +2416,6 @@
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
 
-				<mx:AdvancedDataGridColumn id="seqPrepQualBioanalyzerMethodCol" visible="true" headerText="Seq Lib Prep Bioanal Meth" width="100" dataField="@seqPrepQualCodeBioanalyzerChipType" 
-										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@seqPrepQualCodeBioanalyzerChipType', true).newInstance(), '')}"/>
 				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 										   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
@@ -2487,24 +2483,32 @@
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="FragAnalState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
 			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
@@ -2526,8 +2530,8 @@
 			<mx:SetEventHandler target="{samplesGrid}" name="itemFocusIn" handler="countSamples()"/>
 			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
 			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
-			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC Number"/>
-			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="287"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC #"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="350"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="selected" value="true"/>

@@ -960,10 +960,13 @@
 			
 			private var properties:Object;
 			
+			private var requestCategoryTypeMap:Object;
+			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
-			public  var TYPE_ILLUMINA:String      = 'ILLUMINA';
+			public  var TYPE_HISEQ:String         = 'HISEQ';
+			public  var TYPE_MISEQ:String         = 'MISEQ';
 			public  var TYPE_QC:String            = 'QC';
 			public  var TYPE_CAP_SEQ:String       = "CAPSEQ";
 			public  var TYPE_FRAG_ANAL:String	  = "FRAGANAL";
@@ -2371,6 +2374,11 @@
 					}
 				}
 				
+				requestCategoryTypeMap = new Object();
+				for each (var rct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType")) {
+					requestCategoryTypeMap[rct.@codeRequestCategoryType] = rct;
+				}
+				
 				// Determine if the admin uses the Plate Based workflow screens (Fill Plate, Build Run, Review results)
 				this.managesPlateBasedWorkflow = this.doesManagePlateBasedWorkflow();
 				
@@ -2387,7 +2395,7 @@
 				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					isCoreGenomics = true;
 				} else {
-					if (usesExperimentType(this.TYPE_ILLUMINA) ||
+					if (usesIlluminaExperimentType() ||
 						usesExperimentType(this.TYPE_MICROARRAY)) {
 						isCoreGenomics = true;
 					}
@@ -2431,7 +2439,7 @@
 				} else {
 					this.useConfigurableBillingAccounts = false;
 				}
-				
+
 				getSessionTimeout.send();
 			}
 			
@@ -2453,6 +2461,39 @@
 				}
 				return false;
 			}
+			
+			public function usesIlluminaExperimentType():Boolean {
+				if (isGuest) {
+					return false;
+				}
+				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					var found:Boolean = false;
+					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (rc.@isActive == 'Y') {
+							var rct:Object = requestCategoryTypeMap[rc.@type];
+							if (rct.@isIllumina == 'Y') {
+								found = true;
+								break;
+							}
+						}
+					}
+					return found;
+				} 
+				
+				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory.@isActive == 'Y' && requestCategory.@idCoreFacility == cf.@idCoreFacility) {
+							var rct1:Object = requestCategoryTypeMap[requestCategory.@type];
+							if (rct1.@isIllumina == 'Y') {
+								return true;
+								break;
+							}
+						}
+					}
+				}
+				return false;
+			}
+			
 			public function usesExperimentType(experimentType:String):Boolean {
 				if (isGuest) {
 					return false;
@@ -2500,10 +2541,10 @@
 				}
 				
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
-					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
-							requestCategory.@isActive == 'Y') {
+					for each (var requestCategory1:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (requestCategory1.@idCoreFacility == cf.@idCoreFacility &&
+							requestCategory1.@codeRequestCategory.toString().indexOf(codeRequestCategory) != -1 &&
+							requestCategory1.@isActive == 'Y') {
 							return true;
 							break;
 						}

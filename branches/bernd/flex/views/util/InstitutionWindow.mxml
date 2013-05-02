@@ -49,7 +49,8 @@
 			
 			private function addInstitution(event:MouseEvent):void {
 				dirty.setDirty();
-				institutionList.addItem((<Institution idInstitution="" institution="***Click to Edit***" description="***Click to Edit***" isActive="Y"/>));
+				institutionList.addItem((<Institution idInstitution="" institution="" description="" isActive="Y"/>));
+				institutionGrid.editedItemPosition = {rowIndex: institutionList.length - 1, columnIndex: 0};
 				
 			}
 			
@@ -64,14 +65,24 @@
 			}
 			
 			private function onSaveInstitution(event:ResultEvent): void {
-				if (saveInstitution.lastResult.name() != "SUCCESS") {
+				if(saveInstitution.lastResult.name() == "SUCCESS" && saveInstitution.lastResult.@unRemovableInst != ""){
+					Alert.show("The following Institutions were unable to be removed because they currently have data associated with them:\n\n " + saveInstitution.lastResult.@unRemovableInst);
+					parentApplication.dictionaryManager.call("reload", "");
+				} else if (saveInstitution.lastResult.name() != "SUCCESS") {
 					Alert.show("There was an error with your save request");
+					parentApplication.dictionaryManager.call("reload", "");
 				}
 			}	
 			
 			private function save(): void{
 				dirty.resetDirty();
 				var params:Object = new Object();
+				
+				for each (var inst:XML in institutionList){
+					if(inst.@institution == ""){
+						institutionList.removeItemAt(institutionList.getItemIndex(inst));
+					}
+				}
 				params.institutionsXMLString = "<institutionList>" + this.institutionList.toXMLString() + "</institutionList>";
 				saveInstitution.send(params);
 			}
@@ -114,7 +125,7 @@
 		<mx:HDividedBox height="100%" width="100%" >
 			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">	
 				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-					<mx:DataGrid width="100%" height="100%" id="institutionGrid"  dataProvider="{institutionList}" sortableColumns="true" editable="true" change = "dirty.setDirty()" fontSize="11">
+					<mx:DataGrid width="100%" height="100%" id="institutionGrid" dataProvider="{institutionList}" sortableColumns="true" editable="true" change = "dirty.setDirty()" fontSize="11">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution" /> 
 							<mx:DataGridColumn headerText="Description" width="300"  editable="true" dataField="@description"/> 

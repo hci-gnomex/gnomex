@@ -13,6 +13,7 @@ import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.SeqLibTreatment;
@@ -39,15 +40,17 @@ public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
   
   private PropertyDictionaryHelper propertyDictionaryHelper;
-  private List                     requestCategoryList      = new ArrayList();
-  private Map                      requestCategoryMap       = new HashMap();
-  private Map                      oligoBarcodeMap          = new HashMap();
-  private Map                      submissionInstructionMap = new HashMap();
-  private Map                      billingPeriodMap         = new HashMap();
-  private Map                      seqLibTreatmentMap       = new HashMap();
-  private Map                      slideDesignMap           = new HashMap();
-  private Map                      propertyDictionaryMap    = new HashMap();
-  private List                     seqRunTypeList           = new ArrayList();
+  private List                                  requestCategoryList      = new ArrayList();
+  private Map                                   requestCategoryMap       = new HashMap();
+  private Map                                   oligoBarcodeMap          = new HashMap();
+  private Map                                   submissionInstructionMap = new HashMap();
+  private Map                                   billingPeriodMap         = new HashMap();
+  private Map                                   seqLibTreatmentMap       = new HashMap();
+  private Map                                   slideDesignMap           = new HashMap();
+  private Map                                   propertyDictionaryMap    = new HashMap();
+  private Map<String, RequestCategoryType>      requestCategoryTypeMap   = new HashMap<String, RequestCategoryType>();
+  private List                                  seqRunTypeList           = new ArrayList();
+  private Boolean                               dictionariesLoaded       = false; // Indicates if the non-managed dictionaries have been loaded.
 
   // For DataTrack functionality
   private final HashMap<Integer, Property>            propertyMap  = new HashMap<Integer, Property>();
@@ -65,10 +68,12 @@ public class DictionaryHelper implements Serializable {
 
   public DictionaryHelper() {    
   }
-  
+
   public static synchronized DictionaryHelper getInstance(Session sess) {
     if (theInstance == null) {
       theInstance = new DictionaryHelper();
+    }
+    if (!theInstance.dictionariesLoaded && sess != null) {
       theInstance.loadDictionaries(sess);
     }
     return theInstance;
@@ -160,6 +165,7 @@ public class DictionaryHelper implements Serializable {
       
     }
 
+    this.dictionariesLoaded = true;
    }
   
   private void loadManagedDictionaries() {
@@ -225,6 +231,15 @@ public class DictionaryHelper implements Serializable {
       }
       SlideDesign sd = (SlideDesign)de;
       slideDesignMap.put(sd.getIdSlideDesign(), sd);
+    }
+    
+    for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategoryType").iterator(); i.hasNext();) {
+      Object de = i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      RequestCategoryType type = (RequestCategoryType)de;
+      this.requestCategoryTypeMap.put(type.getCodeRequestCategoryType(), type);
     }
     
   }
@@ -691,4 +706,8 @@ public class DictionaryHelper implements Serializable {
     
   }
 
+  public RequestCategoryType getRequestCategoryType(String type) {
+    lazyLoadManagedDictionaries();
+    return this.requestCategoryTypeMap.get(type); 
+  }
 }

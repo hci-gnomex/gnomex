@@ -1272,6 +1272,7 @@
     <property name="name" column="name" type="string"/>
     <property name="costPerSample" column="costPerSample" type="big_decimal"/>
     <property name="samplesPerChip" column="samplesPerChip" type="integer"/>
+    <property name="chipsPerKit" column="chipsPerKit" type="integer"/>
     <property name="markersPerSample" column="markersPerSample" type="string"/>
     <property name="catalogNumber" column="catalogNumber" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
@@ -1682,6 +1683,7 @@
 		<property name="isExternal" column="isExternal" type="string"/>
 	  <property name="refrainFromAutoDelete" column="refrainFromAutoDelete" type="string"/>
     <property name="isClinicalResearch" column="isClinicalResearch" type="string"/>
+    <many-to-one name="categoryType" column="type" class="hci.gnomex.model.RequestCategoryType" cascade="none" insert="false" update="false" lazy="false" />
 	</class>
 	
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
@@ -2195,7 +2197,10 @@
     <id name="codeRequestCategoryType" column="codeRequestCategoryType" type="string">
       <generator class="assigned"/>
     </id>
+    <property name="description" column="description" type="string"/>
+    <property name="defaultIcon" column="defaultIcon" type="string"/>
     <property name="isIllumina" column="isIllumina" type="string"/>
+    <property name="hasChannels" column="hasChannels" type="string"/>
   </class>
 	
 	<!-- hci.gnomex.model.NewsItem -->

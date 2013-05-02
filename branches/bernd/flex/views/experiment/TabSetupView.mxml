@@ -1024,9 +1024,7 @@
 					} else if (lab == null) {
 						keep = true;
 					} else {
-						// If the user is an admin, filter by the core facilities he/she manages; if
-						// the user is a normal user, filter by the core facilities associated with
-						// the labs he/she is a member of.
+						// filter by the lab's core facility
 						for each(var cf:Object in lab..CoreFacility) {
 							if (cf.@idCoreFacility == item.@idCoreFacility) {
 								keep = true;

@@ -22,7 +22,7 @@ public class RequestSampleFilter extends DetailObject {
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
 
-  
+  private boolean               isCreateReport = false;
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
@@ -49,7 +49,11 @@ public class RequestSampleFilter extends DetailObject {
   public static final int       COL_PROPERTY_OPTION = 8;
 
   
-  public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor){
+    return getQuery(secAdvisor, false);
+  }
+  
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
@@ -68,6 +72,9 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" sample.description, ");
     queryBuf.append(" sample.idOrganism ");
     
+    if(isCreateReport){
+      this.isCreateReport = true;
+    }
     getQueryBody(queryBuf);
 
     queryBuf.append(" order by lab.lastName, lab.firstName, req.idRequest, sample.idSample ");
@@ -76,7 +83,11 @@ public class RequestSampleFilter extends DetailObject {
     
   }
 
-  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
+    return getAnnotationQuery(secAdvisor, false);
+  }
+  
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
@@ -92,6 +103,9 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" value.value, ");
     queryBuf.append(" option.option ");
     
+    if(isCreateReport){
+      this.isCreateReport = true;
+    }
     getAnnotationQueryBody(queryBuf);
     
     return queryBuf;
@@ -109,6 +123,9 @@ public class RequestSampleFilter extends DetailObject {
     
     addRequestCriteria();
     addSecurityCriteria();
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
     
   }
   
@@ -128,6 +145,18 @@ public class RequestSampleFilter extends DetailObject {
     
     addRequestCriteria();
     addSecurityCriteria();
+    
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
+  }
+  
+  private void filterByExcludeUsage(){
+    //If getting lab info for all labs don't include labs with excludeUsage == 'Y'
+    if(idLab == null){
+      this.addWhereOrAnd();
+      queryBuf.append(" lab.excludeUsage != 'Y' ");
+    }
   }
   
 
@@ -144,7 +173,7 @@ public class RequestSampleFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
-    } 
+    }
     // Search by user 
     if (idAppUser != null){
       this.addWhereOrAnd();

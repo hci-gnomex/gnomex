@@ -330,32 +330,42 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }
+            
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
-            if ( requestCategory != null &&
-                (   requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
-                    requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
-                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
-              boolean include = false;
-              if (prop.getPlatformApplications() != null) {
-                for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
-                  PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-                  if ( pa.getCodeRequestCategory().equals( request.getCodeRequestCategory() )) {
-                    include = true;
-                    break;
-                  }   
-                }
+            Boolean autoSelect = false;
+            boolean include = true;
+            if (requestCategory != null && 
+                  (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
+                   requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                   requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
+              include = false;
+            }
+            if (prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
+              include = false;
+              for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+                PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+                if ( pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) &&
+                        (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
+                  include = true;
+                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
+                      requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                      requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+                    autoSelect = true;
+                  }
+                  break;
+                }   
+              }
 
-              }
-              if ( !include ) {
-                continue;
-              }
+            }
+            if ( !include ) {
+              continue;
             }
             
             peNode.setAttribute("idProperty", prop.getIdProperty().toString());
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null || 
-                                              (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals( RequestCategory.ISCAN_REQUEST_CATEGORY )) ? "true" : "false");
+                                              autoSelect ? "true" : "false");
             peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
                 
