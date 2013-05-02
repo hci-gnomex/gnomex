@@ -807,10 +807,10 @@
 								<mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
 									<mx:VBox verticalGap="0" height="100%" width="100%">
 										<mx:HBox>
-											<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
-											<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
+											<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{property.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
+											<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{property.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
 										</mx:HBox>
-										<mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{propertyList.selectedItem.@canUpdate == 'Y' ? true : false}" width="100%" showHeaders="true"  height="100%">
+										<mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{property.@canUpdate == 'Y' ? true : false}" width="100%" showHeaders="true"  height="100%">
 											<mx:columns>
 												<mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
 												<mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
