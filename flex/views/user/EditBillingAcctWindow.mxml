@@ -116,10 +116,10 @@
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.core.Container;
+		import mx.events.ValidationResultEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.events.ValidationResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
 		
@@ -359,6 +359,9 @@
 			//kludge to pick up defaulting of start date when necssary
 			if (startDateHBox.visible) {
 				ba.@startDateOther = startDatePicker.text;
+			}
+			if(expirationDateHBox.visible){
+				ba.@expirationDateOther = expirationDatePicker.text;
 			}
 			
 			if (isEdit) {
