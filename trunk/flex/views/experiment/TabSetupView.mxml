@@ -509,7 +509,7 @@
 				refreshRequestCategories();
 				
 				if (parentDocument != null && !parentDocument.isAmendState()) {
-					parentDocument.filteredProjectList.refresh();	        	
+					parentDocument.filteredProjectList.refresh();       	
 				}
 				
 				selectDefaultUserProject();
@@ -1100,7 +1100,7 @@
 								 labelField="@name" 
 								 prompt="Select a lab..."
 								 width="400"
-								 close="parentDocument.filteredProjectList.refresh();projectCombo.selectedIndex = -1;checkSetupCompleteness();getMembersOfLab();parentDocument.refreshFilteredProjects();" 
+								 close="projectCombo.selectedIndex = -1;getMembersOfLab();" 
 								 id="labCombo">
 					</renderers:FilterComboBox>
 				</mx:HBox>
