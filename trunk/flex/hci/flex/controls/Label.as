@@ -51,13 +51,7 @@ package hci.flex.controls
           if (!data.hasOwnProperty(_dataField)) {
           	return;
           }
-          
-          //var grid:DataGrid = DataGrid(DataGridListData(listData).owner);
-		  //if (grid.isItemSelected(data) || grid.isItemHighlighted(data)) {
-          //   return;		 	
-		  //}
-
-		  
+          		  
           if (data[_dataField] == '') {
 	          g.beginFill(missingRequiredFieldBackground);
 	          g.lineStyle(missingRequiredFieldBorderThickness,

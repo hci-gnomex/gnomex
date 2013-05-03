@@ -168,22 +168,7 @@ package hci.flex.controls
 	          if (super.data == null) {
 	          	return;
 	          }
-	          
-	          if (isRequired) {
-			      var colors:Array = new Array();
-		          if(this.selectedItem == null || this.selectedItem[valueField] == "") {
-			          colors.push(missingRequiredFieldBackground);		          
-			          colors.push("0xCCCCCC");		          
-			          this.setStyle("fillColors", colors);
-		          	
-		          } else {
-			          colors.push("0xFFFFFF");
-			          colors.push("0xCCCCCC");		          
-			          this.setStyle("fillColors", colors);
-		          }
-	          	
-	          }
-	          		          
+	          	          		          
 	    }
         
 		public static function getFactory(
