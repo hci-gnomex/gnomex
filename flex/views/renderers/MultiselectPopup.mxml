@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
-				width="180" height="{checkboxGrid.height + 60}" showCloseButton="true" close="save()" creationComplete="centerMe()"
+				width="180" showCloseButton="true" close="save()" creationComplete="centerMe()"
 				 paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" horizontalScrollPolicy="off">
 	
 	
@@ -117,7 +117,7 @@
 	</mx:HBox>
 
 	<mx:DataGrid id="checkboxGrid" dataProvider="{options}" 
-				 rowCount="{(options.length > 0 ? options.length - 1 : 1)}"
+				 rowCount="{(options.length > 0 ? options.length : 1)}"
 				 width="100%"  showHeaders="false"
 				 itemClick="toggleCheck(event)">
 		<mx:columns>
