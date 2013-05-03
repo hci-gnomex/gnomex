@@ -899,6 +899,7 @@
 			[Bindable]
 			public var useConfigurableBillingAccounts:Boolean = false;
 			
+			public var nonReqAnnotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
 			public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 			public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 			
