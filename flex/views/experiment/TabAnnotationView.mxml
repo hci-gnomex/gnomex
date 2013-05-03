@@ -286,22 +286,22 @@
 				aCol.editable = false;
 				newCol.propertyType = property.@codePropertyType;
 				if (property.@codePropertyType == 'MOPTION') {
-					newCol.itemRenderer =  MultiselectRenderer.create();
+					newCol.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
 					aCol.itemRenderer =  MultiselectRenderer.create(false);
 					if (colExisting != null) {
-						colExisting.itemRenderer =  MultiselectRenderer.create();
+						colExisting.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
 					}
 					if (colConfirmExisting != null) {
-						colConfirmExisting.itemRenderer =  MultiselectRenderer.create();
+						colConfirmExisting.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
 					}
 				} else if (property.@codePropertyType == 'URL') {
-					newCol.itemRenderer = URLRenderer.create();
+					newCol.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
 					aCol.itemRenderer = URLRenderer.create(false);
 					if (colExisting != null) {
-						colExisting.itemRenderer = URLRenderer.create();
+						colExisting.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
 					}
 					if (colConfirmExisting != null) {
-						colConfirmExisting.itemRenderer = URLRenderer.create();
+						colConfirmExisting.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
 					}
 				} else if (property.@codePropertyType == 'CHECK') {
 					newCol.itemRenderer = CheckBoxRenderer.create();
@@ -309,7 +309,7 @@
 						colExisting.itemRenderer = CheckBoxRenderer.create();
 					}
 					if (colConfirmExisting != null) {
-						colExisting.itemRenderer = CheckBoxRenderer.create();
+						colConfirmExisting.itemRenderer = CheckBoxRenderer.create();
 					}
 				} else if (property.@codePropertyType == 'OPTION') {
 					newCol.editable = true;
@@ -318,13 +318,15 @@
 						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
 						'@option', 
 						'@idPropertyOption', 
-						fieldName);                
+						fieldName,
+						annotation.@isRequired == 'true',
+						true);                
 					aCol.itemRenderer = views.renderers.DropdownLabel.create(
 						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
 						'@option', 
 						'@idPropertyOption', 
 						fieldName,
-						false); 
+						false, false); 
 					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
 						"@option",
@@ -342,7 +344,9 @@
 							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
 							'@option', 
 							'@idPropertyOption', 
-							fieldName); 
+							fieldName,
+							annotation.@isRequired == 'true',
+							true); 
 						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
 							"@option",
@@ -361,27 +365,44 @@
 							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
 							'@option', 
 							'@idPropertyOption', 
-							fieldName); 
+							fieldName,
+							annotation.@isRequired == 'true',
+							true); 
 						
 					}
 				} else  {
 					// Assume text
 					newCol.editable   = true;
-					newCol.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+					newCol.itemRenderer = views.renderers.Text.createCustom(property, 
+						parentApplication.annotationColor, 
+						parentApplication.annotationColorBorder, 
+						0, 
+						parentApplication.nonReqAnnotationColor, 
+						annotation.@isRequired == 'true');
 					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
 					newCol.editorDataField="value";
 					newCol.wordWrap = true;
 					
 					if (colExisting != null) {
 						colExisting.editable   = true;
-						colExisting.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colExisting.itemRenderer = views.renderers.Text.createCustom(property, 
+							parentApplication.annotationColor, 
+							parentApplication.annotationColorBorder, 
+							0, 
+							parentApplication.nonReqAnnotationColor, 
+							annotation.@isRequired == 'true');
 						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
 						colExisting.editorDataField="value";
 						colExisting.wordWrap = true;
 					}
 					if (colConfirmExisting != null) {
 						colConfirmExisting.editable   = true;
-						colConfirmExisting.itemRenderer = views.renderers.Text.createCustom(fieldName, parentApplication.annotationColor, parentApplication.annotationColorBorder, 0);
+						colConfirmExisting.itemRenderer = views.renderers.Text.createCustom(property, 
+							parentApplication.annotationColor, 
+							parentApplication.annotationColorBorder, 
+							0, 
+							parentApplication.nonReqAnnotationColor, 
+							annotation.@isRequired == 'true');
 						colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
 						colExisting.wordWrap = true;
 					}

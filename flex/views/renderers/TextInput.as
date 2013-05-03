@@ -10,16 +10,20 @@ package views.renderers
 		public var dataField:String;
 		public var isRequired:Boolean = false;
 		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
+		public var missingFieldBackground:uint = RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
+		
 		
 		public static function create(
 			dataField:String, 
 			isRequired:Boolean = false,
-			missingRequiredFieldBackground:uint = 0xFFFFB9):IFactory {
+			missingRequiredFieldBackground:uint = 0xFFFFB9,
+			missingFieldBackground:uint = 0xeaeaea):IFactory {
 			
 			return RendererFactory.create(views.renderers.TextInput, { 
 				dataField: dataField,
 				isRequired: isRequired, 
-				missingRequiredFieldBackground: missingRequiredFieldBackground });							  
+				missingRequiredFieldBackground: missingRequiredFieldBackground,
+				missingFieldBackground: missingFieldBackground});							  
 		}			
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
@@ -30,7 +34,11 @@ package views.renderers
 				return;
 			}
 			editable = true;
-			this.setStyle("backgroundColor", data[dataField] == '' ? missingRequiredFieldBackground : "0xffffff");
+			if ( data[dataField] == '' ){
+				this.setStyle("backgroundColor",isRequired ? missingRequiredFieldBackground : missingFieldBackground);
+			} else {
+				this.clearStyle("backgroundColor");
+			}
 		}
 	}
 }

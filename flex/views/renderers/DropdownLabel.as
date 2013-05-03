@@ -13,44 +13,45 @@ package views.renderers
 										  labelField:String,
 										  valueField:String,
 										  dataField:String,
-										  isRequired:Boolean=true
+										  isRequired:Boolean=false,
+										  isEditable:Boolean=false
 								          ):IFactory {
 			return RendererFactory.create(views.renderers.DropdownLabel, {dataProvider: dataProvider, 
 																		 labelField: labelField,
 																		 valueField: valueField,
 																		 dataField: dataField,
-																		 isRequired:isRequired
+																		 isRequired:isRequired,
+																		 isEditable:isEditable
 																		 });			
 		}
 			
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
             super.updateDisplayList(unscaledWidth,unscaledHeight);
-	    	if (data == null || !(data is XML)) {
-				var g0:Graphics = graphics;
-				g0.clear();
+			
+			var g:Graphics = graphics;
+			g.clear();
+			
+			if (data == null || !(data is XML)) {
 	      		return;
 	      	}
-			
-			if (!isRequired) {
-				var g1:Graphics = graphics;
-				g1.clear();
-				return;
-			}
-          
-        	if (!parentDocument.parentDocument.isEditState()) {
-          		var g:Graphics = graphics;
-	        	g.clear();	        
-		  	  
-	        	if (!data.hasOwnProperty(dataField) || data[dataField] == '') {
-	        		g.beginFill(!data.hasOwnProperty(dataField) || data[dataField] == '' ? missingRequiredFieldBackground : 0xffffff );
-	    	    	g.lineStyle(missingRequiredFieldBorderThickness, missingRequiredFieldBorder );          	
-					g.drawRect(0,0,unscaledWidth,unscaledHeight);
-		        	g.endFill();
-          	  	}
-          	} else {
-          		var g2:Graphics = graphics;
-	        	g2.clear();
-          	}					        				
+        	if (isEditable) {
+          		        
+				if (this.text == null || this.text == '') {
+					if ( !isRequired ) {
+						g.beginFill(missingFieldBackground);
+						g.lineStyle(missingRequiredFieldBorderThickness,
+							missingFieldBackground);          	
+						g.drawRect(0,0,unscaledWidth,unscaledHeight);
+						g.endFill();
+					} else {
+						g.beginFill(missingRequiredFieldBackground);
+						g.lineStyle(missingRequiredFieldBorderThickness,
+							missingRequiredFieldBorder);          	
+						g.drawRect(0,0,unscaledWidth,unscaledHeight);
+						g.endFill();
+					}
+				} 
+          	} 				        				
 		
         }	
 	}
