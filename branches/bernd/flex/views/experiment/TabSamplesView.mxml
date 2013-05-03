@@ -2047,8 +2047,8 @@
 		</mx:HBox>
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%">
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 			<mx:HBox id="buttonsContainer" horizontalGap="2">
-				<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
 				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
 							   label="Upload help" 
@@ -2272,8 +2272,10 @@
 					</mx:headerRenderer> 
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
-										   editorDataField="value" sortable="false" editable="false" rendererIsEditor="false"
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.seqLibProtocolList.copy(), '@display', '@value', '@idSeqLibProtocol')}"/>
+										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
+										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
+
 
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumn" 

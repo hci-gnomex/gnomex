@@ -87,6 +87,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer         numberIScanChips;
   private String          applicationNotes;
   private String          coreToExtractDNA;
+  private Date            processingDate;   // Date request was set to Processing status
   
   // Bernd added
   private Application	  application;
@@ -1263,6 +1264,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setCoreToExtractDNA( String coreToExtractDNA ) {
     this.coreToExtractDNA = coreToExtractDNA;
   }
+  
+  public Date getProcessingDate() {
+    return processingDate;
+  }
+  public void setProcessingDate(Date processingDate) {
+    this.processingDate = processingDate;
+  }
+
   public boolean isLibPrepByCore() {
     if (this.getSamples().size() > 0) {
       Sample sample = (Sample)this.getSamples().iterator().next();

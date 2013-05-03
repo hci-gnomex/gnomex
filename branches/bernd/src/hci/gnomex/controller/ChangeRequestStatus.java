@@ -153,6 +153,12 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           
         }
         
+        if (codeRequestStatus.equals(RequestStatus.PROCESSING)) {
+          if (req.getProcessingDate() == null) {
+            req.setProcessingDate( new java.sql.Date( System.currentTimeMillis() ) );
+          }
+        }
+        
         sess.flush();
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();

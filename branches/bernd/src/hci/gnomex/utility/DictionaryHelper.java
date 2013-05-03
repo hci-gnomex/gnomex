@@ -104,7 +104,11 @@ public class DictionaryHelper implements Serializable {
   
   private void lazyLoadManagedDictionaries(){
     if (!managedDictionariesLoaded) {
-      loadManagedDictionaries();
+      synchronized(this) {
+        if (!managedDictionariesLoaded) {
+          loadManagedDictionaries();
+        }
+      }
     }
   }
   
@@ -183,6 +187,7 @@ public class DictionaryHelper implements Serializable {
       requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
     }
+    seqRunTypeList = new ArrayList();
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqRunType").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
@@ -242,6 +247,7 @@ public class DictionaryHelper implements Serializable {
       this.requestCategoryTypeMap.put(type.getCodeRequestCategoryType(), type);
     }
     
+    this.managedDictionariesLoaded = true;
   }
   
   public Property getPropertyDictionary(Integer idProperty) {
