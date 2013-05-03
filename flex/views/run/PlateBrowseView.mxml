@@ -36,7 +36,6 @@
 			import mx.events.PropertyChangeEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.renderers.Label;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
