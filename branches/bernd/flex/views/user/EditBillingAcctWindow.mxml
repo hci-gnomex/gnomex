@@ -731,6 +731,8 @@
 				saveButton.enabled = false;
 				submitterEmail.errorString = validationEvent.message;
 			}
+			
+			ba.@submitterEmail = submitterEmail.text;
 		}
 		
 	]]>
@@ -886,7 +888,7 @@
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="submitterEmailHBox">
 			<mx:Label text="Submitter Email" width="120" id="submitterEmailLabel" styleName="formLabel"/>
-			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = submitterEmail.text}" keyUp="checkEmailValidity(event)"/>
+			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = this.submitterEmail.text}" keyUp="checkEmailValidity(event);"/>
 		</mx:HBox>
 		
 		<mx:VBox verticalGap="0" width="100%" id="iAgreeHBox" visible="false" includeInLayout="false">

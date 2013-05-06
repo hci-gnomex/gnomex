@@ -54,31 +54,21 @@ public class MailUtil
         return false;
       }
       
-      List<String> emailAddresses = new ArrayList<String>();
       String[] tokens = null;
-      if (emailAddress.contains(", ")) {
-        tokens = emailAddress.split(", ");
-      } else if (emailAddress.contains(",")) {
-        tokens = emailAddress.split(",");
-      } else if (emailAddress.contains(" ")) {
-        tokens = emailAddress.split(" ");
-      } else {
-        emailAddresses.add(emailAddress);
-      }
-      if (tokens != null) {
+      tokens = emailAddress.split("[,; ]");
+      if (tokens != null && tokens.length > 0) {
         for (int x = 0; x < tokens.length; x++) {
-          emailAddresses.add(tokens[x]);
+          if(!tokens[x].equals("")){
+            if(!isValidEmailImpl(tokens[x].trim())){
+              return false;
+            }
+          }
         }
+      } else{
+        return isValidEmailImpl(emailAddress.trim());
       }
       
-      boolean isValid = true;
-      for (String theEmailAddress : emailAddresses) {
-        if (!isValidEmailImpl(theEmailAddress)) {
-          isValid = false;
-          break;
-        }   
-      }
-      return isValid;
+      return true;
     }
     
     private static Boolean isValidEmailImpl(String emailAddress){

@@ -11,6 +11,8 @@ package views.renderers
 		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 		public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 		public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
+		public var missingFieldBackground:uint = RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
+		public var isRequired:Boolean = false;
 		
 		public static function create(dataField:String):IFactory {
 			return RendererFactory.create(views.renderers.Text,
@@ -21,12 +23,16 @@ package views.renderers
 		public static function createCustom(dataField:String, 
 											theMissingRequiredFieldBackground:uint,
 											theMissingRequiredFieldBorder:uint,
-											theMissingRequiredFieldBorderThickness:uint):IFactory {
+											theMissingRequiredFieldBorderThickness:uint,
+											theMissingFieldBackground:uint,
+											isRequired:Boolean=true):IFactory {
 			return RendererFactory.create(views.renderers.Text, 
 				{ _dataField: dataField, 
 					missingRequiredFieldBackground: theMissingRequiredFieldBackground,
 					missingRequiredFieldBorder: theMissingRequiredFieldBorder,
-					missingRequiredFieldBorderThickness: theMissingRequiredFieldBorderThickness});			
+					missingRequiredFieldBorderThickness: theMissingRequiredFieldBorderThickness,
+					missingFieldBackground: theMissingFieldBackground,
+					isRequired:isRequired});			
 			
 		}			 
 		public function set dataField(dataField:String):void {
@@ -45,19 +51,24 @@ package views.renderers
 			super.updateDisplayList(unscaledWidth,unscaledHeight);
 			var g:Graphics = graphics;
 			g.clear();
-			if (data == null) {
+			if (data == null || !(data is XML)) {
 				return;
 			}
-			if (!(data is XML)) {
-				return;
+			if (this.text == null || this.text == '') {
+				if ( !isRequired ) {
+					g.beginFill(missingFieldBackground);
+					g.lineStyle(missingRequiredFieldBorderThickness,
+						missingFieldBackground);          	
+					g.drawRect(0,0,unscaledWidth,unscaledHeight);
+					g.endFill();
+				} else {
+					g.beginFill(missingRequiredFieldBackground);
+					g.lineStyle(missingRequiredFieldBorderThickness,
+						missingRequiredFieldBorder);          	
+					g.drawRect(0,0,unscaledWidth,unscaledHeight);
+					g.endFill();
+				}
 			} 
-			if (!data.hasOwnProperty(_dataField) || data[_dataField] == '') {
-				g.beginFill(missingRequiredFieldBackground);
-				g.lineStyle(missingRequiredFieldBorderThickness,
-					missingRequiredFieldBorder);          	
-				g.drawRect(0,0,unscaledWidth,unscaledHeight);
-				g.endFill();
-			}
 			
 		}
 	}

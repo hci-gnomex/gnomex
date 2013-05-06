@@ -27,12 +27,14 @@
 			
 			[Bindable]
 			public var isEditable:Boolean = true;
+			[Bindable]
+			public var isRequired:Boolean = false;
 			
 			private var pop:URLPopup;
 			
 			
-			public static function create(isEditable:Boolean=true):IFactory {
-				return RendererFactory.create(URLRenderer, {isEditable:isEditable});
+			public static function create(isEditable:Boolean=true,isRequired:Boolean=false):IFactory {
+				return RendererFactory.create(URLRenderer, {isEditable:isEditable, isRequired:isRequired});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -118,7 +120,7 @@
 			{
 				super.updateDisplayList(unscaledWidth,unscaledHeight);
 				
-				if (data != null && !(data is XML)) {
+				if (data == null || !(data is XML)) {
 					return;
 				}
 				
@@ -128,13 +130,23 @@
 				
 				var g:Graphics = graphics;
 				g.clear();
-				g.beginFill(_listData == null ||  _listData.dataField == null || data == null || !data.hasOwnProperty(_listData.dataField) || data[_listData.dataField]  == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
-				if (_listData == null ||  _listData.dataField == null || data == null || !data.hasOwnProperty(_listData.dataField) || data[_listData.dataField]  == '' ) {
-					g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
-						RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER );          	
-				}
-				g.drawRect(0,0,unscaledWidth,unscaledHeight);
-				g.endFill();
+				
+				if (this.text == null || this.text == '') { 
+					if ( !isRequired ) {
+						g.beginFill(RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND);
+						g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
+							RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND);          	
+						g.drawRect(0,0,unscaledWidth,unscaledHeight);
+						g.endFill();
+					} else {
+						g.beginFill(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND);
+						g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
+							RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER);          	
+						g.drawRect(0,0,unscaledWidth,unscaledHeight);
+						g.endFill();
+					}
+				} 
+				
 			}
 			
 			

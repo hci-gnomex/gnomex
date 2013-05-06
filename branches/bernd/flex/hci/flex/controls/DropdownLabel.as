@@ -11,9 +11,11 @@ package hci.flex.controls
 		public var valueField:String;
 		public var dataProvider:XMLList;
 		public var isRequired:Boolean = false;
+		public var isEditable:Boolean = true;
 		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	    public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
-	    public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS; 		
+	    public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
+		public var missingFieldBackground:uint = RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
 		
 		//For use in list
 		public var dataField:String;	
@@ -61,13 +63,15 @@ package hci.flex.controls
 			valueField:String, 
 			dataField:String, 
 			isRequired:Boolean=false, 
-			missingRequiredFieldBackground:uint = 0xFFFFB9):IFactory {			
+			isEditable:Boolean=false, 
+			missingRequiredFieldBackground:uint = 0xeaeaea):IFactory {			
 			
 			return RendererFactory.create(hci.flex.controls.DropdownLabel, {dataProvider: dataProvider, 
 													labelField: labelField,  
 													valueField: valueField,
 													dataField: dataField,
 													isRequired: isRequired,
+													isEditable: isEditable,
 													missingRequiredFieldBackground: missingRequiredFieldBackground});				
 		} 
 		
@@ -77,21 +81,22 @@ package hci.flex.controls
 	      		return;
 	      	}
 	      	if (!data.hasOwnProperty(dataField)) {
-	      		return;
-	      	}
-
-          
-        	if (isRequired) {
-          		var g:Graphics = graphics;
-	        	g.clear();	        
-		  	  
-	        	if (data[dataField] == '') {
-	        		g.beginFill( data[dataField] == '' ? missingRequiredFieldBackground : 0xffffff );
-	    	    	g.lineStyle(missingRequiredFieldBorderThickness, missingRequiredFieldBorder );          	
-					g.drawRect(0,0,unscaledWidth,unscaledHeight);
-		        	g.endFill();
-          	  	}
-          	}					        				
+				return;
+			}
+			
+			if ( isEditable ) {
+				if (isRequired) {
+					var g:Graphics = graphics;
+					g.clear();	        
+					
+					if (data[dataField] == '') {
+						g.beginFill( missingRequiredFieldBackground );
+						g.lineStyle(missingRequiredFieldBorderThickness, missingRequiredFieldBorder );          	
+						g.drawRect(0,0,unscaledWidth,unscaledHeight);
+						g.endFill();
+					}
+				}					        				
+			}
 		}
 	}
 }
