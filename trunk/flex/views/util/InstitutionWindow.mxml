@@ -130,7 +130,7 @@
 							<mx:DataGridColumn headerText="Institution" width="300"  editable="true" dataField="@institution" /> 
 							<mx:DataGridColumn headerText="Description" width="300"  editable="true" dataField="@description"/> 
 							<mx:DataGridColumn headerText="Active" dataField="@isActive" rendererIsEditor="true" itemRenderer="{CheckBox.getFactory('Y', 'N', '@isActive', true)}"
-											   width="40" editorDataField="selected" editable = "false" />
+											   width="50" editorDataField="selected" editable = "false" />
 						</mx:columns>
 					</mx:DataGrid>
 					<mx:ControlBar width="100%" horizontalAlign="right"   paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
