@@ -148,6 +148,7 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
         if(!unRemovableInst.equals("")){
           unRemovableInst = unRemovableInst.substring(0, unRemovableInst.lastIndexOf(","));
         }
+        sess.flush();
         
       }
 
