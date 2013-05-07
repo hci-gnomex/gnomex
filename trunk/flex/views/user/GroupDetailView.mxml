@@ -727,6 +727,7 @@
 			private function onSaveGroup(event:ResultEvent):void {
 				if (saveGroup.lastResult.name() == "SUCCESS") {
 					parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+					parentApplication.getLabList.send();
 					parentApplication.dictionaryManager.call("reload", "");
 				} else {
 					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
