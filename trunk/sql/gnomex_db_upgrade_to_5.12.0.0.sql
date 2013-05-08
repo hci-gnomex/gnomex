@@ -34,3 +34,4 @@ update RequestCategory set type='MISEQ' where requestCategory like '%MISEQ%';
 update RequestCategory set type='HISEQ' where type='illumina';
 delete from RequestCategoryType where codeRequestCategoryType='ILLUMINA';
   
+alter table Request add processingDate DATETIME NULL; 
