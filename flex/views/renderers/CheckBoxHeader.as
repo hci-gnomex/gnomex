@@ -99,7 +99,7 @@ package views.renderers {
 
 					if ( !( c is TextField )) {
 						c.x = ( w - c.width ) / 2;
-						c.y = 0;
+						c.y = ( h - c.height ) / 2;
 						c.alpha = 1;
 
 						if ( partiallySelected ) {
