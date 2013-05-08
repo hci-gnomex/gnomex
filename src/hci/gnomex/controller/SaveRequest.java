@@ -832,7 +832,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
               BillingItem bi = (BillingItem)ib.next();
               if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-                bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());   
+                bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
+                bi.setIdLab(requestParser.getRequest().getIdLab());
                 bi.resetInvoiceForBillingItem(sess);
                 reassignCount++;
               } else  {
