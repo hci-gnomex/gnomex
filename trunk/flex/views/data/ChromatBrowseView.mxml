@@ -68,6 +68,7 @@
 			import mx.collections.ListCollectionView;
 			import mx.controls.Alert;
 			import mx.controls.List;
+			import mx.core.ScrollPolicy;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
@@ -756,20 +757,20 @@
 	
 	
 	<mx:VBox width="100%" height="100%" verticalGap="1">
-		<util:DataGridAlternatingGroup id="chromatogramGrid"
+		<util:DataGridAlternatingGroup id="chromatogramGrid" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 									   allowMultipleSelection="true"
 									   itemClick="gridItemClick(event)"
 									   click="{selectedChromats.refresh();}"
 									   width="100%"
 									   height="100%"
 									   dataProvider="{chromats}"
-									   sortArrowSkin="mx.skins.ProgrammaticSkin" borderStyle="none" fontSize="11">
+									   sortArrowSkin="mx.skins.ProgrammaticSkin" borderStyle="solid" fontSize="11">
 			<util:columns>
 				
 				<mx:DataGridColumn id="checkBoxColumn"
 								   textAlign="center"
 								   width="30"
-								   minWidth="25"
+								   minWidth="30"
 								   resizable="false"
 								   sortable="false"
 								   editable="true"
@@ -786,7 +787,7 @@
 								   resizable="false"
 								   sortable="false"
 								   width="33" 
-								   minWidth="30"
+								   minWidth="33"
 								   draggable="false">
 					<mx:itemRenderer>
 						<mx:Component>
@@ -799,7 +800,7 @@
 				
 				<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
 								   headerText="File"
-								   minWidth="85"
+								   minWidth="80"
 								   textDecoration="underline"
 								   color="#2017D8"
 								   draggable="false"
