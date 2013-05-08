@@ -1341,6 +1341,7 @@
 		private function validateAndSave():void {
 			var isExternalApproved:Boolean = false;
 			var isEmptyPriceOrQty:Boolean = false;
+			var isNegativeQtyAndPrice:Boolean = false;
 			for each(var request:XML in billingItems) {
  				if (request.@isDirty == "Y") { 
  					if (request.@isExternalPricing == "Y" || request.@isExternalCommercialPricing == "Y") {
@@ -1354,7 +1355,10 @@
  					for each(var bi1:XML in request.BillingItem) {
  						if (bi1.@qty == '' || bi1.@unitPrice == '' || bi1.@unitPrice == 0 || bi1.@invoicePrice == '' || bi1.@invoicePrice == 0) {
  							isEmptyPriceOrQty = true;
- 						}
+ 						} else if (bi1.@qty < 0 && bi1.@unitPrice < 0) {
+							Alert.show("Either unit price or qty can be negative but not both", "Error");
+							return;
+						}
 						if (bi1.@idBillingPeriod == '') {
 							Alert.show("Each price must have an associated billing period.",
 								"Error");
