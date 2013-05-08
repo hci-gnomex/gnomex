@@ -2649,14 +2649,12 @@
 				
 			}			
 			if (isEditState()) {
-				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
-				visibilityView.privacyExpirationPicker.text = request.@privacyExpirationDate;
+				visibilityView.init(); // Set institution combo, etc.
 				if (request.@canUpdateVisibility != 'Y') {
 					this.visibilityView.enabled = false;
 				} else {
 					this.visibilityView.enabled = true;
 				}
-			} else {
 			}
 			
 			
