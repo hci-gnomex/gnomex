@@ -1084,6 +1084,7 @@
 		}
 		
 		private function pickChip():void {
+			numberIScanSamples.selectedIndex = -1;
 			if (this.iScanChipRadioGroup.selectedValue != null && 
 				(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
 				this.iScanChipBox.styleName = "normalBox";

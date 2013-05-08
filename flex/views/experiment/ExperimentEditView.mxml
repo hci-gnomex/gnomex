@@ -2283,21 +2283,13 @@
 				this.currentState = "SequenomEditState";
 				this.sampleSetupView.currentState = 'SequenomState';
 				
-				this.samplesView.currentState = 'SequenomState';				
-//				this.samplesView.showHideColumns();				
-//				if (this.samplesView.hasPlates()) {
-//					this.samplesView.fillPlates();
-//				}
+				this.samplesView.currentState = 'SequenomState';
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomEditState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
 				
-				this.samplesView.currentState = 'ClinicalSequenomState';				
-//				this.samplesView.showHideColumns();				
-//				if (this.samplesView.hasPlates()) {
-//					this.samplesView.fillPlates();
-//				}
+				this.samplesView.currentState = 'ClinicalSequenomState';
 				
 			}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
@@ -3362,9 +3354,10 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if (sample.@name != null && sample.@name != '') {
-					request.samples.appendChild(sample);
+				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+					continue;
 				}
+				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
 			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
@@ -3492,8 +3485,7 @@
 			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if (   (this.isCapSeqState() || this.isCherryPickState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) 
-					&& (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
