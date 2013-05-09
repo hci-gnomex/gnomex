@@ -168,6 +168,7 @@
 				if ( event.result.name() == "ChromatogramList" ) {
 					selectedChromats.refresh();
 					comboBox.selectedIndex = -1;
+					this.chromatogramGrid.horizontalScrollPolicy = ScrollPolicy.OFF;
 					return;
 				}
 				Alert.show( event.result..ERROR.@message.toString(), "Error getting chromatogram list" );
@@ -757,7 +758,8 @@
 	
 	
 	<mx:VBox width="100%" height="100%" verticalGap="1">
-		<util:DataGridAlternatingGroup id="chromatogramGrid" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
+		<util:DataGridAlternatingGroup id="chromatogramGrid" 
+									   horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 									   allowMultipleSelection="true"
 									   itemClick="gridItemClick(event)"
 									   click="{selectedChromats.refresh();}"
@@ -769,8 +771,7 @@
 				
 				<mx:DataGridColumn id="checkBoxColumn"
 								   textAlign="center"
-								   width="30"
-								   minWidth="30"
+								   width="30" minWidth="30"
 								   resizable="false"
 								   sortable="false"
 								   editable="true"
@@ -786,8 +787,7 @@
 								   editable="false"
 								   resizable="false"
 								   sortable="false"
-								   width="33" 
-								   minWidth="33"
+								   width="33" minWidth="33"
 								   draggable="false">
 					<mx:itemRenderer>
 						<mx:Component>
@@ -800,8 +800,8 @@
 				
 				<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
 								   headerText="File"
-								   minWidth="80"
 								   textDecoration="underline"
+								   width="175"
 								   color="#2017D8"
 								   draggable="false"
 								   showDataTips="true"
@@ -818,8 +818,7 @@
 								   editable="false"
 								   resizable="false"
 								   sortable="false"
-								   width="33" 
-								   minWidth="30"
+								   width="33" minWidth="33"
 								   draggable="false">
 					<mx:itemRenderer>
 						<mx:Component>
@@ -832,26 +831,26 @@
 				
 				<mx:DataGridColumn dataField="@idPlateWellShort"
 								   headerText="ID"
-								   width="44" minWidth="20" />
+								   width="44" />
 				<mx:DataGridColumn dataField="@plateLabel"
 								   headerText="Plate" 
-								   width="90" minWidth="20" visible="{this.parentDocument is NavDataView}" />
+								   width="90" visible="{this.parentDocument is NavDataView}" />
 				<mx:DataGridColumn dataField="@wellPosition" 
 								   headerText="Well"
-								   width="35" minWidth="10" visible="{this.parentDocument is NavDataView}"
+								   width="35" visible="{this.parentDocument is NavDataView}"
 								   sortCompareFunction="fieldNumericSorter('wellPosition')"/>
 				
 				<mx:DataGridColumn dataField="@requestNumber" 
 								   headerText="Order #"
 								   visible="{this.currentState != 'userState'}"
-								   width="65" minWidth="15" />
+								   width="65" />
 				<mx:DataGridColumn dataField="@sampleName" 
 								   headerText="Sample"
-								   width="70" minWidth="15" />
+								   width="70" />
 				
 				<mx:DataGridColumn dataField="@sampleType"
 								   headerText="Type" 
-								   width="90" minWidth="20" visible="{this.parentDocument is NavDataView}" />
+								   width="90" visible="{this.parentDocument is NavDataView}" />
 					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
 									   width="70" id="releasedCheckBox">
 					<mx:itemRenderer>
@@ -980,9 +979,7 @@
 	</mx:ControlBar>
 	
 	<mx:states>
-		<mx:State id="userState" name="userState">
-			
-			<mx:SetProperty target="{datagridcolumn3}" name="headerText" value="Len"/>		
+		<mx:State id="userState" name="userState">	
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:Button id="downloadButton" 
 						   click="downloadFiles()" 
@@ -1001,6 +998,7 @@
 			<mx:RemoveChild target="{comboBox}"/>
 			<mx:RemoveChild target="{linkbutton1}"/>
 			<mx:RemoveChild target="{linkbutton2}"/>
+			<mx:SetProperty target="{chromatogramGrid}" name="horizontalScrollPolicy" value="{ScrollPolicy.OFF}"/>
 			
 		</mx:State>
 	</mx:states>
