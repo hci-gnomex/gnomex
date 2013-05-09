@@ -512,7 +512,7 @@
 
 			
 			private function onGetAnalysis(event:ResultEvent):void {
-				analysis = getAnalysis.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis);
+				analysis = getAnalysis.lastResult.Analysis.(@idAnalysis == analysis.@idAnalysis);
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
@@ -522,8 +522,8 @@
 			}
 			
 			private function onGetAnalysisAfterUpload(event:ResultEvent):void {
-				analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).files;
-				analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis = analysis.@idAnalysis).ExpandedAnalysisFileList;
+				analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).files;
+				analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).ExpandedAnalysisFileList;
 				files.source = analysis..AnalysisFileDescriptor;
 				if(uploadWindow != null) {
 					uploadWindow.refreshFiles();
