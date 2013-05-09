@@ -125,6 +125,9 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
       if (secAdvisor != null) {
         if (view.equals("Y")) {
           String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+          if (mimeType == null && fileName.toLowerCase().endsWith("png")) {
+            mimeType = "image/png";
+          }
           response.setContentType(mimeType);
         } else {
           response.setContentType("application/x-download");
