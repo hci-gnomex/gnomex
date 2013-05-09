@@ -76,6 +76,8 @@ public class DatasetExpirationCheckd extends TimerTask {
   
   private boolean sendMail = true;
   
+  private String extraEmailAddress = null;
+  
   public DatasetExpirationCheckd(String[] args) {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-server")) {
@@ -90,6 +92,8 @@ public class DatasetExpirationCheckd extends TimerTask {
         sendMail = false;
       } else if (args[i].equals ("-catchUpWarnings")) {
         catchUpWarnings = true;
+      } else if (args[i].equals ("-extraEmailAddress")) {
+        extraEmailAddress = args[++i];
       }
     } 
 
@@ -187,6 +191,11 @@ public class DatasetExpirationCheckd extends TimerTask {
   }
   
   private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate, String typeName) throws AddressException, NamingException, MessagingException {
+    
+    if (extraEmailAddress != null) {
+      emailTo += "," + extraEmailAddress;
+    }
+    
     // Build message body in html
     StringBuffer body = new StringBuffer("");
     
