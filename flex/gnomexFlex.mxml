@@ -1955,6 +1955,9 @@
 				if (!usesKindOfRequestCategory("SOLEXA")) {
 					hideMenusByContext(navMenu, "SOLEXA");
 				}
+				if(this.isGuestMode()){
+					hideMenusByContext(navMenu, "guest");
+				}
 				
 				hideMenusByProperties(navMenu);
 				
@@ -3810,6 +3813,8 @@
 	<mx:XMLList id="guestMenu">
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
+		
+		<menuitem label="Submit Work Auth" icon="iconBilling" context="guest"  />
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
