@@ -13,6 +13,7 @@ CREATE TABLE `gnomex`.`RequestCategoryType` (
   PRIMARY KEY (`codeRequestCategoryType`)
 )
 ENGINE = INNODB;
+
 insert into RequestCategoryType values('CAPSEQ','Capillary Sequencing','assets/dna-helix-icon.png','N','N');
 insert into RequestCategoryType values('CHERRYPICK','Cherry Picking','assets/cherrypick.png','N','N');
 insert into RequestCategoryType values('CLINSEQ','Clinical Sequenom','assets/cherrypick.png','N','N');
@@ -25,13 +26,26 @@ insert into RequestCategoryType values('MICROARRAY','Microarray','assets/microar
 insert into RequestCategoryType values('MITSEQ','Mitochondrial D-Loop Sequencing','assets/mitseq.png','N','N');
 insert into RequestCategoryType values('QC','Sample Quality','assets/chart_line.png','N','N');
 insert into RequestCategoryType values('SEQUENOM', 'Sequenom', 'assets/cherrypick.png', 'N', 'N');
+
+update RequestCategory set type='MISEQ' where requestCategory like '%MISEQ%';
+update RequestCategory set type='HISEQ' where type='illumina';
+
+delete from RequestCategoryType where codeRequestCategoryType='ILLUMINA';
+
+ALTER TABLE `gnomex`.`RequestCategory` 
+ADD INDEX `FK_RequestCategory_RequestCategoryType` (`type` ASC) ;
+
+
+ALTER TABLE `gnomex`.`requestcategory` CHARACTER SET = latin1 ;
+ALTER TABLE `gnomex`.`requestcategorytype` CHARACTER SET = latin1 ;
+ALTER TABLE `gnomex`.`requestcategorytype` CHANGE COLUMN `codeRequestCategoryType` `codeRequestCategoryType` VARCHAR(10) NOT NULL  ;
+
+
 alter table RequestCategory add
-  CONSTRAINT `FK_RequestCategory_RequestCategoryType` FOREIGN KEY `FK_RequestCategory_RequestCategoryType` (`type`)
+  CONSTRAINT `FK_RequestCategory1` FOREIGN KEY `FK_RequestCategory1` (`type`)
     REFERENCES `gnomex`.`RequestCategoryType` (`codeRequestCategoryType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-update RequestCategory set type='MISEQ' where requestCategory like '%MISEQ%';
-update RequestCategory set type='HISEQ' where type='illumina';
-delete from RequestCategoryType where codeRequestCategoryType='ILLUMINA';
-  
+    
+
 alter table Request add processingDate DATETIME NULL; 
