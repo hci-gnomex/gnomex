@@ -260,7 +260,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       if (this.isValid()) {
         sendAdminEmail(appUser, sess);
-        sendLabManagerEmail(appUser, sess);
+        if(requestedLabName == ""){
+        	sendLabManagerEmail(appUser, sess);
+        }
       }
       
       if (this.isValid()) {
