@@ -135,6 +135,9 @@ public class DownloadSingleFileServlet extends HttpServlet {
         // want to serve the file to the browser or download it.
         if (view.equals("Y")) {
           String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+          if (mimeType == null && fileName.toLowerCase().endsWith("png")) {
+            mimeType = "image/png";
+          }
           response.setContentType(mimeType);
         } else {
           response.setContentType("application/x-download");

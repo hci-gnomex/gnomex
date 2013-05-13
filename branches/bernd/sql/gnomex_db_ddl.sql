@@ -1542,6 +1542,7 @@ CREATE TABLE `gnomex`.`Request` (
   `idIScanChip` INT(10) NULL,
   `coreToExtractDNA` CHAR(1) NULL,
   `applicationNotes` varchar(2000) null,
+  `processingDate` DATETIME NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

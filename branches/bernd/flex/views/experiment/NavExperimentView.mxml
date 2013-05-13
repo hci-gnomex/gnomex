@@ -1602,7 +1602,7 @@
 				<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments"  paddingLeft="10" paddingRight="0" horizontalGap="0"   styleName="labelSmall" toolTip="External experiments (only)" includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
 					<mx:click>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters());</mx:click>
 				</mx:CheckBox>
-				<mx:Label visible="true" text="CC Number" paddingBottom="0" styleName="labelSmall" paddingLeft="2" id="label1"/>
+				<mx:Label text="CC Number" paddingBottom="0" styleName="labelSmall" visible="{parentApplication.isBSTLinkageSupported}" paddingLeft="2" id="label1"/>
 				<mx:TextInput id="ccLookupText" fontSize="9"
 							  height="19"
 							  width="55" 

@@ -55,7 +55,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
   private AnalysisGroupFilter       analysisFilter;
   private DataTrackQuery            dataTrackQuery;
   private TreeMap<Integer, Map>     propertyEntryAnnotationMap = new TreeMap<Integer, Map>();
-  private TreeMap<String, Integer>  propertyColumnMap = new TreeMap<String, Integer>();
+  private TreeMap<String, String>  propertyColumnMap = new TreeMap<String, String>();
   
   private static final String       TARGET_SAMPLE = "SAMPLE";
   private static final String       TARGET_ANALYSIS = "ANALYSIS";
@@ -336,21 +336,21 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       columns.add(makeReportColumn("Folder", 7));
       
     }
-    
-    tray.setColumns(columns);
 
-    
-    int columnNumber = columns.size() + 1;
     for(Integer idProperty : idProperties) {
       Property property = dh.getPropertyObject(idProperty);
-      propertyColumnMap.put(property.getName(), columnNumber++);
+      // Uppercase makes it case insenstive sort.
+      propertyColumnMap.put(property.getName().toUpperCase(), property.getName());
     }
     
+    int columnNumber = columns.size() + 1;
     for (Iterator i = propertyColumnMap.keySet().iterator(); i.hasNext();) {
-      String propertyName = (String)i.next();
-      Integer col = propertyColumnMap.get(propertyName);
-      columns.add(makeReportColumn(propertyName, col.intValue()));
+      String key = (String)i.next();
+      String propertyName = propertyColumnMap.get(key);
+      columns.add(makeReportColumn(propertyName, columnNumber++));
     }
+    
+    tray.setColumns(columns);
     
   }
   
@@ -392,6 +392,8 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         propertyMultiValue = (String) row[DataTrackQuery.COL_PROPERTY_MULTI_VALUE];
         propertyOption = (String) row[DataTrackQuery.COL_PROPERTY_OPTION];
       } 
+      
+      propertyName = propertyName.toUpperCase(); // case insensitive sort
       
       Map annotationMap = propertyEntryAnnotationMap.get(theId);
       if (annotationMap == null) {

@@ -278,7 +278,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
                 sess.flush();
               } else{
-                outMsg = "The email address " + appUser.getEmail() + " is not formatted properly.";
+                outMsg = "The email address " + appUserScreen.getEmail() + " is not formatted properly.";
               }
               if(isNullEmail){
                 this.xmlResult = "<NULL_EMAIL_ERROR message=\"" + outMsg + "\"/>";

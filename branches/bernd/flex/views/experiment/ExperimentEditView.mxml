@@ -733,16 +733,6 @@
 		public function checkSecurity():void {
 			setupView.checkSecurity();	
 			
-			// Select the first lab unless this user is an admin
-			if (this.isAmendState()) {
-				if (parentApplication.isAdminState) {
-	            	if (labCombo.dataProvider.length > 1) {
-						labCombo.selectedIndex = 0;
-						this.getLabForAddingServices.send();
-					}
-				}		
-				
-			}
 		}
 		
 		public function isRequestPending():Boolean {
@@ -2283,21 +2273,13 @@
 				this.currentState = "SequenomEditState";
 				this.sampleSetupView.currentState = 'SequenomState';
 				
-				this.samplesView.currentState = 'SequenomState';				
-				this.samplesView.showHideColumns();				
-				if (this.samplesView.hasPlates()) {
-					this.samplesView.fillPlates();
-				}
+				this.samplesView.currentState = 'SequenomState';
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomEditState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
 				
-				this.samplesView.currentState = 'ClinicalSequenomState';				
-				this.samplesView.showHideColumns();				
-				if (this.samplesView.hasPlates()) {
-					this.samplesView.fillPlates();
-				}
+				this.samplesView.currentState = 'ClinicalSequenomState';
 				
 			}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
 
@@ -2524,17 +2506,6 @@
 				}
 			}
 
-			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
-				
-				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
-				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-				
-				this.propertyEntries.refresh();
-				this.annotationView.checkSecurity();
-				this.samplesView.showHideColumns();		
-				this.samplesView.initializeSamplesGrid(); 
-			}
-			
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
 				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
@@ -2594,6 +2565,14 @@
 				}
 			}
 			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
+				
+				if ( this.request.@containerType == "PLATE"){
+					this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
+				}
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
+				
 				for each(var app:Object in sampleSetupView.seqAppRepeater.dataProvider) {
 					if (app.@value == request.@codeApplication) {
 						sampleSetupView.radioGroupSeqApp.selectedValue = app;
@@ -2606,6 +2585,12 @@
 				} 
 				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
+				
+				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
+				this.propertyEntries.refresh();
+				this.annotationView.checkSecurity();
+				this.samplesView.showHideColumns();		
+				this.samplesView.initializeSamplesGrid(); 
 			}
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
@@ -2649,14 +2634,12 @@
 				
 			}			
 			if (isEditState()) {
-				visibilityView.visibilityRadioGroup.selectedValue = request.@codeVisibility;
-				visibilityView.privacyExpirationPicker.text = request.@privacyExpirationDate;
+				visibilityView.init(); // Set institution combo, etc.
 				if (request.@canUpdateVisibility != 'Y') {
 					this.visibilityView.enabled = false;
 				} else {
 					this.visibilityView.enabled = true;
 				}
-			} else {
 			}
 			
 			
@@ -3361,9 +3344,10 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if (sample.@name != null && sample.@name != '') {
-					request.samples.appendChild(sample);
+				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+					continue;
 				}
+				request.samples.appendChild(sample);
 			}
 			request.replace("hybridizations", <hybridizations></hybridizations>); 
 			if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
@@ -3491,8 +3475,7 @@
 			}
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if (   (this.isCapSeqState() || this.isCherryPickState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) 
-					&& (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
@@ -5725,7 +5708,8 @@
                 		<mx:Label text="(1) Verify your lab group." width="194"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 												  labelField="@name" 
-												  prompt="Select a lab..."
+												  prompt="Select a lab..."												  
+												  removeFilterOnSelection="true"
 												  width="340"
 												  close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
 												  id="labCombo">

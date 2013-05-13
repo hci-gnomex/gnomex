@@ -196,7 +196,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               }
             }
             
-            if (itemToAdjust != null && !summedInvoicePrice.equals(invoicePrice)) {
+            if (itemToAdjust != null && !summedInvoicePrice.equals(invoicePrice) && itemToAdjust.getInvoicePrice() != null) {
               BigDecimal ip = itemToAdjust.getInvoicePrice();
               ip = ip.add(invoicePrice.subtract(summedInvoicePrice));
               itemToAdjust.setInvoicePrice(ip);

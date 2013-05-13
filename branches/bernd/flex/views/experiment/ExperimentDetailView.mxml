@@ -693,7 +693,7 @@
 				 parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 			 }
 			 
-			 if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType) ) {
+			 if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE") ) {
 				 parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 			 }
 			 
@@ -706,7 +706,6 @@
 			 if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()
 				 && !parentDocument.parentDocument.experimentEditView.isSequenomState()) {
 				 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
-				 parentDocument.parentDocument.experimentEditView.samplesView.fillPlates();
 			 }
 			 
 			 parentDocument.parentDocument.experimentEditView.initializeData();
@@ -1329,7 +1328,7 @@
 
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-				<mx:VBox label="Info" paddingLeft="4" verticalGap="4"> 
+				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4"> 
 					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
@@ -1471,10 +1470,8 @@
 							</mx:HBox>
 						</mx:VBox>
 					</mx:VBox>
-				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples">
-					<mx:HBox width="100%" horizontalGap="2" paddingTop="4" id="hbox1">
-							
-					</mx:HBox>
+				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+					
 					<mx:AdvancedDataGrid width="100%" id="samplesGridConfirm"  
 						editable="false" 
 						backgroundAlpha="0" borderStyle="solid"
@@ -1591,7 +1588,7 @@
 				</mx:VBox>
 				
     			<mx:Canvas label="Billing" id="billingTab" width="100%" height="100%">
-    			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="0" paddingTop="0" paddingRight="0" paddingLeft="0" id="billingContainer" >
+    			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" id="billingContainer" >
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
         			editable="false" 
@@ -1663,7 +1660,7 @@
 				</experiment:ExperimentDownloadView>
 				 
 
-				<mx:VBox id="relatedEntriesTab" verticalGap="0" width="100%" height="100%" label="{relatedDataTitle}">
+				<mx:VBox id="relatedEntriesTab" verticalGap="0" width="100%" height="100%" label="{relatedDataTitle}" >
 					<mx:HBox width="100%" height="100%" horizontalGap="0" >
 						
 						<mx:VBox visible="{relatedAnalysis.length &gt; 0}" includeInLayout="{relatedAnalysis.length &gt; 0}" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="0" paddingBottom="0">
@@ -1981,12 +1978,14 @@
 	</mx:State>
 	<mx:State name="BaseSeqChromoState" basedOn="BaseSeqState">
 		<mx:AddChild relativeTo="{theTab}" position="lastChild">
-			<data:ChromatBrowseView label="Chromatogram"
-									width="100%"
-									height="100%"
-									verticalGap="6"
-									id="chromoTab"
-									currentState="userState" />
+			<mx:VBox  id="chromatContainer" label="Chromatogram"  width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0" >
+				<mx:HBox width="100%" height="100%" horizontalGap="0" >
+					<data:ChromatBrowseView width="100%" backgroundAlpha="0" 
+											height="100%"
+											id="chromoTab"
+											currentState="userState" />
+				</mx:HBox>
+			</mx:VBox>
 		</mx:AddChild>
 		<mx:RemoveChild target="{filesView}"/>
 		<mx:RemoveChild target="{parentDocument.downloadsLink}"/>

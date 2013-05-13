@@ -1100,6 +1100,7 @@
 								 labelField="@name" 
 								 prompt="Select a lab..."
 								 width="400"
+								 removeFilterOnSelection="true"
 								 close="projectCombo.selectedIndex = -1;getMembersOfLab();" 
 								 id="labCombo">
 					</renderers:FilterComboBox>
