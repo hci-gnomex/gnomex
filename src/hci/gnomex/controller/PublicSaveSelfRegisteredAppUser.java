@@ -422,15 +422,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       } 
     }
     
+    //Abort the send if the to address is still empty to avoid empty recipient error
+    if(toAddress.equals("")){
+      return;
+    }
+    
     if (!dictionaryHelper.isProductionServer(serverName)) {
       subject = subject + "  (TEST)";
       testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    
-    //Abort the send if the to address is still empty to avoid empty recipient error
-    if(toAddress.equals("")){
-      return;
     }
     
     StringBuffer introForAdmin = new StringBuffer();
