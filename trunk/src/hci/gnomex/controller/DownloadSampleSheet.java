@@ -168,7 +168,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
   
   private void createReportTray() {
     String title = "GNomEx Sample Sheet";
-    String fileName = "gnomex_sampleSheet_" + today;
+    String fileName = requestParser.getRequest().getNumber() + "_" + today;
     
     // set up the ReportTray
     tray = new ReportTray();
