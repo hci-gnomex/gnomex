@@ -259,7 +259,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
 
       if (this.isValid()) {
-        sendAdminEmail(appUser, sess);
+        sendAdminEmail(appUser, sess);    
         if(requestedLabName == ""){
         	sendLabManagerEmail(appUser, sess);
         }
@@ -327,6 +327,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       throw new AddressException("'bademail@bad.com' not allowed");
     }
     
+    if(!MailUtil.isValidEmail(appUser.getEmail())){
+      log.error("Invalid Email Address " + appUser.getEmail());
+    }
+    
 
     MailUtil.send(
         appUser.getEmail(),
@@ -369,6 +373,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       subject = subject + "  (TEST)";
       testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    
+    if(toAddress.equals("")){
+      return;
     }
     
     StringBuffer introForAdmin = new StringBuffer();
@@ -414,6 +422,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           toAddress += managerEmail;
         }
       } 
+    }
+    
+    //Abort the send if the to address is still empty to avoid empty recipient error
+    if(toAddress.equals("")){
+      return;
     }
     
     if (!dictionaryHelper.isProductionServer(serverName)) {
