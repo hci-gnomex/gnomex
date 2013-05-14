@@ -49,17 +49,19 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.collections.ArrayCollection;
-        import mx.collections.XMLListCollection;
-        import mx.controls.Alert;
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.events.ValidationResultEvent;
-        import mx.rpc.events.FaultEvent;
-        import mx.rpc.events.ResultEvent;
-        import mx.validators.NumberValidator;
-        
-        import views.renderers.ComboBox;
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.validators.NumberValidator;
+			
+			import views.renderers.ComboBox;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -76,6 +78,7 @@
         [Bindable]
         private var requestNumbers:ArrayCollection;
         
+		private var indexWindow:AssignMultiIndexWindow;
         
         private function init():void {
         	barcodes.refresh();
@@ -154,6 +157,7 @@
         	if (validate() == false) {
         		return;
         	}
+		
         	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItem.send();
@@ -209,6 +213,7 @@
         		}
         	}
         	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
+			workListGrid.selectedIndices.length > 1 ? indexClick.enabled = true : indexClick.enabled = false; 
         }
         
         private function filterWorkList(item:Object):Boolean {
@@ -349,7 +354,20 @@
 				}
 			}
 
-        ]]>
+			protected function indexClick_clickHandler(event:MouseEvent):void
+			{
+				this.indexWindow = AssignMultiIndexWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, AssignMultiIndexWindow, true));
+				this.indexWindow.parentView = this;
+				this.indexWindow.workListFilt = new XMLListCollection(workList.copy());
+				this.indexWindow.sampleIndices = workListGrid.selectedIndices;
+				this.indexWindow.workListFilt.filterFunction = this.indexWindow.filterWorkList;
+				this.indexWindow.workListFilt.refresh();
+				mx.managers.PopUpManager.centerPopUp(this.indexWindow);
+				indexWindow.setFocus();
+				
+			}
+			
+		]]>
     </mx:Script> 
     
    
@@ -358,14 +376,14 @@
             	<mx:HBox  verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()"  width="90"></mx:ComboBox>
+					<mx:Button id="indexClick" label="Multi Index Assign" click="indexClick_clickHandler(event)" enabled="{workListGrid.selectedIndices.length > 1 &amp;&amp; requestNumberCombo.selectedIndex != 0}" />
             	</mx:HBox>
             	<mx:Spacer width="100%"/>
                 <mx:Label text="{requestNumberCount}"/>
             </mx:HBox>
-        	
-		<mx:VBox width="100%" height="100%" verticalGap="0">
-	
-			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()">
+
+			<mx:VBox width="100%" height="100%" verticalGap="0">
+			<util:DataGridAlternatingGroup height="100%" id="workListGrid"  width="100%" dataProvider="{workList}" editable="true" itemEditEnd="onEdit()" allowMultipleSelection="true">
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber" sortCompareFunction="sortSampleNumber"/>
@@ -394,7 +412,7 @@
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>
-					</mx:DataGridColumn> 
+					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Seq Library Protocol"  width="44" 
 									   dataField="@idSeqLibProtocol" 
 									   editorDataField="value"
@@ -435,9 +453,7 @@
 	
 				</util:columns>
 		</util:DataGridAlternatingGroup>
-			
 		</mx:VBox>
-	  	
 	  </mx:VBox>
 					
  <mx:ControlBar width="100%">

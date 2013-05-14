@@ -88,7 +88,7 @@
 						billingData.source = notificationInterface.lastResult.billing;
 						noteData = billingData;
 					}
-					
+
 					var mySort:Sort = new Sort();
 					var sortField:SortField = new SortField("@notificationId");
 					sortField.descending = true;
@@ -100,8 +100,27 @@
 					
 					userData.refresh();
 					workflowData.refresh();
-					adminData.refresh();
-					billingData.refresh();
+
+					if(noteData.length < 1 && notificationState == 1){
+						emptyNote.visible = true;
+						emptyNoteBox.visible = true;
+						emptyNoteBox.includeInLayout = true;
+						repStatus.includeInLayout = false;	
+					}else{
+						emptyNote.visible = false;
+						emptyNote.includeInLayout = false;
+						repStatus.includeInLayout = true;
+					}
+					
+/*					if(workflowData.length == 0){
+						emptyString.text = "No samples in Core Facility Workflow.";
+						emptyNote.visible = true;
+						repWorkflow.includeInLayout = false;
+					}else{
+						emptyNote.visible = false;
+						repWorkflow.includeInLayout = true;
+					}
+					*/
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
 				}
@@ -126,7 +145,7 @@
 							notification += " new request (" + expID + "R) has been received.";
 						}else if(state == "EXIST"){
 							// An existing request has been edited.
-							notification = "The existing request (" + expID + "R) has been edited.";
+							notification += " existing request (" + expID + "R) revisions have been received.";
 						}
 					}else if(type == "ANALYSIS"){
 						if(state == "NEW"){
@@ -148,7 +167,7 @@
 							notification += " has submitted a new request (" + expID + "R).";
 						}else if(state == "EXIST"){
 							// An existing request has been edited.
-							notification = fullname + " has edited an existing request (" + expID + "R).";
+							notification += " has edited an existing request (" + expID + "R).";
 						}
 					}else if(type == "ANALYSIS"){
 						if(state == "NEW"){
@@ -207,6 +226,13 @@
 					<mx:Label id="wfCount" text="{repWorkflow.currentItem.@count}" />
 				</mx:HBox>
 			</mx:Repeater>
+		</mx:VBox>
+		
+		<mx:VBox id="emptyNote"  height="200" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold" paddingLeft="110">
+			<mx:Spacer height="100" />
+			<mx:HBox id="emptyNoteBox" horizontalAlign="center" visible="false" includeInLayout="false">
+				<mx:Label id="emptyString" text="No available notifications." />
+			</mx:HBox>
 		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

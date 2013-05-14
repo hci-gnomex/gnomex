@@ -1995,7 +1995,6 @@
 		<property name="idBillingSlideServiceClass" column="idBillingSlideServiceClass" type="integer"/>
 	</class>
 	
-	
 	<!-- hci.gnomex.model.UserPermissionKind -->
 	<class name="hci.gnomex.model.UserPermissionKind" table="UserPermissionKind">
 		<id name="codeUserPermissionKind" column="codeUserPermissionKind" type="string">

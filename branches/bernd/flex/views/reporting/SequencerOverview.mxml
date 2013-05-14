@@ -27,6 +27,7 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -47,6 +48,18 @@
 			public function init():void {
 				metrixInterface.send();
 			}
+			
+			private function sortXLC():void {
+				
+				var mySort:Sort = new Sort();
+				var sortField:SortField = new SortField("runId"); // Set sort properties
+				sortField.descending = true;							// Reverse the sort list
+				sortField.numeric = false;
+				
+				mySort.fields = [sortField];
+				MIList.sort = mySort;
+				MIList.refresh();										// Refresh datasource
+			}		
 			
 			private function formatDate(item:Object,column:AdvancedDataGridColumn):String
 			{
@@ -83,7 +96,7 @@
 			
 			private function onGetMetrixInterface(event:ResultEvent):void {
 				if(event.result.name() == "SummaryCollection"){
-					
+					sortXLC();
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Metrix Interface.");
 				}

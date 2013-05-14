@@ -82,50 +82,49 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
                 // Cteate Inputstream for receiving objects.
 		        ObjectInputStream ois = new ObjectInputStream(sChannel.socket().getInputStream());
 
-			try{
-				nki.objects.Command sendCommand = new nki.objects.Command();
-				
-				// Set a value for command
-				sendCommand.setFormat("XML");
-				sendCommand.setState(1); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
-				sendCommand.setCommand("FETCH");
-				sendCommand.setMode("CALL");
-				oos.writeObject(sendCommand);
-				oos.flush();
-				
-				boolean listen = true;
-
-				Object serverAnswer = new Object();
-				serverAnswer = ois.readObject();
-
-				while(listen){
-					if(serverAnswer instanceof Command){	// Answer is a Command with info message.
-						nki.objects.Command commandIn = (nki.objects.Command) serverAnswer;
-						if(commandIn.getCommandString() != null){
-							System.out.println("[SERVER] " + commandIn.getCommandDetail());
+				try{
+					nki.objects.Command sendCommand = new nki.objects.Command();
+					
+					// Set a value for command
+					sendCommand.setFormat("XML");
+					sendCommand.setState(1); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
+					sendCommand.setCommand("FETCH");
+					sendCommand.setMode("CALL");
+					oos.writeObject(sendCommand);
+					oos.flush();
+					
+					boolean listen = true;
+	
+					Object serverAnswer = new Object();
+					serverAnswer = ois.readObject();
+	
+					while(listen){
+						if(serverAnswer instanceof Command){	// Answer is a Command with info message.
+							nki.objects.Command commandIn = (nki.objects.Command) serverAnswer;
+							if(commandIn.getCommandString() != null){
+								System.out.println("[SERVER] " + commandIn.getCommandDetail());
+							}
+						}
+	
+						if(serverAnswer instanceof SummaryCollection){
+							SummaryCollection sc = (SummaryCollection) serverAnswer;
+							//metrixLogger.log(Level.INFO, "[CLIENT] The server answered with a SummaryCollection.");
+							ListIterator litr = sc.getSummaryIterator();
+	
+							while(litr.hasNext()){
+								Summary sum = (Summary) litr.next();
+							}
+						}
+	
+						if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
+							srvResp = (String) serverAnswer;
+							log.info("Server replied with XML");
+							listen = false;
 						}
 					}
-
-					if(serverAnswer instanceof SummaryCollection){
-						SummaryCollection sc = (SummaryCollection) serverAnswer;
-						//metrixLogger.log(Level.INFO, "[CLIENT] The server answered with a SummaryCollection.");
-						ListIterator litr = sc.getSummaryIterator();
-
-						while(litr.hasNext()){
-							Summary sum = (Summary) litr.next();
-						}
-					}
-
-					if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
-						srvResp = (String) serverAnswer;
-						log.info("Server replied with XML");
-						listen = false;
-					}
+				}catch(IOException Ex){
+					log.error("IOException in Metrix Client.", Ex);
 				}
-
-			}catch(IOException Ex){
-				log.error("IOException in Metrix Client.", Ex);
-			}
 	        }
 	}catch(EOFException ex){
 		log.error("Server has shutdown.");
