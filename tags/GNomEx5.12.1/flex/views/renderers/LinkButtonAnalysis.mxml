@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:LinkButton xmlns:mx="http://www.adobe.com/2006/mxml" 
+	label="{data.@analysisLabel}"
+	click="clickLink(event)" textDecoration="underline" color="#5050E3" textAlign="left" icon="@Embed(source='../../assets/map.png')"> 
+    <mx:Script> 
+    <![CDATA[   
+        
+        import mx.controls.dataGridClasses.DataGridListData; 
+        
+        private var columnIndex:int; 
+        
+        private function init():void {
+        	if (data.hasOwnProperty("@analysisNumber")) {
+        		visible = true;
+        	} else {
+        		visible = false;
+        	}
+        }
+        
+        private function clickLink(event:MouseEvent):void{ 
+			parentApplication.showAnalysisForNumber(data.@analysisNumber);
+        } 
+
+
+        override public function set data(value:Object):void{ 
+                super.data = value; 
+        } 
+        override protected function updateDisplayList(w:Number, h:Number):void
+		{
+			super.updateDisplayList(w, h);
+			if (data != null) {
+				if (data.hasOwnProperty("@analysisNumber") && data.@analysisNumber != "") {
+					visible = true;
+				} else {
+					visible = false;
+				}
+				
+			}
+		}
+     ]]> 
+    </mx:Script> 
+</mx:LinkButton> 
