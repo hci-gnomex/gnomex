@@ -103,6 +103,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     this.SUCCESS_JSP_CSV = "/report_csv.jsp";
     this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
     this.SUCCESS_JSP_XLS = "/report_xls.jsp";
+    this.SUCCESS_JSP_TSV = "/report_tsv.jsp";
     this.ERROR_JSP = "/message.jsp";
     
     
@@ -176,7 +177,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     tray.setReportTitle(title);
     tray.setReportDescription(title);
     tray.setFileName(fileName);
-    tray.setFormat(ReportFormats.CSV);
+    tray.setFormat(ReportFormats.TSV);
     
     Set columns = new TreeSet();
     Integer columnCount = 0;
@@ -220,7 +221,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
         value = "";
       }
       
-      values.add(surroundWithQuotes(value));
+      values.add(value);
     }
     
     reportRow.setValues(values);
