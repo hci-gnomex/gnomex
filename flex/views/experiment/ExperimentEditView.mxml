@@ -947,8 +947,9 @@
 		}
 		
 		private function previousTab():void {
-			if (theTab.selectedIndex > 0) {
-				theTab.selectedIndex--;				
+			theTab.selectedIndex--;
+			while (!theTab.getTabAt(theTab.selectedIndex).visible && theTab.selectedIndex > 0) {
+				theTab.selectedIndex--;
 			}
 		}
 		
