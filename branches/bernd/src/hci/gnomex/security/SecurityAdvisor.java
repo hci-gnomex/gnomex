@@ -724,7 +724,62 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Topic
     //
     else if (object instanceof Topic) {
-      
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // Normal gnomex users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        Topic t = (Topic)object;
+
+        // Next, look at visibility to find out if user has access to this
+        // topic
+        if (!canRead) {
+          // DataTrack has owner visibility
+          if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
+            // Is owner of data track or manager of lab's data track
+            if (isOwner(t.getIdAppUser()) || isGroupIManage(t.getIdLab())) {
+              canRead = true;
+            }            
+          }        
+          // Topic has membership visibility
+          else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
+            if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getIdLab())) {
+              canRead = true;
+            }            
+          }
+          // Topic has membership + collaborator visiblity
+          else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
+            if (isGroupIAmMemberOf(t.getIdLab()) || 
+                isGroupIManage(t.getIdLab()) || 
+                isGroupICollaborateWith(t.getIdLab())) {
+              canRead = true;
+            } 
+          }
+          // Topic has institution visibility
+          else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+            if (isInstitutionIAmMemberOf(t.getIdInstitution())) {
+              canRead = true;
+            }            
+          }
+          // DataTrack has public visibility
+          else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+            canRead = true;
+          }
+          
+        }
+
+      }
+      // Guest users
+      else {
+        Topic t = (Topic)object;
+        
+        // Request has public visibility
+        if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+          canRead = true;
+        }
+      }
+/*      
       // Admins
       if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         canRead = true;
@@ -747,7 +802,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (t.hasPublicChildren()) {
           canRead = true;
         }
-      }     
+      }*/     
     }       
 
     

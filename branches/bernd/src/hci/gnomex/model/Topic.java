@@ -244,7 +244,7 @@ public class Topic extends DetailObject implements Serializable, VisibilityInter
 
      return doc;
    }
-   
+   /*
    public boolean hasPublicChildren() {
      boolean hasPublicItems = false;
      
@@ -271,7 +271,7 @@ public class Topic extends DetailObject implements Serializable, VisibilityInter
      }     
      return hasPublicItems;     
    } 
-   
+   */
    public Integer getIdInstitution() {
      return idInstitution;
    }
