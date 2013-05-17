@@ -115,7 +115,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
     String requestURL = request.getRequestURL().toString();
     String servletPath = request.getServletPath();
     String appURL = requestURL.substring(0, requestURL.indexOf(servletPath));
-    return appURL + ":" + request.getServerPort() + request.getContextPath();    
+    return appURL + ":" + request.getServerPort();    
   }
   
   public String getLaunchAppURL(HttpServletRequest request) throws Exception {
