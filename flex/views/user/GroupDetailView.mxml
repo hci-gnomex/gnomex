@@ -1111,6 +1111,11 @@
 				} else{
 					email = billingContactEmail.text;
 				}
+				
+				//Allow users to save an empty field
+				if(email == ''){
+					return;
+				}
 				var emails:Array = email.split(",");
 				var validationEvent:ValidationResultEvent = new ValidationResultEvent("");
 				
