@@ -37,7 +37,11 @@ public class MiscPlugin implements BillingPlugin {
     
     List billingItems = new ArrayList<BillingItem>();
 
-    int qty = samples != null ? samples.size() : 0;
+    if (samples == null || samples.size() == 0) {
+      return billingItems;
+    }
+    
+    int qty = samples.size();
     
 
     // Find the price for kind of sample quality
