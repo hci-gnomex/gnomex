@@ -3345,7 +3345,7 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( this.isSequencingState() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
