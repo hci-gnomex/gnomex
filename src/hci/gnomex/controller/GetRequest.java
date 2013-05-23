@@ -333,7 +333,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
-            Boolean autoSelect = false;
+            boolean autoSelect = false;
             boolean include = true;
             if (requestCategory != null && 
                   (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
@@ -348,10 +348,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 if ( pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) &&
                         (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
                   include = true;
-                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
-                      requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
-                      requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ) {
                     autoSelect = true;
+                  } else if ( requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                              requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+                    autoSelect = !newRequest;
                   }
                   break;
                 }   
