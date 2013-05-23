@@ -1074,7 +1074,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private String getNextRequestNumber(Request request, Session sess) throws SQLException {
     String requestNumber = "";
-    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
+    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(
+          requestParser.getRequest().getIdCoreFacility(), 
+          requestParser.getRequest().getCodeRequestCategory(), 
+          PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
       Connection con = sess.connection();    
       String queryString = "";
