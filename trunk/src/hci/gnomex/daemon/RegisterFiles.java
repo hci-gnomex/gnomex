@@ -91,6 +91,8 @@ public class RegisterFiles extends TimerTask {
   
   private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
+  
+  private String                       currentEntityString;
 
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
@@ -177,7 +179,7 @@ public class RegisterFiles extends TimerTask {
 
     } catch (Exception e) {
       
-      String msg = "Could not register experiment or analysis files. Transaction rolled back:   " + e.toString() + "\n\t";
+      String msg = "Could not register experiment or analysis files (error at " + this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
       
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
@@ -258,12 +260,15 @@ public class RegisterFiles extends TimerTask {
     
     // For each experiment
     for (Iterator i = results.iterator(); i.hasNext();) {
+      tx = sess.beginTransaction();
+
       Request request = (Request)i.next();
+      
+      this.currentEntityString = request.getNumber();
       
       String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 
       System.out.println("\n" + baseRequestNumber);
-      tx = sess.beginTransaction();
       
       // Get all of the files from the file system
       Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(), request.getIdCoreFacility());
@@ -284,7 +289,7 @@ public class RegisterFiles extends TimerTask {
           // If we don't find the file on the file system, delete it from the db.
           if (fd == null) {
             System.out.println("WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
-            sess.delete(ef);
+            //sess.delete(ef);
           } else {
             // Mark that the file system file has been found
             fd.isFound(true);
@@ -334,6 +339,7 @@ public class RegisterFiles extends TimerTask {
       
       sess.flush();
       tx.commit();
+      this.currentEntityString = "";
     }
   }
   
@@ -356,10 +362,11 @@ public class RegisterFiles extends TimerTask {
     
     // For each analysis
     for (Iterator i = results.iterator(); i.hasNext();) {
+      tx = sess.beginTransaction();
       Analysis analysis = (Analysis)i.next();
+      this.currentEntityString = analysis.getNumber();
       
       System.out.println("\n" + analysis.getNumber());
-      tx = sess.beginTransaction();
       
       // Get all of the files from the file system
       Map fileMap = hashFiles(analysis);
@@ -504,6 +511,7 @@ public class RegisterFiles extends TimerTask {
       
       sess.flush();
       tx.commit();
+      this.currentEntityString = "";
     }
   
     try {
