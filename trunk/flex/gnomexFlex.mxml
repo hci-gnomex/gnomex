@@ -3348,7 +3348,7 @@
 			
 			
 			private function showIScanChipWindow():void {
-				if (managesPlateBasedWorkflow) {
+				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
