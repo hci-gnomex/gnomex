@@ -1461,6 +1461,36 @@
 				Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 			}
 		}
+		public function showBillingMonthendReportUMergeFormat():void {
+			
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	   
+			}
+			if (this.requestTree.selectedItem != null) { 
+				var statusNode:Object = null;
+				if (this.requestTree.selectedItem.name() == "Lab") {
+					statusNode = this.requestTree.selectedItem.parent(); 
+				} else if (this.requestTree.selectedItem.name() == "Status") {
+					statusNode = this.requestTree.selectedItem;
+				}
+				if (statusNode != null && 
+					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+					var url:URLRequest = new URLRequest('ShowBillingMonthendReportUMergeFormat.gx' +
+						'?codeBillingStatus=' + statusNode.@status +
+						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
+						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
+					navigateToURL(url, '_blank');			
+					
+				} else {
+					Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
+				}
+				
+			} else {
+				Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
+			}
+		}
 		
 		public function showBillingSummaryWindow():void {
 			var summaryWindow:BillingTotalByLabView = BillingTotalByLabView(mx.managers.PopUpManager.createPopUp(this, BillingTotalByLabView, true));
@@ -2142,6 +2172,8 @@
 				refresh();
 			} else if (label == 'Notes to Core') {
 				showNotesToCoreWindow();
+			} else if (label == 'Monthend Billing Report (uMerge Format)') {
+				showBillingMonthendReportUMergeFormat();
 			}
 		}
 
@@ -2205,6 +2237,7 @@
 						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
 						<menuitem label="Reports..."  icon="iconReports" >
 							<menuitem label="Invoice Report" />
+							<menuitem label="Monthend Billing Report (uMerge Format)" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
 							<menuitem label="Notes to Core"  />
@@ -2222,6 +2255,7 @@
 						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
 						<menuitem label="Reports..."  icon="iconReports" >
 							<menuitem label="Invoice Report" />
+							<menuitem label="Monthend Billing Report (uMerge Format)" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
 							<menuitem label="Notes to Core"  />

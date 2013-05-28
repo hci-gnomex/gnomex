@@ -56,6 +56,7 @@ package views.util
 			event.stopImmediatePropagation();
 		}
 		
+		
 		private function expandNodes(topIndex:int, bottomIndex:int, dataCollection:XMLListCollection):void {
 			
 			if ( dataCollection == null || dataCollection.length == 0 ) {
@@ -104,6 +105,38 @@ package views.util
 
 		}
 		
+		public function scrollToItemAndExpand(item:Object):void {
+			
+			if ( item == null || dataProvider == null || dataProvider.source == null || dataProvider.source.source == null ) {
+				return; 
+			}
+			
+			var dataCollection:XMLListCollection = this.dataProvider.source.source;
+			
+			this.dataLength = dataCollection.length;
+			
+			if ( dataCollection.length == 0 ) {
+				return;
+			}
+			
+			var index:int = dataCollection.getItemIndex(item);
+			
+			if ( index == -1 ) {
+				return;
+			}
+			
+			var maxTopIndex:int = this.findMaxIndex(dataCollection,this.rowCount);
+			var topIndex:int = Math.min(index, maxTopIndex);
+			
+			this.firstVisibleItem = dataCollection.getItemAt(topIndex);
+				
+			var bottomIndex:int = this.findBottomIndex(dataCollection, topIndex, this.rowCount); 
+			
+			this.expandNodes(topIndex, bottomIndex, dataCollection);
+			
+			this.selectedItem = item;
+			
+		}
 		
 		
 		private function scrollAndExpandByIndex(delta:int):void {
