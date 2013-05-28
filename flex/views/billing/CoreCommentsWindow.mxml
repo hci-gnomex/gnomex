@@ -3,7 +3,7 @@
 				xmlns:util="views.util.*"
 				layout="vertical" 
 				title="Billing Item Notes to Core" 
-				width="700" 
+				width="720" 
 				showCloseButton="true" close="mx.managers.PopUpManager.removePopUp(this)"
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/note_edit.png')">
@@ -25,6 +25,7 @@
 			<idLab>{parentView.requestNumberText.text == "" &amp;&amp; parentView.invoiceNumberLookupText.text == "" ? parentView.labCombo.selectedItem.@idLab : ""}</idLab>       	
 			<idBillingAccount>{parentView.requestNumberText.text == "" ? parentView.billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>  
 			<excludeNewRequests>{parentView.coreFacilityCombo.selectedItem != null &amp;&amp; parentView.coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idCoreFacility>{parentView.coreFacilityCombo.selectedItem != null ? parentView.coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
 		</mx:request>
 	</mx:HTTPService >
 	
@@ -56,15 +57,14 @@
 				Alert.show(getCoreCommentsForBillingPeriod.lastResult..ERROR.@message);
 				return;
 			}	
-			
 		}
 		
 		private function scrollToRequest(event:ListEvent):void {
 			for each ( var request:Object in parentView.billingItemsDisplayed ) {
 				if (request.@requestNumber == event.currentTarget.selectedItem.@number) {
-					parentView.billingItemGrid.selectedItem = request; 
-					parentView.billingItemGrid.validateNow();
-					parentView.billingItemGrid.scrollToIndex(parentView.billingItemGrid.selectedIndex);
+					// Sometimes this takes 2 calls for it to scroll correctly.
+					parentView.billingItemGrid.scrollToItemAndExpand(request);
+					parentView.billingItemGrid.scrollToItemAndExpand(request);
 					this.requestGrid.selectedIndex = -1;
 					return;
 				}
@@ -101,7 +101,7 @@
 				
 				<mx:DataGridColumn dataField="@number"
 								   headerText="Req"
-								   width="55" minWidth="20" />
+								   width="60" minWidth="20" />
 				<mx:DataGridColumn dataField="@name"
 								   dataTipField="@name"
 								   showDataTips="true"
@@ -114,7 +114,7 @@
 								   minWidth="10" />
 				<mx:DataGridColumn dataField="@billingStatus" 
 								   headerText="Status"
-								   width="90"/>
+								   width="95"/>
 				
 				</mx:columns> 
 			
