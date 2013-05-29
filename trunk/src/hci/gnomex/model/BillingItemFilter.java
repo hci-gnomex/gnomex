@@ -59,7 +59,8 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("            req.completedDate, ");
     queryBuf.append("            ba, ");
     queryBuf.append("            lab.isExternalPricing, ");
-    queryBuf.append("            lab.isExternalPricingCommercial ");
+    queryBuf.append("            lab.isExternalPricingCommercial, ");
+    queryBuf.append("            lab.idLab ");
 
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
