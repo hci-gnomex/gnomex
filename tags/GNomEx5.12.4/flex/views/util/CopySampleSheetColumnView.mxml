@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="556" height="110" 
+	creationPolicy="all"
+	xmlns:views="views.*" 
+	xmlns:util="views.util.*"
+	showCloseButton="true"
+	close="{PopUpManager.removePopUp(this)}" 
+	title="Copy Sample Sheet Column" 	 
+	borderThickness="4" xmlns:renderers="views.renderers.*">
+    <mx:VBox width="100%" height="100%">
+		<mx:Canvas id="chooseColumns" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+			<mx:VBox width="100%" height="86" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<mx:HBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" horizontalAlign="center" paddingRight="8" width="100%" id="vbox0" height="42" paddingTop="8" paddingBottom="8" borderStyle="none">
+					<mx:Label text="Copy From:"/>
+					<mx:ComboBox id="copyFromCombo" labelField="@fieldText" dataProvider="{fieldListFrom}" change="comboChange();"/>
+					<mx:Label text="Copy To:"/>
+					<mx:ComboBox id="copyToCombo" labelField="@fieldText" dataProvider="{fieldListTo}" change="comboChange();"/>
+				</mx:HBox>
+				<mx:HBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" horizontalAlign="center" paddingRight="8" width="100%" id="vbox1" height="39" paddingTop="8" paddingBottom="8" borderStyle="none">
+					<mx:Button id="btnCopy" enabled="false" label="Copy" click="columnCopy();"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:Canvas>
+	</mx:VBox>
+
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.collections.HierarchicalCollectionView;
+			import mx.collections.ListCollectionView;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.experiment.TabSamplesView;
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridColumnWithType;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.SampleSheetColumnFormats;
+
+			
+			private var uploadFR:FileReference;
+			public var uploadSampleSheetURL:String;
+			private var docTypes:FileFilter;
+			private var tabSamplesView:TabSamplesView;	
+
+			[Bindable]
+			private var fieldListFrom:XMLListCollection = new XMLListCollection();
+			
+			[Bindable]
+			private var fieldListTo:XMLListCollection = new XMLListCollection();
+		
+			public function init(tabSamplesView:TabSamplesView):void {
+				this.tabSamplesView = tabSamplesView;
+				initializeFieldList()
+			}
+			
+			private function comboChange():void {
+				var fromField:String = copyFromCombo.selectedItem.@dataField;
+				var toField:String = copyToCombo.selectedItem.@dataField;
+				if((fromField.length > 0) && (toField.length > 0) && (fromField != toField)) {
+					btnCopy.enabled = true;
+				} else {
+					btnCopy.enabled = false;
+					if((fromField.length > 0) && (toField.length > 0) && (fromField == toField)) {
+						Alert.show("Error: Identical field selected for both To and From.");
+					}
+				}
+			}
+			
+			private function columnCopy():void {
+				var fromField:String = copyFromCombo.selectedItem.@dataField;
+				if(fromField.length > 0 && fromField.charAt(0) == '@') {
+					// Strip off @ if it's there -- not needed for this action
+					fromField = fromField.substr(1);
+				}				
+				
+				var toField:String = copyToCombo.selectedItem.@dataField;
+				if(toField.length > 0 && toField.charAt(0) == '@') {
+					// Strip off @ if it's there -- not needed for this action
+					toField = toField.substr(1);
+				}				
+				
+				var sampleGridDataRows:XMLListCollection = null;
+				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
+					sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);					
+				} else {
+					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+				}
+				
+				for each (var node : XML in sampleGridDataRows){
+					node.@[toField] = node.@[fromField];
+				}	
+				PopUpManager.removePopUp(this);
+			}
+
+			
+			private function sortFieldList(whichList:XMLListCollection):void {
+				var nameSort:Sort = new Sort();
+				nameSort.fields = [new SortField('@fieldText', true)];
+				
+				whichList.sort = nameSort;
+				whichList.refresh();
+			}
+			
+			private function initializeFieldList():void { 				
+				// Build the contents of the columns selection list
+			
+				var emptyNode:XML = new XML("<FieldItem " +
+					" dataField='' fieldText='" +
+					"' fieldType=''/>");
+				fieldListFrom.addItem(emptyNode);
+				fieldListTo.addItem(emptyNode);
+			
+				for each(var col:AdvancedDataGridColumn in this.tabSamplesView.samplesGrid.columns) {
+					if (col.dataField != null && col.dataField == '@multiplexGroupNumberDisplay') {
+						continue;
+					}
+					if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
+						continue;
+					}
+					if (col.headerText == "") {
+						continue;	// This skips row number column
+					}
+					if (col.visible && col.editable && col.dataField != null) {
+						var fieldType:String = "TEXT";
+						if(col is AnnotationAdvancedDataGridColumn) {
+							fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
+						}
+						if(col is AdvancedDataGridColumnWithType) {
+							fieldType = AdvancedDataGridColumnWithType(col).propertyType;
+						}
+						
+						if(fieldType != "TEXT") {
+							continue;
+						}
+						
+						emptyNode= new XML("<FieldItem " +
+							" dataField='" + col.dataField + "' fieldText='" + col.headerText +
+							"' fieldType='" + fieldType + "'/>");
+						fieldListFrom.addItem(emptyNode);
+						fieldListTo.addItem(emptyNode);
+					}
+				}
+				sortFieldList(fieldListFrom);
+				sortFieldList(fieldListTo);
+			} 	
+		]]>
+	</mx:Script>
+</mx:TitleWindow>

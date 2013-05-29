@@ -1,0 +1,1357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:views="views.*" 
+		  xmlns:util="views.util.*" 
+		  xmlns:analysis="views.analysis.*"
+		  xmlns:renderers="views.renderers.*"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
+	
+	<mx:HTTPService  
+		id="getExperimentPickList" 
+		url="GetExperimentPickList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetExperimentPickList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+			<idLab>{analysis.@idLab}</idLab> 
+			<showSamples>N</showSamples>
+			<showCategory>N</showCategory>
+			<showMyLabsAlways>N</showMyLabsAlways>
+			<searchPublicProjects>N</searchPublicProjects>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="saveAnalysis" 
+		url="SaveAnalysis.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="saveAnalysisFiles" 
+		url="SaveAnalysisFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysisFiles(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis files', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysis" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysisAfterUpload" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysisAfterUpload(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis after upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getRequest" 
+		url="GetRequest.gx"
+		destination="getRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+		
+	<mx:HTTPService  
+		id="getLab" 
+		url="GetLab.gx"
+		destination="getLab"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idLab>{analysis.@idLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.dictionary.DictionaryEditor;
+			import hci.flex.dictionary.DictionaryEvent;
+			
+			import mx.collections.Sort;
+			import mx.controls.Alert;
+			import mx.controls.listClasses.ListBase;
+			import mx.core.DragSource;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DragEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.datatrack.DistributeDataTrackWindow;
+			import views.experiment.ExperimentDetailView;
+			import views.experiment.ExperimentDetailWindow;
+			import views.protocol.ProtocolsView;
+			import views.topics.NavTopicsView;
+			import views.util.AnalysisProtocolsEvent;
+			import views.util.FileUtil;
+			import views.util.GNomExStringUtil;
+			import views.util.OrganismEvent;
+			import views.util.OrganismsWindow;
+			import views.util.PromptXMLListCollection;
+			
+			[Bindable]
+			private var selectedFileList:XMLListCollection;
+			[Bindable]
+			public var rowCountMessage:String = new String();
+			
+			[Bindable]
+			private var possibleCollaborators:XMLListCollection;
+			[Bindable]
+			private var possibleInstitutions:PromptXMLListCollection;
+			[Bindable]
+			public var selectedExperiment:Object; 
+			[Bindable]
+			public var analysis:Object;
+			private var execValidateAndSaveAnalysis:Boolean = false;
+			
+			[Bindable]
+			private var appUsersForLab:XMLListCollection;
+			private var appUserSort:Sort;			
+			
+			public var parentIdLab:Object = null;
+			
+			private var experimentDetailWindow:ExperimentDetailWindow;  
+			
+			private var dictionaryEditor:DictionaryEditor; 
+			
+			private var protocolWindow:views.protocol.ProtocolEditWindow;
+			
+			private var pasteCommand:Boolean = false; 
+			
+			private var uploadWindow:AnalysisUploadWindow = null;
+			
+			private function onCloseWindow():void {
+				if (dirty.isDirty()) {
+					promptToCloseOnDirty();
+				} else {
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function promptToCloseOnDirty():void {
+				Alert.show( "The analysis has not been saved.  Do you want the changes to be saved before closing window?",
+					"Warning",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToSaveAndClose,						
+					parentApplication.iconWarning);
+			}
+			
+			private function onPromptToSaveAndClose(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					this.validateAndSaveAnalysis();
+				}
+			}	
+			
+			public function setupEditForm(theAnalysis:Object, skipGetInfo:Boolean):void {
+				initializeDataProviders();
+				
+				this.analysis = theAnalysis;
+				
+				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
+				if(!skipGetInfo) {
+					getLab.send();
+				}
+				
+				// Build hybs & lanes collection.  Assign the idRequest to the Hybridization
+				// and SequenceLane node.
+				
+				hybs = new XMLListCollection();
+				hybs.source = analysis..AnalysisExperimentItem..Hybridization;			
+				
+				lanes = new XMLListCollection();
+				lanes.source = analysis..AnalysisExperimentItem..SequenceLane;
+				
+				var item:Object;
+				for each(item in analysis..AnalysisExperimentItem) {
+					for each (var hyb:Object in item..Hybridization) {
+						hyb.@idRequest = item.@idRequest;
+					}
+					for each (var lane:Object in item..SequenceLane) {
+						lane.@idRequest = item.@idRequest;
+					}
+				}
+				
+				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
+				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
+				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol)
+				organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
+				filteredGenomeBuildList.refresh();
+				visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
+				privacyExpirationPicker.text = analysis.@privacyExpirationDate;	
+				
+				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
+				if(!skipGetInfo) {
+					this.getExperimentPickList.send();						
+				}
+				
+				files.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingFilesChange);
+				
+				if(execValidateAndSaveAnalysis) {
+					validateAndSaveAnalysis();
+				}
+				
+				var params:Object = new Object();
+				params.idAnalysis = analysis.@idAnalysis;
+				params.includeUploadStagingDir = 'Y';
+				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
+				parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
+					onOrganismRefreshed);		                                  
+				parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
+					onOrganismRefreshed);	
+				
+			}
+			
+			private function onOrganismRefreshed(event:Event):void{
+				filteredGenomeBuildList.refresh();
+			}
+
+			
+			public function refreshDownloadView(e:CloseEvent):void {
+				var params:Object = new Object();
+				params.idAnalysis = analysis.@idAnalysis;
+				params.includeUploadStagingDir = 'Y';
+				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
+			}
+			
+			public function initializeDataProviders():void {
+				analysisTypeCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
+			}
+			
+			private function nextTab():void {
+				theTab.selectedIndex++;
+			}
+			
+			private function previousTab():void {
+				if (theTab.selectedIndex > 0) {
+					theTab.selectedIndex--;				
+				}
+			}
+			
+			private function addExperimentItem(item:Object):void {
+				dirty.setDirty();
+				var node:XML;
+				if (item.@type == "SequenceLane") {
+					node = new XML("<SequenceLane " +
+						" number ='" + item.@itemNumber + "'" +
+						" createDate ='" + item.@createDate + "'" + 
+						" idRequest ='" + item.@idRequest + "'" +
+						" idOrganism ='" + item.@idOrganism + "'" +
+						" idSample ='" + item.@idSample + "'" +
+						" idSequenceLane ='" + item.@idSequenceLane + "'" +
+						" idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
+						" idSeqRunType ='" + item.@idSeqRunType + "'" +
+						" sampleNumber ='" + item.@sampleNumber1 + "'" +
+						" flowCellNumber ='" + item.@flowCellNumber + "'" +
+						" flowCellChannelNumber ='" + item.@flowCellChannelNumber  + "'" +
+						" idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
+						"/>");
+					// Sample names and other text may have special characters.  Assign this
+					// way to avoid malformed XML error.
+					node.@label = item.@label;
+					node.@sampleName = item.@sampleName1;
+					node.@analysisInstructions = item.@analysisInstructions;
+					var found:Boolean = false;
+					for each(var lane:Object in lanes) {
+						if (lane.@number == item.@itemNumber) {
+							found = true;
+							break;
+						}
+					} 
+					if (!found) {
+						lanes.addItem(node);
+					}
+					this.experimentItemStack.selectedChild = lanesView;	
+				} else {
+					node = new XML("<Hybridization " +
+						" number ='" + item.@itemNumber + "'" +
+						" idRequest ='" + item.@idRequest + "'" +
+						" idHybridization ='" + item.@idHybridization + "'" +
+						" sampleNumber1 ='" + item.@sampleNumber1 + "'" +
+						" sampleNumber2 ='" + item.@sampleNumber2 + "'" +
+						" slideDesign ='" + item.@slideDesign + "'" +
+						" slideDesignName ='" + item.@slideDesignName + "'" +
+						" idSlideDesign ='" + item.@idSlideDesign + "'" +
+						"/>");
+					// Sample names may have special characters.  Assign this
+					// way to avoid malformed XML error.
+					node.@label = item.@label;
+					node.@sampleName1 = item.@sampleName1;
+					node.@sampleName2 = item.@sampleName2;	
+					for each(var hyb:Object in hybs) {
+						if (hyb.@number == item.@itemNumber) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						hybs.addItem(node);
+					}
+					this.experimentItemStack.selectedChild = hybsView;	
+				}
+			}
+			
+			private function promptToRemoveAllExperimentItems():void {
+				Alert.show( "Remove all links to experiment items?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveAllExperimentItems,						
+					parentApplication.iconWarning);
+			}
+			private function onPromptToRemoveAllExperimentItems(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeAllExperimentItems();
+				}
+			}
+			private function removeAllExperimentItems():void {
+				this.dirty.setDirty();
+				hybs.removeAll();
+				lanes.removeAll();
+			}
+			private function removeExperimentItem():void {
+				dirty.setDirty();
+				if (hybsGrid.selectedItem != null) {
+					hybs.removeItemAt(hybsGrid.selectedIndex);				
+				} else if (lanesGrid.selectedItem != null) {
+					lanes.removeItemAt(lanesGrid.selectedIndex);								
+				}
+			}
+			private function onGetExperimentPickList(event:ResultEvent): void {
+				getExperimentPickList.showBusyCursor = false;
+				callLater(expandAllNodes);
+			}
+			
+			public function expandAllNodes():void
+			{
+				experimentTree.expandItem(getExperimentPickList.lastResult, true);
+				for each(var lab:Object in getExperimentPickList.lastResult..Lab) {
+					experimentTree.expandItem(lab, true);
+				}
+				for each(var p:Object in getExperimentPickList.lastResult..Project) {
+					experimentTree.expandItem(p, true);
+				}
+				experimentTree.validateNow();
+			}
+			
+			private function getLanesGridRowNumber(item:Object,col:int):String
+			{
+				var x:int = lanesGrid.dataProvider.getItemIndex(item) + 1;
+				return String(x);
+			} 
+			private function getHybsGridRowNumber(item:Object,col:int):String
+			{
+				var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
+				return String(x);
+			} 
+			public function getFilesGridRowNumber(item:Object,col:int):String
+			{
+				var x:int = filesView.downloadTree.dataProvider.getItemIndex(item) + 1;
+				return String(x);
+			} 		 
+			private function promptToCancel():void {
+				Alert.show( "The analysis has not been saved.  Are you sure you want to quit?",
+					"Warning",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToCancel,						
+					parentApplication.iconWarning);
+			}
+			
+			private function onPromptToCancel(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					cancelAnalysis();
+				}
+			}	
+			
+			public function cancelAnalysis():void {
+			}     
+			
+			public function validateAndSaveAnalysis():void {
+				
+				// Check for required fields
+				if (analysisName.text == "") {
+					analysisName.setFocus();
+					Alert.show("Please enter an analysis name.");        		
+					return;
+				} else if (organismCombo.selectedItem == null || organismCombo.selectedItem.@value == "") {
+					organismCombo.setFocus();
+					Alert.show("Please select an organism.");
+					return;        		
+				} 
+				
+				
+				
+				if(!analysisProperties.requiredAnnotationsEntered()) {
+					return;		
+				}
+				
+				
+				var params:Object = new Object();
+				
+				params.idAnalysis         = analysis.@idAnalysis;
+				params.name               = this.analysisName.text;
+				params.description        = GNomExStringUtil.cleanRichTextHTML(this.description.htmlText);
+				
+				// If the analysis was assigned to a new lab (through
+				// the drag operation, set the lab on the lab to
+				// the "parent' lab.
+				if (parentIdLab != null) {
+					params.idLab  = parentIdLab;
+					params.idAppUser = analysis.@idAppUser;		// If drag operation then leave idAppUser just in case that person is a member of the new lab
+					parentIdLab = null;
+				} else {
+					params.idLab              = analysis.@idLab;
+					params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";
+				}
+				
+				params.idAnalysisType     = this.analysisTypeCombo.selectedItem.@value;
+				params.idAnalysisProtocol = this.analysisProtocolCombo.selectedItem.@id;
+				params.idOrganism         = this.organismCombo.selectedItem.@value;
+				
+				// Genome Builds
+				//params.idGenomeBuild      = this.genomeBuildCombo.selectedItem != null ? this.genomeBuildCombo.selectedItem.@value : "";
+				params.idGenomeBuild         = "";
+				params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
+				
+				params.codeVisibility     = this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";
+				if (params.codeVisibility == 'INST') {
+					params.idInstitution      = this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution : "";				
+				} 
+				params.privacyExpirationDate = this.privacyExpirationPicker.text;
+				params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
+				params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
+				params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
+				params.analysisFilesXMLString = filesView.getDirtyAnalysisFiles().toXMLString();
+				
+				// Collaborators
+				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+
+				// Annotations
+				analysisProperties.initializePropertiesFromComponents();
+				params.propertiesXML = "<analysisProperties>" + analysisProperties.propertiesToSave.toXMLString() + "</analysisProperties>";
+
+				saveAnalysis.send(params);			
+			}   	
+			
+			private function onSaveAnalysis(event:ResultEvent):void {
+				if (saveAnalysis.lastResult.name() == "SUCCESS") {
+					
+					dirty.resetDirty();
+					
+					// refresh analysis
+					var parms:Object = new Object();
+					parms.idAnalysis = analysis.@idAnalysis;
+					getAnalysis.send(parms);
+					
+					execValidateAndSaveAnalysis = false; 
+					if(parentDocument is NavAnalysisView) {
+						parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+						parentApplication.navAnalysisView.refreshAnalysis();
+						
+						parentApplication.navAnalysisView.showEditView = true;
+						parentApplication.navAnalysisView.analysisDetailView.refreshSavedAnalysis(analysis.@idAnalysis);							
+					} else if (parentDocument is NavTopicsView) {
+						parentApplication.navTopicsView.analysisDetailView.refreshSavedAnalysis(analysis.@idAnalysis);
+						parentApplication.navTopicsView.analysisViews.selectedChild = parentApplication.navTopicsView.analysisDetailView;
+					}
+		 				
+				} else {
+					execValidateAndSaveAnalysis = false; 
+					if(parentDocument is NavAnalysisView) {
+						parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+						parentApplication.navAnalysisView.refreshAnalysis();						
+					}
+					Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
+			
+			private function onGetAnalysis(event:ResultEvent):void {
+				analysis = getAnalysis.lastResult.Analysis.(@idAnalysis == analysis.@idAnalysis);
+				var params:Object = new Object();
+				params.idAnalysis = analysis.@idAnalysis;
+				params.includeUploadStagingDir = 'Y';
+				filesView.getAnalysisDownloadList.send(params);
+				filesView.browseParameters = params;
+				
+			}
+			
+			private function onGetAnalysisAfterUpload(event:ResultEvent):void {
+				analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).files;
+				analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).ExpandedAnalysisFileList;
+				files.source = analysis..AnalysisFileDescriptor;
+				if(uploadWindow != null) {
+					uploadWindow.refreshFiles();
+				}
+			}
+			
+			private function expandDownloadTree():void {
+				if (filesView.downloadTree != null) {
+					for each(var r:Object in filesView.getAnalysisDownloadList.lastResult.Analysis) {
+						filesView.downloadTree.expandChildrenOf(r, true);
+					}
+				}
+			} 
+			
+			private function validateAndSubmitAnalysis():void {        	
+			}   	
+			
+			
+			public function getExperimentTreeLabel(item:Object):String { 
+				return item.@label;
+			}
+			
+			private function onDragEnter( event:DragEvent ) : void
+			{ 
+				if( event.dragInitiator is Tree ) {
+					var ds:DragSource = event.dragSource;
+					if( !ds.hasFormat("treeItems") ) return; // no useful data
+					var items:Array = ds.dataForFormat("treeItems") as Array;
+					for(var i:Number=0; i < items.length; i++) {
+						var item:XML = XML(items[i]);
+						if( item.name() != "Request" && item.name() != "Item" ) {
+							return; // not what we want
+						}
+					}    
+				} 
+				
+				// if the tree passes or the dragInitiator is not a tree, accept the drop
+				DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
+			}
+			private function onDragOver( event:DragEvent ) : void
+			{
+				if( event.dragInitiator is Tree ) {
+					DragManager.showFeedback(DragManager.COPY);
+				} else {
+					if (event.ctrlKey)
+						DragManager.showFeedback(DragManager.COPY);
+					else if (event.shiftKey)
+						DragManager.showFeedback(DragManager.LINK);
+					else {
+						DragManager.showFeedback(DragManager.MOVE);
+					}
+				}
+			}
+			
+			private function onDragExit( event:DragEvent ) : void
+			{
+				var dropTarget:ListBase=ListBase(event.currentTarget); 
+				dropTarget.hideDropFeedback(event);
+			}
+			
+			public function onDragDropExperimentItem(event:DragEvent) : void
+			{
+				// retrieve the data associated with the "items" format. This will be the data that
+				// the dragInitiator has copied into the DragSource.
+				var items:Array = event.dragSource.dataForFormat("treeItems") as Array;
+				
+				// take the dragged tree items and add them to the experiment items
+				// collection
+				for(var i:Number=0; i < items.length; i++) {
+					if (items[i].name() == "Item") {
+						addExperimentItem(items[i]);	       			
+					} else if (items[i].name() == "Request") {
+						for each(var experimentItem:Object in items[i]..Item) {
+							addExperimentItem(experimentItem);
+						}
+					}
+				}
+				
+				// Don't allow flex to do any default moves to the data.  
+				// We handle it in the code above.
+				event.preventDefault();
+				
+			}
+			
+			
+			private function filterGenomeBuild(item:Object):Boolean {
+				if (item.@value == "") {
+					return true;
+				}
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				var doesMatch:Boolean = false;
+				if (this.organismCombo.selectedItem != null && 
+					this.organismCombo.selectedItem.@value != null  &&
+					this.organismCombo.selectedItem.@value != "") {
+					if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+						doesMatch = true;
+					}
+				}
+				return doesMatch;
+			}
+			
+			private function showExperimentDetailWindow():void {  
+				if (this.experimentTree.selectedItem.name() == "Request" ||
+					this.experimentTree.selectedItem.name() == "Item") {
+					var params:Object = new Object();
+					params.idRequest = this.experimentTree.selectedItem.@idRequest;
+					getRequest.send(params);		 
+				}
+				
+			}
+			
+			
+			private function onGetRequest(event:ResultEvent):void {
+				selectedExperiment = getRequest.lastResult.Request.(@idRequest == this.experimentTree.selectedItem.@idRequest);
+				
+				this.experimentDetailWindow = ExperimentDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentDetailWindow, false));
+				experimentDetailWindow.width  = 800;
+				experimentDetailWindow.height = 500;	
+				this.experimentDetailWindow.title = 'Experiment ' + selectedExperiment.@number;		
+				PopUpManager.centerPopUp(this.experimentDetailWindow);	 
+				callLater(postOnGetRequest);	
+			}
+			
+			private function postOnGetRequest():void {
+				experimentDetailWindow.experimentDetailView.setupForm(selectedExperiment);			
+			}
+			
+			private function underlyingFilesChange(event:CollectionEvent):void {
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				var commentEdit:Boolean = false;
+				for each(var e:Object in event.items) {
+					if (e is PropertyChangeEvent) {
+						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+						if (pe.property == "@comments") {
+							commentEdit = true;
+							break;
+						}
+					}
+				}
+				// Only process comment edits
+				if (commentEdit) {
+					dirty.setDirty();
+				}			
+			}
+			
+			public function setFileCount():void {
+				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
+			}
+			
+			
+			//
+			// Edit organism dictionary
+			//
+			private function editOrganism():void {			
+				var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				if(organismCombo.selectedItem != null) {
+					configWindow.selectOrganism(organismCombo.selectedItem.@idOrganism);
+				}
+			}       
+			
+			//
+			// Edit analysis type dictionary
+			//
+			private function editAnalysisType():void {
+				dictionaryEditor = DictionaryEditor(PopUpManager.createPopUp(parentApplication.theBody, DictionaryEditor, true));
+				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,   
+					onDictionaryAnalysisTypeInitialized);
+				dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED, 
+					onDictionaryAnalysisTypeSelected);			
+				parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,   
+					onDictionaryAnalysisTypeRefreshed);
+				PopUpManager.centerPopUp(dictionaryEditor);
+			}
+			private function onDictionaryAnalysisTypeInitialized(event:Event):void{
+				dictionaryEditor.selectDictionary("hci.gnomex.model.AnalysisType");
+			}          
+			private function onDictionaryAnalysisTypeRefreshed(event:Event):void{
+				analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
+				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);				
+			}	
+			private function onDictionaryAnalysisTypeSelected(event:Event):void{
+				if (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "") {
+					dictionaryEditor.selectDictionaryEntry(analysisTypeCombo.selectedItem);
+				}
+			}
+			
+			//
+			// Edit analysis protocol dictionary
+			//
+			private function editAnalysisProtocol():void {
+				protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.theBody, views.protocol.ProtocolEditWindow, true));
+				protocolWindow.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+				protocolWindow.editor.initializeData('hci.gnomex.model.AnalysisProtocol');
+				PopUpManager.centerPopUp(protocolWindow);
+			}
+			
+			public function onCloseProtocolEditWindow(event:Event):void {
+				parentApplication.addEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				parentApplication.getProtocolList.send();
+				protocolWindow.removeEventListener(Event.CLOSE, onCloseProtocolEditWindow);
+				PopUpManager.removePopUp(protocolWindow);
+			}
+			
+			public function onAnalysisProtocolsRefreshed(event:Event):void {
+				parentApplication.removeEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
+				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
+			}
+			
+			private function showViewWindow():void {
+				parentDocument.analysisViews.selectedChild = parentDocument.analysisDetailView;
+				parentDocument.analysisDetailView.setupForm(this.analysis);
+			}
+			
+			public function clearUploadWindowVar():void {
+				uploadWindow = null;
+			}
+			
+			public function refreshAnalysis():void {
+				// refresh analysis
+				var parms:Object = new Object();
+				parms.idAnalysis = analysis.@idAnalysis;
+				getAnalysis.send(parms);
+			}
+			
+			public function setExecValidateAndSaveAnalysis():void {
+				execValidateAndSaveAnalysis = true;
+				validateAndSaveAnalysis();
+			}
+			
+			private function expLabComboChange():void {
+				if(expLabCombo.selectedItem.@idLab != getExperimentPickList.request.idLab) {
+					getExperimentPickList.request.idLab = expLabCombo.selectedItem.@idLab;
+					getExperimentPickList.showBusyCursor = true;
+					getExperimentPickList.send();
+				}
+			}
+			private function addCollaborator():void {
+				dirty.setDirty();
+				var node:XML = new XML("<AnalysisCollaborator" +
+					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+					" canUploadData='N' " +
+					" canUpdate='N' " +
+					"/>");
+				this.collaborators.addItem(node);
+			}
+			
+			private function removeCollaborator():void {
+				dirty.setDirty();
+				if (collaboratorGrid.selectedIndex != -1) {
+					collaborators.removeItemAt(collaboratorGrid.selectedIndex);
+				}
+			}
+			
+			private function addGenomeBuild():void {
+				dirty.setDirty();
+				var node:XML = new XML("<GenomeBuild " +
+					" idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
+					" display='" + genomeBuildCombo.selectedItem.@display + "'" +
+					"/>");
+				this.genomeBuilds.addItem(node);
+			}
+			
+			private function removeGenomeBuild():void {
+				dirty.setDirty();
+				if (genomeBuildGrid.selectedIndex != -1) {
+					genomeBuilds.removeItemAt(genomeBuildGrid.selectedIndex);
+				}
+			}
+			
+			
+			private function onGetLab(event:ResultEvent):void {
+				if (getLab.lastResult.name() == "OpenLabList") {
+					var emptyNode:XML = new XML("<AppUser " +
+						" idAppUser=''" +
+						" displayName=''"  +
+						"/>");
+					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
+					possibleCollaborators.addItemAt(emptyNode, 0);
+					possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
+					
+					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
+					if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
+						for each(var inst:Object in possibleInstitutions) {
+							if (inst.@idInstitution == analysis.@idInstitution) {
+								this.institutionCombo.selectedItem =  inst;
+								break;
+							}
+						}
+					} else {		
+						var hasDefault:Boolean = false;
+						if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+							for each(inst in possibleInstitutions) {
+								if (inst.@isDefault == 'Y') {
+									this.institutionCombo.selectedItem =  inst;
+									hasDefault = true;
+									break;
+								}
+							}	
+						} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+							// Default to Member if institution selected but not enabled
+							this.visibilityRadioGroup.selectedValue = 'MEM';					
+						}					
+						if(!hasDefault) {
+							this.institutionCombo.selectedIndex = 0;
+						}						
+					}
+					
+					var lab:Object = getLab.lastResult..Lab.(@idLab == analysis.@idLab);
+					emptyNode = <AppUser idAppUser='' displayName=''/>;
+					appUsersForLab = new XMLListCollection(lab.members.AppUser);
+					for each (var mgr:Object in lab.managers.AppUser) {
+						if (appUsersForLab.source.(@idAppUser==mgr.@idAppUser).length() == 0) {
+							appUsersForLab.addItem(mgr);				
+						}
+					}
+					appUsersForLab.addItemAt(emptyNode, 0);
+					
+					appUserSort = new Sort();
+					appUserSort.compareFunction = this.sortAppUsers;
+					appUsersForLab.sort = appUserSort;
+					appUsersForLab.refresh();
+					ownerCombo.selectedItem = emptyNode;
+					var currentOwnerNotFound:Boolean = true;
+					var currentOwner:String = analysis.@idAppUser;
+					if(currentOwner != null && currentOwner.length > 0) {
+						for each(var a:Object in appUsersForLab) {
+							if (a.@idAppUser == analysis.@idAppUser) {
+								ownerCombo.selectedItem = a;
+								currentOwnerNotFound = false;
+								break;
+							}
+						}						
+					}
+					if (currentOwnerNotFound && analysis.hasOwnProperty("@idAppUser") && analysis.@idAppUser != null && analysis.@idAppUser != '') {
+						var ownerNode:XML = new XML("<AppUser idAppUser='" + analysis.@idAppUser + "' displayName='" + analysis.@ownerName + "' />");
+						appUsersForLab.addItem(ownerNode);
+						appUsersForLab.refresh();
+						ownerCombo.selectedItem = ownerNode;
+						ownerCombo.enabled = false;
+						currentOwnerNotFound = false;
+					} else {
+						ownerCombo.enabled = true;
+					}
+					if(currentOwnerNotFound) {	
+						var changePrompt:OwnerChangePrompt = OwnerChangePrompt(PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true));
+						PopUpManager.centerPopUp(changePrompt);
+						changePrompt.init(this, analysis.@idAnalysis, analysis.@idLab);
+						//Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");				
+					}
+				}
+				
+				if (analysis.@canUpdateVisibility != 'Y') {
+					this.visibilityTab.enabled = false;
+				}
+			}
+			
+			private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var display1:String = obj1.@displayName;
+					var display2:String = obj2.@displayName;
+					
+					if (display1.toLowerCase() < display2.toLowerCase()) {
+						return -1;
+					} else if (display1.toLowerCase() > display2.toLowerCase()) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}
+			
+			
+			
+			private function showDataTracks():void {
+				// We need to make sure that all of the analysis files on the file
+				// system and db objects; otherwise we cannot link the analysis file
+				// to the data track.
+				if (filesView.hasUnregisteredDataTrackFiles()) {
+					var params:Object = new Object();
+					params.idAnalysis = analysis.@idAnalysis;
+					params.analysisFilesXMLString = filesView.getDataTrackAnalysisFiles();
+					
+					saveAnalysisFiles.send(params);
+				} else {
+					showDataTracksImpl();
+				}
+			}
+			
+			private function onSaveAnalysisFiles(event:ResultEvent):void {
+				// Now we need to refresh the download list of analysis files
+				// so that the drag-and-drop has the refreshed list (with ids
+                // for the saved analysis files).
+				if (saveAnalysisFiles.lastResult.name() == "SUCCESS") {
+					this.refreshDownloadView(null);
+					showDataTracksImpl();
+				} else {
+					Alert.show(saveAnalysisFiles.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+			private function showDataTracksImpl():void {
+				theTab.selectedChild = this.filesView;
+				parentApplication.showDistributeDataTrackWindow(analysis);
+			}
+			
+			private function showExperimentForSelectedHyb():void {
+				
+				var ei:Object = analysis.experimentItems.AnalysisExperimentItem..Hybridization.(@idHybridization == hybsGrid.selectedItem.@idHybridization).parent().parent();
+				parentApplication.showExperimentById(ei.@idRequest);
+				
+			}
+			
+			private function showExperimentForSelectedLane():void {
+				parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
+			}
+
+			private function removeRichTextButtons():void {
+				this.description.toolbar.removeChild(description.colorPicker);
+				this.description.toolbar.removeChild(description.fontFamilyCombo);
+				this.description.toolbar.removeChild(description.fontSizeCombo);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+	<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
+	<mx:XMLListCollection  id="analysisGroups" source="{analysis..AnalysisGroup}"/>
+	<mx:XMLListCollection  id="experimentItems" />
+	<mx:XMLListCollection  id="hybs"           /> 
+	<mx:XMLListCollection  id="lanes"         />
+	<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
+	<mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AnalysisCollaborator}"/>
+	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
+	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}"/>
+
+	
+	<mx:HBox width="100%" verticalGap="10" verticalAlign="middle" horizontalGap="24">
+		<mx:HBox horizontalGap="1" verticalAlign="middle">
+			<mx:Image source="{parentApplication.iconAnalysis}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" text="Edit Analysis"  />
+		</mx:HBox>
+		<mx:HBox horizontalAlign="left">
+			<mx:LinkButton label="View" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" paddingLeft="0" textAlign="left">    	        
+			</mx:LinkButton>
+			<mx:LinkButton label="Distribute Data Tracks" 
+						   click="showDataTracks()" 
+						   icon="@Embed(source='../../assets/datatrack.png')" 
+						   textDecoration="underline" 
+						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
+						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+						   textAlign="left" paddingLeft="0">    	        
+			</mx:LinkButton>				
+
+			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" textAlign="left"/>
+		</mx:HBox>
+	</mx:HBox>
+	
+	
+	<mx:TabNavigator id="theTab"  paddingTop="1" width="100%" height="100%" >
+		<mx:VBox label="Info" height="100%" width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="4">
+
+			<mx:HBox horizontalGap="4"  verticalAlign="top" horizontalAlign="left">
+				<mx:VBox verticalGap="6">
+					<mx:HBox horizontalGap="0" width="100%">
+						<mx:Label text="Name" width="100" fontWeight="normal">
+						</mx:Label>
+						<mx:TextInput text="{analysis.@name}" width="200" change="dirty.setDirty();" id="analysisName"/>
+					</mx:HBox>
+					<mx:HBox horizontalAlign="left" verticalAlign="top" horizontalGap="0">
+						<mx:Label text="Lab Group" width="100" textAlign="left" fontWeight="normal">
+						</mx:Label>
+						<mx:HBox verticalGap="0" width="100%" horizontalScrollPolicy="off" horizontalGap="1">
+							<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@labName}"  width="180"/>
+							<mx:LinkButton 
+								click="{Alert.show('Click on drag-n-drop hint (left panel) for tip on how to reassign analysis to another group or move/copy analysis to another folder.')}" 
+								textAlign="left" textDecoration="underline" icon="@Embed(source='../../assets/information.png')" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" width="20"/>
+							
+						</mx:HBox>
+					</mx:HBox>
+					<mx:HBox  horizontalGap="0" width="100%">
+						<mx:Label text="Submitted by"  width="100" fontWeight="normal"/>
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@submitterName}" width="200"/> 
+					</mx:HBox>
+					<mx:HBox  horizontalGap="0" width="100%">
+						<mx:Label text="Submit Date"  width="100" fontWeight="normal"/>
+						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{analysis.@createDate}" width="200"/>
+					</mx:HBox>        
+					<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+						<mx:Label text="Owner"  width="100" fontWeight="normal"/>
+						<util:ComboBoxDatProvChangeFix id="ownerCombo"
+									 labelField="@displayName" 
+									 change="this.dirty.setDirty();" 
+									 dataProvider="{appUsersForLab}" 
+									 enabled="{parentApplication.hasPermission('canWriteAnyObject') ? true : false}"
+									 width="200"/>
+					</mx:HBox>
+										
+				</mx:VBox>
+				
+				<mx:VBox verticalGap="0" >
+					<mx:HBox horizontalGap="0" width="100%">
+						<mx:VBox verticalGap="0">
+							<mx:Label text="Analysis Type" width="100" fontWeight="normal" paddingBottom="0">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisType()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>							
+						</mx:VBox>
+						<mx:VBox verticalGap="0" width="100%">
+							<util:ComboBoxDatProvChangeFix  width="200" id="analysisTypeCombo" labelField="@display" change="dirty.setDirty();"/>
+						</mx:VBox>
+					</mx:HBox>
+
+					<mx:HBox horizontalGap="0" width="100%"  paddingTop="6">
+						<mx:VBox verticalGap="0">
+							<mx:Label text="Analysis Protocol" width="100" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editAnalysisProtocol()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>														
+						</mx:VBox>
+						<mx:VBox verticalGap="0">
+							<util:ComboBoxDatProvChangeFix  width="200" id="analysisProtocolCombo" labelField="@label" change="dirty.setDirty();" dataProvider="{parentApplication.protocolList}" />
+						</mx:VBox>
+					</mx:HBox>								
+
+					<mx:HBox horizontalGap="0" paddingTop="6">
+						<mx:VBox  width="100" verticalGap="0">
+							<mx:Label text="Organism" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" fontSize="10"/>
+						</mx:VBox>								
+						<mx:VBox verticalGap="0">
+							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
+						</mx:VBox>
+					</mx:HBox>
+					
+					
+					<mx:HBox horizontalGap="0"  paddingTop="6">
+						<mx:VBox verticalGap="0" width="100">
+							<mx:Label text="Genome Builds" width="100%" fontWeight="normal">
+							</mx:Label>
+							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" fontSize="10"/>
+						</mx:VBox>
+						<mx:VBox verticalGap="0">																		
+							<mx:HBox verticalGap="0">
+								<mx:ComboBox  width="200" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>								
+					
+					
+					<mx:HBox verticalGap="0" horizontalGap="10" paddingTop="0">
+						<mx:HBox horizontalGap="0" width="100%" verticalAlign="bottom" paddingBottom="2">
+							<mx:Label styleName="hintText" text="(Sel. from dropdown, use + to add to list below)" width="100%" fontWeight="normal">
+							</mx:Label>	
+							<mx:Button 
+								enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+								icon="@Embed(source='../../assets/add.png')" 
+								disabledIcon="@Embed(source='../../assets/add_disable.png')"
+								click="addGenomeBuild()" 
+								width="25">
+							</mx:Button>
+							<mx:Button  
+								icon="@Embed(source='../../assets/delete.png')" 
+								disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+								enabled="{genomeBuildGrid.selectedItem != null}" 
+								click="removeGenomeBuild()" 
+								width="25"/>
+						</mx:HBox>															
+					</mx:HBox>													
+					<mx:DataGrid id="genomeBuildGrid" width="100%" height="100%" dataProvider="{genomeBuilds}" showHeaders="false">
+						<mx:columns>
+							<mx:DataGridColumn dataField="@display"/>
+						</mx:columns>
+					</mx:DataGrid>																								
+
+
+					
+				</mx:VBox>
+			</mx:HBox>
+		</mx:VBox>
+
+		<mx:VBox label="Description" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10" width="100%" height="100%">
+			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+								id="description" width="100%" 
+								htmlText="{analysis.@description}" 
+								showControlBar="true"
+								change="dirty.setDirty()"
+								creationComplete="removeRichTextButtons();"
+								paddingLeft="0" paddingRight="0" paddingTop="0" 
+								roundedBottomCorners="false" paddingBottom="0" 
+								borderThicknessRight="0" borderThicknessLeft="0" 
+								borderThicknessBottom="0" borderThickness="0" 
+								borderThicknessTop="0" height="100%" minHeight="50"/>					
+		</mx:VBox>
+		
+
+		<analysis:TabProperties id="analysisProperties" label="Annotations" editable="true" properties="{properties}" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		</analysis:TabProperties>
+
+		<mx:Canvas label="Analysis Groups" width="100%" height="100%">
+			<mx:VBox  paddingLeft="4" paddingRight="4" paddingBottom="4" paddingTop="4" width="100%"  height="100%" verticalGap="1" >
+				<mx:HBox width="100%" horizontalGap="8">
+					<mx:Label width="100" text="Analysis Groups"/>
+					<mx:VBox styleName="hintBox">
+						<mx:LinkButton label="Drag-and-drop hint" 
+									   click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+						</mx:LinkButton>
+					</mx:VBox>					    	
+				</mx:HBox>
+				
+				<mx:DataGrid id="analysisGroupGrid" width="100%" dataProvider="{analysisGroups}" showHeaders="false" height="100%">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Name" dataField="@name"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+			</mx:VBox>
+		</mx:Canvas>
+		
+		<mx:Canvas label="Experiments" width="100%" height="100%">
+			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+				<mx:VBox width="230" height="100%">
+					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sample sequence lanes onto grid">						
+					</mx:Text>
+					<mx:ComboBox 
+						id="expLabCombo" 
+						change="expLabComboChange();"
+						width="228" 
+						labelField="@name"
+						dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
+					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
+							 showRoot="false" 
+							 dataTipFunction="getExperimentTreeLabel"
+							 dragEnabled="true"
+							 dropEnabled="false"
+							 dragMoveEnabled="false"
+							 iconFunction="parentApplication.getTreeIcon" 
+							 labelField="@label" 
+							 labelFunction="getExperimentTreeLabel" doubleClickEnabled="true" itemDoubleClick="showExperimentDetailWindow()">						
+					</mx:Tree>
+				</mx:VBox>
+				<mx:VBox width="100%" height="100%">
+					<mx:VBox verticalGap="0" width="100%" height="100%" id="vbox1">
+						<mx:HBox>
+							<mx:Label text="Experiments:" fontWeight="bold" paddingBottom="0"/>
+							<mx:LinkBar dataProvider="{experimentItemStack}" textDecoration="underline" color="#ABA097" fontWeight="normal" disabledColor="#1D22E0" paddingTop="0"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:HBox width="100%" horizontalAlign="right" horizontalGap="0">
+								<mx:LinkButton icon="@Embed(source='../../assets/delete.png')"  
+											   label="Remove" textDecoration="underline"
+											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+											   enabled="{hybsGrid.selectedItem != null || lanesGrid.selectedItem != null}" 
+											   click="removeExperimentItem()"/>
+								<mx:LinkButton label="Clear all" toolTip="Clear all experiments" id="experimentClearButton"
+											   click="promptToRemoveAllExperimentItems()" 
+											   icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
+							</mx:HBox>
+						</mx:HBox>
+						<mx:ViewStack width="100%" height="100%" id="experimentItemStack" >
+							
+							
+							<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%" id="hybsView">
+								
+								<mx:DataGrid width="100%" height="100%" id="hybsGrid"  dataProvider="{hybs}"
+											 dragEnabled="true"
+											 dragEnter="onDragEnter(event)"
+											 dragOver="onDragOver(event)"
+											 dragDrop="onDragDropExperimentItem(event)"
+											 dragExit="onDragExit(event)" 
+											 doubleClickEnabled="true"
+											 doubleClick="showExperimentForSelectedHyb()">
+									<mx:columns>
+										<mx:DataGridColumn headerText="" width="10" labelFunction="getHybsGridRowNumber"/>
+										<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+										<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
+										<mx:DataGridColumn editable="false" headerText="Cy3 Sample (green)"  width="122" dataField="@sampleName1"/>
+										<mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber1"/>
+										<mx:DataGridColumn id="channel2SampleConfirmColumn" editable="false" headerText="Cy5 Sample (red)"  width="122" dataField="@sampleName2"/>
+										<mx:DataGridColumn editable="false" headerText="ID"  width="60" dataField="@sampleNumber2"/>
+										<mx:DataGridColumn headerText="Slide" width="320" dataField="@slideDesignName"  />
+									</mx:columns>
+								</mx:DataGrid>
+								
+							</mx:Canvas>
+							<mx:Canvas label="Illumina Sequencing" width="100%" height="100%" id="lanesView">
+								<mx:DataGrid width="100%" height="100%" dataProvider="{lanes}" id="lanesGrid"
+											 dragEnabled="true"  
+											 dragEnter="onDragEnter(event)"
+											 dragOver="onDragOver(event)"
+											 dragDrop="onDragDropExperimentItem(event)"
+											 dragExit="onDragExit(event)" 	
+											 doubleClickEnabled="true"
+											 doubleClick="showExperimentForSelectedLane()">
+									<mx:columns>
+										<mx:DataGridColumn headerText="" width="10" labelFunction="getLanesGridRowNumber"/>
+										<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+										<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
+										<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+										<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+										<mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
+															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}"/>                 											
+										<mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}"/>                 											
+										<mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
+										<mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
+										<mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
+										<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:Canvas>
+						</mx:ViewStack>
+					</mx:VBox>
+				</mx:VBox>	
+			</mx:HDividedBox>
+		</mx:Canvas>
+		
+		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
+		
+      <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+	
+		<mx:VBox  width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+			<mx:HBox horizontalGap="0" id="hbox1">
+				<mx:Text text="(1) Pick the level of visibility this analysis should have." id="labelApplication"/>
+				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+				</mx:RadioButtonGroup>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0">
+				<mx:VBox verticalGap="0">
+					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
+					<mx:HBox horizontalGap="0">
+						<mx:VBox verticalGap="0" width="82">
+							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visbile to the submitter and the lab PI"/>
+							<mx:RadioButton value="MEM" selected="true" label="Members" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to all members of the lab group"/>
+						</mx:VBox>
+					</mx:HBox>
+					<mx:Text width="100%" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}"
+							 includeInLayout="{this.radioInstitutionVisibility.enabled ? false : true}">									
+						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+					</mx:Text>
+					<mx:HBox horizontalGap="0" verticalAlign="middle">
+						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="82"/>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
+						</mx:ComboBox>
+					</mx:HBox>
+					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
+					<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
+						<mx:HBox width="100%" verticalAlign="middle">
+							<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
+							<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="250" height="30"/>
+						</mx:HBox>
+					</mx:VBox>		   		
+				</mx:VBox>
+			</mx:HBox>
+			
+		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			
+			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>
+			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
+				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
+										  labelField="@displayName" 
+										  prompt="Collaborator to add..."
+										  width="270"  
+										  id="collaboratorCombo">
+				</renderers:FilterComboBox>
+				<mx:Button 
+					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
+					icon="@Embed(source='../../assets/add.png')" 
+					disabledIcon="@Embed(source='../../assets/add_disable.png')"
+					click="addCollaborator()" 
+					width="25">
+				</mx:Button>
+				<mx:Button  
+					icon="@Embed(source='../../assets/delete.png')" 
+					disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+					enabled="{collaboratorGrid.selectedItem != null}" 
+					click="removeCollaborator()" width="25"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="100%">
+				<mx:DataGrid id="collaboratorGrid"  dataProvider="{collaborators}" height="100%" showHeaders="true">
+					<mx:columns>
+						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />               
+						<mx:DataGridColumn headerText="Upload" 
+										   width="65" 
+										   editable="true"                        	
+										   dataField="@canUploadData" 
+										   editorDataField="selected" sortable="false"
+										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
+						<mx:DataGridColumn headerText="Update" 
+										   width="65" 
+										   editable="true"                        	
+										   dataField="@canUpdate" 
+										   editorDataField="selected" sortable="false"
+										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
+					</mx:columns>
+				</mx:DataGrid>		   		
+			</mx:HBox>
+		</mx:VBox>
+      </mx:VBox>		
+
+	</mx:TabNavigator>
+	
+	<mx:HBox width="100%"   horizontalAlign="left" paddingRight="1" id="hbox8">
+		
+		<mx:Spacer width="100%"/>
+		<util:DirtyNote id="dirty"  />
+		<mx:Button id="saveButton" label="Save" 
+				   icon="@Embed('../../assets/action_save.gif')" 
+				   click="validateAndSaveAnalysis()">
+		</mx:Button>
+		
+	</mx:HBox>
+	
+	
+</mx:VBox>
