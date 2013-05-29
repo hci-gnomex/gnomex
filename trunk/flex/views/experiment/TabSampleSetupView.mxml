@@ -564,11 +564,9 @@
 		private function pickQCApp():void {
 			if (this.radioGroupQCApp.selectedValue != null && this.radioGroupQCApp.selectedValue == "BIOAN") {
 				this.currentState = "QCSetupBioanalyzerState";
-				this.parentDocument.samplesView.chipTypeColumn.visible = true;
 				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
 			} else {
 				this.currentState = "QCSetupState";
-				this.parentDocument.samplesView.chipTypeColumn.visible = false;
 				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
 			}
 			
@@ -752,7 +750,6 @@
 				this.capSeqNumPlatesRadioGroup.selectedValue = null;
 				showFourPlateWarning();
 			}
-			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();
@@ -792,7 +789,6 @@
 				// SET ALL PLATE NAMES TO '' AND PROPOGATE TO THE SAMPLES
 				this.sequenomNumSourcePlates.text = '';
 			}
-			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();

@@ -137,6 +137,8 @@
 		public function setupForm(selectedExperiment:Object):void {
 			this.selectedExperiment = selectedExperiment;
 			
+			parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
+
 			
 			var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 			if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
@@ -670,15 +672,10 @@
 		}	
 	
 		public function showEditExperimentWindow():void {
-			 // add this get request code b/c the edit window was freezing the second time 
-			 // the edit window was pressed.  by putting this extra call in, it seems to clear
-			 // out some weird state.
-			 //var parms:Object = new Object();
-			 //parms.idRequest = this.selectedExperiment.@idRequest;
-			 //parentDocument.getRequest.send(parms);
-           	 
+			 parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
+			
            	 parentDocument.parentDocument.experimentEditView.request = this.selectedExperiment;
-           	 parentDocument.parentDocument.experimentEditView.samplesView.showCCNumberCheckbox.selected = this.selectedExperiment.@hasCCNumber == 'Y' ? true : false;
+           	 parentDocument.parentDocument.experimentEditView.samplesView.setShowCCNumber(this.selectedExperiment.@hasCCNumber == 'Y');
 			 parentDocument.parentDocument.experimentEditView.selectedAssaysCollection = this.assays;
 
            	 parentDocument.parentDocument.experimentViews.selectedChild = parentDocument.parentDocument.experimentEditView;

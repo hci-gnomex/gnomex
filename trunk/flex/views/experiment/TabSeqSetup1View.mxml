@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false">
+<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}">
 	<mx:states>
 		<mx:State name="BarcodeState">
 			<mx:SetProperty target="{label10}" name="text">
@@ -12,7 +12,7 @@
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="0" stepSize="1" maximum="{this.maxSamplesPerChannel}">
-						<mx:change>pickBarcodeScheme();parentDocument.samplesView.initializeSamplesGrid();this.checkSeqSetup1Completeness();</mx:change>
+						<mx:change>changeNumberSamplesPerChannel();</mx:change>
 					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
@@ -29,6 +29,13 @@
 		private var maxSamplesPerChannel:int = 2;
 		
 		private var barcodesSort:Sort = null;
+		
+		private function init():void {
+			// Make sure barcodes are defaulted
+			if (barcodes == null) {
+				pickBarcodeScheme();
+			}
+		}
 		
        	public function propagateSeqRunType():void {
 
@@ -274,39 +281,6 @@
         	}
         	this.initializeBarcodes();
         } 
-		
-        public function propagateBarcode():void {
-        	if (parentDocument == null || parentDocument.currentState == "SolexaLaneAmendState" || parentDocument.isEditState()) {
-        		return;
-        	}
-       		var x:int = 0;
-       		var multiplexGroupNumber:int = 1;
-			for each (var sample:Object in parentDocument.samples) {
-				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
-					if (x == this.numberSamplesPerChannel.value) {
-						x = 0;
-						multiplexGroupNumber++;
-					}
-					if (parentDocument.showSampleMultiplexGroup()) {
-						sample.@multiplexGroupNumber = multiplexGroupNumber;
-					} else {
-						sample.@multiplexGroupNumber = '';
-					}
-					x++;
-				} else {
-					sample.@idOligoBarcode = '';
-					sample.@multiplexGroupNumber = '';
-					sample.@barcodeSequence = '';
-				}
-			} 
-			if (parentDocument.samplesView.sampleGroupingCollection != null) {
-				parentDocument.samplesView.sampleGroupingCollection.refresh();
-				parentDocument.samplesView.samplesGrid.validateNow();
-			}
-        	
-        }
-        
-
 
         private function pickNumberSequencingCycles():void {
         	if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
@@ -339,6 +313,17 @@
 			if (!alignCheckBox.selected) {
 				genomeBuildCombo.selectedIndex = 0;	
 			}
+			this.checkSeqSetup1Completeness();
+		}
+		
+		private function changeNumberSamplesPerChannel():void {
+			parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.value;
+			parentDocument.request.@hasBarCodes = "N";
+			if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
+				parentDocument.request.@hasBarCodes = "Y";
+			}
+			pickBarcodeScheme();
+			parentDocument.samplesView.initializeSamplesGrid();
 			this.checkSeqSetup1Completeness();
 		}
 	]]>

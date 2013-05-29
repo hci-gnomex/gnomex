@@ -66,6 +66,7 @@
 			}
 			
 			public function showSampleAnnotationColumn(idProperty:String, show:Boolean):void {
+				/*
 				if (parentDocument.samplesView.samplesGrid == null) {
 					return;
 				}
@@ -84,7 +85,7 @@
 						}						
 					}
 
-				}
+				}*/
 				for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
 					var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
 					if (idProperty == "-1") {
@@ -207,7 +208,7 @@
 				var annotation:Object;
 				for each(annotation in parentDocument.propertyEntries) {
 					addNonStandardColumn(annotation);
-					parentDocument.samplesView.samplesGrid.validateNow();
+					//parentDocument.samplesView.samplesGrid.validateNow();
 				}
 				
 			}
@@ -235,17 +236,18 @@
 				// we won't add it again, but we will update it because
 				// its sample characteristic may have changed.
 				addNewColumn = true;
-				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+/*				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
 					if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
 						colExisting = col;
 						addNewColumn = false;
 						break;
 					}    				
-				}
+				}*/
 				if (!parentDocument.isEditState()) {
 					for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
 						if (cCol.dataField == ("@ANNOT" + annotation.@idProperty)) {
 							colConfirmExisting = cCol;
+							addNewColumn = false;
 							break;
 						}    				
 					}
@@ -255,10 +257,11 @@
 				if ( parentDocument.isIScanState() ) {
 					annotation.@isSelected = 'true';
 				}
-				
+
+				var fieldName:String = "@ANNOT" + annotation.@idProperty;
+
 				// new column for sample grid
 				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
-				var fieldName:String = "@ANNOT" + annotation.@idProperty;
 				newCol.dataField  = fieldName;
 				newCol.headerText = headerName;
 				newCol.visible    = annotation.@isSelected == "true" ? true : false;
@@ -269,11 +272,11 @@
 				aCol.headerText = headerName;
 				aCol.visible    = annotation.@isSelected == "true" ? true : false;
 				
-				if (colExisting != null) {
+/*				if (colExisting != null) {
 					colExisting.headerText = headerName;
 					colExisting.visible    = annotation.@isSelected == "true" ? true : false;
 					
-				}
+				}*/
 				if (colConfirmExisting != null) {
 					colConfirmExisting.headerText = headerName;
 					colConfirmExisting.visible    = annotation.@isSelected == "true" ? true : false;
@@ -404,13 +407,13 @@
 							parentApplication.nonReqAnnotationColor, 
 							annotation.@isRequired == 'true');
 						colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
-						colExisting.wordWrap = true;
+						colConfirmExisting.wordWrap = true;
 					}
 				}
 				
 				
 				if (addNewColumn) {
-					var columns:Array = parentDocument.samplesView.samplesGrid.columns;
+/*					var columns:Array = parentDocument.samplesView.samplesGrid.columns;
 					var newColumns:Array = new Array();
 					for each(var column:AdvancedDataGridColumn in columns) {
 						if (column.dataField == "@description") {
@@ -418,7 +421,7 @@
 						}
 						newColumns.push(column);
 					}
-					parentDocument.samplesView.samplesGrid.columns = newColumns;
+					parentDocument.samplesView.samplesGrid.columns = newColumns;*/
 					
 				}
 				
@@ -440,13 +443,13 @@
 			}
 			
 			public function deleteNonStandardColumns():void {
-				var newColumns:Array = new Array();
+				/*var newColumns:Array = new Array();
 				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
 					if (col.dataField == null || col.dataField.indexOf("@ANNOT") < 0) {
 						newColumns.push(col);
 					}
 				}
-				parentDocument.samplesView.samplesGrid.columns = newColumns;
+				parentDocument.samplesView.samplesGrid.columns = newColumns;*/
 				
 				var newConfirmColumns:Array = new Array();
 				for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
@@ -487,12 +490,12 @@
 					}
 					
 					if (!exists) {
-						for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
+						/*for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
 							if (col.dataField == ("@ANNOT" + property.@idProperty)) {
 								col.visible = false;
 								break;
 							}    				
-						}
+						}*/
 						if (!parentDocument.isEditState()) {
 							for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
 								if (cCol.dataField == ("@ANNOT" + property.@idProperty)) {
@@ -522,7 +525,7 @@
 				
 				parentDocument.request.@otherLabel = data.@otherLabel;
 				
-				if (parentDocument.samplesView.samplesGrid != null) {
+				/*if (parentDocument.samplesView.samplesGrid != null) {
 					for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
 						var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
 						if ( dc.dataField == "@ANNOT" + data.@idProperty) {
@@ -531,7 +534,7 @@
 							break;	
 						}
 					}
-				}
+				}*/
 				if (parentDocument.confirmView != null && parentDocument.confirmView.samplesGridConfirm != null) {
 					for (var y:Number = 0; y < parentDocument.confirmView.samplesGridConfirm.columnCount; y++) {
 						var dc1:DataGridColumn = parentDocument.confirmView.samplesGridConfirm.columns[y];
