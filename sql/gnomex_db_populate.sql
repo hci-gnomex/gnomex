@@ -677,18 +677,18 @@ VALUES (1, 18, 'Y'),
   (6, 101, 'Y'),
   (7, 150, 'Y');
 
-INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name)
+INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name, isCustom)
 VALUES 
-  (1, 1, 'SOLEXA', 3, '18 cycle single-end reads'),
-  (2, 3, 'SOLEXA', 3, '36 cycle single-end reads'),
-  (3, 4, 'HISEQ', 3, '50 cycle single-end reads'),
-  (4, 6, 'HISEQ', 3,  '101 cycle single-end reads'),
-  (5, 1, 'SOLEXA', 4, '18 cycle paired-end reads'),
-  (6, 3, 'SOLEXA', 4, '36 cycle paired-end reads'),
-  (7, 4, 'HISEQ', 4, '50 cycle paired-end reads'),
-  (8, 6, 'HISEQ', 4, '101 cycle paired-end reads'),
-  (9, 2, 'MISEQ', 4, '26 cycle paired-end reads'),
-  (10, 7, 'MISEQ', 4, '150 cycle paired-end reads');
+  (1, 1, 'SOLEXA', 3, '18 cycle single-end reads', 'N'),
+  (2, 3, 'SOLEXA', 3, '36 cycle single-end reads', 'N'),
+  (3, 4, 'HISEQ', 3, '50 cycle single-end reads', 'N'),
+  (4, 6, 'HISEQ', 3,  '101 cycle single-end reads', 'N'),
+  (5, 1, 'SOLEXA', 4, '18 cycle paired-end reads', 'N'),
+  (6, 3, 'SOLEXA', 4, '36 cycle paired-end reads', 'N'),
+  (7, 4, 'HISEQ', 4, '50 cycle paired-end reads', 'N'),
+  (8, 6, 'HISEQ', 4, '101 cycle paired-end reads', 'N'),
+  (9, 2, 'MISEQ', 4, '26 cycle paired-end reads', 'N'),
+  (10, 7, 'MISEQ', 4, '150 cycle paired-end reads', 'N');
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
 VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
