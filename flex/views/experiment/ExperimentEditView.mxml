@@ -350,7 +350,6 @@
 		private var labList:XMLListCollection = null;
 		
 		private function init():void {
-			
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
 	 		// initialization
@@ -417,7 +416,25 @@
 
 			this.theTab.selectedIndex = 0;
 			
-			this.samplesView.multiplexGroupNumberImported = false;
+			this.samplesView.setMultiplexGroupNumberImported(false);
+		}
+
+		public function instantiateTabs(codeRequestCategory:String, isEditState:Boolean, isAmendState:Boolean):void {
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',codeRequestCategory);
+			var requestCategoryType:Object = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
+
+			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
+				if (theTab.getChildAt(tabIdx) == this.samplesView) {
+					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
+					if (newSamplesView != this.samplesView) {
+						this.samplesView = newSamplesView;
+						theTab.removeChildAt(tabIdx);
+						theTab.addChildAt(samplesView, tabIdx);
+					}
+				}
+			}
+			
+			theTab.selectedIndex = 0;
 		}
 			
 		private function leave():void {
@@ -1007,13 +1024,14 @@
 		}		
 		
 		public function setRequestCategoryName():void {
-			setTabsVisible();
-
 			requestCategory = getRequestCategory();
 		
 			if (requestCategory == null || request == null) {
 				return;
 			}
+
+			instantiateTabs(requestCategory.@codeRequestCategory, false, this.isAmendState());
+			setTabsVisible();
 			
 			requestIcon = requestCategory.@icon;
 			requestCategoryName = requestCategory.@display.toString();
@@ -1275,13 +1293,11 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					samplesView.labelColumn.visible = true;
 					confirmView.channel2SampleConfirmColumn.visible = true;
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					samplesView.labelColumn.visible = false;
 					confirmView.channel2SampleConfirmColumn.visible = false;
 					for each (var s:Object in samples) {
 						s.@label = 'cy3';
@@ -2142,7 +2158,7 @@
 			setupTheEditForm();
 		}
 
-		public function setupTheEditForm():void {
+		private function setupTheEditForm():void {
 			currentState = '';
 			samplesView.currentState = '';
 			
@@ -2184,18 +2200,6 @@
 						break;
 					}
 				}
-			}
-			
-			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				samplesView.addSampleButton.visible = true;
-				samplesView.copySampleButton.visible = true;
-				samplesView.deleteSampleButton.visible = true;
-				samplesView.clearSamplesButton.visible = true;
-			} else {
-				samplesView.addSampleButton.visible = false;
-				samplesView.copySampleButton.visible = false;
-				samplesView.deleteSampleButton.visible = false;
-				samplesView.clearSamplesButton.visible = false;
 			}
 			
 			if (requestCategory.@isIlluminaType == 'Y') {
@@ -2561,9 +2565,7 @@
 			}
 
 			if ( this.theTab.contains(samplesView) && this.isSequencingState() ) {
-				if ( samplesView.showCCNumberCheckbox != null ) {
-					samplesView.showCCNumberCheckbox.selected = false;
-				}
+				samplesView.setShowCCNumber(false);
 			}
 			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
 				
@@ -4426,13 +4428,15 @@
 
 		public function setupAmendForm(theRequest:Object):void {
 			request = theRequest;
-			samplesView.currentState = '';
 			
 			setAmendTitle();
 
 			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
 			
+			this.instantiateTabs(requestCategory.@codeRequestCategory, false, true);
+			
+			samplesView.currentState = '';
 			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 			applicationName = application.@display.toString();
 			codeApplication = application.@codeApplication;
@@ -4566,13 +4570,11 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					samplesView.labelColumn.visible = true;
 					confirmView.channel2SampleConfirmColumn.visible = true;
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					samplesView.labelColumn.visible = false;
 					confirmView.channel2SampleConfirmColumn.visible = false;
 					for each (var s1:Object in samples) {
 						s1.@label = 'cy3';
@@ -5164,8 +5166,8 @@
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
 		    
-		    <experiment:TabSamplesView id="samplesView">		    	
-		    </experiment:TabSamplesView>
+		    <experiment:TabSamplesBase id="samplesView">		    	
+		    </experiment:TabSamplesBase>
 		    
 			<experiment:TabHybSetupView id="hybSetupView">				
 			</experiment:TabHybSetupView>

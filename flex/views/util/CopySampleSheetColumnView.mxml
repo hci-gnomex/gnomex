@@ -41,7 +41,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.experiment.TabSamplesView;
+			import views.experiment.TabSamplesBase;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.MultiselectRenderer;
@@ -54,7 +54,7 @@
 			private var uploadFR:FileReference;
 			public var uploadSampleSheetURL:String;
 			private var docTypes:FileFilter;
-			private var tabSamplesView:TabSamplesView;	
+			private var tabSamplesView:TabSamplesBase;	
 
 			[Bindable]
 			private var fieldListFrom:XMLListCollection = new XMLListCollection();
@@ -62,7 +62,7 @@
 			[Bindable]
 			private var fieldListTo:XMLListCollection = new XMLListCollection();
 		
-			public function init(tabSamplesView:TabSamplesView):void {
+			public function init(tabSamplesView:TabSamplesBase):void {
 				this.tabSamplesView = tabSamplesView;
 				initializeFieldList()
 			}
@@ -94,10 +94,11 @@
 				}				
 				
 				var sampleGridDataRows:XMLListCollection = null;
-				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
-					sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);					
+				var grid:AdvancedDataGrid = tabSamplesView.getSamplesGrid();
+				if(grid.dataProvider is HierarchicalCollectionView) {
+					sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(grid.dataProvider).source);					
 				} else {
-					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+					sampleGridDataRows = XMLListCollection(grid.dataProvider);
 				}
 				
 				for each (var node : XML in sampleGridDataRows){
@@ -124,7 +125,8 @@
 				fieldListFrom.addItem(emptyNode);
 				fieldListTo.addItem(emptyNode);
 			
-				for each(var col:AdvancedDataGridColumn in this.tabSamplesView.samplesGrid.columns) {
+				var grid:AdvancedDataGrid = tabSamplesView.getSamplesGrid();
+				for each(var col:AdvancedDataGridColumn in grid.columns) {
 					if (col.dataField != null && col.dataField == '@multiplexGroupNumberDisplay') {
 						continue;
 					}
