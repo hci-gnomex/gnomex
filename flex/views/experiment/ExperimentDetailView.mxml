@@ -1878,7 +1878,7 @@
 							height="100%" id="lanesConfirmGrid"
 							displayItemsExpanded="true"
 							sortExpertMode="true"
-							sortableColumns="false"  
+							sortableColumns="false"   resizableColumns="true"
 							editable="false"
 							iconFunction="getLaneTreeIcon"
 							rollOverColor="#C0C0C0" selectionColor="#FFFFB9" 
@@ -1889,7 +1889,7 @@
 						<mx:columns>
 							<mx:AdvancedDataGridColumn headerText="ID" width="90" dataField="@number"/>
 						    <mx:AdvancedDataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
-						    <mx:AdvancedDataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
+						    <mx:AdvancedDataGridColumn  headerText="Sample ID"  width="80" dataField="@sampleNumber" editable="false"/>
 			                <mx:AdvancedDataGridColumn id="laneBarcodeCol" headerText="Barcode"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@sampleIdOligoBarcode')}">
 			                   <mx:headerRenderer>
