@@ -280,8 +280,6 @@
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
-		public var filteredNumberSequencingCycleAllowedList:XMLListCollection;
-		[Bindable]
 		public var filteredMicroarrayAppList:XMLListCollection;
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
@@ -299,7 +297,6 @@
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
-		private var numberSequencingCyclesAllowedSorter:Sort;
 		private var seqRunTypeSorter:Sort;
 		private var filteredAppListSorter:Sort;
 
@@ -484,11 +481,6 @@
         	
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
         	      
-        	filteredNumberSequencingCycleAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
-        	numberSequencingCyclesAllowedSorter = new Sort();
-        	numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;	   
-        	filteredNumberSequencingCycleAllowedList.sort = numberSequencingCyclesAllowedSorter;     	
-
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
         	// We use this technique xml.copy() to prevent duplication of applications 
         	// that somehow happens when we add services, then submit request or vice versa
@@ -556,9 +548,6 @@
 			
 			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 			filteredSampleDropOffLocationList.refresh();
-			
-			filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
-			filteredNumberSequencingCycleAllowedList.refresh();
 			
 			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
 			filteredSeqRunTypeList.refresh();
@@ -907,7 +896,6 @@
 				if (isSolexaState()) {
 					seqSetupView.enabled = false;
 					seqSetup1View.enabled = false;
-				    seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue = null;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
 					//seqSetup1View.analysisInstructions.text = '';
 				}
@@ -1094,9 +1082,6 @@
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
 
-				filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
-				filteredNumberSequencingCycleAllowedList.refresh(); 
-				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
 				if (parentApplication.submitInternalExperiment()) {
@@ -4501,7 +4486,6 @@
 			
 			if (isSolexaAmendState()) {
 				this.filteredGenomeBuildList.refresh();
-				this.filteredNumberSequencingCycleAllowedList.refresh();
 			
 				
 				// Get rid of the existing lanes.  User will specify
