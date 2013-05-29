@@ -1,6 +1,10 @@
 ﻿﻿GNomEx Release Notes
 ---------------------
 
+All Release Notes (after 5.10 and forward) are now posted here: 
+    http://hci-bio-wiki.hci.utah.edu/biowiki/index.php/Main_Page#Release_Notes
+
+
 5.10 (Mar 28, 2013)
 -------------------
 * Modify name auto generated for a DataTrack	Tarik Courdy	bioinformatics	GNOM-134
