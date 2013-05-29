@@ -14,6 +14,7 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
   private Integer  idSeqRunType;
   private NumberSequencingCycles numberSequencingCycles;
   private SeqRunType seqRunType;
+  private String   isCustom;
   
   public String getDisplay() {
     return name != null && !name.equals("") ? 
@@ -88,6 +89,14 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
       NumberSequencingCycles numberSequencingCycles) {
     this.numberSequencingCycles = numberSequencingCycles;
   }
+
+  public String getIsCustom() {
+    return isCustom;
+  }
+
+  public void setIsCustom(String isCustom) {
+    this.isCustom = isCustom;
+  }
   
   private SeqRunType getSeqRunType() {
     return seqRunType;
@@ -107,6 +116,7 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
   public String getSeqRunTypeSortOrder() {
     return seqRunType != null ? seqRunType.getSortOrder().toString() : "";
   }
+
   
  
 }
