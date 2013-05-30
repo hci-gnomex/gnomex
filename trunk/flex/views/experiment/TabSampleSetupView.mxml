@@ -7,9 +7,11 @@
 <mx:Script>
 	<![CDATA[
 		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
-	
+		import views.util.OrganismEvent; 
+
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
@@ -1094,7 +1096,18 @@
 			this.onNumberOfSamplesChanged();
 		}
 		
-				
+		private function addOrganism():void {
+			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
+			PopUpManager.centerPopUp(addOrganismWindow);
+			
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		
+		}
+		
+		private function onOrganismRefreshed(event:Event):void {
+			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+		}
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
@@ -1150,9 +1163,11 @@
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
-										  dataProvider="{parentApplication.organismList.source}"
+										  dataProvider="{parentApplication.activeOrganismList.source}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
+				<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton">		  	
+				</mx:LinkButton>						
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>

@@ -944,6 +944,8 @@
 			[Bindable]
 			public var organismList:XMLListCollection;
 			[Bindable]
+			public var activeOrganismList:XMLListCollection;
+			[Bindable]
 			public var das2OrganismList:XMLListCollection;
 			[Bindable]
 			public var coreFacilityList:XMLListCollection;
@@ -2684,11 +2686,15 @@
 			private function onGetOrganismList(event:ResultEvent):void {
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
+				activeOrganismList = new XMLListCollection();
 				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label=''/>;
 				das2OrganismList.addItem(emptyNode);
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
-					if (organism.@das2Name != '' && organism.@bionomialName != '') {
+					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());
+					}
+					if (organism.@isActive == 'Y') {
+						activeOrganismList.addItem(organism.copy());
 					}
 				}
 				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
