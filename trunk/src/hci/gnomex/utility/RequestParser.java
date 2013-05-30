@@ -282,9 +282,6 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
     }
-    if (n.getAttributeValue("meanInsertSizeRequested") != null && !n.getAttributeValue("meanInsertSizeRequested").equals("")) {
-      request.setMeanInsertSizeRequested(Integer.parseInt((n.getAttributeValue("meanInsertSizeRequested").trim())));
-    }
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
