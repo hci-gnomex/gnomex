@@ -353,7 +353,7 @@
 			if (parentDocument.request!=null && parentDocument.request.@isExternal == "Y") {
 				this.sampleOrganismConfirmColumn.visible = false;
 			}
-			otherOrganismCol.visible = sampleOrganismConfirmColumn.visible;
+			otherOrganismCol.visible = false;
   						 
         }
 		
