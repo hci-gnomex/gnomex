@@ -118,7 +118,17 @@ public class WorkItemSolexaPrepParser implements Serializable {
       sample.setIdOligoBarcode(new Integer(n.getAttributeValue("idOligoBarcode")));
     } else {
       sample.setIdOligoBarcode(null);
-    }     
+    }
+    if (n.getAttributeValue("meanInsertSizeActual") != null && !n.getAttributeValue("meanInsertSizeActual").equals("")) {
+      sample.setMeanInsertSizeActual((new Integer(n.getAttributeValue("meanInsertSizeActual"))));
+    } else {
+      sample.setMeanInsertSizeActual(null);
+    }
+    if (n.getAttributeValue("idOligoBarcodeB") != null && !n.getAttributeValue("idOligoBarcodeB").equals("")) {
+      sample.setIdOligoBarcodeB(new Integer(n.getAttributeValue("idOligoBarcodeB")));
+    } else {
+      sample.setIdOligoBarcodeB(null);
+    }
 
     
   }
