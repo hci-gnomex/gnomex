@@ -280,8 +280,6 @@
 		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
-		public var filteredNumberSequencingCycleAllowedList:XMLListCollection;
-		[Bindable]
 		public var filteredMicroarrayAppList:XMLListCollection;
 		[Bindable]
 		public var filteredAppList:XMLListCollection;
@@ -299,7 +297,6 @@
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
-		private var numberSequencingCyclesAllowedSorter:Sort;
 		private var seqRunTypeSorter:Sort;
 		private var filteredAppListSorter:Sort;
 
@@ -350,7 +347,6 @@
 		private var labList:XMLListCollection = null;
 		
 		private function init():void {
-			
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
 	 		// initialization
@@ -417,7 +413,25 @@
 
 			this.theTab.selectedIndex = 0;
 			
-			this.samplesView.multiplexGroupNumberImported = false;
+			this.samplesView.setMultiplexGroupNumberImported(false);
+		}
+
+		public function instantiateTabs(codeRequestCategory:String, isEditState:Boolean, isAmendState:Boolean):void {
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',codeRequestCategory);
+			var requestCategoryType:Object = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
+
+			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
+				if (theTab.getChildAt(tabIdx) == this.samplesView) {
+					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
+					if (newSamplesView != this.samplesView) {
+						this.samplesView = newSamplesView;
+						theTab.removeChildAt(tabIdx);
+						theTab.addChildAt(samplesView, tabIdx);
+					}
+				}
+			}
+			
+			theTab.selectedIndex = 0;
 		}
 			
 		private function leave():void {
@@ -467,11 +481,6 @@
         	
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
         	      
-        	filteredNumberSequencingCycleAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
-        	numberSequencingCyclesAllowedSorter = new Sort();
-        	numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;	   
-        	filteredNumberSequencingCycleAllowedList.sort = numberSequencingCyclesAllowedSorter;     	
-
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
         	// We use this technique xml.copy() to prevent duplication of applications 
         	// that somehow happens when we add services, then submit request or vice versa
@@ -539,9 +548,6 @@
 			
 			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 			filteredSampleDropOffLocationList.refresh();
-			
-			filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
-			filteredNumberSequencingCycleAllowedList.refresh();
 			
 			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
 			filteredSeqRunTypeList.refresh();
@@ -890,7 +896,6 @@
 				if (isSolexaState()) {
 					seqSetupView.enabled = false;
 					seqSetup1View.enabled = false;
-				    seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue = null;
 					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
 					//seqSetup1View.analysisInstructions.text = '';
 				}
@@ -947,8 +952,9 @@
 		}
 		
 		private function previousTab():void {
-			if (theTab.selectedIndex > 0) {
-				theTab.selectedIndex--;				
+			theTab.selectedIndex--;
+			while (!theTab.getTabAt(theTab.selectedIndex).visible && theTab.selectedIndex > 0) {
+				theTab.selectedIndex--;
 			}
 		}
 		
@@ -1006,13 +1012,14 @@
 		}		
 		
 		public function setRequestCategoryName():void {
-			setTabsVisible();
-
 			requestCategory = getRequestCategory();
 		
 			if (requestCategory == null || request == null) {
 				return;
 			}
+
+			instantiateTabs(requestCategory.@codeRequestCategory, false, this.isAmendState());
+			setTabsVisible();
 			
 			requestIcon = requestCategory.@icon;
 			requestCategoryName = requestCategory.@display.toString();
@@ -1075,9 +1082,6 @@
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
 
-				filteredNumberSequencingCycleAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
-				filteredNumberSequencingCycleAllowedList.refresh(); 
-				
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
 				if (parentApplication.submitInternalExperiment()) {
@@ -1274,13 +1278,11 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					samplesView.labelColumn.visible = true;
 					confirmView.channel2SampleConfirmColumn.visible = true;
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					samplesView.labelColumn.visible = false;
 					confirmView.channel2SampleConfirmColumn.visible = false;
 					for each (var s:Object in samples) {
 						s.@label = 'cy3';
@@ -2141,7 +2143,7 @@
 			setupTheEditForm();
 		}
 
-		public function setupTheEditForm():void {
+		private function setupTheEditForm():void {
 			currentState = '';
 			samplesView.currentState = '';
 			
@@ -2183,18 +2185,6 @@
 						break;
 					}
 				}
-			}
-			
-			if (parentApplication.hasPermission("canWriteAnyObject")) {
-				samplesView.addSampleButton.visible = true;
-				samplesView.copySampleButton.visible = true;
-				samplesView.deleteSampleButton.visible = true;
-				samplesView.clearSamplesButton.visible = true;
-			} else {
-				samplesView.addSampleButton.visible = false;
-				samplesView.copySampleButton.visible = false;
-				samplesView.deleteSampleButton.visible = false;
-				samplesView.clearSamplesButton.visible = false;
 			}
 			
 			if (requestCategory.@isIlluminaType == 'Y') {
@@ -2560,9 +2550,7 @@
 			}
 
 			if ( this.theTab.contains(samplesView) && this.isSequencingState() ) {
-				if ( samplesView.showCCNumberCheckbox != null ) {
-					samplesView.showCCNumberCheckbox.selected = false;
-				}
+				samplesView.setShowCCNumber(false);
 			}
 			if (this.isSequenomState() || this.isClinicalSequenomState() ) {
 				
@@ -3344,7 +3332,7 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( this.isSequencingState() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
@@ -4425,13 +4413,15 @@
 
 		public function setupAmendForm(theRequest:Object):void {
 			request = theRequest;
-			samplesView.currentState = '';
 			
 			setAmendTitle();
 
 			var requestCategory:Object = getRequestCategory();
 			requestCategoryName = requestCategory.@display.toString();
 			
+			this.instantiateTabs(requestCategory.@codeRequestCategory, false, true);
+			
+			samplesView.currentState = '';
 			var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 			applicationName = application.@display.toString();
 			codeApplication = application.@codeApplication;
@@ -4496,7 +4486,6 @@
 			
 			if (isSolexaAmendState()) {
 				this.filteredGenomeBuildList.refresh();
-				this.filteredNumberSequencingCycleAllowedList.refresh();
 			
 				
 				// Get rid of the existing lanes.  User will specify
@@ -4565,13 +4554,11 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					samplesView.labelColumn.visible = true;
 					confirmView.channel2SampleConfirmColumn.visible = true;
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					samplesView.labelColumn.visible = false;
 					confirmView.channel2SampleConfirmColumn.visible = false;
 					for each (var s1:Object in samples) {
 						s1.@label = 'cy3';
@@ -5163,8 +5150,8 @@
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
 		    
-		    <experiment:TabSamplesView id="samplesView">		    	
-		    </experiment:TabSamplesView>
+		    <experiment:TabSamplesBase id="samplesView">		    	
+		    </experiment:TabSamplesBase>
 		    
 			<experiment:TabHybSetupView id="hybSetupView">				
 			</experiment:TabHybSetupView>
@@ -5352,21 +5339,14 @@
 				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
 					       <mx:Text text="Experiment" width="100"  fontWeight="normal" styleName="formLabel"/>
-					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="570"  fontWeight="normal"/>
+					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="500"  fontWeight="normal"/>
 					   </mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="100%" id="experimentCategoryHBox">
 					    <mx:Spacer width="100"/>
-					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="570"/>
+					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="500"/>
 					 </mx:HBox>
-					
-					<!--<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
-						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
-								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}"/>
-						<mx:Text  text="{parentDocument.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" 
-								  visible="{parentDocument.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;parentDocument.selectedExperiment.@coreToExtractDNA!=''}" />
-					</mx:HBox>-->
-					
+										
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
 						<mx:Text text="Organism" width="100" id="labelOrg" styleName="formLabel"/>
 						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							

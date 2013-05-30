@@ -1,11 +1,16 @@
 package hci.gnomex.billing;
 
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
@@ -33,10 +38,25 @@ public class IlluminaSeqPlugin implements BillingPlugin {
     List billingItems = new ArrayList<BillingItem>();
     Map seqLaneMap = new HashMap();
     Map seqLaneNoteMap = new HashMap();
+    Map<String, NumberSequencingCyclesAllowed> customNumberSequencingCyclesAllowed = new HashMap<String, NumberSequencingCyclesAllowed>();
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
     if (lanes == null || lanes.size() == 0) {
       return billingItems;
+    }
+    
+    // Get custom NumberSequencingCyclesAllowed
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.NumberSequencingCyclesAllowed").iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
+      
+      if (nsca.getCodeRequestCategory().equals(request.getCodeRequestCategory()) && nsca.getIsCustom() != null && nsca.getIsCustom().equals("Y")) {
+        String key = nsca.getIdNumberSequencingCycles().toString() + "-" + nsca.getIdSeqRunType().toString();
+        customNumberSequencingCyclesAllowed.put(key, nsca);
+      }
     }
     
     // Count up number of sequence lanes for number seq cycles / seq run type
@@ -94,6 +114,11 @@ public class IlluminaSeqPlugin implements BillingPlugin {
             }
           }
         }
+      }
+      
+      if (customNumberSequencingCyclesAllowed.containsKey(key)) {
+        // Custom NumberSequencingCyclesAllowed bill for the whole cell.
+        qty = 8;
       }
       
       // Instantiate a BillingItem for the matched price

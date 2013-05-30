@@ -91,6 +91,8 @@ public class RegisterFiles extends TimerTask {
   
   private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
+  
+  private String                       currentEntityString;
 
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
@@ -117,9 +119,9 @@ public class RegisterFiles extends TimerTask {
     try {
       if (sendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
-        System.out.println("WARNING: Emails are enabled.");
+        System.out.println(getCurrentDateString() + ":" + "WARNING: Emails are enabled.");
       } else {
-        System.out.println("Emails are disabled.");
+        System.out.println(getCurrentDateString() + ":" + "Emails are disabled.");
       }
     } catch (Exception e){
       String msg = "Register files cannot initialize mail properties.   " + e.toString()  + "\n\t";
@@ -177,7 +179,7 @@ public class RegisterFiles extends TimerTask {
 
     } catch (Exception e) {
       
-      String msg = "Could not register experiment or analysis files. Transaction rolled back:   " + e.toString() + "\n\t";
+      String msg = "Could not register experiment or analysis files (error at " + this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
       
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
@@ -243,6 +245,12 @@ public class RegisterFiles extends TimerTask {
     }
   }
   
+  private String getCurrentDateString() {
+    runDate = Calendar.getInstance();
+    return new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(runDate.getTime());
+
+  }
+  
   private void registerExperimentFiles() throws Exception {
     // Hash experiment files
     StringBuffer buf = new StringBuffer();
@@ -253,24 +261,27 @@ public class RegisterFiles extends TimerTask {
     if (asOfDate != null) {
       buf.append(" WHERE r.createDate >= '" + new SimpleDateFormat("yyyy-MM-dd").format(asOfDate.getTime()) + "'");
     }
-    System.out.println(buf.toString());
+    System.out.println(getCurrentDateString() + ":" + buf.toString());
     List results = sess.createQuery(buf.toString()).list();
     
     // For each experiment
     for (Iterator i = results.iterator(); i.hasNext();) {
+      tx = sess.beginTransaction();
+
       Request request = (Request)i.next();
+      
+      this.currentEntityString = request.getNumber();
       
       String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 
-      System.out.println("\n" + baseRequestNumber);
-      tx = sess.beginTransaction();
+      System.out.println("\n" + getCurrentDateString() + ":" + baseRequestNumber);
       
       // Get all of the files from the file system
       Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(), request.getIdCoreFacility());
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
         String fileName = (String)i1.next();
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
-        System.out.println(fileName + " " + fd.getFileSizeText());
+        System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
       }
       
       // Now compare to the experiment files already registered in the db
@@ -283,8 +294,8 @@ public class RegisterFiles extends TimerTask {
           
           // If we don't find the file on the file system, delete it from the db.
           if (fd == null) {
-            System.out.println("WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
-            sess.delete(ef);
+            System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
+            //sess.delete(ef);
           } else {
             // Mark that the file system file has been found
             fd.isFound(true);
@@ -334,6 +345,7 @@ public class RegisterFiles extends TimerTask {
       
       sess.flush();
       tx.commit();
+      this.currentEntityString = "";
     }
   }
   
@@ -356,17 +368,18 @@ public class RegisterFiles extends TimerTask {
     
     // For each analysis
     for (Iterator i = results.iterator(); i.hasNext();) {
-      Analysis analysis = (Analysis)i.next();
-      
-      System.out.println("\n" + analysis.getNumber());
       tx = sess.beginTransaction();
+      Analysis analysis = (Analysis)i.next();
+      this.currentEntityString = analysis.getNumber();
+      
+      System.out.println("\n" + getCurrentDateString() + ":" + analysis.getNumber());
       
       // Get all of the files from the file system
       Map fileMap = hashFiles(analysis);
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
         String fileName = (String)i1.next();
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(fileName);
-        System.out.println(fileName + " " + fd.getFileSizeText());
+        System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
       }
       
       
@@ -385,7 +398,7 @@ public class RegisterFiles extends TimerTask {
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
           
-          System.out.println("\nWARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
+          System.out.println("\n" + getCurrentDateString() + ":" + "WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
           
           // DataTrack and DataTrackFile query 
           StringBuffer queryBuf = new StringBuffer();
@@ -504,6 +517,7 @@ public class RegisterFiles extends TimerTask {
       
       sess.flush();
       tx.commit();
+      this.currentEntityString = "";
     }
   
     try {

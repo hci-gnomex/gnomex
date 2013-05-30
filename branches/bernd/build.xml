@@ -478,8 +478,11 @@
 				<include name="*.js" />
 				<include name="assets/*.*" />
 			</fileset>
-		    <fileset dir="${basedir}"		 	    includes="UCSCExecutables/**" />
-
+			<zipfileset dir="${basedir}/UCSCExecutables" prefix="UCSCExecutables">
+				<include name="bedToBigBed"/>
+				<include name="readMe.txt"/>
+				<include name="wigToBigWig"/>
+			</zipfileset>
 	  </war>
 		
 	  <delete  dir="${dist.dir}/orion" /> 

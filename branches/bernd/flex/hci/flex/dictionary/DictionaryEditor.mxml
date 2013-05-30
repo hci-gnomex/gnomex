@@ -424,8 +424,23 @@
 	        	for each (var vbox1:VBox in children) {
 	        		dgEditor.addChild(vbox1);
 	        	}	        	
+				
+				// Kludge to fix textinput fields being disabled.
+				callLater(checkFieldEditable);
 	        }
 	        
+			// Kludge to fix textinput fields being set to not editable.
+			private function checkFieldEditable():void {
+				var editor:Array = dgEditor.getChildren();
+				for each (var field:XML in dictionaryManager.getDictionaryMetaDataFields()) {
+					var vb:Object = dgEditor.getChildByName("vb_"+field.@id);
+					var item:Object = vb.getChildByName(field.@id);
+					if (item is hci.flex.controls.TextInput) {
+						TextInput(item).editable = true;
+					}
+				}
+			}
+			
 	        public function buildComponent(item:Object,selection:XML):VBox {
 	        	var l:mx.controls.Label = null;
 	        	var vb:VBox = new VBox();
@@ -451,7 +466,9 @@
 		        		ti.name = ti.id
 		        		ti.percentWidth = 100;
 		        		vb.addChild(ti);
-						ti.data = dataTemp;							
+						ti.data = dataTemp;		
+						ti.enabled = true;
+						ti.editable = true;
         			} else {
 		        		var ta:TextArea = new TextArea();
 		        		ta.id = item.@id;

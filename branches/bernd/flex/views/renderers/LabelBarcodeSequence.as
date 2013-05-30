@@ -9,7 +9,7 @@ package views.renderers
     	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
      	{
           super.updateDisplayList(unscaledWidth,unscaledHeight);
-          if (data == null) {
+          if (data == null || parentDocument == null || parentDocument.parentDocument == null) {
           	return;
           } 
           if (!data.hasOwnProperty('@barcodeSequence')) {

@@ -321,10 +321,10 @@
 					dropEnabled="true" dragDrop="onDragDropLane(event)" 
 					itemFocusOut="checkLanesCompleteness()" 
 					rollOverColor="#C0C0C0" selectionColor="#FFFFB9"
-					sortableColumns="false"  
+					sortableColumns="false"  resizableColumns="true" 
 					horizontalScrollPolicy="auto">
 					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="false" width="60" dataField="@number"/>
+					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="true" width="80" dataField="@number"/>
 					    <mx:DataGridColumn  headerText="Sample"  width="120" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
 					    	 sortable="false"

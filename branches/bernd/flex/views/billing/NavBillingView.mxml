@@ -223,13 +223,13 @@
 		import mx.events.MenuEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.formatters.CurrencyFormatter;
-		import mx.managers.CursorManager;
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.messaging.channels.StreamingAMFChannel;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		
+		import views.renderers.BillingADGItemRenderer;
 		import views.renderers.ComboBoxBillingStatus;
 		import views.renderers.LabelPercentage;
 		import views.util.BillingPeriodSelectEvent;
@@ -403,7 +403,7 @@
 						billingItemsDisplayed = new XMLListCollection();
 						dirty.resetDirty();
 						this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
-		
+						
 						currentBillingPeriod = de;
 						lastSelectedBillingPeriod = currentBillingPeriod;
 			        	
@@ -416,8 +416,7 @@
  			} else {
 				billingItemsDisplayed = new XMLListCollection();
 				dirty.resetDirty();
-				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
-	
+				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);				
 	        	
 	        	params.idBillingPeriod = lastSelectedBillingPeriod.@value;
 	        	getBillingRequestList.send(params);
@@ -425,13 +424,13 @@
  			}
 
         	
-        	
         	currencyFormatter.currencySymbol = "$";
         	currencyFormatter.precision = 2;
         	currencyFormatter.useThousandsSeparator;     
 			
 			callLater(this.resizeMenuItems);
-      	}		
+      	}	
+		
 		public function checkDirty():void {      
 		}
 		 
@@ -928,6 +927,9 @@
 		}
 
  		private function onRequestNodeSelected():void {
+			this.billingItemGrid.dataProvider = new HierarchicalData();
+			this.billingItemGrid.invalidateDisplayList();
+			
 			lastSelectedInvoice = null;
  			if (this.requestTree.selectedItem == null) {
  				return;
@@ -940,7 +942,8 @@
 			} else {
 				lastSelectedInvoice = null;
 			}
- 			gatherDisplayInfoShort(this.requestTree.selectedItem);
+			
+			callLater( gatherDisplayInfo, [this.requestTree.selectedItem] );			
  		}
  		
  		private function gatherDisplayInfo(selectedItem:Object):void {
@@ -971,95 +974,10 @@
 				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount)));
 			}  
 			
-			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
-			this.billingItemGrid.dataProvider.refresh();
-			
-			displayAllBox.visible=false;
-			displayAllBox.includeInLayout=false;
- 		}
-		
-		private function gatherDisplayInfoShort(selectedItem:Object):void {
-			
-			billingItemsDisplayed = new XMLListCollection();
-			
 			var invoicePrice:Number = new Number(0);
-			var request:XML = null;
-			var lab:XML = null;
-			var item:Object = null;
-			var allDisplayed:Boolean = true;
-			if (selectedItem.name() == "Status" && 
-				selectedItem.@status == 'PENDING') {
-				this.billingItemsDisplayed = new XMLListCollection();
-				for each(request in selectedItem..Request) {
-					for each(item in billingItems) {
-						if (item.@requestNumber == request.@requestNumber &&
-							item.@idBillingAccount == request.@idBillingAccount) {
-							if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
-								billingItemsDisplayed.addItem(item);
-							} else {
-								allDisplayed = false;
-							}
-							invoicePrice = sumInvoicePrice(invoicePrice, item);
-						}
-					}  
-					
-				}
-			} else if (selectedItem.name() == "Status") {
-				this.billingItemsDisplayed = new XMLListCollection();
-				for each(lab in selectedItem..Lab) {
-					for each(request in lab.Request) {
-						for each(item in billingItems) {
-							if (item.@requestNumber == request.@requestNumber &&
-								item.@idBillingAccount == lab.@idBillingAccount) {
-								if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
-									billingItemsDisplayed.addItem(item);
-								}else {
-									allDisplayed = false;
-								}
-								invoicePrice = sumInvoicePrice(invoicePrice, item);
-							}
-						}  
-						
-					}
-				}
-			}  else if (selectedItem.name() == "Lab") {
-				this.billingItemsDisplayed = new XMLListCollection();
-				lab = XML(selectedItem); 
-				for each(request in lab.Request) {
-					for each(item in billingItems) {
-						if (item.@requestNumber == request.@requestNumber &&
-							item.@idBillingAccount == lab.@idBillingAccount) {
-							if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
-								billingItemsDisplayed.addItem(item);
-							}else {
-								allDisplayed = false;
-							}
-							invoicePrice = sumInvoicePrice(invoicePrice, item);
-						}
-					}  
-				}
-			} else if (selectedItem.name() == "Request") {
-				for each(item in billingItems) { 
-					if (item.@requestNumber == selectedItem.@requestNumber &&
-						item.@idBillingAccount == selectedItem.@idBillingAccount) {
-						if ( billingItemsDisplayed.length < NUM_DISPLAYED_BILLING_ITEMS){
-							billingItemsDisplayed.addItem(item);
-						}else {
-							allDisplayed = false;
-						}
-						invoicePrice = sumInvoicePrice(invoicePrice, item);
-					}
-				}
-			}  
-			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
-			this.billingItemGrid.dataProvider.refresh();
 			
-			if ( !allDisplayed ) {
-				displayAllBox.visible = true;
-				displayAllBox.includeInLayout = true;
-			} else {
-				displayAllBox.visible = false;
-				displayAllBox.includeInLayout = false;
+			for each ( var bi:Object in billingItemsDisplayed.source..BillingItem ) {
+				invoicePrice = sumInvoicePrice(invoicePrice, bi);
 			}
 			
 			if (invoicePrice > 0) {
@@ -1067,7 +985,10 @@
 			} else {
 				grandTotalPrice = "";
 			}
-		}
+			
+			this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
+ 		}
+				
  		
  		private function sumInvoicePrice(invoicePrice:Number, billingItem:Object):Number {
  			var price:String = billingItem.@invoicePrice;
@@ -1078,6 +999,7 @@
 			invoicePrice += (price != '' ? new Number(price) : 0);
  			return invoicePrice;
  		}
+		
         private function onDragDropBillingItemGrid(event:DragEvent) : void
 		{
 			// For some reason, preventDefault on AdvancedDataGrid
@@ -1109,8 +1031,6 @@
 	       		}
            	}
             
-	      
-
 		   	// The user didn't drag new request, so just treat
 		   	// as click.
 		   	if (isRequest) {
@@ -1165,8 +1085,7 @@
 	 		   	if (billingItems == null) {
 		 		   	billingItems = new XMLListCollection(); 		
  				   	this.billingItemGrid.dataProvider = new HierarchicalData(billingItems);
-				   	this.billingItemGrid.dataProvider.refresh();   	
- 		   		}  
+				}  
  		   	} 
  		   		
 	       	// insert a Request node under the Pending status
@@ -1542,6 +1461,36 @@
 				Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 			}
 		}
+		public function showBillingMonthendReportUMergeFormat():void {
+			
+			if (lastSelectedBillingPeriod == null ||
+				lastSelectedBillingPeriod.@value == "") {
+				Alert.show("Please select a billing period.");
+				return;    	   
+			}
+			if (this.requestTree.selectedItem != null) { 
+				var statusNode:Object = null;
+				if (this.requestTree.selectedItem.name() == "Lab") {
+					statusNode = this.requestTree.selectedItem.parent(); 
+				} else if (this.requestTree.selectedItem.name() == "Status") {
+					statusNode = this.requestTree.selectedItem;
+				}
+				if (statusNode != null && 
+					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+					var url:URLRequest = new URLRequest('ShowBillingMonthendReportUMergeFormat.gx' +
+						'?codeBillingStatus=' + statusNode.@status +
+						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
+						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod);
+					navigateToURL(url, '_blank');			
+					
+				} else {
+					Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
+				}
+				
+			} else {
+				Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
+			}
+		}
 		
 		public function showBillingSummaryWindow():void {
 			var summaryWindow:BillingTotalByLabView = BillingTotalByLabView(mx.managers.PopUpManager.createPopUp(this, BillingTotalByLabView, true));
@@ -1572,6 +1521,7 @@
 			coreCommentsWindow.update();
 			coreCommentsWindow.positionWindow();
 		}
+		
 		public function showBillingGLInterface():void {
 		
 			if (lastSelectedBillingPeriod == null ||
@@ -1594,7 +1544,7 @@
 				Alert.show("Unable to generate GL interface.  Cannot find approved folder.")
 				return;
 			}
-			this.gatherDisplayInfoShort(approvedNode);
+			this.gatherDisplayInfo(approvedNode);
 
 			// Show popup window for generating gl interface			
     		var runWindow:BillingGLInterfaceView = BillingGLInterfaceView(mx.managers.PopUpManager.createPopUp(this, BillingGLInterfaceView, true));
@@ -2120,42 +2070,7 @@
 			
 			
 		}
-		
-		public function billingStatusCombo_changeHandler():void {
-			if ( billingItemGrid.selectedItems.length == 0 ) {
-				if ( displayAllBox.visible==true ) {
-					Alert.show( "Only the displayed billing items' statuses will be updated.  Would you like to load all billing items in the folder first?",
-						"Warning",
-						(Alert.YES | Alert.NO), this, 
-						onPromptToLoadAll,						
-						parentApplication.iconWarning);
-					return;
-				}
-			}
-			changeStatusImpl();
-		}
-		
-		public function onPromptToLoadAll(event:CloseEvent):void {
-			
-			if (event.detail==Alert.YES) {
-				if ( billingItemGrid.selectedItems.length == 0 ) {
-					if ( displayAllBox.visible!=false ) {
-						mx.managers.CursorManager.setBusyCursor();
-						setTimeout(loadAllImpl,TIMEOUT_DELAY);
-						mx.managers.CursorManager.setBusyCursor();
-						setTimeout(changeStatusImpl,TIMEOUT_DELAY);
-					}	
-				}
-			} else {
-				changeStatusImpl();
-			}
-		}
-		
-		public function loadAllImpl():void{
-			this.gatherDisplayInfo(this.requestTree.selectedItem);
-			mx.managers.CursorManager.removeBusyCursor();
-		}
-		
+				
 		public function changeStatusImpl():void {
 			if ( billingItemGrid.selectedItems.length == 0 ) {
 				for each(var request:XML in billingItemsDisplayed){
@@ -2179,7 +2094,6 @@
 			}
 			billingStatusCombo.selectedItem = billingStatusCombo.prompt;
 			billingItemGrid.selectedIndex = -1;
-			mx.managers.CursorManager.removeBusyCursor();
 		}
 
 		private function getSelectedCoreFacilityId():String {
@@ -2258,6 +2172,8 @@
 				refresh();
 			} else if (label == 'Notes to Core') {
 				showNotesToCoreWindow();
+			} else if (label == 'Monthend Billing Report (uMerge Format)') {
+				showBillingMonthendReportUMergeFormat();
 			}
 		}
 
@@ -2321,6 +2237,7 @@
 						<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
 						<menuitem label="Reports..."  icon="iconReports" >
 							<menuitem label="Invoice Report" />
+							<menuitem label="Monthend Billing Report (uMerge Format)" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
 							<menuitem label="Notes to Core"  />
@@ -2338,6 +2255,7 @@
 						<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
 						<menuitem label="Reports..."  icon="iconReports" >
 							<menuitem label="Invoice Report" />
+							<menuitem label="Monthend Billing Report (uMerge Format)" />
 							<menuitem label="Billing by Lab and Experiment Platform"  />
 							<menuitem label="Usage Report"  />
 							<menuitem label="Notes to Core"  />
@@ -2423,7 +2341,6 @@
 						showHeaders="false"  
 						displayItemsExpanded="false" 
 						dragEnabled="true" 
-						itemClick="onRequestNodeSelected()"
 						change="onRequestNodeSelected()"
 						iconFunction="parentApplication.getTreeIcon"  
 						labelFunction="getTreeLabel"
@@ -2521,11 +2438,6 @@
 					<mx:HBox width="100%" verticalAlign="middle">
 						<mx:Label id="titleLabel" styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontSize="11"/>
 						<mx:Spacer width="100%"/>
-						<mx:HBox id="displayAllBox"  verticalAlign="middle" horizontalGap="0" includeInLayout="false" visible="false">
-							<mx:Label text="{'(Only first ' + NUM_DISPLAYED_BILLING_ITEMS + ' items displayed)'}" styleName="warningLabel" fontStyle="italic" fontWeight="bold"/>
-							<mx:LinkButton label="Display All" textDecoration="underline"
-										   click="{mx.managers.CursorManager.setBusyCursor();setTimeout(loadAllImpl,TIMEOUT_DELAY);}"   fontSize="10"/>
-						</mx:HBox>
 						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="10" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
 							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
 						</mx:CheckBox>
@@ -2552,12 +2464,12 @@
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
 									 labelField="@display" 
 									 toolTip="Shift or ctrl + click will highlight multiple rows.  This will update the status for all the selected items.  If no items are selected, all of the items' statuses will update." 
-									 change="billingStatusCombo_changeHandler()" enabled="false"/>
+									 change="changeStatusImpl()" enabled="false"/>
 					</mx:HBox>
 				</mx:VBox>
 				
-        		<mx:AdvancedDataGrid width="100%" height="100%" 
-        			displayItemsExpanded="true"  
+        		<util:AdvancedDataGridLargeDataSet width="100%" height="100%" 
+        			displayItemsExpanded="false"  
         			editable="true" 
         			sortExpertMode="true" 
         			sortableColumns="false"   
@@ -2569,12 +2481,13 @@
                     wordWrap="true" 
                     showDataTips="true"
                     headerWordWrap="true" 
-					selectionMode="singleRow" itemEditEnd="onEdit()" 
-                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" dropShadowEnabled="true" borderStyle="solid" fontSize="10">
-        		 	<mx:dataProvider>   
-      						<mx:HierarchicalData source="{billingItemsDisplayed}"/> 
-    				</mx:dataProvider> 
-        			<mx:columns> 
+					selectionMode="singleRow" 
+					itemEditEnd="onEdit()" 
+                    alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" 
+					dropShadowEnabled="true" 
+					borderStyle="solid" 
+					fontSize="10" >
+        			<util:columns> 
         				<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
         				<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="12" wordWrap="true"/>
         				<mx:AdvancedDataGridColumn headerText="Client" dataField="@submitter" editable="false" width="9" wordWrap="false"/>
@@ -2593,50 +2506,20 @@
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
 						  itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>						
-        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="18" wordWrap="true">
-			              <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-        				</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="18" wordWrap="true">
-			              <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@description}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-        				</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Price Category" dataField="@category" editable="false" width="18" wordWrap="true" itemRenderer="views.renderers.BillingADGItemRenderer"/>
+        				<mx:AdvancedDataGridColumn headerText="Description" dataField="@description" editable="true" width="18" wordWrap="true" itemRenderer="views.renderers.BillingADGItemRenderer"/>
 						<mx:AdvancedDataGridColumn  id = "cDate"  
 											headerText="Complete Date"
 											dataField="@completeDate"
 											width="11" 
 											itemEditor="views.renderers.CompleteDateFieldEditor"
-											itemRenderer="mx.controls.Label" 
+											itemRenderer="views.renderers.BillingADGItemRenderer" 
 											rendererIsEditor="false" 
 											labelFunction="getCompleteDateString"
 											editorDataField="selectedDate"/>													
-        				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true">
-        				  <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-						</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false"> 
-        				  <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@unitPrice}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-						</mx:AdvancedDataGridColumn>
-        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false">
-        				  <mx:itemRenderer>
-			                  <mx:Component>
-			                  <mx:Text text="{data.@qty}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-			                  </mx:Component>
-			              </mx:itemRenderer>
-						</mx:AdvancedDataGridColumn>
+        				<mx:AdvancedDataGridColumn headerText="Notes" dataField="@notes" editable="true" width="12" wordWrap="true" itemRenderer="views.renderers.BillingADGItemRenderer"/>
+        				<mx:AdvancedDataGridColumn headerText="Unit price" dataField="@unitPrice"  textAlign="right" editable="true" width="8" wordWrap="false" itemRenderer="views.renderers.BillingADGItemRenderer"/>
+        				<mx:AdvancedDataGridColumn headerText="Qty" dataField="@qty" editable="true" textAlign="right" width="5" wordWrap="false" itemRenderer="views.renderers.BillingADGItemRenderer"/>
         				<mx:AdvancedDataGridColumn headerText="Total price" dataField="@invoicePrice" textAlign="right" width="11" editable="false" wordWrap="false"
 						  editorDataField="text"
 						  rendererIsEditor="false"
@@ -2646,9 +2529,9 @@
         				  rendererIsEditor="false"
 						  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
 						  itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
-					</mx:columns>
+					</util:columns>
         			 
-        		</mx:AdvancedDataGrid> 
+        		</util:AdvancedDataGridLargeDataSet> 
 				
 				<mx:ControlBar width="100%">
 				

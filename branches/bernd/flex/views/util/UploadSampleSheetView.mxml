@@ -85,7 +85,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.experiment.TabAnnotationView;
-			import views.experiment.TabSamplesView;
+			import views.experiment.TabSamplesBase;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.MultiselectRenderer;
@@ -98,7 +98,7 @@
 			private var uploadFR:FileReference;
 			private var docTypes:FileFilter;
 			private var	sampleSheetXML:XML;	
-			private var tabSamplesView:TabSamplesView;
+			private var tabSamplesView:TabSamplesBase;
 			private var numPlates:int;
 			private var startRow:int;
 			private var specifiedFieldList:Dictionary;
@@ -132,7 +132,7 @@
 				return displayText;
 			}
 			
-			public function init(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
+			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
 				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, allowMultiPlexGroupNumber, tabAnnotationView);
 				
 				// Cap seq window is simplified and should be smaller.
@@ -171,7 +171,7 @@
 				}
 			}
 
-			private function initVars(tabSamplesView:TabSamplesView, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
+			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
@@ -246,15 +246,16 @@
 				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
 				var sampleGridDataRows:XMLListCollection = null;
 				var sampleGroupingCollection:GroupingCollection = null;
-				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
-					if(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source is GroupingCollection) {
-						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+				var grid:AdvancedDataGrid = tabSamplesView.getSamplesGrid();
+				if(grid.dataProvider is HierarchicalCollectionView) {
+					if(HierarchicalCollectionView(grid.dataProvider).source is GroupingCollection) {
+						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(grid.dataProvider).source);
 						sampleGridDataRows = XMLListCollection(sampleGroupingCollection.source);
 					} else {
-						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(grid.dataProvider).source);
 					}
 				} else {
-					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+					sampleGridDataRows = XMLListCollection(grid.dataProvider);
 				}
 				var ssRowLen:int = ssRowList.length();
 				if(hasColNames.selected) {
@@ -301,15 +302,16 @@
 				var sampleGridDataRowsCount:int = startRow;
 				var sampleGridDataRows:XMLListCollection = null;
 				var sampleGroupingCollection:GroupingCollection = null;
-				if(this.tabSamplesView.samplesGrid.dataProvider is HierarchicalCollectionView) {
-					if(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source is GroupingCollection) {
-						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+				var grid:AdvancedDataGrid = tabSamplesView.getSamplesGrid();
+				if(grid.dataProvider is HierarchicalCollectionView) {
+					if(HierarchicalCollectionView(grid.dataProvider).source is GroupingCollection) {
+						sampleGroupingCollection = GroupingCollection(HierarchicalCollectionView(grid.dataProvider).source);
 						sampleGridDataRows = XMLListCollection(sampleGroupingCollection.source);
 					} else {
-						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(this.tabSamplesView.samplesGrid.dataProvider).source);
+						sampleGridDataRows = XMLListCollection(HierarchicalCollectionView(grid.dataProvider).source);
 					}
 				} else {
-					sampleGridDataRows = XMLListCollection(this.tabSamplesView.samplesGrid.dataProvider);
+					sampleGridDataRows = XMLListCollection(grid.dataProvider);
 				}
 				while(sampleGridDataRows.length <= this.startRow) {
 					// Make sure there is an initial row
@@ -362,7 +364,7 @@
 								if(ssColItemValue.length > 0) {
 									var optionFound:Boolean = false;
 									// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
-									for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
+									for each(var col:AdvancedDataGridColumn in grid.columns) {
 										if (col.dataField == node.@dataField) {
 											var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
 											if(thisItemRenderer != null) {
@@ -623,14 +625,15 @@
 				}
 			}
 			
-			public static function getFieldList(tabSamplesView:TabSamplesView, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, 
+			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, 
 												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, sampleSheetDownload:Boolean = false):XMLListCollection {
 				
 				var samplesViewState:String = tabSamplesView.currentState;
 				
 				var fieldList:XMLListCollection = new XMLListCollection();
 				// Build the contents of the columns selection list
-				for each(var col:AdvancedDataGridColumn in tabSamplesView.samplesGrid.columns) {
+				var grid:AdvancedDataGrid = tabSamplesView.getSamplesGrid();
+				for each(var col:AdvancedDataGridColumn in grid.columns) {
 					if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
 						continue;
 					}

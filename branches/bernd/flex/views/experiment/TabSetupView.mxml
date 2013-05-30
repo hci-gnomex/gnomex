@@ -1050,11 +1050,13 @@
 			}
 			
 			private function userSelected():void {
-				idAppUser = appUserCombo.selectedItem.@idAppUser;
-				selectDefaultUserProject();
-				refreshBillingAccounts();
-				
-				checkSetupCompleteness()
+				if (appUserCombo.selectedItem != null) {
+					idAppUser = appUserCombo.selectedItem.@idAppUser;
+					selectDefaultUserProject();
+					refreshBillingAccounts();
+					
+					checkSetupCompleteness();
+				}
 			}
 		]]>
 	</mx:Script>

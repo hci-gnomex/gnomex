@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+<exp:TabSamplesBase
+		   xmlns:mx="http://www.adobe.com/2006/mxml" 
 		   xmlns:util="views.util.*"
-		   xmlns:fx="*.views.renderers" show="{this.initializeBarcoding();}"
+		   xmlns:fx="*.views.renderers"
+		   xmlns:exp="views.experiment.*"
+		   show="{this.init();}"
 		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
 
 	<mx:Script>
@@ -18,10 +21,8 @@
 			import mx.controls.Alert;
 			import mx.controls.TextInput;
 			import mx.events.CloseEvent;
-			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
 			import mx.events.ValidationResultEvent;
-			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
@@ -29,11 +30,14 @@
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
+			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.ComboBoxWorkflowStatus;
 			import views.renderers.GridColumnFillButton;
 			import views.renderers.LabelBarcodeSequence;
+			import views.renderers.MultiselectRenderer;
 			import views.renderers.TextInputSeqPrepByCore;
+			import views.renderers.URLRenderer;
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
@@ -47,32 +51,78 @@
 			
 			[Bindable]
 			private var isExternal:Boolean = false;
-			[Bindable]
-			public var isEditState:Boolean = false;
 			
 			private var uploadFR:FileReference;
 			private var uploadSampleSheetURL:String;
 			private var docTypes:FileFilter;
 			private var hasColumnNames:Boolean; 
 			private var	sampleSheetXML:XML;
+
+			override protected function initButtons():void {
+				if (parentDocument.isEditState()) {
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						this.clearSamplesButton.visible = true;
+					} else {
+						this.clearSamplesButton.visible = false;
+					}
+				}
+				
+				if (parentDocument.isIScanState()) {
+					this.addSampleButton.visible = false;
+					this.addSampleButton.enabled = false;
+					this.deleteSampleButton.visible = true;
+					this.deleteSampleButton.enabled = true;
+					this.copySampleButton.visible = false;
+					this.copySampleButton.enabled = false;				
+					this.copyColumnButton.visible = false;
+					this.copyColumnButton.enabled = false;
+				} else if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+					this.addSampleButton.visible = false;
+					this.addSampleButton.enabled = false;
+					this.deleteSampleButton.visible = true;
+					this.deleteSampleButton.enabled = true;
+					this.copySampleButton.visible = false;
+					this.copySampleButton.enabled = false;				
+					this.copyColumnButton.visible = false;
+					this.copyColumnButton.enabled = false;
+					
+				}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
+					this.addSampleButton.visible = false;
+					this.deleteSampleButton.visible = false;
+					this.copySampleButton.visible = false;
+					this.addSampleButton.enabled = false;
+					this.deleteSampleButton.enabled = false;
+					this.copySampleButton.enabled = false;
+				} else {
+					this.addSampleButton.visible = true;
+					this.deleteSampleButton.visible = true;
+					this.copySampleButton.visible = true;
+					this.addSampleButton.enabled = true;
+					this.deleteSampleButton.enabled = true;
+					this.copySampleButton.enabled = true;
+				}
+			}
 			
-			private var downloadRequest:URLRequest; 
-			private var downloadFileRef:FileReference; 
+			override public function getSamplesGrid():AdvancedDataGrid {
+				return this.samplesGrid;
+			}
 			
-			public  var multiplexGroupNumberImported:Boolean = false;
 			
-			private function uploadSampleSheet():void {
-				var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
-				PopUpManager.centerPopUp(uploadSampleSheetWindow);
-				var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
+			override protected function getNumPlates():int {
 				var numPlates:int = 0;
-				var nextPlate:int = 0;
 				if (hasPlates()) {
 					if ( parentDocument.isIScanState() || parentDocument.isSequenomState() ) {
 						numPlates = parentDocument.numIScanPlates;
 					} else {
 						numPlates = parentDocument.numCapSeqPlates; 
 					}
+				}
+				return numPlates;
+			}
+			
+			override protected function getNextPlate():int {
+				var nextPlate:int = 0;
+				if (hasPlates()) {
 					for each (var sample:Object in parentDocument.samples) {
 						var thisPlate:int = 0;
 						if (sample.@name != '') {
@@ -91,18 +141,10 @@
 						nextPlate = 0;
 					}
 				}
-				
-				uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup(), parentDocument.getAnnotationView());
-				if (parentDocument.isEditState()) {
-					uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
-				}
+				return nextPlate;
 			}
 			
-			public function uploadComplete(event:Event):void {
-				Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
-			}
-			
-			private function getSampleSheetSpecifiedFieldList():Dictionary {
+			override protected function getSampleSheetSpecifiedFieldList():Dictionary {
 				var fieldList:Dictionary = null;
 				if (hasPlates() && parentDocument.isCapSeqState()) {
 					fieldList = new Dictionary();
@@ -122,148 +164,20 @@
 				return fieldList;
 			}
 			
-			private function getSampleSheetFieldList():XMLListCollection {
-				var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
+			override protected function getAddAllAnnotations():Boolean {
 				var addAllAnnotations:Boolean = true;
 				if (parentDocument.isIScanState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 					addAllAnnotations = false;
 				}
-				return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), addAllAnnotations);
+				return addAllAnnotations;
 			}
 			
-			private function downloadSampleSheetExample(fileName:String):void {
-				try {
-					downloadRequest = new URLRequest("doc/" + fileName);
-					downloadFileRef = new FileReference();
-					downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
-					downloadFileRef.download(downloadRequest, fileName);
-					
-				} catch (error:Error) {
-					Alert.show("Unable to download example sample sheet due to error. " + error.message);
-				}
-			}
-			
-			private function downloadSampleSheet():void{
-				var fieldList:XMLListCollection = getSampleSheetFieldList();
-				var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
-				var uv:URLVariables = new URLVariables();
-				showUrl.contentType = "application/x-www-form-urlencoded";
-				var names:String = "<NameList>"
-				for each (var node : XML in fieldList){
-					names += node.toXMLString();
-				}
-				
-				// clean up samples
-				if (parentDocument.isEditState()) {
-					parentDocument.request.replace("samples", <samples></samples>); 
-					for each(var sample:Object in parentDocument.samples) {
-						if (sample.@name != null && sample.@name != '') {
-							parentDocument.request.samples.appendChild(sample);
-						}
-					}
-				}
-				
-				names += "</NameList>";
-				uv.names = names;
-				uv.requestXMLString = parentDocument.request.toXMLString();
-				showUrl.data = uv;
-				showUrl.method = URLRequestMethod.POST;
-				navigateToURL(showUrl, '_blank');
-			}
-			
-			private function downloadCompleteHandler(event:Event):void
-			{
-				mx.controls.Alert.show("Example sample sheet downloaded.");
-			}
-			
-			public function copyColumn():void {
-				var copySampleSheetColumnWindow:CopySampleSheetColumnView = CopySampleSheetColumnView(PopUpManager.createPopUp(this, CopySampleSheetColumnView, true));
-				PopUpManager.centerPopUp(copySampleSheetColumnWindow);
-				copySampleSheetColumnWindow.init(this);
-			}
-			
-			public function addSample():Boolean {
+			override public function addSample():Boolean {
 				var emptyNode:XML = null;
 				var idOrganism:String = parentDocument.setupView.getIdOrganism();
 				var isValid:Boolean = true;
-				var analysisInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToBio.text.replace(/\"/g, "&quot;") : '';
-				analysisInstructions = analysisInstructions.replace("'", "&apos;");
-				analysisInstructions = analysisInstructions.replace("<", "&lt;");
-				analysisInstructions = analysisInstructions.replace(">", "&gt;");
-				analysisInstructions = analysisInstructions.replace("&", "&amp;");
-				var prepInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
-				prepInstructions = prepInstructions.replace("'", "&apos;");
-				prepInstructions = prepInstructions.replace("<", "&lt;");
-				prepInstructions = prepInstructions.replace(">", "&gt;");
-				prepInstructions = prepInstructions.replace("&", "&amp;");
 				
-				if (parentDocument.isSolexaState()) {
-					if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
-						parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
-						emptyNode = new XML("<Sample " +
-							" idSample='" + "Sample" + getNextSampleId() + "'" +
-							" name='' description='' " +
-							" canChangeSampleName='Y'" +
-							" canChangeSampleType='Y'" +
-							" canChangeSampleDropOffLocation='Y'" +
-							" canChangeSampleConcentration='Y'" +
-							" canChangeSampleSource='Y'" +
-							" canChangeNumberSequencingLanes='Y'" +  
-							" canChangeNumberSequencingCycles='Y'" +
-							" concentration=''" + 
-							" label=''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
-							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
-							" numberSequencingLanes='1'" +
-							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
-							" seqPrepByCore = 'N'" +
-							" idOligoBarcode = ''" +
-							" barcodeSequence = ''" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
-							" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-							" analysisInstructions=\"" + (analysisInstructions) + "\"" +				
-							" prepInstructions=\"" + (prepInstructions) + "\"" +				
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" treatment=''"   +				
-							"/>");
-						
-					} else {
-						emptyNode = new XML("<Sample " +
-							" idSample='" + "Sample" + getNextSampleId() + "'" +
-							" name='' description='' " +
-							" canChangeSampleName='Y'" +
-							" canChangeSampleType='Y'" +
-							" canChangeSampleConcentration='Y'" +
-							" canChangeSampleSource='Y'" +
-							" canChangeNumberSequencingCycles='Y'" + 
-							" canChangeNumberSequencingLanes='Y'" + 
-							" concentration=''" +
-							" label=''" +
-							" idOligoBarcode = ''" +
-							" barcodeSequence = ''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
-							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
-							" numberSequencingLanes='1'" +
-							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
-							" idGenomeBuildAlignTo='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.genomeBuildCombo.selectedItem.@value : '') + "'" +				
-							" analysisInstructions='" + (analysisInstructions) + "'" +				
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idSeqLibProtocol = ''" +
-							" seqPrepByCore = 'Y'" +
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" treatment=''"  +				
-							"/>");
-						
-					}
-					
-					
-				}
-				else if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
+				if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
 					emptyNode = new XML("<Sample " +
 						" idSample='" + "Sample" + getNextSampleId() + "'" +
 						" name='' description='' " +
@@ -486,7 +400,7 @@
 				return plateName;
 			}
 			
-			public function getIScanPlateName(idx:int):String {
+			private function getIScanPlateName(idx:int):String {
 				var plateName:String = "";
 				
 				var y:int = idx / 96;
@@ -496,7 +410,7 @@
 				return plateName;
 			}
 			
-			public function getSequenomPlateName(idx:int):String {
+			private function getSequenomPlateName(idx:int):String {
 				var plateName:String = "";
 				
 				var y:int = idx / 96;
@@ -534,106 +448,63 @@
 				return cherryWellName;
 			}
 			
-			private function getNextSampleId():Number {
-				var lastId:Number = -1;
-				
-				for each(var sample:Object in parentDocument.samples) {
-					if (sample.@idSample.toString().indexOf("Sample") == 0) {
-						var id:Number = sample.@idSample.toString().substr(6);
-						if (id > lastId) {
-							lastId = id;
+			override protected function checkDeleteValidity(sample:Object):Boolean {
+				var isValid:Boolean = true;							
+				if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
+					if (parentDocument.samples.length <= 32 && parentDocument.request.@containerType == 'PLATE') {
+						Alert.show("You may not have less than 32 samples in a Plate container.  Delete ignored.");
+						isValid = false;
+					}
+				}
+						
+				if (isValid) {
+					for each(var hyb:Object in parentDocument.hybs) {
+						if (hyb.@idSampleChannel1 == sample.@idSample) {
+							if (sample.@idSample.indexOf("Sample") >= 0) {
+								hyb.@idSampleChannel1 = '0';								
+							} else {
+								Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
+								isValid = false;
+								break;
+							}
+						}
+						if (hyb.@idSampleChannel2 == sample.@idSample) {
+							if (sample.@idSample.indexOf("Sample") >= 0) {
+								hyb.@idSampleChannel2 = '0';
+							} else {
+								Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
+								isValid = false;
+								break;
+							}
 						}
 					}
 				}
 				
-				lastId++;
-				return lastId; 
+				return isValid;
 			}
 			
-			
-			
-			private function deleteSample():void {
-				var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
-				parentDocument.dirty.setDirty();
-				var deleteHappened:Boolean = false;
-				if (samplesGrid.selectedItems.length > 0) {
-					for each(var sample:Object in samplesGrid.selectedItems) {
-						var isValid:Boolean = true;
-						// Only administrators can delete samples
-						if (sample.@idSample.indexOf("Sample") < 0 && parentDocument.request.@canDeleteSample != 'Y') {
-							Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
-							isValid = false;
-							continue;
-						}
-						
-						if (isValid) {
-							
-							if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
-								if (parentDocument.samples.length <= 32 && parentDocument.request.@containerType == 'PLATE') {
-									Alert.show("You may not have less than 32 samples in a Plate container.  Delete ignored.");
-									isValid = false;
-								}
-							}
-						}
-						
-						if (isValid) {
-							for each(var hyb:Object in parentDocument.hybs) {
-								if (hyb.@idSampleChannel1 == sample.@idSample) {
-									if (sample.@idSample.indexOf("Sample") >= 0) {
-										hyb.@idSampleChannel1 = '0';								
-									} else {
-										Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
-										isValid = false;
-										break;
-									}
-								}
-								if (hyb.@idSampleChannel2 == sample.@idSample) {
-									if (sample.@idSample.indexOf("Sample") >= 0) {
-										hyb.@idSampleChannel2 = '0';
-									} else {
-										Alert.show("Please remove hyb(s) for sample " + sample.@name + " before attempting to delete sample.");
-										isValid = false;
-										break;
-									}
-								}
-							}
-							for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
-								if (sample.@idSample.indexOf("Sample") >= 0 || isExternal) {
-									parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-								} else {
-									Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
-									isValid = false;
-									break;
-								}
-							}
-						}
-						
-						if (isValid) {
-							var ind:int = parentDocument.samples.getItemIndex(sample);
-							if ( parentDocument.isIScanState() ){
-								parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
-								
-							} else if ( parentDocument.isSequenomState() ){
-								parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
-								
-							} else {
-								parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-							}
-							deleteHappened = true;
-						} else {
-							break;
-						}
-						
-					}
+			override protected function deleteSingleSample(sample:Object):Boolean {
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				if ( parentDocument.isIScanState() ){
+					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
+					
+				} else if ( parentDocument.isSequenomState() ){
+					parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+					
+				} else {
+					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 				}
-				
+				return true;
+			}
+			
+			override protected function postDeleteProcessing(deleteHappened:Boolean):void {
 				if (deleteHappened && hasPlates() && !parentDocument.isIScanState() && !parentDocument.isSequenomState()) {
 					for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
 						var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
 						plateSample.@plateName = parentDocument.isCapSeqState() ? getPlateName(psIdx) : getIScanPlateName(psIdx);
 					}
 				}
-				
+			
 				// reset wells on samples when one deleted in mit seq or frag anal
 				if (deleteHappened && (parentDocument.isMitSeqState() || parentDocument.isFragAnalState())) {
 					for (var msIdx:int = 0; msIdx < parentDocument.samples.length; msIdx++) {
@@ -647,84 +518,22 @@
 					parentDocument.hybsView.hybsGrid.invalidateList();
 					parentDocument.hybsView.hybsGrid.invalidateDisplayList();
 				}
-				
-				this.initializeBarcoding();
+			}	
 			
-			
-			}
-			
-			private function copyTheSample():void {
-				var idx:int = samplesGrid.selectedIndex;
-				copySample();
-				this.initializeBarcoding();
-				checkSamplesCompleteness();
-				this.samplesGrid.selectedIndex = idx;
-			
-			}
-			
-			private function copySample():void {
-				parentDocument.dirty.setDirty();
-				if (samplesGrid.selectedIndex != -1) {
-					for each(var sampleToCopy:Object in samplesGrid.selectedItems) {	
-						
-						var emptyNodeString:String = "<Sample " +
-							" idSample='" + "Sample" + getNextSampleId() + "'" +
-							" name='" + sampleToCopy.@name + "'" + 
-							" canChangeSampleName='Y'" +
-							" canChangeSampleType='Y'" +
-							" canChangeSampleDropOffLocation='Y'" +
-							" canChangeSampleConcentration='Y'" +
-							" canChangeSampleSource='Y'" +
-							" canChangeNumberSequencingLanes='Y'" + 
-							" description='" + sampleToCopy.@description + "'" + 
-							" idSampleType='" + sampleToCopy.@idSampleType + "'" +
-							" otherSamplePrepMethod=\"" + sampleToCopy.@otherSamplePrepMethod + "\"" +				
-							" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
-							" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
-							" concentration='" + sampleToCopy.@concentration + "'" +				
-							" treatment='" + sampleToCopy.@treatment + "'" +		
-							" idOligoBarcode='" + sampleToCopy.@idOligoBarcode + "'" +		
-							" barcodeSequence='" + sampleToCopy.@barcodeSequence + "'" +		
-							" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-							" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
-							" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-							" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
-							" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
-							" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
-							" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
-							" ccNumber='" + sampleToCopy.@ccNumber + "'";
-						if (parentDocument.isIScanState()) {
-							emptyNodeString = emptyNodeString +
-								" plateName='" + getIScanPlateName(parentDocument.samples.length) + "'" +
-								" wellName=''";
-						} else if (parentDocument.isSequenomState()) {
-							emptyNodeString = emptyNodeString +
-								" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
-								" wellName=''";
-						} else if (hasPlates()) {
-							emptyNodeString = emptyNodeString +
-								" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
-								" wellName=''";
-						}
-						
-						
-						emptyNodeString = emptyNodeString + "/>";
-						var emptyNode:XML = new XML(emptyNodeString); 
-						
-						// Now copy the sample annotations
-						for each (var attribute:Object in sampleToCopy.attributes()) {
-							if (attribute.name().toString().indexOf("ANNOT") == 0) {
-								emptyNode["@" + attribute.name()] = sampleToCopy["@" + attribute.name()];
-							}
-						}
-						
-						parentDocument.samples.addItem(emptyNode);
-						
-						
-					}
+			override protected function addSpecialCopyColumns(emptyNodeString:String):void {
+				if (parentDocument.isIScanState()) {
+					emptyNodeString = emptyNodeString +
+						" plateName='" + getIScanPlateName(parentDocument.samples.length) + "'" +
+						" wellName=''";
+				} else if (parentDocument.isSequenomState()) {
+					emptyNodeString = emptyNodeString +
+						" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
+						" wellName=''";
+				} else if (hasPlates()) {
+					emptyNodeString = emptyNodeString +
+						" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
+						" wellName=''";
 				}
-			
-			
 			}
 			
 			private function deleteTheSample():void {
@@ -735,7 +544,7 @@
 				samplesGrid.selectedIndex = idx;
 			}
 			
-			public function initializeSamplesGrid():void {
+			override public function initializeSamplesGrid():void {
 				if (parentDocument.requestToClone != null) {
 					return;
 				}
@@ -777,12 +586,12 @@
 				}
 			}
 			
-			public function hasPlates():Boolean {
+			override public function hasPlates():Boolean {
 				return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState() ||
 					(parentDocument.isSequenomState() && parentDocument.request.@containerType == 'PLATE') ;
 			}
 			
-			public function fillPlates():void {
+			override public function fillPlates():void {
 				if (hasPlates()) {
 					var startOfPlate:int = 0;
 					if ( parentDocument.isCapSeqState() ){
@@ -854,7 +663,7 @@
 				} 
 			}
 			
-			public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
+			override public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
 				parentDocument.request.replace("samples", <samples></samples>); 
 				for(var idx:int = 0; idx < numDestinationWells; idx++) {
 					var destinationWellName:String = getCherryWellName(idx, numDestinationWells);
@@ -874,15 +683,7 @@
 				parentDocument.samples.source = parentDocument.request.samples.Sample;
 			}
 			
-			public function promptToClearAllSamples():void {
-				Alert.show("Remove all samples currently showing in list?",
-					null, 
-					(Alert.YES | Alert.NO), this, 
-					onPromptToClearAllSamples);
-			
-			}
-			
-			private function onPromptToClearAllSamples(event:CloseEvent):void {
+			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					if ( parentDocument.isIScanState() ){
 						for each ( var s:XML in parentDocument.samples.source.(@name!='') ) {
@@ -893,7 +694,6 @@
 					} else {
 						parentDocument.samples.removeAll();
 						parentDocument.lanes.removeAll();
-						setMultiplexGroupNumberImported(false);
 						if (hasPlates()) {
 							fillPlates(); // Set up the plates as defined in sample setup
 						} else {
@@ -905,103 +705,15 @@
 				}
 			}		
 			
-			public function setMultiplexGroupNumberImported(val:Boolean):void {
-				this.multiplexGroupNumberImported = val;
-				this.addSampleButton.enabled = !val;
-				this.copySampleButton.enabled = !val;
-			}
-			
-			public function checkSamplesCompleteness():void {
+			override public function checkSamplesCompleteness():void {
 				parentDocument.userWarningsSamples = "";
 				
 				
 				var numberOfAdditionalLanes:int = 0;
-				if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
-					for each(var s2:Object in parentDocument.samples) {
-						if (isEntered(s2, "@numberSequencingLanes")) {
-							numberOfAdditionalLanes += s2.@numberSequencingLanes;
-						}
-					}
-				}
 				var completeCount:int = 0;
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
-					if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-						
-						if (parentDocument.currentState == 'SolexaLaneAmendState') {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idSampleType") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								isEntered(sample, "@idNumberSequencingCycles") &&
-								reqdAnnotationsEntered(sample)&& 
-								numberOfAdditionalLanes > 0) {
-								
-								completeCount++;
-							}
-						} else if (parentApplication.submitInternalExperiment() && 
-							!parentDocument.isEditState() &&
-							parentDocument.sampleSetupView.currentState == "SolexaSetupState" || 
-							parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idSampleType") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								isEntered(sample, "@idNumberSequencingCycles") &&
-								reqdAnnotationsEntered(sample) &&  
-								(isEntered(sample, "@numberSequencingLanes") || numberOfAdditionalLanes > 0)) {
-								
-								
-								completeCount++;
-								
-								
-							}
-							
-							
-						} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@idSampleType") &&
-								reqdAnnotationsEntered(sample) &&  
-								isEntered(sample, "@idOrganism")) {
-								
-								completeCount++;
-							}
-						} else {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@idSampleType") &&	        		
-								isEntered(sample, "@idSeqLibProtocol") &&	        		
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								reqdAnnotationsEntered(sample) &&  
-								isEntered(sample, "@idNumberSequencingCycles")) {
-								
-								
-								if (!parentDocument.isEditState()) {
-									if (sample.@numberSequencingLanes != '') {
-										if (parentDocument.showSampleCustomBarcodes()) {
-											if (isEntered( sample, "@barcodeSequence")) {
-												completeCount++;      			    		
-											}
-										} else if (parentDocument.showSampleBarcodes()) {
-											if (isEntered( sample, "@idOligoBarcode")) {
-												completeCount++;      			    		
-											}
-										} else {
-											completeCount++;
-										}
-									}		
-								} else {
-									completeCount++;
-								}
-								
-							}
-							
-						}
-						
-					} else if (currentState != null && currentState.indexOf('QCSamples') >= 0){
+					if (currentState != null && currentState.indexOf('QCSamples') >= 0){
 						if (!parentApplication.submitInternalExperiment()) {
 							if (isEntered(sample, "@name") &&
 								reqdAnnotationsEntered(sample) &&
@@ -1135,59 +847,10 @@
 					}
 				}
 				
-				// Make sure the sample index tags are unique
-				if (isComplete) {
-					if (!areIndexTagsUnique()) {
-						parentDocument.userWarningsSamples += "WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled."; 
-					}
-				}
-				
 				// Sort the samples
 				if (isComplete && parentDocument.isMicroarrayState()) {
 					parentDocument.hybsView.sortLabeledSamples();
 				}
-				
-				
-				
-				// If this is a Solexa request and the sample setup is complete,
-				// create the sequencing lanes based on the number of lanes 
-				// entered for each sample.
-				if (isComplete && currentState != null && currentState =='SolexaSamplesState') {
-					var isValidNumberSeqLanes:Boolean = true;
-					for each (var s:Object in parentDocument.samples) {
-						if (s.@numberSequencingLanes > 100) {
-							callLater(showMaxLaneError, [s.@numberSequencingLanes]);
-							parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
-							isValidNumberSeqLanes = false;
-							break;
-						}
-					}
-					if (isValidNumberSeqLanes) {
-						var lanesAdded:Boolean = false;
-						for each (var theSample:Object in parentDocument.samples) {
-							var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
-							if (numberLanesForSample < theSample.@numberSequencingLanes) {
-								var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
-								for (var x:Number = 0; x < numberLanesToAdd; x++) {
-									addSequencingLaneForSample(theSample);
-									lanesAdded = true;
-								}
-							} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
-								var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
-								for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
-									parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-								}
-							}
-							
-						}
-						
-						if (lanesAdded) {
-							parentDocument.lanes.refresh();
-						}
-					}
-				}
-				
-				
 				
 				if (parentDocument.isMicroarrayState()) {
 					if (parentApplication.submitInternalExperiment()) {
@@ -1198,8 +861,6 @@
 							parentDocument.hybsView.initializeHybsGrid();
 						}
 					}
-				} else if (parentDocument.isSolexaEditState()) {
-					parentDocument.lanesView.enabled = isComplete;
 				} else if (parentDocument.isCapSeqState()) {
 					parentDocument.confirmView.enabled = isComplete;
 				} else if (parentDocument.isFragAnalState()) {
@@ -1225,29 +886,6 @@
 			
 			}
 			
-			private function isEntered(sample:Object, fieldName:String):Boolean {
-				if (!sample.hasOwnProperty(fieldName) || sample[fieldName] == '') {
-					return false;
-				} else {
-					return true;
-				}
-			}
-			
-			private function reqdAnnotationsEntered(sample:Object):Boolean {
-				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
-					if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
-						if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
-							var idProperty:String = col.dataField.substr(6);
-							var property:XML = parentApplication.getSampleProperty(idProperty);
-							if(property.@isRequired == "Y") {
-								return false;	
-							}
-						}					
-					}
-				}
-				return true;
-			}
-			
 			private function showMaxLaneError(numberSeqLanes:String):void {
 				Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
 			}
@@ -1263,10 +901,6 @@
 					if (parentDocument.theTab.contains(parentDocument.hybsView)) {
 						parentDocument.hybsView.enabled = false;
 					} 
-					
-					if (parentDocument.isSolexaEditState()) {
-						parentDocument.lanesView.enabled = false;
-					}
 					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
 						parentDocument.visibilityView.enabled = false;					
 					}
@@ -1278,43 +912,12 @@
 						parentDocument.hybSetupView.checkHybSetupCompleteness();
 						this.refreshHybsGrid();    				
 					} 
-					if (parentDocument.isSolexaState() && !parentDocument.isEditState() && !parentDocument.isAmendState()) {
-						this.refreshLanesGrid();
-					}
 				}
 			
 			}
 			
-			private function addSequencingLaneForSample(sample:Object):void {
-				var lanePlus:int = parentDocument.lanes.length + 100000;
-				if (this.multiplexGroupNumberImported) {
-					lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
-				}
-				var laneStr:String = lanePlus.toString().substr(1);
-				
-				var analysisInstructions:String  = "";
-				if (sample != null && sample.hasOwnProperty("@analysisInstructions") && sample.@analysisInstructions != null) {
-					analysisInstructions = sample.@analysisInstructions.replace("\"", "&quot;");
-					analysisInstructions = analysisInstructions.replace("'", "&apos;");
-					analysisInstructions = analysisInstructions.replace("<", "&lt;");
-					analysisInstructions = analysisInstructions.replace(">", "&gt;");
-					analysisInstructions = analysisInstructions.replace("&", "&amp;");
-					
-				}
-				var emptyNode:XML = new XML("<SequenceLane " +
-					" idSequenceLane='" + "SequenceLane" + laneStr + "'" +
-					" notes='' " + 
-					" idSeqRunType='" + sample.@idSeqRunType + "'" +
-					" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
-					" idSample='" + sample.@idSample + "'" +
-					" idGenomeBuildAlignTo='" + sample.@idGenomeBuildAlignTo + "'" +
-					" analysisInstructions='" + analysisInstructions + "'" +
-					"/>");
-				
-				parentDocument.lanes.addItem(emptyNode);
-			}
-			
-			public function propagateContainerType(containerType:String):void {
+			override public function propagateContainerType(containerType:String):void {
+				samplesGrid.dataProvider = null;
 				var idx:int = 0;
 				parentDocument.samples.disableAutoUpdate();
 				for each (var sample:Object in parentDocument.samples) {
@@ -1329,7 +932,7 @@
 				parentDocument.samples.enableAutoUpdate();
 			}
 			
-			public function propagateOrganism(idOrganism:String):void {
+			override public function propagateOrganism(idOrganism:String):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each (var sample:Object in parentDocument.samples) {
 						sample.@idOrganism = idOrganism;
@@ -1341,70 +944,48 @@
 				}
 			}
 			
-			public function propagateOtherOrganism(otherOrganism:String):void {
+			override public function propagateOtherOrganism(otherOrganism:String):void {
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@otherOrganism = otherOrganism;
 				}
 			}
-			
-			public function propagateSeqRunType(idSeqRunType:String):void {
-				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-					for each (var sample:Object in parentDocument.samples) {
-						sample.@idSeqRunType = idSeqRunType;
-					}
-				}
-			}
-			public function propagateNumberSequencingCycles(theSample:Object):void {
+
+			override public function propagateNumberSequencingCycles(theSample:Object):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
 						lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
 					}
 				}
 			}		
-			public function propagateSolexaLibraryType(idSolexaLibraryType:String):void {
-				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-					for each (var sample:Object in parentDocument.samples) {
-						sample.@idSolexaLibraryType = idSolexaLibraryType;
-					}
-				}
-			}   
 			
-			public function initializeBarcoding():void {
-				if (parentDocument.isSolexaState()) {
-					
-					
-					if (barcodeList == null || this.barcodeList.length() == 0) {
-						barcodes.refresh();
-						barcodeList = new XMLList(barcodes.toXMLString());
-					}
-					
-					propagateBarcode();
-				}
-				
+			override public function initializeBarcoding():void {
 				setSamplesGridDataProvider();
-				
-				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-				this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				
 				// handle assay columns for fragment analysis
 				manageFragAnalAssayColumns();
 				
 				// handle the download sample sheet events
-				
 				this.samplesGrid.validateNow();
 				callLater(this.checkSamplesCompleteness);
 			
 			}
 			
-			public function propagateBarcode():void {
-				if (!multiplexGroupNumberImported) {
-					parentDocument.seqSetup1View.propagateBarcode();
+			override public function setShowCCNumber(show:Boolean):void {
+				if (showCCNumberCheckbox != null) {
+					this.showCCNumberCheckbox.selected = show;
+				}
+			}
+			
+			override public function getShowCCNumber():Boolean {
+				if (showCCNumberCheckbox != null) {
+					return this.showCCNumberCheckbox.selected;
+				} else {
+					return false;
 				}
 			}
 			
 			private function setSamplesGridDataProvider():void {
+				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
 				if (hasPlates()) {
 					this.samplesGrid.dataProvider = null;
 					sampleGroupingCollection = new GroupingCollection();
@@ -1423,35 +1004,7 @@
 					this.samplesGrid.dragEnabled = false;
 					
 					this.sampleRowNumberCol.visible = false;
-					this.multiplexGroupNumberColumn.visible = false;
-					this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
 					this.plateNameCol.visible = true;
-					this.barcodeColumn.visible = false;
-					this.multiplexGroupNumberEditColumn.visible = false;
-				} else if (parentDocument.showSampleMultiplexGroup()) {
-					this.samplesGrid.dataProvider = null;
-					sampleGroupingCollection = new GroupingCollection();
-					sampleGroupingCollection.source = parentDocument.samples;
-					var group:Grouping = new Grouping();
-					var gf:GroupingField = new GroupingField();
-					gf.name = "@multiplexGroupNumber";
-					group.fields = [gf];
-					gf.compareFunction = sampleCompareFunction;
-					sampleGroupingCollection.grouping  = group;
-					sampleGroupingCollection.refresh(); 
-					this.samplesGrid.dataProvider = sampleGroupingCollection;
-					
-					this.samplesGrid.dragMoveEnabled = true;
-					this.samplesGrid.dropEnabled = true;
-					this.samplesGrid.dragEnabled = true;
-					
-					this.sampleRowNumberCol.visible = false;
-					this.multiplexGroupNumberColumn.visible = true;
-					switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
-					this.barcodeColumn.visible = false;
-					this.multiplexGroupNumberEditColumn.visible = false;
-					this.plateNameCol.visible = false;
-					
 				} else {
 					this.samplesGrid.sortableColumns = false;
 					sampleGroupingCollection = null;
@@ -1462,9 +1015,6 @@
 					this.samplesGrid.dragEnabled = false;
 					
 					this.sampleRowNumberCol.visible = true;
-					this.multiplexGroupNumberColumn.visible = false;
-					this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
-					this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState;
 					this.plateNameCol.visible = false;
 					
 				}
@@ -1534,43 +1084,6 @@
 				}
 			}
 			
-			private function switchFirstSampleGridColumns (col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
-				var columns:Array = [];
-				columns[0] = col1;
-				columns[1] = col2;
-				for(var i:int = 2;i < this.samplesGrid.columns.length;i++) {
-					columns[i] = this.samplesGrid.columns[i];
-				}
-				this.samplesGrid.columns = columns;
-			}
-			
-			private function sampleCompareFunction(a:XML, b:XML):int
-			{
-				var aPersistFlag:Number = 0;
-				var aPosition:Number = 0;
-				if (a.@idSample.toString().indexOf("Sample") > -1) {
-					aPosition = a.@idSample.toString().substr(6);
-					aPersistFlag = 1;
-				} else {
-					aPosition = a.@idSample;
-				}
-				
-				var bPersistFlag:Number = 0;
-				var bPosition:Number = 0;
-				if (b.@idSample.toString().indexOf("Sample") > -1) {
-					bPosition = b.@idSample.toString().substr(6);
-					bPersistFlag = 1; // non-persistent samples sort after the persistent ones
-				} else {
-					bPosition = b.@idSample;
-				}
-				
-				if (aPersistFlag == bPersistFlag) {
-					return ObjectUtil.numericCompare(aPosition, bPosition);				
-				} else {
-					return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
-				}
-			}
-			
 			private function plateSampleCompareFunction(a:XML, b:XML):int
 			{
 				if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
@@ -1611,7 +1124,7 @@
 				}
 			}
 			
-			public function showHideColumns():void {
+			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
 				
@@ -1619,48 +1132,13 @@
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				showCCNumberCheckbox.width = isExternal ? 0 : 250;
 				
-				buttonsContainer.visible = !parentDocument.isAmendState();
+				buttonsContainer.visible = true;
 				buttonsContainer.includeInLayout = buttonsContainer.visible;
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
 				if (isEditState && !parentApplication.isAdminState && !isExternal && !parentDocument.isSequencingState()) {
 					buttonsContainer.visible = false;
 					buttonsContainer.includeInLayout = false;
-				}
-				
-				if (parentDocument.isIScanState()) {
-					this.addSampleButton.visible = false;
-					this.addSampleButton.enabled = false;
-					this.deleteSampleButton.visible = true;
-					this.deleteSampleButton.enabled = true;
-					this.copySampleButton.visible = false;
-					this.copySampleButton.enabled = false;				
-					this.copyColumnButton.visible = false;
-					this.copyColumnButton.enabled = false;
-				} else if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
-					this.addSampleButton.visible = false;
-					this.addSampleButton.enabled = false;
-					this.deleteSampleButton.visible = true;
-					this.deleteSampleButton.enabled = true;
-					this.copySampleButton.visible = false;
-					this.copySampleButton.enabled = false;				
-					this.copyColumnButton.visible = false;
-					this.copyColumnButton.enabled = false;
-					
-				}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
-					this.addSampleButton.visible = false;
-					this.deleteSampleButton.visible = false;
-					this.copySampleButton.visible = false;
-					this.addSampleButton.enabled = false;
-					this.deleteSampleButton.enabled = false;
-					this.copySampleButton.enabled = false;
-				} else {
-					this.addSampleButton.visible = true;
-					this.deleteSampleButton.visible = true;
-					this.copySampleButton.visible = true;
-					this.addSampleButton.enabled = true;
-					this.deleteSampleButton.enabled = true;
-					this.copySampleButton.enabled = true;
 				}
 				
 				
@@ -1671,7 +1149,7 @@
 				this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 					&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				
-				seqPrepStatus.visible = isEditState && !isExternal && parentDocument.isSolexaState();
+				seqPrepStatus.visible = false;
 				
 				wellNameCol.visible = (hasPlates() || parentDocument.isFragAnalState() || parentDocument.isMitSeqState()) ? true : false;
 				plateNameCol.editable = false;
@@ -1684,7 +1162,7 @@
 				this.qc_260_280Column.visible = false;
 				this.sampleNameCol.visible = true;
 				
-				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
+				sampleNumberCol.visible = parentDocument.isEditState();
 				
 				this.concentrationCol.visible = !isExternal;
 				this.otherOrganismCol.visible = !isExternal;
@@ -1692,7 +1170,9 @@
 				this.preppedByCoreCol.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
 				this.seqLibProtocolCol.visible = !isExternal;
-				
+
+				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
+
 				if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState() ) {
 					this.concentrationCol.visible = false;
 					this.otherOrganismCol.visible = false;
@@ -1737,38 +1217,6 @@
 						}
 						
 					}
-				} else if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
-					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
-					numberSequencingLanesCol.editable = true;
-					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
-					this.qual260_230Col.visible = false;
-					
-					if (parentDocument.currentState == "SolexaLaneAmendState") {
-						numberSequencingLanesCol.editable = false;
-						additionalNumberSequencingLanesCol.visible = true;
-						existingNumberSequencingLanesCol.visible = true;
-					} else if (parentDocument.currentState == "SolexaBaseAmendState") {
-						numberSequencingLanesCol.editable = false;
-						numberSequencingLanesCol.visible = true;
-						numberSequencingLanesCol.editable = true;
-					}
-					
-					if (parentDocument.isEditState() ||
-						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
-						seqLibProtocolCol.visible = !isExternal;
-					} else {
-						seqLibProtocolCol.visible = false;
-					}
-					
-					idSeqRunTypeCol.visible = !parentDocument.isEditState() && !isExternal; 
-					concentrationUnitColumn.visible = !isExternal;
-					concentrationUnitColumn.editable = false;
-					sampleOrganismColumn.editable = !isExternal;
-					chipTypeColumn.visible = false; 
-					labelColumn.visible = false;
-					
-					
 				} else if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 					numberSequencingLanesCol.visible = false;
 					numberSequencingCyclesCol.visible = false;
@@ -1783,7 +1231,7 @@
 					if (parentDocument.isEditState()) {
 						chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
 					} else {
-						chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBionanalyzerState' ? true : false;
+						chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState' ? true : false;
 					}
 					labelColumn.visible = false;
 					
@@ -1827,22 +1275,6 @@
 					parentDocument.confirmView.hybsGridConfirm.invalidateDisplayList();
 				}
 			}
-			private function refreshLanesGrid():void {
-				parentDocument.confirmView.lanesConfirmGrid.invalidateList();
-				parentDocument.confirmView.lanesConfirmGrid.invalidateDisplayList();
-			}
-			
-			public function onEdit():void {
-				parentDocument.dirty.setDirty();
-			}
-			
-			private function highlightWhenMissing():Boolean {
-				if (this.parentDocument.isEditState()) {
-					return false;
-				} else {
-					return true;
-				}
-			}
 			
 			private function toggleShowCCNumber():void {
 				if (!this.showCCNumberCheckbox.selected) {
@@ -1851,95 +1283,6 @@
 					}
 				}
 			}
-			
-			private function areIndexTagsUnique():Boolean {
-				var isValid:Boolean = true;
-				var barcodeField:String = "";
-				if (parentDocument.showSampleCustomBarcodes()) {
-					barcodeField = "@barcodeSequence";
-				} else if (parentDocument.showSampleBarcodes()) {
-					barcodeField = "@idOligoBarcode";
-				} else {
-					return isValid;
-				}
-				
-				var sampleMap:Object = new Object();
-				for each(var s:Object in parentDocument.samples) {
-					var samplesForIndexGroup:XMLListCollection = sampleMap[s.@multiplexGroupNumber];
-					if (samplesForIndexGroup == null) {
-						samplesForIndexGroup = new XMLListCollection();
-					}
-					samplesForIndexGroup.addItem(s);
-					sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
-				}
-				
-				for (var multiplexGroupNumber:Object in sampleMap) {
-					var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
-					var tagMap:Object = new Object();
-					for each(var s1:Object in samplesInGroup) {
-						var barcode:Object = s1[barcodeField];
-						tagMap[barcode] = barcode;
-					}
-					var uniqueTagCount:int = 0;
-					for (var tm:Object in tagMap) {
-						uniqueTagCount++;
-					}
-					if (uniqueTagCount < samplesInGroup.length) {
-						isValid = false;
-						break;
-					}
-				}
-				return isValid;
-			}
-			
-			private function onDragEnter(event:DragEvent):void
-			{
-				if (currentState.indexOf('SolexaSamples') >= 0) {
-					DragManager.acceptDragDrop(AdvancedDataGrid(event.target));
-				} else {
-					this.samplesGrid.hideDropFeedback(event);
-					event.preventDefault();
-					DragManager.showFeedback(DragManager.NONE);
-				}
-			}
-			
-			
-			
-			private function onDragDropSample(event:DragEvent) : void
-			{
-				var dropNode:Object = null;
-				if (idx > 0) {
-					idx--;
-				}
-				var idx:int = samplesGrid.calculateDropIndex(event);
-				var renderer:Object = samplesGrid.indexToItemRenderer(idx); 
-				if (renderer != null) {
-					dropNode = renderer.data; 
-				}
-				
-				if (dropNode == null) {
-					event.preventDefault();
-					return;
-				}
-				
-				var draggedFormat:String = event.dragSource.formats[0];
-				var draggedItems:Array = event.dragSource.dataForFormat(draggedFormat) as Array;	
-				if (draggedItems != null) {
-					for(var i:int = 0; i < draggedItems.length; i++) {
-						var dragItem:XML = XML(draggedItems[i]);
-						dragItem.@multiplexGroupNumber = dropNode.@multiplexGroupNumber;
-					}	 
-				} else {
-					event.preventDefault();
-				}
-			}		
-			public function getSampleTreeIcon(item:Object):Class {
-				if (item == null) {
-					return parentApplication.iconGroup;
-				} else {
-					return null; 
-				}  
-			}  
 			
 			private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
@@ -1979,19 +1322,6 @@
 				}			
 			}
 			
-			//Used to display a full text area for editing sample descriptions.......May use this instead of scrolling options for small fields that
-			//contain large amounts of text.  Still needs refinement
-			//		public function showDescriptionPopUp(event:MouseEvent):void{
-			//			descriptionWindow = PopUpManager.createPopUp(this, TextPopUp, true);
-			//			descriptionPopUp = TextPopUp(descriptionWindow);
-			//			descriptionPopUp.DataGridName = samplesGrid.selectedItem;
-			//		}
-			
-			// Used for multi-select renderer. Get all options (include inactive if edit state)
-			public function getPropertyOptions(idProperty:String):XMLList {
-				return parentApplication.getPropertyOptions(idProperty, parentDocument.isEditState());
-			}
-			
 			public function changeLabelCheckBoxStyles(cy3CheckBox:CheckBox, cy5CheckBox:CheckBox, label:String):void {
 				cy3CheckBox.setStyle("fontWeight", label == "cy3"   ? "bold" : "normal");
 				cy3CheckBox.setStyle("color", label == "cy3"  ? "green" : "grey");
@@ -2016,14 +1346,6 @@
 					return "";
 				} else {
 					return item.groupLabel;
-				}
-			}
-			public function getIndexTagName(item:Object):String
-			{
-				if (item.@idOligoBarcode != '') {
-					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-				} else {
-					return '';
 				}
 			}
 		]]>
@@ -2070,23 +1392,11 @@
 							 variableRowHeight="true"
 							 sortableColumns="false"
 							 sortExpertMode="true"  
-							 dragDrop="onDragDropSample(event)"
 							 defaultLeafIcon="{null}" 
 							 iconFunction="getSampleTreeIcon"
 							 displayItemsExpanded="true"  
 							 selectionColor="#DDF3FB">
 			<mx:columns>
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
-										   width="60">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-								<mx:Label text="Index Tag"/>
-								<mx:Label text="Group"/>
-							</mx:VBox> 
-						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
@@ -2259,65 +1569,10 @@
 										   visible="{parentApplication.isInternalExperimentSubmission}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
-
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumber" editable="true" visible="true"
-										   width="54">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-								<mx:Label text="Index tag"/>
-								<mx:Label text="Group"/>
-							</mx:VBox> 
-						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
-
-
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
-													 id="barcodeColumn" 
-													 visible="true" 
-													 headerText="Index Tag" 
-													 width="130" 
-													 dataField="@idOligoBarcode" 
-													 sortable="false" 
-													 editable="true" 
-													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}">
-					<util:itemEditor>
-						<mx:Component>
-							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
-																  parentApp="{outerDocument.parentApplication}"
-																  fontSize="10"
-																  prompt="{null}"
-																  filterString="{outerDocument.getIndexTagName(data)}"
-																  text="{outerDocument.getIndexTagName(data)}"
-																  labelFunction="{outerDocument.getIndexTagName}"
-																  removeFilterOnSelection="false"
-																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
-							</renderers:FilterComboBoxOligoBarcode>
-						</mx:Component>
-					</util:itemEditor> 					
-				</util:AdvancedDataGridColumnWithType>
-				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
-										   width="80"
-										   itemRenderer="views.renderers.LabelBarcodeSequence"               
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Index Tag"/> 
-								<mx:Label text="Sequence"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>  
-
-
 
 				<mx:AdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 										   rendererIsEditor="false" editorDataField="value" 
@@ -2429,7 +1684,7 @@
 
 	</mx:VBox>
 
-	<mx:states>
+	<exp:states>
 		<mx:State name="SamplesEditState" >
 			<mx:RemoveChild target="{textarea1}"/>
 			<mx:RemoveChild target="{clearSamplesButton}"/>
@@ -2468,6 +1723,7 @@
 		</mx:State>
 
 		<mx:State name="MicroarraySamplesState" >
+			<mx:SetProperty target="{labelColumn}" name="visible" value="true" />
 		</mx:State>
 		<mx:State name="MicroarraySamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
@@ -2476,6 +1732,7 @@
 			<mx:RemoveChild target="{clearSamplesButton}"/>
 		</mx:State>
 		<mx:State name="MicroarrayOneColorSamplesState" basedOn="MicroarraySamplesState">
+			<mx:SetProperty target="{labelColumn}" name="visible" value="false" />
 			<mx:SetProperty target="{textarea1}" name="htmlText">
 				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
 			</mx:SetProperty>
@@ -2540,6 +1797,6 @@
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="enabled" value="false"/>
 		</mx:State>
 
-	</mx:states>
+	</exp:states>
 
-</mx:Canvas>
+</exp:TabSamplesBase>

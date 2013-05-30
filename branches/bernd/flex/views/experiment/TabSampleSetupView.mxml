@@ -564,11 +564,9 @@
 		private function pickQCApp():void {
 			if (this.radioGroupQCApp.selectedValue != null && this.radioGroupQCApp.selectedValue == "BIOAN") {
 				this.currentState = "QCSetupBioanalyzerState";
-				this.parentDocument.samplesView.chipTypeColumn.visible = true;
 				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
 			} else {
 				this.currentState = "QCSetupState";
-				this.parentDocument.samplesView.chipTypeColumn.visible = false;
 				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
 			}
 			
@@ -752,7 +750,6 @@
 				this.capSeqNumPlatesRadioGroup.selectedValue = null;
 				showFourPlateWarning();
 			}
-			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();
@@ -792,7 +789,6 @@
 				// SET ALL PLATE NAMES TO '' AND PROPOGATE TO THE SAMPLES
 				this.sequenomNumSourcePlates.text = '';
 			}
-			parentDocument.samplesView.samplesGrid.dataProvider = null;
 			parentDocument.samplesView.propagateContainerType(sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
 			parentDocument.samplesView.initializeSamplesGrid();
 			parentDocument.samplesView.showHideColumns();
@@ -1084,11 +1080,13 @@
 		}
 		
 		private function pickChip():void {
-			numberIScanSamples.selectedIndex = -1;
+						
 			if (this.iScanChipRadioGroup.selectedValue != null && 
 				(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
 				this.iScanChipBox.styleName = "normalBox";
 				parentDocument.request.@idIScanChip = iScanChipRadioGroup.selectedValue.@idIScanChip;
+				numberIScanSamples.dataProvider.refresh();
+				numberIScanSamples.selectedIndex = -1;
 			} else {
 				this.iScanChipBox.styleName = "requiredBox";
 			}
@@ -1573,26 +1571,37 @@
 			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
 				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
 				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%" styleName="requiredBox">
-					   <mx:HBox width="100%">
-						   <mx:Label width="200" fontSize="10" fontWeight="bold" text="Chip" paddingLeft="25"/>
-						   <mx:Label width="110" fontSize="10" fontWeight="bold"  text="Samples per Chip"/>
-						   <mx:Label width="125" fontSize="10" fontWeight="bold" text="Markers per Sample" />
-						   <mx:Label width="145" fontSize="10" fontWeight="bold" text="Illumina Cost per Sample" />
-						   <mx:Label width="85" fontSize="10" fontWeight="bold" text="Chips per Kit" />
+					   <mx:HBox width="100%" paddingBottom="5">
+						   <mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Label width="230" styleName="formLabel" text="Chip" paddingLeft="25"/>
+						   </mx:VBox>
+						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="115" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="115" styleName="formLabel" text="Markers per Sample" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="45" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="45" styleName="formLabel" text="Chips per Kit" textAlign="center"/>
+						   </mx:VBox>
 					   </mx:HBox>
 					   <mx:RadioButtonGroup id="iScanChipRadioGroup"/>
 					   <mx:Repeater id="iScanChipRepeater" dataProvider="{parentApplication.iScanChipList}"> 
-						   <mx:HBox verticalAlign="middle" width="100%">
-							   <mx:RadioButton  label="{iScanChipRepeater.currentItem.@name}" 
-												paddingLeft="0" paddingRight="1"
-												value="{iScanChipRepeater.currentItem}" 
-												click="{pickChip()}"
-												groupName="iScanChipRadioGroup" width="200"/>
-							   <mx:Text width="110" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
-							   <mx:Text width="125" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
-							   <mx:Text width="145" fontSize="9" 
+						   <mx:HBox verticalAlign="top" width="100%">
+							   <mx:RadioButton width="230" 
+											   label="{iScanChipRepeater.currentItem.@name}" 
+											   paddingLeft="0" paddingRight="1"
+											   value="{iScanChipRepeater.currentItem}" 
+											   click="{pickChip()}"
+											   groupName="iScanChipRadioGroup" />
+							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
+							   <mx:Text width="115" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
+							   <mx:Text width="95" textAlign="center" fontSize="9" 
 										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
-							   <mx:Text width="85" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
+							   <mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
 						   </mx:HBox>
 					   </mx:Repeater>
 					   
@@ -1687,8 +1696,8 @@
 														   labelField="@display"
 													 	   fontSize="10"
 													 	   prompt="Select number of samples"
-													 	   removeFilterOnSelection="true"
-													 	   removeInputOnFocusOut="false"
+													 	   removeFilterOnSelection="true" 
+													 	   removeInputOnFocusOut="true"
 													 	   focusOut="{onNumberOfSamplesChanged()}">
 			   </renderers:FilterComboBoxNumberIScanSamples>
 		   </mx:AddChild>

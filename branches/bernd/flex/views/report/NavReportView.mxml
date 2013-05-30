@@ -16,10 +16,7 @@
 			<mx:SetProperty target="{vbox2}" name="styleName"/>
 		</mx:State>
 		<mx:State name="UserState">			
-			<mx:SetStyle target="{linkbutton1}" name="paddingBottom" value="0"/>
-			<mx:SetStyle target="{linkbutton1}" name="paddingTop" value="0"/>
-			<mx:SetStyle target="{linkbutton2}" name="paddingTop" value="0"/>
-			<mx:SetStyle target="{linkbutton2}" name="paddingBottom" value="0"/>
+			
 			<mx:AddChild relativeTo="{label1}" position="before" target="{image1}"/>
 			<mx:SetStyle target="{label1}" name="fontWeight" value="normal"/>
 			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
@@ -115,33 +112,38 @@
 	}
 	
 	private function toggleAnnotationCheck(event:ListEvent):void {
-		if (event.columnIndex == 0) {
-			return;
-		}
-		
-		
+
+		if ( annotationGrid.selectedItems.length > 1 ) {
+				for each ( var obj1:Object in annotationGrid.selectedItems ) {
+					obj1.@isSelected = true;
+				}
+		} else if ( event.columnIndex != 0 ){
+			
 		// We don't want the typing in the the text field for "Other" to be treated
 		// as a toggle off
-		var sc:Object = parentApplication.getSampleProperty(annotationGrid.selectedItem.@idProperty);
-		if (sc == null || sc.@name.toString() == "Other") {
-			if (ignoreToggle) {
-				return;					
+			if ( annotationGrid.selectedItem == null ) {
+				return;
 			}
-		}
-		
-		if (annotationGrid.selectedItem.@isRequired == "true") {
-			// Don't toggle a required field.
-			return;		
-		}
-		
-		
-		if (annotationGrid.selectedItem.@isSelected == "true") {
+			var sc:Object = parentApplication.getSampleProperty(annotationGrid.selectedItem.@idProperty);
+			if (sc == null || sc.@name.toString() == "Other") {
+				if (ignoreToggle) {
+					return;					
+				}
+			}
 			
-			annotationGrid.selectedItem.@isSelected = "false";
+			if (annotationGrid.selectedItem.@isRequired == "true") {
+				// Don't toggle a required field.
+				return;		
+			}
 			
-		} else {
-			annotationGrid.selectedItem.@isSelected = "true";
-		} 
+			if (annotationGrid.selectedItem.@isSelected == "true") {
+				
+				annotationGrid.selectedItem.@isSelected = "false";
+				
+			} else {
+				annotationGrid.selectedItem.@isSelected = "true";
+			} 
+		}
 	}
 
 	
@@ -183,11 +185,11 @@
 		
 	}
 	
-	private function selectAllAnnotations(select:Boolean):void {
+	/* private function selectAllAnnotations(select:Boolean):void {
 		for each(var property:Object in properties) {
 			property.@isSelected = select ? "true" : false;
 		}		
-	}
+	} */
 
 	
 	private function runProjectExperimentReport():void {
@@ -239,7 +241,9 @@
 			<mx:Panel id="blankView" width="100%" height="100%">			    	
 			</mx:Panel>
 			
-			<mx:VBox styleName="panelBox"  id="annotationReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+			<mx:HBox styleName="panelBox"  id="annotationReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+				<mx:VBox height="100%">
+					
 				<mx:HBox width="400">
 					<mx:Text styleName="titleLabel" text="Annotation Report"/>
 					<mx:Spacer width="100%"/>
@@ -271,21 +275,24 @@
 					
 					<mx:VBox width="100%" height="100%" verticalGap="0">
 							<mx:Label text="Check the Annotations you want to see on the report" styleName="formLabel"/>
-						<mx:HBox width="100%" paddingLeft="0">
-						<mx:LinkButton label="Select all" styleName="formLinkButton" click="{selectAllAnnotations(true)}"  paddingLeft="0" fontSize="10" id="linkbutton2"/>
-						<mx:LinkButton label="Unselect all" styleName="formLinkButton" click="{selectAllAnnotations(false)}"  fontSize="10" id="linkbutton1"/>
-						</mx:HBox>
 						<mx:DataGrid id="annotationGrid" height="100%"
 									 dataProvider="{properties}" 
-									 showHeaders="true" headerHeight="20" variableRowHeight="true" width="400" itemClick="toggleAnnotationCheck(event)" rowHeight="20"  >
+									 showHeaders="true" headerHeight="20" variableRowHeight="true" width="400" 
+									 allowMultipleSelection="true" focusOut="{annotationGrid.selectedIndex=-1}"
+									 itemClick="toggleAnnotationCheck(event)" rowHeight="20"  >
 							<mx:columns>
-								<mx:DataGridColumn headerText=" " 
-												   width="25" 
-												   editable="true"                        	
-												   dataField="@isSelected" 
+								<mx:DataGridColumn id="checkBoxColumn"
+												   textAlign="center"
+												   width="30" minWidth="30"
+												   resizable="false"
+												   sortable="false"
+												   editable="true"
+												   rendererIsEditor="true"
+												   dataField="@isSelected"
 												   editorDataField="selected"
-												   itemRenderer="{hci.flex.controls.CheckBox.getFactory('true', 'false', '@isSelected', true)}">
-								</mx:DataGridColumn>
+												   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
+												   headerRenderer="views.renderers.CheckBoxHeader"
+												   draggable="false"/>
 								<mx:DataGridColumn  
 									editable="false" editorDataField="selected"  headerText="Annotation"
 									dataField="@name" >
@@ -320,7 +327,9 @@
 				<mx:ControlBar width="100%">
 					<mx:Spacer width="100%"/>
 				</mx:ControlBar>
-			</mx:VBox>
+				</mx:VBox>
+				<mx:VBox width="100%" height="100%" click="{annotationGrid.selectedIndex=-1}"/>
+			</mx:HBox>
 			
 			<mx:VBox styleName="panelBox"  id="projectExperimentReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
 				<mx:HBox width="400">

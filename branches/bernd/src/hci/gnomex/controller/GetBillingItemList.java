@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.DiskUsageByMonth;
@@ -13,6 +14,7 @@ import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -67,7 +69,67 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
     
     Document doc = new Document(new Element("BillingItemList"));
     
-    StringBuffer buf = billingItemFilter.getBillingItemQuery();
+    StringBuffer buf = billingItemFilter.getBillingNewRequestQuery();
+    log.info("Query: " + buf.toString());
+    List newRequests = sess.createQuery(buf.toString()).list();
+    
+    // Query all requests that don't have any billing items.
+    if (newRequests.size() > 0) {
+
+      for(Iterator i = newRequests.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
+        
+        Integer idRequest           = (Integer)row[0];
+        String requestNumber        = (String)row[1]  == null ? ""  : (String)row[1];
+        String codeRequestCategory  = (String)row[2]  == null ? ""  : (String)row[2];
+        String idBillingAccount     = (Integer)row[3] == null ? ""  : ((Integer)row[3]).toString();
+        String labLastName          = (String)row[4]  == null ? ""  : (String)row[4];
+        String labFirstName         = (String)row[5]  == null ? ""  : (String)row[5];
+        AppUser submitter           = (AppUser)row[6];
+        java.util.Date createDate   = (java.util.Date)row[7];
+        Date completedDate          = (Date)row[8];
+        String labIsExternalPricing = (String)row[10];
+        String labIsExternalPricingCommercial = (String)row[11];
+        Integer idLab              = (Integer)row[12];
+        
+        String labName = Lab.formatLabName(labLastName, labFirstName);
+        
+        
+        String toolTip = requestNumber + " " + labName;
+        if (createDate != null) {
+          toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
+        }
+        if (completedDate != null) {
+          toolTip += ", completed  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+        }
+        
+        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        
+        Element node = new Element("Request");
+        node.setAttribute("idRequest", idRequest.toString());
+        node.setAttribute("requestNumber", requestNumber);
+        node.setAttribute("label", requestNumber);
+        node.setAttribute("codeRequestCategory", codeRequestCategory);
+        node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+        node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
+        node.setAttribute("idBillingAccount", idBillingAccount);
+        node.setAttribute("billingLabName", labName != null ? labName : "");
+        node.setAttribute("toolTip", toolTip);
+        node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
+        node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
+        node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
+        node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+        node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        node.setAttribute("idLab", idLab.toString());
+           
+        
+        doc.getRootElement().addContent(node);
+        
+      }
+      
+    }
+    
+     buf = billingItemFilter.getBillingItemQuery();
     log.info("Query: " + buf.toString());
     List billingItems = (List)sess.createQuery(buf.toString()).list();
     
