@@ -40,16 +40,18 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
+			import hci.flex.dictionary.DictionaryEvent;
+			import hci.flex.util.DictionaryManager;
 			
 			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
 			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.PropertyChangeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import hci.flex.util.DictionaryManager;
-			import hci.flex.dictionary.DictionaryEvent;
 			
 			
 			[Bindable]
@@ -69,7 +71,7 @@
 				
 				this.sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 				this.sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
-				
+							
 			}
 			
 			public function onDictionariesLoaded(event:Event):void {	
@@ -176,6 +178,7 @@
 				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
 					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
 					getExperimentPlatformList.send();
+					parentApplication.dictionaryManager.reload();
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -617,7 +620,7 @@
 											   icon="@Embed(source='../../assets/add.png')" 
 											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
 								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()" fontSize="10"/>
-								<mx:Text text="Enter min and max insert size or check Capture Lib Design to require submitter to enter values on new experiment." 
+								<mx:Text text="Check Capture Lib Design to require submitter to enter value on new experiment." 
 										 styleName="linkMenuButton" fontStyle="normal" visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" fontSize="10" color="#2863C6" fontWeight="normal"/>
 							</mx:HBox>
 							<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
@@ -651,10 +654,6 @@
 													   wordWrap="true"
 													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 													   dataField="@idSeqLibProtocols"/>
-									<mx:DataGridColumn headerWordWrap="true" headerText="Min Insert Size" id="insertSizeMin" dataField="@avgInsertSizeFrom" editable="true"
-													   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" width="50"/>
-									<mx:DataGridColumn headerWordWrap="true" headerText="Max Insert Size" id="insertSizeMax" dataField="@avgInsertSizeTo" editable="true"
-													   visible="{typeCombo.selectedItem.@isIllumina == 'Y'}" width="50"/>
 									<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
 													   wordWrap="true" width="60"
 													   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false"/>
