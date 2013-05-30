@@ -75,8 +75,7 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
-        
-        
+           
         private function init():void {
         	barcodes.refresh();
         }
@@ -239,6 +238,14 @@
         		return item.@barcodeSequence;
         	}
         }
+		public function getOligoBarcodeNameB(item:Object,col:DataGridColumn):String
+		{
+			if (item.@idOligoBarcodeB != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
+			} else {
+				return '';
+			}
+		}
 		public function getIndexTagName(item:Object):String
 		{
 			if (item.@idOligoBarcode != '') {
@@ -247,6 +254,7 @@
 				return item.@barcodeSequence;
 			}
 		}
+
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
@@ -349,6 +357,7 @@
 				}
 			}
 
+
         ]]>
     </mx:Script> 
     
@@ -404,7 +413,7 @@
 									   labelFunction="getSeqLibProtocol"                
 									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
 
-					<mx:DataGridColumn headerText="Index Tag"  width="20" id="indexTagCol"
+					<mx:DataGridColumn headerText="Index A"  width="20" id="indexTagACol"
 										dataField="@idOligoBarcode" 
 						               	editable="true"  
 						               	rendererIsEditor="false" 
@@ -415,17 +424,42 @@
 								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
 																	  parentApp="{outerDocument.parentApplication}"
 																	  fontSize="10"
+																	  indexTagLetter="A"
 																	  prompt="{null}"
-																	  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
-																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagCol)}"
+																	  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
+																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
 																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''}" >
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
 					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Index B"  width="20" id="indexTagBCol"
+									   dataField="@idOligoBarcodeB" 
+									   editable="true"  
+									   rendererIsEditor="false" 
+									   itemRenderer="mx.controls.Label"		
+									   labelFunction="getOligoBarcodeNameB">	
+						<mx:itemEditor>
+							<mx:Component>
+								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																	  parentApp="{outerDocument.parentApplication}"
+																	  fontSize="10"
+																	  indexTagLetter="B"
+																	  prompt="{null}"
+																	  filterString="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
+																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
+																	  labelFunction="{outerDocument.getIndexTagName}"
+																	  removeFilterOnSelection="false"
+																	  removeInputOnFocusOut="false"
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
+								</renderers:FilterComboBoxOligoBarcode>
+							</mx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Actual Mean Insert Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanInsertSizeActual" editable="true"/>
 					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 
