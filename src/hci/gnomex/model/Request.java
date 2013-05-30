@@ -88,7 +88,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
-  private Integer         meanInsertSizeRequested;
   private Integer         meanLibSizeActual;
   
   // permission field
@@ -1303,12 +1302,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     parentNode.addContent(requestNode);
     return requestNode;
   }
-  public Integer getMeanInsertSizeRequested() {
-    return meanInsertSizeRequested;
-  }
-  public void setMeanInsertSizeRequested(Integer meanInsertSizeRequested) {
-    this.meanInsertSizeRequested = meanInsertSizeRequested;
-  }
+  
   public Integer getMeanLibSizeActual() {
     return meanLibSizeActual;
   }
