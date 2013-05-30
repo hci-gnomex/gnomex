@@ -76,6 +76,8 @@ public class Sample extends HibernateDetailObject {
   private Set         labeledSamples;
   private Set         wells;
   private Set         sequenceLanes;
+  private Integer     meanInsertSizeActual;
+  private Integer     idOligoBarcodeB;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -874,5 +876,21 @@ public class Sample extends HibernateDetailObject {
 
   public void setIdSampleSource(Integer idSampleSource) {
     this.idSampleSource = idSampleSource;
+  }
+
+  public Integer getMeanInsertSizeActual() {
+    return meanInsertSizeActual;
+  }
+
+  public void setMeanInsertSizeActual(Integer meanInsertSizeActual) {
+    this.meanInsertSizeActual = meanInsertSizeActual;
+  }
+
+  public Integer getIdOligoBarcodeB() {
+    return idOligoBarcodeB;
+  }
+
+  public void setIdOligoBarcodeB(Integer idOligoBarcodeB) {
+    this.idOligoBarcodeB = idOligoBarcodeB;
   }
 }
