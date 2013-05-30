@@ -757,7 +757,6 @@
     <property name="coreToExtractDNA" column="coreToExtractDNA" type="string"/>
     <property name="applicationNotes" column="applicationNotes" type="string"/>
     <property name="processingDate" column="processingDate" type="date"/>
-    <property name="meanInsertSizeRequested" column="meanInsertSizeRequested" type="integer"/>
     <property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
