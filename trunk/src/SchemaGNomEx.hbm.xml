@@ -757,6 +757,8 @@
     <property name="coreToExtractDNA" column="coreToExtractDNA" type="string"/>
     <property name="applicationNotes" column="applicationNotes" type="string"/>
     <property name="processingDate" column="processingDate" type="date"/>
+    <property name="meanInsertSizeRequested" column="meanInsertSizeRequested" type="integer"/>
+    <property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<set name="samples" table="Sample" lazy="true" cascade="delete" sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.Sample" />
@@ -872,6 +874,8 @@
 		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
 		<property name="barcodeSequence" column="barcodeSequence" type="string" />
 		<property name="idSampleSource" column="idSampleSource" type="integer"/>
+		<property name="meanInsertSizeActual" column="meanInsertSizeActual" type="integer"/>
+		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
 		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
@@ -1059,8 +1063,6 @@
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
-		<property name="avgInsertSizeFrom" column="avgInsertSizeFrom" type="integer"/>
-		<property name="avgInsertSizeTo" column="avgInsertSizeTo" type="integer"/>
 		<property name="hasCaptureLibDesign" column="hasCaptureLibDesign" type="string"/>
 		
 	</class>
@@ -1477,6 +1479,7 @@
 		<id name="idOligoBarcodeSchemeAllowed" column="idOligoBarcodeSchemeAllowed" type="integer">
 			<generator class="native"/>
 		</id>
+		<property name="isIndexGroupB" column="isIndexGroupB" type="string"/>
 		<property name="idOligoBarcodeScheme" column="idOligoBarcodeScheme" type="integer"/>
     <property name="idSeqLibProtocol" column="idSeqLibProtocol" type="integer"/>
 		<many-to-one name="oligoBarcodeScheme"  column="idOligoBarcodeScheme" class="hci.gnomex.model.OligoBarcodeScheme" cascade="none" insert="false" update="false" />
