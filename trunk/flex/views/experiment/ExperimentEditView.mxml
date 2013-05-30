@@ -405,10 +405,6 @@
 				//  Grab the request application so that we know if we need to include avg Insert size or capLib fields
 				//  in the layout.
 				requestApplication = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
-				minRangeValidator.validate(minRangeValidator.minValue);//the number validator fields don't refresh properly if you switch between
-				minRangeValidator.validate(minRangeValidator.maxValue);//experiments so we force them to refresh here.
-				maxRangeValidator.validate(maxRangeValidator.minValue);
-				maxRangeValidator.validate(maxRangeValidator.maxValue);
         	}	
 
 			this.theTab.selectedIndex = 0;
@@ -3528,6 +3524,13 @@
 			}
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
 			request.@name = notesView.experimentName.text;
+			
+			//Add new annotations to Sample that have not had data added to them in samples grid.
+			for each(var prop:XML in this.propertyEntries){
+				if(prop.@isSelected == "true" && !(request.samples.Sample[0].hasOwnProperty("@ANNOT" + prop.@idProperty))){
+					request.samples.Sample[0]["@ANNOT" + prop.@idProperty] = "";
+				}
+			}
 
 		}
 	
@@ -4682,6 +4685,27 @@
     		}
     		return show;
     	}
+			
+		public function showSampleBarcodesB():Boolean {
+			var show:Boolean = false;
+			if (this.isSolexaState()) {
+				if (currentState == "SolexaLaneAmendState" ) {
+					for each(var s:Object in samples) {
+						if (s.@idOligoBarcodeB != '') {
+							show = true;
+							break;		
+						}
+					}
+				} else if (!parentApplication.submitInternalExperiment()) {
+					show = false;
+				} else if (this.isEditState()) {
+					show = true;
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+					show = true;
+				} 	
+			}
+			return show;
+		}
     	
     	public function showSampleCustomBarcodes():Boolean {
     		var show:Boolean = false;
@@ -4861,21 +4885,6 @@
 				this.request.@captureLibDesignId = designText.text;	
 			}
 			
-			private function propagateRange():void {
-				if((parseInt(rangeFrom.text) <= parseInt(requestApplication.@avgInsertSizeTo)) && 
-					(parseInt(rangeFrom.text) >= parseInt(requestApplication.@avgInsertSizeFrom)) && 
-					(parseInt(rangeTo.text) <= parseInt(requestApplication.@avgInsertSizeTo)) && 
-						(parseInt(rangeTo.text) >= parseInt(requestApplication.@avgInsertSizeFrom))) {
-					this.request.@avgInsertSizeFrom = rangeFrom.text;
-					this.request.@avgInsertSizeTo = rangeTo.text;
-					saveButton.enabled = true;
-				}
-				else {
-					saveButton.enabled = false;
-				}
-				
-			}
-			
 			public function isAssaySelected(assay:Object):Boolean {
 				for each (var sel:Object in this.selectedAssaysCollection) {
 					if (sel.@name == assay.@name) {
@@ -5005,20 +5014,7 @@
 	<mx:XMLListCollection id="qcAmendRequestCategories" filterFunction="filterQCAmendRequestCategory" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" />
 	<mx:XMLListCollection id="addLanesAmendRequestCategories" filterFunction="filterAddLanesAmendRequestCategory" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" />
 
-	<mx:NumberValidator id="minRangeValidator"
-						source="{rangeFrom}"
-						lowerThanMinError="Outside valid range."
-						exceedsMaxError="Outside valid range."
-						property="text"
-						minValue="{requestApplication.@avgInsertSizeFrom}"
-						maxValue="{requestApplication.@avgInsertSizeTo}"/>
-	<mx:NumberValidator id="maxRangeValidator"
-						source="{rangeTo}"
-						lowerThanMinError="Outside valid range."
-						exceedsMaxError="Outside valid range."
-						property="text"
-						minValue="{requestApplication.@avgInsertSizeFrom}"
-						maxValue="{requestApplication.@avgInsertSizeTo}"/>
+
 	
 	<mx:XMLListCollection id="iScanPlateListCollection"/>
 	<mx:XMLList id="iScanPlateList"/>
@@ -5419,16 +5415,6 @@
 						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 					
-					<mx:HBox id="rangeBox" verticalGap="0" horizontalGap="0" 
-							 visible="{request.@avgInsertSizeFrom != '' || request.avgInsertSizeTo != '' || (requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}" 
-							 includeInLayout="{request.@avgInsertSizeFrom != '' || request.avgInsertSizeTo != '' || (requestApplication.@value != '' &amp;&amp; requestApplication.@avgInsertSizeFrom != '' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"> 
-						<mx:Text width="100" fontWeight="normal" id="rangeLabel" text="Average Insert Size" styleName="formLabel"/>
-						<mx:TextInput focusOut="propagateRange()" change="{this.dirty.setDirty()}" id="rangeFrom" width="100" text="{this.request.@avgInsertSizeFrom}"/>
-						<mx:Text fontWeight="normal" text=" to "/>
-						<mx:TextInput focusOut="propagateRange()" id="rangeTo" change="{this.dirty.setDirty()}" width="100" text="{this.request.@avgInsertSizeTo}"/>
-						<mx:Text fontWeight="normal" text=" bp "/>
-					</mx:HBox>
-					
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:SetStyle target="{navBox}" name="verticalGap" value="0"/>
@@ -5480,7 +5466,6 @@
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{rangeBox}"/>
 		</mx:State>
 		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{downloadView}"/>
