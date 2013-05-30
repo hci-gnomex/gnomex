@@ -108,7 +108,7 @@
 
 		public function checkSeqAppSetupCompleteness():Boolean {
 			var isComplete:Boolean = false;
-			if (parentDocument.isEditState() && (parentDocument.request.@meanInsertSizeRequested != "" || parentDocument.request.captureLibDesignId != "")) {
+			if (parentDocument.isEditState() && parentDocument.request.captureLibDesignId != "") {
 				isComplete = true;
 			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
 				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
