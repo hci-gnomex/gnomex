@@ -17,6 +17,7 @@ package views.renderers
 	{
 		private var _idSeqLibProtocol:String;
 		private var _parentApp:Object;
+		private var _indexTagLetter:String;
 		
 		public function FilterComboBoxOligoBarcode()
 		{
@@ -44,11 +45,19 @@ package views.renderers
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
 			
 			if ( parentApp != null && idSeqLibProtocol != null){
+				if(parentApp.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqLibProtocol', idSeqLibProtocol).toLowerCase().indexOf('nextera') == -1 && indexTagLetter == 'B'){
+					this.enabled = false;
+					this.editable = false;
+					return;
+				} else{
+					this.enabled = true;
+					this.editable = true;
+				}
 				for each(var barcodeScheme:Object in parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
 					// Only use scheme if it is allowed for this seq lib protocol
 					var keepScheme:Boolean = false;
 					for each (var x:XML in parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idOligoBarcodeScheme == barcodeScheme.@idOligoBarcodeScheme)) {
-						if (idSeqLibProtocol == '' || x.@idSeqLibProtocol == idSeqLibProtocol) {
+						if (((indexTagLetter == 'A' && x.@isIndexGroupB == 'N') || (indexTagLetter == 'B' && x.@isIndexGroupB == 'Y')) && (idSeqLibProtocol == '' || x.@idSeqLibProtocol == idSeqLibProtocol)) {
 							keepScheme = true;
 							break;
 						}
@@ -56,6 +65,7 @@ package views.renderers
 					if (!keepScheme) {
 						continue;
 					}
+				
 					
 					var theBarcodes:XMLListCollection = new XMLListCollection(XMLList(parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value)).copy());
 					
@@ -118,6 +128,14 @@ package views.renderers
 		public function set parentApp(value:Object):void
 		{
 			_parentApp = value;
+		}
+		public function get indexTagLetter():String
+		{
+			return _indexTagLetter;
+		}
+		public function set indexTagLetter(value:String):void
+		{
+			_indexTagLetter = value;
 		}
 		
 	}
