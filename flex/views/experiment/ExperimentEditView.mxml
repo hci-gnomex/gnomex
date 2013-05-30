@@ -1018,6 +1018,11 @@
 				return;
 			}
 
+			this.propertyEntries = new XMLListCollection(request.PropertyEntries.PropertyEntry);
+			this.propertyEntries.sort = propertySorter;
+			this.propertyEntries.filterFunction = filterPropertyEntry;
+			this.propertyEntries.refresh();
+			
 			instantiateTabs(requestCategory.@codeRequestCategory, false, this.isAmendState());
 			setTabsVisible();
 			
