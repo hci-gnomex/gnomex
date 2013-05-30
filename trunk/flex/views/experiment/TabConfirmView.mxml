@@ -68,12 +68,12 @@
 				avgInsertSizeBox.visible = false;
 				capLibLabel.text = parentDocument.request.@captureLibDesignId;
 			}
-			else if(parentDocument.request.@avgInsertSizeFrom != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
+			else if(parentDocument.request.@meanInsertSizeRequested != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
 				avgInsertSizeBox.visible = true;
 				avgInsertSizeBox.includeInLayout = true;
 				capLibDesignBox.includeInLayout = false;
 				capLibDesignBox.visible = false;
-				avgInsertSizeLabel.text = parentDocument.request.@avgInsertSizeFrom + ' to ' + parentDocument.request.@avgInsertSizeTo + " bp";
+				avgInsertSizeLabel.text = parentDocument.request.@meanInsertSizeRequested + " bp";
 				
 			}
 			else{
@@ -300,6 +300,7 @@
 				this.seqRunTypeCol.visible = parentApplication.submitInternalExperiment();
 				
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				
 				this.sampleRowNumberCol.visible = false;
@@ -494,7 +495,7 @@
 						<mx:Label id="capLibLabel" alpha="0.8" text=""/>
 					</mx:VBox>
 					<mx:VBox id="avgInsertSizeBox" visible="false" includeInLayout="false">
-						<mx:Label text="Insert Ranges" styleName="formLabel" height="16"/>
+						<mx:Label text="Requested Mean Insert Size" styleName="formLabel" height="16"/>
 						<mx:Label id="avgInsertSizeLabel" alpha="0.8" text=""/>
 					</mx:VBox>
 					<mx:VBox id="sampleDropOffLocationVbox" visible="false">
@@ -574,10 +575,15 @@
 							</mx:headerRenderer>
 					    </mx:DataGridColumn>
 
-	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Index Tag" width="130" dataField="@idOlogiBarcode" 
+	                    <mx:DataGridColumn id="barcodeColumn"  headerText="Index Tag A" width="130" dataField="@idOlogiBarcode" 
 	                      editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
 	                      visible="false"
  	                      itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}" />
+						
+						<mx:DataGridColumn id="barcodeColumnB"  headerText="Index Tag B" width="130" dataField="@idOlogiBarcodeB" 
+										   editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
+										   visible="false"
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}" />
 						
 						<mx:DataGridColumn headerText="Description" id="descriptionColumn" width="200" dataField="@description" wordWrap="true"/>
 						
