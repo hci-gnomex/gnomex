@@ -61,6 +61,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
   private String                        today;
   private SampleSheetColumnNamesParser  parser = null;
   private RequestParser                 requestParser = null;
+  private String                        labName = "";
  
   public void validate() {
   }
@@ -114,6 +115,10 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
 
       parser.parse(sess);
       requestParser.parse(sess);
+      if(requestParser.getRequest().getIdLab() != null && !requestParser.getRequest().getIdLab().equals("")){
+        Lab l = (Lab)sess.get(Lab.class, requestParser.getRequest().getIdLab());
+        labName = l.getName();
+      }
       createReportTray();
       
       if (this.isValid()) {
@@ -169,7 +174,14 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
   
   private void createReportTray() {
     String title = "GNomEx Sample Sheet";
-    String fileName = requestParser.getRequest().getNumber() + "_" + today;
+    String fileName = "";
+    
+    if(requestParser.getRequest().getNumber() != null){
+      fileName = requestParser.getRequest().getNumber() + "_" + today;
+    } else{
+      fileName = labName + "_new_" + today;
+      fileName = fileName.replace(",", "");
+    }
     
     // set up the ReportTray
     tray = new ReportTray();
