@@ -1128,7 +1128,7 @@
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
-  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
@@ -1570,16 +1570,16 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
 				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
-				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%" styleName="requiredBox">
+				   <mx:VBox verticalGap="0" id="iScanChipBox" styleName="requiredBox">
 					   <mx:HBox width="100%" paddingBottom="5">
 						   <mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Label width="230" styleName="formLabel" text="Chip" paddingLeft="25"/>
 						   </mx:VBox>
-						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
-						   </mx:VBox>
 						   <mx:VBox width="115" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="115" styleName="formLabel" text="Markers per Sample" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
 						   </mx:VBox>
 						   <mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
@@ -1597,8 +1597,8 @@
 											   value="{iScanChipRepeater.currentItem}" 
 											   click="{pickChip()}"
 											   groupName="iScanChipRadioGroup" />
-							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
 							   <mx:Text width="115" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
+							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
 							   <mx:Text width="95" textAlign="center" fontSize="9" 
 										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
 							   <mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
