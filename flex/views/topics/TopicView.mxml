@@ -13,6 +13,8 @@
 			<mx:Label id="titleLabel" styleName="titleLabel" text="{'Topic T' + parentDocument.browseTree.selectedItem.@idTopic + ' - ' + parentDocument.browseTree.selectedItem.@name}" />
 			<mx:Spacer width="20"/>
 			<mx:LinkButton label="Share web link" fontSize="9" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+			<mx:Spacer width="20"/>
+			<mx:LinkButton label="Email topic owner" fontSize="9" click="{showEmailOwnerWindow();}" enabled="{this.currentOwnerId != null &amp;&amp; this.currentOwnerId != ''}" icon="@Embed(source='../../assets/email_go.png')" disabledIcon="@Embed(source='../../assets/email_go_disable.png')" textDecoration="underline" textAlign="left"/>
 		</mx:HBox>
 	</mx:VBox>
 	
@@ -49,8 +51,10 @@
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
 	
-	import views.util.PromptXMLListCollection;
+	import views.util.EmailTopicOwnerWindow;
+	
 	import views.util.GNomExStringUtil;
+	import views.util.PromptXMLListCollection;
 	import views.util.WebLinksView;
 	
 	[Bindable]
@@ -61,6 +65,7 @@
 	private var appUserSort:Sort;
 	
 	private var idLab:String;
+	[Bindable]
 	private var currentOwnerId:String;
 	
 
@@ -201,6 +206,14 @@
 		PopUpManager.centerPopUp(webLinksView);
 		webLinksView.setTitleMessage("Topic " + parentDocument.browseTree.selectedItem.@name);
 		webLinksView.setUserLink(topicNumber);
+	}
+	
+	public function showEmailOwnerWindow():void{
+		var emailTopicOwnerWindow:EmailTopicOwnerWindow = new EmailTopicOwnerWindow();
+		emailTopicOwnerWindow.recipientIdAppUser = currentOwnerId;
+		PopUpManager.addPopUp(emailTopicOwnerWindow, this, true);
+		PopUpManager.centerPopUp(emailTopicOwnerWindow);
+		
 	}
 	
 	private function save():void {
