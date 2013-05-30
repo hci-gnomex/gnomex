@@ -12,6 +12,7 @@ public class OligoBarcodeSchemeAllowed extends DictionaryEntry implements Serial
   private Integer            idSeqLibProtocol;
   private OligoBarcodeScheme oligoBarcodeScheme;
   private SeqLibProtocol     seqLibProtocol;
+  private String             isIndexGroupB;
  
   
   public String getDisplay() {
@@ -75,7 +76,12 @@ public class OligoBarcodeSchemeAllowed extends DictionaryEntry implements Serial
     this.idOligoBarcodeSchemeAllowed = idOligoBarcodeSchemeAllowed;
   }
 
+  public String getIsIndexGroupB() {
+    return isIndexGroupB;
+  }
 
-  
+  public void setIsIndexGroupB(String isIndexGroupB) {
+    this.isIndexGroupB = isIndexGroupB;
+  }
 
 }
