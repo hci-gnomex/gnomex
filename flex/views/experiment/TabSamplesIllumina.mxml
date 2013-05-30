@@ -522,6 +522,8 @@
 				
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
 				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				
@@ -666,6 +668,8 @@
 					numberSequencingLanesCol.editable = true;
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
 					this.qual260_230Col.visible = false;
+					
+					meanInsertSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
@@ -823,6 +827,14 @@
 			{
 				if (item.@idOligoBarcode != '') {
 					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+				} else {
+					return '';
+				}
+			}
+			public function getIndexTagNameB(item:Object):String
+			{
+				if (item.@idOligoBarcodeB != '') {
+					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);    		
 				} else {
 					return '';
 				}
@@ -1007,7 +1019,7 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumn" 
 													 visible="true" 
-													 headerText="Index Tag" 
+													 headerText="Index Tag A" 
 													 width="130" 
 													 dataField="@idOligoBarcode" 
 													 sortable="false" 
@@ -1020,12 +1032,40 @@
 																  parentApp="{outerDocument.parentApplication}"
 																  fontSize="10"
 																  prompt="{null}"
+																  indexTagLetter="A"
 																  filterString="{outerDocument.getIndexTagName(data)}"
 																  text="{outerDocument.getIndexTagName(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+							</renderers:FilterComboBoxOligoBarcode>
+						</mx:Component>
+					</util:itemEditor> 					
+				</util:AdvancedDataGridColumnWithType>
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
+													 id="barcodeColumnB" 
+													 headerText="Index Tag B" 
+													 visible="true" 
+													 width="130" 
+													 dataField="@idOligoBarcodeB" 
+													 sortable="false" 
+													 editable="true" 
+													 rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB')}">
+					<util:itemEditor>
+						<mx:Component>
+							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																  parentApp="{outerDocument.parentApplication}"
+																  fontSize="10"
+																  prompt="{null}"
+																  indexTagLetter="B"
+																  filterString="{outerDocument.getIndexTagNameB(data)}"
+																  text="{outerDocument.getIndexTagNameB(data)}"
+																  labelFunction="{outerDocument.getIndexTagName}"
+																  removeFilterOnSelection="false"
+																  removeInputOnFocusOut="false"
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1103,6 +1143,7 @@
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
+				<mx:AdvancedDataGridColumn id="meanInsertSizeActual" visible="false" headerText="Actual Mean Insert Size" width="90" dataField="@meanInsertSizeActual" editable="true"/>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
