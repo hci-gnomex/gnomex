@@ -324,6 +324,10 @@ package views.experiment
 			
 			names += "</NameList>";
 			uv.names = names;
+			//If this is a new request send back the lab id to create the file name for sample sheet.
+			if(parentDocument.request.@idRequest == "0" && parentDocument.setupView != null){
+				parentDocument.request.@idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+			}
 			uv.requestXMLString = parentDocument.request.toXMLString();
 			showUrl.data = uv;
 			showUrl.method = URLRequestMethod.POST;
