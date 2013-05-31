@@ -10,6 +10,9 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
+			
+			import mx.events.ListEvent;
+			
 			import hci.flex.controls.Label;
 			
 			import mx.collections.Grouping;
@@ -171,6 +174,8 @@
 				}
 				return addAllAnnotations;
 			}
+
+
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
@@ -832,6 +837,7 @@
 					if (vr.type == ValidationResultEvent.INVALID) {
 						parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
 						isComplete = false;
+						break;
 					}
 				}
 				
@@ -933,20 +939,10 @@
 			}
 			
 			override public function propagateOrganism(idOrganism:String):void {
-				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-					for each (var sample:Object in parentDocument.samples) {
-						sample.@idOrganism = idOrganism;
-					}
-				} else if (!parentApplication.submitInternalExperiment()) {
+				if (!parentApplication.submitInternalExperiment()) {
 					for each (var s:Object in parentDocument.samples) {
 						s.@idOrganism = idOrganism;
 					}
-				}
-			}
-			
-			override public function propagateOtherOrganism(otherOrganism:String):void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@otherOrganism = otherOrganism;
 				}
 			}
 
@@ -1165,7 +1161,7 @@
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
 				this.concentrationCol.visible = !isExternal;
-				this.otherOrganismCol.visible = !isExternal;
+				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.preppedByCoreCol.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
@@ -1217,6 +1213,7 @@
 						}
 						
 					}
+
 				} else if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 					numberSequencingLanesCol.visible = false;
 					numberSequencingCyclesCol.visible = false;
@@ -1253,6 +1250,9 @@
 						parentDocument.confirmView.showHideColumns();									
 					}
 				}
+				
+				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
+				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
 				
 				// If this is a QC request, hide the annotation columns 
 				if (currentState != null 
@@ -1348,6 +1348,8 @@
 					return item.groupLabel;
 				}
 			}
+
+
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1362,6 +1364,7 @@
 						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
 						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
 						 label="Link to BST samples using CC Number" />
+			<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>		  	
 			<mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			</mx:TextArea>
@@ -1481,7 +1484,7 @@
 				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="42" dataField="@concentration" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
+										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />          
 				<mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
@@ -1566,13 +1569,14 @@
 													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
 				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 										   width="140" dataField="@otherOrganism"
-										   visible="{parentApplication.isInternalExperimentSubmission}"
+										   visible="false"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
 				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
+
 
 				<mx:AdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 										   rendererIsEditor="false" editorDataField="value" 
@@ -1676,7 +1680,6 @@
 				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 										   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
-
 			</mx:columns>
 		</mx:AdvancedDataGrid>
 

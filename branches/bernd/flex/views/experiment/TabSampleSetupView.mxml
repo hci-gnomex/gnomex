@@ -7,9 +7,11 @@
 <mx:Script>
 	<![CDATA[
 		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
-	
+		import views.util.OrganismEvent; 
+
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
@@ -1094,7 +1096,18 @@
 			this.onNumberOfSamplesChanged();
 		}
 		
-				
+		private function addOrganism():void {
+			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
+			PopUpManager.centerPopUp(addOrganismWindow);
+			
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		
+		}
+		
+		private function onOrganismRefreshed(event:Event):void {
+			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+		}
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
@@ -1128,7 +1141,7 @@
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
-  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
@@ -1150,9 +1163,11 @@
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
-										  dataProvider="{parentApplication.organismList.source}"
+										  dataProvider="{parentApplication.activeOrganismList.source}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
+				<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton">		  	
+				</mx:LinkButton>						
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
@@ -1570,16 +1585,16 @@
 		   <mx:AddChild relativeTo="{hbox6}" position="before">
 			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
 				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
-				   <mx:VBox verticalGap="0" id="iScanChipBox" width="100%" styleName="requiredBox">
+				   <mx:VBox verticalGap="0" id="iScanChipBox" styleName="requiredBox">
 					   <mx:HBox width="100%" paddingBottom="5">
 						   <mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Label width="230" styleName="formLabel" text="Chip" paddingLeft="25"/>
 						   </mx:VBox>
-						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
-						   </mx:VBox>
 						   <mx:VBox width="115" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="115" styleName="formLabel" text="Markers per Sample" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
 						   </mx:VBox>
 						   <mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
@@ -1597,8 +1612,8 @@
 											   value="{iScanChipRepeater.currentItem}" 
 											   click="{pickChip()}"
 											   groupName="iScanChipRadioGroup" />
-							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
 							   <mx:Text width="115" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
+							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
 							   <mx:Text width="95" textAlign="center" fontSize="9" 
 										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
 							   <mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />

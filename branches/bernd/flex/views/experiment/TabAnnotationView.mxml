@@ -105,8 +105,10 @@
 			
 			private function toggleSampleAnnotationCheck(event:ListEvent):void {
 				if (event.columnIndex == 0) {
+					parentDocument.dirty.setDirty();
 					return;
 				}
+				parentDocument.dirty.setDirty();
 				
 				
 				// We don't want the typing in the the text field for "Other" to be treated

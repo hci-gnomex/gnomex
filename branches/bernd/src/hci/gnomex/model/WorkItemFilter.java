@@ -218,7 +218,9 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    req.codeApplication, ");
       queryBuf.append("    s.idOligoBarcode, ");
       queryBuf.append("    s.barcodeSequence, ");
-      queryBuf.append("    s.multiplexGroupNumber ");
+      queryBuf.append("    s.multiplexGroupNumber, ");
+      queryBuf.append("    s.meanInsertSizeActual, ");
+      queryBuf.append("    s.idOligoBarcodeB ");
     }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");

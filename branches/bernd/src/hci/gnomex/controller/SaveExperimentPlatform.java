@@ -355,11 +355,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       String idScanProtocolDefault = node.getAttributeValue("idScanProtocolDefault");
       String idFeatureExtractionProtocolDefault = node.getAttributeValue("idFeatureExtractionProtocolDefault");
       String idApplicationTheme = node.getAttributeValue("idApplicationTheme");
-      String avgInsertSizeFrom = node.getAttributeValue("avgInsertSizeFrom");
-      String avgInsertSizeTo = node.getAttributeValue("avgInsertSizeTo");
 
-      app.setAvgInsertSizeFrom(avgInsertSizeFrom != null && !avgInsertSizeFrom.equals("") ? Integer.valueOf(avgInsertSizeFrom) : null);
-      app.setAvgInsertSizeTo(avgInsertSizeTo != null && !avgInsertSizeTo.equals("") ? Integer.valueOf(avgInsertSizeTo) : null);
       app.setHasCaptureLibDesign(node.getAttributeValue("hasCaptureLibDesign"));
       app.setApplication(node.getAttributeValue("display"));
       app.setIsActive(node.getAttributeValue("isActive"));

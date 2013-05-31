@@ -75,6 +75,8 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private Set         wells;
+  private Integer     meanInsertSizeActual;
+  private Integer     idOligoBarcodeB;
   
   private Set        workItems;
   private Set		 sequenceLanes;
@@ -885,6 +887,20 @@ public class Sample extends HibernateDetailObject {
     this.idSampleSource = idSampleSource;
   }
 
-}
+  public Integer getMeanInsertSizeActual() {
+    return meanInsertSizeActual;
+  }
+
+  public void setMeanInsertSizeActual(Integer meanInsertSizeActual) {
+    this.meanInsertSizeActual = meanInsertSizeActual;
+  }
+
+  public Integer getIdOligoBarcodeB() {
+    return idOligoBarcodeB;
+  }
+
+  public void setIdOligoBarcodeB(Integer idOligoBarcodeB) {
+    this.idOligoBarcodeB = idOligoBarcodeB;
+  }}
   
   

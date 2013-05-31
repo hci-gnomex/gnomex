@@ -88,7 +88,9 @@ package views.experiment
 		}
 		
 		public function propagateOtherOrganism(otherOrganism:String):void {
-			
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherOrganism = otherOrganism;
+			}
 		}
 		
 		public function getSamplesGrid():AdvancedDataGrid {
@@ -324,6 +326,10 @@ package views.experiment
 			
 			names += "</NameList>";
 			uv.names = names;
+			//If this is a new request send back the lab id to create the file name for sample sheet.
+			if(parentDocument.request.@idRequest == "0" && parentDocument.setupView != null){
+				parentDocument.request.@idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+			}
 			uv.requestXMLString = parentDocument.request.toXMLString();
 			showUrl.data = uv;
 			showUrl.method = URLRequestMethod.POST;
@@ -562,6 +568,11 @@ package views.experiment
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
 			return parentApplication.getPropertyOptions(idProperty, parentDocument.isEditState());
+		}
+		
+		protected function addOrganism():void {
+			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
+			PopUpManager.centerPopUp(addOrganismWindow);
 		}
 	}
 }

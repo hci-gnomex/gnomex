@@ -491,12 +491,6 @@
 					}
 				}
 			}
-			
-			override public function propagateOtherOrganism(otherOrganism:String):void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@otherOrganism = otherOrganism;
-				}
-			}
 
 			override public function propagateNumberSequencingCycles(theSample:Object):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
@@ -522,6 +516,8 @@
 				
 				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
 				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				
@@ -653,7 +649,7 @@
 				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 				
 				this.concentrationCol.visible = !isExternal;
-				this.otherOrganismCol.visible = !isExternal;
+				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.preppedByCoreCol.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
@@ -666,6 +662,8 @@
 					numberSequencingLanesCol.editable = true;
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
 					this.qual260_230Col.visible = false;
+					
+					meanInsertSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
@@ -692,6 +690,9 @@
 					chipTypeColumn.visible = false; 
 				}
 				
+				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
+				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
+
 				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 						parentDocument.confirmView.showHideColumns();									
@@ -827,6 +828,14 @@
 					return '';
 				}
 			}
+			public function getIndexTagNameB(item:Object):String
+			{
+				if (item.@idOligoBarcodeB != '') {
+					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);    		
+				} else {
+					return '';
+				}
+			}
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -841,6 +850,7 @@
 						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
 						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
 						 label="Link to BST samples using CC Number" />
+			<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>		  	
 			<mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
 				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			</mx:TextArea>
@@ -983,7 +993,7 @@
 													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
 				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 										   width="140" dataField="@otherOrganism"
-										   visible="{parentApplication.isInternalExperimentSubmission}"
+										   visible="false"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
 				
@@ -1007,7 +1017,7 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumn" 
 													 visible="true" 
-													 headerText="Index Tag" 
+													 headerText="Index Tag A" 
 													 width="130" 
 													 dataField="@idOligoBarcode" 
 													 sortable="false" 
@@ -1020,12 +1030,40 @@
 																  parentApp="{outerDocument.parentApplication}"
 																  fontSize="10"
 																  prompt="{null}"
+																  indexTagLetter="A"
 																  filterString="{outerDocument.getIndexTagName(data)}"
 																  text="{outerDocument.getIndexTagName(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = ''}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+							</renderers:FilterComboBoxOligoBarcode>
+						</mx:Component>
+					</util:itemEditor> 					
+				</util:AdvancedDataGridColumnWithType>
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
+													 id="barcodeColumnB" 
+													 headerText="Index Tag B" 
+													 visible="true" 
+													 width="130" 
+													 dataField="@idOligoBarcodeB" 
+													 sortable="false" 
+													 editable="true" 
+													 rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB')}">
+					<util:itemEditor>
+						<mx:Component>
+							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																  parentApp="{outerDocument.parentApplication}"
+																  fontSize="10"
+																  prompt="{null}"
+																  indexTagLetter="B"
+																  filterString="{outerDocument.getIndexTagNameB(data)}"
+																  text="{outerDocument.getIndexTagNameB(data)}"
+																  labelFunction="{outerDocument.getIndexTagName}"
+																  removeFilterOnSelection="false"
+																  removeInputOnFocusOut="false"
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1103,6 +1141,7 @@
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
+				<mx:AdvancedDataGridColumn id="meanInsertSizeActual" visible="false" headerText="Actual Mean Insert Size" width="90" dataField="@meanInsertSizeActual" editable="true"/>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 

@@ -958,6 +958,7 @@
 				editAcctWindow.ba = billingAcct;
 				editAcctWindow.labName = parentDocument.fullLab.@name;
 				editAcctWindow.coreFacilities = labCoreFacilitiesIManage;
+				editAcctWindow.coreCombo.selectedIndex = coreFacilityCombo.selectedIndex;
 				editAcctWindow.activeSubmitters = this.activeSubmitters;
 				editAcctWindow.isEdit = true;
 				mx.managers.PopUpManager.centerPopUp(editAcctWindow);

@@ -282,12 +282,6 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
     }
-    if (n.getAttributeValue("avgInsertSizeFrom") != null && !n.getAttributeValue("avgInsertSizeFrom").equals("")) {
-      request.setAvgInsertSizeFrom(Integer.parseInt((n.getAttributeValue("avgInsertSizeFrom"))));
-    }
-    if (n.getAttributeValue("avgInsertSizeTo") != null && !n.getAttributeValue("avgInsertSizeTo").equals("")) {
-      request.setAvgInsertSizeTo(Integer.parseInt((n.getAttributeValue("avgInsertSizeTo"))));
-    }
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
@@ -439,6 +433,11 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOligoBarcode(null);
     }
+    if (n.getAttributeValue("idOligoBarcodeB") != null && !n.getAttributeValue("idOligoBarcodeB").equals("")) {
+      sample.setIdOligoBarcodeB(new Integer(n.getAttributeValue("idOligoBarcodeB")));
+    } else {
+      sample.setIdOligoBarcodeB(null);
+    }
     if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
       sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
     } else {
@@ -474,6 +473,11 @@ public class RequestParser implements Serializable {
     } else {
       sample.setPrepInstructions(null);
     }
+    if (n.getAttributeValue("meanInsertSizeActual") != null && !n.getAttributeValue("meanInsertSizeActual").equals("")) {
+      sample.setMeanInsertSizeActual(new Integer((n.getAttributeValue("meanInsertSizeActual"))));
+    } else {
+      sample.setMeanInsertSizeActual(null);
+    }
     
     
     if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
@@ -505,7 +509,7 @@ public class RequestParser implements Serializable {
         attributeName = attributeName.substring(5);
       }
       
-      if (value != null && !value.equals("") && 
+      if (value != null && 
           this.propertiesToApplyMap.containsKey(attributeName)) {
         annotations.put(Integer.valueOf(attributeName), value);
         sampleAnnotationCodeMap.put(attributeName, null);

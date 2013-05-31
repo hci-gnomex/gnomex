@@ -628,6 +628,7 @@
 			}
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+			coreCombo.dropdown.dataProvider = coreFacilities;
 			
 			if (coreFacilities.length > 1) {
 				var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");

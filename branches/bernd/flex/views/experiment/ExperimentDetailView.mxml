@@ -147,18 +147,6 @@
 				designAndInsertLabel.text = "Cap Lib Design";
 				designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 			}
-			else if( (requestApplication != null && requestApplication.@value != '' && requestApplication.@avgInsertSizeFrom != '' && selectedExperiment.@isExternal == 'N') ||
-				selectedExperiment.@avgInsertSizeFrom != "" || selectedExperiment.@avgInsertSizeTo != ""){
-				libDesignAndInsertBox.visible = true;
-				libDesignAndInsertBox.includeInLayout = true;
-				designAndInsertLabel.text = "Avg Insert Size";
-				if (selectedExperiment.@avgInsertSizeFrom != '') {
-					designAndInsertText.text = selectedExperiment.@avgInsertSizeFrom + " to " + selectedExperiment.@avgInsertSizeTo + " bp";
-				} else {
-					designAndInsertText.text = "None Specified";
-				}
-
-			}
 			else{
 				libDesignAndInsertBox.visible = false;
 				libDesignAndInsertBox.includeInLayout = false;
@@ -333,6 +321,7 @@
 		public function initializeBarcoding():void {
 			var showSampleMultiplexGroup:Boolean = false;
 			var showSampleBarcode:Boolean = false;
+			var showSampleBarcodeB:Boolean = false;
 			var showSampleCustomBarcode:Boolean = false;
 			var showPlates:Boolean = false;
 			for each (var s:Object in samples) {
@@ -346,6 +335,9 @@
 					showSampleBarcode = true;
 				}else if (s.@barcodeSequence != '' ) {
 					showSampleCustomBarcode = true;
+				}
+				if(s.@idOligoBarcodeB != ''){
+					showSampleBarcodeB = true;
 				}
 			}
 			
@@ -401,6 +393,7 @@
         		
         	this.barcodeCol.visible = showSampleBarcode;
         	this.customBarcodeCol.visible = showSampleCustomBarcode;
+			this.barcodeColB.visible = showSampleBarcodeB;
         	
         	if (currentState == "SolexaState") {
 	        	this.laneBarcodeCol.visible = showSampleBarcode;
@@ -1014,7 +1007,7 @@
         		}
         	} 
         	this.initializeBarcoding();
-			otherOrganismCol.visible = organismCol.visible;
+			otherOrganismCol.visible = false;
         }
         
         public function showRelatedAnalysis():void {
@@ -1520,6 +1513,13 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 							
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
+							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Average Insert Size" width="90" dataField="@meanInsertSizeActual" editable="false" rendererIsEditor="false">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.hasOwnProperty('@meanInsertSizeActual') &amp;&amp; data.@meanInsertSizeActual != '' ? (parseInt(data.@meanInsertSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
 							
 							<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber">
 								<mx:itemRenderer>
@@ -1533,17 +1533,28 @@
 								</mx:itemRenderer>
 							</mx:AdvancedDataGridColumn>
 							
-			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag"  width="75" visible="{true}"  
+			                <mx:AdvancedDataGridColumn id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
 			                   <mx:headerRenderer>
 			                   	  <mx:Component>
 			                   	    <mx:VBox verticalGap="0" horizontalScrollPolicy="off">
 			                   	    	<mx:Label text="Index"/>
-			                   	    	<mx:Label text="Tag"/>
+			                   	    	<mx:Label text="Tag A"/>
 			                   	    </mx:VBox>
 			                   	  </mx:Component>
 			                   </mx:headerRenderer>
 			                </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
+								<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+											<mx:Label text="Index"/>
+											<mx:Label text="Tag B"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer>
+							</mx:AdvancedDataGridColumn>
 			                <mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Index Tag" width="65" visible="true"  dataField="@barcodeSequence">
 			                   <mx:headerRenderer>
 			                   	  <mx:Component>
@@ -1558,7 +1569,7 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 				            <mx:AdvancedDataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
-							<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="100" dataField="@otherOrganism"/>
+							<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="100" dataField="@otherOrganism" visible="false"/>
 				            <mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 							<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
 			                <mx:AdvancedDataGridColumn id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" 
@@ -1577,8 +1588,6 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 							<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
-	
-							
 	
 						</mx:columns>
 					</mx:AdvancedDataGrid>

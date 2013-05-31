@@ -255,6 +255,8 @@
 	<mx:Script>
 
 		<![CDATA[
+			import hci.flex.dictionary.DictionaryEvent;
+			
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -270,7 +272,9 @@
 			import views.util.PromptXMLListCollection;
 			
 			[Bindable]
-			public var requestCategory:Object;
+			private var requestCategory:Object;
+			
+			private var codeRequestCategory:String;
 			
 			[Bindable]
 			private var lab:Object = null;
@@ -359,6 +363,7 @@
 					code = parentDocument.defaultCodeRequestCategory;
 				}
 				requestCategory= parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', code);
+				codeRequestCategory = requestCategory.@codeRequestCategory;
 				return requestCategory;			 
 			}
 			
@@ -1058,6 +1063,17 @@
 					checkSetupCompleteness();
 				}
 			}
+			
+			private function onRequestCategoryChange():void {
+				parentDocument.setRequestCategoryName();
+				highlightRequestCategory();
+				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryRequestCategoryRefreshed);
+				parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryRequestCategoryRefreshed);
+			}
+			
+			private function onDictionaryRequestCategoryRefreshed(event:Event):void {
+				this.requestTypeGroup.selectedValue = this.requestCategory.@codeRequestCategory;
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
@@ -1134,7 +1150,7 @@
 										label="{requestCategoryRepeater.currentItem.@display}" 
 										value="{requestCategoryRepeater.currentItem.@value}" 
 										paddingBottom="0" paddingTop="0" fontSize="11"
-										click="parentDocument.setRequestCategoryName();highlightRequestCategory()"  change="checkSetupCompleteness()"  width="206"/>							
+										click="onRequestCategoryChange()"  change="checkSetupCompleteness()"  width="206"/>							
 						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="10"/>
 					</mx:HBox>
 				</mx:Repeater>

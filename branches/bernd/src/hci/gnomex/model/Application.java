@@ -32,28 +32,8 @@ public class Application extends DictionaryEntry implements Serializable {
   private String  isActive;
   private Integer idApplicationTheme;
   private Integer sortOrder;
-  private Integer avgInsertSizeFrom;
-  private Integer avgInsertSizeTo;
   private String hasCaptureLibDesign;
- 
-  
-  public Integer getAvgInsertSizeFrom() {
-    return avgInsertSizeFrom;
-  }
 
-  public void setAvgInsertSizeFrom(Integer avgInsertSizeFrom) {
-    this.avgInsertSizeFrom = avgInsertSizeFrom;
-  }
-
-  public Integer getAvgInsertSizeTo() {
-    return avgInsertSizeTo;
-  }
-
-  public void setAvgInsertSizeTo(Integer avgInsertSizeTo) {
-    this.avgInsertSizeTo = avgInsertSizeTo;
-  } 
-
-  
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
   }
@@ -128,7 +108,4 @@ public class Application extends DictionaryEntry implements Serializable {
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
   }
-
-  
-
 }

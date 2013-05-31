@@ -13,6 +13,7 @@
 	<![CDATA[
 		import hci.flex.controls.CheckBox;
 		
+		import mx.collections.ArrayCollection;
 		import mx.collections.XMLListCollection;
 		import mx.controls.RadioButton;
 		import mx.controls.Spacer;
@@ -22,13 +23,12 @@
 	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
-		private var isValidRange:Boolean = false;
-		private var designComplete:Boolean = false;
 		private var application:Object = null;
 		
+		[Bindable]
+		private var meanInsertSizes:ArrayCollection = null;
 
-
-
+		
 		public function init():void {
 			checkSecurity();
 			
@@ -54,7 +54,7 @@
 				apps.addItem(item);
 			}
 			
-			var rangeBoxSet:Boolean = false;
+			var meanInsertSizeSet:Boolean = false;
 			var capLibBoxSet:Boolean = false;
 			// Organize the sequencing appliction radio buttons by theme.  
 			for (var key:Object in themeMap) {
@@ -88,12 +88,6 @@
 					seqAppBox.addChild(rb);
 					seqAppBox.validateNow();
 					
-					if(app.@avgInsertSizeFrom != "" && app.@avgInsertSizeTo != "" && !rangeBoxSet ){
-						rangeSpacer.height = rb.y;
-						rangeSpacer.validateNow();
-						rangeBoxSet = true;
-					}
-					
 					if(app.@hasCaptureLibDesign == 'Y' && !capLibBoxSet){
 						designSpacer.height = rb.y;
 						designSpacer.validateNow();
@@ -112,49 +106,42 @@
 	
 	 
 
-      	public function checkSeqAppSetupCompleteness():Boolean {
-        	var isComplete:Boolean = false;
-        	if (parentDocument.isEditState() && (isValidRange || designComplete)) {
-        		isComplete = true;
-        	} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
-	        	if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+		public function checkSeqAppSetupCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (parentDocument.isEditState() && parentDocument.request.captureLibDesignId != "") {
+				isComplete = true;
+			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
+				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
 					
-				 	if (insertRanges.visible) {
-						// If the avg insert size range is visible, it is a required
-						// field, so make sure it has been filled in and passed
-						// the range validation.
-						if (isValidRange)	{
-							isComplete = true;
-						} 
-					} else if (libraryDesign.visible) {
-					
+					if (libraryDesign.visible) {
+						
 						// If the capture design lib id is visible, it is required, so
 						// make sure it has been filled in.
-						if (designComplete) {
+						if (parentDocument.request.captureLibDesignId != "") {
 							isComplete = true;
 						}
 					} else {
-				
+						
 						// If neither insert ranges or design lib id is visible, we have
 						// passed all of the required field checks already.
 						isComplete = true;
 						
 					}
-	        	 }
-        	} 
-
+				}
+			} 
+			
 			if (this.currentState != "EditState") {
-	        	parentDocument.sampleSetupView.enabled = isComplete; 
-        	}
-        	
-    		parentDocument.enableNextButtons();
-
-        	callLater(postSeqAppSetupCompleteness, [isComplete]);
-        	
-    		return isComplete;
-    	    	
-        }
-        
+				parentDocument.sampleSetupView.enabled = isComplete; 
+			}
+			
+			parentDocument.enableNextButtons();
+			
+			callLater(postSeqAppSetupCompleteness, [isComplete]);
+			
+			return isComplete;
+			
+		}
+		
         private function postSeqAppSetupCompleteness(isComplete:Boolean):void {
 	    		
 	    	if (!isComplete) {
@@ -188,22 +175,6 @@
 						libraryDesign.styleName = "requiredBox";
 						parentDocument.request.@captureLibDesignId = "";
 					}
-					if(application[0].@avgInsertSizeFrom != "" && application[0].@avgInsertSizeTo != ""){
-						insertRanges.visible = true;
-						insertRanges.includeInLayout = true;
-						insertRangeNote.text = "Insert sizes range from " + application.@avgInsertSizeFrom + " to " + application.@avgInsertSizeTo;
-						minRangeValidator.minValue = application.@avgInsertSizeFrom;
-						maxRangeValidator.maxValue = application.@avgInsertSizeTo;
-					}
-					else{
-						insertRanges.visible = false;
-						insertRanges.includeInLayout = false;
-						maxInsertRange.text = "";
-						minInsertRange.text = "";
-						insertRanges.styleName = "requiredBox";
-						parentDocument.request.avgInsertSizeFrom = "";
-						parentDocument.request.avgInsertSizeTo = "";
-					}
 				} else if (application != null && application is XML) {
 					this.parentDocument.applicationName = application.@display;
 					this.parentDocument.codeApplication = application.@codeApplication;
@@ -222,53 +193,18 @@
 		
 		
 		private function propagateDesign():void{
-			designComplete = false;
-			isValidRange = false;
 			libraryDesign.styleName = "requiredBox";
-
-			
+	
 			if(designID.text != "" || designID.text != null){
 				parentDocument.request.@captureLibDesignId = designID.text;
-				designComplete = true;
 				libraryDesign.styleName = "undefined";
 			}
 			
 			checkSeqAppSetupCompleteness();
 		}
-		
-		private function propagateInsertRange():void{
 			
-			var pattern:RegExp = /[a-z]/i;
-			designComplete = false;
-			isValidRange = false;
-			insertRanges.styleName = "requiredBox";
-			
-			if(minInsertRange.text == "" || maxInsertRange.text == "" || pattern.test(minInsertRange.text) || pattern.test(maxInsertRange.text))
-				isValidRange = false;
-			else if((parseInt(minInsertRange.text) < parseInt(application.@avgInsertSizeFrom) || parseInt(minInsertRange.text) > parseInt(application.@avgInsertSizeTo)) || (parseInt(maxInsertRange.text) > parseInt(application.@avgInsertSizeTo) || parseInt(maxInsertRange.text) < parseInt(application.@avgInsertSizeFrom)))
-				isValidRange = false;
-			else
-			{
-				parentDocument.request.@avgInsertSizeFrom = minInsertRange.text;
-				parentDocument.request.@avgInsertSizeTo = maxInsertRange.text;
-				isValidRange = true;
-				insertRanges.styleName = "undefined";
-			}	
-			checkSeqAppSetupCompleteness();
-		}	
 	]]>
 </mx:Script>
-	
-	<mx:NumberValidator id="minRangeValidator"
-						source="{minInsertRange}"
-						lowerThanMinError="Outside valid range."
-						exceedsMaxError="Outside valid range."
-						property="text"/>
-	<mx:NumberValidator id="maxRangeValidator"
-						source="{maxInsertRange}"
-						lowerThanMinError="Outside valid range."
-						exceedsMaxError="Outside valid range."
-						property="text"/>
 
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
@@ -282,20 +218,8 @@
 		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
 		       </mx:VBox>
 		   </mx:HBox>
-		</mx:VBox>
-		
-		<mx:VBox  visible="{libraryDesign.visible || insertRanges.visible}" includeInLayout="{libraryDesign.visible || insertRanges.visible}"  height="100%"  paddingTop="2">
-			<mx:Spacer id="rangeSpacer" includeInLayout="{insertRanges.visible}"/>
-			<mx:VBox verticalGap="0" id="insertRanges" paddingTop="10" paddingLeft="10" visible="false" includeInLayout="false" styleName="requiredBox">
-				<mx:HBox id="rangeBox" horizontalGap="0" paddingBottom="10" paddingRight="10">
-					<mx:Label text="Average Insert Size: " id="insertRangeLabel" />
-					<mx:TextInput id="minInsertRange" width="50" change="propagateInsertRange()"/>
-					<mx:Text text=" to "/>
-					<mx:TextInput id="maxInsertRange" width="50" change="propagateInsertRange()"/>
-					<mx:Text text="bp"/>
-				</mx:HBox>
-				<mx:Text id="insertRangeNote" fontStyle="italic"/>
-			</mx:VBox>
+		</mx:VBox>	
+		<mx:VBox  visible="{libraryDesign.visible}" includeInLayout="{libraryDesign.visible}"  height="100%"  paddingTop="2">
 			<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
 			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
 				<mx:HBox paddingBottom="10" paddingRight="10">
@@ -303,7 +227,6 @@
 					<mx:TextInput id="designID" change="propagateDesign()"/>
 				</mx:HBox>
 			</mx:VBox>
-			
 		</mx:VBox>
 	</mx:HBox>
 	
