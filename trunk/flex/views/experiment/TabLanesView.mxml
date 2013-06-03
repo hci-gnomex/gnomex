@@ -324,7 +324,7 @@
 					sortableColumns="false"  resizableColumns="true" 
 					horizontalScrollPolicy="auto">
 					<mx:columns>
-					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="true" width="80" dataField="@number"/>
+					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="true" width="90" dataField="@number"/>
 					    <mx:DataGridColumn  headerText="Sample"  width="120" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
 					    	 sortable="false"
