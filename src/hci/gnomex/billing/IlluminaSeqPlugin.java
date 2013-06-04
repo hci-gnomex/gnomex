@@ -15,6 +15,7 @@ import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
@@ -118,7 +119,8 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       
       if (customNumberSequencingCyclesAllowed.containsKey(key)) {
         // Custom NumberSequencingCyclesAllowed bill for the whole cell.
-        qty = 8;
+        RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
+        qty = category.getNumberOfChannels();
       }
       
       // Instantiate a BillingItem for the matched price
