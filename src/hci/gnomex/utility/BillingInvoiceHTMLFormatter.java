@@ -86,8 +86,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
    }
    String line4 = "&nbsp;";
    String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
-       
-    
+        
    Element table = new Element("TABLE");   
    table.setAttribute("CELLPADDING", "0");
    table.addContent(makeNoteRow(line1));
@@ -138,7 +137,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         table.addContent(makeRow(lab.getContactAddress()));
       }
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
-      table.addContent(makeRow(billingAccount.getAccountNumber()));
+      table.addContent(makeRow(billingAccount.getAccountName()));
     } else{
       table.addContent(makeRow(lab.getName()));
       table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
