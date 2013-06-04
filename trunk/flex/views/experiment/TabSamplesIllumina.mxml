@@ -836,6 +836,7 @@
 					return '';
 				}
 			}
+
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1036,7 +1037,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode;}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1063,7 +1064,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
