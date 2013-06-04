@@ -130,10 +130,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           boolean paired = false;
           boolean single = false;
           String pairedName = "";
-          String pairedNote = "";
           String pairedCustom = "";
           String singleName = "";
-          String singleNote = "";
           String singleCustom = "";
           if (isAssociated(rc, c)) {
             List<NumberSequencingCyclesAllowed> allowedList = getNumberSequencingCyclesAllowed(rc, c);
@@ -142,22 +140,18 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
               if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Paired") > -1) {
                 paired = true;
                 pairedName = x.getName();
-                pairedNote = x.getNotes();
                 pairedCustom = x.getIsCustom();
               } else if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Single") > -1) {
                 single = true;
                 singleName = x.getName();
-                singleNote = x.getNotes();
                 singleCustom = x.getIsCustom();
               } 
             }
           }
           cycleNode.setAttribute("paired", paired ? "Y" : "N");
-          cycleNode.setAttribute("pairedNote", pairedNote != null ? pairedNote : "");
           cycleNode.setAttribute("pairedName", pairedName != null ? pairedName : "");
           cycleNode.setAttribute("pairedCustom", pairedCustom);
           cycleNode.setAttribute("single", single ? "Y" : "N");
-          cycleNode.setAttribute("singleNote", singleNote != null ? singleNote : "");
           cycleNode.setAttribute("singleName", singleName != null ? singleName : "");
           cycleNode.setAttribute("singleCustom", singleCustom);
         }

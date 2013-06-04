@@ -436,7 +436,7 @@
 						<mx:Label text="Standard Seq Runs" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
 						<mx:HBox visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
 							<mx:Label text="Custom Seq Runs" textDecoration="underline"/>
-							<mx:Label text="Warning: These options are only available if you fill all 8 channels of the flow cells." styleName="warningLabelSevere" />
+							<mx:Label text="Warning: These options are only available if you fill all lanes of the flow cells." styleName="warningLabelSevere" />
 						</mx:HBox>
 					    <mx:HBox verticalAlign="middle" width="100%">
 					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
@@ -444,7 +444,6 @@
 					    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
 					    	    groupName="numberSequencingCyclesRadioGroup"
 				    			click="{pickNumberSequencingCycles()}" width="190"/>
-				    		<mx:Text  text="{numberSequencingCyclesRepeater.currentItem.@notes}" width="100%"  fontSize="9"/>
 			    		</mx:HBox>
   					</mx:Repeater>
 				</mx:VBox>

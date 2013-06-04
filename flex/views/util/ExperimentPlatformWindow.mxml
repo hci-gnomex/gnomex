@@ -376,9 +376,7 @@
 					" idNumberSequencingCycles='" + 'NumberSequencingCycles' + "'" +
 					" display='" + 'enter number sequencing cycles here...' + "'" +
 					" paired='N'" +
-					" pairedNote=''" +
 					" single='N'" +
-					" singleNote=''" +
 					" isActive='Y'" +
 					" />");
 				this.sequencingOptions.addItemAt(newNode, 0);
@@ -788,8 +786,6 @@
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@singleName"  >
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Note" wordWrap="true" width="180" dataField="@singleNote"  >
-											</mx:DataGridColumn>
 											
 											<mx:DataGridColumn headerText="Paired end"  headerWordWrap="true"
 															   width="45"  
@@ -808,8 +804,6 @@
 											</mx:DataGridColumn>
 											
 											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@pairedName"  >
-											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Note" wordWrap="true" width="180" dataField="@pairedNote"  >
 											</mx:DataGridColumn>
 											
 										</mx:columns>
