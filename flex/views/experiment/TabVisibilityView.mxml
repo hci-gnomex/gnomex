@@ -103,7 +103,7 @@
 				if(this.currentState != "EditState" && !parentDocument.isAmendState()){
 					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				} else if(parentDocument.request.@codeVisibility == 'INST' && parentDocument.request.@idInstitution != ''){
-					this.radioInstitutionVisibility.enabled = true;
+					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				} else{
 					this.radioInstitutionVisibility.enabled = false;
 				}
