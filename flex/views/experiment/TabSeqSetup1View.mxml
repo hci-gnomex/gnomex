@@ -10,7 +10,7 @@
 			<mx:SetProperty target="{label11}" name="width" value="340"/>			
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-					<mx:Text text="(1) Select the number of samples with index tags that you would like to have combined into a single sequencing lane." width="340"/>
+					<mx:Text text="(1) Select the number of samples you want in each sequencing lane." width="340"/>
 					<mx:NumericStepper id="numberSamplesPerChannel" minimum="0" stepSize="1" maximum="{this.maxSamplesPerChannel}">
 						<mx:change>changeNumberSamplesPerChannel();</mx:change>
 					</mx:NumericStepper>
