@@ -241,6 +241,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           if (hyb.getIdHybridization() == null) {
             hyb.setIdHybridization(new Integer(x++));
           }
+          hyb.setCodeSlideSource(hybInfo.getCodeSlideSource());
           if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("") && !hybInfo.getIdSampleChannel1String().equals("0")) {
             labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);                
           }
