@@ -22,8 +22,6 @@
 			<mx:RemoveChild target="{mitoCheckbox}"/>
 			<mx:RemoveChild target="{iScanCheckbox}"/>
 			<mx:RemoveChild target="{cherryCheckbox}"/>
-			<mx:SetProperty target="{failedCheckbox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{failedCheckbox}" name="visible" value="false"/>
 			<mx:SetProperty target="{redoCheckbox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{redoCheckbox}" name="visible" value="false"/>
 			<mx:RemoveChild target="{vrule1}"/>
