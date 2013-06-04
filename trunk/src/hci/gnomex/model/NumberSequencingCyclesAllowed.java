@@ -8,7 +8,6 @@ import java.io.Serializable;
 public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Serializable {
   private Integer  idNumberSequencingCyclesAllowed;
   private String   name;
-  private String   notes;
   private Integer  idNumberSequencingCycles;
   private String   codeRequestCategory;
   private Integer  idSeqRunType;
@@ -63,14 +62,6 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getNotes() {
-    return notes;
-  }
-
-  public void setNotes(String notes) {
-    this.notes = notes;
   }
 
   public Integer getIdSeqRunType() {
