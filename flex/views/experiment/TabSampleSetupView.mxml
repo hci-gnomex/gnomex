@@ -134,7 +134,7 @@
 		
 		private function selectDefaultGenomeBuild():void {
 			if (parentDocument.isSolexaState()) {
-				this.parentDocument.seqSetup1View.selectDefaultGenomeBuild();
+				this.parentDocument.bioinformaticsView.selectDefaultGenomeBuild();
 			}
 		}
 

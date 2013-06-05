@@ -206,7 +206,6 @@
 					// way to avoid malformed XML error.
 					node.@label = item.@label;
 					node.@sampleName = item.@sampleName1;
-					node.@analysisInstructions = item.@analysisInstructions;
 					var found:Boolean = false;
 					if ( item.@idFlowCellChannel == null || 
 						 item.@idFlowCellChannel == "" || 

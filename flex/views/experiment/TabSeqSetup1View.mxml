@@ -5,9 +5,7 @@
 			<mx:SetProperty target="{label10}" name="text">
 				<mx:value>(2) Select the desired number of sequencing cycles.</mx:value>
 			</mx:SetProperty>
-			<mx:SetProperty target="{label11}" name="text" value="(3) Do you want the sequence data to be aligned?"/>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
-			<mx:SetProperty target="{label11}" name="width" value="340"/>			
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:Text text="(1) Select the number of samples you want in each sequencing lane." width="340"/>
@@ -92,27 +90,6 @@
 				
 			}
 		}  
-       	public function propagateGenomeBuild():void {
-			for each (var sample:Object in parentDocument.samples) {
-				if (this.genomeBuildCombo.selectedItem != null) {
-					if(!alignCheckBox.selected) {
-						sample.@idGenomeBuildAlignTo = "";
-					} else {
-						sample.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;						
-					}
-				}
-			} 
-			for each (var lane:Object in parentDocument.lanes) {
-				if (this.genomeBuildCombo.selectedItem != null) {
-					if(!alignCheckBox.selected) {
-						lane.@idGenomeBuildAlignTo = "";
-					} else {
-						lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;						
-					}					
-				}
-			}
-			callLater(parentDocument.samplesView.checkSamplesCompleteness);
-		}
 
        	public function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
@@ -155,23 +132,6 @@
 			return idSeqRunType;
 		}
 		
-		
-		public function selectDefaultGenomeBuild():void {
-			if (alignCheckBox.selected) {
-				if (this.genomeBuildCombo.dataProvider.length > 1) {
-					for each(var genomeBuild:Object in this.genomeBuildCombo.dataProvider) {
-						if (genomeBuild.@isLatestBuild != null && genomeBuild.@isLatestBuild == 'Y') {
-							this.genomeBuildCombo.selectedItem = genomeBuild;
-							propagateGenomeBuild();
-							break;
-						}
-					}
-				}
-			} else {
-				genomeBuildCombo.selectedIndex = 0;
-			}
-		}
-	    
 	    public function checkSeqSetup1Completeness():Boolean {
         	var isComplete:Boolean = false;
         	if (parentDocument.isEditState()) {
@@ -331,26 +291,6 @@
 			this.propagateSeqRunType();			
 			this.checkSeqSetup1Completeness();
         }
-
-		private function onAlignCheckBoxClick():void {
-			if (!alignCheckBox.selected) {
-				genomeBuildCombo.selectedIndex = 0;
-				genomeBuildCombo.enabled = false;
-			} else {
-				genomeBuildCombo.enabled = true;
-				if (genomeBuildCombo.selectedIndex == 0) {
-					this.selectDefaultGenomeBuild();
-				}
-			}
-			this.checkSeqSetup1Completeness();
-		}		
-			
-		private function onGenomeBuildComboChange():void {
-			if (!alignCheckBox.selected) {
-				genomeBuildCombo.selectedIndex = 0;	
-			}
-			this.checkSeqSetup1Completeness();
-		}
 		
 		private function changeNumberSamplesPerChannel():void {
 			parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.value;
@@ -447,19 +387,6 @@
 			    		</mx:HBox>
   					</mx:Repeater>
 				</mx:VBox>
-			</mx:HBox>
-			<mx:HBox id="numberOfCyclesContainer0" width="100%" horizontalGap="0">
-				<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
-				<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
-					<mx:HBox width="100%" horizontalGap="2">
-						<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick()}" selected="false"/>
-						<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange()}" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}" enabled="false">							
-						  	</mx:ComboBox>                			
-					</mx:HBox>
-						<mx:HBox width="100%" horizontalGap="0">
-						    <mx:Spacer width="20"/>
-						</mx:HBox>
-				</mx:VBox> 
 			</mx:HBox>
 	</mx:VBox>
 </mx:Canvas>

@@ -470,7 +470,6 @@ package views.experiment
 						" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
 						" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 						" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-						" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
 						" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
 						" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 						" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
