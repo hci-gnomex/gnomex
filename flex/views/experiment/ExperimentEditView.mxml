@@ -973,6 +973,9 @@
 				backButton.enabled = false;
 			}
 			if (theTab.selectedChild == this.samplesView) {
+				if (!nextButton.enabled && userWarningsSamples == '') {
+					userWarningsSamples = 'Tap outside of grid cell to continue to next tab';
+				}
 				this.userWarningStack.selectedChild = this.userWarningsBoxSamples;
 			} else if (!this.isEditState() && theTab.selectedChild == this.sampleSetupView) {
 				this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
