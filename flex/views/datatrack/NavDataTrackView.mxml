@@ -1865,7 +1865,7 @@
 												 visible="{currentState != 'GuestState'}"
 												 includeInLayout="{currentState != 'GuestState'}"
 												 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
-									<mx:CheckBox id="cbVisibilityMem" label="Members"  
+									<mx:CheckBox id="cbVisibilityMem" label="All Lab Members"  
 												 visible="{currentState != 'GuestState'}"
 												 includeInLayout="{currentState != 'GuestState'}"
 												 selected="true" paddingBottom="0" paddingTop="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>

@@ -1453,7 +1453,7 @@ VALUES (1, 'Agilent', 'Agilent', 'Y'),
 
 INSERT INTO `gnomex`.`Visibility`(`codeVisibility`, `visibility`)
 VALUES ('OWNER', 'Owner'),
-  ('MEM', 'Members'),
+  ('MEM', 'All Lab Members'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
 
