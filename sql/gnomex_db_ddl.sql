@@ -1261,7 +1261,6 @@ CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
   `codeRequestCategory` VARCHAR(10) NOT NULL,
    idSeqRunType INT(10) NULL,
    name varchar(100)  NOT NULL,
-   notes varchar(500) NULL,
   `isCustom` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idNumberSequencingCyclesAllowed`),
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
