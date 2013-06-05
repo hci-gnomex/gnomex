@@ -195,9 +195,9 @@
 		   	<mx:VBox verticalGap="2" width="100%">
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 				<mx:HBox horizontalGap="0">
-					<mx:VBox verticalGap="2" width="82" paddingBottom="1">
+					<mx:VBox verticalGap="2" width="140" paddingBottom="1">
 						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
-						<mx:RadioButton value="MEM" selected="true" label="Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
+						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
 					</mx:VBox>
