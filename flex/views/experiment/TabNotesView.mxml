@@ -42,17 +42,15 @@
 	private function propagateDescript(e:FocusEvent):void {
 		parentDocument.request.@description = "";  // Description will be saved differently to avoid problems sending with XML encoding.
 		parentDocument.saveDescription = GNomExStringUtil.cleanRichTextHTML(overallDescript.htmlText);
-		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
 	}
 	
 	private function propagatePrepInstructions():void {
-		parentDocument.confirmView.seqNotes.text = noteToSeq.text;
 		parentDocument.request.@corePrepInstructions = noteToSeq.text;
 	}
 	private function propagateName():void {
-		parentDocument.confirmView.experimentName.text = experimentName.text;
 		parentDocument.request.@name = experimentName.text;
 	}
+			
 		
 	public function setExternalNoteVisibility():void {
 		// Hide bio and core notes if external and nothing in them.

@@ -425,6 +425,14 @@
 						theTab.addChildAt(samplesView, tabIdx);
 					}
 				}
+				if (theTab.getChildAt(tabIdx) == this.confirmView) {
+					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory);
+					if (newConfirmView != this.confirmView) {
+						this.confirmView = newConfirmView;
+						theTab.removeChildAt(tabIdx);
+						theTab.addChildAt(confirmView, tabIdx);
+					}
+				}
 			}
 			
 			theTab.selectedIndex = 0;
@@ -495,7 +503,6 @@
 
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns(); 
 			}
 			this.filteredLabList.refresh();
 			
@@ -789,9 +796,8 @@
 
         
         public function cancelRequest():void {
-        	//getNewRequest.send();
+
 			request = null;
-			deleteNonStandardColumns();
 			initializeSubmitForm();
         	parentApplication.theViews.selectedIndex = 0;
         	
@@ -799,14 +805,7 @@
 			
 		public function startNewRequest():void {
 			request = null;
-			deleteNonStandardColumns();
 			this.setupSubmitForm();
-		}
-			
-		private function deleteNonStandardColumns():void {
-			if (theTab.contains(this.annotationView)) {
-				this.annotationView.deleteNonStandardColumns();
-			} 
 		}
 			
 		private function setupSubmitForm():void {
@@ -1033,7 +1032,7 @@
 			}
 			
 			if (theTab.contains(confirmView)) {
-				this.confirmView.barcodeColumn.visible = false;        					
+				this.confirmView.setBarcodeColVisibility(false);        					
 			}
 	
 			if (theTab.contains(sampleSetupView)) {
@@ -1262,12 +1261,12 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					confirmView.channel2SampleConfirmColumn.visible = true;
+					confirmView.setChannel2ColVisibility(true);
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					confirmView.channel2SampleConfirmColumn.visible = false;
+					confirmView.setChannel2ColVisibility(false);
 					for each (var s:Object in samples) {
 						s.@label = 'cy3';
 					}
@@ -2393,7 +2392,6 @@
 			
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns();
 				this.annotationView.checkSecurity();
 			} 
 			
@@ -3134,14 +3132,13 @@
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
 					
-					if (isSequencingState()) { 
+					if (isSequencingState() && !isIScanState()) { 
 						this.confirmView.currentState = "DNASeqCoreState";
 					} else {
 						this.confirmView.currentState = "";
 					}
 					
-					this.confirmView.billingConfirmGrid.rowCount = billingItems.length();
-					this.confirmView.billingConfirmGrid.validateNow();
+					this.confirmView.setBillingGridRowCount(billingItems.length());
 				} else {
 					readyToSubmit = false;
 				}
@@ -4374,7 +4371,6 @@
 			
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns();
 			} 
 		}
 		
@@ -4544,12 +4540,12 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					confirmView.channel2SampleConfirmColumn.visible = true;
+					confirmView.setChannel2ColVisibility(true);
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					confirmView.channel2SampleConfirmColumn.visible = false;
+					confirmView.setChannel2ColVisibility(false);
 					for each (var s1:Object in samples) {
 						s1.@label = 'cy3';
 					}
@@ -5148,8 +5144,8 @@
 			<experiment:TabVisibilityView id="visibilityView">
 			</experiment:TabVisibilityView>
 			
-			<experiment:TabConfirmView id="confirmView">				
-			</experiment:TabConfirmView>
+			<experiment:TabConfirmBase id="confirmView">				
+			</experiment:TabConfirmBase>
 			
 			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" uploadButtonsVisible="true" removeFileButtonsVisible="true" visible="false" includeInLayout="false" request="{this.request}" >
 			</experiment:ExperimentDownloadView>
@@ -5426,7 +5422,6 @@
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5436,7 +5431,6 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5445,7 +5439,6 @@
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5466,7 +5459,6 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5499,7 +5491,6 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
@@ -5520,7 +5511,6 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5541,7 +5531,6 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5561,7 +5550,6 @@
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
@@ -5579,7 +5567,6 @@
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
