@@ -836,6 +836,7 @@
 					return '';
 				}
 			}
+
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -900,7 +901,7 @@
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="60" visible="true"  dataField="@number"  editable="false"/>        
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
 										   editable="true" 
@@ -1036,7 +1037,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode;}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1063,7 +1064,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;outerDocument.samplesGrid.dataProvider = outerDocument.sampleGroupingCollection}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					

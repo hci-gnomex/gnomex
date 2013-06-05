@@ -524,11 +524,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       String paired = node.getAttributeValue("paired");
       String pairedName = node.getAttributeValue("pairedName");
-      String pairedNote = node.getAttributeValue("pairedNote");
       String pairedCustom = node.getAttributeValue("pairedCustom");
       String single = node.getAttributeValue("single");
       String singleName = node.getAttributeValue("singleName");
-      String singleNote = node.getAttributeValue("singleNote");
       String singleCustom = node.getAttributeValue("singleCustom");
 
       List idSeqRunTypes = new ArrayList();
@@ -556,14 +554,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             x.setCodeRequestCategory(rc.getCodeRequestCategory());
             x.setIdSeqRunType(idSeqRunType);
             x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
-            x.setNotes(idSeqRunType == idSeqRunTypePaired ? pairedNote : singleNote);
             x.setIsCustom(idSeqRunType == idSeqRunTypePaired ? pairedCustom : singleCustom);
             sess.save(x);
           } else {
             for (Iterator iex = existingAssociations.iterator(); iex.hasNext();) {
               NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)iex.next();
               x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
-              x.setNotes(idSeqRunType == idSeqRunTypePaired ? pairedNote : singleNote);
               x.setIsCustom(idSeqRunType == idSeqRunTypePaired ? pairedCustom : singleCustom);
               sess.save(x);
             }

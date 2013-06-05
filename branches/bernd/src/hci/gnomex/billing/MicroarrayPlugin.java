@@ -12,6 +12,7 @@ import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.SlideSource;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.math.BigDecimal;
@@ -76,8 +77,12 @@ public class MicroarrayPlugin implements BillingPlugin {
     
     // Show the hyb numbers in the billing note
     String note = "";
+    Boolean hasCoreSource = false;
     for(Iterator i = hybs.iterator(); i.hasNext();) {
         Hybridization hyb = (Hybridization)i.next();
+        if (!hyb.getCodeSlideSource().equals(SlideSource.CLIENT)) {
+          hasCoreSource = true;
+        }
         if (note.length() > 0) {
           note += ",";
         }
@@ -88,7 +93,7 @@ public class MicroarrayPlugin implements BillingPlugin {
     
     // Now find the price
     Price price = null;
-    if (request.getSlideProduct() != null && request.getSlideProduct().getIdBillingSlideProductClass() != null) {
+    if (request.getSlideProduct() != null && request.getSlideProduct().getIdBillingSlideProductClass() != null && hasCoreSource) {
       for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
         Price p = (Price)i1.next();
         if (p.getIsActive() != null && p.getIsActive().equals("Y")) {

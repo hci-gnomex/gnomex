@@ -806,9 +806,18 @@
 				if(requestTypeGroup.numRadioButtons > 0){
 					noServicesText.includeInLayout = false;
 					noServicesText.visible = false;
-				} else{
+					this.selectLabText.visible = false;
+					this.selectLabText.includeInLayout = false;
+				} else if (this.lab == null) {
+					noServicesText.includeInLayout = false;
+					noServicesText.visible = false;
+					this.selectLabText.visible = true;
+					this.selectLabText.includeInLayout = true;
+				} else {
 					noServicesText.includeInLayout = true;
 					noServicesText.visible = true;
+					this.selectLabText.visible = false;
+					this.selectLabText.includeInLayout = false;
 				}
 				
 				if (!isComplete) {
@@ -1024,10 +1033,10 @@
 				} else if (item.@isClinicalResearch == null || item.@isClinicalResearch != 'Y') {
 					if (item.@idCoreFacility == null) {
 						// If a request category is not associated with a core facility,
-						// include it in the list.
-						keep = true;
+						// don't show it
+						keep = false;
 					} else if (lab == null) {
-						keep = true;
+						keep = false;
 					} else {
 						// filter by the lab's core facility
 						for each(var cf:Object in lab..CoreFacility) {
@@ -1155,6 +1164,7 @@
 					</mx:HBox>
 				</mx:Repeater>
 				<mx:Label id="noServicesText" text="No experiment platforms are associated with this lab. Please contact customer support." includeInLayout="false" visible="false" />
+				<mx:Label id="selectLabText" text="Please select a laboratory." includeInLayout="false" visible="false" />
 			</mx:VBox>
 		</mx:HBox>
 		<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
