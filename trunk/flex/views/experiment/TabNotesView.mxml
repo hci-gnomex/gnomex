@@ -8,11 +8,12 @@
 			<mx:SetProperty target="{text1}" name="htmlText" value="Experiment name"/>
 			<mx:SetProperty target="{label1}" name="text" value="Experiment description"/>
 			<mx:SetProperty target="{label2}" name="text" value="Notes for Core Facility"/>
-			<mx:SetProperty target="{label3}" name="text" value="Notes for the Bioinformatics Group regarding analysis"/>
 		</mx:State>
 		<mx:State name="ExternalExperimentState">
 			<mx:SetProperty target="{text1}" name="htmlText" value="(1) Name your experiment. (required)"/>
 			<mx:SetProperty target="{label1}" name="text" value="(2) Provide an experiment description. (required)"/>
+		</mx:State>
+		<mx:State name="NewExperimentState">
 		</mx:State>
 	</mx:states>
 
@@ -44,19 +45,6 @@
 		parentDocument.confirmView.expDescriptArea.text = overallDescript.text;
 	}
 	
-	private function propagateAnalysisInstructions():void {
- 		for each (var sample:Object in parentDocument.samples) {
-			sample.@analysisInstructions = noteToBio.text;
-		}
-		for each (var lane:Object in parentDocument.lanes) {
-			lane.@analysisInstructions = noteToBio.text;
-		} 
-		parentDocument.request.@analysisInstructions = noteToBio.text;
-		parentDocument.confirmView.bioNotes.text = noteToBio.text;
-		parentDocument.request.@analysisInstructions = noteToBio.text;
-
-	}
-	
 	private function propagatePrepInstructions():void {
 		parentDocument.confirmView.seqNotes.text = noteToSeq.text;
 		parentDocument.request.@corePrepInstructions = noteToSeq.text;
@@ -64,20 +52,6 @@
 	private function propagateName():void {
 		parentDocument.confirmView.experimentName.text = experimentName.text;
 		parentDocument.request.@name = experimentName.text;
-	}
-	
-
-	public function setAnalysisVisibility():void {
-		var includeBioNote:Boolean = (parentDocument.requestType != parentApplication.TYPE_QC
-			&& parentDocument.requestType != parentApplication.TYPE_CAP_SEQ
-			&& parentDocument.requestType != parentApplication.TYPE_FRAG_ANAL
-			&& parentDocument.requestType != parentApplication.TYPE_MIT_SEQ
-			&& parentDocument.requestType != parentApplication.TYPE_CHERRY_PICK
-			&& parentDocument.requestType != parentApplication.TYPE_ISCAN)
-		label3.visible = includeBioNote;
-		label3.includeInLayout = includeBioNote;
-		noteToBio.visible = includeBioNote;
-		noteToBio.includeInLayout = includeBioNote;
 	}
 		
 	public function setExternalNoteVisibility():void {
@@ -88,14 +62,8 @@
 			} else {
 				setCoreFacilityNoteVisibility(true);
 			}
-			if (parentDocument.request.@analysisInstructions == null || parentDocument.request.@analysisInstructions == "") {
-				setBioNoteVisibility(false);
-			} else {
-				setBioNoteVisibility(true);
-			}
 		} else {
 			setCoreFacilityNoteVisibility(true);
-			setBioNoteVisibility(true);
 		}
 	}
 
@@ -114,17 +82,6 @@
 		label2.includeInLayout = visible;
 		noteToSeq.visible = visible;
 		noteToSeq.includeInLayout = visible;
-	}
-		
-	public function setBioNoteVisibility(visible:Boolean):void {
-		bioNoteHBox.visible = visible;
-		bioNoteHBox.includeInLayout = visible;
-		bioNoteSpacer.visible = visible;
-		bioNoteSpacer.includeInLayout = visible;
-		label3.visible = visible;
-		label3.includeInLayout = visible;
-		noteToBio.visible = visible;
-		noteToBio.includeInLayout = visible;
 	}
 	]]>
 </mx:Script>
@@ -155,13 +112,6 @@
 			<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
 					width ="100%" height="50%"/>
 		</mx:VBox>
-		<mx:VBox id="bioNoteHBox" width="100%" >
-			<mx:Spacer height="10" id="bioNoteSpacer" />
-			<mx:Label text="(4) Enter a note for the Bioinformatics Group regarding analysis. (optional)" id="label3"/>
-			<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
-					focusOut="propagateAnalysisInstructions()" width ="100%" height="50%"/>
-		</mx:VBox>
-		
 	</mx:VBox>
 
 	

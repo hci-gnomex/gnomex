@@ -900,8 +900,6 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idGenomeBuildAlignTo") != null && !n.getAttributeValue("idGenomeBuildAlignTo").equals("")) {
       sequenceLaneInfo.setIdGenomeBuildAlignTo(new Integer(n.getAttributeValue("idGenomeBuildAlignTo")));
     }
-    
-    //sequenceLaneInfo.setAnalysisInstructions(unEscape(n.getAttributeValue("analysisInstructions")));
 
     //
     // workflow fields

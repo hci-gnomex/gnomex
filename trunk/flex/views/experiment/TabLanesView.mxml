@@ -36,10 +36,6 @@
 					" canChangeSampleDesignations='Y'"	+
 				" idSample='0'" +
 				"/>");
-				
-			// The instructions might have a single quote, so set the instructions
-			// this way instead of in the XML constructor.	
-			emptyNode.@analysisInstructions = template != null ? template.@analysisInstructions : "";
 			
 			parentDocument.lanes.addItem(emptyNode);
 		}
@@ -57,10 +53,6 @@
 					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +		
 					" canChangeSampleDesignations='Y'"		+
 					"/>");
-			
-					// The instructions might have a single quote, so set the instructions
-					// this way instead of in the XML constructor.	
-					emptyNode.@analysisInstructions = laneToCopy.@analysisInstructions;
 					
 					parentDocument.lanes.addItem(emptyNode);
 					
@@ -183,15 +175,6 @@
 				lane.@idNumberSequencingCycles = idNumberSequencingReactions;
 			}
 			callLater(checkLanesCompleteness);
-		}
-		public function propagateGenomeBuild(idGenomeBuildAlignTo:String):void {
-			// For now, don't propagate
-			/*
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idGenomeBuildAlignTo = idGenomeBuildAlignTo;
-			}
-			callLater(checkLanesCompleteness);
-			*/
 		}
 
 		private function onPromptToClearAllLanes(event:CloseEvent):void {
@@ -354,7 +337,7 @@
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
            	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', false)}"                 
        	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo', true)}"/>
-						<mx:DataGridColumn  editable="true" width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
+						<mx:DataGridColumn  editable="false" width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="55" id="flowCellChannelNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/>
