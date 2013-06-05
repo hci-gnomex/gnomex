@@ -366,7 +366,8 @@
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@qualStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="false"
-	                   itemRenderer="mx.controls.Label"  
+	                   itemRenderer="mx.controls.Label" 
+					   sortable="false"
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), 'idRequest')}"/>			                
 				</util:columns>
 		</util:DataGridAlternatingGroup>
