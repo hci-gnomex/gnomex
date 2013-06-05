@@ -231,8 +231,7 @@
 				this.currentState = "IScanState";
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
-				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
-				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();		
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);	
 				if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 				}
