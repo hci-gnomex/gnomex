@@ -58,50 +58,12 @@
 						for each(var node:XML in parentDocument.propertyEntries) {
 							if (node.@idProperty == idProperty) {
 								node.@isSelected = true;
-								showSampleAnnotationColumn(idProperty, true);
 							}
 						}
 					}
 				}
 			}
 			
-			public function showSampleAnnotationColumn(idProperty:String, show:Boolean):void {
-				/*
-				if (parentDocument.samplesView.samplesGrid == null) {
-					return;
-				}
-				for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
-					var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-					if (idProperty == "-1") {
-						// Special treatment for "Description"
-						if ( dc.dataField == "@description") {
-							dc.visible = show;
-							break;					
-						}
-					} else {
-						if ( dc.dataField == "@ANNOT" + idProperty) {
-							dc.visible = show;
-							break;					
-						}						
-					}
-
-				}*/
-				for (var x1:Number = 0; x1 < parentDocument.confirmView.samplesGridConfirm.columnCount; x1++) {
-					var dc1:DataGridColumn =parentDocument.confirmView.samplesGridConfirm.columns[x1];
-					if (idProperty == "-1") {
-						// Special treatment for "Description"
-						if ( dc1.dataField == "@description") {
-							dc1.visible = show;
-							break;					
-						}
-					} else {
-						if ( dc1.dataField == "@ANNOT" + idProperty) {
-							dc1.visible = show;
-							break;
-						}						
-					}					
-				}
-			}
 			
 			private function toggleSampleAnnotationCheck(event:ListEvent):void {
 				if (event.columnIndex == 0) {
@@ -125,15 +87,10 @@
 					return;		
 				}
 
-				
 				if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
-					
 					sampleAnnotationGrid.selectedItem.@isSelected = "false";
-					showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idProperty, false);
-					
 				} else {
 					sampleAnnotationGrid.selectedItem.@isSelected = "true";
-					showSampleAnnotationColumn(sampleAnnotationGrid.selectedItem.@idProperty, true);
 				}
 			}
 			
@@ -163,17 +120,9 @@
 				
 				this.checkForRemovedAnnotations();   
 				this.checkForNewAnnotations();
-				this.addNonStandardSampleColumns();
-				
-				
-				//if (parentDocument.isEditState()) {
-				//	callLater(refreshEditWindow);
-				//}    		
+				  		
 			}	
 			
-			private function refreshEditWindow():void {
-				//parentDocument.setupEditForm(parentApplication.navExperimentView.selectedExperiment);
-			}
 			
 			private function checkForNewAnnotations():void {
 				var sc:XML;
@@ -181,7 +130,6 @@
 				var exists:Boolean = false;
 				for each(sc in parentApplication.propertyList) {
 					exists = false; 
-					
 					
 					for each(annotation in parentDocument.request.PropertyEntries.PropertyEntry) {
 						if (sc.@value == annotation.@idProperty) {
@@ -199,269 +147,10 @@
 						
 						parentDocument.propertyEntries.addItem(node);
 						
-						
-						
 					}
 				}
 				parentDocument.propertyEntries.refresh();
 			}
-			
-			public function addNonStandardSampleColumns():void {
-				var annotation:Object;
-				for each(annotation in parentDocument.propertyEntries) {
-					addNonStandardColumn(annotation);
-					//parentDocument.samplesView.samplesGrid.validateNow();
-				}
-				
-			}
-			
-			private function addNonStandardColumn(annotation:Object):void {
-				var addNewColumn:Boolean = true;
-				var colExisting:AdvancedDataGridColumn = null;
-				var colConfirmExisting:DataGridColumn = null;
-				
-				var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
-				if (property == null) {
-					return;
-				}
-				
-				
-				var headerName:String = "";
-				if (property.@name == "Other" && annotation.@otherLabel != "" ) {
-					headerName = annotation.@otherLabel;
-					annotation.@isSelected = "true";
-				} else {
-					headerName = annotation.@name;
-				}
-				
-				// Find out if we have already added this column.  If we have,
-				// we won't add it again, but we will update it because
-				// its sample characteristic may have changed.
-				addNewColumn = true;
-/*				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
-					if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
-						colExisting = col;
-						addNewColumn = false;
-						break;
-					}    				
-				}*/
-				if (!parentDocument.isEditState()) {
-					for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
-						if (cCol.dataField == ("@ANNOT" + annotation.@idProperty)) {
-							colConfirmExisting = cCol;
-							addNewColumn = false;
-							break;
-						}    				
-					}
-				}
-				
-				
-				if ( parentDocument.isIScanState() ) {
-					annotation.@isSelected = 'true';
-				}
-
-				var fieldName:String = "@ANNOT" + annotation.@idProperty;
-
-				// new column for sample grid
-				var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
-				newCol.dataField  = fieldName;
-				newCol.headerText = headerName;
-				newCol.visible    = annotation.@isSelected == "true" ? true : false;
-				
-				// new column for sample grid on confirmation tab
-				var aCol:AnnotationDataGridColumn = new AnnotationDataGridColumn(fieldName);
-				aCol.dataField  = "@ANNOT" + annotation.@idProperty;
-				aCol.headerText = headerName;
-				aCol.visible    = annotation.@isSelected == "true" ? true : false;
-				
-/*				if (colExisting != null) {
-					colExisting.headerText = headerName;
-					colExisting.visible    = annotation.@isSelected == "true" ? true : false;
-					
-				}*/
-				if (colConfirmExisting != null) {
-					colConfirmExisting.headerText = headerName;
-					colConfirmExisting.visible    = annotation.@isSelected == "true" ? true : false;
-				}
-				
-				// We only show inactive options when it is edit state.
-				var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
-				
-				newCol.editable = false;
-				aCol.editable = false;
-				newCol.propertyType = property.@codePropertyType;
-				if (property.@codePropertyType == 'MOPTION') {
-					newCol.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
-					aCol.itemRenderer =  MultiselectRenderer.create(false);
-					if (colExisting != null) {
-						colExisting.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
-					}
-					if (colConfirmExisting != null) {
-						colConfirmExisting.itemRenderer =  MultiselectRenderer.create(true,annotation.@isRequired == 'true');
-					}
-				} else if (property.@codePropertyType == 'URL') {
-					newCol.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
-					aCol.itemRenderer = URLRenderer.create(false);
-					if (colExisting != null) {
-						colExisting.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
-					}
-					if (colConfirmExisting != null) {
-						colConfirmExisting.itemRenderer = URLRenderer.create(true,annotation.@isRequired == 'true');
-					}
-				} else if (property.@codePropertyType == 'CHECK') {
-					newCol.itemRenderer = CheckBoxRenderer.create();
-					if (colExisting != null) {
-						colExisting.itemRenderer = CheckBoxRenderer.create();
-					}
-					if (colConfirmExisting != null) {
-						colConfirmExisting.itemRenderer = CheckBoxRenderer.create();
-					}
-				} else if (property.@codePropertyType == 'OPTION') {
-					newCol.editable = true;
-					newCol.editorDataField = "value"
-					newCol.itemRenderer = views.renderers.DropdownLabel.create(
-						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
-						'@option', 
-						'@idPropertyOption', 
-						fieldName,
-						annotation.@isRequired == 'true',
-						true);                
-					aCol.itemRenderer = views.renderers.DropdownLabel.create(
-						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
-						'@option', 
-						'@idPropertyOption', 
-						fieldName,
-						false, false); 
-					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
-						parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
-						"@option",
-						"@idPropertyOption",
-						fieldName, 
-						null,
-						true,
-						true,
-						false,
-						true).newInstance(), '');						
-					if (colExisting != null) {
-						colExisting.editable = true;
-						colExisting.editorDataField = "value"
-						colExisting.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
-							'@option', 
-							'@idPropertyOption', 
-							fieldName,
-							annotation.@isRequired == 'true',
-							true); 
-						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
-							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions),
-							"@option",
-							"@idPropertyOption",
-							fieldName, 
-							null,
-							true,
-							true,
-							false,
-							true).newInstance(), '');						
-					}
-					if (colConfirmExisting != null) {
-						colConfirmExisting.editable = true;
-						colConfirmExisting.editorDataField = "value"
-						colConfirmExisting.itemRenderer = views.renderers.DropdownLabel.create(
-							parentApplication.getPropertyOptions(annotation.@idProperty, includeInactiveOptions), 
-							'@option', 
-							'@idPropertyOption', 
-							fieldName,
-							annotation.@isRequired == 'true',
-							true); 
-						
-					}
-				} else  {
-					// Assume text
-					newCol.editable   = true;
-					newCol.itemRenderer = views.renderers.Text.createCustom(property, 
-						parentApplication.annotationColor, 
-						parentApplication.annotationColorBorder, 
-						0, 
-						parentApplication.nonReqAnnotationColor, 
-						annotation.@isRequired == 'true');
-					newCol.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
-					newCol.editorDataField="value";
-					newCol.wordWrap = true;
-					
-					if (colExisting != null) {
-						colExisting.editable   = true;
-						colExisting.itemRenderer = views.renderers.Text.createCustom(property, 
-							parentApplication.annotationColor, 
-							parentApplication.annotationColorBorder, 
-							0, 
-							parentApplication.nonReqAnnotationColor, 
-							annotation.@isRequired == 'true');
-						colExisting.itemEditor   = views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create(fieldName).newInstance(), '');
-						colExisting.editorDataField="value";
-						colExisting.wordWrap = true;
-					}
-					if (colConfirmExisting != null) {
-						colConfirmExisting.editable   = true;
-						colConfirmExisting.itemRenderer = views.renderers.Text.createCustom(property, 
-							parentApplication.annotationColor, 
-							parentApplication.annotationColorBorder, 
-							0, 
-							parentApplication.nonReqAnnotationColor, 
-							annotation.@isRequired == 'true');
-						colConfirmExisting.itemEditor   = views.renderers.TextInput.create(fieldName);
-						colConfirmExisting.wordWrap = true;
-					}
-				}
-				
-				
-				if (addNewColumn) {
-/*					var columns:Array = parentDocument.samplesView.samplesGrid.columns;
-					var newColumns:Array = new Array();
-					for each(var column:AdvancedDataGridColumn in columns) {
-						if (column.dataField == "@description") {
-							newColumns.push(newCol);
-						}
-						newColumns.push(column);
-					}
-					parentDocument.samplesView.samplesGrid.columns = newColumns;*/
-					
-				}
-				
-				// Add to confirm samples grid (if this is a submit request, not an edit request)  				
-				if (addNewColumn && !parentDocument.isEditState()) {
-					
-					var confirmColumns:Array = parentDocument.confirmView.samplesGridConfirm.columns;
-					var newConfirmColumns:Array = new Array();
-					for each(var confirmCol:DataGridColumn in confirmColumns) {
-						if (confirmCol.dataField == "@description") {
-							newConfirmColumns.push(aCol);
-						}
-						newConfirmColumns.push(confirmCol);
-					}
-					parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
-					
-				}
-				
-			}
-			
-			public function deleteNonStandardColumns():void {
-				/*var newColumns:Array = new Array();
-				for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
-					if (col.dataField == null || col.dataField.indexOf("@ANNOT") < 0) {
-						newColumns.push(col);
-					}
-				}
-				parentDocument.samplesView.samplesGrid.columns = newColumns;*/
-				
-				var newConfirmColumns:Array = new Array();
-				for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
-					if (cCol.dataField == null || cCol.dataField.indexOf("@ANNOT") < 0) {
-						newConfirmColumns.push(cCol);
-					}    				
-				}
-				parentDocument.confirmView.samplesGridConfirm.columns = newConfirmColumns;
-			}
-			
 			
 			
 			private function checkForRemovedAnnotations():void {
@@ -491,28 +180,10 @@
 						}      				 
 					}
 					
-					if (!exists) {
-						/*for each(var col:AdvancedDataGridColumn in parentDocument.samplesView.samplesGrid.columns) {
-							if (col.dataField == ("@ANNOT" + property.@idProperty)) {
-								col.visible = false;
-								break;
-							}    				
-						}*/
-						if (!parentDocument.isEditState()) {
-							for each(var cCol:DataGridColumn in parentDocument.confirmView.samplesGridConfirm.columns) {
-								if (cCol.dataField == ("@ANNOT" + property.@idProperty)) {
-									cCol.visible = false;
-									break;
-								}    				
-							}
-						}
-						
-					}
-					
 				}
 				
-				
 			}
+			
 			public function changeOtherHeaderLabelAndToggle(data:Object):void {
 				if (data.@otherLabel == '' ) {
 					data.@isSelected = false;	
@@ -527,26 +198,6 @@
 				
 				parentDocument.request.@otherLabel = data.@otherLabel;
 				
-				/*if (parentDocument.samplesView.samplesGrid != null) {
-					for (var x:Number = 0; x < parentDocument.samplesView.samplesGrid.columnCount; x++) {
-						var dc:AdvancedDataGridColumn = parentDocument.samplesView.samplesGrid.columns[x];
-						if ( dc.dataField == "@ANNOT" + data.@idProperty) {
-							dc.headerText = data.@otherLabel;
-							dc.visible = data.@isSelected == "true" ? true : false;
-							break;	
-						}
-					}
-				}*/
-				if (parentDocument.confirmView != null && parentDocument.confirmView.samplesGridConfirm != null) {
-					for (var y:Number = 0; y < parentDocument.confirmView.samplesGridConfirm.columnCount; y++) {
-						var dc1:DataGridColumn = parentDocument.confirmView.samplesGridConfirm.columns[y];
-						if ( dc1.dataField == "@ANNOT" + data.@idProperty) {
-							dc1.headerText = data.@otherLabel;
-							dc1.visible = data.@isSelected == "true" ? true : false;
-							break;					
-						}
-					}
-				}
 			}
 			
 			public function createToolTip(event:ListEvent):void{

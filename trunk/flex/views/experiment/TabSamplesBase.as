@@ -187,6 +187,10 @@ package views.experiment
 				return;
 			}
 			
+			if ( parentDocument.isIScanState() ) {
+				propertyNode.@isSelected = 'true';
+			}
+			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
 			

@@ -743,9 +743,6 @@
 			if(isSelected) {
 				descNode.@isSelected = "true";
 			}	
-			if (experimentEditView.theTab.contains(experimentEditView.annotationView)) {
-				experimentEditView.annotationView.showSampleAnnotationColumn("-1", isSelected);
-			}
 			scXML.appendChild(descNode);
 		}          
 		  
