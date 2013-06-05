@@ -337,7 +337,8 @@
 	                	editorDataField="value" 
 	                	editable="true"
 	                   rendererIsEditor="false"
-	                   itemRenderer="mx.controls.Label"  
+	                   itemRenderer="mx.controls.Label" 
+					   sortable="false"
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@pipelineStatus', false, true, true, false).newInstance(), 'flowCellNumber')}">
 						<mx:headerRenderer > 
 						<mx:Component>
