@@ -2238,6 +2238,9 @@
 					var qualName:String = prop.@propertyName;
 					if (prop.hasOwnProperty("@idCoreFacility") && prop.@idCoreFacility != '') {
 						qualName = prop.@idCoreFacility + '\t' + qualName;
+						if (prop.hasOwnProperty("@codeRequestCategory") && prop.@codeRequestCategory != '') {
+							qualName = prop.@codeRequestCategory + '\t' + qualName;
+						}
 					}
 					properties[qualName] = prop.@propertyValue;
 				}
@@ -2583,6 +2586,18 @@
 					result = properties[qualName];
 					if (result == null || result == "") {
 						result = properties[name];
+					}
+				}
+				return result;
+			}
+			
+			public function getRequestCategoryProperty(idCoreFacility:String, codeRequestCategory:String, name:String):String {
+				var result:String = "";
+				if (properties != null) {
+					var qualName:String = codeRequestCategory + '\t' + idCoreFacility + "\t" + name;
+					result = properties[qualName];
+					if (result == null || result == "") {
+						result = getCoreFacilityProperty(idCoreFacility, name);
 					}
 				}
 				return result;
