@@ -689,6 +689,7 @@
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 			 
 			 parentDocument.parentDocument.experimentEditView.removeDataListeners();
+			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 			 
@@ -697,7 +698,6 @@
 				 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 			 }
 			 
-			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
 		}
