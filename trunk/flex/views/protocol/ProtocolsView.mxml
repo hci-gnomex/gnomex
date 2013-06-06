@@ -141,6 +141,7 @@
 			public function initializeData(targetProtocolClassName:String=null):void {
 				this.targetProtocolClassName = targetProtocolClassName;
 				currentState = "";
+				parentApplication.dictionaryManager.reload();
 				callGetProtocolList();
 			}
 			
