@@ -3609,7 +3609,7 @@
 						
 					} else {
 						message = 'Request #  ' + submittedRequestNumber + '\n' + 
-							       parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
+							       parentApplication.getRequestCategoryProperty(getRequestCategory().@idCoreFacility, getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
 						if (this.isSequencingState()) {
 							title = "Experiment request saved";		
 						} else {
