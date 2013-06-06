@@ -740,8 +740,9 @@
 		
 		
 		public function checkSecurity():void {
-			setupView.checkSecurity();	
-			
+			if (theTab.contains(setupView)) {
+				setupView.checkSecurity();
+			}
 		}
 		
 		public function isRequestPending():Boolean {
