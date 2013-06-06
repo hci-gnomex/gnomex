@@ -412,6 +412,15 @@
 			this.samplesView.setMultiplexGroupNumberImported(false);
 		}
 
+		private function enableTabs(enable:Boolean):void {
+			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
+				var x:DisplayObject = theTab.getChildAt(tabIdx);
+				if (x is Canvas) {
+					Canvas(x).enabled = enable;
+				}
+			}
+		}
+			
 		public function instantiateTabs(codeRequestCategory:String, isEditState:Boolean, isAmendState:Boolean):void {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',codeRequestCategory);
 			var requestCategoryType:Object = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
@@ -930,6 +939,10 @@
 					} 
 				}
 			}
+
+			// disable tabs we missed above.
+			enableTabs(false);
+			setupView.enabled = true;
 			
 			this.filteredLabList.refresh();
 		}
