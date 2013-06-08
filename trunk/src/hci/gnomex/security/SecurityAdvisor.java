@@ -300,11 +300,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   private static boolean isUserInAssociateTable(String uid) {
     boolean in = false;
+    String peopleSoftID = "0" + uid.substring(1);
     try {
       Session bstxSession = HibernateBSTXSession.currentBSTXSession(uid);
       Query query = bstxSession.createQuery("SELECT idSite, assocPreferredName, assocFirstName, assocLastName, personID " +
-          "FROM Associate WHERE ntUserName = :userName");
-      query.setParameter("userName", uid);
+          "FROM Associate WHERE peopleSoftID = :peopleSoftID");
+      query.setParameter("peopleSoftID", peopleSoftID);
       List assocUsers = query.list();
       if (assocUsers.size() > 0) {
         in = true;
