@@ -2817,7 +2817,11 @@
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;
 					} else {
-						theViews.selectedChild = this.homeView;						
+						if (isGuestMode()) {
+							theViews.selectedChild = this.navTopicsView;
+						} else {
+							theViews.selectedChild = this.homeView;						
+						}
 					}					
 				}
 				
