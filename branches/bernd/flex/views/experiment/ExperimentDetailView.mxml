@@ -231,8 +231,7 @@
 				this.currentState = "IScanState";
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
-				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
-				parentDocument.parentDocument.experimentEditView.samplesView.showHideColumns();		
+				parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);	
 				if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 				}
@@ -690,6 +689,7 @@
 			 var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 			 
 			 parentDocument.parentDocument.experimentEditView.removeDataListeners();
+			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 			 parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 			 
@@ -698,7 +698,6 @@
 				 parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 			 }
 			 
-			 parentDocument.parentDocument.experimentEditView.initializeData();
 			 callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 			 
 		}
@@ -742,14 +741,6 @@
 			// can't do this in state stuff because of external stuff below.
 			this.noteToCoreFacilityBox.visible = true;
 			this.noteToCoreFacilityBox.includeInLayout = true;
-			if (currentState == 'QCState' || this.isCapSeqState() || this.isMitSeqState() || this.isFragAnalState() || this.isCherryPickState() || 
-				    this.isSequenomState() || this.isClinicalSequenomState()) {
-				this.noteToBioBox.visible = false;
-				this.noteToBioBox.includeInLayout = false;
-			} else {
-				this.noteToBioBox.visible = true;
-				this.noteToBioBox.includeInLayout = true;
-			}
 			
 			// hide bio and core notes for external experiments unless populated.
 			if (this.selectedExperiment.@isExternal == "Y") {
@@ -759,16 +750,10 @@
 						this.noteToCoreFacilityBox.includeInLayout = false;
 					}
 				}
-				if (this.noteToBioBox.visible) {
-					if (this.selectedExperiment.@analysisInstructions == null || this.selectedExperiment.@analysisInstructions == "") {
-						this.noteToBioBox.visible = false;
-						this.noteToBioBox.includeInLayout = false;
-					}
-				}
 			}
 
 			// Make description bigger if possible
-			if (!this.noteToCoreFacilityBox.visible && !this.noteToBioBox.visible) {
+			if (!this.noteToCoreFacilityBox.visible) {
 				this.bioAndCoreNoteVBox.visible = false;
 				this.bioAndCoreNoteVBox.includeInLayout = false;
 			} else {
@@ -1451,12 +1436,6 @@
 		  							<mx:Label text="Notes for Core Facility"  styleName="formLabel"/>
 									<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 								</mx:VBox>
-								<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
-										 visible="true"  
-										 includeInLayout="true">
-									<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
-									<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
-								</mx:VBox>
 							</mx:HBox>
 						</mx:VBox>
 					</mx:VBox>
@@ -1963,6 +1942,16 @@
 				</mx:VBox>					        			
 		
 		</mx:AddChild>
+		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
+			<mx:VBox  id="bioinformaticsTab" label="Bioinformatics"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
+						 visible="true"  
+						 includeInLayout="true">
+					<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
+					<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
+				</mx:VBox>
+			</mx:VBox>
+		</mx:AddChild>
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
 		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
@@ -2045,7 +2034,6 @@
 				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
-		<mx:RemoveChild target="{noteToBioBox}"/>
 	</mx:State>
 	<mx:State name="SequenomState">
 		<mx:RemoveChild target="{hbox4}"/>

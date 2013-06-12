@@ -187,6 +187,10 @@ package views.experiment
 				return;
 			}
 			
+			if ( parentDocument.isIScanState() ) {
+				propertyNode.@isSelected = 'true';
+			}
+			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
 			
@@ -470,7 +474,6 @@ package views.experiment
 						" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
 						" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
 						" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-						" idGenomeBuildAlignTo='" + sampleToCopy.@idGenomeBuildAlignTo+ "'" +				
 						" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
 						" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
 						" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +

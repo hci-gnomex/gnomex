@@ -196,7 +196,8 @@
 	                <mx:DataGridColumn headerText="Status"  width="12" dataField="@seqPrepStockStatus" 
 	                	editorDataField="value"
 	                   rendererIsEditor="false" 
-	                   itemRenderer="mx.controls.Label"  
+	                   itemRenderer="mx.controls.Label"
+					   sortable="false"
  	                   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@seqPrepStockStatus').newInstance(), 'idRequest')}"/>			                
  					<mx:DataGridColumn headerText="" width="0" visible="false"/>
 				</util:columns>

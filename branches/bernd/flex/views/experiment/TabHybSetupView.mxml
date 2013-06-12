@@ -317,7 +317,7 @@
 			<mx:Label text="(1) Select an organism." width="250" />
 			<mx:ComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-				<mx:dataProvider>{parentApplication.organismList}</mx:dataProvider>
+				<mx:dataProvider>{parentApplication.activeOrganismList}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">

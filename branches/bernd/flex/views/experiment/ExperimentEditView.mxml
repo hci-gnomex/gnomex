@@ -6,7 +6,7 @@
     xmlns:experiment="views.experiment.*"
     showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 	width="100%" height="100%"  
-	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*" xmlns:mx1="library://ns.adobe.com/flex/mx">
+	creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*" xmlns:mx1="library://ns.adobe.com/flex/mx" xmlns:experiment1="experiment.*">
  
      
    <mx:HTTPService  
@@ -412,6 +412,15 @@
 			this.samplesView.setMultiplexGroupNumberImported(false);
 		}
 
+		private function enableTabs(enable:Boolean):void {
+			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
+				var x:DisplayObject = theTab.getChildAt(tabIdx);
+				if (x is Canvas) {
+					Canvas(x).enabled = enable;
+				}
+			}
+		}
+			
 		public function instantiateTabs(codeRequestCategory:String, isEditState:Boolean, isAmendState:Boolean):void {
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',codeRequestCategory);
 			var requestCategoryType:Object = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
@@ -423,6 +432,14 @@
 						this.samplesView = newSamplesView;
 						theTab.removeChildAt(tabIdx);
 						theTab.addChildAt(samplesView, tabIdx);
+					}
+				}
+				if (theTab.getChildAt(tabIdx) == this.confirmView) {
+					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory);
+					if (newConfirmView != this.confirmView) {
+						this.confirmView = newConfirmView;
+						theTab.removeChildAt(tabIdx);
+						theTab.addChildAt(confirmView, tabIdx);
 					}
 				}
 			}
@@ -495,7 +512,6 @@
 
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns(); 
 			}
 			this.filteredLabList.refresh();
 			
@@ -733,8 +749,9 @@
 		
 		
 		public function checkSecurity():void {
-			setupView.checkSecurity();	
-			
+			if (theTab.contains(setupView)) {
+				setupView.checkSecurity();
+			}
 		}
 		
 		public function isRequestPending():Boolean {
@@ -789,9 +806,8 @@
 
         
         public function cancelRequest():void {
-        	//getNewRequest.send();
+
 			request = null;
-			deleteNonStandardColumns();
 			initializeSubmitForm();
         	parentApplication.theViews.selectedIndex = 0;
         	
@@ -799,14 +815,7 @@
 			
 		public function startNewRequest():void {
 			request = null;
-			deleteNonStandardColumns();
 			this.setupSubmitForm();
-		}
-			
-		private function deleteNonStandardColumns():void {
-			if (theTab.contains(this.annotationView)) {
-				this.annotationView.deleteNonStandardColumns();
-			} 
 		}
 			
 		private function setupSubmitForm():void {
@@ -884,16 +893,10 @@
 				if (theTab.contains(annotationView)) {
 					annotationView.enabled = false;								
 				}
-				if (theTab.contains(seqSetup1View)) {
-					seqSetup1View.alignCheckBox.selected = false;
-					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
-					seqSetup1View.genomeBuildCombo.enabled = false;
-				}
 				if (isSolexaState()) {
 					seqSetupView.enabled = false;
 					seqSetup1View.enabled = false;
-					seqSetup1View.genomeBuildCombo.selectedIndex = 0;
-					//seqSetup1View.analysisInstructions.text = '';
+					bioinformaticsView.enabled = false;
 				}
 			}
 					
@@ -928,7 +931,7 @@
 			}
 			
 			if (theTab.contains(notesView)) {				
-				notesView.currentState = "";
+				notesView.currentState = "NewExperimentState";
 				// Make experiment name, description req'd if external experiment
 				if (!isEditState() && !isAmendState()) { 
 					if (!parentApplication.isInternalExperimentSubmission) {	
@@ -936,10 +939,14 @@
 					} 
 				}
 			}
+
+			// disable tabs we missed above.
+			enableTabs(false);
+			setupView.enabled = true;
 			
 			this.filteredLabList.refresh();
 		}
-			
+
 		private function nextTab():void {
 			theTab.selectedIndex++;
 			while (!theTab.getTabAt(theTab.selectedIndex).visible) {
@@ -979,6 +986,9 @@
 				backButton.enabled = false;
 			}
 			if (theTab.selectedChild == this.samplesView) {
+				if (!nextButton.enabled && userWarningsSamples == '') {
+					userWarningsSamples = 'Tap outside of grid cell to continue to next tab';
+				}
 				this.userWarningStack.selectedChild = this.userWarningsBoxSamples;
 			} else if (!this.isEditState() && theTab.selectedChild == this.sampleSetupView) {
 				this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
@@ -1032,12 +1042,11 @@
 			request.@codeApplication = '';
 			
 			if (theTab.contains(notesView)) {
-				notesView.setAnalysisVisibility();
 				notesView.setExternalNoteVisibility();
 			}
 			
 			if (theTab.contains(confirmView)) {
-				this.confirmView.barcodeColumn.visible = false;        					
+				this.confirmView.setBarcodeColVisibility(false);        					
 			}
 	
 			if (theTab.contains(sampleSetupView)) {
@@ -1135,8 +1144,6 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
-				this.notesView.setBioNoteVisibility(false);
-				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -1147,8 +1154,6 @@
 				this.samplesView.currentState = 'FragAnalState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
-				
-				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1161,8 +1166,6 @@
 				this.samplesView.currentState = 'MitSeqState';				
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
-				
-				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1189,8 +1192,6 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
-				this.notesView.setBioNoteVisibility(false);
-				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -1203,8 +1204,6 @@
 				
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-				
-				this.notesView.setBioNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1222,8 +1221,6 @@
 				
 				this.sampleSetupView.sequenomPanelContainer.visible = false;
 				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
-				
-				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
@@ -1242,7 +1239,6 @@
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).includeInLayout = false;
 
-				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
@@ -1279,12 +1275,12 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					confirmView.channel2SampleConfirmColumn.visible = true;
+					confirmView.setChannel2ColVisibility(true);
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					confirmView.channel2SampleConfirmColumn.visible = false;
+					confirmView.setChannel2ColVisibility(false);
 					for each (var s:Object in samples) {
 						s.@label = 'cy3';
 					}
@@ -2163,8 +2159,8 @@
 			samplesView.enabled = request.@canUpdateSamples == "Y";
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
-			notesView.setAnalysisVisibility();
 			notesView.setExternalNoteVisibility();
+			bioinformaticsView.currentState = "EditState";
 
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
@@ -2410,7 +2406,6 @@
 			
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns();
 				this.annotationView.checkSecurity();
 			} 
 			
@@ -2545,7 +2540,6 @@
 					this.annotationView.checkSecurity();
 					this.samplesView.showHideColumns();		
 					this.samplesView.initializeSamplesGrid(); 
-					this.notesView.setBioNoteVisibility(false);
 				}
 				
 			}
@@ -2572,7 +2566,6 @@
 				if (this.isSequenomState() ){
 					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
 				} 
-				this.notesView.setBioNoteVisibility(false);
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
@@ -3095,7 +3088,7 @@
 			
 		public function getMultiplexLanes():void {
 			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
-				this.seqSetup1View.propagateGenomeBuild();
+				this.bioinformaticsView.propagateGenomeBuild();
 			}
 			initializeRequestXML();
 			var params:Object = new Object();
@@ -3153,14 +3146,13 @@
 				if (theTab.contains(this.confirmView)) {
 					var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
 					
-					if (isSequencingState()) { 
+					if (isSequencingState() && !isIScanState()) { 
 						this.confirmView.currentState = "DNASeqCoreState";
 					} else {
 						this.confirmView.currentState = "";
 					}
 					
-					this.confirmView.billingConfirmGrid.rowCount = billingItems.length();
-					this.confirmView.billingConfirmGrid.validateNow();
+					this.confirmView.setBillingGridRowCount(billingItems.length());
 				} else {
 					readyToSubmit = false;
 				}
@@ -3603,6 +3595,7 @@
 					}
 					if (theTab.contains(seqSetup1View)) {
 						this.seqSetup1View.enabled = false;
+						bioinformaticsView.enabled = false;
 					}
 				}
 
@@ -3629,7 +3622,7 @@
 						
 					} else {
 						message = 'Request #  ' + submittedRequestNumber + '\n' + 
-							       parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
+							       parentApplication.getRequestCategoryProperty(getRequestCategory().@idCoreFacility, getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
 						if (this.isSequencingState()) {
 							title = "Experiment request saved";		
 						} else {
@@ -4354,6 +4347,7 @@
     				this.seqSetupView.enabled = false;
     			} else if (currentState == "SolexaLaneAmendState") {
     				this.seqSetup1View.enabled = false;
+					bioinformaticsView.enabled = false;
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.enabled = false;
     			}
@@ -4391,7 +4385,6 @@
 			
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
-				this.annotationView.addNonStandardSampleColumns();
 			} 
 		}
 		
@@ -4504,8 +4497,7 @@
 				// may have been selected from prev amend request
 				this.seqSetup1View.propagateSeqRunType();
 				this.seqSetup1View.propagateNumberSequencingCycles();
-				this.seqSetup1View.propagateGenomeBuild();
-				//this.seqSetup1View.propagateAnalysisInstructions();
+				this.bioinformaticsView.propagateGenomeBuild();
 
 				
 			}
@@ -4562,12 +4554,12 @@
 					this.samplesView.currentState = 'MicroarraySamplesState';
 					this.hybsView.currentState = "";
 					hybsView.channel2SampleColumn.visible = true;
-					confirmView.channel2SampleConfirmColumn.visible = true;
+					confirmView.setChannel2ColVisibility(true);
 				} else {
 					this.samplesView.currentState = 'MicroarrayOneColorSamplesState';
 					this.hybsView.currentState = "HybsOneColorState";
 					hybsView.channel2SampleColumn.visible = false;
-					confirmView.channel2SampleConfirmColumn.visible = false;
+					confirmView.setChannel2ColVisibility(false);
 					for each (var s1:Object in samples) {
 						s1.@label = 'cy3';
 					}
@@ -5154,6 +5146,9 @@
 		    <experiment:TabSamplesBase id="samplesView">		    	
 		    </experiment:TabSamplesBase>
 		    
+			<experiment:TabBioinformaticsView id="bioinformaticsView">
+			</experiment:TabBioinformaticsView>
+			
 			<experiment:TabHybSetupView id="hybSetupView">				
 			</experiment:TabHybSetupView>
 			
@@ -5163,8 +5158,8 @@
 			<experiment:TabVisibilityView id="visibilityView">
 			</experiment:TabVisibilityView>
 			
-			<experiment:TabConfirmView id="confirmView">				
-			</experiment:TabConfirmView>
+			<experiment:TabConfirmBase id="confirmView">				
+			</experiment:TabConfirmBase>
 			
 			<experiment:ExperimentDownloadView id="downloadView" label="Files" borderStyle="none" uploadButtonsVisible="true" removeFileButtonsVisible="true" visible="false" includeInLayout="false" request="{this.request}" >
 			</experiment:ExperimentDownloadView>
@@ -5422,42 +5417,45 @@
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="MicroarrayExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
             <mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
         </mx:State>
         <mx:State name="QCState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="QCExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
         <mx:State name="QCAmendState" basedOn="AmendState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
-            <mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="SequencingEditState" basedOn="EditState">
 			<mx:AddChild relativeTo="{this.completedBox}" position="after">
@@ -5475,9 +5473,9 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="CapSeqEditState" basedOn="SequencingChromaEditState">
@@ -5489,6 +5487,7 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Container"  styleName="formLabel" />
@@ -5506,10 +5505,10 @@
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="FragAnalEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5520,14 +5519,15 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="MitSeqEditState" basedOn="SequencingChromaEditState">
@@ -5539,14 +5539,15 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="CherryPickEditState" basedOn="SequencingEditState">
@@ -5558,13 +5559,14 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="IScanEditState" basedOn="SequencingEditState">
@@ -5574,13 +5576,14 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{confirmView.hybsConfirmContainer}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 		</mx:State>
 		<mx:State name="SequenomEditState" basedOn="SequencingEditState">
@@ -5591,6 +5594,7 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Container" styleName="formLabel" />
@@ -5612,6 +5616,7 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>	
@@ -5629,6 +5634,7 @@
             <mx:RemoveChild target="{confirmView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
     		<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="MicroarrayEditState" basedOn="EditState">
             <mx:RemoveChild target="{setupView}"/>
@@ -5638,6 +5644,7 @@
             <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
     		<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="EditState">
     		<mx:RemoveChild target="{seqSetupView}"/>
@@ -5662,6 +5669,7 @@
          </mx:State>
 		<mx:State name="SeqExternalEditState" basedOn="SolexaEditState">
 			<mx:RemoveChild target="{lanesView}"/>	
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
         <mx:State name="BaseSubmitState">
             <mx:SetStyle target="{agreeCheckbox}" name="fontStyle" value="italic"/>

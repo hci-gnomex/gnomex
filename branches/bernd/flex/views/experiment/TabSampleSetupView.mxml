@@ -134,7 +134,7 @@
 		
 		private function selectDefaultGenomeBuild():void {
 			if (parentDocument.isSolexaState()) {
-				this.parentDocument.seqSetup1View.selectDefaultGenomeBuild();
+				this.parentDocument.bioinformaticsView.selectDefaultGenomeBuild();
 			}
 		}
 
@@ -1596,11 +1596,11 @@
 						   <mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
 						   </mx:VBox>
-						   <mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-							   <mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
-						   </mx:VBox>
 						   <mx:VBox width="45" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
 							   <mx:Text width="45" styleName="formLabel" text="Chips per Kit" textAlign="center"/>
+						   </mx:VBox>
+						   <mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
+							   <mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
 						   </mx:VBox>
 					   </mx:HBox>
 					   <mx:RadioButtonGroup id="iScanChipRadioGroup"/>
@@ -1614,9 +1614,9 @@
 											   groupName="iScanChipRadioGroup" />
 							   <mx:Text width="115" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
 							   <mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
+							   <mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
 							   <mx:Text width="95" textAlign="center" fontSize="9" 
 										text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
-							   <mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
 						   </mx:HBox>
 					   </mx:Repeater>
 					   

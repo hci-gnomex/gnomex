@@ -37,10 +37,8 @@ package views.renderers
           	}
           	if (this.selected) {
           		_data.@isSelected = "true";
-          		parentDocument.showSampleAnnotationColumn(_data.@idProperty, true);
           	} else {
           		_data.@isSelected = "false";
-          		parentDocument.showSampleAnnotationColumn(_data.@idProperty, false);
           	}
           }
 			override protected function updateDisplayList(w:Number, h:Number):void

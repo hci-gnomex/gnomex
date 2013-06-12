@@ -343,6 +343,8 @@
 						}
 					}
 				}
+				
+				requestCategories.refresh();
 			}
 			
 			public function selectDefaultLab():void {

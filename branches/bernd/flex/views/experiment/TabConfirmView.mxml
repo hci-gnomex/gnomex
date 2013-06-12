@@ -1,39 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+<exp:TabConfirmBase xmlns:mx="http://www.adobe.com/2006/mxml" 
 	label="Confirm" width="100%"  
 	height="100%"    horizontalScrollPolicy="off"
 	enabled="false"
-	show="init()" xmlns:util="views.util.*"> 
-	<mx:states>
-		<mx:State name="BillingExceedState" >
-			<mx:AddChild relativeTo="{chargesHeaderBox}" position="lastChild">
-			    <mx:HBox borderStyle="none" id="hbox1" paddingBottom="2" >
-					<mx:Text text="{'Total charges exceed balance remaining on billing account by ' + parentDocument.createBillingItems.lastResult.Request.@exceededDollarAmount + '. Experiment request cannot be submitted.'}" styleName="warningLabelSevere"/>			    	
-			    </mx:HBox>
-			</mx:AddChild>
-			<mx:SetStyle target="{chargesHeaderBox}" name="verticalAlign" value="bottom"/>
-		</mx:State>
-		<mx:State name="ExternalExperimentState">
-			<mx:RemoveChild target="{vbox2}"/>
-			<mx:SetProperty target="{text1}" name="width" value="300"/>
-			<mx:SetProperty target="{text2}" name="width" value="200"/>
-			<mx:SetProperty target="{requestKindLabel}" name="width" value="160"/>
-			<mx:SetProperty target="{appLabel}" name="width" value="160"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the Back button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the Submit button.]]></mx:value>
-			</mx:SetProperty>
-			<mx:RemoveChild target="{billingContainer}"/>
-			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
-			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
-			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
-			<mx:SetStyle target="{hybsGridConfirm}" />
-			
-		</mx:State>
-		<mx:State name="DNASeqCoreState">
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="1.  Please confirm the information below. Click the&lt;br&gt;     Back button or a tab to modify the request.&lt;br&gt;2. Click save button."/>
-			<mx:SetProperty target="{textarea1}" name="height" value="50"/>
-		</mx:State>
-	</mx:states>
+	show="init()" xmlns:exp="views.experiment.*" xmlns:util="views.util.*"> 
+	
 	
 	
 <mx:Script>	
@@ -48,13 +19,9 @@
 		import views.util.AnnotationDataGridColumn;
 		
 		[Bindable]
-		private var submitterName:String = "";
-		
-		[Bindable]
 		private var longDescriptionRowCount:int = 0;
-				
-
-		private function init():void {
+		
+		override public function setupView():void {
 	        this.parentDocument.samplesView.initializeBarcoding();
 			parentDocument.getEstimatedBilling();
 			parentDocument.getMultiplexLanes();
@@ -83,7 +50,11 @@
 				avgInsertSizeBox.visible = false;
 			}
 			
-			submitterName = parentDocument.getSubmitterName();
+			submitterName.text = parentDocument.getSubmitterName();
+			this.expDescriptArea.htmlText = parentDocument.saveDescription;
+			this.experimentName.text = parentDocument.request.@name;
+			this.seqNotes.text = parentDocument.request.@corePrepInstructions != null ? parentDocument.request.@corePrepInstructions : '';
+			this.bioNotes.text = parentDocument.request.@analysisInstructions != null ? parentDocument.request.@analysisInstructions : '';
 			
 			longDescriptionRowCount = 0;
 			for each (var s:Object in parentDocument.samples) {
@@ -156,12 +127,11 @@
 					this.primerVbox.visible = false;	
 				}
 			}
-			this.showHideColumns();
 			this.confirmContainer.validateNow();
 			
 		} 
 
-        public function showHideColumns():void {
+		override public function showHideColumns():void {
 			this.filteredSamples.removeAll();
 			for each(var sample:Object in parentDocument.samples) {
 				if (sample.@name != null && sample.@name != '') {
@@ -338,9 +308,10 @@
 				this.sampleRowNumberCol.visible = false;
 
 			}
-			// If this is a QC request, hide the annotation columns 
+			// Hide the annotation columns 
 			if (parentDocument.currentState == 'QCState' || 
-				(parentDocument.isSequencingState() && !parentDocument.isIScanState()) || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+				parentDocument.isSequencingState() || 
+				parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				// Make all annotation columns invisible
 				for each(var col:DataGridColumn in this.samplesGridConfirm.columns) {
 					if (col is views.util.AnnotationDataGridColumn) {
@@ -357,18 +328,6 @@
   						 
         }
 		
-		public function getEmptyTreeIcon(item:Object):Class {
-			return null; 
-		} 
-		
-		public function blankNLabelFunction(item:Object, column:DataGridColumn):String
-		{
-			if (item[column.dataField].toString() == "N") {
-				return ""
-			} else {
-				return item[column.dataField].toString();
-			}
-		}
 		
 		public function getSamplesConfirmGridRowNumber(item:Object,col:int):String
 		{
@@ -379,10 +338,31 @@
 				return "";
 			}
 		}
+		
+		override public function setBarcodeColVisibility(visibility:Boolean):void {
+			this.barcodeColumn.visible = false;
+		}
+		
+		
+		override public function setChannel2ColVisibility(visibility:Boolean):void {
+			this.channel2SampleConfirmColumn.visible = false;
+		}
+		
+		override public function getSamplesGrid():DataGrid {
+			return this.samplesGridConfirm;
+		}
+		
+		override public function setBillingGridRowCount(rowCount:int):void{
+			this.billingConfirmGrid.rowCount = rowCount;
+			this.billingConfirmGrid.validateNow();
+		}
+		
 	]]>
 	
 </mx:Script>
-	<mx:XMLListCollection id="filteredSamples"/>
+	
+	<mx:XMLListCollection id="filteredSamples" />
+	
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
 			<mx:HBox width="100%" horizontalGap="4">
@@ -403,7 +383,7 @@
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" width="140" id="text2"/>
 					<mx:Label text="Submitter" styleName="formLabel" height="16"/>
-					<mx:Text  text="{submitterName}" width="140" />
+					<mx:Text  id="submitterName" width="140" />
 				</mx:VBox> 
 				<mx:VBox height="100%" verticalGap="0" width="180" horizontalScrollPolicy="off">
 					<mx:Label text="Project" styleName="formLabel"  height="16"/>
@@ -590,9 +570,7 @@
 		                <mx:DataGridColumn id="customBarcodeColumn" headerText="Index Tag" dataField="@barcodeSequence" editable="false" visible="false"
 							width="58">
 					    </mx:DataGridColumn>
-						<!--<mx:DataGridColumn id="treatmentConfirmColumn" headerText="Treatment" visible="{parentDocument.request.@treatment == 'Y' ? true : false}" width="100" dataField="@treatment"/>-->
 						
-					
   					    <mx:DataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore" editable="false"/>
 			            <mx:DataGridColumn headerText="Seq Lib Protocol" id="seqLibProtocolConfirmCol" width="160" 
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
@@ -606,16 +584,12 @@
 	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					</mx:columns>
 				</mx:DataGrid>
-				<!--<mx:DataGrid width="100%" id="descriptionGrid"  editable="false" dataProvider="{parentDocument.samples}" 
-							 backgroundAlpha="0" borderStyle="solid"  horizontalScrollPolicy="off"
-							 sortableColumns="false" alpha="0.8" fontSize="9" >
-					<mx:columns>
-						<mx:DataGridColumn headerText="Experiment Description" width="200" dataField="@description"/>
-					</mx:columns>
-					</mx:DataGrid>-->
+				
 			</mx:VBox>
 			
-			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4">
+			<mx:VBox width="100%" verticalGap="0" id="hybsConfirmContainer" paddingTop="4" 
+					 includeInLayout="{!parentDocument.isSequencingState()&amp;&amp;!parentDocument.isSequenomState()&amp;&amp;!parentDocument.isClinicalSequenomState()}"
+					 visible="{!parentDocument.isSequencingState()&amp;&amp;!parentDocument.isSequenomState()&amp;&amp;!parentDocument.isClinicalSequenomState()}">
 				<mx:Label text="{'Hybridizations (' + parentDocument.hybs.length + ')'}" id="label3" styleName="formLabel"/>
 				<mx:DataGrid width="100%" id="hybsGridConfirm" rowCount="{parentDocument.hybs.length}"
 					editable="false" dataProvider="{parentDocument.hybs}"  
@@ -689,4 +663,35 @@
 			</mx:VBox>
  </mx:VBox>
  </mx:VBox>
-</mx:Canvas>
+	
+	<exp:states>
+		<mx:State name="BillingExceedState" >
+			<mx:AddChild relativeTo="{chargesHeaderBox}" position="lastChild">
+				<mx:HBox borderStyle="none" id="hbox1" paddingBottom="2" >
+					<mx:Text text="{'Total charges exceed balance remaining on billing account by ' + parentDocument.createBillingItems.lastResult.Request.@exceededDollarAmount + '. Experiment request cannot be submitted.'}" styleName="warningLabelSevere"/>			    	
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:SetStyle target="{chargesHeaderBox}" name="verticalAlign" value="bottom"/>
+		</mx:State>
+		<mx:State name="ExternalExperimentState">
+			<mx:RemoveChild target="{vbox2}"/>
+			<mx:SetProperty target="{text1}" name="width" value="300"/>
+			<mx:SetProperty target="{text2}" name="width" value="200"/>
+			<mx:SetProperty target="{requestKindLabel}" name="width" value="160"/>
+			<mx:SetProperty target="{appLabel}" name="width" value="160"/>
+			<mx:SetProperty target="{textarea1}" name="htmlText">
+				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the Back button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the Submit button.]]></mx:value>
+			</mx:SetProperty>
+			<mx:RemoveChild target="{billingContainer}"/>
+			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
+			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
+			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
+			<mx:SetStyle target="{hybsGridConfirm}" />
+			
+		</mx:State>
+		<mx:State name="DNASeqCoreState">
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="1.  Please confirm the information below. Click the&lt;br&gt;     Back button or a tab to modify the request.&lt;br&gt;2. Click save button."/>
+			<mx:SetProperty target="{textarea1}" name="height" value="50"/>
+		</mx:State>
+	</exp:states>
+</exp:TabConfirmBase>

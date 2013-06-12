@@ -129,12 +129,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private String                       loginDateTime;
   
   private BSTXSecurityAdvisor          bstxSecurityAdvisor;
+  
+  private String                       ntUserName;
 
   public String getLoginDateTime() {
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
@@ -143,6 +145,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     this.isLabManager = isLabManager;
     this.canAccessBSTX = canAccessBSTX;
+    this.ntUserName = ntUserName;
 
     setGlobalPermissions();    
     validate();
@@ -289,15 +292,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     
     // check if can access BSTX
+    String ntUserName = null;
     if (isGNomExUniversityUser) {
       String canAccessBSTXString = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
       if (canAccessBSTXString != null && canAccessBSTXString.equals("Y")) {
-        canAccessBSTX = isUserInAssociateTable(uid);
+        ntUserName = getNtUserName(uid);
+        if (ntUserName != null) {
+          canAccessBSTX = true;
+        }
       }
     }
     
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
@@ -306,16 +313,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return securityAdvisor;
   }
   
-  private static boolean isUserInAssociateTable(String uid) {
-    boolean in = false;
+  private static String getNtUserName(String uid) {
+    String name = null;
+    String peopleSoftID = "0" + uid.substring(1);
     try {
       Session bstxSession = HibernateBSTXSession.currentBSTXSession(uid);
-      Query query = bstxSession.createQuery("SELECT idSite, assocPreferredName, assocFirstName, assocLastName, personID " +
-          "FROM Associate WHERE ntUserName = :userName");
-      query.setParameter("userName", uid);
+      Query query = bstxSession.createQuery("SELECT ntUserName, idSite, assocPreferredName, assocFirstName, assocLastName, personID " +
+          "FROM Associate WHERE peopleSoftID = :peopleSoftID");
+      query.setParameter("peopleSoftID", peopleSoftID);
       List assocUsers = query.list();
       if (assocUsers.size() > 0) {
-        in = true;
+        Object[] row = (Object[])assocUsers.get(0);
+        name = (String)row[0];
       }
     } catch(Exception ex) {
       log.error("Error querying associate table.", ex);
@@ -327,7 +336,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
     
-    return in;
+    return name;
   }
   
   public static SecurityAdvisor createGuest()
@@ -2996,7 +3005,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // If it doesn't exist, create it and save it for later (so we only have to create it once).
       else
       {
-        bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, username);
+        bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, this.ntUserName);
         httpSession.setAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, bstxSecurityAdvisor);
       }
     }
