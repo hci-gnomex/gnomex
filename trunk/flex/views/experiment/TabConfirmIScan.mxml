@@ -38,13 +38,14 @@
 				}
 				
 				this.iScanChip = parentApplication.iScanChipList.source.(@idIScanChip == parentDocument.request.@idIScanChip)[0];
-				this.iScanChip.@totalChipCost = new Number(iScanChip.@samplesPerChip) * new Number(iScanChip.@chipsPerKit) * new Number(iScanChip.@costPerSample);
+				this.iScanChip.@totalChipCost = new Number(iScanChip.@samplesPerChip) * new Number(parentDocument.request.@numberIScanChips) * new Number(iScanChip.@costPerSample);
 				
 				this.illuminaPriceHeader.text = 'Estimated Charges for Illumina Product ' + dollarFormatter.format(iScanChip.@totalChipCost); 
 				this.illuminaPriceText.text = dollarFormatter.format(iScanChip.@totalChipCost);
 				this.expDescriptArea.htmlText = parentDocument.saveDescription;
 				this.experimentName.text = parentDocument.request.@name;
 				this.seqNotes.text = parentDocument.request.@corePrepInstructions;
+				this.numChips.text =  parentDocument.request.@numberIScanChips;
 				
 				this.confirmContainer.validateNow();
 			} 
@@ -126,10 +127,10 @@
 				<mx:HBox horizontalGap="1">
 					<mx:Text width="139" fontSize="11" text="iScan Chip" color="#747170"/>
 					<mx:Text width="300" fontSize="11" color="#747170"
-							 text="{iScanChip.@name + ' (' + iScanChip.@samplesPerChip + ' samples/chip, ' + iScanChip.@chipsPerKit + ' chips/kit)'}" styleName="normal"/>
+							 text="{iScanChip.@name + ' (' + iScanChip.@samplesPerChip + ' samples/chip, ' + parentDocument.request.@numberIScanChips + ' chips)'}" styleName="normal"/>
 					<mx:Text width="24" fontSize="11" text="{iScanChip.@samplesPerChip}" textAlign="right" color="#747170" styleName="normal"/>
 					<mx:Text width="10" fontSize="11" text="X" textAlign="center" color="#747170" styleName="normal"/>
-					<mx:Text width="20" fontSize="11" text="{iScanChip.@chipsPerKit}" textAlign="right" color="#747170" styleName="normal"/>
+					<mx:Text width="20" fontSize="11" id="numChips" textAlign="right" color="#747170" styleName="normal"/>
 					<mx:Text width="10" fontSize="11" text="X" textAlign="center" color="#747170" styleName="normal"/>
 					<mx:Text width="67" fontSize="11" textAlign="right" color="#747170"
 							 text="{iScanChip.@costPerSample}" styleName="normal"/>
