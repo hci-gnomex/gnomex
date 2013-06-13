@@ -1543,6 +1543,8 @@ CREATE TABLE `gnomex`.`Request` (
   `coreToExtractDNA` CHAR(1) NULL,
   `applicationNotes` varchar(2000) null,
   `processingDate` DATETIME NULL,
+  `materialQuoteNumber` VARCHAR(50) NULL,
+  `quoteReceivedDate` DATETIME NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
