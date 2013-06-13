@@ -89,6 +89,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
   private Integer         meanLibSizeActual;
+  private String          materialQuoteNumber;
+  private Date            quoteReceivedDate;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1308,6 +1310,22 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
   public void setMeanLibSizeActual(Integer meanLibSizeActual) {
     this.meanLibSizeActual = meanLibSizeActual;
+  }
+  
+  public String getMaterialQuoteNumber() {
+    return materialQuoteNumber;
+  }
+  
+  public void setMaterialQuoteNumber( String materialQuoteNumber ) {
+    this.materialQuoteNumber = materialQuoteNumber;
+  }
+  
+  public Date getQuoteReceivedDate() {
+    return quoteReceivedDate;
+  }
+  
+  public void setQuoteReceivedDate( Date quoteReceivedDate ) {
+    this.quoteReceivedDate = quoteReceivedDate;
   }
 
 }
