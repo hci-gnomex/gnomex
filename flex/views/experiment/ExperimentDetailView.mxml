@@ -2034,6 +2034,18 @@
 				<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 			</mx:HBox>
 		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="Quote Number" width="100" styleName="formLabel"/>
+				<mx:Text text="{this.selectedExperiment.@materialQuoteNumber}" width="280" />
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="Quote Received" width="100" styleName="formLabel"/>
+				<mx:Text text="{this.selectedExperiment.@quoteReceivedDate}" width="280" />
+			</mx:HBox>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="SequenomState">
 		<mx:RemoveChild target="{hbox4}"/>
