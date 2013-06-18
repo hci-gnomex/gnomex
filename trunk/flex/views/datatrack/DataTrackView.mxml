@@ -1038,7 +1038,7 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
-						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="All Lab Members (all members of the group)"/>
+						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="All Lab Members "/>
 						<mx:VBox verticalGap="0" height="100%" width="300" verticalAlign="bottom">
 							<mx:Text width="300" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10">									
 								<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
