@@ -70,7 +70,7 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
       // Exclude extra user information
       user.excludeMethodFromXML("getCodeUserPermissionKind");
       user.excludeMethodFromXML("getuNID");
-      user.excludeMethodFromXML("getEmail");
+      //user.excludeMethodFromXML("getEmail");
       user.excludeMethodFromXML("getDepartment");
       user.excludeMethodFromXML("getInstitute");
       user.excludeMethodFromXML("getJobTitle");

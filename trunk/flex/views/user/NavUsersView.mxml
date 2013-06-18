@@ -410,31 +410,48 @@
           {
           	var call:Object = deleteLab.send();
           }
-          
-          
-
+ 
 
           private function filterUser(item:Object):Boolean {
+			  if (radioSearchUserType.selectedValue == "UserName") {
                 return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
+			  } else if (radioSearchUserType.selectedValue == "UserEmail") {
+				  return item.@email.toString().match(new RegExp(userEmailSearchText.text + ".*", "i"));
+			  }
+			  return true;
           } 
 			
           private function filterLab(item:Object):Boolean {
-			  
-			  var labString:String = parentApplication.escapeRegexChars(labSearchText.text);
 			  var deptString:String = parentApplication.escapeRegexChars(deptSearchText.text);
+			  var labString:String;
+			  if (radioSearchGroupType.selectedValue == "LabName") {
+				  labString = parentApplication.escapeRegexChars(labSearchText.text);
+			  } else if (radioSearchGroupType.selectedValue == "Email"){
+				  labString = parentApplication.escapeRegexChars(groupEmailSearchText.text);
+			  }
+
 			  if(labString != "" && deptString != ""){
-				return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+				  if (radioSearchGroupType.selectedValue == "LabName") {
+					  return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+				  } else if (radioSearchGroupType.selectedValue == "Email"){
+					  return (item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+				  }
 			  }
 			  else if(labString != ""){
-                return item.@name.toString().match(new RegExp(labString + ".*", "i"));
+				  if (radioSearchGroupType.selectedValue == "LabName") {
+					  return item.@name.toString().match(new RegExp(labString + ".*", "i"));
+				  } else if (radioSearchGroupType.selectedValue == "Email"){
+					  return item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i"));  
+				  }
 			  }
 			  else if(deptString != ""){
 				  return item.@department.toString().match(new RegExp("^" + deptString, "i"));
 			  }
 			  else{
 				  return true;
-			  }  
-          }    
+			  }
+			  return true;
+		  }    
 
           private function resultHandler(event:ResultEvent):void {
             var call:Object = event.token;
@@ -581,7 +598,56 @@
             }         
          }
          
-         
+		 private function buildEmailToolTip(item:Object):String{
+			var emailString:String = "";
+			if(item != null) 			{
+				emailString = item.@email;
+			}
+			return emailString;
+		 }	
+
+		 private function buildEmailsToolTip(item:Object):String{
+			var emailsString:String = "";
+			if(item != null) {
+				if (item.@billingContactEmail == "" && item.@contactEmail == "" ) {	
+					return "No Emails Listed";
+				}
+				if (item.@billingContactEmail != "" ){
+					emailsString = item.@billingContactEmail;
+					if (item.@contactEmail != "" ) 
+						emailsString += ", "+ item.@contactEmail;
+				} else {
+					emailsString = item.@contactEmail;
+				}
+			}
+			return emailsString;
+		 }	
+			
+		private function handleSearchUsersByName(ev:Event):void{
+			userSearchText.visible = true;
+			userEmailSearchText.visible = false;
+		}
+		
+		private function handleSearchUsersByEmail(ev:Event):void{
+			userSearchText.visible = false;
+			userEmailSearchText.visible = true;
+		}
+	
+		private function handleSearchGrpByName(ev:Event):void{
+			labSearchText.visible = true;
+			groupEmailSearchText.visible = false;
+			//labsGrid.visible = true;
+			//groupEmailGrid.visible = false;
+		}
+		
+		private function handleSearchGrpByEmail(ev:Event):void{
+			labSearchText.visible = false;
+			groupEmailSearchText.visible = true;
+			//labsGrid.visible = false;
+			//groupEmailGrid.visible = true;
+		}
+
+			
         ]]>
     </mx:Script>
 
@@ -599,19 +665,40 @@
 	
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
-			          <mx:HBox width="100%" paddingTop="4">
-			       	      <mx:Label text="Search users" styleName="labelSmall" fontSize="11"/>
-			       	      <mx:TextInput id="userSearchText" editable="true" 
-			       	      	change="appUsers.refresh()" width="100%" toolTip="Type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
-			          </mx:HBox>
-			    
-		
+						<mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+							<mx:Label text="Search users" styleName="labelSmall" fontSize="11"/>
+							<mx:RadioButtonGroup id="radioSearchUserType" selectedValue="UserName"/>  
+							<mx:RadioButton id="radioSearchUserByName" groupName="radioSearchUserType" 
+											label="User Name"  width="100%"  
+											value="UserName"
+											click="handleSearchUsersByName(event);"/>
+							<mx:RadioButton id="radioSearchUserByEmail" groupName="radioSearchUserType" 
+											label="Email"  width="100%" 
+											value="UserEmail"
+											click="handleSearchUsersByEmail(event);"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+							<mx:TextInput id="userSearchText" visible="true" editable="true" change="appUsers.refresh()" width="100%" toolTip="Type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
+							<mx:TextInput id="userEmailSearchText" visible="false" editable="true" change="appUsers.refresh()" width="100%" toolTip="Type Email Address here to find in list." backgroundColor="#FFFFFF"/>
+						</mx:HBox>	  
+
+	
 		    	      <mx:DataGrid id="usersGrid" 
 		    	      	visible="true" width="100%" editable="false" enabled="true" 
-		    	      	dataProvider="{appUsers}" height="100%"  
+		    	      	dataProvider="{appUsers}" height="100%"
+						dataTipFunction="buildEmailToolTip"
 		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 						<mx:columns>
-									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>			
+									<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName" showDataTips="true"/>			
+					    </mx:columns>
+		      	     </mx:DataGrid>
+
+		    	      <mx:DataGrid id="usersEmailGrid" 
+		    	      	visible="true" width="100%" editable="false" enabled="true" 
+		    	      	dataProvider="{appUsers}" height="100%"
+		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+						<mx:columns>
+									<mx:DataGridColumn headerText="Users" width="100" dataField="@email" />			
 					    </mx:columns>
 		      	     </mx:DataGrid>
 						
@@ -640,9 +727,21 @@
 		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0">
 			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" verticalGap="0">
 			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
-			       	      <mx:Text width="100" styleName="labelSmall" paddingTop="0" fontSize="11" text="Search groups"/>
-			       	      <mx:TextInput id="labSearchText" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
-			          </mx:HBox>
+			       	      <mx:Text width="100" styleName="labelSmall" paddingTop="0" fontSize="11" text="Search groups by"/>
+						  <mx:RadioButtonGroup id="radioSearchGroupType" selectedValue="LabName"/>  
+						  <mx:RadioButton id="radioSearchGrpByLabName" groupName="radioSearchGroupType" 
+										  label="Lab Name"  width="100%"  
+										  value="LabName"
+										  click="handleSearchGrpByName(event);"/>
+						  <mx:RadioButton id="radioSearchGrpByEmail" groupName="radioSearchGroupType" 
+										  label="Email"  width="100%" 
+										  value="Email"
+										  click="handleSearchGrpByEmail(event);"/>
+					  </mx:HBox>
+					  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+						  <mx:TextInput id="labSearchText" visible="true" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
+						  <mx:TextInput id="groupEmailSearchText" visible="false" editable="true" change="labs.refresh()" width="100%" toolTip="Type Email Address here to locate in list." backgroundColor="#FFFFFF"/>
+					  </mx:HBox>	  
 					<mx:ViewStack id="filterStack" width="100%">
 						<mx:HBox width="100%">
 							<mx:LinkButton label="More filters..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
@@ -671,9 +770,9 @@
 					  </mx:VBox>
 						
 						
-					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" dataTipFunction="buildEmailsToolTip">
 						<mx:columns>
-							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name" showDataTips="true"/>
 							<mx:DataGridColumn width="10" dataField="@name">
 								<mx:itemRenderer>
 									<mx:Component>
@@ -688,6 +787,26 @@
 							</mx:DataGridColumn>
 					    </mx:columns>
 		      	      </mx:DataGrid>
+						
+						<mx:DataGrid id="groupEmailGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" >
+							<mx:columns>
+								<mx:DataGridColumn headerText="Groups" width="100" dataField="@billingContactEmail" />
+								<mx:DataGridColumn width="10" dataField="@billingContactEmail">
+									<mx:itemRenderer>
+										<mx:Component>
+											<mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
+												<mx:Image id="groupImage"  
+														  source="{data.@isExternalPricing == 'Y' ? parentApplication.iconExternalAcademic : (data.@isExternalPricingCommercial == 'Y' ? parentApplication.iconExternalCommercial : '')}"> 
+												</mx:Image> 
+											</mx:HBox>
+											
+										</mx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
+							</mx:columns>
+						</mx:DataGrid>
+
+						
 						
 					  <mx:Label text="{labs.length + ' lab groups'}" visible="{labs.length > 0}" fontStyle="italic" width="100%" textAlign="right"/>
 		    	    </mx:VBox>
