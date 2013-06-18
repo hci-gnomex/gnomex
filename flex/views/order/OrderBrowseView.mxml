@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
+		 backgroundAlpha="0"
 		 xmlns:util="views.util.*"  
 		 verticalGap="3" currentState="GenericCoreState">
+	
 	<mx:states>
 		<mx:State name="GenericCoreState">
 			<mx:AddChild relativeTo="{iScanCheckbox}" position="before">
@@ -542,7 +544,7 @@
 	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%" id="vbox2">
 		<mx:VBox width="100%">
 			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
-				<mx:HBox horizontalGap="0" width="90">
+				<mx:HBox horizontalGap="0" width="90" verticalAlign="middle">
 					<mx:Image source="assets/review.png"/>
 					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" />			
 				</mx:HBox>
@@ -812,13 +814,15 @@
 	
 	
 		
-		<mx:VBox width = "100%" height = "100%" verticalGap = "1">
+		<mx:VBox width = "100%" height = "100%" verticalGap = "1" styleName="panelBox">
 			
 			<mx:HBox width = "100%" verticalAlign = "bottom">
 				<mx:Spacer width = "100%" />
 				
 			</mx:HBox>
 			
+			<mx:VBox width = "100%" height = "100%">
+				
 			<mx:DataGrid id = "orderGrid" minWidth="0" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
 						 wordWrap="true"
 						 variableRowHeight="true"
@@ -941,5 +945,6 @@
 		
 		
 	</mx:ControlBar>
-	
+			
+		</mx:VBox>
 </mx:VBox>
