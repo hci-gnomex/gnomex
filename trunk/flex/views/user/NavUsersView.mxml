@@ -257,7 +257,14 @@
             callGetAppUser();
           }
           
-          
+		private function userEmailRowSelected(event:Event):void 
+		{
+			detailViews.selectedChild = userDetailView;
+			this.selectedUser = usersEmailGrid.selectedItem;
+			callGetAppUser();
+		}
+		
+       
           
           private function labRowSelected():void 
            {
@@ -280,6 +287,24 @@
             detailViews.selectedChild = this.groupDetailView;
           }
 
+		private function labEmailRowSelected():void 
+		{
+			//if (isDirty()) {
+			//	this.labsGrid.selectedItem = this.selectedLab;
+			//	checkDirty();
+			//	return;           		
+			//} 
+			if (parentApplication.hasPermission("canAdministerUsers")) {
+				detailViews.selectedChild = this.groupDetailView;
+			} else {
+				detailViews.selectedChild = this.groupManageView;	
+			}
+			this.selectedLab = groupEmailGrid.selectedItem;
+			callGetLab();
+			detailViews.selectedChild = this.groupDetailView;
+		}
+		
+			
           private function manageLabRowSelected():void 
            {
            	//if (isDirty()) {
@@ -696,7 +721,7 @@
 		    	      <mx:DataGrid id="usersEmailGrid" 
 		    	      	visible="true" width="100%" editable="false" enabled="true" 
 		    	      	dataProvider="{appUsers}" height="100%"
-		    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+		    	      	itemClick="userEmailRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 						<mx:columns>
 									<mx:DataGridColumn headerText="Users" width="100" dataField="@email" />			
 					    </mx:columns>
@@ -788,7 +813,7 @@
 					    </mx:columns>
 		      	      </mx:DataGrid>
 						
-						<mx:DataGrid id="groupEmailGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" >
+						<mx:DataGrid id="groupEmailGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labEmailRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" >
 							<mx:columns>
 								<mx:DataGridColumn headerText="Groups" width="100" dataField="@billingContactEmail" />
 								<mx:DataGridColumn width="10" dataField="@billingContactEmail">
@@ -824,12 +849,9 @@
 	
 	    	    </mx:VBox>
 
-
 		      </mx:Canvas>
 		      
 		    </mx:TabNavigator>
-			
-        	
 
 		<mx:Panel title="Manage Groups">
 			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{groupsToManage}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
