@@ -815,7 +815,7 @@
 						
 						<mx:DataGrid id="groupEmailGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labEmailRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" >
 							<mx:columns>
-								<mx:DataGridColumn headerText="Groups" width="100" dataField="@billingContactEmail" />
+								<mx:DataGridColumn headerText="Groups" width="100" dataField="@workAuthSubmitEmail" />
 								<mx:DataGridColumn width="10" dataField="@billingContactEmail">
 									<mx:itemRenderer>
 										<mx:Component>
