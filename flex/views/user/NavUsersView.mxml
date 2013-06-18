@@ -769,10 +769,10 @@
 					  </mx:HBox>	  
 					<mx:ViewStack id="filterStack" width="100%">
 						<mx:HBox width="100%">
-							<mx:LinkButton label="More filters..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
+							<mx:LinkButton icon="@Embed('../../assets/arrow_down.gif')" label="More..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
 						</mx:HBox>
 						<mx:HBox width="100%">
-							<mx:LinkButton label="Less filters..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
+							<mx:LinkButton icon="@Embed('../../assets/arrow_up.gif')" label="Less..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
 						</mx:HBox>
 						
 					</mx:ViewStack>
