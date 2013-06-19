@@ -1159,7 +1159,7 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
-				<renderers:FilterComboBox labelField="@display"
+				<renderers:FilterComboBox labelField="@display" 
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
@@ -1607,6 +1607,7 @@
 					   <mx:Repeater id="iScanChipRepeater" dataProvider="{parentApplication.iScanChipList}"> 
 						   <mx:HBox verticalAlign="top" width="100%">
 							   <mx:RadioButton width="230" 
+											   enabled="{parentDocument.request.@idRequest == '0' || parentDocument.request.@codeRequestStatus == 'NEW'}"
 											   label="{iScanChipRepeater.currentItem.@name}" 
 											   paddingLeft="0" paddingRight="1"
 											   value="{iScanChipRepeater.currentItem}" 
@@ -1707,6 +1708,7 @@
 		   </mx:AddChild>
 		   <mx:AddChild relativeTo="{numberOfSamples}" position="before">
 			   <renderers:FilterComboBoxNumberIScanSamples id="numberIScanSamples"
+														   enabled="{parentDocument.request.@idRequest == '0' || parentDocument.request.@codeRequestStatus == 'NEW'}"
 				   										   iScanChip="{iScanChipRadioGroup.selectedValue}"
 														   labelField="@display"
 													 	   fontSize="10"

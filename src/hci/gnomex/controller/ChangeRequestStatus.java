@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PropertyDictionary;
@@ -21,6 +22,8 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,6 +122,19 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   + req.getNumber()
                   + " has been submitted.  Request submitter or request submitter email is blank.");
               log.error(msg);
+            }
+            
+            if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) ) {
+              // Send email to illumina contact requesting quote #
+              try {
+                // confirmation email for dna seq requests is sent at submit time.
+                sendIlluminaEmail(sess, req);
+              } catch (Exception e) {
+                String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
+                  + req.getNumber()
+                  + ".  " + e.toString();
+                log.error(msg);
+              }
             }
           }
         }
@@ -258,9 +274,13 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
       ".  You will receive email notification when the experiment is complete.");   
-    introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
-          
     
+    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) &&  req.getNumberIScanChips()==0 ) {
+        introNote.append("<br><br><b>Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not be sent to the Illumina rep requesting a quote number for purchasing chips.</b>");   
+    }
+
+    introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+       
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, req, "", req.getSamples(), new HashSet(), new HashSet(), introNote.toString());
     String subject = dictionaryHelper.getRequestCategory(req.getCodeRequestCategory()) + 
                   (req.getIsExternal().equals("Y") ? " Experiment " : " Experiment Request ") + 
@@ -316,6 +336,81 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           true);      
     }
     
+  }
+  
+  private void sendIlluminaEmail(Session sess, Request req) throws NamingException, MessagingException {
+
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    String requestNumber = req.getNumber();
+    IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
+
+    if ( chip == null || req.getNumberIScanChips()==0 ) {
+      return;
+    }
+    
+    String numberChips = req.getNumberIScanChips() != null ? req.getNumberIScanChips().toString() : "";
+    String chipName = chip.getName() != null ? chip.getName() : "";
+    String catNumber = chip.getCatalogNumber() != null ? chip.getCatalogNumber() : "";
+    
+    StringBuffer emailBody = new StringBuffer();
+    String uploadQuoteURL = appURL + "/" + Constants.UPLOAD_QUOTE_JSP + "?requestNumber=" + requestNumber ;
+
+    emailBody.append("A request for iScan chips has been submitted from the " + 
+                      PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) +
+                      ".");
+    emailBody.append("<br><br><table border='0' width = '600'><tr><td>Chip Type:</td><td>" + chipName );
+    emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
+    emailBody.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
+
+    emailBody.append("</td></tr></table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME + " - Upload Quote Info</a>.");
+
+    String subject = "Request for Quote Number for iScan Chips";
+
+    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailIlluminaRep  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_ILLUMINA_REP);
+    
+    String senderEmail = contactEmailCoreFacility;
+
+    String contactEmail = contactEmailIlluminaRep;
+    String ccEmail = null;
+        
+
+    String emailInfo = "";
+    boolean send = false;
+
+    if(contactEmail.contains(",")){
+      for(String e: contactEmail.split(",")){
+        if(!MailUtil.isValidEmail(e.trim())){
+          log.error("Invalid email address: " + e);
+        }
+      }
+    } else{
+      if(!MailUtil.isValidEmail(contactEmail)){
+        log.error("Invalid email address: " + contactEmail);
+      }
+    }
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      send = true;
+    } else {
+      send = true;
+      subject = subject + " (TEST)";
+      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmailIlluminaRep + "]<br><br>";
+      ccEmail = null;
+    }    
+
+    if (send) {
+      if(!MailUtil.isValidEmail(senderEmail)){
+        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
+      MailUtil.send(contactEmail, 
+          ccEmail,
+          senderEmail, 
+          subject, 
+          emailInfo + emailBody.toString(),
+          true);      
+    }
+
   }
 
 

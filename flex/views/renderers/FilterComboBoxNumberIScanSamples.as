@@ -54,6 +54,12 @@ package views.renderers
 				numberOfSamples = numberOfChips*samplesPerChip;
 			} while ( numberOfSamples <= 500);
 			
+			item = new XML("<IScanSampleNumberItem/>");
+			item.@numberOfSamples = 1;
+			item.@numberOfChips = 0;
+			item.@numberOfKits = 0;
+			item.@display = "Other/Custom number of samples";
+			dp.addItem(item);
 		}
 		
 		

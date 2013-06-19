@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SeqLibTreatment;
@@ -38,6 +39,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   private AppUser          appUser;
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
+  private IScanChip        iScanChip;
   
   private String           captionStyle = "font-size: 10pt; font-weight: bold; color: #8B7765; caption-side: top; text-align: left; margin-left: 0; margin-top: 25; margin-bottom: 0; padding-top: 25; padding-bottom: 0;";
   
@@ -64,6 +66,10 @@ public class RequestEmailBodyFormatter extends DetailObject{
     if (request.getIdBillingAccount() != null) {
       billingAccount = (BillingAccount)sess.get(BillingAccount.class, request.getIdBillingAccount());
     }
+    iScanChip = null;
+    if (request.getIdIScanChip() != null) {
+      iScanChip = (IScanChip)sess.get(IScanChip.class, request.getIdIScanChip());
+    }
     
     if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory()) || RequestCategory.isSequenom(request.getCodeRequestCategory())) {
       includeMicroarrayCoreNotes = false; 
@@ -74,7 +80,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
   public String format() {
 
     
-    RequestHTMLFormatter formatter = new RequestHTMLFormatter(this.secAdvisor, request, appUser, billingAccount, dictionaryHelper);
+    RequestHTMLFormatter formatter = new RequestHTMLFormatter(this.secAdvisor, request, appUser, billingAccount, dictionaryHelper, iScanChip);
     formatter.setIncludeMicroarrayCoreNotes(includeMicroarrayCoreNotes);
     
     Element root = new Element("HTML");

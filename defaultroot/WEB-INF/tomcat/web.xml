@@ -271,6 +271,13 @@
     </servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>UploadQuoteInfoServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.UploadQuoteInfoServlet
+    </servlet-class>
+  </servlet>
+  
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
 		<url-pattern>*.gx</url-pattern>
@@ -430,6 +437,11 @@
     <url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>
   </servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>UploadQuoteInfoServlet</servlet-name>
+    <url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
+  </servlet-mapping>
+  
 	<!-- Session timeout set to 4 hours -->
 	<session-config>
 		<session-timeout>240</session-timeout>
@@ -455,6 +467,7 @@
 			<url-pattern>/uploadAnalysisFile_plupload.jsp</url-pattern>
 			<url-pattern>/uploadExperimentFile.jsp</url-pattern>
 			<url-pattern>/uploadExperimentFile_plupload.jsp</url-pattern>
+      <url-pattern>/uploadQuoteInfo.jsp</url-pattern>
 			<url-pattern>/uploadSampleSheetFile.jsp</url-pattern>
 			<url-pattern>/uploadSampleSheetFile_plupload.jsp</url-pattern>
 			<url-pattern>/launcher_reconnect.jsp</url-pattern>
@@ -554,6 +567,7 @@
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	
 			<url-pattern>MakeDataTrackIGVLink.gx</url-pattern>  
+      <url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
 			
 		</web-resource-collection>
 		<auth-constraint>

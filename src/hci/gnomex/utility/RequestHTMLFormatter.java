@@ -6,6 +6,7 @@ import hci.gnomex.model.Assay;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateWell;
@@ -44,6 +45,7 @@ public class RequestHTMLFormatter {
   private AppUser          appUser;
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
+  private IScanChip        iScanChip;
   private boolean         includeMicroarrayCoreNotes = true;
   private boolean         dnaSamples = false;
   private Map<String, Assay> assays = null; // this is list of all assays for request if fragment analysis request.
@@ -73,6 +75,11 @@ public class RequestHTMLFormatter {
      includeMicroarrayCoreNotes = false;
    }
    
+ }
+ 
+ public RequestHTMLFormatter(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper, IScanChip iScanChip) {
+   this(secAdvisor, request, appUser, billingAccount, dictionaryHelper);
+   this.iScanChip = iScanChip;
  }
  
  public Element makeIntroNote(String note) {
@@ -157,7 +164,10 @@ public class RequestHTMLFormatter {
            (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
       
     }
-
+    if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
+      table.addContent(makeRow("iScan Chip", iScanChip.getName(),
+          "# of chips",        request.getNumberIScanChips().toString()));
+    }
     
     
     
@@ -227,6 +237,10 @@ public class RequestHTMLFormatter {
         this.addHeaderCell(rowh, "Plate", rowSpan, 1);
         this.addHeaderCell(rowh, "Well",rowSpan, 1);
       }
+    }
+    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
+      this.addHeaderCell(rowh, "Plate", rowSpan, 1);
+      this.addHeaderCell(rowh, "Well",rowSpan, 1);
     }
     if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Container", rowSpan, 1);
@@ -365,6 +379,10 @@ public class RequestHTMLFormatter {
         } else {
           this.addCell(row, "TUBE");
         }
+      }
+      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
+        this.addCell(row, sample.getASourceWell().getPlate().getLabel());
+        this.addCell(row, sample.getASourceWell().getWellName());
       }
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
         if (request.isSequenomPlate()) {
