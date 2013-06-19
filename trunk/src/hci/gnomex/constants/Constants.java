@@ -1,7 +1,5 @@
 package hci.gnomex.constants;
 
-import hci.gnomex.utility.DictionaryHelper;
-
 import java.text.DecimalFormat;
 import java.util.regex.Pattern;
 
@@ -13,12 +11,13 @@ public class Constants {
   
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
   public static final String              SHOW_REQUEST_FORM               = "/ShowRequestForm.gx";
+  public static final String              UPLOAD_QUOTE_JSP                = "/uploadQuoteInfo.jsp";
   
   public static final String              DOWNLOAD_SINGLE_FILE_SERVLET           = "DownloadSingleFileServlet.gx";
   public static final String              DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET  = "DownloadAnalysisSingleFileServlet.gx";
   public static final String              DOWNLOAD_CHROMATOGRAM_FILE_SERVLET     = "DownloadChromatogramFileServlet.gx";
   
-  public static final boolean            REQUIRE_SECURE_REMOTE           = true;
+  public static final boolean             REQUIRE_SECURE_REMOTE           = true;
   
   public static final String              SQL_SERVER                      = "SQL SERVER";
   
@@ -53,6 +52,7 @@ public class Constants {
   public static final String              AMEND_ADD_SEQ_LANES             = "SolexaLaneAmendState";
   
   public static final String              UPLOAD_STAGING_DIR              = "upload_staging";
+  public static final String              MATERIAL_QUOTE_DIR              = "material_quote";
   public static final String              DOWNLOAD_KEY_SEPARATOR          = "\t";
   
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");

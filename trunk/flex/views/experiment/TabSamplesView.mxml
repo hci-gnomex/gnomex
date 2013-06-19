@@ -655,19 +655,6 @@
 			}
 			
 			
-			private function countSamples():void{
-				samplesGrid.editable = 'true';
-				if ( parentDocument.isIScanState()){
-					var count:int = parentDocument.samples.source.(@name!=null&&@name!='').length();
-					if (count >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
-						var sample:Object = samplesGrid.selectedItem;
-						if ( samplesGrid.selectedItem.@name == null || samplesGrid.selectedItem.@name == '' ) {
-							samplesGrid.editable = 'false';
-						}
-					} 
-				} 
-			}
-			
 			override public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
 				parentDocument.request.replace("samples", <samples></samples>); 
 				for(var idx:int = 0; idx < numDestinationWells; idx++) {
@@ -1779,9 +1766,6 @@
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
 			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemFocusIn" handler="countSamples()"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
 		</mx:State>
 		<mx:State name="SequenomState">			
 			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
@@ -1789,9 +1773,6 @@
 			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
 			<mx:SetProperty target="{textarea1}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
 			<mx:SetProperty target="{textarea1}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemFocusIn" handler="countSamples()"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemClick" handler="countSamples()"/>
-			<mx:SetEventHandler target="{samplesGrid}" name="itemEditBegin" handler="countSamples()"/>
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC #"/>
 			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="350"/>
 		</mx:State>
