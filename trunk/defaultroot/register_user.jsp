@@ -131,6 +131,8 @@ GNomExFrontController.setWebContextPath(webContextPath);
 boolean showUserNameChoice = false;
 String siteLogo = "";
 Session sess = null;
+String publicDataNotice = "";
+
 try {
   sess = HibernateGuestSession.currentGuestSession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
@@ -144,6 +146,12 @@ try {
     siteLogo = "./" + propSiteLogo.getPropertyValue();
   }  else {
     siteLogo = "./assets/gnomex_logo.png";
+  }
+  
+  //Get note informing users about not needing an account for public data
+  PropertyDictionary dataNote = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.PUBLIC_DATA_NOTICE + "'").uniqueResult();
+  if(dataNote != null && !dataNote.getPropertyValue().equals("")) {
+  	publicDataNotice = dataNote.getPropertyValue();
   } 
  
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
@@ -179,6 +187,10 @@ try {
           <a href="reset_password.jsp">Reset password</a> 
       </div>
     </div>
+    
+    <div align="center" bgcolor="white">
+    	<p style="color:blue"> <%=publicDataNotice%> </p>
+    <div>
 
     <form name="theform" method="POST" action="PublicSaveSelfRegisteredAppUser.gx" >
 
