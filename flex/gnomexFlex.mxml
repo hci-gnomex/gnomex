@@ -3205,6 +3205,7 @@
 					theViews.selectedChild = navAnalysisView;
 					navAnalysisView.showNewAnalysisWindow();
 				} else if (label == "Add Services to Experiment Order") {
+					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
 				} else if (label == "Create new Experiment and upload your data (generated outside of core facility)" || label=="Create New Experiment and Upload Files") {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
