@@ -7,7 +7,7 @@ while (cIter.hasNext()) {
 	Column col = (Column) cIter.next();
 	out.print(col.getCaption());
 	if (cIter.hasNext()) {
-	  out.print(",");
+	  out.print("\t");
 	} else {
 	  out.println();
 	}
