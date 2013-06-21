@@ -1,7 +1,6 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 
 import java.io.Serializable;
@@ -20,6 +19,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "contact_email_core_facility_workauth_reminder";
   public static final String        REPLY_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER = "reply_email_core_facility_workauth_reminder";
+  public static final String        CONTACT_EMAIL_ILLUMINA_REP          = "contact_email_illumina_rep";
+  public static final String        CONTACT_EMAIL_PURCHASING            = "contact_email_purchasing";
   public static final String        CONTACT_ADDRESS_CORE_FACILITY       = "contact_address_core_facility";
   public static final String        CONTACT_REMIT_ADDRESS_CORE_FACILITY       = "contact_remit_address_core_facility";
   public static final String        FLOWCELL_DIRECTORY_FLAG             = "flowcell_directory_flag";
@@ -96,6 +97,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        REQUEST_SUBMIT_CONFIRMATION_EMAIL   = "request_submit_confirmation_email";
   public static final String        SUBMIT_REQUEST_INSTRUCTIONS         = "submit_request_instructions";
   public static final String        ONCOCARTA_FDF_TEMPLATE              = "oncocarta_fdf_template";
+  public static final String        PUBLIC_DATA_NOTICE                  = "public_data_notice";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";

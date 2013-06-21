@@ -355,6 +355,8 @@
 					labCombo.selectedIndex = -1;
 					billingAccountCombo.selectedIndex = -1;
 					this.billingAccountValidator.validate();
+					lab = null;
+					this.refreshRequestCategories();
 				}
 			}
 			
@@ -508,6 +510,9 @@
 						idAppUser = null;
 					}
 					getLab.send();				
+				} else {
+					lab = null;
+					refreshRequestCategories();
 				}
 			}
 			private function onGetLab(event:ResultEvent):void {			

@@ -349,7 +349,7 @@
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle">
 					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicMember}"/>
-					<mx:RadioButton id="radioMembersVisibility" value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="Members   (all members of the group)"/>
+					<mx:RadioButton id="radioMembersVisibility" value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" label="All Lab Members "/>
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle">
 					<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicInstitution}"/>

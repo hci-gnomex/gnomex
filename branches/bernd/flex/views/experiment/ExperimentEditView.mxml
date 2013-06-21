@@ -2150,6 +2150,8 @@
 			requestCategoryName = requestCategory.@display.toString();
 			requestIcon = requestCategory.@icon;
 			requestType = requestCategory.@type;
+			
+			this.instantiateTabs(requestCategory.@codeRequestCategory, true, false);
 
 			buttonStack.selectedIndex = 1;
 			
@@ -2732,7 +2734,7 @@
 					if (visibilityView.visibilityRadioGroup.selectedValue == 'INST') {
 						if (visibilityView.institutionCombo.selectedItem == null || !visibilityView.institutionCombo.selectedItem.hasOwnProperty("@idInstitution") 
 							|| visibilityView.institutionCombo.selectedItem.@idInstitution == '') {
-							errorMessage += "You must select and Institution for institution visibility.  Please select an institution or change to a different visiblity level.\n\n";
+							errorMessage += "You must select an Institution for institution visibility.  Please select an institution or change to a different visiblity level.\n\n";
 						}					
 					}
 				} 
