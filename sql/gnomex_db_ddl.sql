@@ -1309,6 +1309,7 @@ CREATE TABLE `gnomex`.`OligoBarcodeSchemeAllowed` (
   `idOligoBarcodeSchemeAllowed` INT(10) NOT NULL AUTO_INCREMENT,
   `idOligoBarcodeScheme` INT(10) NOT NULL,
   `idSeqLibProtocol` INT(10) NOT NULL,
+  `isIndexGroupB` CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`idOligoBarcodeSchemeAllowed`),
   CONSTRAINT `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` FOREIGN KEY `FK_OligoBarcodeSchemeAllowed_SeqLibProtocol` (`idSeqLibProtocol`)
     REFERENCES `gnomex`.`SeqLibProtocol` (`idSeqLibProtocol`)
@@ -1780,7 +1781,9 @@ CREATE TABLE `gnomex`.`Sample` (
   `ccNumber` VARCHAR(20) NULL,
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
-  `isControl` CHAR(1) NULL, 
+  `isControl` CHAR(1) NULL,
+  `meanInsertSizeActual` INT(10) NULL,
+  `idOligoBarcodeB` INT(10) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
