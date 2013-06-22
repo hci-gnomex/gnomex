@@ -15,3 +15,11 @@ alter table Request add quoteReceivedDate DATETIME NULL;
 
 -- Add public data notice property to be shown on the register new user screen.
 insert into PropertyDictionary values('public_data_notice', '', 'New account note informing users that no account is necessary for public data', 'N', null, null); 
+
+-- Add meanInsertSizeActual and idOligoBarcodeB
+alter table Sample add meanInsertSizeActual INT(10) NULL;
+
+alter table Sample add idOligoBarcodeB INT(10) NULL; 
+
+-- Add isIndexGroupB
+alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT 'N';
