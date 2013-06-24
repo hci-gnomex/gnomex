@@ -221,6 +221,7 @@ public class SecurityManager extends SimpleUserManager  {
       return true;
     } catch (AuthenticationException ae) {
       // Auth failed so return false
+      System.err.println("hci.gnomex.security.SecurityManager Authentication Exception : " + ae.toString());
       return false;
     } catch (Exception e) {
       System.err.println("hci.gnomex.security.SecurityManager ERROR - Cannot connect to UofU LDAP server " + e.toString());
