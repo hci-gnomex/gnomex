@@ -381,9 +381,11 @@
 												}
 												if(thisDataProvider != null) {
 													for each (var dataProviderItem:XML in thisDataProvider) {
-														if(dataProviderItem.@[thisLabelField].toLowerCase() == ssColItemValue.toLowerCase()) {
+														if(dataProviderItem.@[thisLabelField].toLowerCase() == ssColItemValue.toLowerCase() 
+															|| (col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == ssColItemValue.toLowerCase())) {
 															ssColItemValue = dataProviderItem.@[thisValueField];
 															optionFound = true;
+															break;
 														}
 													}												
 												}											
