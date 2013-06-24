@@ -172,7 +172,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       } else {
         requestParser.parse(sess);
         request = requestParser.getRequest();
-
+        
+        // Clear session here so we don't get caught with an auto-flush later on.
+        sess.clear();
+        
         // Admins and users authorized to submit requests can view estimated
         // charges            
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING) &&
