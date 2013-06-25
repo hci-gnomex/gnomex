@@ -68,7 +68,7 @@ public class IScanChip extends DictionaryEntry implements Serializable {
   }
 
   public String getMarkersPerSample() {
-    return markersPerSample;
+    return markersPerSample != null ? markersPerSample : "";
   }
 
   
@@ -78,7 +78,7 @@ public class IScanChip extends DictionaryEntry implements Serializable {
 
   
   public String getCatalogNumber() {
-    return catalogNumber;
+    return catalogNumber != null ? catalogNumber : "";
   }
 
   
