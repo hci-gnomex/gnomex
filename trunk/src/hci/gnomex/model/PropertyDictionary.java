@@ -96,6 +96,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SUBMIT_REQUEST_INSTRUCTIONS         = "submit_request_instructions";
   public static final String        ONCOCARTA_FDF_TEMPLATE              = "oncocarta_fdf_template";
   public static final String        PUBLIC_DATA_NOTICE                  = "public_data_notice";
+  public static final String        REQUISITION_FORM_URL                = "requisition_form_url";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
