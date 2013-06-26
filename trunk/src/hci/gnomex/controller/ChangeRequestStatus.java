@@ -20,14 +20,13 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.RequisitionFormUtil;
 
+import java.io.File;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -99,6 +98,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
         req.setCodeRequestStatus( codeRequestStatus );
 
+        // SUBMITTED
         if ( oldRequestStatus!=null ) {
           if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
             req.setCreateDate(new java.util.Date());
@@ -124,21 +124,49 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
               log.error(msg);
             }
             
+            // For ISCAN Requests
             if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) ) {
-              // Send email to illumina contact requesting quote #
-              try {
-                // confirmation email for dna seq requests is sent at submit time.
-                sendIlluminaEmail(sess, req);
-              } catch (Exception e) {
-                String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
-                  + req.getNumber()
-                  + ".  " + e.toString();
-                log.error(msg);
+              
+              // Bypass requisition form and illumina email for custom orders.
+              IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
+              if ( chip != null && req.getNumberIScanChips()!=0 ) {
+
+                // Download and fill out requisition form
+                try {
+                  File reqFile = RequisitionFormUtil.saveReqFileFromURL(req, sess, serverName);
+                  reqFile = RequisitionFormUtil.populateRequisitionForm( req, reqFile, sess );
+                  if ( reqFile == null ) {
+                    String msg = "Unable to download requisition form for request " + req.getNumber() + "." ;
+                    log.error(msg);
+                  } else {
+                    // If we already have the quote number, send requisition form and quote number to purchasing contact
+                    if ( req.getMaterialQuoteNumber() != null && !req.getMaterialQuoteNumber().equals( "" ) ) {
+                      UploadQuoteInfoServlet.sendPurchasingEmail(sess, req, serverName);
+                    }
+                  }
+
+                } catch (Exception e) {
+                  String msg = "Unable to download and/or fill out requisition form for request "
+                    + req.getNumber()
+                    + ".  " + e.toString();
+                  log.error(msg);
+                  e.printStackTrace();
+                }
+                // Send email to illumina contact requesting quote #
+                try {
+                  sendIlluminaEmail(sess, req);
+                } catch (Exception e) {
+                  String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
+                    + req.getNumber()
+                    + ".  " + e.toString();
+                  log.error(msg);
+                  e.printStackTrace();
+                }
               }
-            }
+            } 
           }
         }
-
+        
         // If this is a DNA Seq core request, we need to create the billing items and send confirmation email 
         // when the status changes to submitted
         if (codeRequestStatus.equals(RequestStatus.SUBMITTED) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
@@ -147,6 +175,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             sess.flush();
           }
         }
+        
+        // COMPLETE
         // Set the complete date
         if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
           if ( req.getCompletedDate() == null ) {
@@ -166,9 +196,9 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                 " is complete. " + e.toString());
           }
           
-          
         }
         
+        // PROCCESSING
         if (codeRequestStatus.equals(RequestStatus.PROCESSING)) {
           if (req.getProcessingDate() == null) {
             req.setProcessingDate( new java.sql.Date( System.currentTimeMillis() ) );
@@ -276,7 +306,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       ".  You will receive email notification when the experiment is complete.");   
     
     if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) &&  req.getNumberIScanChips()==0 ) {
-        introNote.append("<br><br><b>Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not be sent to the Illumina rep requesting a quote number for purchasing chips.</b>");   
+        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");   
     }
 
     introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
@@ -338,14 +368,14 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
   }
   
-  private void sendIlluminaEmail(Session sess, Request req) throws NamingException, MessagingException {
+  private boolean sendIlluminaEmail(Session sess, Request req) throws NamingException, MessagingException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     String requestNumber = req.getNumber();
     IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
 
     if ( chip == null || req.getNumberIScanChips()==0 ) {
-      return;
+      return false;
     }
     
     String numberChips = req.getNumberIScanChips() != null ? req.getNumberIScanChips().toString() : "";
@@ -410,8 +440,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           emailInfo + emailBody.toString(),
           true);      
     }
-
+    return send;
   }
 
-
+ 
 }
