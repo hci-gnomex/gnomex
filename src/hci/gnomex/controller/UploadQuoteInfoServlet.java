@@ -173,10 +173,10 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
         // Send email to purchasing
         try {
-          sendPurchasingEmail(sess, request);
-
-          body.addElement("BR");
-          body.addCDATA("Email sent to purchasing department.");  
+          if ( sendPurchasingEmail(sess, request, serverName) ) {
+            body.addElement("BR");
+            body.addCDATA("Email sent to purchasing department."); 
+          } 
         } catch (Exception e) {
           String msg = "Unable to send email to purchasing regarding Illumina iScan Chip(s) for request "
             + request.getNumber()
@@ -280,7 +280,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
   }
 
-  private void sendPurchasingEmail(Session sess, Request req) throws NamingException, MessagingException {
+  public static Boolean sendPurchasingEmail(Session sess, Request req, String serverName) throws NamingException, MessagingException, IOException {
 
     //workaround until NullPointer exception is dealt with
     InternalAccountFieldsConfiguration.getConfiguration(sess);
@@ -322,7 +322,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
     emailBody.append("</td></tr></table><br><br>");
 
-    String subject = "Request for iScan Chips";
+    String subject = "Purchasing Request for iScan Chips";
 
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
@@ -357,17 +357,30 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       ccEmail = null;
     }    
 
+    // Find requisition file
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(req.getCreateDate());
+    String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, req.getIdCoreFacility());
+    baseDir +=  "/" + createYear;
+    String directoryName = baseDir + "/" + Request.getBaseRequestNumber(req.getNumber());
+    directoryName += "/" + Constants.REQUISITION_DIR;
+    File reqFolder = new File(directoryName);
+    if ( !reqFolder.exists() ) {
+      send = false;
+    }
+    
     if (send) {
       if(!MailUtil.isValidEmail(senderEmail)){
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
-      MailUtil.send(contactEmail, 
+      MailUtil.send_attach(contactEmail, 
           ccEmail,
           senderEmail, 
           subject, 
           emailInfo + emailBody.toString(),
-          true);      
+          true,
+          reqFolder);      
     }
-
+     return send;
   }
 }
