@@ -2532,7 +2532,7 @@
 					}
 					if ( sampleSetupView.numberIScanSamples != null ){
 						for each (var item:XML in sampleSetupView.numberIScanSamples.dataProvider ) {
-							if ( item.@numberOfSamples == request.samples.Sample.(@name!='').length() ) {
+							if ( item.@numberOfChips == request.@numberIScanChips ) {
 								sampleSetupView.numberIScanSamples.selectedItem = item;
 							}
 						}
