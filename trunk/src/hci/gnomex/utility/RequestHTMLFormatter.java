@@ -166,7 +166,7 @@ public class RequestHTMLFormatter {
     }
     if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
       table.addContent(makeRow("iScan Chip", iScanChip.getName(),
-          "# of chips",        request.getNumberIScanChips().toString()));
+          "# of Chips",        request.getNumberIScanChips().toString()));
     }
     
     
@@ -191,7 +191,7 @@ public class RequestHTMLFormatter {
     
     // Show 'samples' header
     Element sampleHeader = new Element("H5");
-    sampleHeader.addContent("Samples");
+    sampleHeader.addContent("Samples (" + samples.size() + ")");
     parentNode.addContent(sampleHeader);
     
     Element table = new Element("TABLE");
