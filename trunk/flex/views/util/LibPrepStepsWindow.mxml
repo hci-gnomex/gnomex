@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="900" height="548"
+	xmlns:views="views.*" 
+	showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
+	title="Lib Prep Steps"> 	 
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent; 
+			
+			public var parentWindow:views.util.ExperimentPlatformWindow = null;
+			public var experimentType:String = null;
+			public var selectedIndex:int;
+			
+			public function init(parentView:ExperimentPlatformWindow):void {
+				parentWindow = parentView;
+				selectedIndex = parentView.appGrid.selectedIndex;
+			}
+			
+			private function removeRichTextButtons():void {
+				this.corePrepSteps.toolbar.removeChild(corePrepSteps.colorPicker);
+				this.corePrepSteps.toolbar.removeChild(corePrepSteps.fontFamilyCombo);
+				this.corePrepSteps.toolbar.removeChild(corePrepSteps.fontSizeCombo);
+				
+				this.labPrepSteps.toolbar.removeChild(labPrepSteps.colorPicker);
+				this.labPrepSteps.toolbar.removeChild(labPrepSteps.fontFamilyCombo);
+				this.labPrepSteps.toolbar.removeChild(labPrepSteps.fontSizeCombo);
+
+			}
+			
+			private function save():void {
+				parentWindow.appGrid.selectedItem.@corePrepSteps = GNomExStringUtil.cleanRichTextHTML(corePrepSteps.htmlText);
+				parentWindow.appGrid.selectedItem.@labPrepSteps = GNomExStringUtil.cleanRichTextHTML(labPrepSteps.htmlText);
+				parentWindow.dirty.setDirty();
+				PopUpManager.removePopUp(this);
+				 
+			}
+			
+			private function cancel():void {
+				mx.managers.PopUpManager.removePopUp(this);
+			}
+
+			private function showCorePrepSteps():void{
+				corePrepSteps.htmlText = parentWindow.appGrid.selectedItem.@corePrepSteps;
+			}
+
+			private function showLabPrepSteps():void{
+				labPrepSteps.htmlText = parentWindow.appGrid.selectedItem.@labPrepSteps;
+			}
+
+		
+		]]>
+	</mx:Script>
+	<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4">
+
+		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
+			
+				<mx:Label text="Core Prep Steps" id="coreSteps"/>
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="corePrepSteps" width="100%" 
+									showControlBar="true"
+									creationComplete="removeRichTextButtons(); showCorePrepSteps(); "
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" height="100%" minHeight="50"/>		
+			
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
+				<mx:Label text="Lab Prep Steps" id="labSteps"/>
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="labPrepSteps" width="100%" 
+									showControlBar="true"
+									creationComplete="showLabPrepSteps(); "
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" height="100%" minHeight="50"/>		
+		</mx:VBox>
+	</mx:HDividedBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="cancel()"/>
+	</mx:ControlBar>
+
+</mx:TitleWindow>

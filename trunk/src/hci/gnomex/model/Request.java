@@ -45,6 +45,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          codeRequestCategory;
   private RequestCategory requestCategory;
   private String          codeApplication;
+  private Application     application;
   private Integer         idSlideProduct;
   private SlideProduct    slideProduct;
   private Integer         idSampleTypeDefault;
@@ -182,6 +183,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setSubmitter(AppUser submitter) {
     this.submitter = submitter;
   }
+  
+  public Application getApplication() {
+    return application;
+  }
+
+  public void setApplication(Application app) {
+    this.application = app;
+  }
+
   
   public Integer getIdLab() {
     return idLab;
