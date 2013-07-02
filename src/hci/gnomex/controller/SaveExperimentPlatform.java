@@ -360,6 +360,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       app.setApplication(node.getAttributeValue("display"));
       app.setIsActive(node.getAttributeValue("isActive"));
       app.setIdApplicationTheme(idApplicationTheme != null && !idApplicationTheme.equals("") ? Integer.valueOf(idApplicationTheme) : null);
+      app.setCorePrepSteps(node.getAttributeValue("corePrepSteps"));
+      app.setLabPrepSteps(node.getAttributeValue("labPrepSteps"));
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);
