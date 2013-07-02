@@ -117,13 +117,14 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
         }
 
         //Check to make sure genome builds have build dates.  Otherwise throws error when saving
-        for(Iterator i = this.genomeBuildsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-          Element node = (Element)i.next();
-          if(node.getAttributeValue("buildDate") == null || node.getAttributeValue("buildDate").equals("")){
-            this.addInvalidField("invalidBuildDate", "Please specify a build date for each genome build.");
+        if (genomeBuildsDoc != null) {
+          for(Iterator i = this.genomeBuildsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+            Element node = (Element)i.next();
+            if(node.getAttributeValue("buildDate") == null || node.getAttributeValue("buildDate").equals("")){
+              this.addInvalidField("invalidBuildDate", "Please specify a build date for each genome build.");
+            }
           }
         }
-
 
 
         //

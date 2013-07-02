@@ -1578,7 +1578,6 @@
 	   </mx:State>
 	   <mx:State name="IScanState">
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
-		  
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{label8}"/>
 		   <mx:RemoveChild target="{sampleTypeCombo}"/>
@@ -1720,6 +1719,15 @@
 		   </mx:AddChild>
 		   <mx:SetProperty target="{numberOfSamples}" name="editable" value="false"/>
 		   <mx:SetProperty target="{numberOfSamples}" name="visible" value="false"/>
+		   <mx:AddChild relativeTo="{iScanNumSourcePlatesBox}" position="before">
+		   	<mx:HBox horizontalGap="0" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}" 
+					 visible="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}">
+		   	 <mx:Label text="(3) Quote number" width="334"  id="quoteNumberLabel"/>
+		   	 <mx:TextInput width="200" id="quoteNumber" text="{parentDocument.request.@materialQuoteNumber}"
+		   	 	 change="{parentDocument.request.@materialQuoteNumber = this.quoteNumber.text}" >
+		   	 </mx:TextInput>							
+		   	</mx:HBox>
+		   </mx:AddChild>
 		   
 	   </mx:State>
 	   <mx:State name="SequenomState">

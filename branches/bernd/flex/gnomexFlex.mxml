@@ -2317,7 +2317,7 @@
 					this.showUsage = this.hasPermission("canAccessAnyObject");
 				}
 				
-				if (this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) != '') {
+				if (this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) == '') {
 					showPurchaseSupplies = false;
 				} else {
 					showPurchaseSupplies = true;
@@ -3369,7 +3369,7 @@
 			
 			private function showPurchaseSuppliesLink():void{
 				if (showPurchaseSupplies) {
-					var url:URLRequest = new URLRequest(getProperty(parentApplication.PROPERTY_PURCHASE_SUPPLIES_URL));
+					var url:URLRequest = new URLRequest(getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL));
 					url.method = URLRequestMethod.POST;
 					navigateToURL(url, '_blank');
 				} else {

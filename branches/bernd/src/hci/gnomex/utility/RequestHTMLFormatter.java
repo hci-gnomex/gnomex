@@ -166,7 +166,7 @@ public class RequestHTMLFormatter {
     }
     if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
       table.addContent(makeRow("iScan Chip", iScanChip.getName(),
-          "# of chips",        request.getNumberIScanChips().toString()));
+          "# of Chips",        request.getNumberIScanChips().toString()));
     }
     
     
@@ -191,7 +191,7 @@ public class RequestHTMLFormatter {
     
     // Show 'samples' header
     Element sampleHeader = new Element("H5");
-    sampleHeader.addContent("Samples");
+    sampleHeader.addContent("Samples (" + samples.size() + ")");
     parentNode.addContent(sampleHeader);
     
     Element table = new Element("TABLE");
@@ -359,11 +359,13 @@ public class RequestHTMLFormatter {
           this.addBlankCell(row, multiplexGroup.toString());          
         } else {
           Sample nextSample = null;
+          Integer nextMultiplexGroup = -99;
           int next = x + 1;
           if (next < samples.size()) {
             nextSample = (Sample)sampleList[next];
+            nextMultiplexGroup = nextSample.getMultiplexGroupNumber() == null ? Integer.valueOf(-99) : nextSample.getMultiplexGroupNumber();
           }
-          if (nextSample == null || !nextSample.getMultiplexGroupNumber().equals(sample.getMultiplexGroupNumber())) {
+          if (nextSample == null || !nextMultiplexGroup.equals(multiplexGroup)) {
             this.addBottomBlankCell(row);
           } else {
             this.addBlankCell(row);            
