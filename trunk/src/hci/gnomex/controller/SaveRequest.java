@@ -2327,6 +2327,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
     String requestNumber = requestParser.getRequest().getNumber();
     String requestCategoryMsg = "";
+    String submitterName = requestParser.getRequest().getSubmitterName();
+    String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
    
     if (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
       requestCategoryMsg = "Estimated Microarray";   
@@ -2360,7 +2362,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
     emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
     emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.invoicePrice);
+    emailBody.append("</td></tr><tr><td>Submitter:</td><td>" + submitterName);
     emailBody.append("</td></tr><tr><td>Billing Account Name:</td><td>" + billedAccountName);
+    emailBody.append("</td></tr><tr><td>Billing Account Number:</td><td>" + billedAccountNumber);
     
     emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
