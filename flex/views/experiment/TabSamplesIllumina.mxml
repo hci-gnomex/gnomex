@@ -820,6 +820,13 @@
 				}
 			}
 
+			public function textChange(item:String):void {
+				var txt:String = item;
+				if(txt.length == 30) {
+					Alert.show("Maximum allowed limit is 30 characters");					
+				}
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -836,7 +843,7 @@
 						 label="Link to BST samples using CC Number" />
 			<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>		  	
 			<mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			</mx:TextArea>
 			
 		</mx:HBox>
@@ -887,9 +894,16 @@
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
-										   editable="true" 
-										   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
-										   itemEditor="{views.renderers.TextInputSampleName.create(currentState)}"      />    
+										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
+										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
+					<mx:itemEditor>
+						<mx:Component id ="sampleNameTextField">
+							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)">
+							</mx:TextInput>
+						</mx:Component>
+					</mx:itemEditor> 
+					
+				</mx:AdvancedDataGridColumn>   
 				
 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="42" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
@@ -1193,7 +1207,7 @@
 		
 		<mx:State name="SolexaSamplesState" >
 			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
+				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters) and concentration<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{textarea1}" name="editable" value="false"/>
 		</mx:State>
