@@ -22,6 +22,7 @@
 			public var hiSeqFlowCellChannels:int = 0;
 			public var miSeqFlowCellChannels:int = 0;
 			public var solexaFlowCellChannels:int = 0;
+			public var selectedFlowCellNumber:String = null;
 			
 			private var qcWorklistInit:Boolean = false;
 			
@@ -147,13 +148,27 @@
 
 			
 			private function showFlowCellView():void {
-				this.flowCellView.codeSequencingPlatform = "MISEQ";
-				flowCellView.codeSequencingPlatform = codeSequencingPlatform;
-				var experimentPlatform:String =  parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SequencingPlatform', codeSequencingPlatform);
-				this.flowCellView.titleLabel.text = experimentPlatform + ' Flow Cells';
-				solexaViews.selectedChild=this.blankSolexa;
-				detailViews.selectedChild = flowCellView;
-				flowCellView.clearAndRefreshList();				
+				var experimentPlatform:String = null;
+				if (this.selectedFlowCellNumber != null) {
+					this.flowCellView.selectedFlowCellNumber = this.selectedFlowCellNumber;
+					flowCellView.codeSequencingPlatform = codeSequencingPlatform;
+					this.flowCellView.lookupField2.text = selectedFlowCellNumber;
+					experimentPlatform =  parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SequencingPlatform', codeSequencingPlatform);
+					this.flowCellView.titleLabel.text = experimentPlatform + ' Flow Cells';
+					solexaViews.selectedChild=this.blankSolexa;
+					detailViews.selectedChild = flowCellView;
+					this.flowCellView.clearAndRefreshList2();
+					selectedFlowCellNumber = null;
+				} else {
+					this.flowCellView.codeSequencingPlatform = "MISEQ";
+					flowCellView.codeSequencingPlatform = codeSequencingPlatform;
+					experimentPlatform =  parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SequencingPlatform', codeSequencingPlatform);
+					this.flowCellView.titleLabel.text = experimentPlatform + ' Flow Cells';
+					solexaViews.selectedChild=this.blankSolexa;
+					detailViews.selectedChild = flowCellView;
+					flowCellView.clearAndRefreshList();	
+				}
+				
 			}
 			
 			public function checkDirty():void {

@@ -340,6 +340,7 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
+			import views.workflow.FlowCellView;
 			
 			
 			[Bindable]
@@ -1154,6 +1155,8 @@
 				} else if (number.indexOf("T") == 0) {
 					number = number.substr(1);
 					this.showTopicForNumber(number);				
+				} else if (number.indexOf("FC") == 0) {
+					this.showFlowCellForNumber(number);				
 				} else {
 					showExperiment(number, false);
 					
@@ -1177,6 +1180,30 @@
 				// Reset the experiment search components.
 				callLater(navExperimentView.resetSearchComponents);
 			}
+			
+			public function showFlowCellForNumber(flowcellNumber:String):void {
+				//navWorkflowView.
+				var codeStepNext:String = "FLOWCELL";
+				var codeSequencingPlatform:String = "HISEQ";
+				navWorkflowView.codeStepNext = codeStepNext;
+				navWorkflowView.codeSequencingPlatform = codeSequencingPlatform;
+				if (theViews.selectedChild == navWorkflowView) {
+					// If we are already on nav workflow view, we need to make the \
+					// call to showView directly.
+					navWorkflowView.selectedFlowCellNumber = flowcellNumber;
+					navWorkflowView.showView();
+				} else {
+					// In this case, the init function will call show view.
+					this.stateStack.selectedChild = theViews;
+					theViews.visible = true;
+					navWorkflowView.selectedFlowCellNumber = flowcellNumber;
+					theViews.selectedChild = navWorkflowView;
+					
+				}
+
+			}
+			
+
 			
 			public function showExperiment(requestNumber:String, showPromptToUpload:Boolean):void {
 				navExperimentView.selectedRequestNumber = requestNumber;
