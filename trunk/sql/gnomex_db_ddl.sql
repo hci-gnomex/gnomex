@@ -1235,6 +1235,8 @@ CREATE TABLE `gnomex`.`Application` (
   `avgInsertSizeFrom` INT(10) NULL,
   `avgInsertSizeTo` INT(10) NULL,
   `hasCaptureLibDesign` CHAR(1) NULL,
+  `corePrepSteps` VARCHAR(5000) NULL,
+  `labPrepSteps` VARCHAR(5000) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
