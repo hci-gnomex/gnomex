@@ -23,3 +23,7 @@ alter table Sample add idOligoBarcodeB INT(10) NULL;
 
 -- Add isIndexGroupB
 alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT 'N';
+
+-- Add columns for Printable Request Form
+alter table Application add corePrepSteps varchar(5000);
+alter table Application add labPrepSteps varchar(5000);
