@@ -14,7 +14,11 @@ alter table Request add materialQuoteNumber VARCHAR(50) NULL;
 alter table Request add quoteReceivedDate DATETIME NULL; 
 
 -- Add public data notice property to be shown on the register new user screen.
-insert into PropertyDictionary values('public_data_notice', '', 'New account note informing users that no account is necessary for public data', 'N', null, null); 
+insert into PropertyDictionary (propertyName, propertyDescription,forServerOnly, idCoreFacility, codeRequestCategory)
+values('public_data_notice', 
+'New account note informing users that no account is necessary for public data', 
+'N', null, null); 
+
 
 -- Add meanInsertSizeActual and idOligoBarcodeB
 alter table Sample add meanInsertSizeActual INT(10) NULL;
@@ -27,3 +31,9 @@ alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT
 -- Add columns for Printable Request Form
 alter table Application add corePrepSteps varchar(5000);
 alter table Application add labPrepSteps varchar(5000);
+
+
+-- Add column for Flow Cell number
+alter table FlowCell add number VARCHAR(10);
+update FlowCell set number = concat('FC',idFlowCell) where number is null;
+
