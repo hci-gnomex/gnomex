@@ -1785,7 +1785,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
   `isControl` CHAR(1) NULL,
-  `meanInsertSizeActual` INT(10) NULL,
+  `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)

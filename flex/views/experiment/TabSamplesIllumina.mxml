@@ -646,7 +646,7 @@
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
 					this.qual260_230Col.visible = false;
 					
-					meanInsertSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
+					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
@@ -1139,7 +1139,7 @@
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="meanInsertSizeActual" visible="false" headerText="Actual Mean Insert Size" width="90" dataField="@meanInsertSizeActual" editable="true"/>
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Mean Insert Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 

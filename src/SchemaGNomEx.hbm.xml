@@ -876,7 +876,7 @@
 		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
 		<property name="barcodeSequence" column="barcodeSequence" type="string" />
 		<property name="idSampleSource" column="idSampleSource" type="integer"/>
-		<property name="meanInsertSizeActual" column="meanInsertSizeActual" type="integer"/>
+		<property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
 		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
