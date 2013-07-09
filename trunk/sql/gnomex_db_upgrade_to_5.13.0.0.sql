@@ -20,8 +20,8 @@ values('public_data_notice',
 'N', null, null); 
 
 
--- Add meanInsertSizeActual and idOligoBarcodeB
-alter table Sample add meanInsertSizeActual INT(10) NULL;
+-- Add meanLibSizeActual and idOligoBarcodeB
+alter table Sample add meanLibSizeActual INT(10) NULL;
 
 alter table Sample add idOligoBarcodeB INT(10) NULL; 
 
