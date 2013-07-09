@@ -19,11 +19,14 @@ values('public_data_notice',
 'New account note informing users that no account is necessary for public data', 
 'N', null, null); 
 
-
 -- Add meanLibSizeActual and idOligoBarcodeB
 alter table Sample add meanLibSizeActual INT(10) NULL;
 
 alter table Sample add idOligoBarcodeB INT(10) NULL; 
+
+-- Add base insert size default property.
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+values('base_insert_size', '0', 'Base size to subtract from actual mean lib size', 'N', null, null); 
 
 -- Add isIndexGroupB
 alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT 'N';
