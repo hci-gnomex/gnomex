@@ -32,8 +32,3 @@ alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT
 alter table Application add corePrepSteps varchar(5000);
 alter table Application add labPrepSteps varchar(5000);
 
-
--- Add column for Flow Cell number
-alter table FlowCell add number VARCHAR(10);
-update FlowCell set number = concat('FC',idFlowCell) where number is null;
-
