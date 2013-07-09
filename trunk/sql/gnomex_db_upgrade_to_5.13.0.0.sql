@@ -12,6 +12,7 @@ update Visibility set visibility='All Lab Members' where codeVisibility='MEM';
 -- Add quote columns to Request
 alter table Request add materialQuoteNumber VARCHAR(50) NULL; 
 alter table Request add quoteReceivedDate DATETIME NULL; 
+alter table Request add uuid VARCHAR(36) NULL; 
 
 -- Add public data notice property to be shown on the register new user screen.
 insert into PropertyDictionary (propertyName, propertyDescription,forServerOnly, idCoreFacility, codeRequestCategory)
