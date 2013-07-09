@@ -222,6 +222,21 @@
 			}
 			
 
+			private function submitActionButtonClick():void {
+				if ( selectedChromats.length > 384 ) {
+					Alert.show( "You have selected more than 384 chromatograms.  Are you sure?", "Confirm Action", ( Alert.YES | Alert.NO ), this, onPromptToGo, iconWarning );
+				} else {
+					submitAction();
+				}
+			}
+			
+			private function onPromptToGo( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					submitAction();
+				}
+			}
+			
 			private function submitAction():void {
 				if ( currentState == userState.name ) {
 					// download
@@ -962,7 +977,7 @@
 					   icon="@Embed('../../assets/bullet_go.png')"
 					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 					   toolTip="Submit action"
-					   click="{submitAction()}" 
+					   click="{submitActionButtonClick()}" 
 					   enabled="{selectedChromats.length>0}"
 					   id="linkbutton1"/>
 		
