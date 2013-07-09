@@ -32,6 +32,6 @@ values('base_insert_size', '0', 'Base size to subtract from actual mean lib size
 alter table OligoBarcodeSchemeAllowed add isIndexGroupB CHAR(1) NOT NULL DEFAULT 'N';
 
 -- Add columns for Printable Request Form
-alter table Application add corePrepSteps varchar(5000);
-alter table Application add labPrepSteps varchar(5000);
+alter table Application add coreSteps varchar(5000);
+alter table Application add coreStepsNoLibPrep varchar(5000);
 
