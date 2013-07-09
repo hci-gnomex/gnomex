@@ -23,19 +23,19 @@
 			}
 			
 			private function removeRichTextButtons():void {
-				this.corePrepSteps.toolbar.removeChild(corePrepSteps.colorPicker);
-				this.corePrepSteps.toolbar.removeChild(corePrepSteps.fontFamilyCombo);
-				this.corePrepSteps.toolbar.removeChild(corePrepSteps.fontSizeCombo);
+				this.coreSteps.toolbar.removeChild(coreSteps.colorPicker);
+				this.coreSteps.toolbar.removeChild(coreSteps.fontFamilyCombo);
+				this.coreSteps.toolbar.removeChild(coreSteps.fontSizeCombo);
 				
-				this.labPrepSteps.toolbar.removeChild(labPrepSteps.colorPicker);
-				this.labPrepSteps.toolbar.removeChild(labPrepSteps.fontFamilyCombo);
-				this.labPrepSteps.toolbar.removeChild(labPrepSteps.fontSizeCombo);
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.colorPicker);
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.fontFamilyCombo);
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.fontSizeCombo);
 
 			}
 			
 			private function save():void {
-				parentWindow.appGrid.selectedItem.@corePrepSteps = GNomExStringUtil.cleanRichTextHTML(corePrepSteps.htmlText);
-				parentWindow.appGrid.selectedItem.@labPrepSteps = GNomExStringUtil.cleanRichTextHTML(labPrepSteps.htmlText);
+				parentWindow.appGrid.selectedItem.@coreSteps = GNomExStringUtil.cleanRichTextHTML(coreSteps.htmlText);
+				parentWindow.appGrid.selectedItem.@coreStepsNoLibPrep = GNomExStringUtil.cleanRichTextHTML(coreStepsNoLibPrep.htmlText);
 				parentWindow.dirty.setDirty();
 				PopUpManager.removePopUp(this);
 				 
@@ -45,12 +45,12 @@
 				mx.managers.PopUpManager.removePopUp(this);
 			}
 
-			private function showCorePrepSteps():void{
-				corePrepSteps.htmlText = parentWindow.appGrid.selectedItem.@corePrepSteps;
+			private function showCoreSteps():void{
+				coreSteps.htmlText = parentWindow.appGrid.selectedItem.@coreSteps;
 			}
 
-			private function showLabPrepSteps():void{
-				labPrepSteps.htmlText = parentWindow.appGrid.selectedItem.@labPrepSteps;
+			private function showCoreStepsNoLibPrep():void{
+				coreStepsNoLibPrep.htmlText = parentWindow.appGrid.selectedItem.@coreStepsNoLibPrep;
 			}
 
 		
@@ -60,11 +60,11 @@
 
 		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
 			
-				<mx:Label text="Core Prep Steps" id="coreSteps"/>
+				<mx:Label text="Core Steps" id="coreStepsLabel"/>
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-									id="corePrepSteps" width="100%" 
+									id="coreSteps" width="100%" 
 									showControlBar="true"
-									creationComplete="removeRichTextButtons(); showCorePrepSteps(); "
+									creationComplete="removeRichTextButtons(); showCoreSteps(); "
 									paddingLeft="0" paddingRight="0" paddingTop="0" 
 									roundedBottomCorners="false" paddingBottom="0" 
 									borderThicknessRight="0" borderThicknessLeft="0" 
@@ -73,11 +73,11 @@
 			
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
-				<mx:Label text="Lab Prep Steps" id="labSteps"/>
+				<mx:Label text="Core Steps(No Lib Prep)" id="labStepsLabel"/>
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-									id="labPrepSteps" width="100%" 
+									id="coreStepsNoLibPrep" width="100%" 
 									showControlBar="true"
-									creationComplete="showLabPrepSteps(); "
+									creationComplete="showCoreStepsNoLibPrep(); "
 									paddingLeft="0" paddingRight="0" paddingTop="0" 
 									roundedBottomCorners="false" paddingBottom="0" 
 									borderThicknessRight="0" borderThicknessLeft="0" 

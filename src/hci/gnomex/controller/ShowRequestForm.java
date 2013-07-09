@@ -321,59 +321,69 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
  
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-	            // New Page
-	            formatter.makePageBreak(maindiv);
-	            
-	            maindiv.addContent(new Element("BR"));
-	            maindiv.addContent(formatter.makeRequestInfoTable());
-	            maindiv.addContent(new Element ("BR"));
-	
-	            Element reqNum = new Element("H4");
-	            reqNum.addContent(formatter.makeRequestCategoryImage(null));
-	            reqNum.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
-	            maindiv.addContent(reqNum);
-	            
-	            Element reqCat = new Element("H4");
-	            reqCat.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
-	            maindiv.addContent(reqCat);
-	
-	            
-	            if (request.getSequenceLanes().iterator().hasNext()) {
-	            	Element seqType = new Element("H4");
-		            SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-		            seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
-		            seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-		            maindiv.addContent(seqType);
-		            
-	            }
-	
+	            boolean corePrepLib = true;
+              String steps = request.getApplication().getCoreSteps();
+              String sampleType = "";
+              String samplePrepMethod = "";
 	            if (request.getSamples().iterator().hasNext()) {
-	            	Element table = new Element("TABLE");
-	            	Sample smp = (Sample) request.getSamples().iterator().next(); 
-		            table.setAttribute("CELLPADDING", "0");
-		            table.addContent(makeRow("Sample Type",   smp.getIdSampleType() == null ? "&nbsp;" : dictionaryHelper.getSampleType(smp), "&nbsp;",     "&nbsp;"));
-		            table.addContent(makeRow("Nucleic Acid Extraction Method",     getSamplePrepMethod(smp), "&nbsp;",     "&nbsp;"));
-		            table.addContent(makeRow("Received Date", "", "&nbsp;",     "&nbsp;"));
-		            maindiv.addContent(table);
+                Sample smp = (Sample) request.getSamples().iterator().next(); 
+                if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("Y")) {
+                  corePrepLib = false;
+                }
+                if (!corePrepLib) {
+                  steps = request.getApplication().getCoreStepsNoLibPrep();
+                }
+                sampleType = dictionaryHelper.getSampleType(smp);
+                samplePrepMethod = getSamplePrepMethod(smp);
 	            }
 
+	            
+	            if (steps != null && steps.length() > 0) {
+	              // New Page
+	              formatter.makePageBreak(maindiv);
+	              
+	              maindiv.addContent(new Element("BR"));
+	              maindiv.addContent(formatter.makeRequestInfoTable());
+	              maindiv.addContent(new Element ("BR"));
+	  
+	              Element reqNum = new Element("H4");
+	              reqNum.addContent(formatter.makeRequestCategoryImage(null));
+	              reqNum.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
+	              maindiv.addContent(reqNum);
+	              
+	              Element reqCat = new Element("H4");
+	              reqCat.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
+	              maindiv.addContent(reqCat);
+	  
+	              
+	              if (request.getSequenceLanes().iterator().hasNext()) {
+	                Element seqType = new Element("H4");
+	                SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
+	                seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+	                seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+	                maindiv.addContent(seqType);
+	                
+	              }
 
-	            Element corePrepStepsNote = new Element("H5");
-	            corePrepStepsNote.addContent("Core Preparation Steps");
-	            maindiv.addContent(corePrepStepsNote);
-	
-	            Element corePrepDescription = new Element("H6");
-	            corePrepDescription.addContent(request.getApplication().getCorePrepSteps());
-	            maindiv.addContent(corePrepDescription);              
+	              Element table = new Element("TABLE");
+                table.setAttribute("CELLPADDING", "0");
+                table.addContent(makeRow("Sample Type",   sampleType == null ? "&nbsp;" : sampleType, "&nbsp;",     "&nbsp;"));
+                table.addContent(makeRow("Nucleic Acid Extraction Method",     samplePrepMethod, "&nbsp;",     "&nbsp;"));
+                table.addContent(makeRow("Received Date", "", "&nbsp;",     "&nbsp;"));
+                maindiv.addContent(table);
 
-	            Element labPrepStepsNote = new Element("H5");
-	            labPrepStepsNote.addContent("Lab Preparation Steps");
-	            maindiv.addContent(labPrepStepsNote);
-	
-	            Element labPrepDescription = new Element("H6");
-	            labPrepDescription.addContent(request.getApplication().getLabPrepSteps());
-	            maindiv.addContent(labPrepDescription);              
-
+                Element stepsNote = new Element("H5");
+  	            stepsNote.addContent("Steps");
+  	            maindiv.addContent(stepsNote);
+  	
+  	            Element coreStepsDescription = new Element("H6");
+  	            if (corePrepLib) {
+  	              coreStepsDescription.addContent(request.getApplication().getCoreSteps());
+  	            } else {
+  	              coreStepsDescription.addContent(request.getApplication().getCoreStepsNoLibPrep());
+  	            }
+  	            maindiv.addContent(coreStepsDescription);              
+	            }
 	            
             }  
 

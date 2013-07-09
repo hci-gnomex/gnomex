@@ -1066,8 +1066,8 @@
 		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="hasCaptureLibDesign" column="hasCaptureLibDesign" type="string"/>
-		<property name="corePrepSteps" column="corePrepSteps" type="string"/>
-		<property name="labPrepSteps" column="labPrepSteps" type="string"/>
+		<property name="coreSteps" column="coreSteps" type="string"/>
+		<property name="coreStepsNoLibPrep" column="coreStepsNoLibPrep" type="string"/>
 		
 	</class>
 
