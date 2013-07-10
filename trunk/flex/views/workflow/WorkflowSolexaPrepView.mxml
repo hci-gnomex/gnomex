@@ -432,7 +432,7 @@
 																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; var save:int = outerDocument.workListGrid.selectedIndex;}" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
@@ -455,7 +455,7 @@
 																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = '';}" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>

@@ -57,7 +57,7 @@ package views.renderers
 					// Only use scheme if it is allowed for this seq lib protocol
 					var keepScheme:Boolean = false;
 					for each (var x:XML in parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idOligoBarcodeScheme == barcodeScheme.@idOligoBarcodeScheme)) {
-						if (((indexTagLetter == 'A' && x.@isIndexGroupB == 'N') || (indexTagLetter == 'B' && x.@isIndexGroupB == 'Y') || (indexTagLetter == 'A' && x.@isIndexGroupB == 'Y')) && (idSeqLibProtocol == '' || x.@idSeqLibProtocol == idSeqLibProtocol)) {
+						if (((indexTagLetter == 'A' && x.@isIndexGroupB == 'N') || (indexTagLetter == 'B' && x.@isIndexGroupB == 'Y')) && (idSeqLibProtocol == '' || x.@idSeqLibProtocol == idSeqLibProtocol)) {
 							keepScheme = true;
 							break;
 						}
