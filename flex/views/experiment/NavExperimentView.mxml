@@ -1609,12 +1609,6 @@
 								<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:CheckBox>			
 						</mx:HBox>
-						<mx:Spacer width="14" id="spacer3"/>
-						<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments" paddingRight="0" horizontalGap="0" 
-									  styleName="labelSmall" toolTip="External experiments (only)" 
-									  includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
-							<mx:click>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-						</mx:CheckBox>
 						
 					</mx:HBox>	
 				</mx:HBox>
@@ -1623,6 +1617,12 @@
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox7">
 						<mx:Spacer width="100"/>
 						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
+							<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments" paddingRight="0" horizontalGap="0" 
+										  styleName="labelSmall" toolTip="External experiments (only)" 
+										  includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
+								<mx:click>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							</mx:CheckBox>
+							<mx:Spacer width="14" id="spacer3"/>
 							<mx:HBox horizontalGap="2" verticalAlign="middle" >
 								<mx:VBox verticalGap="0" verticalAlign="middle" fontSize="9" id="vbox4"
 										 includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
@@ -1714,19 +1714,14 @@
 					
 				</mx:ViewStack>
 			</mx:VBox>
+			<mx:Button id="lookupButton" 
+					   height="25"
+					   label="Find"
+					   toolTip="Run Search"
+					   click="{getProjectRequestList.send(getBrowseParameters());}" 
+					   icon="@Embed('../../assets/magnifier.png')"/>
 			
-			<mx:Spacer width="100%"/>
 			
-			<mx:VBox height="100%" verticalAlign="middle">
-				<mx:LinkButton id="lookupButton" 
-						   height="25"
-						   label="Find"
-						   toolTip="Run Search"
-						   click="{getProjectRequestList.send(getBrowseParameters());}" 
-						   icon="@Embed('../../assets/magnifier.png')"/>
-			</mx:VBox>
-			<!--<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" 
-			click="refreshExperiments()" textDecoration="underline" paddingRight="0" id="linkbutton2" paddingLeft="0"/>-->
 			
 		</mx:HBox>
 	  
@@ -1846,7 +1841,7 @@
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();getProjectRequestList.send(getBrowseParameters());" />
+				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();" />
 				<mx:Spacer width="14"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall"/>
 				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
@@ -1861,19 +1856,16 @@
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
 			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
-			<mx:AddChild relativeTo="{label1}" position="before">
+			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
-				<mx:Label id="userLabel" visible="true" text="Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
-				<mx:ComboBox id="browseUserCombo" 
-					labelField="@displayName"
-					dataProvider="{appUsers}"
-					 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;getProjectRequestList.send(getBrowseParameters())"  
-					 visible="true"  width="130" fontSize="10">
-				</mx:ComboBox>
+					<mx:Label id="userLabel" visible="true" text="Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
+					<mx:ComboBox id="browseUserCombo" 
+						labelField="@displayName"
+						dataProvider="{appUsers}"
+						 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;"  
+						 visible="true"  width="130" fontSize="10">
+					</mx:ComboBox>
 				</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{label1}" position="before">
-				<mx:Spacer width="14"/>
 			</mx:AddChild>
 
 		</mx:State>
