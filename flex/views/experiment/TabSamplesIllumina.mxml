@@ -905,7 +905,7 @@
 					
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="42" dataField="@concentration" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="52" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />          
 				<mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
