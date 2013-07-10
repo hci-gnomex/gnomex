@@ -1659,10 +1659,9 @@
         		return true;
         	}
 
-        	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
+			if (!isEditState() && item.@isActive == 'N') {
+				return false;	
+			}
         	
         	
         	var doesMatchRequestCategory:Boolean = false;
@@ -1713,10 +1712,9 @@
         		return true;
         	}
 
-        	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
+			if (!isEditState() && item.@isActive == 'N') {
+				return false;	
+			}
 
 
 			var doesMatchApplication:Boolean = true;
@@ -1743,9 +1741,9 @@
     	    	return false;
 			} 
         	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
+			if (!isEditState() && item.@isActive == 'N') {
+				return false;	
+			}
         	var doesMatchRequestCategory:Boolean = false;
         	var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
     	   	for each (var xref:Object in theApplications) {
@@ -1769,9 +1767,9 @@
     	    	return false;
 			} 
         	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
+			if (!isEditState() && item.@isActive == 'N') {
+				return false;	
+			}
         	var doesMatchRequestCategory:Boolean = false;
         	var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
     	   	for each (var xref:Object in theApplications) {
@@ -1822,9 +1820,9 @@
     	    	return false;
 			} 
         	
-        	if (item.@isActive == 'N') {
-        		return false;
-        	}
+			if (!isEditState() && item.@isActive == 'N') {
+				return false;	
+			}
         	return true;
     	}
        
