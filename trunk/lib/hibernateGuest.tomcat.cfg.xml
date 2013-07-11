@@ -8,8 +8,9 @@
     <session-factory>
 
  
-	 <property name="connection.datasource">java:openejb/Resource/jdbc/gnomex</property>
+	 <!-- <property name="connection.datasource">java:openejb/Resource/jdbc/gnomex</property> -->
 	 <!-- <property name="connection.datasource">java:comp/env/jdbc/gnomex</property> -->
+        <property name="connection.datasource">java:comp/env/jdbc/GNOMEX</property>
 
 
           <property name="show_sql">false</property>

@@ -37,37 +37,17 @@ public class GNomExRealm extends RealmBase {
   private String password;
   
   private String datasource_lookup_name;
-  
-  @Override
-  public Principal authenticate(String username, byte[] credentials) {
-    return this.authenticate(username, credentials);
-  }
-
-  @Override
-  public void init() {
-    super.init();
-
-  }
-
-  @Override
-  public void start() throws LifecycleException {
-    super.start();
-  }
-
-  @Override
-  public void stop() throws LifecycleException {
-    super.stop();
-  }
 
   public GNomExRealm() {
     super();
+    System.out.println("GNomExRealm created");
   }
 
   @Override
   public Principal authenticate(String username, String credentials) {
     this.username = username;
     this.password = credentials;
-
+System.out.println("In authenticate -- usrname=" + username);
     if (isAuthenticated()) {
       return getPrincipal(username);
     } else {
@@ -80,7 +60,7 @@ public class GNomExRealm extends RealmBase {
 
     List<String> roles = new ArrayList<String>();
     roles.add("GNomExUser");
-    return new GenericPrincipal(this, username, password, roles);
+    return new GenericPrincipal(username, password, roles);
   }
 
   @Override

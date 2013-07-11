@@ -28,6 +28,7 @@
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
 		<antcall target="clientjar"/>
+    <antcall target="realmjar"/>
 		<antcall target="flex"/>
 		<antcall target="war-tomcat" />
 		<antcall target="deploy-tomcat" />
@@ -167,6 +168,7 @@
             <src path="${src.dir}"/>
             <exclude name="**/fdt/**"/>      		
           	<exclude name="**/security/SecurityManager**"/>      		
+          	<exclude name="**/controller/SBGNomEx**"/>
         </javac>
 	</target>
 
@@ -238,8 +240,8 @@
             <fileset dir="${build.class.dir}">
             	<exclude name="hci/gnomex/httpclient/*.class" />
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
-            	<exclude name="hci/gnomex/utility/CachedSessionFactory.class" />
-            	<exclude name="hci/gnomex/utility/CachedGuestSessionFactory.class" />
+            	<!--<exclude name="hci/gnomex/utility/CachedSessionFactory.class" />-->
+            	<!--<exclude name="hci/gnomex/utility/CachedGuestSessionFactory.class" />-->
             	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
@@ -318,7 +320,7 @@
 
             <fileset dir="${build.class.dir}">
             	<include name="hci/gnomex/security/EncrypterService.class" />
-            	<include name="hci/gnomex/security/tomcat/*Realm*.class" />
+            	<include name="hci/gnomex/security/tomcat/*.class" />
             </fileset>
 
 			<manifest>
@@ -496,7 +498,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-tomcat" depends="init, jar-tomcat">
+	<target name="war-tomcat" depends="init, jar-tomcat, -copylib">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files  (tomcat)                         +</echo>
@@ -525,16 +527,29 @@
 			    <include name="*.*" />
 			</fileset>
 		</copy>
-
+    <mkdir dir="${dist.dir}/tomcat/applications" />
+    <mkdir dir="${dist.dir}/tomcat/applications/hcienv" />
+    <copy todir="${dist.dir}/tomcat/applications/hcienv" overwrite="true">
+        <fileset dir="${hcienv.dir}/src" >
+          <include name="*.hbm.xml" />
+      </fileset>
+    </copy>
+    
 		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
 			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
 			 <lib dir="${lib.dir}"                  includes="*.jar"/>
+			 <lib dir="${lib.env.dir}">
+			   <include name="*.jar"/>
+			   <exclude name="mail.jar"/>
+			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
+			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
 		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
 		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+      <classes dir="${dist.dir}/tomcat"     includes="applications/hcienv/*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
 			 	<exclude name="WEB-INF/**"/>
@@ -1303,10 +1318,13 @@
 	    </path>
 		
         <path id="project.tomcat.class.path">
+          <fileset dir="${lib.env.dir}"             includes="*.jar" />
             <fileset dir="${lib.dir}" 				    includes="*.jar" />
+          <fileset dir="${lib.orion.dir}"         includes="*.jar" />
+          <fileset dir="${orion.dir}"           includes="*.jar" />
             <fileset dir="${lib.tomcat.dir}" 		    includes="*.jar" />
         	<fileset dir="${lib.tomcat.common.dir}"     includes="*.jar" />
-        	<fileset dir="${lib.openejb.dir}" 		    includes="*.jar" />
+        	<!--<fileset dir="${lib.openejb.dir}" 		    includes="*.jar" />-->
         </path>		
 		
 

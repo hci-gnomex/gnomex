@@ -80,6 +80,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
 
       // Get gnomex version
       String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+      filename = filename.replace("%20", " ");      // convert any blanks
       JarFile jarfile = new JarFile( filename );
       Manifest manifest = jarfile.getManifest();
       Attributes value = (Attributes)manifest.getEntries().get("gnomex");
