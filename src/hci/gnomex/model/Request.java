@@ -92,6 +92,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer         meanLibSizeActual;
   private String          materialQuoteNumber;
   private Date            quoteReceivedDate;
+  private String          uuid;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1336,6 +1337,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   
   public void setQuoteReceivedDate( Date quoteReceivedDate ) {
     this.quoteReceivedDate = quoteReceivedDate;
+  }
+  
+  public String getUuid() {
+    return uuid;
+  }
+  
+  public void setUuid( String uuid ) {
+    this.uuid = uuid;
   }
 
 }

@@ -8,8 +8,8 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -42,7 +42,7 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadQuoteInfoServlet extends HttpServlet {
 
-  private String  requestNumber = null;
+  private String  requestUuid = null;
   private String  quoteNumber = null;
   private String  directoryName = "";
 
@@ -54,47 +54,12 @@ public class UploadQuoteInfoServlet extends HttpServlet {
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
   }
 
-  /*
-   * SPECIAL NOTE -  This servlet must be run on non-secure socket layer (http) in order to
-   *                 keep track of previously created session. (see note below concerning
-   *                 flex upload bug on Safari and FireFox).  Otherwise, session is 
-   *                 not maintained.  Although the code tries to work around this
-   *                 problem by creating a new security advisor if one is not found,
-   *                 the Safari browser cannot handle authenicating the user (this second time).
-   *                 So for now, this servlet must be run non-secure. 
-   */
+  
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
       serverName = req.getServerName();
 
-      Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
-
-      // Get the dictionary helper
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
-      // Get security advisor
-      SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
-      if (secAdvisor == null) {
-        System.out.println("UploadQuoteInfoServlet:  Warning - unable to find existing session. Creating security advisor.");
-        secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
-      }
-
-      //
-      // To work around flex upload problem with FireFox and Safari, create security advisor since
-      // we loose session and thus don't have security advisor in session attribute.
-      //
-      // Note from Flex developer forum (http://www.kahunaburger.com/2007/10/31/flex-uploads-via-httphttps/):
-      // Firefox uses two different processes to upload the file.
-      // The first one is the one that hosts your Flex (Flash) application and communicates with the server on one channel.
-      // The second one is the actual file-upload process that pipes multipart-mime data to the server. 
-      // And, unfortunately, those two processes do not share cookies. So any sessionid-cookie that was established in the first channel 
-      // is not being transported to the server in the second channel. This means that the server upload code cannot associate the posted 
-      // data with an active session and rejects the data, thus failing the upload.
-      //
-      if (secAdvisor == null) {
-        System.out.println("UploadQuoteInfoServlet: Error - Unable to find or create security advisor.");
-        throw new ServletException("Unable to upload quote information.  Servlet unable to obtain security information. Please contact GNomEx support.");
-      }
+      Session sess =  HibernateSession.currentSession("uploadQuoteInfoServlet");
 
 
       res.setContentType("text/html");
@@ -140,8 +105,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
           // it's a parameter part
           ParamPart paramPart = (ParamPart) part;
           String value = paramPart.getStringValue();
-          if (name.equals("requestNumber")) {
-            requestNumber = value;
+          if (name.equals("requestUuid")) {
+            requestUuid = value;
           }
           if (name.equals("quoteNumber")) {
             quoteNumber = value;
@@ -155,10 +120,10 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       }
 
       // Get the request
-      if (requestNumber != null) {
-        String queryString = "SELECT r from Request r WHERE r.number = :reqNum";
+      if (requestUuid != null) {
+        String queryString = "SELECT r from Request r WHERE r.uuid = :reqUuid";
         Query reqQuery = sess.createQuery( queryString );
-        reqQuery.setParameter( "reqNum", requestNumber );
+        reqQuery.setParameter( "reqUuid", requestUuid );
         request = (Request)reqQuery.uniqueResult();
       }
 
@@ -167,6 +132,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
         if ( quoteNumber != null && !quoteNumber.equals( "" )) {
           request.setMaterialQuoteNumber( quoteNumber );
           request.setQuoteReceivedDate( new java.sql.Date(System.currentTimeMillis()) );
+          request.setUuid( null );
           sess.save( request );
           sess.flush();
         }
@@ -250,8 +216,6 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
           }
         }
-        body.addElement("P");
-        body.addCDATA("<a href='logout.jsp'>Log out</a>");
 
         if (doc != null && writer != null) {
           writer.write(doc);
@@ -260,13 +224,13 @@ public class UploadQuoteInfoServlet extends HttpServlet {
         }
 
       } else {
-        System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request requestNumber=" + requestNumber);
+        System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request requestNumber=" + request.getNumber());
         System.out.println("valid requestNumber is required");
         throw new ServletException("Unable to upload quote information due to a server error.  Please contact GNomEx support.");
       }
 
     } catch (Exception e) {
-      System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request " + requestNumber);
+      System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request " + request.getNumber());
       System.out.println(e.toString());
       e.printStackTrace();
       throw new ServletException("Unable to upload quote information due to a server error.  Please contact GNomEx support.");
