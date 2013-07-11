@@ -23,8 +23,20 @@ package views.renderers
 		{
 			super();
 			setDataProvider();
+			this.labelFunction = getIndexTagName;
 		}
-		
+		protected function getIndexTagName(item:Object):String
+		{
+			if (item.@idOligoBarcode != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+			} else {
+				if ( indexTagLetter == 'B' ) {
+					return '';
+				} else {
+					return item.@barcodeSequence;
+				}
+			}
+		}
 		protected function setSelectedIndex():void {
 			if ( this.data != null ) { 
 				this.selectedItem = this.getBarcode(data);
@@ -44,15 +56,10 @@ package views.renderers
 			dataProvider = new XMLListCollection();
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
 			
+			this.enabled = true;
+			this.editable = true;
+			
 			if ( parentApp != null && idSeqLibProtocol != null){
-				if(indexTagLetter == 'B'){
-					this.enabled = false;
-					this.editable = false;
-					return;
-				} else{
-					this.enabled = true;
-					this.editable = true;
-				}
 				for each(var barcodeScheme:Object in parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
 					// Only use scheme if it is allowed for this seq lib protocol
 					var keepScheme:Boolean = false;
@@ -79,7 +86,13 @@ package views.renderers
 					
 				}
 			}
-			setSelectedIndex();	
+			if ( dp.length == 0 ) {
+				this.enabled = false;
+				this.editable = false;
+				selectedItem = null;
+			} else {
+				setSelectedIndex();
+			}
 		}
 		
 		private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
