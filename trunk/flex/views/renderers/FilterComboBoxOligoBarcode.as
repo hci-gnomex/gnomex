@@ -45,7 +45,7 @@ package views.renderers
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
 			
 			if ( parentApp != null && idSeqLibProtocol != null){
-				if(parentApp.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqLibProtocol', idSeqLibProtocol).toLowerCase().indexOf('nextera') == -1 && indexTagLetter == 'B'){
+				if(indexTagLetter == 'B'){
 					this.enabled = false;
 					this.editable = false;
 					return;
