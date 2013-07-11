@@ -31,12 +31,6 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
   public DataSource createDataSource(Properties properties, Context context, boolean XA) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, SQLException, NoSuchAlgorithmException, NoSuchPaddingException {         
     // Here we decrypt our password.         
     PoolConfiguration poolProperties = EncryptedDataSourceFactory.parsePoolProperties(properties);         
-    System.out.println("pwd=" + poolProperties.getPassword());
-    System.out.println("*************************************************************************************");
-    System.out.println("properties=" + properties.toString());
-    System.out.println("*************************************************************************************");
-    System.out.println("context=" + context);
-    System.out.println("*************************************************************************************");
     poolProperties.setPassword(encryptor.decrypt(poolProperties.getPassword()));          
     // The rest of the code is copied from Tomcat's DataSourceFactory.         
     if (poolProperties.getDataSourceJNDI() != null && poolProperties.getDataSource() == null) {             
