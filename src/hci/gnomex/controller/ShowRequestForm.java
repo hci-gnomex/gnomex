@@ -255,7 +255,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               description.addContent(request.getDescription());
               maindiv.addContent(description);              
             } else if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
-              // Show core facility and bioinformatics notes for internal experiments
+              // Show core facility notes for internal experiments
               Element sequenceNote = new Element("H5");
               sequenceNote.addContent("Notes for Core facility");
               maindiv.addContent(sequenceNote);
@@ -263,15 +263,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               Element coreInstruction = new Element("H6");
               coreInstruction.addContent(request.getCorePrepInstructions());
               maindiv.addContent(coreInstruction);
-
-              Element analysisNote = new Element("H5");
-              analysisNote.addContent("Notes for Bioinformatics Core");
-              maindiv.addContent(analysisNote);
-
-              Element analysisInstruction = new Element("H6");
-              analysisInstruction.addContent(request.getAnalysisInstructions());
-              maindiv.addContent(analysisInstruction);
-              
             }
 
             formatter.addSampleTable(maindiv, request.getSamples());
@@ -340,14 +331,17 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	            
 	            if (steps != null && steps.length() > 0) {
 	              // New Page
+                maindiv.addContent(new Element("BR"));
+                maindiv.addContent(new Element("BR"));
+                maindiv.addContent(new Element("BR"));
+                maindiv.addContent(new Element("HR"));
 	              formatter.makePageBreak(maindiv);
-	              maindiv.addContent(new Element("HR"));
 	              
 	              maindiv.addContent(new Element("BR"));
 	              maindiv.addContent(formatter.makeRequestInfoTable());
 	              maindiv.addContent(new Element ("BR"));
 	  
-	              Element reqNum = new Element("H4");
+	              Element reqNum = new Element("H2");
 	              reqNum.addContent(formatter.makeRequestCategoryImage(null));
 	              reqNum.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
 	              maindiv.addContent(reqNum);
@@ -355,7 +349,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	              Element reqCat = new Element("H4");
 	              reqCat.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
 	              maindiv.addContent(reqCat);
-	  
 	              
 	              if (request.getSequenceLanes().iterator().hasNext()) {
 	                Element seqType = new Element("H4");
@@ -366,6 +359,13 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	                
 	              }
 
+	              if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
+	                Element hApp = new Element("H4");
+	                hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+	                maindiv.addContent(hApp);
+	              }
+	              
+	              maindiv.addContent(new Element("BR"));
                 Element stepsNote = new Element("H5");
                 stepsNote.addContent("Steps");
                 maindiv.addContent(stepsNote);
