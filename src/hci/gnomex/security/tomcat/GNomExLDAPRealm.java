@@ -54,28 +54,6 @@ public class GNomExLDAPRealm extends RealmBase {
   private DirContext ctx;
   private Attributes attr;
 
-  
-  @Override
-  public Principal authenticate(String username, byte[] credentials) {
-    return this.authenticate(username, credentials);
-  }
-
-  @Override
-  public void init() {
-    super.init();
-
-  }
-
-  @Override
-  public void start() throws LifecycleException {
-    super.start();
-  }
-
-  @Override
-  public void stop() throws LifecycleException {
-    super.stop();
-  }
-
   public GNomExLDAPRealm() {
     super();
   }
@@ -96,7 +74,7 @@ public class GNomExLDAPRealm extends RealmBase {
   protected Principal getPrincipal(String username) {
     List<String> roles = new ArrayList<String>();
     roles.add("GNomExUser");
-    return new GenericPrincipal(this, username, password, roles);
+    return new GenericPrincipal(username, password, roles);
   }
 
   @Override
