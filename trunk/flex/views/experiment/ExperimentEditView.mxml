@@ -1084,6 +1084,9 @@
 					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
 				this.samplesView.currentState = 'SolexaSamplesState';
+				if (theTab.contains(setupView) && setupView.labCombo.selectedItem != null) {
+					this.seqSetup1View.loadPriceList(setupView.labCombo.selectedItem.@idLab.toString(), requestCategory.@codeRequestCategory.toString());
+				}
 				
 				if (parentApplication.submitInternalExperiment()) {
 					showHideBarcodingQuestion();

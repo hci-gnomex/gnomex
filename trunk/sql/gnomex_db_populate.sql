@@ -878,7 +878,10 @@ Test City, UT 12345',
  Test City, UT 12345', 
  'Core facility lab address', 'N'),
  (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
- (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N');
+ (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
+ (100,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
+ (101,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ (102,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N');
  
  
  
