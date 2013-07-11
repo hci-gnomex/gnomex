@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
-				width="420" height="338" showCloseButton="true" creationComplete="centerMe()"
+				width="450" height="338" showCloseButton="true" creationComplete="centerMe()"
 				  paddingLeft="4" paddingRight="4" paddingTop="4" close="cancel()" paddingBottom="4">
 	
 	
@@ -138,31 +138,29 @@
 		</mx:HBox>			    	
 	</mx:HBox>
 
-	 
 	
-	<mx:DataGrid id="checkboxGrid" dataProvider="{options}" 
-				 rowCount="{(options.length > 0 ? options.length - 1 : 1)}"
-				 width="100%"  showHeaders="false"  wordWrap="true"
-				 itemClick="toggleCheck(event)" height="100%">
+	<mx:DataGrid id="checkboxGrid" width="100%" height="100%" dataProvider="{options}" fontSize="10" variableRowHeight="true" wordWrap="true"
+				 horizontalScrollPolicy="auto" itemClick="toggleCheck(event)">
 		<mx:columns>
 			<mx:DataGridColumn headerText=" "  
 							   id="checkBoxColumn"
 							   width="25"    
-							   editable="false"                        	
+							   editable="false"                       	
 							   dataField="@isSelected" 
 							   editorDataField="selected"
 							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, this.allowMultipleChoice)}">			 
 			</mx:DataGridColumn>
-			<mx:DataGridColumn headerText="Option" wordWrap="true"  dataField="@display" >
+			<mx:DataGridColumn headerText="Option" wordWrap="true" dataField="@display" >
 			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>
 	
 	<mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="top">
-		<mx:Button label="Save" click="save()">
+		<mx:Button label="Update" click="save()">
 		</mx:Button>
 		<mx:Button label="Cancel"  click="cancel()">
 		</mx:Button>
 	</mx:HBox>
+
 
 </mx:TitleWindow>
