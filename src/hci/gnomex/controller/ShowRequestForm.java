@@ -327,7 +327,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               String samplePrepMethod = "";
 	            if (request.getSamples().iterator().hasNext()) {
                 Sample smp = (Sample) request.getSamples().iterator().next(); 
-                if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("Y")) {
+                if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
                   corePrepLib = false;
                 }
                 if (!corePrepLib) {
@@ -341,6 +341,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	            if (steps != null && steps.length() > 0) {
 	              // New Page
 	              formatter.makePageBreak(maindiv);
+	              maindiv.addContent(new Element("HR"));
 	              
 	              maindiv.addContent(new Element("BR"));
 	              maindiv.addContent(formatter.makeRequestInfoTable());
@@ -365,23 +366,22 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	                
 	              }
 
-	              Element table = new Element("TABLE");
-                table.setAttribute("CELLPADDING", "0");
-                table.addContent(makeRow("Sample Type",   sampleType == null ? "&nbsp;" : sampleType, "&nbsp;",     "&nbsp;"));
-                table.addContent(makeRow("Nucleic Acid Extraction Method",     samplePrepMethod, "&nbsp;",     "&nbsp;"));
-                table.addContent(makeRow("Received Date", "", "&nbsp;",     "&nbsp;"));
-                maindiv.addContent(table);
-
                 Element stepsNote = new Element("H5");
-  	            stepsNote.addContent("Steps");
-  	            maindiv.addContent(stepsNote);
+                stepsNote.addContent("Steps");
+                maindiv.addContent(stepsNote);
+
+                String coreStepsString = "";
+                coreStepsString += "<P ALIGN=\"LEFT\">Sample Type:  " + (sampleType == null || sampleType.length() == 0 || sampleType.equals("&nbsp;") ? "_____________________________" : "<u>" + sampleType + "</u>") + "</P>";
+                coreStepsString += "<P ALIGN=\"LEFT\">Nucleic Acid Extraction Method:  " + (samplePrepMethod == null || samplePrepMethod.length() == 0 || samplePrepMethod.equals("&nbsp;") ? "___________________________________" : "<u>" + samplePrepMethod + "</u>") + "</P>";
+                coreStepsString += "<P ALIGN=\"LEFT\">Received Date:  ___________________</P>";
+                if (corePrepLib) {
+                  coreStepsString += request.getApplication().getCoreSteps();
+                } else {
+                  coreStepsString += request.getApplication().getCoreStepsNoLibPrep();
+                }
   	
-  	            Element coreStepsDescription = new Element("H6");
-  	            if (corePrepLib) {
-  	              coreStepsDescription.addContent(request.getApplication().getCoreSteps());
-  	            } else {
-  	              coreStepsDescription.addContent(request.getApplication().getCoreStepsNoLibPrep());
-  	            }
+  	            Element coreStepsDescription = new Element("H7");
+  	            coreStepsDescription.addContent(coreStepsString);
   	            maindiv.addContent(coreStepsDescription);              
 	            }
 	            

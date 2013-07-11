@@ -38,7 +38,7 @@
 				parentWindow.appGrid.selectedItem.@coreStepsNoLibPrep = GNomExStringUtil.cleanRichTextHTML(coreStepsNoLibPrep.htmlText);
 				parentWindow.dirty.setDirty();
 				PopUpManager.removePopUp(this);
-				 
+				Alert.show("You must press save on this screen to make your updates to configuration steps permanent.");
 			}
 			
 			private function cancel():void {
@@ -56,6 +56,7 @@
 		
 		]]>
 	</mx:Script>
+	<mx:Label text="Use underscores to indicate area for user to write in."/>
 	<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4">
 
 		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
@@ -86,7 +87,7 @@
 		</mx:VBox>
 	</mx:HDividedBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Update" id="saveButton" click="save()" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="cancel()"/>
 	</mx:ControlBar>
 

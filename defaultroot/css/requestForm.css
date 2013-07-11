@@ -142,6 +142,15 @@ h6 {
   border-color: #D8D8D8 ;
 }
 
+p {
+  font-size: 10pt;
+  font-weight: normal;
+  font-style: normal;
+  margin-top: 20;
+  margin-bottom: 0;
+  padding: 0;
+}
+
 h1.downloadHeader {
 
       font-size: 10pt;
@@ -339,4 +348,8 @@ img {
   margin-top: 0px;
   margin-bottom: 0px;
   vertical-align: middle;
+}
+
+hr { 
+  border: 1px; 
 }
