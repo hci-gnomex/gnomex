@@ -471,7 +471,6 @@
 			<url-pattern>uploadAnalysisFile_plupload.jsp</url-pattern>
 			<url-pattern>uploadExperimentFile.jsp</url-pattern>
 			<url-pattern>uploadExperimentFile_plupload.jsp</url-pattern>
-      <url-pattern>uploadQuoteInfo.jsp</url-pattern>
 			<url-pattern>uploadSampleSheetFile.jsp</url-pattern>
 			<url-pattern>uploadSampleSheetFile_plupload.jsp</url-pattern>
 			<url-pattern>launcher_reconnect.jsp</url-pattern>
@@ -515,7 +514,6 @@
 			<url-pattern>ExperimentQueue.gx</url-pattern>
 			<url-pattern>VerifyDas2Refresh</url-pattern>	
       <url-pattern>MakeDataTrackIGVLink.gx</url-pattern>  
-      <url-pattern>UploadQuoteInfoServlet.gx</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>

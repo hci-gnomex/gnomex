@@ -467,7 +467,6 @@
 			<url-pattern>/uploadAnalysisFile_plupload.jsp</url-pattern>
 			<url-pattern>/uploadExperimentFile.jsp</url-pattern>
 			<url-pattern>/uploadExperimentFile_plupload.jsp</url-pattern>
-      <url-pattern>/uploadQuoteInfo.jsp</url-pattern>
 			<url-pattern>/uploadSampleSheetFile.jsp</url-pattern>
 			<url-pattern>/uploadSampleSheetFile_plupload.jsp</url-pattern>
 			<url-pattern>/launcher_reconnect.jsp</url-pattern>
@@ -566,9 +565,7 @@
 			<url-pattern>/UploadAndBroadcastEmailServlet</url-pattern>			
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	
-			<url-pattern>MakeDataTrackIGVLink.gx</url-pattern>  
-      <url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
-			
+			<url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>  
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
@@ -576,14 +573,20 @@
 	</security-constraint>
 
 
-	<login-config>
+ 	<login-config>
 		<auth-method>FORM</auth-method>		
-                <form-login-config>
-			<form-login-page>/login.jsp</form-login-page>
-			<form-error-page>/login_failed.jsp</form-error-page>
+    <form-login-config>
+				<form-login-page>/login_tomcat.jsp</form-login-page>
+				<form-error-page>/login_tomcat_failed.jsp</form-error-page>
 		</form-login-config>
 	</login-config>
-
+ 
+<!-- 
+  <login-config>
+    <auth-method>BASIC</auth-method>
+  </login-config>
+   -->
+  
 	<security-role>
 		<role-name>GNomExUser</role-name>
 	</security-role>
@@ -598,6 +601,19 @@
     <res-sharing-scope>Shareable</res-sharing-scope>
   </resource-ref>
 
+  <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/GNOMEX</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+  </resource-ref>
+
+  <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/GNOMEX_GUEST</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+  </resource-ref>
 
 
 </web-app>

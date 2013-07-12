@@ -9,9 +9,9 @@
 
         <!-- Use a Tomcat 5.5 JNDI datasource -->
 
-	 <property name="connection.datasource">java:openejb/Resource/jdbc/gnomex</property>
+	 <!-- <property name="connection.datasource">java:openejb/Resource/jdbc/gnomex</property> -->
 	 <!-- <property name="connection.datasource">java:comp/env/jdbc/gnomex</property> -->
-
+        <property name="connection.datasource">java:comp/env/jdbc/GNOMEX</property>
 
       <property name="show_sql">false</property>
 	 <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>

@@ -38,5 +38,3 @@ alter table Application add coreStepsNoLibPrep varchar(5000);
 
 -- Add meanLibSizeActual column to Request (needed?)
 alter table Request add meanLibSizeActual INT(10) NULL;
-
-

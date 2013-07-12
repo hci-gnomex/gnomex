@@ -16,6 +16,7 @@ import javax.servlet.http.*;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.utility.server.JNDILocator;
 import hci.framework.control.*;
@@ -79,7 +80,7 @@ public class GNomExFrontController extends HttpServlet {
   }
   
   public static boolean isTomcat() {
-    return getWebContextPath().contains("tomcat");
+    return getWebContextPath().toLowerCase().contains("tomcat");
   }
 
 
@@ -208,9 +209,13 @@ public class GNomExFrontController extends HttpServlet {
     if (commandInstance.isValid()) {
       log.debug("Forwarding " + commandClass + " to the request processor for execution");
       try {
-        commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
-        //commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
+        if (this.isTomcat()) {
+          commandInstance.execute();
+        } else {
+          commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
+        }
       } catch (Exception e) {
+        HibernateSession.rollback();
         String msg = null;
         if (e.getCause() != null && e.getCause() instanceof EJBException) {
         	EJBException ejbe = (EJBException) e.getCause();
@@ -364,7 +369,6 @@ public class GNomExFrontController extends HttpServlet {
 
     return remote;
   }
-
 
   /**
    *  Clean up resources

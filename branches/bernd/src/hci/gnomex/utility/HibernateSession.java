@@ -15,6 +15,7 @@ package hci.gnomex.utility;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 
 
@@ -28,7 +29,8 @@ import java.sql.*;
 
 public class HibernateSession {
 
-  public static final ThreadLocal session      = new ThreadLocal();
+  private static final ThreadLocal session      = new ThreadLocal();
+  private static final ThreadLocal transaction = new ThreadLocal();
   
   public static final String SESSION_FACTORY_JNDI_NAME       = "sessions/GNOMEX_FACTORY";
   
@@ -39,7 +41,12 @@ public class HibernateSession {
     if (s == null) {
       
       if (GNomExFrontController.isTomcat()) {
-        s = HibernateGuestUtil.getSessionFactory().openSession();
+        s = HibernateUtil.getSessionFactory().openSession();
+        if (GNomExFrontController.isTomcat()) {
+          // User hibernate transactions (not EJB) if tomcat.
+          Transaction tx = s.beginTransaction();
+          transaction.set(tx);
+        }
       } else {
         SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);     
         s = sf.openSession();
@@ -63,16 +70,27 @@ public class HibernateSession {
     return s;
   }
 
-
+  public static void rollback() {
+    // tx will be null unless Tomcat server.
+    Transaction tx = (Transaction) transaction.get();
+    if (tx != null) {
+      transaction.set(null);
+      tx.rollback();
+    }
+  }
+  
   public static void closeSession() throws HibernateException, SQLException {
+    // tx will be null if not tomcat.
     Session s = (Session) session.get();
-
+    Transaction tx = (Transaction) transaction.get();
     CallableStatement stmt;
     try {
       setAppName(s, null);
     }
     finally {
       session.set(null);
+      transaction.set(null);
+      if (tx != null) tx.commit();
       if (s!=null) s.close();
     }
   }

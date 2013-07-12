@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -383,12 +384,17 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     String catNumber = chip.getCatalogNumber() != null ? chip.getCatalogNumber() : "";
     
     StringBuffer emailBody = new StringBuffer();
-    String uploadQuoteURL = appURL + "/" + Constants.UPLOAD_QUOTE_JSP + "?requestNumber=" + requestNumber ;
+    
+    UUID uuid = UUID.randomUUID(); 
+    String uuidStr = uuid.toString();
+    req.setUuid(uuidStr);
+    String uploadQuoteURL = appURL + "/" + Constants.UPLOAD_QUOTE_JSP + "?requestUuid=" + uuidStr ;
 
     emailBody.append("A request for iScan chips has been submitted from the " + 
                       PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) +
                       ".");
-    emailBody.append("<br><br><table border='0' width = '600'><tr><td>Chip Type:</td><td>" + chipName );
+    emailBody.append("<br><br><table border='0' width = '600'><tr><td>Experiment:</td><td>" + requestNumber );
+    emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
     emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
     emailBody.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
 

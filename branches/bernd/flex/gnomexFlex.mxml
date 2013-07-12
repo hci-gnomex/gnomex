@@ -1032,6 +1032,9 @@
 			public var PROPERTY_GNOMEX_LINKAGE_BST_URL:String             = "gnomex_linkage_bst_url";
 			public var PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS:String		  = "submit_request_instructions";
 			public var PROPERTY_BASE_INSERT_SIZE:String				  	  = "base_insert_size";
+			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD:String      = "hiseq_run_type_label_standard";
+			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM:String        = "hiseq_run_type_label_custom";
+			public var PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING:String      = "hiseq_run_type_custom_warning";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			

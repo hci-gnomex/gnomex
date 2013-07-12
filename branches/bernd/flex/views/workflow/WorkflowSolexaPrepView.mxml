@@ -249,14 +249,7 @@
 				return '';
 			}
 		}
-		public function getIndexTagName(item:Object):String
-		{
-			if (item.@idOligoBarcode != '') {
-				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-			} else {
-				return item.@barcodeSequence;
-			}
-		}
+		
 
 		private function getSampleType(item:Object,col:DataGridColumn):String
         {
@@ -443,7 +436,6 @@
 																	  prompt="{null}"
 																	  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
-																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
 																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; var save:int = outerDocument.workListGrid.selectedIndex;}" >
@@ -466,7 +458,6 @@
 																	  prompt="{null}"
 																	  filterString="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
-																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
 																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = '';}" >

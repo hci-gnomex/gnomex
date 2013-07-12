@@ -880,8 +880,10 @@ Test City, UT 12345',
  (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
  (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
  (100,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
- (101,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'); 
-
+ (101,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'), 
+ (102,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
+ (103,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ (104,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N');
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),
   ('IRB', 'IRB', 'Y');

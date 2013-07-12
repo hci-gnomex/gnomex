@@ -344,6 +344,13 @@
 							}
 							var ssColItem:XML = ssColList[ssColumnForThisField];
 							var ssColItemValue:String = ssColItem.@Value;
+							if (thisDataField == "name") {
+								// Only allow 30 characters for name
+								if (ssColItemValue.length > 30) {
+									ssColItemValue = ssColItemValue.substr(0, 30);
+									reportStatus = "Name.  Truncated to 30 characters.";
+								}
+							}
 							if(thisDataField == "label") {
 								// Special handling for label field -- expect cy3 or cy5
 								if(ssColItemValue.length > 0 && !(ssColItemValue == 'cy3' || ssColItemValue == 'cy5')) {

@@ -8,6 +8,7 @@ import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
 
@@ -91,7 +92,8 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     center1.addContent(formatter.makeRequestTable());
 
-    formatter.addSampleTable(center1, samples, captionStyle);
+    
+    formatter.addSimpleSampleTable(center1, samples);
     
     center1.addContent(new Element("BR"));
 
@@ -189,6 +191,15 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     Element center1 = new Element("LEFT");
     body.addContent(center1);
+    
+    
+    if (request.getSequenceLanes().iterator().hasNext()) {
+        Element seqType = new Element("H4");
+        SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
+        seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+        seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+        center1.addContent(seqType);
+    }
     
     if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
       Element hApp = new Element("H4");
