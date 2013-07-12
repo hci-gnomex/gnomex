@@ -1235,6 +1235,8 @@ CREATE TABLE `gnomex`.`Application` (
   `avgInsertSizeFrom` INT(10) NULL,
   `avgInsertSizeTo` INT(10) NULL,
   `hasCaptureLibDesign` CHAR(1) NULL,
+  `coreSteps` VARCHAR(5000) NULL,
+  `coreStepsNoLibPrep` VARCHAR(5000) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -1547,6 +1549,7 @@ CREATE TABLE `gnomex`.`Request` (
   `materialQuoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
   `meanLibSizeActual` INT(10) NULL,
+  `uuid` VARCHAR(36) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1783,7 +1786,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
   `isControl` CHAR(1) NULL,
-  `meanInsertSizeActual` INT(10) NULL,
+  `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)

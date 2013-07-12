@@ -47,6 +47,7 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
   
   private java.sql.Date    startDate;
   private java.sql.Date    endDate;
+  private String           isExternal = "N";
   private SecurityAdvisor  secAdvisor;
   
   private BigDecimal     zero = new BigDecimal(0);
@@ -73,6 +74,9 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
       this.addInvalidField("endDate", "endDate is required");
     }
     
+    if (request.getParameter("isExternal") != null) {
+      isExternal = request.getParameter("isExternal");
+    } 
    
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
@@ -105,7 +109,7 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
             tray = new ReportTray();
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle("Usage Report");
-            tray.setReportDescription("Usage Report" + " " + this.formatDate(startDate) + " - " + this.formatDate(endDate));
+            tray.setReportDescription("Usage Report" + " " + this.formatDate(startDate) + " - " + this.formatDate(endDate) + (isExternal.equals("Y") ? " (External)" : " (Internal)"));
             tray.setFileName("GNomEx Usage Report");
             tray.setFormat(ReportFormats.XLS);
 
@@ -205,12 +209,19 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" and cat.name like 'Sample Quality%' and cat.name != 'Miscellaneous'");
     buf.append(" and qty is not null");
     buf.append(" and bi.codeBillingStatus != '" + BillingStatus.PENDING + "'");
+
+    if ( isExternal != null && isExternal.equals( "Y" )) {
+      buf.append(" and (lab.isExternalPricing = 'Y' OR lab.isExternalPricingCommercial = 'Y')");
+    } else {
+      buf.append(" and lab.isExternalPricing != 'Y' and lab.isExternalPricingCommercial != 'Y'");
+    }
     
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");
       secAdvisor.appendCoreFacilityCriteria(buf, "bi");
       buf.append(" ");
     }
+    
     
     buf.append(" group by lab.lastName, lab.firstName, bi.codeBillingChargeKind");
     List results = sess.createQuery(buf.toString()).list();
@@ -231,6 +242,12 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" and bi.qty is not NULL");
     buf.append(" and bi.codeBillingStatus != '"+ BillingStatus.PENDING + "'");
     buf.append(" and cat.name not like 'Sample Quality%' and cat.name != 'Miscellaneous'");
+    
+    if ( isExternal != null && isExternal.equals( "Y" )) { 
+      buf.append(" and (lab.isExternalPricing = 'Y' OR lab.isExternalPricingCommercial = 'Y')");
+    } else {
+      buf.append(" and lab.isExternalPricing != 'Y' and lab.isExternalPricingCommercial != 'Y'");
+    }
     
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");

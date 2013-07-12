@@ -1492,10 +1492,10 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 							
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
-							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Average Insert Size" width="90" dataField="@meanInsertSizeActual" editable="false" rendererIsEditor="false">
+							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Mean Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 								<mx:itemRenderer>
 									<mx:Component>
-										<mx:Label text="{data.hasOwnProperty('@meanInsertSizeActual') &amp;&amp; data.@meanInsertSizeActual != '' ? (parseInt(data.@meanInsertSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>
+										<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>
 									</mx:Component>
 								</mx:itemRenderer>
 							</mx:AdvancedDataGridColumn>

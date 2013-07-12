@@ -731,6 +731,7 @@
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
 		<many-to-one name="requestCategory" column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 		<property name="codeApplication" column="codeApplication" type="string"/>
+		<many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
     	<many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
@@ -885,7 +886,7 @@
 		<property name="multiplexGroupNumber" column="multiplexGroupNumber" type="integer"/>
 		<property name="barcodeSequence" column="barcodeSequence" type="string" />
 		<property name="idSampleSource" column="idSampleSource" type="integer"/>
-		<property name="meanInsertSizeActual" column="meanInsertSizeActual" type="integer"/>
+		<property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
 		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
@@ -1085,6 +1086,8 @@
 		<property name="idApplicationTheme" column="idApplicationTheme" type="integer"/>
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 		<property name="hasCaptureLibDesign" column="hasCaptureLibDesign" type="string"/>
+		<property name="coreSteps" column="coreSteps" type="string"/>
+		<property name="coreStepsNoLibPrep" column="coreStepsNoLibPrep" type="string"/>
 		
 	</class>
 

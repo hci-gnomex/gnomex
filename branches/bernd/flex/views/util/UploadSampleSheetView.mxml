@@ -719,12 +719,12 @@
 			private function uploadIoErrorHandler(event:IOErrorEvent):void{
 				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
 					"Upload IO error",0);
-				clickUploadFileButton();
+				PopUpManager.removePopUp(this);
 			}    
 			// only called if a security error detected by flash player such as a sandbox violation
 			private function uploadSecurityErrorHandler(event:SecurityErrorEvent):void{
 				mx.controls.Alert.show(String(event),"Security Error",0);
-				clickUploadFileButton();
+				PopUpManager.removePopUp(this);
 			}
 
 			//  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.

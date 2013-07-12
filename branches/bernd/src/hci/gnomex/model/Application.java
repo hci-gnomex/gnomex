@@ -33,6 +33,8 @@ public class Application extends DictionaryEntry implements Serializable {
   private Integer idApplicationTheme;
   private Integer sortOrder;
   private String hasCaptureLibDesign;
+  private String coreSteps;
+  private String coreStepsNoLibPrep;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -108,4 +110,20 @@ public class Application extends DictionaryEntry implements Serializable {
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
   }
+
+	public String getCoreSteps() {
+		return coreSteps;
+	}
+	
+	public void setCoreSteps(String coreSteps) {
+		this.coreSteps = coreSteps;
+	}
+	
+	public String getCoreStepsNoLibPrep() {
+		return coreStepsNoLibPrep;
+	}
+	
+	public void setCoreStepsNoLibPrep(String coreStepsNoLibPrep) {
+		this.coreStepsNoLibPrep = coreStepsNoLibPrep;
+	}
 }

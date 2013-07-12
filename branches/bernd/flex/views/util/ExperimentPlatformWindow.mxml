@@ -504,7 +504,15 @@
 				return null;				
 			}	
 
-			
+			public function configureStepsClick():void {
+				
+				var configureStepsWindow:LibPrepStepsWindow = LibPrepStepsWindow(mx.managers.PopUpManager.createPopUp(this, LibPrepStepsWindow, true));
+				configureStepsWindow.parentWindow = this;
+				PopUpManager.centerPopUp(configureStepsWindow);
+				configureStepsWindow.init(this);
+				
+			}
+
 		]]>
 	</mx:Script>
 	
@@ -611,7 +619,7 @@
 							
 						</mx:VBox>
 						<mx:VBox  width="100%" height="100%" label="Experiment Types"  show="{showHideAppColumns()}" 
-								  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+								  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" id="ExpTypes">
 							<mx:HBox verticalAlign="middle">
 								<mx:LinkButton label="Add" styleName="linkMenuButton" 
 											   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
@@ -669,7 +677,19 @@
 													   wordWrap="true"
 													   sortable="false" editable="true" rendererIsEditor="false"  
 													   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
-													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>										
+													   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
+									<mx:DataGridColumn headerWordWrap="true" headerText="Lib Prep Steps" id="libPrepSteps" 
+													   wordWrap="true" width="110" 
+													   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false">
+										<mx:itemRenderer>
+											<mx:Component>
+												<mx:LinkButton textAlign="left" label="Configure Steps"
+															   color="0x0000FF"   
+															   textDecoration="underline" 
+															   click="outerDocument.configureStepsClick()"/>
+											</mx:Component>
+										</mx:itemRenderer>
+									</mx:DataGridColumn>
 									<mx:DataGridColumn headerText="Active"  
 													   width="25"  
 													   editable="false"                      	

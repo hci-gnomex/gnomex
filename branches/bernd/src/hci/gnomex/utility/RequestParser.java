@@ -476,10 +476,10 @@ public class RequestParser implements Serializable {
     } else {
       sample.setPrepInstructions(null);
     }
-    if (n.getAttributeValue("meanInsertSizeActual") != null && !n.getAttributeValue("meanInsertSizeActual").equals("")) {
-      sample.setMeanInsertSizeActual(new Integer((n.getAttributeValue("meanInsertSizeActual"))));
+    if (n.getAttributeValue("meanLibSizeActual") != null && !n.getAttributeValue("meanLibSizeActual").equals("")) {
+      sample.setMeanLibSizeActual(new Integer((n.getAttributeValue("meanLibSizeActual"))));
     } else {
-      sample.setMeanInsertSizeActual(null);
+      sample.setMeanLibSizeActual(null);
     }
     
     

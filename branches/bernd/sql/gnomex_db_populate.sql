@@ -418,7 +418,7 @@ INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPr
  (78,'76 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
  (79,'HiSeq 50 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'), 
  (80,'HiSeq 50 cycle paired end','HiSeq 50 cycle paired end','0.00',NULL,11,'Y'),
- (81,'HiSeq 101 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'),
+ (81,'HiSeq 101 cycle single read','HiSeq 101 cycle single read','0.00',NULL,11,'Y'),
  (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',NULL,11,'Y'), 
  (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',NULL,100,'Y'),
  (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',NULL,100,'Y');
@@ -503,10 +503,10 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
  (80,'MONNUCSEQ',NULL,32),
  (81,'DNAMETHSEQ',NULL,31),
  (82,'TSCRPTSEQ',NULL,63),
- (83,'3','6',79),
- (84,'4','6',80),
- (85,'3','5',81),
- (86,'4','5',82),
+ (83,'3','4',79),
+ (84,'4','4',80),
+ (85,'3','6',81),
+ (86,'4','6',82),
  (300,'4','2',200),
  (301,'4','7',201);
 

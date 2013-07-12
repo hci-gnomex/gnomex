@@ -12,6 +12,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SubmissionInstruction;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -35,6 +36,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -274,8 +276,10 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
             formatter.addSampleTable(maindiv, request.getSamples());
 
+            Set laneSamples = new TreeSet();
+            
             if (!request.getHybridizations().isEmpty()) {
-
+              laneSamples = request.getLabeledSamples();	
               formatter.makePageBreak(maindiv);
 
               TreeSet labeledSamples = new TreeSet(new LabeledSampleNumberComparator());
@@ -292,7 +296,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
               formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
             }
-
+            
             // Append the submission instructions to the printable form
             // for non-guest users.
             String instructions = "";
@@ -314,6 +318,74 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 }              
               }              
             }
+            
+ 
+            if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+	            boolean corePrepLib = true;
+              String steps = request.getApplication().getCoreSteps();
+              String sampleType = "";
+              String samplePrepMethod = "";
+	            if (request.getSamples().iterator().hasNext()) {
+                Sample smp = (Sample) request.getSamples().iterator().next(); 
+                if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("Y")) {
+                  corePrepLib = false;
+                }
+                if (!corePrepLib) {
+                  steps = request.getApplication().getCoreStepsNoLibPrep();
+                }
+                sampleType = dictionaryHelper.getSampleType(smp);
+                samplePrepMethod = getSamplePrepMethod(smp);
+	            }
+
+	            
+	            if (steps != null && steps.length() > 0) {
+	              // New Page
+	              formatter.makePageBreak(maindiv);
+	              
+	              maindiv.addContent(new Element("BR"));
+	              maindiv.addContent(formatter.makeRequestInfoTable());
+	              maindiv.addContent(new Element ("BR"));
+	  
+	              Element reqNum = new Element("H4");
+	              reqNum.addContent(formatter.makeRequestCategoryImage(null));
+	              reqNum.addContent(request.getNumber() + "&nbsp;&nbsp;&nbsp;");
+	              maindiv.addContent(reqNum);
+	              
+	              Element reqCat = new Element("H4");
+	              reqCat.addContent(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
+	              maindiv.addContent(reqCat);
+	  
+	              
+	              if (request.getSequenceLanes().iterator().hasNext()) {
+	                Element seqType = new Element("H4");
+	                SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
+	                seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+	                seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+	                maindiv.addContent(seqType);
+	                
+	              }
+
+	              Element table = new Element("TABLE");
+                table.setAttribute("CELLPADDING", "0");
+                table.addContent(makeRow("Sample Type",   sampleType == null ? "&nbsp;" : sampleType, "&nbsp;",     "&nbsp;"));
+                table.addContent(makeRow("Nucleic Acid Extraction Method",     samplePrepMethod, "&nbsp;",     "&nbsp;"));
+                table.addContent(makeRow("Received Date", "", "&nbsp;",     "&nbsp;"));
+                maindiv.addContent(table);
+
+                Element stepsNote = new Element("H5");
+  	            stepsNote.addContent("Steps");
+  	            maindiv.addContent(stepsNote);
+  	
+  	            Element coreStepsDescription = new Element("H6");
+  	            if (corePrepLib) {
+  	              coreStepsDescription.addContent(request.getApplication().getCoreSteps());
+  	            } else {
+  	              coreStepsDescription.addContent(request.getApplication().getCoreStepsNoLibPrep());
+  	            }
+  	            maindiv.addContent(coreStepsDescription);              
+	            }
+	            
+            }  
 
             XMLOutputter out = new org.jdom.output.XMLOutputter();
             out.setOmitEncoding(true);
@@ -373,9 +445,66 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     }
 
     return this;
+   }
+
+  private String getSamplePrepMethod(Sample sample) {
+	   
+	    String spm = null;
+	    spm = sample.getOtherSamplePrepMethod();
+	    return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
 
+  private Element makeRow(String header1, String value1) {
+	    Element row = new Element("TR");
+	    Element cell = new Element("TD");
+	    cell.setAttribute("CLASS", "label");
+	    cell.setAttribute("ALIGN", "LEFT");
+	    cell.addContent(header1);
+	    row.addContent(cell);
+	    
+	    cell = new Element("TD");
+	    cell.setAttribute("CLASS", "value");
+	    cell.setAttribute("ALIGN", "LEFT");
+	    cell.addContent(value1);
+	    row.addContent(cell);
+	    
+	    return row;
+  }
 
+  private Element makeRow(String header1, String value1, String header2, String value2) {
+	    Element row = new Element("TR");
+	    Element cell = new Element("TD");
+	    cell.setAttribute("CLASS", "label");
+	    cell.setAttribute("ALIGN", "RIGHT");
+	    cell.addContent(header1);
+	    row.addContent(cell);
+	    
+	    cell = new Element("TD");
+	    cell.setAttribute("CLASS", "value");
+	    cell.setAttribute("ALIGN", "LEFT");
+	    cell.addContent(value1);
+	    row.addContent(cell);
+	    
+	    cell = new Element("TD");
+	    //cell.setAttribute("WIDTH", "80");
+	    row.addContent(cell);
+
+	    cell = new Element("TD");
+	    cell.setAttribute("CLASS", "label");
+	    cell.setAttribute("ALIGN", "RIGHT");
+	    cell.addContent(header2);
+	    row.addContent(cell);
+	    
+	    cell = new Element("TD");
+	    cell.setAttribute("CLASS", "value");
+	    cell.setAttribute("ALIGN", "LEFT");
+	    cell.addContent(value2);
+	    row.addContent(cell);
+
+	    return row;
+	  }
+  
+  
   /**
    *  The callback method called after the loadCommand, and execute methods,
    *  this method allows you to manipulate the HttpServletResponse object prior

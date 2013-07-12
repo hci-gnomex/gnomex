@@ -446,7 +446,7 @@
 																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; var save:int = outerDocument.workListGrid.selectedIndex;}" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
@@ -469,12 +469,12 @@
 																	  labelFunction="{outerDocument.getIndexTagName}"
 																	  removeFilterOnSelection="false"
 																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = ''; outerDocument.workListGrid.dataProvider = outerDocument.workList;}" >
+																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = '';}" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Actual Mean Insert Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanInsertSizeActual" editable="true"/>
+					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Actual Mean Lib Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"/>
 					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 

@@ -296,8 +296,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             String labLastName = (String)row[23];            
             String labFirstName = (String)row[24];
             labName = Lab.formatLabName(labLastName, labFirstName);
+            String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "-1";
 
-            clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest;
+            clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest + DELIM + multiplexGroupNumber;
             
             fillSeqAssemble(n, row, codeRequestCategory, dh, relatedFlowCellInfoMap, clusterGenKey, labName);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
@@ -582,7 +583,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("idOligoBarcode",                      row[27] == null ? "" :  ((Integer)row[27]).toString());
     n.setAttribute("barcodeSequence",                     row[28] == null ? "" :  ((String)row[28]));
     n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
-    n.setAttribute("meanInsertSizeActual",                row[30] == null ? "" :  ((Integer)row[30]).toString());
+    n.setAttribute("meanLibSizeActual",                row[30] == null ? "" :  ((Integer)row[30]).toString());
     n.setAttribute("idOligoBarcodeB",                     row[31] == null ? "" :  ((Integer)row[31]).toString());
 
 
@@ -758,6 +759,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   
   private void organizeSeqAssembleNodes(Document doc) {
     
+    String prevIdRequest = "";
+    int multiplexLaneIdx = 1;
+    Element requestNode = null;
     for(Iterator i = clusterGenNodeMap.keySet().iterator(); i.hasNext();) {
       String clusterGenKey = (String)i.next();
       List theLanes = clusterGenLaneMap.get(clusterGenKey);
@@ -768,17 +772,21 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String theLabName = tokens[2];
       String idRequest = tokens[3];
       
+      if (!idRequest.equals(prevIdRequest)) {
+        multiplexLaneIdx = 1;
+        prevIdRequest = idRequest;
+        requestNode = new Element("Request");
+        requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
+        requestNode.setAttribute("labName", theLabName);
+        requestNode.setAttribute("idRequest", idRequest);
+        requestNode.setAttribute("number", requestNumber + " " + theLabName);
+        doc.getRootElement().addContent(requestNode);
+      }
+      
       List<Element> theWorkItemNodes = clusterGenNodeMap.get(clusterGenKey);
-      Element requestNode = new Element("Request");
-      requestNode.setAttribute("codeRequestCategory", theCodeRequestCategory);
-      requestNode.setAttribute("labName", theLabName);
-      requestNode.setAttribute("idRequest", idRequest);
-      requestNode.setAttribute("number", requestNumber + " " + theLabName);
-      doc.getRootElement().addContent(requestNode);
       
       // Get a group of lane lists.  Each lane list represents a multiplex lane node.
       List<Set<SequenceLane>> laneGroups = SequenceLane.getMultiplexLaneGroupsConsiderDupIndexTags(theLanes);
-      int multiplexLaneIdx = 1;
       for (Set<SequenceLane> lanesToMultiplex : laneGroups) {
         Element multiplexLaneNode = new Element("MultiplexLane");
         multiplexLaneNode.setAttribute("number", Integer.valueOf(multiplexLaneIdx).toString());
@@ -1033,12 +1041,18 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       
       Integer idRequest1    = Integer.valueOf(tokens1[3]);
       String number1        = tokens1[0];
+      Integer multiPlex1    = Integer.valueOf(tokens1[4]);
       
       Integer idRequest2    = Integer.valueOf(tokens2[3]);
       String number2        = tokens2[0];
+      Integer multiPlex2    = Integer.valueOf(tokens2[4]);
 
       if (idRequest1.equals(idRequest2)) {
-        return number1.compareTo(number2);        
+        if (number1.equals(number2)) {
+          return multiPlex1.compareTo(multiPlex2);
+        } else {
+          return number1.compareTo(number2);
+        }
       } else {
         return idRequest1.compareTo(idRequest2);
       }
