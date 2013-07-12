@@ -548,6 +548,209 @@ public class RequestHTMLFormatter {
     parentNode.addContent(table);
   }
   
+  
+  public void addIlluminaSampleTable(Element parentNode, Set samples) {
+	  
+    // Show 'samples' header
+    Element sampleHeader = new Element("H5");
+    sampleHeader.addContent("Samples (" + samples.size() + ")");
+    parentNode.addContent(sampleHeader);
+    
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS", "grid");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
+
+    Element rowh = new Element("TR");
+   
+    
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Sample ID", new Integer(2), new Integer(1), "left");
+    this.addHeaderCell(rowh, "Sample Name", new Integer(2), new Integer(1));
+    this.addHeaderCell(rowh, "Sample Conc. (ng/ul)", new Integer(2), new Integer(1));
+
+    this.addHeaderCell(rowh, "------------------------------------- Lib Info ---------------------------------------",
+    		new Integer(1), new Integer(6), "colgroup");
+    this.addHeaderCell(rowh, "--------------------- Seq Info ---------------------", new Integer(1), new Integer(3), "colgroup");
+
+    
+    rowh = new Element("TR");
+ 
+    
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Sample Vol (ul)");
+    this.addHeaderCell(rowh, "Sample Qty (ng)");
+//    this.addHeaderCell(rowh, "Covaris Vol");
+//    this.addHeaderCell(rowh, "Covaris Qty");
+    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    this.addHeaderCell(rowh, "Insert size");
+    this.addHeaderCell(rowh, "Lib Conc. (ng/ul)");
+
+    this.addHeaderCell(rowh, "Index Group");
+    this.addHeaderCell(rowh, "# Lanes");
+    this.addHeaderCell(rowh, "Sequencing&nbsp;&nbsp;Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    	    
+ 
+    
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample sample = (Sample)i.next();
+      
+      Element row = new Element("TR");
+      row.setAttribute("CLASS", "forcedRowHeight");
+      table.addContent(row);
+      
+
+      String concentration = "";
+      if (sample.getConcentration() != null) {
+        concentration = new Integer(sample.getConcentration().intValue()).toString();
+        
+      }
+      
+      int numberOfLanes = 0;
+      for (SequenceLane lane : (Set<SequenceLane>)request.getSequenceLanes()) {
+    	  if (lane.getIdSample().equals(sample.getIdSample())) {
+    		  numberOfLanes++;
+    	  }
+      }
+      
+      String barcodeA = "&nbsp;";
+      if (sample.getIdOligoBarcode() != null ) {
+    	  barcodeA = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString());
+      } else if (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().trim().equals("")) {
+    	  sample.getBarcodeSequence();
+      }
+      
+      String barcodeB = "&nbsp;";
+      if (sample.getIdOligoBarcodeB() != null ) {
+    	  barcodeB = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcodeB().toString());
+      } 
+      // TODO:  need sample.barcodeSequenceB
+      
+      String indexGroup = "&nbsp;";
+	  if (sample.getMultiplexGroupNumber() != null && sample.getMultiplexGroupNumber().intValue() > 0 ) {
+		  indexGroup = sample.getMultiplexGroupNumber().toString();  
+	  }
+    		  
+    	
+      //
+      // Sample info
+      this.addLeftCell(row, sample.getNumber());
+      this.addCell(row, sample.getName());
+      this.addCell(row, concentration);
+      
+      //
+      // Library info
+      //
+      this.addCell(row, "&nbsp;"); // sample vol
+      this.addCell(row, "&nbsp;"); // sample qty
+      //this.addCell(row, "&nbsp;"); // covaris vol
+      //this.addCell(row, "&nbsp;"); // covaris qty
+      // Index A
+      this.addCell(row, barcodeA);          
+      // Index B
+      this.addCell(row, barcodeB);      	      
+      this.addCell(row, "&nbsp;"); // insert size
+      this.addCell(row, "&nbsp;"); // lib conc.
+      
+      //
+      // Seq Info
+      //
+      // Index Group
+      this.addCell(row, indexGroup);
+      // # of Lanes
+      this.addCell(row, numberOfLanes == 0 ? "&nbsp;" : new Integer(numberOfLanes).toString());
+      // Seq Date
+      this.addCell(row, "&nbsp;");
+        
+    }
+    
+    parentNode.addContent(table);
+  }
+
+  public void addSimpleSampleTable(Element parentNode, Set samples) {
+	  
+	// Show 'samples' header
+    Element sampleHeader = new Element("H5");
+    sampleHeader.addContent("Samples (" + samples.size() + ")");
+    parentNode.addContent(sampleHeader);
+    
+    Element table = new Element("TABLE");
+    table.setAttribute("CLASS", "grid");
+    table.setAttribute("CELLPADDING", "5");
+    table.setAttribute("CELLSPACING", "5");
+
+    Element rowh = new Element("TR");
+    table.addContent(rowh);
+    this.addHeaderCell(rowh, "Sample ID");
+    this.addHeaderCell(rowh, "Sample Name");
+    this.addHeaderCell(rowh, "Sample Conc. (ng/ul)");
+    
+    if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+        this.addHeaderCell(rowh, "Index A");
+        this.addHeaderCell(rowh, "Index B");
+        this.addHeaderCell(rowh, "Index Group");
+        this.addHeaderCell(rowh, "# Lanes");
+    }
+    	    
+    
+    for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample sample = (Sample)i.next();
+      
+      Element row = new Element("TR");
+      table.addContent(row);
+      
+
+      String concentration = "";
+      if (sample.getConcentration() != null) {
+        concentration = new Integer(sample.getConcentration().intValue()).toString();
+        if (sample.getCodeConcentrationUnit() != null && !sample.getCodeConcentrationUnit().equals("")) {
+          concentration += " " + sample.getCodeConcentrationUnit();
+        }
+      }
+      
+      int numberOfLanes = 0;
+      for (SequenceLane lane : (Set<SequenceLane>)request.getSequenceLanes()) {
+    	  if (lane.getIdSample().equals(sample.getIdSample())) {
+    		  numberOfLanes++;
+    	  }
+      }
+
+      //
+      // Sample info
+      this.addLeftCell(row, sample.getNumber());
+      this.addCell(row, sample.getName());      
+      this.addCell(row, concentration);
+
+      
+      if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+
+    	  // Index A
+    	  this.addCell(row, sample.getIdOligoBarcode() != null ? 
+    			  	  DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString()) 
+    			  	  : (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().equals("") ? sample.getBarcodeSequence() : "&nbsp;"));          
+	      // Index B
+    	  // TODO:  Need to use a sample.getBarcodeSequenceB for the IndexB in the case where 
+	      // a custom barcode was used for Index B
+	      this.addCell(row, sample.getIdOligoBarcodeB() != null ? 
+		       DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcodeB().toString()) 
+		       : "&nbsp;");          	      
+	      
+	      // Index Group
+	      this.addCell(row, 
+	    		  sample.getMultiplexGroupNumber() != null && sample.getMultiplexGroupNumber().intValue() > 0 ? 
+	    		  sample.getMultiplexGroupNumber().toString()
+	    		  : "&nbsp;"); 
+	      
+	      // # of Lanes
+	      this.addCell(row, numberOfLanes == 0 ? "&nbsp;" : new Integer(numberOfLanes).toString());
+
+      }
+    }
+    
+    parentNode.addContent(table);
+  }
+  
   public Element makeSampleQualityTable(Set samples) {
     return makeSampleQualityTable(samples, null);
   }
@@ -642,6 +845,7 @@ public class RequestHTMLFormatter {
     
     return table;
   }
+
   
   private String getSamplePrepMethod(Sample sample) {
    
