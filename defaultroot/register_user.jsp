@@ -142,7 +142,7 @@ try {
     
   // Get site specific log
   PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
-  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+  if (propSiteLogo != null && propSiteLogo.getPropertyValue()!=null && !propSiteLogo.getPropertyValue().equals("")) {
     siteLogo = "./" + propSiteLogo.getPropertyValue();
   }  else {
     siteLogo = "./assets/gnomex_logo.png";
@@ -150,7 +150,7 @@ try {
   
   //Get note informing users about not needing an account for public data
   PropertyDictionary dataNote = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.PUBLIC_DATA_NOTICE + "'").uniqueResult();
-  if(dataNote != null && !dataNote.getPropertyValue().equals("")) {
+  if(dataNote != null && dataNote.getPropertyValue()!=null && !dataNote.getPropertyValue().equals("")) {
   	publicDataNotice = dataNote.getPropertyValue();
   } 
  
