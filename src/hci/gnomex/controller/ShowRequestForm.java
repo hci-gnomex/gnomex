@@ -214,6 +214,15 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               he.addContent("External Experiment");
               maindiv.addContent(he);              
             }
+            
+            if (request.getSequenceLanes().iterator().hasNext()) {
+	            Element seqType = new Element("H4");
+	            SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
+	            seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+	            seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+	            maindiv.addContent(seqType);
+            }
+
 
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
               Element hApp = new Element("H4");
@@ -261,7 +270,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(sequenceNote);
 
               Element coreInstruction = new Element("H6");
-              coreInstruction.addContent(request.getCorePrepInstructions());
+              String corePrepInstructions = request.getCorePrepInstructions();
+              if (corePrepInstructions == null || corePrepInstructions.trim().equals("")) {
+            	  corePrepInstructions = "&nbsp;";
+              }
+              coreInstruction.addContent(corePrepInstructions);
               maindiv.addContent(coreInstruction);
             }
 
