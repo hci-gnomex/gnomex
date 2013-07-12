@@ -567,29 +567,28 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Sample ID", new Integer(2), new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", new Integer(2), new Integer(1));
-    this.addHeaderCell(rowh, "Sample Conc. (ng/ul)", new Integer(2), new Integer(1));
+    this.addHeaderCell(rowh, "Sample Conc.", new Integer(2), new Integer(1));
+    this.addHeaderCell(rowh, "Sample Conc. Core", new Integer(2), new Integer(1));
 
-    this.addHeaderCell(rowh, "------------------------------------- Lib Info ---------------------------------------",
+    this.addHeaderCell(rowh, "---------------------------- Lib Info ----------------------------------",
     		new Integer(1), new Integer(6), "colgroup");
-    this.addHeaderCell(rowh, "--------------------- Seq Info ---------------------", new Integer(1), new Integer(3), "colgroup");
+    this.addHeaderCell(rowh, "---------- Seq Info ----------", new Integer(1), new Integer(3), "colgroup");
 
     
     rowh = new Element("TR");
  
     
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "Sample Vol (ul)");
-    this.addHeaderCell(rowh, "Sample Qty (ng)");
-//    this.addHeaderCell(rowh, "Covaris Vol");
-//    this.addHeaderCell(rowh, "Covaris Qty");
+    this.addHeaderCell(rowh, "Covaris Vol");
+    this.addHeaderCell(rowh, "Covaris Qty");
+    this.addHeaderCell(rowh, "Lib Conc.");
+    this.addHeaderCell(rowh, "Lib Size");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    this.addHeaderCell(rowh, "Insert size");
-    this.addHeaderCell(rowh, "Lib Conc. (ng/ul)");
 
     this.addHeaderCell(rowh, "Index Group");
     this.addHeaderCell(rowh, "# Lanes");
-    this.addHeaderCell(rowh, "Sequencing&nbsp;&nbsp;Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    this.addHeaderCell(rowh, "Sequence Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     	    
  
     
@@ -637,21 +636,20 @@ public class RequestHTMLFormatter {
       // Sample info
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
-      this.addCell(row, concentration);
+      this.addCell(row, concentration); // sample conc (client)
+      this.addCell(row, "&nbsp;"); // sample conc (actual)
       
       //
       // Library info
       //
-      this.addCell(row, "&nbsp;"); // sample vol
-      this.addCell(row, "&nbsp;"); // sample qty
-      //this.addCell(row, "&nbsp;"); // covaris vol
-      //this.addCell(row, "&nbsp;"); // covaris qty
+      this.addCell(row, "&nbsp;"); // covaris vol
+      this.addCell(row, "&nbsp;"); // covaris qty
+      this.addCell(row, "&nbsp;"); // lib conc.
+      this.addCell(row, "&nbsp;"); // ave lib size
       // Index A
       this.addCell(row, barcodeA);          
       // Index B
       this.addCell(row, barcodeB);      	      
-      this.addCell(row, "&nbsp;"); // insert size
-      this.addCell(row, "&nbsp;"); // lib conc.
       
       //
       // Seq Info
