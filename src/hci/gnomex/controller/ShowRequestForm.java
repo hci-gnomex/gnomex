@@ -265,7 +265,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(coreInstruction);
             }
 
-            formatter.addSampleTable(maindiv, request.getSamples());
+            if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+            	formatter.addIlluminaSampleTable(maindiv,  request.getSamples());
+            } else {
+                formatter.addSampleTable(maindiv, request.getSamples());
+            }
 
             Set laneSamples = new TreeSet();
             

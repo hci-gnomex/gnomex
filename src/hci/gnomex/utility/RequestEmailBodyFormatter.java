@@ -91,7 +91,8 @@ public class RequestEmailBodyFormatter extends DetailObject{
     
     center1.addContent(formatter.makeRequestTable());
 
-    formatter.addSampleTable(center1, samples, captionStyle);
+    
+    formatter.addSimpleSampleTable(center1, samples);
     
     center1.addContent(new Element("BR"));
 
