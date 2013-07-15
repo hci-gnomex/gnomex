@@ -392,6 +392,7 @@
         		
         	this.barcodeCol.visible = showSampleBarcode;
         	this.customBarcodeCol.visible = showSampleCustomBarcode;
+			this.customBarcodeColB.visible = showSampleCustomBarcode;
 			this.barcodeColB.visible = showSampleBarcodeB;
         	
         	if (currentState == "SolexaState") {
@@ -1544,6 +1545,16 @@
 			                   	  </mx:Component>
 			                   </mx:headerRenderer> 
 			                </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn id="customBarcodeColB" headerText="Index Tag B" width="65" visible="true"  dataField="@barcodeSequenceB">
+								<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+											<mx:Label text="Custom"/>
+											<mx:Label text="Index Tag B"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer> 
+							</mx:AdvancedDataGridColumn>
 			                <mx:AdvancedDataGridColumn id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}"  
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 				            <mx:AdvancedDataGridColumn id="organismCol" headerText="Organism" visible="{true}"  width="80" 
