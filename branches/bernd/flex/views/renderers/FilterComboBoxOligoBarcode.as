@@ -1,5 +1,7 @@
 package views.renderers
 {
+	import flash.events.FocusEvent;
+	
 	import hci.flex.renderers.RendererFactory;
 	
 	import mx.collections.HierarchicalCollectionView;
@@ -11,7 +13,6 @@ package views.renderers
 	import mx.controls.DataGrid;
 	import mx.core.IFactory;
 	import mx.events.CollectionEvent;
-	import mx.events.ListEvent;
 	
 	public class FilterComboBoxOligoBarcode extends views.renderers.FilterComboBox
 	{
@@ -25,18 +26,17 @@ package views.renderers
 			setDataProvider();
 			this.labelFunction = getIndexTagName;
 		}
+		
 		protected function getIndexTagName(item:Object):String
 		{
 			if (item.@idOligoBarcode != '') {
-				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-			} else {
-				if ( indexTagLetter == 'B' ) {
-					return '';
-				} else {
-					return item.@barcodeSequence;
-				}
+				return parentApp.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+			} else if ( indexTagLetter == 'A' ) {
+				return item.@barcodeSequence;	
 			}
+			return '';
 		}
+		
 		protected function setSelectedIndex():void {
 			if ( this.data != null ) { 
 				this.selectedItem = this.getBarcode(data);
@@ -44,11 +44,12 @@ package views.renderers
 		}
 			
 		protected function getBarcode(item:Object):Object {
-			var barcode:XMLList = parentApp.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
+			var id:String = indexTagLetter == 'A' ? item.@idOligoBarcode : item.@idOligoBarcodeB;
+			var barcode:XMLList = parentApp.dictionaryManager.getEntry("hci.gnomex.model.OligoBarcode", id);
 			if (barcode.length() == 1) {
 				return barcode[0];
 			} else {
-				return new Object();
+				return null;
 			}
 		}
 		
@@ -56,10 +57,11 @@ package views.renderers
 			dataProvider = new XMLListCollection();
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
 			
-			this.enabled = true;
-			this.editable = true;
-			
-			if ( parentApp != null && idSeqLibProtocol != null){
+			if ( parentApp != null && idSeqLibProtocol != null && idSeqLibProtocol != '' ){
+				
+				this.enabled = true;
+				this.editable = true;
+				
 				for each(var barcodeScheme:Object in parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
 					// Only use scheme if it is allowed for this seq lib protocol
 					var keepScheme:Boolean = false;
@@ -73,7 +75,6 @@ package views.renderers
 						continue;
 					}
 				
-					
 					var theBarcodes:XMLListCollection = new XMLListCollection(XMLList(parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value)).copy());
 					
 					// Sort barcodes by sortOrder
@@ -85,6 +86,10 @@ package views.renderers
 					dp.addAll(theBarcodes);
 					
 				}
+			} else {
+				this.enabled = false;
+				this.editable = false;
+				selectedItem = null;
 			}
 			if ( dp.length == 0 ) {
 				this.enabled = false;
@@ -149,6 +154,25 @@ package views.renderers
 		public function set indexTagLetter(value:String):void
 		{
 			_indexTagLetter = value;
+		}
+		
+		override protected function focusOutHandler(event:FocusEvent):void
+		{
+			super.focusOutHandler(event);
+			if( this.selectedItem!=null ){
+				if (indexTagLetter == 'A'){ 
+					data.@idOligoBarcode = this.selectedItem.@idOligoBarcode;
+				} else {
+					data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode;
+				}
+				this.setSelectedIndex();
+			}  else if (indexTagLetter == 'A'){
+				data.@barcodeSequence = '';
+			}
+		}
+		override protected function focusInHandler(event:FocusEvent):void
+		{
+			this.setSelectedIndex();
 		}
 		
 	}

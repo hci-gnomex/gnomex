@@ -434,11 +434,10 @@
 																	  fontSize="10"
 																	  indexTagLetter="A"
 																	  prompt="{null}"
-																	  filterString="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
-																	  removeFilterOnSelection="false"
-																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcode = this.selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = ''; var save:int = outerDocument.workListGrid.selectedIndex;}" >
+																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}"
+																	  removeFilterOnSelection="true"
+																	  removeInputOnFocusOut="true" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
@@ -456,11 +455,10 @@
 																	  fontSize="10"
 																	  indexTagLetter="B"
 																	  prompt="{null}"
-																	  filterString="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
-																	  removeFilterOnSelection="false"
-																	  removeInputOnFocusOut="false"
-																	  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = this.selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequence = '';}" >
+																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}"
+																	  removeFilterOnSelection="true"
+																	  removeInputOnFocusOut="true" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
