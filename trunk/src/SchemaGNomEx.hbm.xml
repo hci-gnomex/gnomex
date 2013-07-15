@@ -879,6 +879,7 @@
 		<property name="idSampleSource" column="idSampleSource" type="integer"/>
 		<property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
+		<property name="barcodeSequenceB" column="barcodeSequenceB" type="string"/>
 		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
