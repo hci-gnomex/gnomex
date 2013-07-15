@@ -1209,6 +1209,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (sample.getIdOligoBarcode() != null) {
       sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
     }
+    
+    // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
+    if(sample.getIdOligoBarcodeB() != null){
+      sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
+    }
         
     
     sess.flush();
