@@ -503,6 +503,8 @@
 				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
+				this.customBarcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				
 				this.samplesGrid.validateNow();
 				callLater(this.checkSamplesCompleteness);
@@ -1078,7 +1080,21 @@
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>  
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="true" visible="true"
+										   width="80"
+										   itemRenderer="views.renderers.LabelBarcodeSequence"               
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<mx:Label text="Index Tag"/> 
+								<mx:Label text="Sequence B"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn> 
 				
 				
 				
