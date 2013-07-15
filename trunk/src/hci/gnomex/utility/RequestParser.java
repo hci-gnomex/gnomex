@@ -450,7 +450,12 @@ public class RequestParser implements Serializable {
       sample.setBarcodeSequence(n.getAttributeValue("barcodeSequence"));
     } else {
       sample.setBarcodeSequence(null);
-    }    
+    }
+    if (n.getAttributeValue("barcodeSequenceB") != null && !n.getAttributeValue("barcodeSequenceB").equals("")) {
+      sample.setBarcodeSequenceB(n.getAttributeValue("barcodeSequenceB"));
+    } else {
+      sample.setBarcodeSequenceB(null);
+    } 
     if (n.getAttributeValue("idSeqLibProtocol") != null && !n.getAttributeValue("idSeqLibProtocol").trim().equals("")) {
       sample.setIdSeqLibProtocol(new Integer(n.getAttributeValue("idSeqLibProtocol")));
     } else {
