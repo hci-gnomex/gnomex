@@ -215,34 +215,33 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(he);              
             }
             
-            if (request.getSequenceLanes().iterator().hasNext()) {
+            // Application
+            if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
+                Element hApp = new Element("H4");
+                hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+                maindiv.addContent(hApp);
+            }
+            
+            // Number of seq cycles and seq run type
+            if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
 	            Element seqType = new Element("H4");
 	            SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
 	            seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
 	            seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
 	            maindiv.addContent(seqType);
             }
-
-
-            if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
-              Element hApp = new Element("H4");
-              hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
-              maindiv.addContent(hApp);
-
-              if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-
-                for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
-                  SeqLibTreatment t = (SeqLibTreatment)i.next();
-                  Element hTreatment = new Element("H4");
-                  hTreatment.addContent(t.getSeqLibTreatment());
-                  maindiv.addContent(hTreatment);                  
-
-                }
-              }
-
+            // Sample Type
+            if (request.getSamples().size() > 0) {
+            	Sample s = (Sample)request.getSamples().iterator().next();
+            	if (s.getIdSampleType() != null) {
+            		String sampleTypeDisplay = dictionaryHelper.getSampleType(s.getIdSampleType());
+                Element sampleTypeNode = new Element("H4");
+                sampleTypeNode.addContent(sampleTypeDisplay);
+                maindiv.addContent(sampleTypeNode);
+            	}
             }
             
-            if(request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
+            if (request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
               Element capLibDesign = new Element("H5");
               capLibDesign.addContent("Capture Lib Design: " + request.getCaptureLibDesignId());
               capLibDesign.setAttribute("style", "text-align:center; color:black");
@@ -261,7 +260,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(experimentNote);
 
               Element description = new Element("H6");
-              description.addContent(request.getDescription());
+              String desc = request.getDescription();
+              if (desc == null || desc.trim().equals("")) {
+                desc = "&nbsp";
+              }
+              description.addContent(desc);
               maindiv.addContent(description);              
             } else if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
               // Show core facility notes for internal experiments
@@ -299,7 +302,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(formatter.makeHybTable(request.getHybridizations()));          
             }
 
-            if (!request.getSequenceLanes().isEmpty()) {
+            if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
               formatter.makePageBreak(maindiv);
 
               formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
