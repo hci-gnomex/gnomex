@@ -105,8 +105,6 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             // Set the barcodeSequence if  idOligoBarcodeSequence is filled in
             if (sample.getIdOligoBarcode() != null) {
               sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
-            } else {
-              sample.setBarcodeSequence( "" );
             }
             
             // No further processing required for On Hold or In Progress work items
