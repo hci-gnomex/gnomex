@@ -1548,7 +1548,6 @@ CREATE TABLE `gnomex`.`Request` (
   `processingDate` DATETIME NULL,
   `materialQuoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
-  `meanLibSizeActual` INT(10) NULL,
   `uuid` VARCHAR(36) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
