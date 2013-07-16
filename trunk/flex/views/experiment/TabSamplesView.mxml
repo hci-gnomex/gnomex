@@ -195,6 +195,8 @@
 						" concentration=''" +
 						" idOligoBarcode = ''" +
 						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '')  + "'" +
@@ -230,6 +232,8 @@
 						" concentration=''" +
 						" idOligoBarcode = ''" +
 						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 						" otherSamplePrepMethod=''" + 				
@@ -259,6 +263,8 @@
 						" concentration=''" +
 						" idOligoBarcode = ''" +
 						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 						" otherSamplePrepMethod=''" + 				
@@ -291,7 +297,9 @@
 						" canChangeNumberSequencingLanes='Y'" + 
 						" concentration=''" + 
 						" idOligoBarcode = ''" +				
-						" barcodeSequence = ''" +				
+						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
@@ -326,6 +334,8 @@
 					" concentration=''" +
 					" idOligoBarcode = ''" +
 					" barcodeSequence = ''" +
+					" idOligoBarcodeB = ''" +
+					" barcodeSequenceB = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeCombo.selectedItem != null ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
@@ -1335,6 +1345,7 @@
 					return item.groupLabel;
 				}
 			}
+			
 
 
 		]]>
