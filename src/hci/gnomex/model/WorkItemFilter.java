@@ -220,7 +220,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.barcodeSequence, ");
       queryBuf.append("    s.multiplexGroupNumber, ");
       queryBuf.append("    s.meanLibSizeActual, ");
-      queryBuf.append("    s.idOligoBarcodeB ");
+      queryBuf.append("    s.idOligoBarcodeB, ");
+      queryBuf.append("    s.barcodeSequenceB ");
     }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");
@@ -241,7 +242,9 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.multiplexGroupNumber, ");
       queryBuf.append("    lab.lastName, ");
       queryBuf.append("    lab.firstName, ");
-      queryBuf.append("    l");
+      queryBuf.append("    l, ");
+      queryBuf.append("    s.idOligoBarcodeB, ");
+      queryBuf.append("    s.barcodeSequenceB ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
                 this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");
