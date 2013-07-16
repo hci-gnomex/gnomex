@@ -585,6 +585,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
     n.setAttribute("meanLibSizeActual",                row[30] == null ? "" :  ((Integer)row[30]).toString());
     n.setAttribute("idOligoBarcodeB",                     row[31] == null ? "" :  ((Integer)row[31]).toString());
+    n.setAttribute("barcodeSequenceB",                     row[32] == null ? "" :  ((String)row[32]));
+    
 
 
     String seqPrepStatus = "";
@@ -633,6 +635,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("multiplexGroupNumber",         row[22] == null ? "" :  ((Integer)row[22]).toString());
     n.setAttribute("isControl",                    "false");            
     n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
+    n.setAttribute("idOligoBarcodeB",               row[26] == null ? "" :  ((Integer)row[26]).toString());
+    n.setAttribute("barcodeSequenceB",              row[27] == null ? "" :  ((String)row[27]));
     
     
     n.setAttribute("labName", theLabName);
