@@ -188,7 +188,7 @@ try {
       </div>
     </div>
     
-    <div align="center" bgcolor="white">
+    <div style="width:500px; align:center; bgcolor:white; float:center;">
     	<p style="color:blue"> <%=publicDataNotice%> </p>
     <div>
 
