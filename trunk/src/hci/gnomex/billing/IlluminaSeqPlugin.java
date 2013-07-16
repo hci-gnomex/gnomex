@@ -118,9 +118,9 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       }
       
       if (customNumberSequencingCyclesAllowed.containsKey(key)) {
-        // Custom NumberSequencingCyclesAllowed bill for the whole cell.
+        // Custom NumberSequencingCyclesAllowed bill for the whole cell in a single charge.
         RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
-        qty = category.getNumberOfChannels();
+        qty = 1;
       }
       
       // Instantiate a BillingItem for the matched price
