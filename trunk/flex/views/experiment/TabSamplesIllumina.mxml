@@ -116,6 +116,8 @@
 							" seqPrepByCore = 'N'" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
 							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 							" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 							" prepInstructions=\"" + (prepInstructions) + "\"" +				
@@ -138,6 +140,8 @@
 							" label=''" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
 							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
 							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 							" numberSequencingLanes='1'" +
@@ -166,7 +170,9 @@
 						" canChangeNumberSequencingLanes='Y'" + 
 						" concentration=''" + 
 						" idOligoBarcode = ''" +				
-						" barcodeSequence = ''" +				
+						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
@@ -701,10 +707,13 @@
 			private function areIndexTagsUnique():Boolean {
 				var isValid:Boolean = true;
 				var barcodeField:String = "";
+				var barcodeFieldB:String = "";
 				if (parentDocument.showSampleCustomBarcodes()) {
 					barcodeField = "@barcodeSequence";
+					barcodeFieldB = "@barcodeSequenceB";
 				} else if (parentDocument.showSampleBarcodes()) {
 					barcodeField = "@idOligoBarcode";
+					barcodeFieldB = "@idOligoBarcodeB";
 				} else {
 					return isValid;
 				}
@@ -724,6 +733,7 @@
 					var tagMap:Object = new Object();
 					for each(var s1:Object in samplesInGroup) {
 						var barcode:Object = s1[barcodeField];
+						barcode += "-" + s1[barcodeFieldB];
 						tagMap[barcode] = barcode;
 					}
 					var uniqueTagCount:int = 0;
