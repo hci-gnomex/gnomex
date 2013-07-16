@@ -939,7 +939,20 @@
 	        	return "";
 	        }
 	        
-        }		
+        }
+		
+		private function lookupOligoBarcodeB(item:Object, col:Object):String {
+			if (item != null && item.hasOwnProperty("@idOligoBarcodeB")) {
+				if (item.@idOligoBarcodeB != '') {
+					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);    		
+				} else {
+					return item.@barcodeSequenceB;
+				}
+			} else {
+				return "";
+			}
+			
+		}
 		
 		public function filterWorklist(item:Object):Boolean {
 			if ((this.labCombo.selectedItem == null || this.labCombo.selectedItem.@idLab == '') &&
@@ -1086,7 +1099,17 @@
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
-						</mx:AdvancedDataGridColumn>	
+						</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn  dataField="@idOligoBarcodeB" editable="false" headerText="Index Tag B"   width="28" labelFunction="lookupOligoBarcodeB">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+										<mx:Label text="Index"/>
+										<mx:Label text="Tag B"/>
+									</mx:VBox>
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn  dataField="@idSeqRunType" editable="false" headerText="Paired/Single"   width="25" labelFunction="lookupSeqRunType">
 							<mx:headerRenderer > 
 							  <mx:Component>
@@ -1231,6 +1254,16 @@
 								</mx:VBox>
 							</mx:Component>
 							</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn  dataField="@idOligoBarcodeB" headerText="Index Tag B"  editable="false" width="35" labelFunction="lookupOligoBarcodeB">
+						<mx:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Index"/>
+									<mx:Label text="Tag B"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn  editable="false"  dataField="@idSeqRunType" headerText="Paired/Single" width="25" 
 					 showDataTips="true" 
