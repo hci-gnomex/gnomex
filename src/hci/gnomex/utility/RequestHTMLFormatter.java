@@ -639,7 +639,7 @@ public class RequestHTMLFormatter {
       if (sample.getIdOligoBarcode() != null ) {
         barcodeA = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString());
       } else if (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().trim().equals("")) {
-        sample.getBarcodeSequence();
+        barcodeA = sample.getBarcodeSequence();
       }
       
       String barcodeB = "&nbsp;";
