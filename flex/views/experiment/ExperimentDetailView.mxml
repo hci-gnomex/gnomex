@@ -397,7 +397,9 @@
         	
         	if (currentState == "SolexaState") {
 	        	this.laneBarcodeCol.visible = showSampleBarcode;
+				this.laneBarcodeColB.visible = showSampleBarcode;
     	    	this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
+				this.laneCustomBarcodeColB.visible = showSampleCustomBarcode;
         	}
         	
 			this.samplesGridConfirm.validateNow();
@@ -1897,6 +1899,17 @@
 			                   	  </mx:Component>
 			                   </mx:headerRenderer>
 			                </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn id="laneBarcodeColB" headerText="Barcode B"  width="75" visible="{true}"  
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@sampleIdOligoBarcodeB')}">
+								<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+											<mx:Label text="Illumina"/>
+											<mx:Label text="Barcode B"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer>
+							</mx:AdvancedDataGridColumn>
 			                <mx:AdvancedDataGridColumn id="laneCustomBarcodeCol" headerText="Barcode" width="65" visible="true"  dataField="@sampleBarcodeSequence">
 			                   <mx:headerRenderer>
 			                   	  <mx:Component>
@@ -1907,6 +1920,16 @@
 			                   	  </mx:Component>
 			                   </mx:headerRenderer>
 			                </mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn id="laneCustomBarcodeColB" headerText="Barcode B" width="65" visible="true"  dataField="@sampleBarcodeSequenceB">
+								<mx:headerRenderer>
+									<mx:Component>
+										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+											<mx:Label text="Custom"/>
+											<mx:Label text="Barcode B"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer>
+							</mx:AdvancedDataGridColumn>
 				            <mx:AdvancedDataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
                                     itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
 				            <mx:AdvancedDataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
