@@ -174,8 +174,8 @@ public class GNomExFrontController extends HttpServlet {
       this.forwardWithError(request, response);
       return;
     }
-LogLongExecutionTimes timeLog = new LogLongExecutionTimes(log, 0, true, "***COMMANDPERF***");
-LogItem li = timeLog.startLogItem(requestName + " Before Load");
+//LogLongExecutionTimes timeLog = new LogLongExecutionTimes(log, 0, true, "***COMMANDPERF***");
+//LogItem li = timeLog.startLogItem(requestName + " Before Load");
     // we should have a valid command.
 
     // If we do not have a security advisor for the session, add error to command
@@ -201,15 +201,15 @@ LogItem li = timeLog.startLogItem(requestName + " Before Load");
     		
        commandInstance.addInvalidField("SecurityAdvisor", "You must create a SecurityAdvisor in order to run this command.");
     }
-timeLog.endLogItem(li);
-li = timeLog.startLogItem(requestName + " Load");
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " Load");
     // if command still valid, call the loadCommand method
     if (commandInstance.isValid()) {
     log.debug("Calling loadCommand on " + commandClass);
     commandInstance.loadCommand(request, session);
     }
-timeLog.endLogItem(li);
-li = timeLog.startLogItem(requestName + " execute");
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " execute");
     // see if it is valid, if so call execute (if using SBRequestProcessor, forward to it)
     if (commandInstance.isValid()) {
       log.debug("Forwarding " + commandClass + " to the request processor for execution");
@@ -263,8 +263,8 @@ li = timeLog.startLogItem(requestName + " execute");
         return;
       }
     }
-timeLog.endLogItem(li);
-li = timeLog.startLogItem(requestName + " After execute");
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " After execute");
     // now set the request state, response state, and session state
     log.debug("Calling setRequestState on " + commandClass);
     commandInstance.setRequestState(request);
@@ -297,9 +297,9 @@ li = timeLog.startLogItem(requestName + " After execute");
       // forward to our response page
       forwardPage(request, response, forwardJSP);
     }
-timeLog.endLogItem(li);
-timeLog.LogTimes();
-timeLog = null;
+//timeLog.endLogItem(li);
+//timeLog.LogTimes();
+//timeLog = null;
 
   }
 
