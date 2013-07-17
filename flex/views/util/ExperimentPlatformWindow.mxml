@@ -370,44 +370,41 @@
 				}
 			}
 			
-			private function addNumberSequencingCycles():void {
-				var newNode:XML = new XML("<NumberSequencingCycles " +
-					" isSelected='N'" +
-					" idNumberSequencingCycles='" + 'NumberSequencingCycles' + "'" +
-					" display='" + 'enter number sequencing cycles here...' + "'" +
-					" paired='N'" +
-					" single='N'" +
-					" isActive='Y'" +
+			private function addNumberSequencingCyclesAllowed():void {
+				var newNode:XML = new XML("<NumberSequencingCyclesAllowed " +
+					" idNumberSequencingCyclesAllowed='" + 'NumberSequencingCyclesAllowed' + "'" +
+					" codeRequestCategory='" + codeRequestCategorySelected.toString() + "'" +
+					" idNumberSequencingCycles=''" +
+					" idSeqRunType=''" +
+					" isCustom='N'" +
+					" name=''" +
 					" />");
 				this.sequencingOptions.addItemAt(newNode, 0);
 				this.sequencingOptionGrid.selectedItem = newNode;
 				this.sequencingOptionGrid.scrollToIndex(0);
 				this.dirty.setDirty();
-				
 			}
 			
-			
-			
-			private function removeNumberSequencingCycles():void {
+			private function removeNumberSequencingCyclesAllowed():void {
 				if (sequencingOptionGrid.selectedItem == null) {
 					return;
 				}
-				Alert.show("Are you sure you want to remove sequence cycles " + sequencingOptionGrid.selectedItem.@numberSequencingCycles + "?",
+				Alert.show("Are you sure you want to remove the sequencing option named '" + sequencingOptionGrid.selectedItem.@name.toString() + "'?",
 					"Confirm",
 					(Alert.YES | Alert.NO), this, 
-					onPromptToRemoveNumberSequencingCycles,						
+					onPromptToRemoveNumberSequencingCyclesAllowed,						
 					parentApplication.iconWarning);
 				
 			}
 			
-			private function onPromptToRemoveNumberSequencingCycles(event:CloseEvent):void {
+			private function onPromptToRemoveNumberSequencingCyclesAllowed(event:CloseEvent):void {
 				if (event.detail == Alert.YES) {
-					removeNumberSequencingCyclesImpl();
+					removeNumberSequencingCyclesAllowedImpl();
 				}
 			}
 			
 			
-			private function removeNumberSequencingCyclesImpl():void {
+			private function removeNumberSequencingCyclesAllowedImpl():void {
 				if (this.sequencingOptionGrid.selectedItem != null) {
 					this.sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
 					this.dirty.setDirty();
@@ -521,7 +518,7 @@
 	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
 	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
 	<mx:XMLListCollection id="applications" source="{requestCategory.applications.Application}"/>
-	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCycles}"/>
+	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCyclesAllowed}"/>
 	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	<mx:XMLListCollection id="types" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry}"/>
 	
@@ -772,54 +769,31 @@
 									<mx:HBox verticalAlign="middle" horizontalGap="0">
 										<mx:Label text="Sequencing options" width="150"/>
 										
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? false : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()" fontSize="10"/>
-										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()" fontSize="10"/>
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCyclesAllowed()" fontSize="10"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCyclesAllowed()" fontSize="10"/>
 										
 									</mx:HBox> 
 									<mx:DataGrid id="sequencingOptionGrid" editable="true"
 												 dataProvider="{sequencingOptions}" wordWrap="true"
 												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" fontSize="10">
 										<mx:columns>
-											<mx:DataGridColumn headerText="Cycles"    headerWordWrap="true"
-															   width="50" dataField="@display" 
-															   editable="true" >
-											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Single end"   headerWordWrap="true"
-															   width="45" 
-															   editable="false"                        	
-															   dataField="@single" 
-															   editorDataField="selected"
-															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">		
-											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Cycles" id="numberSequencingCyclesColumn" dataField="@idNumberSequencingCycles"  width="75"
+															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', null, true)}"/>										
+											<mx:DataGridColumn headerText="Type" id="seqRunTypeColumn" dataField="@idSeqRunType"  
+															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', null, true)}"/>										
 											<mx:DataGridColumn headerText="Custom?"   headerWordWrap="true"
-															   width="45" 
+															   width="75" 
 															   editable="false"                        	
-															   dataField="@singleCustom" 
+															   dataField="@isCustom" 
 															   editorDataField="selected"
 															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">		
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@singleName"  >
+											<mx:DataGridColumn headerText="Name" wordWrap="true" width="200" dataField="@name"  >
 											</mx:DataGridColumn>
-											
-											<mx:DataGridColumn headerText="Paired end"  headerWordWrap="true"
-															   width="45"  
-															   editable="false"                        	
-															   dataField="@paired" 
-															   editorDataField="selected"
-															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
-
-											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Custom?"   headerWordWrap="true"
-															   width="45" 
-															   editable="false"                        	
-															   dataField="@pairedCustom" 
-															   editorDataField="selected"
-															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">		
-											</mx:DataGridColumn>
-											
-											<mx:DataGridColumn headerText="Name" wordWrap="true" width="120" dataField="@pairedName"  >
-											</mx:DataGridColumn>
-											
 										</mx:columns>
 									</mx:DataGrid>
 								</mx:VBox>

@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -112,6 +113,30 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       } catch (JDOMException je ) {
         log.error( "Cannot parse sequencingOptionsXMLString", je );
         this.addInvalidField( "sequencingOptionsXMLString", "Invalid sequencingOptionsXMLString");
+      }
+      
+      for(Iterator i = this.sequencingOptionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+        Element node = (Element)i.next();
+        try {
+          Integer ti = Integer.valueOf(node.getAttributeValue("idNumberSequencingCycles"));
+          if (ti < 0) {
+            this.addInvalidField("sequencingOptions.idNumberSequencingLanes", "Invalid number sequencing lanes");
+          }
+        } catch(NumberFormatException e) {
+          this.addInvalidField("sequencingOptions.idNumberSequencingLanes", "Invalid number sequencing lanes");
+        }
+        try {
+          Integer ti = Integer.valueOf(node.getAttributeValue("idSeqRunType"));
+          if (ti < 0) {
+            this.addInvalidField("sequencingOptions.idSeqRunType", "Invalid sequence run type");
+          }
+        } catch(NumberFormatException e) {
+          this.addInvalidField("sequencingOptions.idSeqRunType", "Invalid sequence run type");
+        }
+        String name = node.getAttributeValue("name");
+        if (name == null || name.length() == 0) {
+          this.addInvalidField("sequencingOptions.name", "Sequence option must have a non-blank name");
+        }
       }
     } 
       
@@ -510,105 +535,44 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     //
     // Save numberSequencingCycles
     //
-    HashMap numberSequencingCyclesMap = new HashMap();
+    HashMap<Integer, Integer> numberSequencingCyclesAllowedMap = new HashMap<Integer, Integer>();
     for(Iterator i = this.sequencingOptionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
-      NumberSequencingCycles cycles =  null;
+      NumberSequencingCyclesAllowed cyclesAllowed =  null;
 
-      String idNumberSequencingCycles = node.getAttributeValue("idNumberSequencingCycles");
+      String idNumberSequencingCyclesAllowed = node.getAttributeValue("idNumberSequencingCyclesAllowed");
 
       // Save new numberSequencingCycles or load the existing one
-      if (idNumberSequencingCycles.startsWith("NumberSequencingCycles")) {
-        cycles = new NumberSequencingCycles();
+      if (idNumberSequencingCyclesAllowed.startsWith("NumberSequencingCyclesAllowed")) {
+        cyclesAllowed = new NumberSequencingCyclesAllowed();
       } else {
-        cycles = (NumberSequencingCycles) sess.load(NumberSequencingCycles.class, Integer.valueOf(idNumberSequencingCycles));
-      }
-
-      String paired = node.getAttributeValue("paired");
-      String pairedName = node.getAttributeValue("pairedName");
-      String pairedCustom = node.getAttributeValue("pairedCustom");
-      String single = node.getAttributeValue("single");
-      String singleName = node.getAttributeValue("singleName");
-      String singleCustom = node.getAttributeValue("singleCustom");
-
-      List idSeqRunTypes = new ArrayList();
-      idSeqRunTypes.add(idSeqRunTypePaired);
-      idSeqRunTypes.add(idSeqRunTypeSingle);
-
-      cycles.setNumberSequencingCycles(Integer.valueOf(node.getAttributeValue("display")));
-      cycles.setIsActive(node.getAttributeValue("isActive"));
-      sess.save(cycles);
-
-      numberSequencingCyclesMap.put(cycles.getIdNumberSequencingCycles(), null);
-
-      //
-      // Save association between numberSequencingCycles and request category (NumberSequencingCyclesAllowed)
-      //
-      for (Iterator isr = idSeqRunTypes.iterator(); isr.hasNext();) {
-        Integer idSeqRunType = (Integer)isr.next();
-
-        List existingAssociations = sess.createQuery("SELECT x from NumberSequencingCyclesAllowed x where x.idNumberSequencingCycles = " + cycles.getIdNumberSequencingCycles() + " and x.idSeqRunType = " + idSeqRunType + " and x.codeRequestCategory ='" + rc.getCodeRequestCategory() + "'").list();
-        if ((paired.equals("Y") && idSeqRunType == idSeqRunTypePaired) || 
-            (single.equals("Y") && idSeqRunType == idSeqRunTypeSingle)) {
-          if (existingAssociations.size() == 0) {
-            NumberSequencingCyclesAllowed x = new NumberSequencingCyclesAllowed();
-            x.setIdNumberSequencingCycles(cycles.getIdNumberSequencingCycles());
-            x.setCodeRequestCategory(rc.getCodeRequestCategory());
-            x.setIdSeqRunType(idSeqRunType);
-            x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
-            x.setIsCustom(idSeqRunType == idSeqRunTypePaired ? pairedCustom : singleCustom);
-            sess.save(x);
-          } else {
-            for (Iterator iex = existingAssociations.iterator(); iex.hasNext();) {
-              NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)iex.next();
-              x.setName(idSeqRunType == idSeqRunTypePaired ? pairedName : singleName);
-              x.setIsCustom(idSeqRunType == idSeqRunTypePaired ? pairedCustom : singleCustom);
-              sess.save(x);
-            }
-          }
-        } else {
-          for (Iterator iex = existingAssociations.iterator(); iex.hasNext();) {
-            NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)iex.next();
-            sess.delete(x);
-          }
-        }
-        sess.flush();
-
+        cyclesAllowed = (NumberSequencingCyclesAllowed) sess.load(NumberSequencingCyclesAllowed.class, Integer.valueOf(idNumberSequencingCyclesAllowed));
       }
       
+      cyclesAllowed.setCodeRequestCategory(rc.getCodeRequestCategory());
+      cyclesAllowed.setIdNumberSequencingCycles(Integer.valueOf(node.getAttributeValue("idNumberSequencingCycles")));
+      cyclesAllowed.setIdSeqRunType(Integer.valueOf(node.getAttributeValue("idSeqRunType")));
+      String isCustom = node.getAttributeValue("isCustom");
+      if (isCustom == null || !isCustom.equals("Y")) {
+        cyclesAllowed.setIsCustom("N");
+      } else {
+        cyclesAllowed.setIsCustom("Y");
+      }
+      cyclesAllowed.setName(node.getAttributeValue("name"));
+      sess.save(cyclesAllowed);
+      
+      numberSequencingCyclesAllowedMap.put(cyclesAllowed.getIdNumberSequencingCyclesAllowed(), cyclesAllowed.getIdNumberSequencingCyclesAllowed());
     }
-
-
-
-
-    // Remove numberSequencingCycles
-    for (Iterator i = sess.createQuery("SELECT a from NumberSequencingCycles a").list().iterator(); i.hasNext();) {
-      NumberSequencingCycles numberSequencingCycles = (NumberSequencingCycles)i.next();
-      if (!numberSequencingCyclesMap.containsKey(numberSequencingCycles.getIdNumberSequencingCycles())) {
-        
-        boolean deleteNumberSequencingCycles = true;
-        List lanes = sess.createQuery("select count(*)from SequenceLane r where r.idNumberSequencingCycles = " + numberSequencingCycles.getIdNumberSequencingCycles()).list();
-        if (lanes.size() > 0) {
-          Integer count = (Integer)lanes.get(0);
-          if (count.intValue() > 0) {
-            deleteNumberSequencingCycles = false;
-          }
-        }
-
-        // Remove associations
-        List existingsAssociations = sess.createQuery("SELECT x from NumberSequencingCyclesAllowed x where idNumberSequencingCycles = " + numberSequencingCycles.getIdNumberSequencingCycles()).list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)i1.next();
-          sess.delete(x);
-        }
-        
-        // Remove or inactivate numberSequencingCycles
-        if (deleteNumberSequencingCycles) {
-          sess.delete(numberSequencingCycles);
-        } else {
-          numberSequencingCycles.setIsActive("N");          
-        }
-
+    sess.flush();
+    
+    // Remove numberSequencingCyclesAllowed
+    String allCyclesAllowedString = "SELECT a from NumberSequencingCyclesAllowed a where codeRequestCategory=:codeRequestCategory";
+    Query allCyclesAllowedQuery = sess.createQuery(allCyclesAllowedString);
+    allCyclesAllowedQuery.setParameter("codeRequestCategory", rc.getCodeRequestCategory());
+    for (Iterator i = allCyclesAllowedQuery.list().iterator(); i.hasNext();) {
+      NumberSequencingCyclesAllowed numberSequencingCyclesAllowed = (NumberSequencingCyclesAllowed)i.next();
+      if (!numberSequencingCyclesAllowedMap.containsKey(numberSequencingCyclesAllowed.getIdNumberSequencingCyclesAllowed())) {
+        sess.delete(numberSequencingCyclesAllowed);
       }
     }    
     sess.flush();

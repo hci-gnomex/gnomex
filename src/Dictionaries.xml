@@ -99,7 +99,7 @@
   <Dictionary displayName="Billing Status" className="hci.gnomex.model.BillingStatus" />
 
 
-	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles"  editable="N"/>
+	<Dictionary displayName="Illumina Number of Sequencing Cycles" className="hci.gnomex.model.NumberSequencingCycles"  editable="Y"/>
 	<Dictionary displayName="Illumina Number of Sequencing Cycles Allowed" className="hci.gnomex.model.NumberSequencingCyclesAllowed"  editable="N">
 			<Filter className="hci.gnomex.model.NumberSequencingCycles" filterField="idNumberSequencingCycles"/>
 			<Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
