@@ -367,6 +367,21 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
   
+  public String getSampleBarcodeSequenceB() {
+    if (sample != null) {
+      return sample.getBarcodeSequenceB();
+    } else {
+      return "";
+    }
+  }
+  public Integer getSampleIdOligoBarcodeB() {
+    if (sample != null) {
+      return sample.getIdOligoBarcodeB();
+    } else {
+      return null;
+    }
+  }
+  
   public Integer getIdOrganism() {
     if (sample != null) {
       return sample.getIdOrganism();
