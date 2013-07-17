@@ -1140,6 +1140,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
      
       Integer idProperty = (Integer)i.next();
       String value = (String)sampleAnnotations.get(idProperty);
+      if (idProperty == -1) {
+        continue;
+      }
+      
       Property property = (Property)dh.getPropertyObject(idProperty);
      
       
