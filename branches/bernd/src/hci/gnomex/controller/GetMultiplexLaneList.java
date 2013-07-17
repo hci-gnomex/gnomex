@@ -106,6 +106,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
      
 
@@ -174,6 +175,19 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
         }
       }
 
+      for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+        String idSampleString = (String)i.next();
+        boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+        Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+        if (sample.getIdOligoBarcode() != null) {
+          sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
+        }
+
+        // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
+        if(sample.getIdOligoBarcodeB() != null){
+          sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
+        }
+      }
       Document doc = new Document(new Element("MultiplexLaneList"));
       SequenceLane.addMultiplexLaneNodes(doc.getRootElement(), lanes, null);
 

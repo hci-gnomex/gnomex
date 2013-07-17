@@ -116,6 +116,8 @@
 							" seqPrepByCore = 'N'" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
 							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 							" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
 							" prepInstructions=\"" + (prepInstructions) + "\"" +				
@@ -138,6 +140,8 @@
 							" label=''" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
 							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
 							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 							" numberSequencingLanes='1'" +
@@ -166,7 +170,9 @@
 						" canChangeNumberSequencingLanes='Y'" + 
 						" concentration=''" + 
 						" idOligoBarcode = ''" +				
-						" barcodeSequence = ''" +				
+						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
 						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
@@ -503,6 +509,8 @@
 				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
 				this.customBarcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
+				this.customBarcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
 				
 				this.samplesGrid.validateNow();
 				callLater(this.checkSamplesCompleteness);
@@ -699,10 +707,13 @@
 			private function areIndexTagsUnique():Boolean {
 				var isValid:Boolean = true;
 				var barcodeField:String = "";
+				var barcodeFieldB:String = "";
 				if (parentDocument.showSampleCustomBarcodes()) {
 					barcodeField = "@barcodeSequence";
+					barcodeFieldB = "@barcodeSequenceB";
 				} else if (parentDocument.showSampleBarcodes()) {
 					barcodeField = "@idOligoBarcode";
+					barcodeFieldB = "@idOligoBarcodeB";
 				} else {
 					return isValid;
 				}
@@ -722,6 +733,7 @@
 					var tagMap:Object = new Object();
 					for each(var s1:Object in samplesInGroup) {
 						var barcode:Object = s1[barcodeField];
+						barcode += "-" + s1[barcodeFieldB];
 						tagMap[barcode] = barcode;
 					}
 					var uniqueTagCount:int = 0;
@@ -1078,7 +1090,21 @@
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>  
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="true" visible="true"
+										   width="80"
+										   itemRenderer="views.renderers.LabelBarcodeSequence"               
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<mx:Label text="Index Tag"/> 
+								<mx:Label text="Sequence B"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn> 
 				
 				
 				

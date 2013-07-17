@@ -659,6 +659,7 @@ public class SequenceLane extends HibernateDetailObject {
     for(Iterator i = seqLanes.iterator(); i.hasNext();) {
       SequenceLane theLane = (SequenceLane)i.next();
       String tag = theLane.getSample().getBarcodeSequence();
+      tag += "-" + theLane.getSample().getBarcodeSequenceB();
       if (tag == null && theLane.getSample().getMultiplexGroupNumber() != null) {
         tag = theLane.getSample().getIdSample().toString();
       } else if (tag == null && theLane.getSample().getMultiplexGroupNumber() == null) {

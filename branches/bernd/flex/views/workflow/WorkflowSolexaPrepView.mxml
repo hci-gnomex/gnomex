@@ -246,7 +246,7 @@
 			if (item.@idOligoBarcodeB != '') {
 				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
 			} else {
-				return '';
+				return item.@barcodeSequenceB;
 			}
 		}
 		
@@ -463,7 +463,7 @@
 							</mx:Component>
 						</mx:itemEditor>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Actual Mean Lib Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"/>
+					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Mean Lib Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"/>
 					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 

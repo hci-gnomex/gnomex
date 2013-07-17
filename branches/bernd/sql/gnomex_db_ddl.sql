@@ -1548,7 +1548,6 @@ CREATE TABLE `gnomex`.`Request` (
   `processingDate` DATETIME NULL,
   `materialQuoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
-  `meanLibSizeActual` INT(10) NULL,
   `uuid` VARCHAR(36) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
@@ -1787,7 +1786,8 @@ CREATE TABLE `gnomex`.`Sample` (
   `barcodeSequence` VARCHAR(20) NULL,
   `isControl` CHAR(1) NULL,
   `meanLibSizeActual` INT(10) NULL,
-  `idOligoBarcodeB` INT(10) NULL, 
+  `idOligoBarcodeB` INT(10) NULL,
+  `barcodeSequenceB` VARCHAR(20) NULL, 
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)

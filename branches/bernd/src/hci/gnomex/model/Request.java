@@ -89,7 +89,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
-  private Integer         meanLibSizeActual;
   private String          materialQuoteNumber;
   private Date            quoteReceivedDate;
   private String          uuid;
@@ -1328,13 +1327,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     requestNode.setAttribute("icon", icon);
     parentNode.addContent(requestNode);
     return requestNode;
-  }
-  
-  public Integer getMeanLibSizeActual() {
-    return meanLibSizeActual;
-  }
-  public void setMeanLibSizeActual(Integer meanLibSizeActual) {
-    this.meanLibSizeActual = meanLibSizeActual;
   }
   
   public String getMaterialQuoteNumber() {

@@ -551,6 +551,18 @@ public class RequestHTMLFormatter {
   
   public void addIlluminaSampleTable(Element parentNode, Set samples) {
 	  
+    boolean isDNASampleType = false;
+    if (samples.size() > 0) {
+      Sample s = (Sample) samples.iterator().next();
+      if (s.getIdSampleType() != null) {
+        String sampleTypeName = dictionaryHelper.getSampleType(s
+            .getIdSampleType());
+        if (sampleTypeName.indexOf("DNA") >= 0) {
+          isDNASampleType = true;
+        }
+      }
+    }
+	  
     // Show 'samples' header
     Element sampleHeader = new Element("H5");
     sampleHeader.addContent("Samples (" + samples.size() + ")");
@@ -568,25 +580,34 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample ID", new Integer(2), new Integer(1), "left");
     this.addHeaderCell(rowh, "Sample Name", new Integer(2), new Integer(1));
     this.addHeaderCell(rowh, "Sample Conc.", new Integer(2), new Integer(1));
-    this.addHeaderCell(rowh, "Sample Conc. Core", new Integer(2), new Integer(1));
 
-    this.addHeaderCell(rowh, "---------------------------- Lib Info ----------------------------------",
-    		new Integer(1), new Integer(6), "colgroup");
-    this.addHeaderCell(rowh, "---------- Seq Info ----------", new Integer(1), new Integer(3), "colgroup");
+    if (isDNASampleType) {
+      this.addHeaderCell(rowh, "---------------------------------------- Lib Info ----------------------------------------------",
+          new Integer(1), new Integer(7), "colgroup");      
+    } else {
+      this.addHeaderCell(rowh, "--------------------------- Lib Info ---------------------------------",
+          new Integer(1), new Integer(6), "colgroup");
+    }
+    this.addHeaderCell(rowh, "----- Seq Info -----", new Integer(1), new Integer(2), "colgroup");
 
     
     rowh = new Element("TR");
  
     
     table.addContent(rowh);
-    this.addHeaderCell(rowh, "Covaris Vol");
-    this.addHeaderCell(rowh, "Covaris Qty");
-    this.addHeaderCell(rowh, "Lib Conc.");
-    this.addHeaderCell(rowh, "Lib Size");
-    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    if (isDNASampleType) {
+      this.addHeaderCell(rowh, "Covaris Qty");
+      this.addHeaderCell(rowh, "Covaris Vol");
+    } else {
+      this.addHeaderCell(rowh, "RIN #");
+    }
 
     this.addHeaderCell(rowh, "Index Group");
+    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+    this.addHeaderCell(rowh, "Lib Conc.");
+    this.addHeaderCell(rowh, "Lib Size");
+
     this.addHeaderCell(rowh, "# Lanes");
     this.addHeaderCell(rowh, "Sequence Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     	    
@@ -594,6 +615,7 @@ public class RequestHTMLFormatter {
     
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
+      
       
       Element row = new Element("TR");
       row.setAttribute("CLASS", "forcedRowHeight");
@@ -608,62 +630,67 @@ public class RequestHTMLFormatter {
       
       int numberOfLanes = 0;
       for (SequenceLane lane : (Set<SequenceLane>)request.getSequenceLanes()) {
-    	  if (lane.getIdSample().equals(sample.getIdSample())) {
-    		  numberOfLanes++;
-    	  }
+        if (lane.getIdSample().equals(sample.getIdSample())) {
+          numberOfLanes++;
+        }
       }
       
       String barcodeA = "&nbsp;";
       if (sample.getIdOligoBarcode() != null ) {
-    	  barcodeA = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString());
+        barcodeA = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcode().toString());
       } else if (sample.getBarcodeSequence() != null && !sample.getBarcodeSequence().trim().equals("")) {
-    	  sample.getBarcodeSequence();
+        barcodeA = sample.getBarcodeSequence();
       }
       
       String barcodeB = "&nbsp;";
       if (sample.getIdOligoBarcodeB() != null ) {
-    	  barcodeB = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcodeB().toString());
-      } 
-      // TODO:  need sample.barcodeSequenceB
+        barcodeB = DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", sample.getIdOligoBarcodeB().toString());
+      }  else if (sample.getBarcodeSequenceB() != null && !sample.getBarcodeSequenceB().trim().equals("")) {
+        barcodeB = sample.getBarcodeSequenceB();
+      }
       
       String indexGroup = "&nbsp;";
-	  if (sample.getMultiplexGroupNumber() != null && sample.getMultiplexGroupNumber().intValue() > 0 ) {
-		  indexGroup = sample.getMultiplexGroupNumber().toString();  
-	  }
-    		  
-    	
+      if (sample.getMultiplexGroupNumber() != null && sample.getMultiplexGroupNumber().intValue() > 0 ) {
+        indexGroup = sample.getMultiplexGroupNumber().toString();  
+      }
+          
+      
       //
       // Sample info
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
-      this.addCell(row, concentration); // sample conc (client)
-      this.addCell(row, "&nbsp;"); // sample conc (actual)
+      this.addCell(row, concentration + "&nbsp;/"); // sample conc (client) plush a / to split the cell
       
       //
       // Library info
       //
-      this.addCell(row, "&nbsp;"); // covaris vol
-      this.addCell(row, "&nbsp;"); // covaris qty
-      this.addCell(row, "&nbsp;"); // lib conc.
-      this.addCell(row, "&nbsp;"); // ave lib size
+      if (isDNASampleType) {
+        this.addLeftCell(row, "&nbsp;"); // covaris qty
+        this.addCell(row, "&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;/"); // covaris vol        
+      } else {
+        this.addLeftCell(row, "&nbsp"); // RIN #
+      }
+      
+      // Index Group
+      this.addCell(row, indexGroup);
       // Index A
       this.addCell(row, barcodeA);          
       // Index B
-      this.addCell(row, barcodeB);      	      
+      this.addCell(row, barcodeB);              
+      this.addCell(row, "&nbsp;"); // lib conc.
+      this.addCell(row, "&nbsp;"); // ave lib size
       
       //
       // Seq Info
       //
-      // Index Group
-      this.addCell(row, indexGroup);
       // # of Lanes
-      this.addCell(row, numberOfLanes == 0 ? "&nbsp;" : new Integer(numberOfLanes).toString());
+      this.addLeftCell(row, numberOfLanes == 0 ? "&nbsp;" : new Integer(numberOfLanes).toString());
       // Seq Date
       this.addCell(row, "&nbsp;");
-        
+
     }
-    
     parentNode.addContent(table);
+
   }
 
   public void addSimpleSampleTable(Element parentNode, Set samples) {
@@ -1270,7 +1297,7 @@ public class RequestHTMLFormatter {
     row.addContent(cell);
     
     cell = new Element("TD");
-    //cell.setAttribute("WIDTH", "80");
+    cell.setAttribute("CLASS", "value");
     row.addContent(cell);
 
     cell = new Element("TD");
@@ -1300,6 +1327,7 @@ public class RequestHTMLFormatter {
     cell.addContent(value);
     row.addContent(cell);
   }
+
   private void addCell(Element row, String value) {
       Element cell = new Element("TD");
       cell.setAttribute("CLASS", "grid");      

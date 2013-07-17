@@ -772,7 +772,7 @@
 									<mx:HBox verticalAlign="middle" horizontalGap="0">
 										<mx:Label text="Sequencing options" width="150"/>
 										
-										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()" fontSize="10"/>
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? false : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCycles()" fontSize="10"/>
 										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCycles()" fontSize="10"/>
 										
 									</mx:HBox> 

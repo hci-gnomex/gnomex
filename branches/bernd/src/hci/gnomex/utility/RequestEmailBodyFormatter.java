@@ -101,7 +101,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
       center1.addContent(formatter.makeHybTable(hybs, captionStyle));          
     }
     
-    if (!lanes.isEmpty()) {
+    if (!lanes.isEmpty() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
       formatter.addSequenceLaneTable(center1, lanes, amendState, captionStyle);          
     }
 

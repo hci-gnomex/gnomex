@@ -77,6 +77,7 @@ public class Sample extends HibernateDetailObject {
   private Set         wells;
   private Integer     meanLibSizeActual;
   private Integer     idOligoBarcodeB;
+  private String      barcodeSequenceB;
   
   private Set        workItems;
   private Set		 sequenceLanes;
@@ -901,6 +902,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setIdOligoBarcodeB(Integer idOligoBarcodeB) {
     this.idOligoBarcodeB = idOligoBarcodeB;
-  }}
-  
-  
+  }
+
+  public String getBarcodeSequenceB() {
+    return barcodeSequenceB;
+  }
+
+  public void setBarcodeSequenceB(String barcodeSequenceB) {
+    this.barcodeSequenceB = barcodeSequenceB;
+  }
+}
