@@ -87,7 +87,6 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       seqLaneNoteMap.put(key, notes);
     }
     
-    
     // Now generate a billing item for each seq lane number sequencing cycles  / seq run type
     for(Iterator i = seqLaneMap.keySet().iterator(); i.hasNext();) {
       String  key = (String)i.next();
@@ -96,6 +95,19 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       String idSeqRunType             = tokens[1];
       
       List theLanes = (List)seqLaneMap.get(key);
+      
+      for(Iterator j = theLanes.iterator(); i.hasNext();) {
+        SequenceLane theLane = (SequenceLane)j.next();
+        Sample sample = theLane.getSample();
+        if (sample.getIdOligoBarcode() != null) {
+          sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
+        }
+        
+        // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
+        if(sample.getIdOligoBarcodeB() != null){
+          sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
+        }
+      }
       
       int qty = SequenceLane.getMultiplexLaneCount(theLanes, request.getCreateDate());
       String notes = (String)seqLaneNoteMap.get(key);
