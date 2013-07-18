@@ -762,7 +762,8 @@
   	    </copy>
 		
   		  <!-- Use the opensource version of the context file -->
-  		<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/> 
+  		<!--<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
+  		 <copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
 
   	    <!-- Change realm name in web.xml from hciEnv to gnomex.  -->
 		<copy file="${basedir}/defaultroot/WEB-INF/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/web.xml"/> 
@@ -923,6 +924,19 @@
 				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
 		         replace="REQUIRE_SECURE_REMOTE           = false;">
 		</replaceregexp>
+
+    <!-- Compile flex -->
+    <subant target="flex">
+          <property name="opensource" value="true"/>
+        <property name="dist.dir" value="${dist.dir}"/>
+          <property name="basedir" value="${basedir}"/>
+        <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+        <property name="lib.dir" value="${sandbox.dir}/lib"/>
+        <property name="src.dir" value="${basedir}/src"/>
+          <property name="flex.appname" value="${flexapp.name}"/>
+          <property name="flex.title" value="${flex.title}"/>
+          <fileset dir="${basedir}" includes="build.xml"/>
+    </subant>
 		
 		<!-- Build ear again, this time allowing http (nonsecure) connections -->
 		<subant target="war-tomcat">
