@@ -2828,7 +2828,8 @@ ENGINE = INNODB;
 -- 
 -- New Columns for FlowCell
 --
-alter table FlowCell add column runNumber int(10) NULL;
+
+alter table FlowCell add runNumber int(10) NULL;
 alter table FlowCell add idInstrument int(10) NULL;
 alter table FlowCell add side char(1) NULL;
 
