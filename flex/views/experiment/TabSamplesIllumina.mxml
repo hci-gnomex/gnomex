@@ -369,6 +369,12 @@
 					}
 				}
 				
+				if (isComplete){
+					if (!areAandBTagsUnique()){
+						parentDocument.userWarningsSamples += "WARNING: Some samples are using the same index tag for both index tag A and index tag B.";
+					}
+				}
+				
 				// If this is a Solexa request and the sample setup is complete,
 				// create the sequencing lanes based on the number of lanes 
 				// entered for each sample.
@@ -704,6 +710,33 @@
 				}
 			}
 			
+			private function areAandBTagsUnique():Boolean{
+				var isValid:Boolean = true;
+				var barcodeField:String = "";
+				var barcodeFieldB:String = "";
+				if (parentDocument.showSampleCustomBarcodes()) {
+					barcodeField = "@barcodeSequence";
+					barcodeFieldB = "@barcodeSequenceB";
+				} else if (parentDocument.showSampleBarcodes()) {
+					barcodeField = "@idOligoBarcode";
+					barcodeFieldB = "@idOligoBarcodeB";
+				} else {
+					return isValid;
+				}
+				
+				for each(var s:Object in parentDocument.samples) {
+					if(s[barcodeField] != "" && s[barcodeFieldB] != ""){
+						if(s[barcodeField] == s[barcodeFieldB]){
+							isValid = false;
+							break;
+						}
+					}
+				}
+				
+				return isValid;
+				
+			}
+			
 			private function areIndexTagsUnique():Boolean {
 				var isValid:Boolean = true;
 				var barcodeField:String = "";
@@ -1029,7 +1062,8 @@
 													 visible="true" 
 													 headerText="Index Tag A" 
 													 width="130" 
-													 dataField="@idOligoBarcode" 
+													 dataField="@idOligoBarcode"
+													 editorDataField="value"
 													 sortable="false" 
 													 editable="true" 
 													 rendererIsEditor="false" 
@@ -1046,7 +1080,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode;}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1058,7 +1092,8 @@
 													 width="130" 
 													 dataField="@idOligoBarcodeB" 
 													 sortable="false" 
-													 editable="true" 
+													 editable="true"
+													 editorDataField="value"
 													 rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB')}">
 					<util:itemEditor>
@@ -1073,7 +1108,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB;}">
+																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
