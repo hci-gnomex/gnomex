@@ -76,9 +76,6 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
-			
-		private var previousIdOligoBarcodeA:String = "";
-		private var previousIdOligoBarcodeB:String = "";
            
         private function init():void {
         	barcodes.refresh();
@@ -272,8 +269,6 @@
         {
         	if (item.@idOligoBarcode != '') {
 	        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-        	} else if(previousIdOligoBarcodeA != "" && item.@idOligoBarcode == ''){
-				return "";
 			} else{
 				return item.@barcodeSequence;
 			}
@@ -282,19 +277,23 @@
 		{
 			if (item.@idOligoBarcodeB != '') {
 				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
-			} else if(previousIdOligoBarcodeB != "" && item.@idOligoBarcodeB == ''){
-				return "";
 			} else{
 				return item.@barcodeSequenceB;
 			}
 		}
 			
-		public function recordPreviousIndexTagA(item:Object, col:DataGridColumn):void{
-			previousIdOligoBarcodeA = item.@idOligoBarcode;
+		public function isDeleteKeyA(event:KeyboardEvent, item:Object):void{
+			if(event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE){
+				item.@idOligoBarcode = "";
+				item.@barcodeSequence = "";
+			}
 		}
 			
-		public function recordPreviousIndexTagB(item:Object, col:DataGridColumn):void{
-			previousIdOligoBarcodeB = item.@idOligoBarcodeB;
+		public function isDeleteKeyB(event:KeyboardEvent, item:Object):void{
+			if(event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE){
+				item.@idOligoBarcodeB = "";
+				item.@barcodeSequenceB = "";
+			}
 		}
 		
 
@@ -468,8 +467,8 @@
 								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
 																	  parentApp="{outerDocument.parentApplication}"
 																	  fontSize="10"
-																	  indexTagLetter="A"
-																	  prompt="{null}" focusIn="{outerDocument.recordPreviousIndexTagA}"
+																	  indexTagLetter="A" keyUp="{outerDocument.isDeleteKeyA(event, data)}"
+																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
 																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}"
 																	  removeFilterOnSelection="true"
@@ -489,8 +488,8 @@
 								<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
 																	  parentApp="{outerDocument.parentApplication}"
 																	  fontSize="10"
-																	  indexTagLetter="B"
-																	  prompt="{null}" focusIn="{outerDocument.recordPreviousIndexTagB}"
+																	  indexTagLetter="B" keyUp="{outerDocument.isDeleteKeyB(event, data)}"
+																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
 																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}"
 																	  removeFilterOnSelection="true"
