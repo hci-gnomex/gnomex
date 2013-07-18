@@ -2943,6 +2943,28 @@
 				}
 				
 			}
+			
+			// Warn if A and B index tags are identical
+			var barcodeField:String = "";
+			var barcodeFieldB:String = "";
+			if (showSampleCustomBarcodes()) {
+				barcodeField = "@barcodeSequence";
+				barcodeFieldB = "@barcodeSequenceB";
+			} else if (showSampleBarcodes()) {
+				barcodeField = "@idOligoBarcode";
+				barcodeFieldB = "@idOligoBarcodeB";
+			}
+			
+			if(barcodeField != "" && barcodeFieldB != ""){
+				for each(var samp:Object in this.samples) {
+					if(samp[barcodeField] != "" && samp[barcodeFieldB] != ""){
+						if(samp[barcodeField] == samp[barcodeFieldB]){
+							warningMessage += "Some samples are using the same index tag for both index tag A and index tag B.";
+							break;
+						}
+					}
+				}
+			}
 		}
 		
 		private function getChannelCount(sample:Object):int {
