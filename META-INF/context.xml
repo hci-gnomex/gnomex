@@ -15,9 +15,9 @@
     type="javax.mail.Session"/>
 
     
-  <!-- GNomEx Realm for authenticating user (LDAP) -->  
+  <!-- GNomEx Realm for authenticating user (LDAP) -->    
   <Realm className="hci.gnomex.security.tomcat.GNomExLDAPRealm"
-         ldap_provider_url="ldap://kdc3.kerberos.utah.edu:636/dc=utah,dc=edu"
+         ldap_provider_url="${hci.gnomex.ldapurl}"
          ldap_protocol="ssl"
          ldap_auth_meth="simple"
          ldap_init_context_factory="com.sun.jndi.ldap.LdapCtxFactory"
@@ -33,7 +33,7 @@
          alt_ldap_password="ldap_password_goes_here"
     -->
  
-   <!-- GNomEx Realm for authenticating user (No LDAP)
+   <!-- GNomEx Realm for authenticating user (No LDAP)  
    <Realm className="hci.gnomex.security.tomcat.GNomExRealm"
          datasource_lookup_name="java:comp/env/jdbc/GNOMEX_GUEST" debug="99"
     /> 
