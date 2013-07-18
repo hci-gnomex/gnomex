@@ -57,6 +57,10 @@ package views.renderers {
 			super();
 			this.sampleName = label;
 			
+			if ( label == '' ) {
+				this.loadSourceWell( null );
+			}
+			
 			height = 26;
 			width = height;
 			verticalScrollPolicy = 'off';
