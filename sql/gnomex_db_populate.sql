@@ -932,10 +932,10 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('NIMBLE', 'NimbleGen Microarray', 6, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('OTHER', 'Microarray (Other)', NULL, 'N', NULL, null, null, 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('QC', 'Sample Quality', NULL, 'Y', NULL, 'RNA NanoChip, RNA PicoChip, DNA 1000 chip, Qubit picoGreen, gDNA gel', 'assets/chart_line.png', 'QC', 'Y', 'Y', 1, 'Y'),
-  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
-  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', NULL, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
+  ('SOLEXA', 'Illumina GAIIx Sequencing', 7, 'Y', 8, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
+  ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 7, 'Y', 8, 'Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)', 'assets/DNA_diag_lightening.png', 'HISEQ', 'Y', 'Y', 1, 'Y'),
   ('AGIL1', 'Agilent 1-color Microarray', 1, 'Y', 1, 'Gene expression; miRNA', 'assets/microarray_small_single_color.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
-  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', NULL, '', 'assets/DNA_diag_miseq.png', 'MISEQ', 'Y', 'Y', 1, 'Y'),
+  ('MISEQ', 'Illumina MiSeq Sequencing', 1, 'Y', 1, '', 'assets/DNA_diag_miseq.png', 'MISEQ', 'Y', 'Y', 1, 'Y'),
   ('ISCAN', 'iScan', null, 'Y', null, '', 'assets/iscan.png', 'ISCAN', 'Y', 'Y', 1, 'Y'),
   ('CAPSEQ', 'Capillary Sequencing', 8, 'Y', 1, '', 'assets/dna-helix-icon.png', 'CAPSEQ', 'Y', 'Y', 1, 'Y');
 
