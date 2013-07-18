@@ -49,17 +49,18 @@
 
     <mx:Script>
         <![CDATA[
-        import mx.collections.ArrayCollection;
-        import mx.collections.XMLListCollection;
-        import mx.controls.Alert;
-        import mx.events.CollectionEvent;
-        import mx.events.CollectionEventKind;
-        import mx.events.ValidationResultEvent;
-        import mx.rpc.events.FaultEvent;
-        import mx.rpc.events.ResultEvent;
-        import mx.validators.NumberValidator;
-        
-        import views.renderers.ComboBox;
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.NumberValidator;
+			
+			import views.renderers.ComboBox;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -75,6 +76,9 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
+			
+		private var previousIdOligoBarcodeA:String = "";
+		private var previousIdOligoBarcodeB:String = "";
            
         private function init():void {
         	barcodes.refresh();
@@ -153,10 +157,44 @@
         	if (validate() == false) {
         		return;
         	}
+			
         	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItem.send();
         }
+			
+		private function areAandBTagsUnique():void{
+			var barcodeField:String = "";
+			var barcodeFieldB:String = "";
+			var areUnique:Boolean = true;
+
+			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+			dirtyWorkItems = new XMLListCollection(dirtyItems);
+			for each(var workItem:Object in dirtyWorkItems){
+				if(workItem.@idOligoBarcode != "" && workItem.@idOligoBarcodeB != ""){
+					if(workItem.@idOligoBarcode == workItem.@idOligoBarcodeB){
+						areUnique = false;
+						break;
+					}
+					
+				}
+			}
+			
+			if(areUnique == false){
+				Alert.show("Some work items have the same tag specified for both Index Tag A and B. Continue?", "Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
+			} else{
+				save();
+			}
+		}
+		
+		private function areAandBTagsUniqueCloseEvent(event:CloseEvent):void{
+			if(event.detail == Alert.OK){
+				save();
+			} else{
+				return;
+			}
+			
+		}
         
         private function onGetWorkList(event:ResultEvent):void {
         	if (event.result.name() == "WorkItemList") {
@@ -234,17 +272,29 @@
         {
         	if (item.@idOligoBarcode != '') {
 	        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-        	} else {
-        		return item.@barcodeSequence;
-        	}
+        	} else if(previousIdOligoBarcodeA != "" && item.@idOligoBarcode == ''){
+				return "";
+			} else{
+				return item.@barcodeSequence;
+			}
         }
 		public function getOligoBarcodeNameB(item:Object,col:DataGridColumn):String
 		{
 			if (item.@idOligoBarcodeB != '') {
 				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
-			} else {
+			} else if(previousIdOligoBarcodeB != "" && item.@idOligoBarcodeB == ''){
+				return "";
+			} else{
 				return item.@barcodeSequenceB;
 			}
+		}
+			
+		public function recordPreviousIndexTagA(item:Object, col:DataGridColumn):void{
+			previousIdOligoBarcodeA = item.@idOligoBarcode;
+		}
+			
+		public function recordPreviousIndexTagB(item:Object, col:DataGridColumn):void{
+			previousIdOligoBarcodeB = item.@idOligoBarcodeB;
 		}
 		
 
@@ -419,7 +469,7 @@
 																	  parentApp="{outerDocument.parentApplication}"
 																	  fontSize="10"
 																	  indexTagLetter="A"
-																	  prompt="{null}"
+																	  prompt="{null}" focusIn="{outerDocument.recordPreviousIndexTagA}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
 																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}"
 																	  removeFilterOnSelection="true"
@@ -440,7 +490,7 @@
 																	  parentApp="{outerDocument.parentApplication}"
 																	  fontSize="10"
 																	  indexTagLetter="B"
-																	  prompt="{null}"
+																	  prompt="{null}" focusIn="{outerDocument.recordPreviousIndexTagB}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
 																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}"
 																	  removeFilterOnSelection="true"
@@ -470,7 +520,7 @@
  	            		click="refreshWorkList();" toolTip="Refresh worklist"/>
 	 	            <mx:HBox width="100%" horizontalAlign="right">
 	 	            	<util:DirtyNote id="dirty"/>
-	 	            	<mx:Button label="Save" click="save()" icon="@Embed('../../assets/action_save.gif')">
+	 	            	<mx:Button label="Save" click="areAandBTagsUnique()" icon="@Embed('../../assets/action_save.gif')">
 		            	</mx:Button>
 	 	            </mx:HBox>
 
