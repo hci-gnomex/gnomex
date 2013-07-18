@@ -17,6 +17,8 @@ import javax.servlet.http.*;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LogLongExecutionTimes;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.utility.server.JNDILocator;
 import hci.framework.control.*;
@@ -172,7 +174,8 @@ public class GNomExFrontController extends HttpServlet {
       this.forwardWithError(request, response);
       return;
     }
-
+//LogLongExecutionTimes timeLog = new LogLongExecutionTimes(log, 0, true, "***COMMANDPERF***");
+//LogItem li = timeLog.startLogItem(requestName + " Before Load");
     // we should have a valid command.
 
     // If we do not have a security advisor for the session, add error to command
@@ -198,13 +201,15 @@ public class GNomExFrontController extends HttpServlet {
     		
        commandInstance.addInvalidField("SecurityAdvisor", "You must create a SecurityAdvisor in order to run this command.");
     }
-
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " Load");
     // if command still valid, call the loadCommand method
     if (commandInstance.isValid()) {
     log.debug("Calling loadCommand on " + commandClass);
     commandInstance.loadCommand(request, session);
     }
-
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " execute");
     // see if it is valid, if so call execute (if using SBRequestProcessor, forward to it)
     if (commandInstance.isValid()) {
       log.debug("Forwarding " + commandClass + " to the request processor for execution");
@@ -258,7 +263,8 @@ public class GNomExFrontController extends HttpServlet {
         return;
       }
     }
-
+//timeLog.endLogItem(li);
+//li = timeLog.startLogItem(requestName + " After execute");
     // now set the request state, response state, and session state
     log.debug("Calling setRequestState on " + commandClass);
     commandInstance.setRequestState(request);
@@ -291,6 +297,9 @@ public class GNomExFrontController extends HttpServlet {
       // forward to our response page
       forwardPage(request, response, forwardJSP);
     }
+//timeLog.endLogItem(li);
+//timeLog.LogTimes();
+//timeLog = null;
 
   }
 

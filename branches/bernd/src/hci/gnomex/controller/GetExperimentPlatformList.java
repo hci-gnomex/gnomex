@@ -50,13 +50,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
   private List<SampleType> sampleTypes = new ArrayList<SampleType>();
   private List <Application> applications = new ArrayList<Application>();
-  private List <NumberSequencingCycles> numberSeqCycles = new ArrayList<NumberSequencingCycles>();
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
   private HashMap<Integer, Map<String, ?>> sampleTypeXApplicationMap = new HashMap<Integer, Map<String, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
-  private HashMap<String, Map<Integer, NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, Map<Integer, NumberSequencingCyclesAllowed>>();
+  private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
   
   
   public void validate() {
@@ -122,40 +121,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
         listNode = new Element("sequencingOptions");
         node.addContent(listNode);
-        for(Iterator i1 = numberSeqCycles.iterator(); i1.hasNext();) {
-          NumberSequencingCycles c = (NumberSequencingCycles)i1.next();
-          this.getSecAdvisor().flagPermissions(c);
-          Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          listNode.addContent(cycleNode);
-          boolean paired = false;
-          boolean single = false;
-          String pairedName = "";
-          String pairedCustom = "";
-          String singleName = "";
-          String singleCustom = "";
-          if (isAssociated(rc, c)) {
-            List<NumberSequencingCyclesAllowed> allowedList = getNumberSequencingCyclesAllowed(rc, c);
-            for(Iterator i2 = allowedList.iterator(); i2.hasNext();) {
-              NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)i2.next();
-              if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Paired") > -1) {
-                paired = true;
-                pairedName = x.getName();
-                pairedCustom = x.getIsCustom();
-              } else if (dh.getSeqRunType(x.getIdSeqRunType()).indexOf("Single") > -1) {
-                single = true;
-                singleName = x.getName();
-                singleCustom = x.getIsCustom();
-              } 
-            }
+        List<NumberSequencingCyclesAllowed> allowedList = this.numberSeqCyclesAllowedMap.get(rc.getCodeRequestCategory());
+        if (allowedList != null) {
+          for(NumberSequencingCyclesAllowed c : allowedList) {
+            this.getSecAdvisor().flagPermissions(c);
+            Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            listNode.addContent(cycleNode);
           }
-          cycleNode.setAttribute("paired", paired ? "Y" : "N");
-          cycleNode.setAttribute("pairedName", pairedName != null ? pairedName : "");
-          cycleNode.setAttribute("pairedCustom", pairedCustom);
-          cycleNode.setAttribute("single", single ? "Y" : "N");
-          cycleNode.setAttribute("singleName", singleName != null ? singleName : "");
-          cycleNode.setAttribute("singleCustom", singleCustom);
-        }
-               
+        }               
       }
 
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -212,36 +185,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     } else {
       return null;
     }
-  }
-  
-  private boolean isAssociated(RequestCategory rc, NumberSequencingCycles c) {
-    Map<Integer, NumberSequencingCyclesAllowed> idMap = numberSeqCyclesAllowedMap.get(rc.getCodeRequestCategory());
-    boolean found = false;
-    if (idMap != null) {
-      for(Iterator i = idMap.keySet().iterator(); i.hasNext();) {
-        Integer idNumberSequencingCyclesAllowed = (Integer)i.next();
-        NumberSequencingCyclesAllowed x = idMap.get(idNumberSequencingCyclesAllowed);
-        if (x.getIdNumberSequencingCycles().equals(c.getIdNumberSequencingCycles())) {
-          found = true;
-          break;
-        }
-      }
-    }
-    return found;
-  }
-  private List<NumberSequencingCyclesAllowed> getNumberSequencingCyclesAllowed(RequestCategory rc, NumberSequencingCycles c) {
-    Map<Integer, NumberSequencingCyclesAllowed> idMap = numberSeqCyclesAllowedMap.get(rc.getCodeRequestCategory());
-    List<NumberSequencingCyclesAllowed> numberSequencingCyclesAllowed = new ArrayList<NumberSequencingCyclesAllowed>();
-    if (idMap != null) {
-      for(Iterator i = idMap.keySet().iterator(); i.hasNext();) {
-        Integer idNumberSequencingCyclesAllowed = (Integer)i.next();
-        NumberSequencingCyclesAllowed x = idMap.get(idNumberSequencingCyclesAllowed);
-        if (x.getIdNumberSequencingCycles().equals(c.getIdNumberSequencingCycles())) {
-          numberSequencingCyclesAllowed.add(x);
-        }
-      }
-    }
-    return numberSequencingCyclesAllowed;
   }
   
   private String getCodeApplications(SampleType st) {
@@ -321,16 +264,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       applicationXSeqLibProtocolMap.put(x.getCodeApplication(), idMap);
     }
     
-    numberSeqCycles = sess.createQuery("SELECT c from NumberSequencingCycles c order by c.numberSequencingCycles").list();
-    List numberSeqCyclesAllowed = sess.createQuery("SELECT x from NumberSequencingCyclesAllowed x").list();
+    
+    List numberSeqCyclesAllowed = sess.createQuery("SELECT x from NumberSequencingCyclesAllowed x join x.numberSequencingCycles c order by c.numberSequencingCycles").list();
     for(Iterator i = numberSeqCyclesAllowed.iterator(); i.hasNext();) {
       NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)i.next();
-      Map idMap = (Map)numberSeqCyclesAllowedMap.get(x.getCodeRequestCategory());
-      if (idMap == null) {
-        idMap = new HashMap();
+      List<NumberSequencingCyclesAllowed> allowedList = numberSeqCyclesAllowedMap.get(x.getCodeRequestCategory());
+      if (allowedList == null) {
+        allowedList = new ArrayList<NumberSequencingCyclesAllowed>();
       }
-      idMap.put(x.getIdNumberSequencingCyclesAllowed(), x);
-      numberSeqCyclesAllowedMap.put(x.getCodeRequestCategory(), idMap);
+      allowedList.add(x);
+      numberSeqCyclesAllowedMap.put(x.getCodeRequestCategory(), allowedList);
     }
   }
 }

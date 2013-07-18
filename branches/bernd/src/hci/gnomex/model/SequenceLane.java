@@ -377,6 +377,21 @@ public class SequenceLane extends HibernateDetailObject {
     }
   }
   
+  public String getSampleBarcodeSequenceB() {
+    if (sample != null) {
+      return sample.getBarcodeSequenceB();
+    } else {
+      return "";
+    }
+  }
+  public Integer getSampleIdOligoBarcodeB() {
+    if (sample != null) {
+      return sample.getIdOligoBarcodeB();
+    } else {
+      return null;
+    }
+  }
+  
   public Integer getIdOrganism() {
     if (sample != null) {
       return sample.getIdOrganism();
@@ -658,13 +673,27 @@ public class SequenceLane extends HibernateDetailObject {
     HashMap seqTagMap = new HashMap();
     for(Iterator i = seqLanes.iterator(); i.hasNext();) {
       SequenceLane theLane = (SequenceLane)i.next();
-      String tag = theLane.getSample().getBarcodeSequence();
-      tag += "-" + theLane.getSample().getBarcodeSequenceB();
+      String tag = null;
+      
+      // Initialize tag to the barcodeSequence of Index A (if it is not null)
+      if (theLane.getSample().getBarcodeSequence() != null) {
+        tag = theLane.getSample().getBarcodeSequence();
+      } 
+      // Append the Index B barcode
+      if (theLane.getSample().getBarcodeSequenceB() != null) {
+        // Handle the edge case where only Index B was provided (no Index A)
+        if (tag == null) {
+          tag = "?";
+        }
+        tag += "-" + theLane.getSample().getBarcodeSequenceB();
+      }
+
+      
       if (tag == null && theLane.getSample().getMultiplexGroupNumber() != null) {
         tag = theLane.getSample().getIdSample().toString();
       } else if (tag == null && theLane.getSample().getMultiplexGroupNumber() == null) {
         tag = "";
-      }
+      } 
       List theLanes = (List)seqTagMap.get(tag);
       if (theLanes == null) {
         theLanes = new ArrayList();
