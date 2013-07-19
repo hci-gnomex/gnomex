@@ -125,15 +125,16 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
               log.error(msg);
             }
             
-            // For ISCAN Requests
-            if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) ) {
+            // For INTERNAL ISCAN Requests
+            if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && !req.getLab().isExternalLab() ) {
               
-              // Bypass requisition form and illumina email for custom orders.
+              // Bypass requisition form and illumina email for CUSTOM orders.
               IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
               if ( chip != null && req.getNumberIScanChips()!=0 ) {
 
-                // Download and fill out requisition form
+                // REQUISITION FORM
                 try {
+                  // Download and fill out requisition form
                   File reqFile = RequisitionFormUtil.saveReqFileFromURL(req, sess, serverName);
                   reqFile = RequisitionFormUtil.populateRequisitionForm( req, reqFile, sess );
                   if ( reqFile == null ) {
@@ -153,6 +154,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   log.error(msg);
                   e.printStackTrace();
                 }
+                // ILLUMINA EMAIL
                 // Send email to illumina contact requesting quote #
                 try {
                   sendIlluminaEmail(sess, req);

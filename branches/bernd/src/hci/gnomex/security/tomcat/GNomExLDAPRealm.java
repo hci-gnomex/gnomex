@@ -212,7 +212,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
   private boolean checkLDAPCredentials() {
     
-    if (username == null || password == null) {
+    if (username == null || password == null || ldap_provider_url == null || ldap_provider_url.length() == 0) {
       return false;
     }
 
@@ -238,7 +238,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
       return false;
     } catch (Exception e) {
-      System.out.println("hci.gnomex.security.tomcat.GNomExLDAPRealm ERROR - Cannot connect to UofU LDAP server " + e.toString());
+      System.out.println("hci.gnomex.security.tomcat.GNomExLDAPRealm ERROR - Cannot connect to LDAP server " + e.toString());
       return false;
     }
   }

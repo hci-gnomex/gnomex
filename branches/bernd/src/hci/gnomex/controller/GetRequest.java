@@ -241,7 +241,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
               requestNode.setAttribute("iScanChipName", iScanChip.getName()!=null ? iScanChip.getName() : "");
             }
           }
-          
+          if(request.getProject() != null  && request.getProject().getDescription() != null && !request.getProject().getDescription().equals("")){
+              requestNode.setAttribute("projectDescription", request.getProject().getDescription());
+          } else {
+            requestNode.setAttribute("projectDescription", "");
+          }
           
           String accountNumberDisplay = "";
           

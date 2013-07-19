@@ -180,6 +180,14 @@
 					this.headerBox.removeChild(this.protocolsBox);
 				} 
 			}
+			if (selectedExperiment.@projectDescription == ''){
+				this.projectDescVBox.visible = false;
+				this.projectDescVBox.includeInLayout = false;
+			} else {
+				this.projectDescVBox.visible = true;
+				this.projectDescVBox.includeInLayout = true;
+			}
+				
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
 			this.currentState = '';	
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
@@ -1432,14 +1440,19 @@
 											borderThicknessRight="0" borderThicknessLeft="0" 
 											borderThicknessBottom="0" borderThickness="0" 
 											borderThicknessTop="0" height="100%" minHeight="50" styleName="readOnly"/>
+						<mx:VBox width="100%" height="100%" id="projectDescVBox">
+							<mx:Spacer height="4" />
+							<mx:VBox verticalGap="0" width="100%" height="100%" >
+								<mx:Label text="Project Description"  styleName="formLabel"/>
+								<util:TextAreaWorkaround id="projectDesc" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@projectDescription}" width ="100%" height="100%" />
+							</mx:VBox>
+						</mx:VBox>
 						<mx:VBox width="100%" height="100%" id="bioAndCoreNoteVBox">
 							<mx:Spacer height="4" />
-							<mx:HBox width="100%" height="100%"  id="hbox4">
 			  					<mx:VBox verticalGap="0" width="100%" height="100%" id="noteToCoreFacilityBox" visible="true" includeInLayout="true">
 		  							<mx:Label text="Notes for Core Facility"  styleName="formLabel"/>
 									<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 								</mx:VBox>
-							</mx:HBox>
 						</mx:VBox>
 					</mx:VBox>
 				<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
@@ -2082,7 +2095,6 @@
 		</mx:AddChild>
 	</mx:State>
 	<mx:State name="SequenomState">
-		<mx:RemoveChild target="{hbox4}"/>
 		<mx:RemoveChild target="{bioAndCoreNoteVBox}"/>
 		<mx:AddChild relativeTo="{hbox3}" position="before">
 			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
