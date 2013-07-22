@@ -333,7 +333,7 @@
 					" idBillingAccount='" + "BillingAccount" + isCreditCard + isPO + accountName.text + "'" + 
 					" accountName='" + accountName.text + "'" +
 					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
-					" expirationDateOther='" + todaysDate + "'" + 
+					" expirationDateOther=''" +
 					" startDateOther='" + todaysDate + "'" +
 					" accountNumberBus=''" + 
 					" accountNumberOrg=''" + 
@@ -630,6 +630,9 @@
 					}
 					if ((ba.@accountNumberProject.toString().length != 8 || ba.@accountNumberProject.toString().search(regEx) != -1) && ba.@accountNumberActivity == '') {
 						errors.addItem("    - Project must be 8 digits.");
+					}
+					if(ba.@expirationDateOther == ""){
+						errors.addItem("    - Please select an expiration date.");
 					}
 					
 					if(errors.length > 0){
