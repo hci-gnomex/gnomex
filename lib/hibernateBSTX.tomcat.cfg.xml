@@ -11,15 +11,15 @@
         <property name="jdbc.use_streams_for_binary">true</property>
         <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
         <!-- ENTER ALL MAPPING FILES HERE -->
-        <mapping resource="applications/hciEnv/SchemaBSTX.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaAdhoc.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaMetaAttribute.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaMetaAttributePath.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaPath.hbm.xml"/>
-		    <mapping resource="applications/hciEnv/SchemaPathReportAttr.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaAssoc.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaResourceReference.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaPersonResearch.hbm.xml"/>
-        <mapping resource="applications/hciEnv/SchemaTumorReg.hbm.xml"/>
+        <mapping resource="SchemaBSTX.hbm.xml"/>
+        <mapping resource="SchemaAdhoc.hbm.xml"/>
+        <mapping resource="SchemaMetaAttribute.hbm.xml"/>
+        <mapping resource="SchemaMetaAttributePath.hbm.xml"/>
+        <mapping resource="SchemaPath.hbm.xml"/>
+		    <mapping resource="SchemaPathReportAttr.hbm.xml"/>
+        <mapping resource="SchemaAssoc.hbm.xml"/>
+        <mapping resource="SchemaResourceReference.hbm.xml"/>
+        <mapping resource="SchemaPersonResearch.hbm.xml"/>
+        <mapping resource="SchemaTumorReg.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>
