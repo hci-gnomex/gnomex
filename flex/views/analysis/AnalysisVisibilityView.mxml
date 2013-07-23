@@ -38,6 +38,16 @@
  			}
  		} 	
  	}
+	 
+	public function init():void{
+		var idDefaultInst:String = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
+		 
+		for each(var analysis:XML in parentDocument.browseList){
+			if(analysis.@idInstitution == "" || analysis.@idInstitution == null){
+				analysis.@idInstitution = idDefaultInst;
+			}
+		}
+	}
 			
 
  	private function getRequestKind(item:Object, col:int):String {
@@ -137,6 +147,9 @@
 					rendererIsEditor="false" 
 					labelFunction="getVisibility"        
 					itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Visibility').DictionaryEntry, '@display', '@value', '@codeVisibility')}"/>
+				 <mx:DataGridColumn headerText="Institution" width="40" id="institution" dataField="@idInstitution" editorDataField="value"
+									rendererIsEditor="false" itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Institution').DictionaryEntry, '@display', '@value', '@idInstitution')}"
+									itemEditor="{ComboBoxVisibility.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Institution').DictionaryEntry, '@display', '@value', '@idInstitution')}"/>
 
 	         </mx:columns>
 	       </mx:DataGrid>
