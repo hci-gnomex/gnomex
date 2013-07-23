@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.Document;
@@ -275,17 +276,12 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT DISTINCT dt FROM DataTrack dt ");
     queryBuf.append("JOIN dt.dataTrackFiles dtf ");
-    queryBuf.append("WHERE dtf.idAnalysisFile IN (");
-    for (Iterator i = a.getFiles().iterator(); i.hasNext();) {
-      AnalysisFile af = (AnalysisFile)i.next();
-      queryBuf.append(af.getIdAnalysisFile());
-      if (i.hasNext()) {
-        queryBuf.append(",");
-      }
-    }
-    queryBuf.append(")");
+    queryBuf.append("JOIN dtf.analysisFile af ");
+    queryBuf.append("WHERE af.idAnalysis=:id");
+    Query q = sess.createQuery(queryBuf.toString());
+    q.setParameter("id", a.getIdAnalysis());
     
-    List dataTracks = (List)sess.createQuery(queryBuf.toString()).list();
+    List dataTracks = (List)q.list();
     aNode.setAttribute("dataTrackCount", Integer.valueOf(dataTracks.size()).toString());
 
     for (Iterator i = dataTracks.iterator(); i.hasNext();) {
