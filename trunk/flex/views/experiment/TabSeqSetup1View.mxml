@@ -444,8 +444,7 @@
 					    		paddingLeft="0" paddingRight="1"
 					    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
 					    	    groupName="numberSequencingCyclesRadioGroup"
-				    			click="{pickNumberSequencingCycles()}" width="190"/>
-							<mx:Spacer width="120" />
+				    			click="{pickNumberSequencingCycles()}" width="300"/>
 							<mx:Label text="{numberSequencingCyclesRepeater.currentItem.@price}" toolTip="Price per lane"/>
 			    		</mx:HBox>
   					</mx:Repeater>
