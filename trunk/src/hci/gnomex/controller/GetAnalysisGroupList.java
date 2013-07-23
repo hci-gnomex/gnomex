@@ -235,7 +235,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("idAnalysisProtocol", row[16] == null ? ""  : ((Integer)row[16]).toString());
     analysisNode.setAttribute("idOrganism",         row[17] == null ? ""  : ((Integer)row[17]).toString());
     analysisNode.setAttribute("codeVisibility",     row[18] == null ? ""  : (String)row[18]);    
-    analysisNode.setAttribute("idAppUser",          row[21] == null ? ""  : ((Integer)row[21]).toString());    
+    analysisNode.setAttribute("idAppUser",          row[21] == null ? ""  : ((Integer)row[21]).toString());
+    analysisNode.setAttribute("idInstitution",      row[22] == null ? ""  : ((Integer)row[22]).toString());
 
     String lastName   = row[19] != null ? (String)row[19] : "";
     String firstName  = row[20] != null ? (String)row[20] : "";
