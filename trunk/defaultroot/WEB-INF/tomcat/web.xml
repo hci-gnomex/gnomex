@@ -425,17 +425,17 @@
   
   <servlet-mapping>
     <servlet-name>UploadPurchaseOrder</servlet-name>
-    <url-pattern>UploadPurchaseOrder.gx</url-pattern>
+    <url-pattern>/UploadPurchaseOrder.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
     <servlet-name>UploadPurchaseOrderURL</servlet-name>
-    <url-pattern>UploadPurchaseOrderURL.gx</url-pattern>
+    <url-pattern>/UploadPurchaseOrderURL.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
     <servlet-name>GetPurchaseOrderForm</servlet-name>
-    <url-pattern>GetPurchaseOrderForm.gx</url-pattern>
+    <url-pattern>/GetPurchaseOrderForm.gx</url-pattern>
   </servlet-mapping>
 
 	<servlet-mapping>
