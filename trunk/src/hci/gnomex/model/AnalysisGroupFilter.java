@@ -85,7 +85,8 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append("        a.codeVisibility, ");
     queryBuf.append("        owner.lastName, ");
     queryBuf.append("        owner.firstName, ");
-    queryBuf.append("        a.idAppUser ");
+    queryBuf.append("        a.idAppUser, ");
+    queryBuf.append("        a.idInstitution ");
     
     if(isCreateReport){
       this.isCreateReport = true;
