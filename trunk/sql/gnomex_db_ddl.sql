@@ -5,6 +5,9 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+drop schema gnomex;
+
+
 CREATE DATABASE IF NOT EXISTS `gnomex`
   CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `gnomex`;
