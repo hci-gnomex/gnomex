@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="gnomexFlex.mxml" projectUUID="3b17abef-d799-45d6-85a6-ae64bcb12440" version="10">
+  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="false" copyDependentFiles="true" flexSDK="Flex 3.5" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderLocation="/Applications/Orion/applications/gnomex/gnomex" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="flex" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath>
+      <compilerSourcePathEntry kind="1" linkType="1" path="flex/views"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="flex/assets"/>
+    </compilerSourcePath>
+    <libraryPath defaultLinkType="1"/>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="gnomexFlex.mxml"/>
+  </applications>
+  <modules/>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>
