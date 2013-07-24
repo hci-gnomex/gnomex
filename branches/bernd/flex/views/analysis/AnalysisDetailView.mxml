@@ -54,6 +54,8 @@
 			private var genomeBuildName:String;
 			[Bindable] 
 			private var visibilityName:String;
+			[Bindable] 
+			private var institutionName:String;
 			[Bindable]
 			public var analysis:Object;
 			[Bindable]
@@ -89,6 +91,7 @@
 				getOrganismName();
 				getGenomeBuildName();
 				getVisibilityName();
+				getInstitutionName();
 				
 				var sequenceLanes:int = 0;
 				for each (var experimentItem:Object in analysis.experimentItems.AnalysisExperimentItem..SequenceLane) {
@@ -184,6 +187,10 @@
 			private function getVisibilityName():void {
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', analysis.@codeVisibility);
 				visibilityName = dict.@display.toString();
+			}
+			private function getInstitutionName():void {
+				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Institution', analysis.@idInstitution);
+				institutionName = dict.@display.toString();
 			}
 			
 			
@@ -521,6 +528,10 @@
 						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
 							<mx:Text text="Visibility"  width="98" styleName="formLabel" textAlign="left"/>
 							<mx:Text  text="{visibilityName}" width="180"/>
+						</mx:HBox>
+						<mx:HBox verticalGap="0" horizontalGap="0" width="100%">
+							<mx:Text text="Institution"  width="98" styleName="formLabel" textAlign="left"/>
+							<mx:Text  text="{institutionName}" width="180"/>
 						</mx:HBox>
 					</mx:VBox>
 					

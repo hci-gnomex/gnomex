@@ -688,18 +688,18 @@ VALUES
   (7, 4, 'HISEQ', 4, '50 cycle paired-end reads', 'N'),
   (8, 6, 'HISEQ', 4, '101 cycle paired-end reads', 'N'),
   (9, 2, 'MISEQ', 4, '26 cycle paired-end reads', 'N'),
-  (10, 7, 'MISEQ', 4, '150 cycle paired-end reads', 'N');
+  (10, 7, 'MISEQ', 4, '150 cycle paired-end reads', 'N'),
+  (11, 4, 'HISEQ', 5, '50 cycle single-end reads - Rapid Mode', 'Y'),
+  (12, 6, 'HISEQ', 5,  '101 cycle single-end reads - Rapide Mode', 'Y');
+
 
 INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
-VALUES (1, 'GAIIx 4 sequence tag scheme', 'GAII 4 sequence tag scheme, allows for 2-4 samples per flowcell channel', 'Y'),
-       (2, 'HiSeq 12 sequence tag scheme', 'HiSeq 12 sequence tag scheme, allows for 2-12 samples per flowcell channel', 'Y');
-
+VALUES (2, 'HiSeq 12 sequence tag scheme', 'HiSeq 12 sequence tag scheme, allows for 2-12 samples per flowcell channel', 'Y'),
+       (3, 'Nextera Index A', 'Nextera Dual Index Scheme (Index A)', 'Y'),
+       (4, 'Nextera Index B', 'Nextera Dual Index Scheme (Index B)', 'Y');
 
 INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
-VALUES (1,  'GAII Tag 1', 'AAT', 1, 'Y', 1),
-       (2,  'GAII Tag 2', 'CCT', 1, 'Y', 2),
-       (3,  'GAII Tag 3', 'GGT', 1, 'Y', 3),
-       (4,  'GAII Tag 4', 'TTT', 1, 'Y', 4),
+VALUES 
 	   (5,  'HiSeq Tag 1', 'CGTGAT', 2, 'Y', 1),
 	   (6,	'HiSeq Tag 2', 'ACATCG', 2, 'Y', 2),
 	   (7,	'HiSeq Tag 3', 'GCCTAA', 2, 'Y', 3),
@@ -712,6 +712,31 @@ VALUES (1,  'GAII Tag 1', 'AAT', 1, 'Y', 1),
 	   (14,	'HiSeq Tag 10', 'AAGCTA', 2, 'Y', 10),
 	   (15,	'HiSeq Tag 11', 'GTAGCC', 2, 'Y', 11),
 	   (16,	'HiSeq Tag 12', 'TACAAG', 2, 'Y', 12);
+	   
+	   
+INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `sortOrder`,`isActive`)
+VALUES 	   
+       (20, 'N701','TAAGGCGA',3, 1, 'Y'),
+       (21, 'N702','CGTACTAG',3, 2, 'Y'),
+       (22, 'N703','AGGCAGAA',3, 3, 'Y'),
+       (23, 'N704','TCCTGAGC',3, 4, 'Y'),
+       (24, 'N705','GGACTCCT',3, 5, 'Y'),
+       (25, 'N706','TAGGCATG',3, 6, 'Y'),
+       (26, 'N707','CTCTCTAC',3, 7, 'Y'),
+       (27, 'N708','CAGAGAGG',3, 8, 'Y'),
+       (28, 'N709','GCTACGCT',3, 9, 'Y'),
+       (29, 'N710','CGAGGCTG',3, 10, 'Y'),
+       (30, 'N711','AAGAGGCA',3, 11, 'Y'),
+       (31, 'N712','GTAGAGGA',3, 12, 'Y'),
+       (40, 'S501','TAGATCGC',4, 1, 'Y'),
+       (41, 'S502','CTCTCTAT',4, 2, 'Y'),
+       (42, 'S503','TATCCTCT',4, 3, 'Y'),
+       (43, 'S504','AGAGTAGA',4, 4, 'Y'),
+       (44, 'S505','GTAAGGAG',4, 5, 'Y'),
+       (45,'S506','ACTGCATA',4, 6, 'Y'),
+       (46, 'S507','AAGGAGTA',4, 7, 'Y'),
+      (47, 'S508','CTAAGCCT',4, 8, 'Y');
+	   
 
   
 /*!40000 ALTER TABLE `Organism` DISABLE KEYS */;
@@ -1176,20 +1201,27 @@ VALUES (31, 'DNASEQ'),
   (31, 'DNAMETHSEQ'),
   (31, 'MONNUCSEQ'),
   (39, 'TSCRPTSEQ');
-  
--- TREATMENTS are replaced by Applications (for now)
--- INSERT INTO `gnomex`.`SeqLibTreatment`(`idSeqLibTreatment`, `seqLibTreatment`, `isActive`)
--- VALUES (1, 'Mononucleosome targeted sequencing', 'Y'),
---  (2, 'Bisulfite treatment', 'Y'),
---  (3, 'DSN (Duplex-specific nuclease) treatment of library', 'Y');
+
+	   
+insert into gnomex.OligoBarcodeSchemeAllowed (idOligoBarcodeScheme, idSeqLibProtocol, isIndexGroupB)
+values (2,  31, 'N'),
+       (2,  32, 'N'),
+       (2,  33, 'N'),
+       (2,  34, 'N'),
+       (2,  35, 'N'),
+       (2,  39, 'N'),
+       (3,  31, 'N'),
+       (4,  31, 'Y');
+       
+
 
 INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`, `sortOrder`)
-VALUES (1, 'Sequencing / chIP Sequencing', 'N', NULL),
-  (2, 'Digital Gene Expression', 'N', NULL),
+VALUES 
   (3, 'Single-end reads', 'Y',1),
-  (4, 'Paired-end reads', 'Y',2);
-
-
+  (4, 'Paired-end reads', 'Y',2),
+  (5, 'Single-end reads - Rapid Mode', 'Y',3),
+  (6, 'Paired-end reads - Rapid Mode', 'Y',4);
+  
 
 INSERT INTO `gnomex`.`SequencingControl`(`idSequencingControl`, `sequencingControl`, `isActive`, `idAppUser`)
 VALUES (1, 'PhiX Control', 'Y', NULL);
@@ -1459,6 +1491,25 @@ VALUES ('OWNER', 'Owner'),
 
 INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('REACTION', 'Reaction plate', 'Y');
 INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('SOURCE', 'Source plate', 'Y');
+
+
+-- Test lab and billing account
+insert into gnomex.Lab (idLab, firstName, lastName, isActive)
+values (1, 'Investigator', 'John', 'Y');
+
+insert into gnomex.CoreFacilityLab (idLab, idCoreFacility)
+values (1,1);
+
+insert into gnomex.BillingAccount (accountName, accountNumber, startDate, idCoreFacility, idLab, isApproved)
+values ('Test Account', 'B1235', '2013-01-01', 1, 1, 'Y');
+
+insert into gnomex.AppUser(idAppUser, lastName, firstName, isActive)
+values (2, 'Test', 'User', 'Y');
+
+insert into gnomex.LabUser(idLab, idAppUser)
+values (1, 2);
+
+
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

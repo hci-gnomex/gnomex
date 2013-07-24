@@ -526,9 +526,7 @@
 			    <include name="*.*" />
 			</fileset>
 		</copy>
-    <mkdir dir="${dist.dir}/tomcat/applications" />
-    <mkdir dir="${dist.dir}/tomcat/applications/hcienv" />
-    <copy todir="${dist.dir}/tomcat/applications/hcienv" overwrite="true">
+    <copy todir="${dist.dir}/tomcat" overwrite="true">
         <fileset dir="${hcienv.dir}/src" >
           <include name="*.hbm.xml" />
       </fileset>
@@ -548,7 +546,7 @@
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
 		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
 		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
-      <classes dir="${dist.dir}/tomcat"     includes="applications/hcienv/*.*" />
+      <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
 			 	<exclude name="WEB-INF/**"/>

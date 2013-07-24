@@ -66,6 +66,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   private String                   journalId;
   private String                   journalLineRef;
   private String                   journalEntry;
+  private String                   glHeaderFacility;        // Up to 19 characters
+  private String                   glHeaderDescription;     // Up to 30 characters 
   
   
  
@@ -135,12 +137,18 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       
      
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
+      
       journalId = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_JOURNAL_ID_CORE_FACILITY);
       journalLineRef = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_JOURNAL_LINE_REF_CORE_FACILITY);
+      glHeaderFacility = pdh.getCoreFacilityProperty(idCoreFacility,  PropertyDictionary.BILLING_GL_HEADER_FACILITY);
+      glHeaderDescription = pdh.getCoreFacilityProperty(idCoreFacility,  PropertyDictionary.BILLING_GL_HEADER_DESCRIPTION);
       journalEntry = this.journalId + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
       
+   
+
       if (this.isValid()) { 
         if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
           
@@ -173,8 +181,31 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             String prevLabBillingName = "XXX";
            
             
-            // Example of header:
-            // H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
+            //
+            // The header row
+            // 
+            //   H01   jjjjjmmyy#MMDDYYYYACTUALS   NfffffffffffffffffffDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDUSDX
+            //   H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
+            //   H01   SE0420001005312013ACTUALS   N MC HEALTH SCIENCE RECHARGE CENTER               USDX 
+            //
+            //   H01        5 characters long (H01 followed by 3 spaces)
+            //   jjjjj      Journal ID (filled from property BILLING_GL_JOURNAL_ID_CORE_FACILITY 
+            //              (example SE090 for Microarray, SE042 for DNA SeqCore)
+            //   mmyy       Starting month and year of billing period 
+            //              example: 0109 is Jan 2009 this may be unused, other example shows '0001'
+            //   #          Revision # (normally 0, but if GL interface has to be amended (more entries), 
+            //              the revision number increments
+            //   MMDDYYYY   Ending date of billing period (example: 01312009 for Jan 31, 2009)
+            //   ACTUALS    10 characters long (ACTUALS followed by 3 spaces)
+            //   N          1 character, always N
+            //   ffff....   18 characters long, first character is space 
+            //              space + facility name, filled from property BILLING_GL_HEADER_FACILITY
+            //   DDDD.....  30 characters long, a title, 
+            //              'MMM YY ' (7 characters) 
+            //              followed by a description from property BILLING_GL_HEADER_DESCRIPTION (23 characters max)
+            //   USD        3 characters, currency, always USD
+            //   X          1 character, always X, probably optional
+            // Example of header for DNA Seq Core:
             //
             String header = "H";
             header += getString("01", 5, true);
@@ -182,12 +213,11 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             header += dateFormat.format(billingPeriod.getEndDate());
             header += getString("ACTUALS", 10, true);
             header += "N";
-            header += getEmptyString(8, true);
-            header += "HCI";
-            header += getEmptyString(8, true);
-            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + journalLineRef + " Billing", 30, true);
+            header += " " + getString(glHeaderFacility, 18, true);  // facility name, 19 chars long, first char is space
+            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + glHeaderDescription, 30, true);
             header += "USD";
-            header += getEmptyString(5, true);
+            header += "X";
+            header += getEmptyString(4, true);
             header += getEmptyString(8, true);
             header += getEmptyString(16, true);
             
@@ -197,12 +227,11 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             headerX += dateFormat.format(billingPeriod.getEndDate());
             headerX += getString("ACTUALS", 10, false);
             headerX += "N";
-            headerX += getEmptyString(8, false);
-            headerX += "HCI";
-            headerX += getEmptyString(8, false);
-            headerX += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + journalLineRef + " Billing", 30, false);
+            header += " " + getString(glHeaderFacility, 18, false);  // facility name, 19 chars long, first char is space
+            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + glHeaderDescription, 30, false);
             headerX += "USD";
-            headerX += getEmptyString(5, false);
+            headerX += "X";
+            headerX += getEmptyString(4, false);
             headerX += getEmptyString(8, false);
             headerX += getEmptyString(16, false);
             
@@ -244,7 +273,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 String labBillingName = bi.getLabName() + acctNum;
 
                 if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                  addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+                  writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription);
                 }
 
               
@@ -273,7 +302,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           }
 
           if (billingItemMap.size() > 0) {
-            addAccountTotalRows(prevLabName, prevBillingAccount, accountDescription);
+            writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription);
             
             // Verify that grand total matches expected grand total
             if (this.totalPrice.compareTo(this.expectedGrandTotalPrice) != 0) {
@@ -285,8 +314,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                   expectedGrandTotalPrice + ".");
             }
             
-            // Show the microarray credit for the total billing (internal customers)
-            this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
+            // Show the core facility credit for the total billing (internal customers)
+            this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true);    
             
             
             // Only show the debit and credit lines for manual billing on POs if there is a core facility property
@@ -314,10 +343,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 if (totalPriceExternalPO != null) {
                   
                   // Show the microarray debit for the total billing (customers billed from POs)
-                  this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
+                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false);            
                   
                   // Show the microarray credit for the total billing (customers billed from POs)
-                  this.addMicroarrayTotal(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
+                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true);            
                 }
               }
             }
@@ -444,7 +473,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     }
   }
   
-  private void addAccountTotalRows(String labName, BillingAccount billingAccount, String description) {
+  private void writeLabAccountDebit(String labName, BillingAccount billingAccount, String description) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
@@ -499,7 +528,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
   }
   
-  private void addMicroarrayTotal(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String property_for_account, BigDecimal totalAmt, boolean isCredit) {
+  private void writeCoreFacilityCredit(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String property_for_account, BigDecimal totalAmt, boolean isCredit) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
 
