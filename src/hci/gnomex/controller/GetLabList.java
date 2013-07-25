@@ -2,6 +2,8 @@ package hci.gnomex.controller;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LogLongExecutionTimes;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
@@ -10,6 +12,7 @@ import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +28,8 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Institution;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
@@ -64,7 +69,6 @@ public class GetLabList extends GNomExCommand implements Serializable {
     
     try {
     Document doc = new Document(new Element(listKind));
-    
     
     // If this is a guest user and the list is bounded, return an empty lab list
     if (this.getSecAdvisor().isGuest()/* && !labFilter.isUnbounded()*/) {
@@ -107,65 +111,35 @@ public class GetLabList extends GNomExCommand implements Serializable {
         
       }
       
-      StringBuffer queryBuf = labFilter.getQuery(this.getSecAdvisor());
+      StringBuffer queryBuf = labFilter.getQueryWithInstitutionAndCore(this.getSecAdvisor());
       List labs = (List)sess.createQuery(queryBuf.toString()).list();
       
+      List<CoreFacility> coreFacilities = new ArrayList<CoreFacility>();
+      List<Institution> institutions = new ArrayList<Institution>();
+      Lab prevLab = null;
       for(Iterator i = labs.iterator(); i.hasNext();) {
-        Lab lab = (Lab)i.next();
-       
-        if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
-          lab.canSubmitRequests(true);
-        } else {
-          lab.canSubmitRequests(false);
-        }
+        Object[] row = (Object[])i.next();
+        Lab lab = (Lab)row[0];
         
-        if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {
-          lab.canManage(true);
-        } else {
-          lab.canManage(false);
-        }
-        
-        if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) ||
-            this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab()) ||
-            this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
-          lab.isMyLab(true);
-        } else {
-          lab.isMyLab(false);
-        }
-
+        setPermissions(lab);
         
         if (lab.getIsMyLab().equals("Y") || otherLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
-
-          lab.excludeMethodFromXML("getNotes");
-          lab.excludeMethodFromXML("getContactName");
-          lab.excludeMethodFromXML("getContactAddress");
-          lab.excludeMethodFromXML("getContactCity");
-          lab.excludeMethodFromXML("getContactCodeState");
-          lab.excludeMethodFromXML("getContactZip");
-          //lab.excludeMethodFromXML("getContactEmail");
-          lab.excludeMethodFromXML("getContactPhone");
-
-          lab.excludeMethodFromXML("getMembers");
-          lab.excludeMethodFromXML("getCollaborators");
-          lab.excludeMethodFromXML("getManagers");
-
-          lab.excludeMethodFromXML("getBillingAccounts");
-          lab.excludeMethodFromXML("getApprovedBillingAccounts");
-          lab.excludeMethodFromXML("getInternalBillingAccounts");
-          lab.excludeMethodFromXML("getPOBillingAccounts");
-          lab.excludeMethodFromXML("getCreditCardBillingAccounts");
+          Institution inst = (Institution)row[1];
+          CoreFacility cf = (CoreFacility)row[2];
+          if (!i.hasNext()) {
+            updateLists(inst, cf, institutions, coreFacilities);
+          }
+          if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
+            processLab(doc, prevLab, institutions, coreFacilities);
+            institutions = new ArrayList<Institution>();
+            coreFacilities = new ArrayList<CoreFacility>();
+            prevLab = lab;
+          }
           
-          lab.excludeMethodFromXML("getProjects");
-          
-          lab.excludeMethodFromXML("getIsCcsgMember");
-          
-          Hibernate.initialize(lab.getInstitutions());
-          Hibernate.initialize(lab.getCoreFacilities());
-          doc.getRootElement().addContent(lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement());
+          updateLists(inst, cf, institutions, coreFacilities);
         }
       }
     }
-   
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
@@ -199,4 +173,90 @@ public class GetLabList extends GNomExCommand implements Serializable {
     return this;
   }
 
+  private void updateLists(Institution inst, CoreFacility cf, List<Institution> institutions, List<CoreFacility>coreFacilities) {
+    if (inst != null) {
+      institutions.add(inst);
+    }
+    if (cf != null) {
+      coreFacilities.add(cf);
+    }
+  }
+  
+  private void setPermissions(Lab lab) {
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+      lab.canSubmitRequests(true);
+    } else {
+      lab.canSubmitRequests(false);
+    }
+    
+    if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {
+      lab.canManage(true);
+    } else {
+      lab.canManage(false);
+    }
+    
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) ||
+        this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab()) ||
+        this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+      lab.isMyLab(true);
+    } else {
+      lab.isMyLab(false);
+    }
+
+  }
+  
+  private void processLab(Document doc, Lab lab, List<Institution> institutions, List<CoreFacility> coreFacilities) throws XMLReflectException {
+    if (lab != null) {
+      addExclusions(lab);
+  
+      Element labNode = lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+      Integer defaultId = lab.getDefaultIdInstitutionForLab(institutions);
+      labNode.setAttribute("defaultIdInstitutionForLab", defaultId == null ? "" : defaultId.toString());
+      
+      Element institutionsNode = new Element("institutions");
+      for(Institution inst:institutions) {
+        Element instNode = inst.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+        institutionsNode.addContent(instNode);
+      }
+      labNode.addContent(institutionsNode);
+      
+      Element coreFacilitiesNode = new Element("coreFacilities");
+      for(CoreFacility cf:coreFacilities) {
+        Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+        coreFacilitiesNode.addContent(cfNode);
+      }
+      labNode.addContent(coreFacilitiesNode);
+      
+      doc.getRootElement().addContent(labNode);
+    }
+  }
+  
+  private void addExclusions(Lab lab) {
+    lab.excludeMethodFromXML("getNotes");
+    lab.excludeMethodFromXML("getContactName");
+    lab.excludeMethodFromXML("getContactAddress");
+    lab.excludeMethodFromXML("getContactCity");
+    lab.excludeMethodFromXML("getContactCodeState");
+    lab.excludeMethodFromXML("getContactZip");
+    //lab.excludeMethodFromXML("getContactEmail");
+    lab.excludeMethodFromXML("getContactPhone");
+
+    lab.excludeMethodFromXML("getMembers");
+    lab.excludeMethodFromXML("getCollaborators");
+    lab.excludeMethodFromXML("getManagers");
+
+    lab.excludeMethodFromXML("getBillingAccounts");
+    lab.excludeMethodFromXML("getApprovedBillingAccounts");
+    lab.excludeMethodFromXML("getInternalBillingAccounts");
+    lab.excludeMethodFromXML("getPOBillingAccounts");
+    lab.excludeMethodFromXML("getCreditCardBillingAccounts");
+    
+    lab.excludeMethodFromXML("getProjects");
+    
+    lab.excludeMethodFromXML("getIsCcsgMember");
+    
+    lab.excludeMethodFromXML("getInstitutions");
+    lab.excludeMethodFromXML("getCoreFacilities");
+    lab.excludeMethodFromXML("getDefaultIdInstitutionForLab");
+  }
 }
