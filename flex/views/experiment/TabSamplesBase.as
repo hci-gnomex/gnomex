@@ -132,6 +132,11 @@ package views.experiment
 					if (dc.dataField == "@description") {
 						// Push the annotations before the description property.
 						addAnnotationProperties(columns, newColumns);
+						if (isDescriptionEnabled()) {
+							dc.visible = true;
+						} else {
+							dc.visible = false;
+						}
 					}
 					if (dc.dataField == null || dc.dataField.substr(0, 6) != "@ANNOT") {
 						newColumns.push(dc);
@@ -142,10 +147,26 @@ package views.experiment
 			grid.validateNow();
 		}
 		
+		private function isDescriptionEnabled():Boolean {
+			var enabled:Boolean = false;
+			for each(var node:XML in parentDocument.propertyEntries) {
+				if (node.@idProperty == "-1") {
+					if (node.@isSelected == 'true') {
+						enabled = true;
+						break;
+					}
+				}
+			}
+			return enabled;
+		}
+		
 		private function addAnnotationProperties(columns:Array, newColumns:Array):void {
 			// Add real annotations.
 			for each(var node:XML in parentDocument.propertyEntries) {
-				addAnnotationProperty(columns, newColumns, node);
+				// -1 check is because description is handled above.
+				if (node.@idProperty != "-1") {
+					addAnnotationProperty(columns, newColumns, node);
+				}
 			}
 		}
 		
