@@ -123,21 +123,21 @@ public class GetLabList extends GNomExCommand implements Serializable {
         
         setPermissions(lab);
         
-        if (lab.getIsMyLab().equals("Y") || otherLabMap.containsKey(lab.getIdLab()) || activeLabMap.containsKey(lab.getIdLab())) {
-          Institution inst = (Institution)row[1];
-          CoreFacility cf = (CoreFacility)row[2];
-          if (!i.hasNext()) {
-            updateLists(inst, cf, institutions, coreFacilities);
-          }
-          if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
-            processLab(doc, prevLab, institutions, coreFacilities);
-            institutions = new ArrayList<Institution>();
-            coreFacilities = new ArrayList<CoreFacility>();
-            prevLab = lab;
-          }
-          
+        Institution inst = (Institution)row[1];
+        CoreFacility cf = (CoreFacility)row[2];
+        if (!i.hasNext()) {
           updateLists(inst, cf, institutions, coreFacilities);
         }
+        if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
+          if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()))) {
+            processLab(doc, prevLab, institutions, coreFacilities);
+          }
+          institutions = new ArrayList<Institution>();
+          coreFacilities = new ArrayList<CoreFacility>();
+          prevLab = lab;
+        }
+        
+        updateLists(inst, cf, institutions, coreFacilities);
       }
     }
     
@@ -206,29 +206,27 @@ public class GetLabList extends GNomExCommand implements Serializable {
   }
   
   private void processLab(Document doc, Lab lab, List<Institution> institutions, List<CoreFacility> coreFacilities) throws XMLReflectException {
-    if (lab != null) {
-      addExclusions(lab);
-  
-      Element labNode = lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
-      Integer defaultId = lab.getDefaultIdInstitutionForLab(institutions);
-      labNode.setAttribute("defaultIdInstitutionForLab", defaultId == null ? "" : defaultId.toString());
-      
-      Element institutionsNode = new Element("institutions");
-      for(Institution inst:institutions) {
-        Element instNode = inst.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
-        institutionsNode.addContent(instNode);
-      }
-      labNode.addContent(institutionsNode);
-      
-      Element coreFacilitiesNode = new Element("coreFacilities");
-      for(CoreFacility cf:coreFacilities) {
-        Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
-        coreFacilitiesNode.addContent(cfNode);
-      }
-      labNode.addContent(coreFacilitiesNode);
-      
-      doc.getRootElement().addContent(labNode);
+    addExclusions(lab);
+
+    Element labNode = lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+    Integer defaultId = lab.getDefaultIdInstitutionForLab(institutions);
+    labNode.setAttribute("defaultIdInstitutionForLab", defaultId == null ? "" : defaultId.toString());
+    
+    Element institutionsNode = new Element("institutions");
+    for(Institution inst:institutions) {
+      Element instNode = inst.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+      institutionsNode.addContent(instNode);
     }
+    labNode.addContent(institutionsNode);
+    
+    Element coreFacilitiesNode = new Element("coreFacilities");
+    for(CoreFacility cf:coreFacilities) {
+      Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+      coreFacilitiesNode.addContent(cfNode);
+    }
+    labNode.addContent(coreFacilitiesNode);
+    
+    doc.getRootElement().addContent(labNode);
   }
   
   private void addExclusions(Lab lab) {
