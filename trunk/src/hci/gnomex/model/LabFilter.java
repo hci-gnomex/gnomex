@@ -42,22 +42,30 @@ public class LabFilter extends DetailObject {
     
   }
   
+  public StringBuffer getQueryWithInstitutionAndCore(SecurityAdvisor secAdvisor) {
+    this.secAdvisor = secAdvisor;
+    
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT distinct lab, inst, coreFacility");
+    
+    getQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
+  
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Lab as lab ");
   
-    if (hasInstitutionCriteria()) {
-      queryBuf.append(" JOIN lab.institutions as inst ");
-    }
+    queryBuf.append(" LEFT JOIN lab.institutions as inst ");
 
     if (hasUserCriteria()) {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
     
-//    // If the user is not a super admin, we need to filter lab list by core facility
-//    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
-//    }
+    queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
     
     
     
@@ -71,7 +79,7 @@ public class LabFilter extends DetailObject {
       addUnboundedSecurityCriteria();
     }
     
-    queryBuf.append(" order by lab.lastName, lab.firstName");
+    queryBuf.append(" order by lab.lastName, lab.firstName, lab.idLab");
   }
   
   
