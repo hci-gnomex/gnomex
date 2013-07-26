@@ -91,17 +91,17 @@
 					
 				}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
 					this.addSampleButton.visible = false;
-					this.deleteSampleButton.visible = false;
+					this.deleteSampleButton.visible = !parentDocument.isCherryPickState();
+					this.deleteSampleButton.enabled = !parentDocument.isCherryPickState();
 					this.copySampleButton.visible = false;
 					this.addSampleButton.enabled = false;
-					this.deleteSampleButton.enabled = false;
 					this.copySampleButton.enabled = false;
 				} else {
 					this.addSampleButton.visible = true;
 					this.deleteSampleButton.visible = true;
+					this.deleteSampleButton.enabled = true;
 					this.copySampleButton.visible = true;
 					this.addSampleButton.enabled = true;
-					this.deleteSampleButton.enabled = true;
 					this.copySampleButton.enabled = true;
 				}
 			}
