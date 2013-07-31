@@ -139,6 +139,10 @@ public class GetLabList extends GNomExCommand implements Serializable {
         
         updateLists(inst, cf, institutions, coreFacilities);
       }
+      
+      if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()))) {
+        processLab(doc, prevLab, institutions, coreFacilities);
+      }
     }
     
     XMLOutputter out = new org.jdom.output.XMLOutputter();
