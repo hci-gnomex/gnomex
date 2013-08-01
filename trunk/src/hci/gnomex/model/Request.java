@@ -332,13 +332,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
 
   public Document toXMLDocument(List list, int dateOutputStyle ) throws XMLReflectException {
-
+    
     Document doc = super.toXMLDocument(list, dateOutputStyle);
     
-    // Sample properties & treatments
+    // Sample properties
     String otherLabel = null;
     Map idProperties = new HashMap();
-    boolean hasTreatment = false;
     for(Iterator i = getSamples().iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       for (Iterator i1 = sample.getPropertyEntries().iterator(); i1.hasNext();) {
@@ -348,29 +347,20 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
           otherLabel = entry.getOtherLabel();
         }
       }
-      if (sample.getTreatmentEntries().size() > 0) {
-        hasTreatment = true;
-      }
+      
     }
     for(Iterator i = idProperties.keySet().iterator(); i.hasNext();) {
       Integer idProperty = (Integer)i.next();
       doc.getRootElement().setAttribute("ANNOT" + idProperty, "Y");
     }
-    
-    // Treatments
-    if (hasTreatment) {
-      doc.getRootElement().setAttribute(TreatmentEntry.TREATMENT, "Y");
-    }
-    
     // Other label
     if (otherLabel != null) {
       doc.getRootElement().setAttribute(PropertyEntry.OTHER_LABEL, otherLabel);
     }
-    
     if ( samples != null ) {
       doc.getRootElement().setAttribute( "numberOfSamples", String.valueOf(getNumberOfSamples()) );
     }
-
+    
     return doc;
   }
 
@@ -712,6 +702,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.excludeMethodFromXML("getPlateWells");
     this.excludeMethodFromXML("getAssays");
     this.excludeMethodFromXML("getFlowCellChannels");
+    this.excludeMethodFromXML("getRedoSampleNames");
   }
   
   public String getOwnerName() {

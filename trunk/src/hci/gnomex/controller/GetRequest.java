@@ -1,9 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
@@ -11,6 +7,33 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AnalysisExperimentItem;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Assay;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.IScanChip;
+import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.Primer;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyPlatformApplication;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SeqLibTreatment;
+import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.Topic;
+import hci.gnomex.model.Visibility;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,7 +47,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.naming.NamingException;
@@ -34,42 +56,9 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisExperimentItem;
-import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Assay;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingItemFilter;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.ExperimentCollaborator;
-import hci.gnomex.model.ExperimentDesign;
-import hci.gnomex.model.ExperimentDesignEntry;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.IScanChip;
-import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Primer;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.RequestFilter;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.SeqLibTreatment;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Topic;
-import hci.gnomex.model.Visibility;
-import hci.gnomex.model.WorkItem;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
@@ -109,8 +98,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     try {
-      
-   
+         
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
@@ -167,11 +155,10 @@ public class GetRequest extends GNomExCommand implements Serializable {
             this.addInvalidField("perm", "Insufficient permission to access this request");
           }          
         }
-          
+        
         if (this.isValid()) {
           
           baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
-          
           
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());
@@ -192,7 +179,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             
           }
-         
+          
           request.excludeMethodFromXML("getBillingItems");
           request.excludeMethodFromXML("getTopics");
           
@@ -206,7 +193,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);      
           }
-
+          
 
           // Set number of seq lanes per sample
           for(Iterator i5 = request.getSamples().iterator(); i5.hasNext();) {
@@ -220,12 +207,15 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             s.setSequenceLaneCount(seqLaneCount);
           }
-          
+         
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
+          
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           
-          flagPlateInfo(newRequest, request, requestNode);
+          if ( request.isDNASeqExperiment().equals( "Y" ) || request.isSequenomPlate() ) {
+            flagPlateInfo(newRequest, request, requestNode);
+          }
           
           AppUser user = null;
           if(request.getIdSubmitter() != null  && request.getIdSubmitter() != 0){
@@ -255,6 +245,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
           
+
           if(user != null){
             requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");
             requestNode.setAttribute("phone", user.getPhone() != null ? user.getPhone() : "");
@@ -523,7 +514,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Default to not breaking out samples by plates.
           requestNode.setAttribute("hasPlates", "N");
 
-          // get list of samlpe ids for the request.  Used in querying PlateWell.
+          // get list of sample ids for the request.  Used in querying PlateWell.
           ArrayList<Integer> sampleIds = new ArrayList<Integer>();
           for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
             Sample sample = (Sample)i1.next();
@@ -862,12 +853,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
     Request request = null;
     String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
     StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
-    List requests = (List)sess.createQuery(buf.toString()).list();
+    List requests = sess.createQuery(buf.toString()).list();
     if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
       // If nothing returned then try with "R" appended
       requestNumberBase = requestNumberBase + "R";
         buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
-        requests = (List)sess.createQuery(buf.toString()).list();
+        requests = sess.createQuery(buf.toString()).list();
     }
     if (requests.size() > 0) {
       request = (Request)requests.get(0);
@@ -991,18 +982,63 @@ public class GetRequest extends GNomExCommand implements Serializable {
       // Find out if the samples are on a reaction plate.  If they
       // are, flag the request so that appropriate warnings
       // can be displayed if the data is changed.
+      
+      Element sNode = new Element("Sample");
+      StringBuffer redoSamples = new StringBuffer();
+            
       for (Sample s : (Set<Sample>)request.getSamples()) {
+        
+        // Find the sample node
+        List samples = requestNode.getChild("samples").getChildren("Sample");
+        for (Iterator i1 = samples.iterator(); i1.hasNext();) {
+          Element sampleNode = (Element)i1.next();  
+          if (s.getIdSample().toString().equals(sampleNode.getAttributeValue("idSample"))) {
+            sNode = sampleNode;
+            break;
+          }
+        }
+        
+        boolean sRedoFlag = false;
+        TreeMap<Integer, Plate> rxnPlates = new TreeMap<Integer, Plate>();
+        
         for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+          
+          if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
+            sRedoFlag = true;
+          }
+          
           // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
           if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
             if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
-              hasPendingRedo = true;
+              hasPendingRedo = true;       
+              if (redoSamples.length() > 0) {
+                redoSamples.append(", ");
+              }
+              redoSamples.append(s.getName());
             }
+            
           } else if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
               onReactionPlate = true;
+              rxnPlates.put(well.getIdPlate(), well.getPlate());
           }
+          
         }
+        
+        String rxnPlateNames = "";
+        for (Integer idPlate : rxnPlates.keySet()) {
+          Plate plate = rxnPlates.get(idPlate);
+          if (rxnPlateNames.length() > 0) {
+            rxnPlateNames += ", ";
+          }
+          rxnPlateNames += plate.getLabel();
+        }
+        
+        sNode.setAttribute( "reactionPlateNames", rxnPlateNames );
+        sNode.setAttribute( "redoFlag", sRedoFlag? "Y" : "N" );
       }
+      
+
+      requestNode.setAttribute("redoSampleNames", hasPendingRedo ? redoSamples.toString() : "");
     }
 
     
@@ -1026,12 +1062,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Integer w2Int = new Integer(w2.substring(1));
           if (w1Int.equals(w2Int)) {
             return w1.compareTo(w2);
-          } else {
-            return w1Int.compareTo(w2Int);
           }
-        } else {
-          return p1.compareTo(p2);
-        }
+          return w1Int.compareTo(w2Int);
+        } 
+        return p1.compareTo(p2);
+
     }
   }
   
