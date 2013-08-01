@@ -100,13 +100,6 @@
 				possibleCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
-				if(this.currentState != "EditState" && !parentDocument.isAmendState()){
-					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
-				} else if(parentDocument.request.@codeVisibility == 'INST' && parentDocument.request.@idInstitution != ''){
-					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
-				} else{
-					this.radioInstitutionVisibility.enabled = false;
-				}
 				if (this.idInstitution != null && this.idInstitution != '') {
 					for each(inst in possibleInstitutions) {
 						if (inst.@idInstitution == this.idInstitution) {
@@ -203,7 +196,7 @@
 					</mx:VBox>
 				</mx:HBox>				
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
+					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
 					</mx:ComboBox>	
 					<mx:Text id="institutionNote" styleName="submitNote" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10" width="300" paddingTop="0">									
