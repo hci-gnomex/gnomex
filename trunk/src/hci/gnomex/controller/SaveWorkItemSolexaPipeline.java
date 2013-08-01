@@ -280,6 +280,11 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
+    
+    if(request.getIsExternal().equals("N")){
+      introNote.append("<br><br>" + dictionaryHelper.getPropertyDictionary(PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
+    }
+    
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
