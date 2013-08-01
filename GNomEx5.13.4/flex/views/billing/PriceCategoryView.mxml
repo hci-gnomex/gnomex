@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:util="views.util.*" 
+	xmlns:hci="hci.flex.controls.*"
+	xmlns:renderers="views.renderers.*" 
+	layout="vertical" title="{'Price Category ' + priceCategory.@name}" 
+	width="568"  defaultButton="{saveButton}" height="461">
+   
+   <mx:HTTPService             
+    id="savePriceCategory" 
+    url="SavePriceCategory.gx"
+    destination="savePriceCategory" 
+    resultFormat="e4x"
+    result="onSavePriceCategory(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to save price category', event)"
+    method="POST"
+    useProxy="false">
+   </mx:HTTPService> 
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;   
+		
+		[Bindable]
+		private var priceCategory:Object;
+		
+		[Bindable]
+		private var filterTypes:XMLListCollection = null;
+		
+		
+		private var priceSheet:Object;
+		
+		public function init(priceCategory:Object, priceSheet:Object):void {
+			this.priceCategory = priceCategory;
+			this.priceSheet = priceSheet;
+			
+			filterTypes = new XMLListCollection();
+			var node:XML = new XML("<Dictionary displayName='Qty (range)' className='text'/>");
+			filterTypes.addItem(node);
+			
+			for each(var dict:XML in parentApplication.dictionaryManager.xml.Dictionary) {
+				filterTypes.addItem(dict.copy());
+			}
+			
+			dictionaryFilter1Combo.dataProvider = filterTypes;
+			dictionaryFilter2Combo.dataProvider = filterTypes;
+
+			if (priceCategory.@dictionaryClassNameFilter1 != '') {
+				var filter1Dictionary:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1);
+				if (filter1Dictionary != null) {
+					this.dictionaryFilter1Combo.selectedItem = filter1Dictionary[0];
+				}				
+			}		
+	
+			if (priceCategory.@dictionaryClassNameFilter2 != '') {
+				var filter2Dictionary:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2);
+				if (filter2Dictionary != null) {
+					this.dictionaryFilter2Combo.selectedItem = filter2Dictionary[0];
+				}				
+			}
+	
+			if (priceCategory.@codeBillingChargeKind != '') {
+				var billingChargeKind:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingChargeKind').DictionaryEntry.(@value == priceCategory.@codeBillingChargeKind);
+				if (billingChargeKind != null) {
+					this.chargeKindCombo.selectedItem = billingChargeKind[0];
+				}				
+			} 
+			
+		}
+	    private function save():void {
+	    	var params:Object = new Object();
+	    	params.idPriceCategory = priceCategory.@idPriceCategory;
+	    	params.name = priceCategoryName.text;
+	    	params.description = priceCategoryDescription.text;
+	    	params.idPriceSheet = priceSheet.@idPriceSheet;
+	    	params.isActive = priceCategoryIsActive.selected ? "Y" : "N";
+	    	if (this.dictionaryFilter1Combo.selectedItem != null && this.dictionaryFilter1Combo.selectedItem.@className != '') {
+		    	params.dictionaryClassNameFilter1 = this.dictionaryFilter1Combo.selectedItem.@className;
+	    	}
+	    	if (this.dictionaryFilter2Combo.selectedItem != null && this.dictionaryFilter2Combo.selectedItem.@className != '') {
+		    	params.dictionaryClassNameFilter2 = this.dictionaryFilter2Combo.selectedItem.@className;
+	    	}
+	    	if (this.chargeKindCombo.selectedItem != null && this.chargeKindCombo.selectedItem.@className != '') {
+		    	params.codeBillingChargeKind = this.chargeKindCombo.selectedItem.@value;
+	    	}
+	    	params.pluginClassName = this.pluginClassName.text;
+			params.stepsXMLString = "<steps>" + priceCategorySteps.toXMLString() + "</steps>";
+
+			savePriceCategory.send(params);		
+		}	
+		
+		private function onSavePriceCategory(event:ResultEvent):void {
+			if (savePriceCategory.lastResult.name() == "SUCCESS") {
+				parentApplication.navBillingView.refreshAndSelectPricing("PriceCategory", savePriceCategory.lastResult.@idPriceCategory);  
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show("An error occurred while saving the price category."); 
+			}			
+		}			
+		
+		private function addStep():void {
+			var node:XML = new XML("<Step " +
+				" codeStep='" + stepCombo.selectedItem.@value + "'" +
+				" step='" + stepCombo.selectedItem.@display + "'" +
+				"/>");
+			priceCategorySteps.addItem(node);
+			stepCombo.selectedIndex = -1;
+		}
+		
+		private function removeStep():void {
+			if (stepGrid.selectedIndex != -1) {
+				priceCategorySteps.removeItemAt(stepGrid.selectedIndex);
+			}
+		}
+	]]>
+</mx:Script>
+<mx:XMLListCollection id="priceCategorySteps" source="{priceCategory.steps.Step}"/>
+<mx:XMLListCollection id="steps" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Step').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
+<mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="4">
+    <mx:HBox width="100%">
+    	<mx:Label text="Name" width="80" styleName="formLabel"/>
+    	<mx:TextInput id="priceCategoryName" width="100%" text="{priceCategory.@name}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="" width="80"/>
+    	<mx:CheckBox  label="Active" id="priceCategoryIsActive" width="100%"  selected="{priceCategory.@isActive == 'Y' ? true : false}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="Notes" width="80" styleName="formLabel"/>
+    	<util:TextAreaWorkaround id="priceCategoryDescription" width="100%" text="{priceCategory.@description}"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+    	<mx:Label text="Charge Kind" width="80" styleName="formLabel"/>
+    	<hci:ComboBox id="chargeKindCombo" width="100%" 
+    		 appendBlankRow="false"   selectedIndex="1"
+    	     labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BillingChargeKind').DictionaryEntry.(@value != '')}"/>
+    </mx:HBox>    
+
+    <mx:VBox width="100%" verticalGap="4">
+    	<mx:Label text="Determine experiment's price using"  styleName="formLabel"/>
+    	<mx:HBox width="100%">
+    	    <mx:Spacer width="80">
+    	    </mx:Spacer>
+	    	<hci:ComboBox id="dictionaryFilter1Combo" width="100%"
+	    		appendBlankRow="true" 
+	    		labelField="@displayName" dataProvider="{filterTypes}"/>
+    	</mx:HBox>
+    	<mx:HBox width="100%">
+    	    <mx:Spacer width="80">
+    	    </mx:Spacer>
+	    	<hci:ComboBox id="dictionaryFilter2Combo" width="100%"
+	    		appendBlankRow="true" 
+	    		labelField="@displayName" dataProvider="{filterTypes}"/>
+    	</mx:HBox>
+    </mx:VBox>
+
+    <mx:HBox width="100%">
+    	<mx:Label text="Plugin Class" width="80" styleName="formLabel"/>
+    	<mx:TextInput id="pluginClassName" width="100%" text="{priceCategory.@pluginClassName}"/>
+    </mx:HBox>    
+
+	<mx:VBox verticalGap="1" height="100%" borderStyle="none" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
+		<mx:Label text="Workflow Steps" styleName="formLabel"/>
+		<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
+			<renderers:FilterComboBox dataProvider="{steps}" 
+									  labelField="@display" 
+									  prompt="Step to add..."
+									  width="350"
+									  id="stepCombo">
+			</renderers:FilterComboBox>
+			<mx:Button click="addStep()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25" >
+				<mx:enabled>{stepCombo.selectedItem != null &amp;&amp; stepCombo.selectedItem.@value != '' ? true : false}</mx:enabled>
+			</mx:Button>
+			<mx:Button click="removeStep()" icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{stepGrid.selectedItem != null}" width="25"/>
+		</mx:HBox>
+		<mx:DataGrid id="stepGrid" width="100%" dataProvider="{priceCategorySteps}" height="84" showHeaders="false" fontSize="11">
+			<mx:columns>
+				<mx:DataGridColumn dataField="@step" headerText="Step"/>
+			</mx:columns>
+		</mx:DataGrid>			   	
+	</mx:VBox>
+
+</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/action_save.gif')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
