@@ -854,27 +854,28 @@
 					appUsersForLab.sort = appUserSort;
 					appUsersForLab.refresh();
 					ownerCombo.selectedItem = emptyNode;
-					var currentOwnerPartOfCurrentLab:Boolean = false;
+					var currentOwnerNotFound:Boolean = true;
 					var currentOwner:String = analysis.@idAppUser;
 					if(currentOwner != null && currentOwner.length > 0) {
 						for each(var a:Object in appUsersForLab) {
 							if (a.@idAppUser == analysis.@idAppUser) {
 								ownerCombo.selectedItem = a;
-								currentOwnerPartOfCurrentLab = true;
+								currentOwnerNotFound = false;
 								break;
 							}
 						}						
 					}
-					if (!currentOwnerPartOfCurrentLab && analysis.hasOwnProperty("@idAppUser") && analysis.@idAppUser != null && analysis.@idAppUser != '') {
+					if (currentOwnerNotFound && analysis.hasOwnProperty("@idAppUser") && analysis.@idAppUser != null && analysis.@idAppUser != '') {
 						var ownerNode:XML = new XML("<AppUser idAppUser='" + analysis.@idAppUser + "' displayName='" + analysis.@ownerName + "' />");
 						appUsersForLab.addItem(ownerNode);
 						appUsersForLab.refresh();
 						ownerCombo.selectedItem = ownerNode;
 						ownerCombo.enabled = false;
+						currentOwnerNotFound = false;
 					} else {
 						ownerCombo.enabled = true;
 					}
-					if(!currentOwnerPartOfCurrentLab) {	
+					if(currentOwnerNotFound) {	
 						var changePrompt:OwnerChangePrompt = OwnerChangePrompt(PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true));
 						PopUpManager.centerPopUp(changePrompt);
 						changePrompt.init(this, analysis.@idAnalysis, analysis.@idLab);

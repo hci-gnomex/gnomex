@@ -2,18 +2,15 @@ package hci.flex.controls
 {
 	import flash.display.Graphics;
 	
-	import hci.flex.renderers.RendererFactory;
-	
-	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Label;
 	import mx.core.IFactory;
+	import hci.flex.renderers.RendererFactory;
 
 	public class Label extends mx.controls.Label
 	{   public var _dataField:String;	
  		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	    public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 	    public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
-		public var highlightedColor:uint = RendererFactory.DEFAULT_HIGHLIGHT_COLOR;
 	    
 		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(hci.flex.controls.Label,
@@ -31,8 +28,7 @@ package hci.flex.controls
 				missingRequiredFieldBorder: theMissingRequiredFieldBorder,
 				missingRequiredFieldBorderThickness: theMissingRequiredFieldBorderThickness});			
 				  
-		}
-		
+		}			 
 		public function set dataField(dataField:String):void {
 			this._dataField = dataField;	
 		}
@@ -43,16 +39,6 @@ package hci.flex.controls
         
         protected function initializeFields():void {        	
         }
-		
-		private function getToolTip():String{
-			var dg:AdvancedDataGrid = listData.owner as AdvancedDataGrid;
-			var func:Function = dg.columns[listData.columnIndex].dataTipFunction;
-			if(func != null){
-				return func.call(this, this.data);
-			}else{
-				return "";
-			}
-		}
         
     	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
      	{
@@ -73,12 +59,6 @@ package hci.flex.controls
 	          g.drawRect(0,0,unscaledWidth,unscaledHeight);
     	      g.endFill();
           }
-		  if(_dataField == '@numberSequencingLanes'){
-			  g.lineStyle(missingRequiredFieldBorderThickness, highlightedColor);
-			  g.drawRect(0,0,unscaledWidth,unscaledHeight);
-			  g.endFill();
-		  }
-		  this.toolTip = getToolTip();
 
 	     }
 	}

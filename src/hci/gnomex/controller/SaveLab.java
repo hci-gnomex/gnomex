@@ -336,12 +336,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
             if (ba.isJustApproved()) {
               this.sendApprovedBillingAccountEmail(sess, ba, lab);
             }
-            
-            //If this is a new PO billing account notify the PI of the lab of its creation
-            //so that they can start billing against it
-            if(idBillingAccountString.startsWith("BillingAccount") && (lab.getContactEmail() != null && !lab.getContactEmail().equals(""))){
-              this.sendNewPOAccountEmail(sess, ba, lab); 
-            }
           }
   
           // Remove billing accounts no longer in the billing account list
@@ -636,66 +630,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setExcludeUsage(labScreen.getExcludeUsage());
     lab.setBillingContactEmail(labScreen.getBillingContactEmail());
 
-  }
-  
-  private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
-    PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
-
-
-    StringBuffer submitterNote = new StringBuffer();
-    StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved"; 
-    
-    boolean send = false;
-    String PIEmail = lab.getContactEmail();
-    
-    CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
-    
-    boolean isTestEmail = false;
-    String emailInfo = "";
-    String emailRecipients = PIEmail;
-    if(!MailUtil.isValidEmail(PIEmail)){
-      log.error("Invalid Email: " + PIEmail);
-    }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      isTestEmail = true;
-      send = true;
-      submitterSubject = submitterSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
-      emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    
-    submitterNote.append("The following work authorization " +
-        "has been approved." +
-        "  Lab members can now submit experiment " +
-        "requests against this account in GNomEx " + launchAppURL + ".");
-    
-    body.append("\n");
-    body.append("\n");
-    body.append("Lab:               " + lab.getName() + "\n");
-    body.append("Account:           " + billingAccount.getAccountName() + "\n");
-    if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-      body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
-    }
-    
-    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    
-
-    if (send) {
-      // Email submitter
-      if(!MailUtil.isValidEmail(from)){
-        from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          from, 
-          submitterSubject, 
-          emailInfo + submitterNote.toString() + body.toString(),
-          false);
-    }
-    
   }
 
   private void sendApprovedBillingAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {

@@ -1098,7 +1098,8 @@
 		<echo>+   release opensource  (orion)                         +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		
+
+		<mkdir dir="${basedir}/dist/secure" />
 		
 		<!-- Copy over the jars required in orion/lib -->
 		<copy todir="${sandbox.dir}/server/orion">

@@ -872,11 +872,6 @@
 				}
 			}
 			
-			public function numberSequencingLanesColTip(item:Object):String{
-				return "May edit to 2 or greater lanes";
-			}
-			
-			
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -917,7 +912,7 @@
 		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
 							 editable="true"
 							 allowMultipleSelection="false" 
-							 itemFocusOut="checkSamplesCompleteness()"  
+							 itemFocusOut="checkSamplesCompleteness()" 
 							 horizontalScrollPolicy="auto" 
 							 variableRowHeight="true"
 							 sortableColumns="false"
@@ -955,24 +950,13 @@
 					
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="52" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />          
 				<mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
-				<mx:AdvancedDataGridColumn id="qc_260_280Column"
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC 260/280" width="80" 
-										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
-										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
-										   width="76"
-										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
 				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourcePlateCol" visible="false" editable="true" headerText="Source Plate" width="150" resizable="false"
 													 dataField="@sourcePlate" rendererIsEditor="false" editorDataField="value" sortable="false"
@@ -1004,7 +988,7 @@
 				
 				
 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
-										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
+										   editable="false"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
@@ -1035,6 +1019,12 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
+				
+				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
+										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
+										   width="76"
+										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
 				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
@@ -1217,6 +1207,12 @@
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value"/>
+				<mx:AdvancedDataGridColumn id="qc_260_280Column"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC 260/280" width="80" 
+										   dataField="@qual260nmTo280nmRatio" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 

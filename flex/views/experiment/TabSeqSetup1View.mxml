@@ -19,22 +19,21 @@
 			</mx:SetProperty>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
-				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="10">
-					<mx:Text styleName="requiredBox" text="(1) Select the number of samples you would like to have combined into a single sequence lane." width="340"/>
-					<mx:TextInput id="numberSamplesPerChannel" width="50" change="{changeNumberSamplesPerChannel()}"/>
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+					<mx:Text text="(1) Select the number of samples you would like to have combined into a single sequence lane." width="340"/>
+					<mx:NumericStepper id="numberSamplesPerChannel" minimum="0" stepSize="1" maximum="{this.maxSamplesPerChannel}">
+						<mx:change>changeNumberSamplesPerChannel();</mx:change>
+					</mx:NumericStepper>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
-	
-	<mx:NumberValidator id="samplesPerChannelValidator" allowNegative="false" minValue="0" required="true" domain="int" maxValue="{this.maxSamplesPerChannel}" source="{numberSamplesPerChannel}" property="text"/>
 <mx:Script>
 	<![CDATA[
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.formatters.CurrencyFormatter;
 		import mx.rpc.events.ResultEvent;
-		import mx.events.ValidationResultEvent;
 		
 		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
 
@@ -203,7 +202,7 @@
 	        	
 					isComplete = true;
 	        		 if (this.currentState == 'BarcodeState') {
-						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){ // && this.barcodes.length > 0) {
+						if (this.numberSamplesPerChannel.value > 0){ // && this.barcodes.length > 0) {
 							isComplete = true;							
 						}        			
 	        		} else {
@@ -212,18 +211,16 @@
 	        		} 
 	        	    
 	        	 }
+        	
         	} 
-			
-			if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
-				isComplete = false;
-			}
+        	
+        	     
         	
     		parentDocument.samplesView.enabled = isComplete; 
     			
 			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 				parentDocument.annotationView.enabled = isComplete;        			
 	    	}
-			
     		parentDocument.enableNextButtons();
 
         	callLater(postSeqSetup1Completeness, [isComplete]);
@@ -265,8 +262,9 @@
     	    			continue;
     	    		}
     	    		
+    	    		
     	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
-    	    		if ((this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID || this.numberSamplesPerChannel.text == "") && Number(this.numberSamplesPerChannel.text) <= theBarcodes.length) {
+    	    		if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
 						// Inactive barcode schemes will have a barcode length of 0 based on E4x.  Temporarily
 						// working around problem by making sure that barocodes length > 0
 						// to consider for best fit
@@ -326,7 +324,7 @@
 					currentState = 'BarcodeState';
 					for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
 						var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
-						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID && Number(this.numberSamplesPerChannel.text) <= theBarcodes.length) {
+						if (this.numberSamplesPerChannel.value <= theBarcodes.length) {
 							if (theBarcodes.length > this.maxSamplesPerChannel) {
 								this.maxSamplesPerChannel = theBarcodes.length;
 							}
@@ -356,15 +354,13 @@
         }
 		
 		private function changeNumberSamplesPerChannel():void {
-			if(this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){
-				parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.text;
-				parentDocument.request.@hasBarCodes = "N";
-				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
-					parentDocument.request.@hasBarCodes = "Y";
-				}
-				pickBarcodeScheme();
-				parentDocument.samplesView.initializeSamplesGrid();
+			parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.value;
+			parentDocument.request.@hasBarCodes = "N";
+			if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
+				parentDocument.request.@hasBarCodes = "Y";
 			}
+			pickBarcodeScheme();
+			parentDocument.samplesView.initializeSamplesGrid();
 			this.checkSeqSetup1Completeness();
 		}
 		
