@@ -694,8 +694,18 @@ public class RequestHTMLFormatter {
   }
 
   public void addSimpleSampleTable(Element parentNode, Set samples) {
+    
+    boolean showCcNumber = false;
+     for(Iterator i = samples.iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      if ( (request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) || 
+            request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
+           (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
+        showCcNumber = true;
+      }
+    }
 	  
-	// Show 'samples' header
+	  // Show 'samples' header
     Element sampleHeader = new Element("H5");
     sampleHeader.addContent("Samples (" + samples.size() + ")");
     parentNode.addContent(sampleHeader);
@@ -708,7 +718,12 @@ public class RequestHTMLFormatter {
     Element rowh = new Element("TR");
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Sample ID");
-    this.addHeaderCell(rowh, "Sample Name");
+    if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
+      this.addHeaderCell(rowh, "Sample Name");      
+    }
+    if (showCcNumber) {
+      this.addHeaderCell(rowh, "CC Number");
+    }
     this.addHeaderCell(rowh, "Sample Conc. (ng/ul)");
     
     if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
@@ -744,7 +759,19 @@ public class RequestHTMLFormatter {
       //
       // Sample info
       this.addLeftCell(row, sample.getNumber());
-      this.addCell(row, sample.getName());      
+      if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
+        this.addCell(row, sample.getName());      
+      }
+      if (showCcNumber) {
+        String ccLinkString = "&nbsp;";
+        if (sample.getCcNumber() != null && !sample.getCcNumber().equals("")) {
+          ccLinkString = "<a href=\"" + 
+              dictionaryHelper.getPropertyDictionary(PropertyDictionary.GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + sample.getCcNumber() + 
+              "\">" + sample.getCcNumber() + "</a>";          
+        }
+        
+        this.addCell(row, ccLinkString);
+      }
       this.addCell(row, concentration);
 
       

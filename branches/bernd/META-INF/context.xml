@@ -45,6 +45,7 @@
       instead of
       driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     -->
+    <!-- Dev08 -->
     <Resource name="jdbc/GNOMEX"
             auth="Container"
             driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
@@ -81,5 +82,68 @@
             factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
             url="jdbc:sqlserver://hci-dbdev-08:1433;databaseName=BST;SelectMethod=cursor" />
     
+
+    <!-- Production 
+    <Resource name="jdbc/GNOMEX"
+            auth="Container"
+            driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+            maxActive="100"
+            maxIdle="30"
+            maxWait="10000"
+            username="SysGNomEx"
+            password="${hci.gnomex.password}"
+            type="javax.sql.DataSource"
+            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+            url="jdbc:sqlserver://hci-db:1433;databaseName=GNomEx;SelectMethod=cursor" />
+
+    <Resource name="jdbc/GNOMEX_GUEST"
+            auth="Container"
+            driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+            maxActive="100"
+            maxIdle="30"
+            maxWait="10000"
+            username="GuestGNomEx"
+            password="${hci.gnomexguest.password}"
+            type="javax.sql.DataSource"
+            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+            url="jdbc:sqlserver://hci-db:1433;databaseName=GNomEx;SelectMethod=cursor" />
+
+    <Resource name="jdbc/BST"
+            auth="Container"
+            driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+            maxActive="100"
+            maxIdle="30"
+            maxWait="10000"
+            username="SysBST"
+            password="${hci.bst.password}"
+            type="javax.sql.DataSource"
+            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+            url="jdbc:sqlserver://hci-db:1433;databaseName=BST;SelectMethod=cursor" />
+-->
+    <!-- Local mySql 
+    <Resource name="jdbc/GNOMEX"
+            auth="Container"
+            driverClassName="com.mysql.jdbc.Driver"
+            maxActive="100"
+            maxIdle="30"
+            maxWait="10000"
+            username="gnomex"
+            password="${hci.gnomex.password}"
+            type="javax.sql.DataSource"
+            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+            url="jdbc:mysql://h005973:3306/gnomex" />
+
+    <Resource name="jdbc/GNOMEX_GUEST"
+            auth="Container"
+            driverClassName="com.mysql.jdbc.Driver"
+            maxActive="100"
+            maxIdle="30"
+            maxWait="10000"
+            username="gnomexGuest"
+            password="${hci.gnomexguest.password}"
+            type="javax.sql.DataSource"
+            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+            url="jdbc:mysql://h005973:3306/gnomex" />
+    -->
 </Context>
 

@@ -2,10 +2,12 @@ package hci.gnomex.model;
 
 
 
+import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
+import hci.hibernate3utils.HibernateDetailObject;
+
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,14 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.naming.NamingException;
-
-import org.hibernate.HibernateException;
 import org.jdom.Document;
-
-import hci.gnomex.constants.Constants;
-import hci.framework.utilities.XMLReflectException;
-import hci.hibernate3utils.HibernateDetailObject;
 
 
 
@@ -251,6 +246,8 @@ public class Sample extends HibernateDetailObject {
     this.excludeMethodFromXML("getAssays");
     this.excludeMethodFromXML("getADestinationWell");
     this.excludeMethodFromXML("getSequenceLanes");
+    this.excludeMethodFromXML("getRedoFlag");
+    this.excludeMethodFromXML("getReactionPlateNames");
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -268,11 +265,6 @@ public class Sample extends HibernateDetailObject {
       }
     }
     
-    for (Iterator i = getTreatmentEntries().iterator(); i.hasNext();) {
-      TreatmentEntry entry = (TreatmentEntry) i.next();
-      doc.getRootElement().setAttribute("treatment",
-          entry.getTreatment());
-    }
 
     return doc;
   }
@@ -727,7 +719,7 @@ public class Sample extends HibernateDetailObject {
     return well;
   }
   
-  public String getRedoFlag() {
+ public String getRedoFlag() {
     boolean redoFlag = false;
     if (this.getWells() != null) {
       for (PlateWell well : (Set<PlateWell>)this.getWells()) {

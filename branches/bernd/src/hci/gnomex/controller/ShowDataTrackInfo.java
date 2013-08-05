@@ -25,7 +25,7 @@ import org.hibernate.Session;
 
 public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowDataTrackInfo.class);
   
   public String SUCCESS_JSP = "/getHTML.jsp";
 

@@ -685,15 +685,15 @@
 			<key column="idProject"/>
 			<one-to-many class="hci.gnomex.model.Request" />
 		</set>
-		<set name="experimentDesignEntries" table="experimentDesignEntries" lazy="false" cascade="delete">
+		<set name="experimentDesignEntries" table="experimentDesignEntries" lazy="true" cascade="delete">
 			<key column="idProject"/>
 			<one-to-many class="hci.gnomex.model.ExperimentDesignEntry" />
 		</set>
-		<set name="experimentFactorEntries" table="experimentFactorEntries" lazy="false" cascade="delete">
+		<set name="experimentFactorEntries" table="experimentFactorEntries" lazy="true" cascade="delete">
 			<key column="idProject"/>
 			<one-to-many class="hci.gnomex.model.ExperimentFactorEntry" />
 		</set>
-		<set name="qualityControlStepEntries" table="qualityControlStepEntries" lazy="false" cascade="delete">
+		<set name="qualityControlStepEntries" table="qualityControlStepEntries" lazy="true" cascade="delete">
 			<key column="idProject"/>
 			<one-to-many class="hci.gnomex.model.QualityControlStepEntry" />
 		</set>
@@ -889,13 +889,9 @@
 		<property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
 		<property name="barcodeSequenceB" column="barcodeSequenceB" type="string"/>
-		<set name="propertyEntries" table="PropertyEntry" lazy="false" cascade="delete">
+		<set name="propertyEntries" table="PropertyEntry" lazy="true" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />
-		</set>
-		<set name="treatmentEntries" table="Treatment" lazy="false" cascade="delete">
-			<key column="idSample"/>
-			<one-to-many class="hci.gnomex.model.TreatmentEntry" />
 		</set>
 		<set name="labeledSamples" table="LabeledSample" lazy="true" cascade="delete">
 			<key column="idSample"/>

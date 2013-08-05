@@ -3,6 +3,7 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -446,10 +447,14 @@ public class Lab extends HibernateDetailObject {
   }
   
   public Integer getDefaultIdInstitutionForLab() {
+    return getDefaultIdInstitutionForLab((Set<Institution>)getInstitutions());
+  }
+  
+  public Integer getDefaultIdInstitutionForLab(Collection<Institution> institutions) {
     Integer defaultInst = null;
     Integer onlyInst = null;
     Integer numActiveInstitutions = 0;
-    for(Institution inst : ((Set<Institution>)getInstitutions())) {
+    for(Institution inst : institutions) {
       if (inst.getIsActive() != null && inst.getIsActive().equals("Y")) {
         numActiveInstitutions++;
         if (numActiveInstitutions.equals(1)) {

@@ -152,15 +152,22 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         UUID uuid = UUID.randomUUID();
         String uuidStr = uuid.toString();
 
+        // The softlinks_dir_gnomex is the place where the files will be uploaded to.  This may be a mount
+        // point to a different server, so this is why we get the property known to where gnomex is running.
         // Directories must be created one level at a time so that permissions will be set properly in Linux      
-        String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
-        makeDirectory(softlinks_dir);
-        changeOwnershipAndPermissions(sess, softlinks_dir);
+        String softlinks_dir_gnomex = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
+        makeDirectory(softlinks_dir_gnomex);
+        changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
       
         // Add on either request or analysis number to softlinks_dir
+        softlinks_dir_gnomex  += File.separator + targetNumber;
+        makeDirectory(softlinks_dir_gnomex);
+        changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
+        
+        // The softlinks_dir is the place where the files will be uploaded to.  This is the directory referenced
+        // by the FDT server which may be running on a different server than gnomex.
+        String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName) + uuidStr;  
         softlinks_dir  += File.separator + targetNumber;
-        makeDirectory(softlinks_dir);
-        changeOwnershipAndPermissions(sess, softlinks_dir);
         
         // Set task for moving files when uploaded
         String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 

@@ -188,7 +188,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             //   H01   SE0900109101312009ACTUALS   N        HCI        Jan 09 HCI Microarray Billing USD
             //   H01   SE0420001005312013ACTUALS   N MC HEALTH SCIENCE RECHARGE CENTER               USDX 
             //
-            //   H01        5 characters long (H01 followed by 3 spaces)
+            //   H01        6 characters long (H01 followed by 3 spaces)
             //   jjjjj      Journal ID (filled from property BILLING_GL_JOURNAL_ID_CORE_FACILITY 
             //              (example SE090 for Microarray, SE042 for DNA SeqCore)
             //   mmyy       Starting month and year of billing period 
@@ -227,8 +227,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             headerX += dateFormat.format(billingPeriod.getEndDate());
             headerX += getString("ACTUALS", 10, false);
             headerX += "N";
-            header += " " + getString(glHeaderFacility, 18, false);  // facility name, 19 chars long, first char is space
-            header += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + glHeaderDescription, 30, false);
+            headerX += " " + getString(glHeaderFacility, 18, false);  // facility name, 19 chars long, first char is space
+            headerX += getString(headerDateFormat.format(billingPeriod.getStartDate()) + " " + glHeaderDescription, 30, false);
             headerX += "USD";
             headerX += "X";
             headerX += getEmptyString(4, false);

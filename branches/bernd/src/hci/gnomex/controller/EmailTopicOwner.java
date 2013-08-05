@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 
 public class EmailTopicOwner extends GNomExCommand implements Serializable {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailTopicOwner.class);
 
   private Integer idAppUser;
   private String fromAddress;
