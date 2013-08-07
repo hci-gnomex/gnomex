@@ -355,7 +355,9 @@ public class ChromatogramParser extends DetailObject implements Serializable
       
       // Now change the billing items for the request from PENDING to COMPLETE
       for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
-        billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+        if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
+          billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+        }
       }
 
       // We need to email the submitter that the experiment results
