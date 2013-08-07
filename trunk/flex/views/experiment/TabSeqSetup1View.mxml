@@ -214,7 +214,8 @@
 	        	 }
         	} 
 			
-			if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+			if(numberSamplesPerChannel != null && 
+				(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == '')){
 				isComplete = false;
 			}
         	
