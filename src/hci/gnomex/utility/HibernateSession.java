@@ -74,13 +74,27 @@ public class HibernateSession {
     // tx will be null unless Tomcat server.
     Transaction tx = (Transaction) transaction.get();
     if (tx != null) {
-      transaction.set(null);
       tx.rollback();
+      transaction.set(null);
     }
   }
   
   public static void closeSession() throws HibernateException, SQLException {
-    // tx will be null if not tomcat.
+    // Ignore this close if tomcat.  Close (and commit) will happen from GnomExFrontController
+    if (!GNomExFrontController.isTomcat()) {
+      closeSessionForReal();
+    }
+  }
+  
+  public static void closeTomcatSession() throws HibernateException, SQLException {
+    // Only does something if tomcat.  Only called from GNomExFrontController
+    if (GNomExFrontController.isTomcat()) {
+      closeSessionForReal();
+    }
+  }
+  
+  private static void closeSessionForReal() throws HibernateException, SQLException {
+    // tx will be null if not tomcat or if transaction already rolled back.
     Session s = (Session) session.get();
     Transaction tx = (Transaction) transaction.get();
     CallableStatement stmt;
@@ -88,10 +102,14 @@ public class HibernateSession {
       setAppName(s, null);
     }
     finally {
+      if (tx != null) {
+        tx.commit();
+      }
+      if (s != null) {
+        s.close();
+      }
       session.set(null);
       transaction.set(null);
-      if (tx != null) tx.commit();
-      if (s!=null) s.close();
     }
   }
   
@@ -100,13 +118,14 @@ public class HibernateSession {
   }
   
   public static void setAppName(Session s, String username) throws SQLException {
-    Connection con = s.connection();    
-    if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
-      CallableStatement stmt;
-      stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
-      stmt.setString(1, username);
-      stmt.executeUpdate();
-    }
-    
+    if (s != null) {
+      Connection con = s.connection();    
+      if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+        CallableStatement stmt;
+        stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
+        stmt.setString(1, username);
+        stmt.executeUpdate();
+      }
+    }    
   }
 }
