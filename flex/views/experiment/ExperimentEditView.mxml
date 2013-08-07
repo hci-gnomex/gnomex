@@ -1010,7 +1010,8 @@
 			}
 			
 			if(theTab.selectedChild == this.seqSetup1View){
-				if(this.seqSetup1View.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == ''){
+				if(this.seqSetup1View.numberSamplesPerChannel != null && 
+					(this.seqSetup1View.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == '')){
 					nextButton.enabled = false;
 				} else{
 					nextButton.enabled = true;
