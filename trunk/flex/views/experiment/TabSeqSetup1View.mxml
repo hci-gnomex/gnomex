@@ -214,9 +214,17 @@
 	        	 }
         	} 
 			
-			if(numberSamplesPerChannel != null && 
-				(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == '')){
-				isComplete = false;
+			// If we are adding lanes, just make sure that the number of cycles has been selected
+			if (parentDocument.currentState == 'SolexaLaneAmendState') {
+				if(this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}				
+			} else {
+				// If we are a new experiment, make sure we have a valid number of samples per lane and that the number of cycles has been specified
+				if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}
+				
 			}
         	
     		parentDocument.samplesView.enabled = isComplete; 
