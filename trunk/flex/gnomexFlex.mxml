@@ -340,6 +340,7 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
+			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
 			
 			
@@ -2647,7 +2648,7 @@
 			
 			private function onGetExperimentFactorList(event:ResultEvent):void {
 				getLabList.send();
-				
+				this.setupSampleSheetUpload();
 				
 				showProgress(10);
 			}
@@ -3329,6 +3330,10 @@
 					this.showPurchaseSuppliesLink();
 				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
+				} else if (label == "Bulk Sample Sheet Import") {
+					var multiUploadWindow:UploadMultiRequestSampleSheetView = UploadMultiRequestSampleSheetView(PopUpManager.createPopUp(this.theBody, UploadMultiRequestSampleSheetView, false));
+					multiUploadWindow.init();
+					PopUpManager.centerPopUp(multiUploadWindow);
 				} else if (codeStepNext != "") {
 					navWorkflowView.codeStepNext = codeStepNext;
 					navWorkflowView.codeSequencingPlatform = codeSequencingPlatform;
@@ -3484,6 +3489,7 @@
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
+			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -3611,6 +3617,7 @@
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
+			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis" context="bioinformatics"   />
