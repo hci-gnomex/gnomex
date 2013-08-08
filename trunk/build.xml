@@ -760,8 +760,8 @@
   	    </copy>
 		
   		  <!-- Use the opensource version of the context file -->
-  		<!--<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
-  		 <copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
+  		<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
+  		 <!--<copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
 
   	    <!-- Change realm name in web.xml from hciEnv to gnomex.  -->
 		<copy file="${basedir}/defaultroot/WEB-INF/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/web.xml"/> 
