@@ -92,7 +92,7 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
             }
             nextSampleNumber = SaveRequest.initSample(sess, request, sample, isNewSample, nextSampleNumber);
             Map sampleAnnotations = annotationMap.get(sample.getIdSampleString());
-            SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, null, dh);
+            SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, null, dh, sampleAnnotations);
             sess.flush();
           }
         }
