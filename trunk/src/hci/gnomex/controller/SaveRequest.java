@@ -1191,7 +1191,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, otherCharacteristicLabel, dh, null);
   }
   
-  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, DictionaryHelper dh, Map<Integer, Property> propertiesToDelete) {
+  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, DictionaryHelper dh, Map propertiesToDelete) {
     // Delete the existing sample property entries
     if (!isNewSample) {
       for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
