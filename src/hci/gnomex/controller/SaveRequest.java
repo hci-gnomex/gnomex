@@ -88,6 +88,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -1192,6 +1193,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     addStandardSampleProperties(sess, idSampleString, sample);
     
     // Delete the existing sample treatments
+    Hibernate.initialize(sample.getTreatmentEntries()); 
     if (!isNewSample && sample.getTreatmentEntries() != null) {
       for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
         TreatmentEntry entry = (TreatmentEntry)i.next();
@@ -1207,6 +1209,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       entry.setTreatment(treatment);
       sess.save(entry);
     }
+
     
     
     // Set the barcodeSequence if  idOligoBarcodeSequence is filled in
