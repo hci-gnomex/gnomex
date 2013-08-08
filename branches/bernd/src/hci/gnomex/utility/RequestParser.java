@@ -301,7 +301,9 @@ public class RequestParser implements Serializable {
           }
           // Now change the billing items for the request from PENDING to COMPLETE
           for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems()) {
-            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
+              billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            }
           }
         }
       }

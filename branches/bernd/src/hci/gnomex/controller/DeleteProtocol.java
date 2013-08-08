@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
+import hci.gnomex.model.SeqLibProtocolApplication;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.model.DictionaryEntry;
@@ -9,6 +10,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -58,6 +61,13 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+        
+        List seqLibProtocolApplications = sess.createQuery("Select app from SeqLibProtocolApplication app where idSeqLibProtocol = " + idProtocol ).list();
+        
+        for(Iterator i = seqLibProtocolApplications.iterator(); i.hasNext();){
+          SeqLibProtocolApplication app = (SeqLibProtocolApplication) i.next();
+          sess.delete(app);
+        }
         
         DictionaryEntry protocol = null;
         Class theClass = Class.forName(protocolClassName);

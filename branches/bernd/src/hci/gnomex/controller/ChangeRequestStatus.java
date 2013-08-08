@@ -187,7 +187,9 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           }
           // Now change the billing items for the request from PENDING to COMPLETE
           for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
-            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
+              billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            }
           }
           
           // Send a confirmation email

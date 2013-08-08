@@ -1346,6 +1346,13 @@
 				}
 			}
 			
+			public function textChange(item:String):void {
+				var txt:String = item;
+				if(txt.length == 30) {
+					Alert.show("Maximum allowed limit is 30 characters");					
+				}
+			}
+			
 
 
 		]]>
@@ -1404,9 +1411,16 @@
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
-										   editable="true" 
-										   itemRenderer="{hci.flex.controls.Label.create('@name')}"                
-										   itemEditor="{views.renderers.TextInputSampleName.create(currentState)}"      />    
+										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
+										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
+					<mx:itemEditor>
+						<mx:Component id ="sampleNameTextField">
+							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)">
+							</mx:TextInput>
+						</mx:Component>
+					</mx:itemEditor> 
+					
+				</mx:AdvancedDataGridColumn>  
 
 				<mx:AdvancedDataGridColumn id="labelColumn" dataField="@label"  
 										   width="90" headerText="Label" editable="false">

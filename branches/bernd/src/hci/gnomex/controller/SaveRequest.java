@@ -1231,7 +1231,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     addStandardSampleProperties(sess, idSampleString, sample);
     
     // Delete the existing sample treatments
-    if (!isNewSample) {
+    if (!isNewSample && sample.getTreatmentEntries() != null) {
       for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
         TreatmentEntry entry = (TreatmentEntry)i.next();
         sess.delete(entry);

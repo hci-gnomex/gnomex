@@ -68,8 +68,10 @@ public class HibernateGuestSession {
 
     }
     finally {
+      if (s != null) {
+        s.close();
+      }
       guestSession.set(null);
-      if (s!=null) s.close();
     }
   }
   
