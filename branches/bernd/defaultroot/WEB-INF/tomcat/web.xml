@@ -200,13 +200,19 @@
 		</servlet-class>
 	</servlet>
 	
-
 	<servlet>
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadSampleSheetFileServlet
 		</servlet-class>
 	</servlet>
+  
+  <servlet>
+    <servlet-name>UploadMultiRequestSampleSheetFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.UploadMultiRequestSampleSheetFileServlet
+    </servlet-class>
+  </servlet>
 
 	<servlet>
 		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
@@ -387,6 +393,11 @@
 		<servlet-name>UploadSampleSheetFileServlet</servlet-name>
 		<url-pattern>/UploadSampleSheetFileServlet.gx</url-pattern>
 	</servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>UploadMultiRequestSampleSheetFileServlet</servlet-name>
+    <url-pattern>/UploadMultiRequestSampleSheetFileServlet.gx</url-pattern>
+  </servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>

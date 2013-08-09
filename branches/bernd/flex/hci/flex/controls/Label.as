@@ -74,6 +74,7 @@ package hci.flex.controls
     	      g.endFill();
           }
 		  if(_dataField == '@numberSequencingLanes'){
+			  g.beginFill(highlightedColor);
 			  g.lineStyle(missingRequiredFieldBorderThickness, highlightedColor);
 			  g.drawRect(0,0,unscaledWidth,unscaledHeight);
 			  g.endFill();

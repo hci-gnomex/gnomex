@@ -21,30 +21,29 @@
   
     <!-- Local MySql -->
     
-    <Resource name="jdbc/GNOMEX"
-            auth="Container"
-            driverClassName="com.mysql.jdbc.Driver"
-            maxActive="100"
-            maxIdle="30"
-            maxWait="10000"
-            username="gnomex"
-            password="${hci.gnomex.password}"
-            type="javax.sql.DataSource"
-            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
-            url="jdbc:mysql://localhost:3306/gnomex" />
+   <Resource name="jdbc/GNOMEX"
+           auth="Container"
+           driverClassName="${hci.gnomex.driverClassName}"
+           maxActive="100"
+           maxIdle="30"
+           maxWait="10000"
+           username="${hci.gnomex.username}"
+           password="${hci.gnomex.password}"
+           type="javax.sql.DataSource"
+           factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+           url="${hci.gnomex.url}" />
 
-    <Resource name="jdbc/GNOMEX_GUEST"
-            auth="Container"
-            driverClassName="com.mysql.jdbc.Driver"
-            maxActive="100"
-            maxIdle="30"
-            maxWait="10000"
-            username="gnomexGuest"
-            password="${hci.gnomexguest.password}"
-            type="javax.sql.DataSource"
-            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
-            url="jdbc:mysql://localhost:3306/gnomex" />
-
+   <Resource name="jdbc/GNOMEX_GUEST"
+           auth="Container"
+           driverClassName="${hci.gnomexguest.driverClassName}"
+           maxActive="100"
+           maxIdle="30"
+           maxWait="10000"
+           username="${hci.gnomexguest.username}"
+           password="${hci.gnomexguest.password}"
+           type="javax.sql.DataSource"
+           factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+           url="${hci.gnomexguest.url}" />
     
 </Context>
 

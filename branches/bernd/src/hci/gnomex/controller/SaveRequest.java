@@ -89,6 +89,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -1146,88 +1147,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   private void saveSample(String idSampleString, Sample sample, Session sess, DictionaryHelper dh) throws Exception {
-
-    sample.setIdRequest(requestParser.getRequest().getIdRequest());
-    sess.save(sample);
     
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-    
-    if (isNewSample) {
-      sample.setNumber(Request.getRequestNumberNoR(requestParser.getRequest().getNumber()) + "X" + nextSampleNumber);
-      nextSampleNumber++;
-      sess.save(sample);
-    }  
-    
-    
-    // Delete the existing sample property entries
-    if (!isNewSample) {
-      for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
-        PropertyEntry entry = (PropertyEntry)i.next();
-        for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-          PropertyEntryValue v = (PropertyEntryValue)i1.next();
-          sess.delete(v);
-        }
-        sess.flush();
-        entry.setValues(null);
-        sess.delete(entry);
-      }
-    }
 
-    // Create sample property entries
-    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
-    for(Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext(); ) {
-     
-      Integer idProperty = (Integer)i.next();
-      String value = (String)sampleAnnotations.get(idProperty);
-      if (idProperty == -1) {
-        continue;
-      }
-      
-      Property property = (Property)dh.getPropertyObject(idProperty);
-     
-      
-      PropertyEntry entry = new PropertyEntry();
-      entry.setIdSample(sample.getIdSample());
-      if (property.getName().equals("Other")) {
-          entry.setOtherLabel(requestParser.getOtherCharacteristicLabel());
-      }
-      entry.setIdProperty(idProperty);
-      entry.setValue(value);
-      sess.save(entry);
-      sess.flush();
-      
-      // If the sample property type is "url", save the options.
-      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
-        Set urlValues = new TreeSet();
-        String[] valueTokens = value.split("\\|");
-        for (int x = 0; x < valueTokens.length; x++) {
-          String v = valueTokens[x];
-          PropertyEntryValue urlValue = new PropertyEntryValue();
-          urlValue.setValue(v);
-          urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
-          sess.save(urlValue);
-        }
-      }
-      sess.flush();
-      
-      // If the sample property type is "option" or "multi-option", save the options.
-      if (value != null && !value.equals("") && 
-          (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
-        Set options = new TreeSet();
-        String[] valueTokens = value.split(",");
-        for (int x = 0; x < valueTokens.length; x++) {
-          String v = valueTokens[x];
-          for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
-            PropertyOption option = (PropertyOption)i1.next();
-            if (v.equals(option.getIdPropertyOption().toString())) {
-                options.add(option);
-            }
-          }
-        }
-        entry.setOptions(options);
-      }     
-    }
-
+    nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
+    
+    setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map)requestParser.getSampleAnnotationMap().get(idSampleString), requestParser.getOtherCharacteristicLabel(), dh);
     addStandardSampleProperties(sess, idSampleString, sample);
     
     // Delete the existing sample treatments
@@ -1287,7 +1212,96 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 //    updateSequenomPlates(sess, sample, idSampleString);
     
   }
-
+  
+  public static Integer initSample(Session sess, Request request, Sample sample, Boolean isNewSample, Integer nextSampleNumber) {
+    sample.setIdRequest(request.getIdRequest());
+    sess.save(sample);
+    
+    if (isNewSample) {
+      sample.setNumber(Request.getRequestNumberNoR(request.getNumber()) + "X" + nextSampleNumber);
+      nextSampleNumber++;
+      sess.save(sample);
+    }  
+    
+    return nextSampleNumber;
+  }
+  
+  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, DictionaryHelper dh) {
+    setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, otherCharacteristicLabel, dh, null);
+  }
+  
+  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, DictionaryHelper dh, Map propertiesToDelete) {
+    // Delete the existing sample property entries
+    if (!isNewSample) {
+      for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
+        PropertyEntry entry = (PropertyEntry)i.next();
+        if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
+          for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
+            PropertyEntryValue v = (PropertyEntryValue)i1.next();
+            sess.delete(v);
+          }
+          sess.flush();
+          entry.setValues(null);
+          sess.delete(entry);
+        }
+      }
+    }
+  
+    // Create sample property entries
+    for(Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext(); ) {
+     
+      Integer idProperty = (Integer)i.next();
+      String value = (String)sampleAnnotations.get(idProperty);
+      if (idProperty == -1) {
+        continue;
+      }
+      
+      Property property = (Property)dh.getPropertyObject(idProperty);
+     
+      
+      PropertyEntry entry = new PropertyEntry();
+      entry.setIdSample(sample.getIdSample());
+      if (property.getName().equals("Other")) {
+          entry.setOtherLabel(otherCharacteristicLabel);
+      }
+      entry.setIdProperty(idProperty);
+      entry.setValue(value);
+      sess.save(entry);
+      sess.flush();
+      
+      // If the sample property type is "url", save the options.
+      if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
+        Set urlValues = new TreeSet();
+        String[] valueTokens = value.split("\\|");
+        for (int x = 0; x < valueTokens.length; x++) {
+          String v = valueTokens[x];
+          PropertyEntryValue urlValue = new PropertyEntryValue();
+          urlValue.setValue(v);
+          urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
+          sess.save(urlValue);
+        }
+      }
+      sess.flush();
+      
+      // If the sample property type is "option" or "multi-option", save the options.
+      if (value != null && !value.equals("") && 
+          (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
+        Set options = new TreeSet();
+        String[] valueTokens = value.split(",");
+        for (int x = 0; x < valueTokens.length; x++) {
+          String v = valueTokens[x];
+          for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
+            PropertyOption option = (PropertyOption)i1.next();
+            if (v.equals(option.getIdPropertyOption().toString())) {
+                options.add(option);
+            }
+          }
+        }
+        entry.setOptions(options);
+      }     
+    }
+  }
+  
   private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString) {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
         requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ||
