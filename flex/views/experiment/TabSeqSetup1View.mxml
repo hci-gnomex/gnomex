@@ -27,14 +27,14 @@
 		</mx:State>
 	</mx:states>
 	
-	<mx:NumberValidator id="samplesPerChannelValidator" allowNegative="false" minValue="0" required="true" domain="int" maxValue="{this.maxSamplesPerChannel}" source="{numberSamplesPerChannel}" property="text"/>
+	<mx:NumberValidator id="samplesPerChannelValidator" allowNegative="false" minValue="0" required="true" domain="int" maxValue="{this.maxSamplesPerChannelValidator}" source="{numberSamplesPerChannel}" property="text"/>
 <mx:Script>
 	<![CDATA[
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
+		import mx.events.ValidationResultEvent;
 		import mx.formatters.CurrencyFormatter;
 		import mx.rpc.events.ResultEvent;
-		import mx.events.ValidationResultEvent;
 		
 		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
 
@@ -49,6 +49,9 @@
 		[Bindable]
 		private var maxSamplesPerChannel:int = 2;
 		
+		[Bindable]
+		private var maxSamplesPerChannelValidator:int;
+		
 		private var barcodesSort:Sort = null;
 		
 		public var selectedIdLab:String = null;
@@ -60,7 +63,17 @@
 		private function init():void {
 			currencyFormatter.currencySymbol = "$";
 			currencyFormatter.precision = 2;
-			currencyFormatter.useThousandsSeparator;     
+			currencyFormatter.useThousandsSeparator;
+			
+			maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
+			//So re-validate it so it is redrawn
+			numberSequencingCyclesBox.validateNow();
+			
+			//Since old values are not cleared out when creating second experiment in same session
+			//Check to make sure that the old values are valid enough to enable the next button right away.
+			parentDocument.enableNextButtons();
+			
 
 			// Make sure barcodes are defaulted
 			if (barcodes == null) {
