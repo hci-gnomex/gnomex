@@ -548,7 +548,9 @@ public class RequestHTMLFormatter {
     parentNode.addContent(table);
   }
   
-  // added 8/8/2013 Jared Kubly
+ /*
+  * Builds separate table on printable form when Covaris is used.
+  */
   public void addCovarisSampleTable(Element parentNode, Set samples) {
 	  boolean isDNASampleType = false;
 	    if (samples.size() > 0) {
@@ -567,11 +569,6 @@ public class RequestHTMLFormatter {
 	    	Element sequenceNote = new Element("H5");
             sequenceNote.addContent("Covaris Information");
 	    	parentNode.addContent(sequenceNote);
-	    	
-		 // Show 'samples' header
-//		    Element covarisHeader = new Element("H6");
-//		    covarisHeader.addContent("Covaris Information");
-//		    parentNode.addContent(covarisHeader);
 		    
 		    Element table = new Element("TABLE");
 		    table.setAttribute("CLASS", "grid");
@@ -584,13 +581,6 @@ public class RequestHTMLFormatter {
 		    table.addContent(rowh);
 		    this.addHeaderCell(rowh, "Sample ID", new Integer(1), new Integer(1), "left");
 		    this.addHeaderCell(rowh, "Sample Name", new Integer(1), new Integer(1));
-		   // this.addHeaderCell(rowh, "Sample Conc.", new Integer(2), new Integer(1));
-		   
-	//	    this.addHeaderCell(rowh, "---------- Covaris Information --------------",
-	//	             new Integer(1), new Integer(2), "colgroup");
-		    
-	//	    rowh = new Element("TR");  
-	//	    table.addContent(rowh);
 		    
 		    this.addHeaderCell(rowh, "Covaris Vol", new Integer(1), new Integer(1));
 		    this.addHeaderCell(rowh, "Covaris Qty", new Integer(1), new Integer(1));

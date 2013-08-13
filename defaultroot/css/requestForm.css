@@ -117,6 +117,16 @@ h4 {
 	  text-align: center;
 }
 
+h4.special {
+	font-size: 10pt;
+	font-weight: bold;
+	padding-top: 0;
+	padding-bottom: 0;
+	line-height: 0;
+	text-align: center;
+	color: blue;
+}
+
 h5
 {
   font-size: 10pt;
