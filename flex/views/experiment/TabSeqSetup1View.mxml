@@ -70,6 +70,10 @@
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
 			
+			if(numberSamplesPerChannel.text != null && numberSamplesPerChannel.text != ""){
+				changeNumberSamplesPerChannel();
+			}
+			
 			//Since old values are not cleared out when creating second experiment in same session
 			//Check to make sure that the old values are valid enough to enable the next button right away.
 			parentDocument.enableNextButtons();
