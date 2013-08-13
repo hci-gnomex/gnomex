@@ -526,21 +526,23 @@
 			    <include name="*.*" />
 			</fileset>
 		</copy>
-    <copy todir="${dist.dir}/tomcat" overwrite="true">
-        <fileset dir="${hcienv.dir}/src" >
-          <include name="*.hbm.xml" />
-      </fileset>
+
+<!--     <copy todir="${dist.dir}/tomcat" overwrite="true">
+       <fileset dir="${hcienv.dir}/src" >
+    	      <include name="*.hbm.xml" />
+   	  		</fileset>
     </copy>
-    
+-->
 		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
 			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
 			 <lib dir="${lib.dir}"                  includes="*.jar"/>
 			 <lib dir="${lib.env.dir}">
 			   <include name="*.jar"/>
-			   <exclude name="mail.jar"/>
+			  <exclude name="mail.jar"/>
+			  <exclude name="servlet-api.jar" />
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
-			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
+		<!--	 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/> -->
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
@@ -759,9 +761,8 @@
   	    </copy>
 		
   		  <!-- Use the opensource version of the context file -->
-  		<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
+		<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
   		 <!--<copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
-
   	    <!-- Change realm name in web.xml from hciEnv to gnomex.  -->
 		<copy file="${basedir}/defaultroot/WEB-INF/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/web.xml"/> 
 		<replace file="${sandbox.dir}/defaultroot/WEB-INF/web.xml"
@@ -1375,7 +1376,7 @@
 
 	<target name="refreshHCIEnv" depends="init">
 		  <!-- Copy jar files normally in hciEnv directly to gnomex/libEnv -->
-		  <copy todir="${basedir}/libEnv">
+	<!--	  <copy todir="${basedir}/libEnv">
 		    <fileset dir="${hcienv.dir}/lib">
 		      <include name="antlr-2.7.6rc1.jar"/>
 		      <include name="asm.jar"/>
@@ -1391,7 +1392,7 @@
 		      <exclude name="**/Thumbs.db"/>
 		    </fileset>
 		  </copy>
-			
+	-->		
 	</target>
 	
 	

@@ -13,17 +13,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.TreeMap;
 import java.lang.Exception;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
-import java.util.logging.*;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,24 +25,22 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
 import org.jdom.JDOMException;
 
 import nki.objects.*;
-
+import nki.exceptions.*;
 
 public class MetrixServerInterface extends GNomExCommand implements Serializable {
-  
   
 private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MetrixServerInterface.class);
   
   public void validate() {
+	 
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-
     //filter = new MetrixInterfaceFilter();
     //HashMap errors = this.loadDetailObject(request, filter);
     //this.addInvalidFields(errors);
@@ -73,7 +65,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 	        	this.addInvalidField("Invalid configuration.", "Invalid configuration details for MetrixServer. Please check the dictionary properties.");
 	            setResponsePage(this.ERROR_JSP);
 	        }
-	        
+	        	        
 	        if(sChannel.connect(new InetSocketAddress(host, port))){
 
                 // Create OutputStream for sending objects.
@@ -90,6 +82,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 					sendCommand.setState(1); // Select run state (1 - running, 2 - finished, 3 - errors / halted, 4 - FC needs turn, 5 - init) || 12 - ALL
 					sendCommand.setCommand("FETCH");
 					sendCommand.setMode("CALL");
+					sendCommand.setType("DETAIL");
 					oos.writeObject(sendCommand);
 					oos.flush();
 					
@@ -101,16 +94,15 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 					while(listen){
 						if(serverAnswer instanceof Command){	// Answer is a Command with info message.
 							nki.objects.Command commandIn = (nki.objects.Command) serverAnswer;
-							if(commandIn.getCommandString() != null){
-								System.out.println("[SERVER] " + commandIn.getCommandDetail());
+							if(commandIn.getCommand() != null){
+								System.out.println("[SERVER] " + commandIn.getCommand());
 							}
 						}
 	
 						if(serverAnswer instanceof SummaryCollection){
 							SummaryCollection sc = (SummaryCollection) serverAnswer;
-							//metrixLogger.log(Level.INFO, "[CLIENT] The server answered with a SummaryCollection.");
 							ListIterator litr = sc.getSummaryIterator();
-	
+
 							while(litr.hasNext()){
 								Summary sum = (Summary) litr.next();
 							}
@@ -121,9 +113,29 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
 							log.info("Server replied with XML");
 							listen = false;
 						}
+						
+						if(serverAnswer instanceof EmptyResultSetCollection){
+							System.out.println(serverAnswer.toString());
+							listen = false;
+						}
+						
+						if(serverAnswer instanceof InvalidCredentialsException){
+							System.out.println(serverAnswer.toString());
+							listen = false;
+						}
+						
+						if(serverAnswer instanceof MissingCommandDetailException){
+							System.out.println(serverAnswer.toString());
+							listen = false;
+						}
+						
+						if(serverAnswer instanceof UnimplementedCommandException){
+							System.out.println(serverAnswer.toString());
+							listen = false;
+						}
 					}
 				}catch(IOException Ex){
-					log.error("IOException in Metrix Client.", Ex);
+			//		log.error("IOException in Metrix Client.", Ex);
 				}
 	        }
 	}catch(EOFException ex){
@@ -138,7 +150,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
         Document doc = new Document();
         
         try{
-    		doc = builder.build(new StringReader(srvResp));  		
+    		doc = builder.build(new StringReader(srvResp)); 
     	}catch(JDOMException JEx){
     		System.out.println("Error in SAXBuilder " + JEx);
     	}
@@ -156,16 +168,16 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(M
     
     }catch (NamingException e){
       log.error("An exception has occurred in MetrixServerInterface ", e);
-      e.printStackTrace(System.out);
+      //e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
       log.error("An exception has occurred in MetrixServerInterface ", e);
-      e.printStackTrace(System.out);
+     // e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       log.error("An exception has occurred in MetrixServerInterface ", e);
-      e.printStackTrace(System.out);
+    //  e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

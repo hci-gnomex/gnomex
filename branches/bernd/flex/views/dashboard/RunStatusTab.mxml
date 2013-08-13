@@ -197,10 +197,6 @@
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
 		<mx:HBox id="overViewBar"  width="100%" >
-			<mx:Spacer id="emptySpace" includeInLayout="true" width="100%" />
-			<mx:Text id="emptyText" includeInLayout="false" visible="false" text="No data retrieved" color="0xFF8000" />
-			<mx:Text id="failText" includeInLayout="false" visible="false" text="Error Connecting to Server" fontStyle="italic" color="0xE10000"/>
-				
 			<mx:LinkButton id="overViewButton" fontWeight="bold" label="Overview" click="Application.application.theViews.selectedChild = parentApplication.sequencerOverview"/>
 		</mx:HBox>
 		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
@@ -234,5 +230,13 @@
 				</mx:HBox>
 			</mx:VBox>
 		</mx:Repeater>
+		<mx:VBox id="emptyNote"  height="200" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold" paddingLeft="110">
+			<mx:Spacer height="100" />
+			<mx:HBox id="emptyNoteBox" horizontalAlign="center" visible="false" includeInLayout="false">
+				<mx:Spacer id="emptySpace" includeInLayout="true" width="100%" />
+				<mx:Text id="emptyText" includeInLayout="false" visible="false" text="No data retrieved" color="0xFF8000" />
+				<mx:Text id="failText" includeInLayout="false" visible="false" text="Error Connecting to Server" fontStyle="italic" color="0xE10000"/>
+			</mx:HBox>
+		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

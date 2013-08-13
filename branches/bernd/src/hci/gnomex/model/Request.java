@@ -93,9 +93,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Date            quoteReceivedDate;
   private String          uuid;
   
-  // Bernd added
-  private Application	  application;
-  
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
@@ -1008,14 +1005,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   
   public void setPlateWells( Set plateWells ) {
     this.plateWells = plateWells;
-  }
-  
-  // Bernd added
-  public Application getApplication() {
-	return application;
-  }
-  public void setApplication(Application application) {
-	this.application = application;
   }
 
   @SuppressWarnings("unchecked")

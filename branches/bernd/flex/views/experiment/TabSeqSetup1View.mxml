@@ -58,9 +58,9 @@
 		private var priceMap:Dictionary = new Dictionary();
 		
 		private function init():void {
-			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.currencySymbol = "€";
 			currencyFormatter.precision = 2;
-			currencyFormatter.useThousandsSeparator;     
+			currencyFormatter.useThousandsSeparator;   
 
 			// Make sure barcodes are defaulted
 			if (barcodes == null) {
@@ -438,7 +438,6 @@
 		}
 	]]>
 </mx:Script>   
- 
 
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">

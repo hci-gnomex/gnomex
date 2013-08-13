@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow
+	borderAlpha="0.9"
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	initialize="init()" title="Import Data">
+	
+	<mx:Metadata>
+		[Event(name="fieldsMapped")]
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.containers.FormItem;
+			import ext.com.utils.StringUtils;
+			import mx.utils.ArrayUtil;
+			import ext.com.vos.Person;
+			import ext.com.Consts;
+			import ext.com.events.FieldMapperEvent;
+			import mx.core.UIComponent;
+			import mx.rpc.xml.SimpleXMLDecoder;
+			import mx.events.CloseEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			import mx.managers.PopUpManager;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.collections.ArrayCollection;
+			import mx.controls.ComboBox;
+			
+			public static const STATE_FILE_SELECT:String 	= "STATE_FILE_SELECT";
+			public static const STATE_FILE_ERROR:String	 	= "STATE_FILE_ERROR";
+			public static const STATE_FILE_UPLOADING:String = "STATE_FILE_UPLOADING";
+			public static const STATE_DATA_READY:String 	= "STATE_DATA_READY";
+			
+			[Bindable]
+			private var _fields:ArrayCollection;
+			private var _objectClass:Class;
+			
+			private var _fileRef:FileReference;
+			
+			[Bindable]
+			private var _data:ArrayCollection;
+			private var _dataChanged:Boolean;
+			
+			[Bindable]
+			private var _errorStr:String;
+			private var _errorStrChanged:Boolean;
+			
+			[Bindable]
+			private var _columns:ArrayCollection = new ArrayCollection();
+			
+			private var _firstRowObject:Object;
+			
+			private function init():void
+			{
+				currentState = STATE_FILE_SELECT;
+			}
+			
+			private function handleBrowseClicked():void
+			{
+				var csvFilter:FileFilter = new FileFilter( "CSV", "*.csv" );
+				var tsvFilter:FileFilter = new FileFilter( "TSV", "*.tsv" );
+				
+				// workaround for bug if user click button using enter (rather than space)
+				// [#SDK-16828] Pressing enter for default button delays firing event ...				
+				try
+				{
+					_fileRef = new FileReference();
+					_fileRef.addEventListener( Event.SELECT, handleFileSelected );
+					_fileRef.addEventListener( DataEvent.UPLOAD_COMPLETE_DATA, handleFileUploaded );				
+					_fileRef.browse( [csvFilter, tsvFilter] );
+				}
+				catch ( error:Error )
+				{
+					// do nothing...
+				}
+			}
+			
+			private function handleFileSelected( event:Event ):void
+			{
+				//var url:String = Consts.SERVER_URL + Consts.CSV_IMPORT_SCRIPT;
+				//var urlRequest:URLRequest = new URLRequest( url ); 
+				
+			//	_fileRef.upload( urlRequest );
+				
+			//	currentState = STATE_FILE_UPLOADING;
+			}
+			
+			private function handleFileUploaded( event:DataEvent ):void
+			{
+				var xml:XMLDocument = new XMLDocument( event.data );
+				var decoder:SimpleXMLDecoder = new SimpleXMLDecoder();
+				var object:Object = decoder.decodeXML( xml );
+				var data:Array = ArrayUtil.toArray( object.rows.row );
+				
+				this.data = new ArrayCollection( data );   								
+			}
+			
+			override public function set data( value:Object ):void
+			{
+				_data = value as ArrayCollection;
+				_dataChanged = true;
+				
+				invalidateProperties();
+			}
+			
+			public function set errorStr( value:String ):void
+			{
+				_errorStr = value;
+				_errorStrChanged = true;
+					
+				invalidateProperties();
+			}
+			
+			public function set fields( value:ArrayCollection ):void
+			{
+				_fields = value;
+			}
+			
+			public function set objectClass( value:Class ):void
+			{
+				_objectClass = value;
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if (_errorStrChanged)
+				{
+					_errorStrChanged = false;
+					
+					if (_errorStr && _errorStr.length > 0)
+					{
+						currentState = STATE_FILE_ERROR;
+						return;
+					}
+				}
+				
+				if (_dataChanged)
+				{
+					_dataChanged = false;
+					
+					if (_data && _data.length > 0)
+					{
+						currentState = STATE_DATA_READY;
+						return;
+					}
+				}
+			}
+			
+			private function handleEnterDataReadyState():void
+			{
+				PopUpManager.centerPopUp( this );
+				
+				if (!_data || _data.length == 0)
+				{
+					return;
+				}
+				
+				okButton.setFocus();
+				
+				// figure out if the first row looks like the headers
+				var firstRow:Object = _data.getItemAt( 0 );
+				
+				for each (var value:String in firstRow)
+				{
+					if (!value)
+					{
+						continue;
+					}
+					
+					value = StringUtils.stripDown( value );
+					
+					for each (var field:String in _fields)
+					{
+						field = StringUtils.stripDown( field );
+						
+						if (field == value)
+						{
+							useFirstRowAsHeadersCheckbox.selected = true;
+							break;		
+						}
+					}
+				}
+				
+				handleUseFirstRowAsHeadersClicked();
+			}
+			
+			private function handleUseFirstRowAsHeadersClicked():void
+			{
+				// add/remove the first row from the data
+				if (useFirstRowAsHeadersCheckbox.selected)
+				{
+					_firstRowObject = _data.removeItemAt( 0 );
+				}
+				else if (_firstRowObject)
+				{
+					_data.addItemAt( _firstRowObject, 0 );
+					_firstRowObject = null;
+				}
+				
+				_columns.removeAll();
+				_columns.addItem( {label:""} );
+				
+				// set the titles for the column headers
+				for (var colIndex:uint = 0; colIndex < dataGrid.columnCount; colIndex++)
+				{
+					var column:DataGridColumn = dataGrid.columns[ colIndex ] as DataGridColumn;
+					
+					if (useFirstRowAsHeadersCheckbox.selected)
+					{
+						_columns.addItem( {label:_firstRowObject[column.dataField], data:column.dataField} );
+					}
+					else
+					{
+						_columns.addItem( {label:column.dataField, data:column.dataField} );
+					}
+				}
+				
+				if (useFirstRowAsHeadersCheckbox.selected)
+				{
+					tryToMapFields();
+				}
+				
+				callLater( setDataGridHeaders );
+			}
+			
+			private function handleComboChanged():void
+			{
+				setDataGridHeaders();
+			}
+			
+			private function setDataGridHeaders():void
+			{
+				var comboBox:ComboBox;
+				
+				// set the titles for the column headers
+				for (var colIndex:uint = 0; colIndex < dataGrid.columnCount; colIndex++)
+				{
+					var column:DataGridColumn = dataGrid.columns[ colIndex ] as DataGridColumn;
+					var setHeader:Boolean = false;
+					
+					if (useFirstRowAsHeadersCheckbox.selected)
+					{
+						for each (comboBox in comboBoxes)
+						{
+							if (comboBox.text == _firstRowObject[column.dataField])
+							{
+								column.headerText = FormItem( comboBox.parent ).label;
+								setHeader = true;
+							}
+						}
+						
+						if (!setHeader)
+						{
+							column.headerText = _firstRowObject[column.dataField];
+						}							
+					}
+					else
+					{
+						for each (comboBox in comboBoxes)
+						{
+							if (comboBox.text == "col" + (colIndex + 1))
+							{
+								column.headerText = FormItem( comboBox.parent ).label;
+								setHeader = true;
+							}
+						}
+						
+						if (!setHeader)
+						{
+							column.headerText = column.dataField;
+						}					
+					}
+				}
+			}
+			
+			private function tryToMapFields():void
+			{
+				for each (var obj:Object in _columns)
+				{
+					if (!obj.label)
+					{
+						continue;
+					}
+					
+					var columnLabel:String = StringUtils.stripDown( obj.label );
+										
+					for each (var comboBox:ComboBox in comboBoxes)
+					{
+						var formItem:FormItem = comboBox.parent as FormItem;
+						var formItemLabel:String = StringUtils.stripDown( formItem.label );
+							
+						if (columnLabel == formItemLabel)
+						{
+							comboBox.selectedItem = obj;
+						}						
+					}
+				}
+			}
+			
+			private function handleOkClicked():void
+			{
+				var data:Array = [];
+				
+				for each (var item:Object in _data)
+				{
+					var object:Object = new _objectClass();
+					
+					for each (var comboBox:ComboBox in comboBoxes)
+					{
+						if (!comboBox.selectedItem)
+						{
+							continue;
+						}
+						
+						var itemField:String = comboBox.selectedItem.data;
+						var objectField:String = comboBox.name;
+						
+						object[ objectField ] = item[ itemField ];
+					}
+					
+					data.push( object );	 
+				}	
+				
+				var parsedEvent:FieldMapperEvent = new FieldMapperEvent( FieldMapperEvent.FIELDS_MAPPED );
+				parsedEvent.data = data;
+				dispatchEvent( parsedEvent );
+				
+				PopUpManager.removePopUp( this );							
+			}
+
+			private function handleCancelClicked():void
+			{
+				PopUpManager.removePopUp( this );
+			}
+			
+			override public function setFocus():void
+			{
+				if (currentState == STATE_FILE_SELECT)
+				{
+					browseButton.setFocus();
+				}
+				else if (currentState == STATE_DATA_READY)
+				{
+					okButton.setFocus();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:states>			
+		<mx:State name="{ STATE_FILE_SELECT }">
+			<mx:AddChild relativeTo="{ vBox }">
+				<mx:Form id="fileSelectForm" defaultButton="{ browseButton }">
+					<mx:FormItem label="Select file to upload" direction="horizontal">
+						<mx:Button id="browseButton" label="Browse" click="handleBrowseClicked()"/>
+						<mx:Button label="Cancel" click="handleCancelClicked()"/>	
+					</mx:FormItem>
+				</mx:Form>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="{ STATE_FILE_ERROR }" basedOn="{ STATE_FILE_SELECT }">
+			<mx:AddChild relativeTo="{ fileSelectForm }">
+				<mx:Label styleName="errorStr" text="{ _errorStr }" paddingTop="10"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="{ STATE_FILE_UPLOADING }">
+			<mx:AddChild relativeTo="{ vBox }">
+				<mx:ProgressBar id="progressBar" indeterminate="true"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="{ STATE_DATA_READY }" enterState="handleEnterDataReadyState()">
+			<mx:AddChild relativeTo="{ vBox }">
+				<mx:Form id="mapColumnsForm" width="100%" defaultButton="{ okButton }" styleName="padded">
+					<mx:CheckBox id="useFirstRowAsHeadersCheckbox" label="Use first row as headers" click="handleUseFirstRowAsHeadersClicked()"/>
+					<mx:DataGrid id="dataGrid" dataProvider="{ _data }" height="150" width="500" editable="true"/>
+					<mx:Label text="Map columns to fields:" fontWeight="bold" paddingTop="15"/>
+					<mx:Repeater id="comboRepeater" dataProvider="{ _fields }">
+						<mx:FormItem label="{ StringUtils.prettify( comboRepeater.currentItem as String ) }">
+							<mx:ComboBox id="comboBoxes" dataProvider="{ _columns }" change="handleComboChanged()" name="{ comboRepeater.currentItem }"/>
+						</mx:FormItem>
+					</mx:Repeater>
+					<mx:HBox width="100%" horizontalAlign="right">
+						<mx:Button label="Cancel" click="handleCancelClicked()" width="{ Consts.BUTTON_WIDTH }"/>
+						<mx:Button id="okButton" label="OK" click="handleOkClicked()" width="{ Consts.BUTTON_WIDTH }"/>
+					</mx:HBox>						
+				</mx:Form>					
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:VBox id="vBox" styleName="padded" width="100%" height="100%" 
+		verticalAlign="middle" horizontalAlign="center"/>
+	
+</mx:TitleWindow>

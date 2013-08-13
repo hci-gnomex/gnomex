@@ -759,9 +759,6 @@
 		
 		<many-to-one name="submitter" column="idSubmitter" class="hci.gnomex.model.AppUser" cascade="none" insert="false" update="false" />
 		
-		<!-- Bernd additions -->
-	    <many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
-		
 		<property name="numberIScanChips" column="numberIScanChips" type="integer"/>    
    	 	<property name="idIScanChip" column="idIScanChip" type="integer"/>
 		    	

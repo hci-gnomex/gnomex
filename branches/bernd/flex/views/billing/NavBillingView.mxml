@@ -424,7 +424,7 @@
  			}
 
         	
-        	currencyFormatter.currencySymbol = "$";
+        	currencyFormatter.currencySymbol = "€";
         	currencyFormatter.precision = 2;
         	currencyFormatter.useThousandsSeparator;     
 			
@@ -461,7 +461,7 @@
 	       	}
 	       	requestNode.appendChild(emptyNode);
 	       	requestNode.@isDirty = "Y";
-	       							
+
 		} 
 		
 		private function removeBillingItem():void {
