@@ -253,7 +253,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 }
                 if (!corePrepLib) {
                 	Element preppedByUserNode = new Element("H4");
-                	preppedByUserNode.addContent("<i>Prepared By Client</i>");
+                	preppedByUserNode.setAttribute("class", "special");
+                	preppedByUserNode.addContent("Library Prepared By Client");
                 	maindiv.addContent(preppedByUserNode);
                 }
 	            }
@@ -361,16 +362,16 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
                   corePrepLib = false;
                 }
-                if (!corePrepLib) {
-                	
-                  steps = request.getApplication().getCoreStepsNoLibPrep(); // is it possible to have core steps when no lib prep is requested? steps is being set to null in no lib prep case. JFK
-                  // The sample will not be prepared by the core. Add a line at end of printable form to show the requester will prepare sample.  8/12/13 Jared Kubly
-                  Element preppedByUser = new Element("H7");
-    	            preppedByUser.addContent("<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>");
-    	            maindiv.addContent(preppedByUser);
-    	                            
-                  
-                }
+//                if (!corePrepLib) {
+//                	
+//                  steps = request.getApplication().getCoreStepsNoLibPrep(); // is it possible to have core steps when no lib prep is requested? steps is being set to null in no lib prep case. JFK
+//                  // The sample will not be prepared by the core. Add a line at end of printable form to show the requester will prepare sample.  8/12/13 Jared Kubly
+//                  Element preppedByUser = new Element("H7");
+//    	            preppedByUser.addContent("<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>");
+//    	            maindiv.addContent(preppedByUser);
+//    	                            
+//                  
+//                }
                 sampleType = dictionaryHelper.getSampleType(smp);
                 samplePrepMethod = getSamplePrepMethod(smp);
 	            }
@@ -424,11 +425,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 //TODO: show prepped by if core lab has been requested to prepare the sample
                 if(corePrepLib)
                 {
-                	coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: _____CORE_____</P>";
+                	coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: ______________________ (Core Lab Employee)</P>";
                 }
                 else                	
                 {
-                	coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>"; // code not being called. 8/12/13 Jared Kubly
+                	//coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>"; // code not being called. 8/12/13 Jared Kubly
                 }
                 if (corePrepLib) {
                   coreStepsString += request.getApplication().getCoreSteps();
