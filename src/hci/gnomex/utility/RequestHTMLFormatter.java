@@ -548,6 +548,73 @@ public class RequestHTMLFormatter {
     parentNode.addContent(table);
   }
   
+  // added 8/8/2013 Jared Kubly
+  public void addCovarisSampleTable(Element parentNode, Set samples) {
+	  boolean isDNASampleType = false;
+	    if (samples.size() > 0) {
+	      Sample s = (Sample) samples.iterator().next();
+	      if (s.getIdSampleType() != null) {
+	        String sampleTypeName = dictionaryHelper.getSampleType(s
+	            .getIdSampleType());
+	        if (sampleTypeName.indexOf("DNA") >= 0) {
+	          isDNASampleType = true;
+	        }
+	      }
+	    }
+	    
+	    if(isDNASampleType)
+	    {
+	    	Element sequenceNote = new Element("H5");
+            sequenceNote.addContent("Covaris Information");
+	    	parentNode.addContent(sequenceNote);
+	    	
+		 // Show 'samples' header
+//		    Element covarisHeader = new Element("H6");
+//		    covarisHeader.addContent("Covaris Information");
+//		    parentNode.addContent(covarisHeader);
+		    
+		    Element table = new Element("TABLE");
+		    table.setAttribute("CLASS", "grid");
+		    table.setAttribute("CELLPADDING", "5");
+		    table.setAttribute("CELLSPACING", "5");
+	
+		    Element rowh = new Element("TR");
+		   
+		    
+		    table.addContent(rowh);
+		    this.addHeaderCell(rowh, "Sample ID", new Integer(1), new Integer(1), "left");
+		    this.addHeaderCell(rowh, "Sample Name", new Integer(1), new Integer(1));
+		   // this.addHeaderCell(rowh, "Sample Conc.", new Integer(2), new Integer(1));
+		   
+	//	    this.addHeaderCell(rowh, "---------- Covaris Information --------------",
+	//	             new Integer(1), new Integer(2), "colgroup");
+		    
+	//	    rowh = new Element("TR");  
+	//	    table.addContent(rowh);
+		    
+		    this.addHeaderCell(rowh, "Covaris Vol", new Integer(1), new Integer(1));
+		    this.addHeaderCell(rowh, "Covaris Qty", new Integer(1), new Integer(1));
+		    
+		     
+		     
+		     for(Iterator i = samples.iterator(); i.hasNext();) {
+		         Sample sample = (Sample)i.next();
+		         
+		         Element row = new Element("TR");
+		         row.setAttribute("CLASS", "forcedRowHeight");
+		         table.addContent(row);
+		         
+		         // Sample info
+		         this.addLeftCell(row, sample.getNumber());
+		         this.addCell(row, sample.getName());
+		         
+		         this.addLeftCell(row, "&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;/"); // covaris vol
+		         this.addCell(row, "&nbsp;"); // covaris qty 
+		     }
+	   
+	     parentNode.addContent(table);
+	    }
+  }
   
   public void addIlluminaSampleTable(Element parentNode, Set samples) {
 	  
@@ -582,8 +649,8 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "Sample Conc.", new Integer(2), new Integer(1));
 
     if (isDNASampleType) {
-      this.addHeaderCell(rowh, "---------------------------------------- Lib Info ----------------------------------------------",
-          new Integer(1), new Integer(7), "colgroup");      
+      this.addHeaderCell(rowh, "-------------------------- Lib Info --------------------------------",
+          new Integer(1), new Integer(5), "colgroup");      
     } else {
       this.addHeaderCell(rowh, "--------------------------- Lib Info ---------------------------------",
           new Integer(1), new Integer(6), "colgroup");
@@ -596,8 +663,8 @@ public class RequestHTMLFormatter {
     
     table.addContent(rowh);
     if (isDNASampleType) {
-      this.addHeaderCell(rowh, "Covaris Qty");
-      this.addHeaderCell(rowh, "Covaris Vol");
+ // JFK    this.addHeaderCell(rowh, "Covaris Qty");
+ // JFK    this.addHeaderCell(rowh, "Covaris Vol");
     } else {
       this.addHeaderCell(rowh, "RIN #");
     }
@@ -659,14 +726,14 @@ public class RequestHTMLFormatter {
       // Sample info
       this.addLeftCell(row, sample.getNumber());
       this.addCell(row, sample.getName());
-      this.addCell(row, concentration + "&nbsp;/"); // sample conc (client) plush a / to split the cell
+      this.addCell(row, concentration + "&nbsp;/"); // sample conc (client) plush a / to split the cell ***************************************************************************************
       
       //
       // Library info
       //
       if (isDNASampleType) {
-        this.addLeftCell(row, "&nbsp;"); // covaris qty
-        this.addCell(row, "&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;/"); // covaris vol        
+// JFK       this.addLeftCell(row, "&nbsp;"); // covaris qty
+// JFK       this.addCell(row, "&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;/"); // covaris vol        
       } else {
         this.addLeftCell(row, "&nbsp"); // RIN #
       }
