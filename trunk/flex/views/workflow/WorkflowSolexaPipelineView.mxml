@@ -169,7 +169,11 @@
         	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
         		dirty.resetDirty();
         		this.getWorkList.send();
-        	} else {
+        	} else if(saveWorkItem.lastResult.name() == "InvalidSubmitterEmail"){
+				dirty.resetDirty();
+				this.getWorkList.send();
+				Alert.show(saveWorkItem.lastResult.@notice, "Notice:");
+			}else {
         		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
         	}
         }
