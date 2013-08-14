@@ -27,7 +27,7 @@
 	
 	<mx:Fade id="fadeOut" duration="100"/>
 	<mx:Fade id="fadeIn" duration="100"/>	
-	
+	<mx:Fade id="fadeInSlow" duration="2000"/>	
 	
 	<mx:HTTPService 
 		id="logoutService"	    
@@ -354,6 +354,11 @@
 			private var cursorID:Number = 0; 
 			
 			public var uploadSampleSheetURL:String = null;
+			
+			
+			[Bindable]
+			[Embed(source="assets/gnomex_splash_logo.png")]
+			public var welcomeSplash:Class;
 			
 			[Bindable]  
 			public var siteLogo:String = "";
