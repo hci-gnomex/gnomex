@@ -604,6 +604,24 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     return num;
   }
   
+  public void setErrorSampleNumbersAfterCreate() {
+    for(String requestNumber : this.requestSampleMap.keySet()) {
+      List<Sample> samples = requestSampleMap.get(requestNumber);
+      for(Sample sample: samples) {
+        if (sample.getIdSampleString() != null && sample.getIdSampleString().startsWith("Sample") && sample.getIdSample() != null) {
+          // for new samples, the idSampleString is SAMPLE<rowOrdinal>
+          Integer rowOrdinal = Integer.parseInt(sample.getIdSampleString().substring(6));
+          // This is a new sample that was stored and now has a correct sample number
+          for(Error error : errors) {
+            if (error.getRowOrdinal() != null && error.getRowOrdinal().equals(rowOrdinal)) {
+              error.setSampleNumber(sample.getNumber());
+            }
+          }
+        }
+      }
+    }
+  }
+  
   protected class Error implements Serializable {
     public static final String FATAL = "Fatal";
     public static final String REQUEST_ERROR = "Request Error";
@@ -667,6 +685,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     
     public String getSampleNumber() {
       return sampleNumber;
+    }
+    
+    public void setSampleNumber(String sampleNumber) {
+      this.sampleNumber = sampleNumber;
     }
   }
   

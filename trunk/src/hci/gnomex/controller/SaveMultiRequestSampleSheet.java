@@ -97,6 +97,10 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
           }
         }
       }
+      
+      // Set sample numbers on errors for any samples created.
+      parser.setErrorSampleNumbersAfterCreate();
+      
       Document doc = parser.toXMLDocument();
       XMLOutputter xmlOut = new XMLOutputter();
       this.xmlResult = xmlOut.outputString(doc);   
