@@ -506,10 +506,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     Element requestsNode = new Element("Requests");
     for(String requestNumber : requestMap.keySet()) {
       Request request = requestMap.get(requestNumber);
-      String reqError = this.hasRequestError(requestNumber) ? "N" : "Y";
+      String reqValid = this.hasRequestError(requestNumber) ? "N" : "Y";
       Element requestNode = new Element("Request");
       requestsNode.addContent(requestNode);
-      requestNode.setAttribute("includeFlag", reqError);
+      requestNode.setAttribute("includeFlag", reqValid);
       requestNode.setAttribute("idRequest", request == null ? "" : request.getIdRequest().toString());
       requestNode.setAttribute("requestNumber", requestNumber);
       requestNode.setAttribute("codeRequestCategory", request == null ? "" : request.getCodeRequestCategory());
@@ -520,7 +520,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       requestNode.setAttribute("numUpdatedSamples", this.numberSamplesUpdated(request).toString());
       requestNode.setAttribute("numCreatedSamples", this.numberSamplesCreated(request).toString());
       requestNode.setAttribute("numErrors", this.numberErrors(requestNumber).toString());
-      requestNode.setAttribute("requestError", reqError);
+      requestNode.setAttribute("enableCheckBox", reqValid);
     }
     
     return requestsNode;

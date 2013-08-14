@@ -26,10 +26,13 @@
 			[Bindable]
 			public var allowMultipleChoice:Boolean;
 			
+			[Bindable]
+			public var _enabledField:String;
+			
 			public var dirty:DirtyNote
 			
-			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true):IFactory {
-				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice});
+			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true, _enabledField:String=null):IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice, _enabledField:_enabledField});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -86,12 +89,17 @@
 			override protected function updateDisplayList(w:Number, h:Number):void
 			{
 				super.updateDisplayList(w, h);
-				
+
 				if (data == null || !(data is XML) || _listData == null) {
 					this.visible = false;
 					return;
 				}
 				
+				
+				
+				if (this._enabledField != null) {
+					this.enabled = data[_enabledField] == 'Y';
+				}
 
 				var n:int = numChildren;
 				for (var i:int = 0; i < n; i++)

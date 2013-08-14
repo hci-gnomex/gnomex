@@ -44,9 +44,9 @@
 										 dataProvider="{requestList}">
 						<mx:columns>
 							<mx:AdvancedDataGridColumn headerText="Import?" width="50" dataField="@includeFlag" 
-											   itemRenderer="{views.renderers.CheckBoxRenderer.create()}"
-											   editable="false"
-											   editorDataField="selected"/>
+													   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true, '@enableCheckBox')}"
+													   editable="false"
+													   editorDataField="selected"/>
 							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="80" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Unchanged" dataField="@numUnmodifiedSamples" editable="false" width="120" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Updated" dataField="@numUpdatedSamples" editable="false" width="110" wordWrap="false" />
