@@ -182,9 +182,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         
         sess.flush();
         
-        saveApplications(sess, rc);
         saveSampleTypes(sess, rc);
         saveSequencingOptions(sess, rc);
+        saveApplications(sess, rc);
 
         sess.flush();
 
