@@ -47,7 +47,8 @@
 													   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true, '@enableCheckBox')}"
 													   editable="false"
 													   editorDataField="selected"/>
-							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="80" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="80" wordWrap="false" 
+													   itemRenderer="{views.renderers.CellWithErrorColorRenderer.create('@requestNumber', '@enableCheckBox', 'N')}"/>
 							<mx:AdvancedDataGridColumn headerText="# Samples Unchanged" dataField="@numUnmodifiedSamples" editable="false" width="120" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Updated" dataField="@numUpdatedSamples" editable="false" width="110" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Created" dataField="@numCreatedSamples" editable="false" width="100" wordWrap="false" />
@@ -219,6 +220,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.renderers.CellWithErrorColorRenderer;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.MultiselectRendererCommonInterface;
 			import views.util.SampleSheetColumnFormats;

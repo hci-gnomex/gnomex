@@ -8,24 +8,28 @@ package views.renderers
 	import mx.controls.Label;
 	import mx.core.IFactory;
 	
-	public class MultiRequestSampleCellRenderer extends mx.controls.Label {   
+	public class CellWithErrorColorRenderer extends mx.controls.Label {   
 		public var _dataField:String;	
 		public var errorBackground:uint = 0xFFC1C1;
 		
 		[Bindable]
-		public var _errorList:XMLList;
+		public var _errorField:String;
 		
-		public static function create(dataField:String, errorList:XMLList):IFactory {
-			return RendererFactory.create(views.renderers.MultiRequestSampleCellRenderer,
-				{_dataField: dataField, _errorList: errorList});			
+		[Bindable]
+		public var _errorValue:String;
+		
+		public static function create(dataField:String, errorField:String, errorValue:String = 'Y'):IFactory {
+			return RendererFactory.create(views.renderers.CellWithErrorColorRenderer,
+				{_dataField: dataField, _errorField: errorField, _errorValue: errorValue});			
 			
 		}	
 		
 		public static function createCustom(dataField:String,
-											errorList:XMLList,
+											errorField:String,
+											errorValue:String,
 											theErrorBackground:uint):IFactory {
-			return RendererFactory.create(views.renderers.MultiRequestSampleCellRenderer, 
-				{ _dataField: dataField, _errorList: errorList,
+			return RendererFactory.create(views.renderers.CellWithErrorColorRenderer, 
+				{ _dataField: dataField, _errorField: errorField, _errorValue: errorValue,
 					errorBackground: theErrorBackground});			
 			
 		}
@@ -34,8 +38,12 @@ package views.renderers
 			this._dataField = dataField;	
 		}
 		
-		public function set errorList(errorList:XMLList):void {
-			this._errorList = errorList;	
+		public function set errorField(errorField:String):void {
+			this._errorField = errorField;	
+		}
+		
+		public function set errorValue(errorValue:String):void {
+			this._errorValue = errorValue;	
 		}
 		
 		override protected function initializationComplete():void {   
@@ -63,21 +71,8 @@ package views.renderers
 			if (data == null) {
 				return;
 			}
-			if (!data.hasOwnProperty(_dataField) || !data.hasOwnProperty('@rowOrdinal') || _dataField.substr(0,2) != '@n') {
-				return;
-			}
 			
-			var hasError:Boolean = false;
-			var dataRowOrdinal:String = data['@rowOrdinal'].toString();
-			var dataColOrdinal:String = _dataField.substr(2);
-			for each (var err:XML in _errorList) {
-				if (err['@rowOrdinal'].toString() == dataRowOrdinal && (err['@columnOrdinal'] == dataColOrdinal || err['@columnOrdinal'] == '')) {
-					hasError = true;
-					break;
-				}
-			}
-
-			if (hasError) {
+			if (data[_errorField] == _errorValue) {
 				g.beginFill(errorBackground);
 				g.lineStyle(0,errorBackground);
 				g.drawRect(0,0,unscaledWidth,unscaledHeight);
