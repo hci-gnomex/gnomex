@@ -88,7 +88,7 @@
 										 fontSize="10"
 										 dataProvider="{allErrorsList}">
 						<mx:columns>
-							<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="30" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="Experiment" dataField="@requestNumber" editable="false" width="70" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
@@ -146,7 +146,7 @@
 											 fontSize="10"
 											 dataProvider="{sampleErrorsList}">
 							<mx:columns>
-								<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="30" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
 								<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
 								<mx:AdvancedDataGridColumn headerText="Experiment" dataField="@requestNumber" editable="false" width="70" wordWrap="false" />
 								<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
@@ -181,7 +181,7 @@
 												 fontSize="10"
 												 dataProvider="{allErrorsList}">
 								<mx:columns>
-									<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="30" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
 									<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
 									<mx:AdvancedDataGridColumn headerText="Exp." dataField="@requestNumber" editable="false" width="60" wordWrap="false" />
 									<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
@@ -385,7 +385,7 @@
 					col.dataField = "@rowOrdinal";
 					col.editable = false;
 					col.wordWrap = false;
-					col.width=30;
+					col.width=35;
 					sampleCols.push(col);
 					for each (var hdr:Object in sampleSheetXML..Header) {
 						var ordinal:String = hdr.@columnOrdinal.toString();
