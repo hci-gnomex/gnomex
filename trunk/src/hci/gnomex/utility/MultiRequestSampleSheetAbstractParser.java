@@ -582,8 +582,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   private Integer numberSamplesCreated(Request request) {
     Integer num = 0;
     if (request != null) {
-      for(Iterator i = request.getSamples().iterator(); i.hasNext(); ) {
-        Sample sample = (Sample)i.next();
+      for(Sample sample : requestSampleMap.get(request.getNumber())) { 
         if (sample.getIdSampleString() != null && sample.getIdSample() == null) {
           num++;
         }
