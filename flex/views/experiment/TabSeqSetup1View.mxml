@@ -22,6 +22,7 @@
 				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="10">
 					<mx:Text styleName="requiredBox" text="(1) Select the number of samples you would like to have combined into a single sequence lane." width="340"/>
 					<mx:TextInput id="numberSamplesPerChannel" width="50" change="{changeNumberSamplesPerChannel()}"/>
+					<mx:Label id="maxSamplesWarning" visible="false" text="The number of samples selected for combining into a single sequence lane exceeds the total number of samples" color="0x0000FF"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -383,6 +384,7 @@
 		
 		private function changeNumberSamplesPerChannel():void {
 			if(this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){
+				maxSamplesWarning.visible = false;
 				parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.text;
 				parentDocument.request.@hasBarCodes = "N";
 				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
@@ -390,6 +392,8 @@
 				}
 				pickBarcodeScheme();
 				parentDocument.samplesView.initializeSamplesGrid();
+			} else{
+				maxSamplesWarning.visible = true;
 			}
 			this.checkSeqSetup1Completeness();
 		}
