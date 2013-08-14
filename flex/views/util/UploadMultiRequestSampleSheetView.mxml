@@ -31,7 +31,7 @@
 					<mx:HBox width="100%">
 						<mx:Label text="Experiments To Be Imported" styleName="titleLabel" id="showRequestsTitle"/>
 						<mx:Spacer width="100%" />
-						<mx:LinkButton label="Show Errors/Warnings" click="{showAllErrors()}" styleName="formLinkButton" />
+						<mx:LinkButton label="Show Errors/Warnings" click="{showAllErrors()}" textDecoration="underline" fontSize="9" color="#FF0000" id="showErrorsWarningButton" />
 						<mx:LinkButton label="Show Samples" click="{showAllSamples()}" styleName="formLinkButton" />
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="requestGrid"  
@@ -48,7 +48,7 @@
 													   editable="false"
 													   editorDataField="selected"/>
 							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="80" wordWrap="false" 
-													   itemRenderer="{views.renderers.CellWithErrorColorRenderer.create('@requestNumber', '@enableCheckBox', 'N')}"/>
+													   styleFunction="requestStyleFunction" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Unchanged" dataField="@numUnmodifiedSamples" editable="false" width="120" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Updated" dataField="@numUpdatedSamples" editable="false" width="110" wordWrap="false" />
 							<mx:AdvancedDataGridColumn headerText="# Samples Created" dataField="@numCreatedSamples" editable="false" width="100" wordWrap="false" />
@@ -58,7 +58,7 @@
 									<mx:Component>
 										<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
 											<mx:LinkButton label="Samples" textDecoration="underline" click="outerDocument.showRequestSamples(event)" fontSize="9" color="#0000FF"/>
-											<mx:LinkButton label="Errors/Warnings" textDecoration="underline" fontSize="9" click="outerDocument.showRequestErrors(event)" color="#0000FF" visible="{data.@numErrors != '0'}"/>
+											<mx:LinkButton label="Errors/Warnings" textDecoration="underline" fontSize="9" click="outerDocument.showRequestErrors(event)" color="#FF0000" visible="{data.@numErrors != '0'}"/>
 										</mx:HBox>
 									</mx:Component>
 								</mx:itemRenderer>
@@ -220,7 +220,6 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.renderers.CellWithErrorColorRenderer;
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.MultiselectRendererCommonInterface;
 			import views.util.SampleSheetColumnFormats;
@@ -399,6 +398,13 @@
 						col.itemRenderer = views.renderers.MultiRequestSampleCellRenderer.create(col.dataField, allErrorsList);
 						sampleCols.push(col);
 					}
+					
+					if (allErrorsList.length() > 0) {
+						this.showErrorsWarningButton.visible = true;
+					} else {
+						this.showErrorsWarningButton.visible = false;
+					}
+					
 					samplesGrid.columns = sampleCols;
 					errorSamplesGrid.columns = sampleCols;
 					
@@ -444,6 +450,7 @@
 			private function showAllSamples():void {
 				samplesGrid.dataProvider = null;
 				samplesGrid.dataProvider = this.allSamplesList;
+				sampleErrorsGrid.dataProvider = new XMLList();
 				showSamplesTitle.text="All File Rows";
 				vsMain.selectedChild = this.showSamples;
 			}
@@ -451,6 +458,7 @@
 			private function showAllErrors():void {
 				errorsGrid.dataProvider = null;
 				errorsGrid.dataProvider = this.allErrorsList;
+				errorSamplesGrid.dataProvider = new XMLList();
 				showErrorsTitle.text="All Errors And Warnings";
 				vsMain.selectedChild = this.showErrors;
 			}
@@ -465,6 +473,7 @@
 					}
 				} 
 				samplesGrid.dataProvider = requestSamplesList;
+				sampleErrorsGrid.dataProvider = new XMLList();
 				showSamplesTitle.text="File Rows for Experiment " + requestNumber;
 				vsMain.selectedChild = showSamples;
 			}
@@ -479,6 +488,7 @@
 					}
 				} 
 				errorsGrid.dataProvider = requestErrorsList;
+				errorSamplesGrid.dataProvider = new XMLList();
 				showErrorsTitle.text="Errors and Warnings for Experiment " + requestNumber;
 				vsMain.selectedChild = showErrors;
 			}
@@ -578,6 +588,17 @@
 			
 			private function closePopup():void {
 				PopUpManager.removePopUp(this);
+			}
+			
+			private function requestStyleFunction(data:Object, col:AdvancedDataGridColumn):Object
+			{
+				// color text red if there is a request level error.
+				if ((data["@enableCheckBox"] == "N")) {
+					return {color:0xFF0000}; 
+				}
+				
+				// Return null if the selection is valid
+				return null;
 			}
 		]]>
 	</mx:Script>
