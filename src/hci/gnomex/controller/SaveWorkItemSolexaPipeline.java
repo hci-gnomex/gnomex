@@ -329,7 +329,13 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     bioIntroNote.append("<br>");
     
     emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
-    if(emailRecipients.contains(",")){
+    //As of 08/14/2013 the Bioinformatics contact email property is currently removed from gnomex.  So this email address is currently being set null.
+    //I've decided to just silently return out of this function for now if this email is null.  Otherwise we get an invalid email error in the server log.
+    if(emailRecipients == null){
+      return;
+    }
+    
+    if(emailRecipients != null && emailRecipients.contains(",")){
       for(String e : emailRecipients.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){
           log.error("Invalid email address: " + e);
