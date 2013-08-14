@@ -200,13 +200,10 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             try {
               this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
             } catch (Exception e) {
-              log.error("Unable to send confirmation email notifying submitter that request "
-                  + request.getNumber()
-                  + " has sequence lanes that have completed the pipeline.  " + e.toString());
+              this.xmlResult = "<InvalidSubmitterEmail notice=\"Unable to notify " + request.getAppUser().getFirstLastDisplayName() +" that their sequence lanes have been completed because either they have no email address listed in gnomex or their email address is malformed." + "\"" + "/>";
             }
           }
-          
-          setResponsePage(this.SUCCESS_JSP);  
+          setResponsePage(this.SUCCESS_JSP);
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow");
           setResponsePage(this.ERROR_JSP);
@@ -298,7 +295,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email: " + emailRecipients);
+      log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());
     }
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
