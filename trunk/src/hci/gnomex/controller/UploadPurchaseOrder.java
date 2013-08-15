@@ -87,11 +87,13 @@ public class UploadPurchaseOrder extends HttpServlet {
 
     } 
     catch (Exception e) {
+      HibernateSession.rollback();
       e.printStackTrace();
     }
     finally{
       try {
         HibernateSession.closeSession();
+        HibernateSession.closeTomcatSession();
       } catch (Exception e) {
         e.printStackTrace();
       }

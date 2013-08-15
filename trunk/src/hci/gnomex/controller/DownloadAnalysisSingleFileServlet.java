@@ -6,6 +6,7 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.FileDescriptor;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.FileInputStream;
@@ -252,6 +253,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         System.out.println( "DownloadAnalyisSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(
           "<html><head><title>Error</title></head>");
