@@ -230,13 +230,15 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
+      HibernateSession.rollback();
       System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request " + request.getNumber());
       System.out.println(e.toString());
       e.printStackTrace();
       throw new ServletException("Unable to upload quote information due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();
+        HibernateSession.closeTomcatSession();
       } catch (Exception e1) {
         System.out.println("UploadQuoteInfoServlet warning - cannot close hibernate session");
       }

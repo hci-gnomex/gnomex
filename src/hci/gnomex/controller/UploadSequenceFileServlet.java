@@ -182,6 +182,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
       writer.write(doc);
 
     } catch (Exception e) {
+      HibernateSession.rollback();
       Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
       e.printStackTrace();
       sess.flush();
@@ -197,7 +198,8 @@ public class UploadSequenceFileServlet extends HttpServlet {
       if (tempBulkUploadFile != null && tempBulkUploadFile.exists()) tempBulkUploadFile.delete();
       if (sess != null) {
         try {
-          HibernateSession.closeSession();          
+          HibernateSession.closeSession();       
+          HibernateSession.closeTomcatSession();
         } catch (Exception e) {
         }
       }

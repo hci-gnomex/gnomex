@@ -83,11 +83,13 @@ public class GetPurchaseOrderForm extends HttpServlet {
       return;
     }
     catch (Exception e) {
+      HibernateSession.rollback();
       e.printStackTrace();
     }
     finally{
       try {
         HibernateSession.closeSession();
+        HibernateSession.closeTomcatSession();
       } catch (Exception e) {
         e.printStackTrace();
       }

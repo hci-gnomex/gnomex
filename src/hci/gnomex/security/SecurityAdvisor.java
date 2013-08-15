@@ -3006,6 +3006,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       HibernateGuestSession.closeGuestSession();
     } else {
       HibernateSession.closeSession();
+      HibernateSession.closeTomcatSession();
     }
     this.isReadOnlySession = false;
   }

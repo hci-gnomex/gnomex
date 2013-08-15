@@ -253,13 +253,15 @@ public class UploadExperimentFileServlet extends HttpServlet {
       
       
     } catch (Exception e) {
+      HibernateSession.rollback();
       System.out.println("UploadExperimentFileServlet - unable to upload file " + fileName + " for request idRequest=" + idRequest);
       System.out.println(e.toString());
       e.printStackTrace();
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();  
+        HibernateSession.closeTomcatSession();
       } catch (Exception e1) {
         System.out.println("UploadExperimentFileServlet warning - cannot close hibernate session");
       }
