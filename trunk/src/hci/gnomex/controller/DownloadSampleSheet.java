@@ -248,8 +248,14 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       retVal = getDictionaryValue(sample.getIdOrganism(), "hci.gnomex.model.OrganismLite");
     } else if (column.equals("idOligoBarcode")) {
       retVal = getDictionaryValue(sample.getIdOligoBarcode(), "hci.gnomex.model.OligoBarcode");
+    } else if (column.equals("idOligoBarcodeB")) {
+      retVal = getDictionaryValue(sample.getIdOligoBarcodeB(), "hci.gnomex.model.OligoBarcode");
     } else if (column.equals("idSampleSource")) {
       retVal = getDictionaryValue(sample.getIdSampleSource(), "hci.gnomex.model.SampleSource");
+    } else if (column.equals("idSeqLibProtocol")) {
+      retVal = getDictionaryValue(sample.getIdSeqLibProtocol(), "hci.gnomex.model.SeqLibProtocol");
+    } else if (column.equals("codeBioanalyzerChipType")) {
+      retVal = getDictionaryValue(sample.getCodeBioanalyzerChipType(), "hci.gnomex.model.BioanalyzerChipType");
     }
     
     return retVal;
@@ -275,6 +281,14 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
   private String getDictionaryValue(Integer id, String cls) {
     if (id != null) {
       return DictionaryManager.getDisplay(cls, id.toString());
+    } else {
+      return "";
+    }
+  }
+  
+  private String getDictionaryValue(String code, String cls) {
+    if (code != null) {
+      return DictionaryManager.getDisplay(cls, code);
     } else {
       return "";
     }
