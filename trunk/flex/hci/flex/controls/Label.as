@@ -5,6 +5,7 @@ package hci.flex.controls
 	import hci.flex.renderers.RendererFactory;
 	
 	import mx.controls.AdvancedDataGrid;
+	import mx.controls.DataGrid;
 	import mx.controls.Label;
 	import mx.core.IFactory;
 
@@ -45,12 +46,17 @@ package hci.flex.controls
         }
 		
 		private function getToolTip():String{
-			var dg:AdvancedDataGrid = listData.owner as AdvancedDataGrid;
-			var func:Function = dg.columns[listData.columnIndex].dataTipFunction;
-			if(func != null){
-				return func.call(this, this.data);
-			}else{
-				return "";
+			if ( listData.owner is AdvancedDataGrid ) {
+				var dg:AdvancedDataGrid = listData.owner as AdvancedDataGrid;
+				var func:Function = dg.columns[listData.columnIndex].dataTipFunction;
+				if(func != null){
+					return func.call(this, this.data);
+				}else{
+					return "";
+				}
+			} else  {
+				var grid:DataGrid = listData.owner as DataGrid;
+				return grid.toolTip;
 			}
 		}
         
