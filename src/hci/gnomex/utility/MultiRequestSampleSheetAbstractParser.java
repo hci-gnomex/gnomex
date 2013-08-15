@@ -160,35 +160,37 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   }
   
   protected void parseRow(Session sess, DictionaryHelper dh, String[] values, Integer rowOrdinal) {
-    String requestNumber = values[requestNumberOrdinal];
-    String sampleNumber = values[sampleNumberOrdinal];
+    String requestNumber = "";
+    if (values.length > requestNumberOrdinal) {
+      requestNumber = values[requestNumberOrdinal];
+    }
+    String sampleNumber = "";
+    if (values.length > sampleNumberOrdinal) {
+      sampleNumber = values[sampleNumberOrdinal];
+    }
     String sampleName = "";
-    if (sampleNameOrdinal != null) {
+    if (sampleNameOrdinal != null && values.length > sampleNameOrdinal) {
       sampleName = values[sampleNameOrdinal];
     }
     
     Boolean rowError = false;
     Request request = null;
     Sample sample = null;
-    if (hasRequestError(requestNumber)) {
+    request = getRequest(sess, requestNumber);
+    if (request == null) {
+      errors.add(new Error(Error.REQUEST_ERROR, "Request does not exist or is not an external request.", rowOrdinal, null, requestNumber, sampleNumber));
       rowError = true;
     } else {
-      request = getRequest(sess, requestNumber);
-      if (request == null) {
-        errors.add(new Error(Error.REQUEST_ERROR, "Request does not exist or is not an external request.", rowOrdinal, null, requestNumber, sampleNumber));
-        rowError = true;
-      } else {
-        sample = getSample(sess, request, sampleNumber, rowOrdinal);
-        try {
-          if (!this.secAdvisor.canUpdate(request)) {
-            errors.add(new Error(Error.REQUEST_ERROR, "Insufficient privileges to update request.", rowOrdinal, null, requestNumber, sampleNumber));
-            rowError = true;
-          }
-        } catch(UnknownPermissionException ex) {
-          errors.add(new Error(Error.REQUEST_ERROR, "Unknown permission exception on request.", rowOrdinal, null, requestNumber, sampleNumber));
-          log.error("MultiRequestSampleSheetFileParser: Unknown permission exception", ex);
+      sample = getSample(sess, request, sampleNumber, rowOrdinal);
+      try {
+        if (!this.secAdvisor.canUpdate(request)) {
+          errors.add(new Error(Error.REQUEST_ERROR, "Insufficient privileges to update request.", rowOrdinal, null, requestNumber, sampleNumber));
           rowError = true;
         }
+      } catch(UnknownPermissionException ex) {
+        errors.add(new Error(Error.REQUEST_ERROR, "Unknown permission exception on request.", rowOrdinal, null, requestNumber, sampleNumber));
+        log.error("MultiRequestSampleSheetFileParser: Unknown permission exception", ex);
+        rowError = true;
       }
       if (sample != null && sample.getIdSample() == null && sampleName.length() == 0) {
         errors.add(new Error(Error.ROW_ERROR, "Neither Sample Number nor Sample Name specified for row.", rowOrdinal, null, requestNumber, sampleNumber));
@@ -200,28 +202,26 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       }
     }
     
-    if (!rowError) {
-      for(Integer colOrdinal : columnMap.keySet()) {
-        ColumnInfo info = columnMap.get(colOrdinal);
-        String value = values.length > colOrdinal ? values[colOrdinal] : null;
-        if (info.getType().equals(PropertyType.URL) || info.getType().equals(PropertyType.MULTI_OPTION)) {
-          if (value.length() > 2 && value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length() - 1);
-          }
+    for(Integer colOrdinal : columnMap.keySet()) {
+      ColumnInfo info = columnMap.get(colOrdinal);
+      String value = values.length > colOrdinal ? values[colOrdinal] : null;
+      if (info.getType().equals(PropertyType.URL) || info.getType().equals(PropertyType.MULTI_OPTION)) {
+        if (value != null && value.length() > 2 && value.startsWith("\"") && value.endsWith("\"")) {
+          value = value.substring(1, value.length() - 1);
         }
-        info.addValue(rowOrdinal, value);
-        
-        if (isValid(info, value, errors, rowOrdinal, colOrdinal, requestNumber, sampleNumber)) {
-          Boolean doSet = true;
-          if (colOrdinal.equals(this.requestNumberOrdinal) || colOrdinal.equals(this.sampleNumberOrdinal)) {
-            doSet = false;
-          }
-          if (colOrdinal.equals(this.sampleNameOrdinal) && (value == null || value.length() == 0)) {
-            doSet = false;
-          }
-          if (doSet) {
-            setValue(info, sample, value);
-          }
+      }
+      info.addValue(rowOrdinal, value);
+      
+      if (!rowError && isValid(info, value, errors, rowOrdinal, colOrdinal, requestNumber, sampleNumber)) {
+        Boolean doSet = true;
+        if (colOrdinal.equals(this.requestNumberOrdinal) || colOrdinal.equals(this.sampleNumberOrdinal)) {
+          doSet = false;
+        }
+        if (colOrdinal.equals(this.sampleNameOrdinal) && (value == null || value.length() == 0)) {
+          doSet = false;
+        }
+        if (doSet) {
+          setValue(info, sample, value);
         }
       }
     }
@@ -321,7 +321,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
           message = "Value does not match any choice for dropdown.";
         }
       } else if (info.getType().equals(PropertyType.URL)) {
-        String[] values = value.split("|");
+        String[] values = value.split("\\|");
         for(String v : values) {
           String[] pair = v.split(",");
           if (pair.length > 2) {
@@ -583,7 +583,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     Integer num = 0;
     if (request != null) {
       for(Sample sample : requestSampleMap.get(request.getNumber())) { 
-        if (sample.getIdSampleString() != null && sample.getIdSample() == null) {
+        if (sample != null && sample.getIdSampleString() != null && sample.getIdSample() == null) {
           num++;
         }
       }
@@ -607,7 +607,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     for(String requestNumber : this.requestSampleMap.keySet()) {
       List<Sample> samples = requestSampleMap.get(requestNumber);
       for(Sample sample: samples) {
-        if (sample.getIdSampleString() != null && sample.getIdSampleString().startsWith("Sample") && sample.getIdSample() != null) {
+        if (sample != null && sample.getIdSampleString() != null && sample.getIdSampleString().startsWith("Sample") && sample.getIdSample() != null) {
           // for new samples, the idSampleString is SAMPLE<rowOrdinal>
           Integer rowOrdinal = Integer.parseInt(sample.getIdSampleString().substring(6));
           // This is a new sample that was stored and now has a correct sample number

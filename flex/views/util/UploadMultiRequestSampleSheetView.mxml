@@ -97,7 +97,7 @@
 							<mx:AdvancedDataGridColumn headerText="Message" dataField="@message" editable="false" wordWrap="false" />
 						</mx:columns>
 					</mx:AdvancedDataGrid>
-					<mx:VBox width="100%" borderStyle="solid">
+					<mx:VBox width="100%" borderStyle="solid" id="errorSamplesVBox">
 						<mx:Label text="Samples for selected error" />
 						<mx:AdvancedDataGrid height="100" width="100%" id="errorSamplesGrid"  
 											 displayItemsExpanded="true"  
@@ -269,6 +269,8 @@
 
 				this.errorsGrid.addEventListener(ListEvent.CHANGE, errorsGridRowSelected);
 				this.samplesGrid.addEventListener(ListEvent.CHANGE, samplesGridRowSelected);
+				errorSamplesVBox.visible = true;
+				errorSamplesVBox.includeInLayout = true;
 
 				this.changeHeightWidth(1, 1);
 				vsMain.selectedChild=intro;
@@ -281,13 +283,9 @@
 				errorSamplesList = new XMLListCollection();
 				if (errorsGrid.selectedItem != null) {
 					var err:Object = errorsGrid.selectedItem;
-					if (err.@rowOrdinal == null || err.@rowOrdinal == "") {
-						errorSamplesList = allSamplesList.copy();
-					} else {
-						for each(var row:XML in allSamplesList) {
-							if (row.@rowOrdinal == err.@rowOrdinal) {
-								errorSamplesList.addItem(row);
-							}
+					for each(var row:XML in allSamplesList) {
+						if (err.@rowOrdinal == null || err.@rowOrdinal == "" || row.@rowOrdinal == err.@rowOrdinal) {
+							errorSamplesList.addItem(row);
 						}
 					}
 				}
@@ -358,9 +356,15 @@
 				if (event.data.indexOf("<Requests") >= 0 || event.data.indexOf("<Errors") >= 0) {
 					updateLists(new XML(event.data));
 				} else {
-					var errorMessage:String = event.text;
-					var removeHTML:RegExp = new RegExp("<[^>]*>", "gi");
-					var errorMessageSafe:String = errorMessage.replace(removeHTML, "");
+					var errorMessageSafe:String = "Unknown Error";
+					if (event.data.indexOf("<ERROR") >= 0) {
+						var errXML:XML = new XML(event.data);
+						errorMessageSafe = errXML.@message;
+					} else {
+						var errorMessage:String = event.text;
+						var removeHTML:RegExp = new RegExp("<[^>]*>", "gi");
+						errorMessageSafe = errorMessage.replace(removeHTML, "");
+					}
 					Alert.show(errorMessageSafe, "Upload Error");
 					PopUpManager.removePopUp(this);
 				}
@@ -375,6 +379,8 @@
 				if (requestList.length() == 0) {
 					requestList = null;
 					allErrorsList = sampleSheetXML..Error;
+					this.errorSamplesVBox.visible = false;
+					this.errorSamplesVBox.includeInLayout = false;
 					vsMain.selectedChild = showErrors;
 					this.changeHeightWidth(fullHeight, fullWidth);
 				} else {
