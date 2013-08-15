@@ -10,21 +10,23 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.containers.FormItem;
-			import ext.com.utils.StringUtils;
-			import mx.utils.ArrayUtil;
-			import ext.com.vos.Person;
 			import ext.com.Consts;
 			import ext.com.events.FieldMapperEvent;
+			import ext.com.utils.StringUtils;
+			import ext.com.vos.Person;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.FormItem;
+			import mx.controls.ComboBox;
+			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.core.UIComponent;
-			import mx.rpc.xml.SimpleXMLDecoder;
 			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.xml.SimpleXMLDecoder;
+			import mx.utils.ArrayUtil;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
-			import mx.managers.PopUpManager;
-			import mx.controls.dataGridClasses.DataGridColumn;
-			import mx.collections.ArrayCollection;
-			import mx.controls.ComboBox;
+			import mx.controls.Alert;
 			
 			public static const STATE_FILE_SELECT:String 	= "STATE_FILE_SELECT";
 			public static const STATE_FILE_ERROR:String	 	= "STATE_FILE_ERROR";
@@ -169,11 +171,11 @@
 						continue;
 					}
 					
-					value = StringUtils.stripDown( value );
+					value = StringUtils.stripDownSpecial( value );
 					
 					for each (var field:String in _fields)
 					{
-						field = StringUtils.stripDown( field );
+						field = StringUtils.stripDownSpecial( field );
 						
 						if (field == value)
 						{
@@ -284,12 +286,12 @@
 						continue;
 					}
 					
-					var columnLabel:String = StringUtils.stripDown( obj.label );
+					var columnLabel:String = StringUtils.stripDownSpecial( obj.label );
 										
 					for each (var comboBox:ComboBox in comboBoxes)
 					{
 						var formItem:FormItem = comboBox.parent as FormItem;
-						var formItemLabel:String = StringUtils.stripDown( formItem.label );
+						var formItemLabel:String = StringUtils.stripDownSpecial( formItem.label );
 							
 						if (columnLabel == formItemLabel)
 						{
@@ -321,7 +323,7 @@
 					}
 					
 					data.push( object );	 
-				}	
+				}
 				
 				var parsedEvent:FieldMapperEvent = new FieldMapperEvent( FieldMapperEvent.FIELDS_MAPPED );
 				parsedEvent.data = data;

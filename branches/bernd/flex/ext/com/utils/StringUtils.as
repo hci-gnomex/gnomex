@@ -37,6 +37,16 @@ package ext.com.utils
 			
 			return string;				
 		}
+		
+		public static function stripDownSpecial( string:String):String
+		{
+		//	string = string.toLowerCase();
+			string = StringUtil.trim( string );
+			string = string.replace( / /g, "" );
+			string = string.replace(/[~%&\\;:"',<>?#\s]/g,"");
+			string = string.charAt(0).toLowerCase() + string.substring( 1, string.length );
+			return string;
+		}
 
 		public static function capitalizeWords( string:String ):String
 		{

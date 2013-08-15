@@ -3355,6 +3355,8 @@
 					theViews.selectedChild = sequencerOverview;					
 				} else if (label == "Copy Paste Datagrid"){
 					theViews.selectedChild = cpDatagrid;
+				} else if (label == "Overview"){
+					theViews.selectedChild = expOverview;
 				}
 			}
 			
@@ -3498,6 +3500,7 @@
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 			<menuitem label="Experiment Overview" icon="iconFlask" />
 			<menuitem label="Sequencer Overview" icon="iconFlask" />
+			<menuitem label="Overview" icon="iconFlask" />
 			<menuitem label="Copy Paste Datagrid" icon="iconFlask" /> 
 		</menuitem>
 		
@@ -3962,6 +3965,8 @@
 					</util:WelcomeView>  
 					
 					<reporting:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
+					
+					<reporting:ExpOverview id="expOverview" label="Overview" />
 					
 					<reporting:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
 					

@@ -3,19 +3,21 @@
 		   xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:components="ext.com.components.*"
 		   width="100%" height="100%" 
-		   initialize="init()">
+		   initialize="init()" xmlns:util="views.util.*">
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			import ext.com.events.FieldMapperEvent;
-			import mx.utils.ObjectUtil;
-			import mx.managers.PopUpManager;
+			import ext.com.Consts;
 			import ext.com.components.FieldMapper;
+			import ext.com.events.FieldMapperEvent;
 			import ext.com.utils.DataGridUtils;
 			import ext.com.vos.Person;
+			
 			import mx.collections.ArrayCollection;
-			import ext.com.Consts;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.utils.ObjectUtil;
+			import mx.utils.object_proxy;
 			
 			[Bindable]
 			private var _leftPeople:ArrayCollection;
@@ -54,7 +56,7 @@
 			
 			private function handleImportClick():void
 			{
-				//showFieldMapper();
+				showFieldMapper();
 				Alert.show( "Disabled in the demo", "Disabled", Alert.OK );
 			}
 			
@@ -91,12 +93,12 @@
 				{
 					_rightPeople.addItem( person );
 				}
+				Alert.show(mx.utils.ObjectUtil.toString(_rightPeople));
 			}
 			
 		]]>
 	</mx:Script>
 	
-	<!--<mx:Style source="styles.css"/>-->
 	<mx:Style>
 		.padded
 		{
@@ -117,15 +119,15 @@
 							   enabled="{ leftDataGrid.selectedItem }"/>
 					<mx:Button label="Export" click="handleExportClick()" width="{ Consts.BUTTON_WIDTH }"/>						
 				</mx:HBox>
-				
-				<components:CopyPasteDataGrid id="leftDataGrid" dataProvider="{ _leftPeople }" 
-											  allowMultipleSelection="true" height="200" dragEnabled="true">
-					<components:columns>					
+				<util:DataGridCopyPaste id="leftDataGrid" dataProvider="{ _leftPeople }"
+										allowMultipleSelection="true" height="200" dragEnabled="true" initialize="leftDataGrid.init()">
+					<util:columns>
 						<mx:DataGridColumn dataField="{ Person.FIELD_FIRST_NAME }" headerText="First Name" width="100"/>
 						<mx:DataGridColumn dataField="{ Person.FIELD_LAST_NAME }" headerText="Last Name" width="100"/>
 						<mx:DataGridColumn dataField="{ Person.FIELD_EMAIL }" headerText="Email" width="150"/>
-					</components:columns>				
-				</components:CopyPasteDataGrid>
+					</util:columns>				
+				</util:DataGridCopyPaste>
+
 			</mx:VBox>
 			
 			<mx:VBox>
@@ -135,14 +137,14 @@
 							   enabled="{ _rightPeople.length > 0 }"/>
 					<mx:Label text="Ctrl+V to paste"/>											
 				</mx:HBox>				
-				<components:CopyPasteDataGrid id="rightDataGrid" dataProvider="{ _rightPeople }" 
-											  allowMultipleSelection="true" height="200" dropEnabled="true">
-					<components:columns>									
+				<util:DataGridCopyPaste id="rightDataGrid" dataProvider="{ _rightPeople }" 
+											  allowMultipleSelection="true" height="200" dropEnabled="true" initialize="rightDataGrid.init()">
+					<util:columns>									
 						<mx:DataGridColumn dataField="{ Person.FIELD_FIRST_NAME }" headerText="First Name" width="100"/>
 						<mx:DataGridColumn dataField="{ Person.FIELD_LAST_NAME }" headerText="Last Name" width="100"/>
 						<mx:DataGridColumn dataField="{ Person.FIELD_EMAIL }" headerText="Email" width="150"/>
-					</components:columns>
-				</components:CopyPasteDataGrid>
+					</util:columns>
+				</util:DataGridCopyPaste>
 			</mx:VBox>
 			
 		</mx:HBox>
