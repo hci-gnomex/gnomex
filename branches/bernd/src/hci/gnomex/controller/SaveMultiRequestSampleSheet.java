@@ -85,18 +85,24 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
         Integer nextSampleNumber = getStartingNextSampleNumber(request);
         for(Sample sample : parser.getModifiedSamplesForRequest(requestNumber)) {
           // idSampleString only set on new or modified samples
-          if (sample.getIdSampleString() != null) {
+          if (sample != null && sample.getIdSampleString() != null) {
             Boolean isNewSample = false;
             if (sample.getIdSample() == null) {
               isNewSample = true;
             }
             nextSampleNumber = SaveRequest.initSample(sess, request, sample, isNewSample, nextSampleNumber);
             Map sampleAnnotations = annotationMap.get(sample.getIdSampleString());
-            SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, null, dh, sampleAnnotations);
+            if (sampleAnnotations != null) {
+              SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, null, dh, sampleAnnotations);
+            }
             sess.flush();
           }
         }
       }
+      
+      // Set sample numbers on errors for any samples created.
+      parser.setErrorSampleNumbersAfterCreate();
+      
       Document doc = parser.toXMLDocument();
       XMLOutputter xmlOut = new XMLOutputter();
       this.xmlResult = xmlOut.outputString(doc);   

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 		   xmlns:views="views.*"    
-		   xmlns:util="views.util.*"
-		   xmlns:db="views.dashboard.*"
-		   creationPolicy="all" width="100%" height="100%"
-		   preinitialize="checkSecurity()"
-		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
-	<mx:states> 
+			xmlns:db="views.dashboard.*"
+		    xmlns:util="views.util.*" 			creationPolicy="all" width="100%" height="100%"
+			show="init()";
+			>	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
 		</mx:State>
@@ -65,6 +63,11 @@
 			
 			public function init():void {
 				checkSecurity();
+				callLater(showSplash);
+			}
+			
+			private function showSplash():void {
+				splashImage.visible = true;
 			}
 			
 			public function checkSecurity():void {
@@ -271,13 +274,12 @@
 		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center">
 		<mx:Spacer height="60" />
 
-<!--	<mx:HBox paddingTop="4" verticalAlign="middle">
-			<mx:Text  text="Welcome to GNomEx" styleName="welcomeLabel" left="8" top="8" id="text1" fontWeight="normal"/>
+		<mx:HBox paddingTop="4" verticalAlign="middle">
+			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
 		</mx:HBox>
-		-->
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
-			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha="1" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
+			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
 				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal"  textAlign="left" height="100%"   id="text4" width="100%"/>  			
 			</mx:VBox>
 		</mx:VBox>

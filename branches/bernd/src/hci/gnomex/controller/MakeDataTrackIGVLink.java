@@ -87,11 +87,13 @@ public class MakeDataTrackIGVLink extends HttpServlet {
   
   		execute(res);
 		} catch(Exception ex) {
+		  HibernateSession.rollback();
 		  log.error("MakeDataTrackIGVLink -- Unhandled exception", ex);
 		} finally {
 		  if (sess != null) {
 		    try {
 		      HibernateSession.closeSession();
+		      HibernateSession.closeTomcatSession();
 		    } catch(Exception ex1) {
 		    }
 		  }

@@ -183,31 +183,39 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
       responseOut.println(xmlOut.outputString(doc));   
     
     } catch (ServletException e) {
+      unexpectedError(e, res);
       log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
-      throw new ServletException(e.getMessage());
     } catch (org.jdom.IllegalDataException e) {
-      log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
-      PrintWriter responseOut = res.getWriter();
-      res.setHeader("Cache-Control", "cache, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0");
-      res.setHeader("Pragma", "public");
-      res.setDateHeader("Expires", 0);
-      res.setContentType("application/xml");
-      responseOut.println("<ERROR message=\"Illegal data\"/>");        
+      unexpectedError(e, res);
     } catch (Exception e) {
       res.setStatus(ERROR_UPLOAD_MISC);
+      unexpectedError(e, res);
       log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString() + "\n\nPlease contact GNomEx support.");
     }  finally {
       try {
         HibernateGuestSession.closeGuestSession();        
       } catch (Exception e1) {
-        System.out.println("UploadSampleSheetFileServlet warning - cannot close hibernate session");
+        log.error("UploadSampleSheetFileServlet warning - cannot close hibernate session", e1);
       }
       
       // Delete the file when finished
       File f = new File(directoryName+fileName);
       f.delete();
     } 
+  }
 
+  private void unexpectedError(Exception e, HttpServletResponse res) {
+    try {
+      log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
+      PrintWriter responseOut = res.getWriter();
+      res.setHeader("Cache-Control", "cache, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0");
+      res.setHeader("Pragma", "public");
+      res.setDateHeader("Expires", 0);
+      res.setContentType("application/xml");
+      responseOut.println("<ERROR message=\"Illegal data\"/>");
+    } catch(IOException ioe) {
+      log.error("UploadMultiRequestSampleSheetParser unable to build response:", ioe);
+    }
   }
 }

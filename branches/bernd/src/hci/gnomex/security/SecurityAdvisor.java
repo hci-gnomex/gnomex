@@ -3046,13 +3046,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 	  
   public void closeHibernateSession() throws Exception{
-	  if (this.isReadOnlySession) {
-	    HibernateGuestSession.closeGuestSession();
-	  } else {
-	    HibernateSession.closeSession();
-	  }
-	  this.isReadOnlySession = false;
-  }
+    if (this.isReadOnlySession) {
+      HibernateGuestSession.closeGuestSession();
+    } else {
+      HibernateSession.closeSession();
+      HibernateSession.closeTomcatSession();
+    }
+    this.isReadOnlySession = false;  }
 
   
   public String getVersion() {

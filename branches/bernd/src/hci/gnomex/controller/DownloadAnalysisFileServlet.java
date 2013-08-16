@@ -9,6 +9,7 @@ import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -253,6 +254,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
         System.out.println( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      HibernateSession.rollback();
       response.setStatus(999);
       System.out.println( "DownloadAnalyisFileServlet: An exception occurred " + e.toString());
       e.printStackTrace();

@@ -293,6 +293,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       writer.write(doc);
 
     } catch (Exception e) {
+      HibernateSession.rollback();
       Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
       e.printStackTrace();
       sess.flush();
@@ -308,7 +309,8 @@ public class UploadDataTrackFileServlet extends HttpServlet {
       if (tempBulkUploadFile != null && tempBulkUploadFile.exists()) tempBulkUploadFile.delete();
       if (sess != null) {
         try {
-          HibernateSession.closeSession();          
+          HibernateSession.closeSession(); 
+          HibernateSession.closeTomcatSession();
         } catch (Exception e) {
         }
       }

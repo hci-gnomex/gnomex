@@ -4,6 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatReadUtil;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
 import java.io.IOException;
@@ -130,6 +131,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
         System.out.println( "DownloadFastaFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(
           "<html><head><title>Error</title></head>");

@@ -29,7 +29,7 @@
 	
 	<mx:Fade id="fadeOut" duration="100"/>
 	<mx:Fade id="fadeIn" duration="100"/>	
-	
+	<mx:Fade id="fadeInSlow" duration="2000"/>	
 	
 	<mx:HTTPService 
 		id="logoutService"	    
@@ -356,6 +356,11 @@
 			private var cursorID:Number = 0; 
 			
 			public var uploadSampleSheetURL:String = null;
+			
+			
+			[Bindable]
+			[Embed(source="assets/gnomex_splash_logo.png")]
+			public var welcomeSplash:Class;
 			
 			[Bindable]  
 			public var siteLogo:String = "";
@@ -1567,11 +1572,14 @@
 			public function showProtocol(idProtocol:Object, className:String):void {
 				protocolsView.lastSavedProtocolId = idProtocol;
 				protocolsView.lastSelectedProtocolClass = className; 
-				protocolsView.initializeData();
-				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
-				theViews.selectedChild = protocolsView;
+				if (theViews.selectedChild == protocolsView) {
+					// initializeData called automatically if not alreadh showing -- otherwise we have to call it.
+					protocolsView.initializeData();
+				} else {
+					theViews.selectedChild = protocolsView;
+				}
 				
 			}
 			

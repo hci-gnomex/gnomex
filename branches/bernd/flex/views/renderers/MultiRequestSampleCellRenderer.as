@@ -8,9 +8,11 @@ package views.renderers
 	import mx.controls.Label;
 	import mx.core.IFactory;
 	
-	public class MultiRequestSampleCellRenderer extends mx.controls.Label
-	{   public var _dataField:String;	
+	public class MultiRequestSampleCellRenderer extends mx.controls.Label {   
+		public var _dataField:String;	
 		public var errorBackground:uint = 0xFFC1C1;
+		
+		[Bindable]
 		public var _errorList:XMLList;
 		
 		public static function create(dataField:String, errorList:XMLList):IFactory {

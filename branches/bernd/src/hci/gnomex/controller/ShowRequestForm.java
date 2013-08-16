@@ -241,6 +241,26 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             	}
             }
             
+            if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+	            boolean corePrepLib = true;
+              String steps = request.getApplication().getCoreSteps();
+              String sampleType = "";
+              String samplePrepMethod = "";
+	            if (request.getSamples().iterator().hasNext()) {
+                Sample smp = (Sample) request.getSamples().iterator().next(); 
+                if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
+                  corePrepLib = false;
+                }
+                if (!corePrepLib) {
+                	Element preppedByUserNode = new Element("H4");
+                	preppedByUserNode.setAttribute("class", "special");
+                	preppedByUserNode.addContent("Library Prepared By Client");
+                	maindiv.addContent(preppedByUserNode);
+                }
+	            }
+            }
+            
+            
             if (request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
               Element capLibDesign = new Element("H5");
               capLibDesign.addContent("Capture Lib Design: " + request.getCaptureLibDesignId());
@@ -283,6 +303,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
             	formatter.addIlluminaSampleTable(maindiv,  request.getSamples());
+            	formatter.addCovarisSampleTable(maindiv, request.getSamples());
             } else {
                 formatter.addSampleTable(maindiv, request.getSamples());
             }
@@ -341,9 +362,16 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
                   corePrepLib = false;
                 }
-                if (!corePrepLib) {
-                  steps = request.getApplication().getCoreStepsNoLibPrep();
-                }
+//                if (!corePrepLib) {
+//                	
+//                  steps = request.getApplication().getCoreStepsNoLibPrep(); // is it possible to have core steps when no lib prep is requested? steps is being set to null in no lib prep case. JFK
+//                  // The sample will not be prepared by the core. Add a line at end of printable form to show the requester will prepare sample.  8/12/13 Jared Kubly
+//                  Element preppedByUser = new Element("H7");
+//    	            preppedByUser.addContent("<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>");
+//    	            maindiv.addContent(preppedByUser);
+//    	                            
+//                  
+//                }
                 sampleType = dictionaryHelper.getSampleType(smp);
                 samplePrepMethod = getSamplePrepMethod(smp);
 	            }
@@ -394,6 +422,15 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 coreStepsString += "<P ALIGN=\"LEFT\">Sample Type:  " + (sampleType == null || sampleType.length() == 0 || sampleType.equals("&nbsp;") ? "_____________________________" : "<u>" + sampleType + "</u>") + "</P>";
                 coreStepsString += "<P ALIGN=\"LEFT\">Nucleic Acid Extraction Method:  " + (samplePrepMethod == null || samplePrepMethod.length() == 0 || samplePrepMethod.equals("&nbsp;") ? "___________________________________" : "<u>" + samplePrepMethod + "</u>") + "</P>";
                 coreStepsString += "<P ALIGN=\"LEFT\">Received Date:  ___________________</P>";
+                //TODO: show prepped by if core lab has been requested to prepare the sample
+                if(corePrepLib)
+                {
+                	coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: ______________________ (Core Lab Employee)</P>";
+                }
+                else                	
+                {
+                	//coreStepsString += "<P ALIGN=\"LEFT\">Library Prepared By: _____" + appUser.getFirstLastDisplayName() + "_____</P>"; // code not being called. 8/12/13 Jared Kubly
+                }
                 if (corePrepLib) {
                   coreStepsString += request.getApplication().getCoreSteps();
                 } else {
