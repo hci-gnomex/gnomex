@@ -71,6 +71,7 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -353,28 +354,30 @@
 			private function handleFieldsMapped( event:FieldMapperEvent ):void
 			{
 				var insertIdx = experimentCopy.selectedIndex;
-				if(insertIdx == -1){
-					Alert.show("Current IDX : " + experimentCopy.selectedIndex);
+				if(insertIdx == -1){		// First entry in datagrid, datagrid source is empty.
 					insertIdx = 0;
 				}else{
-					for(var idx:int = insertIdx; idx < event.data.length; idx++){
-						Alert.show("Removing: " + idx);
-						copyList.removeItemAt(idx);
+					var evtDataLen:int = event.data.length;
+					var totalLen:int = evtDataLen+insertIdx;
+					if(insertIdx != copyList.length-1){
+						for(var idx:int = insertIdx; idx <= totalLen-1; idx++){
+							copyList.removeItemAt(insertIdx);
+						}
 					}
-					experimentCopy.invalidateList();			
 				}
 				
 				var id:int = insertIdx;		
-				for each (var objData:Object in event.data)
+				var evtar:Array = event.data.reverse();
+				for each (var objData:Object in evtar)
 				{
 					copyList.addItemAt(objData, id);
 					//copyList.addItem( objData );
 					
 					id++;
 				}
-				
-				//copyList.source.reverse();	// reverse dataprovider source order
-				//Alert.show()copyList.removeItemAt(experimentCopy.selectedIndex-1);
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField(null, true)];
+				copyList.sort = sort;	// Sort dataprovider source
 			}			
 
 		]]>
@@ -512,6 +515,8 @@
 										dataProvider="{copyList}"
 										initialize="experimentCopy.init()"
 										dropEnabled="true"
+										dragEnabled="true"
+										dragMoveEnabled="true"
 										allowMultipleSelection="true">
 			<util:columns>
 				<mx:AdvancedDataGridColumn  dataField="experimentID" editable="false" headerText="Experiment ID"  width="60">

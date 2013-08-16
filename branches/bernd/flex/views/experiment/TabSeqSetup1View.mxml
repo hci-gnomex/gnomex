@@ -62,7 +62,7 @@
 		private var priceMap:Dictionary = new Dictionary();
 		
 		private function init():void {
-			currencyFormatter.currencySymbol = "€";
+			currencyFormatter.currencySymbol = "â‚¬";
 			currencyFormatter.precision = 2;
 			currencyFormatter.useThousandsSeparator;
 			

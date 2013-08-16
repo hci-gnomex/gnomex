@@ -2,9 +2,11 @@
 <mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 		   xmlns:views="views.*"    
 			xmlns:db="views.dashboard.*"
-		    xmlns:util="views.util.*" 			creationPolicy="all" width="100%" height="100%"
-			show="init()";
-			>	<mx:states> 
+		    xmlns:util="views.util.*" 			
+			creationPolicy="all" width="100%" height="100%"
+			creationComplete="init()"
+			>
+	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
 		</mx:State>
@@ -275,7 +277,7 @@
 		<mx:Spacer height="60" />
 
 		<mx:HBox paddingTop="4" verticalAlign="middle">
-			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
+			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  show="{showSplash()}" visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
 		</mx:HBox>
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
@@ -286,11 +288,12 @@
 		
 		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="100%" height="100%">
 			<mx:Spacer height="25" />
-			
+
+			<!--
 			<mx:HBox width="100%" horizontalAlign="center">
 				<mx:Label height="106" fontSize="33" text="Welcome to GNomEx" />
 			</mx:HBox>
-			
+			-->
 			<mx:Spacer height="10" />
 			
 			<mx:VBox verticalAlign="middle" horizontalAlign="center">

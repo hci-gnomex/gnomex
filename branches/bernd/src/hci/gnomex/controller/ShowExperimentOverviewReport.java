@@ -6,6 +6,7 @@ import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.report.constants.ReportFormats;
 import hci.report.model.Column;
 import hci.report.model.ReportRow;
@@ -217,6 +218,7 @@ public class ShowExperimentOverviewReport extends ReportCommand implements Seria
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
+      HibernateSession.rollback();
       log.error("An exception has occurred in ShowExperimentOverviewReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
