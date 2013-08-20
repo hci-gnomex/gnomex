@@ -36,12 +36,16 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MultiRequestSampleSheetAbstractParser.class);
 
   private static final String HEADER_REQUEST_NUMBER = "Request #";
+  private static final String HEADER_REQUEST_NUMBER2 = "Request Number";
   private static final String HEADER_SAMPLE_NUMBER = "Sample #";
+  private static final String HEADER_SAMPLE_NUMBER2 = "Sample Number";
   private static final String HEADER_SAMPLE_NAME = "Sample Name";
   private static final String HEADER_CONC = "Conc.";
   private static final String HEADER_UNIT = "Unit";
   private static final String HEADER_DESCRIPTION = "Description";
+  private static final String HEADER_DESCRIPTION1 = "Sample Description";
   private static final String HEADER_SAMPLE_TYPE = "Sample Type";
+  private static final String HEADER_ORGANISM = "Organism";
 
   protected List<Error> errors = null;
   protected Map<Integer, ColumnInfo> columnMap;
@@ -117,10 +121,11 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         info = getAnnotationColumnInfo(dh, ordinal, header);
       }
       if (info == null) {
-        errors.add(new Error(Error.COLUMN_ERROR, "Column does not map to a column or annotation.", null, ordinal));
-      } else {
-        columnMap.put(info.getOrdinal(), info);
+        errors.add(new Error(Error.COLUMN_ERROR, "Column with header '" + header + "' does not map to a column or annotation.", null, ordinal));
+        info = getErrorColumnInfo(ordinal, header);
       }
+      
+      columnMap.put(info.getOrdinal(), info);
       ordinal++;
     }
   }
@@ -129,23 +134,25 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   
   private ColumnInfo getColumnColumnInfo(Integer ordinal, String header) {
     ColumnInfo info = null;
-    if (header.equals(HEADER_REQUEST_NUMBER)) {
+    if (header.toLowerCase().equals(HEADER_REQUEST_NUMBER.toLowerCase()) || header.toLowerCase().equals(HEADER_REQUEST_NUMBER2.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_REQUEST_NUMBER, null, PropertyType.TEXT, null);
       requestNumberOrdinal = ordinal;
-    } else if (header.equals(HEADER_SAMPLE_NUMBER)) {
+    } else if (header.toLowerCase().equals(HEADER_SAMPLE_NUMBER.toLowerCase()) || header.toLowerCase().equals(HEADER_SAMPLE_NUMBER2.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_SAMPLE_NUMBER, "number", PropertyType.TEXT, null);
       sampleNumberOrdinal = ordinal;
-    } else if (header.equals(HEADER_SAMPLE_NAME)) {
+    } else if (header.toLowerCase().equals(HEADER_SAMPLE_NAME.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_SAMPLE_NAME, "name", PropertyType.TEXT, null);
       sampleNameOrdinal = ordinal;
-    } else if (header.equals(HEADER_CONC)) {
+    } else if (header.toLowerCase().equals(HEADER_CONC.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_CONC, "concentration", ColumnInfo.NUMERIC, null);
-    } else if (header.equals(HEADER_UNIT)) {
+    } else if (header.toLowerCase().equals(HEADER_UNIT.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_CONC, "codeConcentrationUnit", PropertyType.OPTION, "hci.gnomex.model.ConcentrationUnit");
-    } else if (header.equals(HEADER_DESCRIPTION)) {
+    } else if (header.toLowerCase().equals(HEADER_DESCRIPTION.toLowerCase()) || header.toLowerCase().equals(HEADER_DESCRIPTION1.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_DESCRIPTION, "description", PropertyType.TEXT, null);
-    } else if (header.equals(HEADER_SAMPLE_TYPE)) {
+    } else if (header.toLowerCase().equals(HEADER_SAMPLE_TYPE.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_SAMPLE_TYPE, "idSampleType", PropertyType.OPTION, "hci.gnomex.model.SampleType");
+    } else if (header.toLowerCase().equals(HEADER_ORGANISM.toLowerCase())) {
+      info = new ColumnInfo(ordinal, HEADER_ORGANISM, "idOrganism", PropertyType.OPTION, "hci.gnomex.model.OrganismLite");
     }
     return info;
   }
@@ -156,6 +163,11 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (p != null && p.getIsActive().equals("Y") && p.getForSample().equals("Y")) {
       info = new ColumnInfo(ordinal, p);
     }
+    return info;
+  }
+  
+  private ColumnInfo getErrorColumnInfo(Integer ordinal, String header) {
+    ColumnInfo info = new ColumnInfo(ordinal, header, null, PropertyType.TEXT, null);
     return info;
   }
   
@@ -229,7 +241,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   
   private Boolean hasRequestError(String requestNumber) {
     for(Error error : this.errors) {
-      if (error.getRequestNumber().equals(requestNumber) && error.getStatus().equals(error.REQUEST_ERROR)) {
+      if (error.getRequestNumber() != null && error.getRequestNumber().equals(requestNumber) && error.getStatus().equals(error.REQUEST_ERROR)) {
         return true;
       }
     }
