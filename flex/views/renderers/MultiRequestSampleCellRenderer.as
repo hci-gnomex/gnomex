@@ -71,7 +71,8 @@ package views.renderers
 			var dataRowOrdinal:String = data['@rowOrdinal'].toString();
 			var dataColOrdinal:String = _dataField.substr(2);
 			for each (var err:XML in _errorList) {
-				if (err['@rowOrdinal'].toString() == dataRowOrdinal && (err['@columnOrdinal'] == dataColOrdinal || err['@columnOrdinal'] == '')) {
+				if ((err['@rowOrdinal'] == dataRowOrdinal || err['@rowOrdinal'] == '') 
+					&& (err['@columnOrdinal'] == dataColOrdinal || err['@columnOrdinal'] == '')) {
 					hasError = true;
 					break;
 				}
