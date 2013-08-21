@@ -314,10 +314,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               break;
             }
           }
-        }
-        if (!foundInstitution) {
-          requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-          requestParser.getRequest().setIdInstitution(null);
+          if (!foundInstitution) {
+            requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+            requestParser.getRequest().setIdInstitution(null);
+          }
         }
       }
             
