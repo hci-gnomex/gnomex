@@ -353,6 +353,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   
   private Boolean isValidOption(ColumnInfo info, String value) {
     Boolean valid = false;
+    value = value.trim();
     if (value.length() == 0) {
       valid = true;
     } else {
@@ -446,6 +447,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       String[] values = value.split(",");
       String newValue = "";
       for(String v : values) {
+        v = v.trim();
         for(Iterator i = p.getOptions().iterator(); i.hasNext(); ) {
           PropertyOption o = (PropertyOption)i.next();
           if (v.equals(o.getDisplay())) {

@@ -1251,6 +1251,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         String[] valueTokens = value.split(",");
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];
+          v = v.trim();
           for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
             PropertyOption option = (PropertyOption)i1.next();
             if (v.equals(option.getIdPropertyOption().toString())) {
