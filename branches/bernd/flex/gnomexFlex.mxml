@@ -3361,8 +3361,6 @@
 					theViews.selectedChild = experimentOverview;					
 				} else if (label == "Sequencer Overview"){
 					theViews.selectedChild = sequencerOverview;					
-				} else if (label == "Copy Paste Datagrid"){
-					theViews.selectedChild = cpDatagrid;
 				} else if (label == "Overview"){
 					theViews.selectedChild = expOverview;
 				}
@@ -3509,7 +3507,6 @@
 			<menuitem label="Experiment Overview" icon="iconFlask" />
 			<menuitem label="Sequencer Overview" icon="iconFlask" />
 			<menuitem label="Overview" icon="iconFlask" />
-			<menuitem label="Copy Paste Datagrid" icon="iconFlask" /> 
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -3977,8 +3974,6 @@
 					<reporting:ExpOverview id="expOverview" label="Overview" />
 					
 					<reporting:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
-					
-					<reporting:CPDataGrid id="cpDatagrid" label="Copy Paste Datagrid" />
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">

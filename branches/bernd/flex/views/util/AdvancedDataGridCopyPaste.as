@@ -1,23 +1,23 @@
 package views.util
 {
-	import mx.controls.AdvancedDataGrid;
-	
-	import mx.managers.FocusManager;
-	import mx.collections.ArrayCollection;
-	import mx.utils.ObjectUtil;
-	import mx.controls.TextArea;
-	import mx.core.UIComponent;
-	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-	//import mx.controls.dataGridClasses.DataGridColumn;
-	import flash.events.KeyboardEvent;
 	import ext.com.utils.AdvancedDataGridUtils;
-	import flash.ui.ContextMenu;
-	import flash.ui.ContextMenuItem;
-	import flash.events.MouseEvent;
-	import flash.events.Event;
+	
 	import flash.events.ContextMenuEvent;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
 	import flash.system.System;
+	import flash.ui.ContextMenu;
+	import flash.ui.ContextMenuItem;
+	
+	import mx.collections.ArrayCollection;
+	import mx.controls.AdvancedDataGrid;
+	import mx.controls.TextArea;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.core.UIComponent;
+	import mx.managers.FocusManager;
+	import mx.utils.ObjectUtil;
 	
 	
 	public class AdvancedDataGridCopyPaste extends AdvancedDataGrid
@@ -29,14 +29,17 @@ package views.util
 		public var _pasteFunction:Function;
 		public var _pasteEnabled:Boolean;
 		
+		public var _mode:String = "row";
+		public var _selectedCell:Object;
+		
 		private var _contextMenu:ContextMenu;
-		private var _copyMenuItem:ContextMenuItem;		
+		private var _copyMenuItem:ContextMenuItem;
+		private var _pasteMenuItem:ContextMenuItem;
 		
 		public function AdvancedDataGridCopyPaste()
 		{
 			super();
 		}		
-		
 		
 		public function init():void
 		{
@@ -49,7 +52,7 @@ package views.util
 			// note: the label can not be "Copy" (if it is, the menu item won't appear)
 			_copyMenuItem = new ContextMenuItem( "Copy item" );
 			_copyMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleCopySelect );
-			
+
 			_contextMenu = new ContextMenu();
 			_contextMenu.hideBuiltInItems();
 			_contextMenu.customItems = [ _copyMenuItem ];

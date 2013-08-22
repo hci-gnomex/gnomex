@@ -65,7 +65,6 @@
 			import ext.com.events.FieldMapperEvent;
 			import ext.com.utils.AdvancedDataGridUtils;
 			import ext.com.utils.StringUtils;
-			import ext.com.vos.Person;
 			
 			import flash.net.navigateToURL;
 			
@@ -117,6 +116,9 @@
 			
 			[Bindable]
 			private var requestNumbers:ArrayCollection;			
+			
+			[Bindable]
+			private var mode:String;
 			
 			public function init():void {
 				Security.allowDomain( "*" );
@@ -327,8 +329,49 @@
 			{
 				var data:Array = AdvancedDataGridUtils.getItemsFromText( event.text );
 				var dataAC:ArrayCollection = new ArrayCollection( data );				
+				var obj:Object = dataAC.getItemAt(0);
+				var cnt:int=0;
 				
-				showFieldMapper( dataAC );
+				// Count number of columns.
+				for (var s:String in obj) cnt++;
+				
+				/*
+				* Test amount of columns, if 1 column map without column mapper and paste in selected cell.
+				* Else show fieldMapper.
+				*/
+				if(cnt > 1){
+					showFieldMapper( dataAC );
+				}else if(cnt == 1){
+					singleColumnMapper( data );
+				}
+				
+			}
+			
+			private function singleColumnMapper( data:Array ):void{
+				var dgIdx:Object = experimentCopy.selectedCells;
+				var zeroPointRow:int = dgIdx[0].rowIndex;
+				var zeroPointCol:int = dgIdx[0].columnIndex;
+				var offset:int = 0;
+				
+				for each(var colItem:Object in data){
+					var loopIdx:int = zeroPointRow+offset;
+					var originalRow:Object = copyList.getItemAt(loopIdx);
+					var colVarName:String = experimentCopy.columns[zeroPointCol].dataField;
+					
+					if(originalRow != null){
+						if(!experimentCopy.columns[zeroPointCol].isLocked){			// Check wether column is locked.
+							originalRow[colVarName] = colItem.col1;
+							copyList.setItemAt(originalRow, loopIdx);
+							offset++;
+						}else{
+							Alert.show("Im sorry. This column is locked. Pasting is not possible.", "Locked");
+							break;
+						}
+						
+					}else{
+						break;						
+					}
+				}
 			}
 			
 			private function showFieldMapper( data:ArrayCollection = null ):void
@@ -338,6 +381,7 @@
 				var comboObject:Object = new Object();
 				var dataFields:Array = new Array();
 				
+				// Add columns as datafields.				
 				for each(var str:String in data.getItemAt(0))
 				{
 					dataFields.push(StringUtils.stripDownSpecial(str));
@@ -353,16 +397,20 @@
 			
 			private function handleFieldsMapped( event:FieldMapperEvent ):void
 			{
-				var insertIdx = experimentCopy.selectedIndex;
+				var insertIdx:int = experimentCopy.selectedIndex;
 				if(insertIdx == -1){		// First entry in datagrid, datagrid source is empty.
 					insertIdx = 0;
 				}else{
 					var evtDataLen:int = event.data.length;
 					var totalLen:int = evtDataLen+insertIdx;
-					if(insertIdx != copyList.length-1){
-						for(var idx:int = insertIdx; idx <= totalLen-1; idx++){
-							copyList.removeItemAt(insertIdx);
+					if(experimentOverview._mode == "row"){
+						if(insertIdx != copyList.length-1){
+							for(var idx:int = insertIdx; idx <= totalLen-1; idx++){
+								copyList.removeItemAt(insertIdx);
+							}
 						}
+					}else if(experimentOverview._mode == "col"){
+						
 					}
 				}
 				
@@ -372,7 +420,7 @@
 				{
 					copyList.addItemAt(objData, id);
 					//copyList.addItem( objData );
-					
+				
 					id++;
 				}
 				var sort:Sort = new Sort();
@@ -380,6 +428,26 @@
 				copyList.sort = sort;	// Sort dataprovider source
 			}			
 
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var lblTxt:String = modeLabel.text;
+				if(lblTxt == "Single Cell Mode"){
+					modeLabel.text = "Row Paste Mode";
+					modeButton.label = "Row Paste Mode";
+					experimentOverview._mode = "row";
+					experimentCopy.editable = "false";
+					experimentCopy.selectionMode="singleRow";
+				}else{
+					modeLabel.text = "Single Cell Mode";
+					modeButton.label = "Single Cell Mode"
+					experimentCopy.editable = "true";
+					experimentCopy.selectionMode="singleCell";
+					experimentOverview._mode = "col";
+					experimentOverview._selectedCell = experimentCopy.selectedItem;
+				}
+
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
@@ -459,6 +527,9 @@
 				<mx:HBox width="95%">
 					<mx:Label text="Showing {experimentList.source.length()} item(s)" />
 				</mx:HBox>
+					<mx:Text id="modeLabel" text="Edit Mode " color="red" />
+					<mx:Button id="modeButton" label="Single Cell Mode" click="button1_clickHandler(event)" />
+					<mx:Button id="idxClick" label="Show Index" click="Alert.show(mx.utils.ObjectUtil.toString(experimentCopy.selectedCells));" />
 					<mx:LinkButton id="resetButton" click="resetFilters()" label="Reset Filters" />
 			</mx:HBox>
 		</mx:VBox>	
@@ -470,14 +541,10 @@
 							 allowMultipleSelection="true"
 							>
 			<util:columns>
-				<mx:AdvancedDataGridColumn  dataField="@experimentId" editable="false" headerText="Experiment ID" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@userFullName" editable="false" headerText="Client" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@sampleNumber" editable="false" headerText="Sample Number" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@sampleName" editable="false" headerText="Sample Name" width="60">
-				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="@experimentId" editable="false" headerText="Experiment ID" width="60" />
+				<mx:AdvancedDataGridColumn  dataField="@userFullName" editable="false" headerText="Client" width="60" />
+				<mx:AdvancedDataGridColumn  dataField="@sampleNumber" editable="false" headerText="Sample Number" width="60" />
+				<mx:AdvancedDataGridColumn  dataField="@sampleName" editable="false" headerText="Sample Name" width="60" />
 				<mx:AdvancedDataGridColumn  dataField="@sampleBarcode" editable="false" headerText="Index Tag"   width="28">
 					<mx:headerRenderer> 
 						<mx:Component>
@@ -488,28 +555,23 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>	
-				<mx:AdvancedDataGridColumn  dataField="@expSeqRunType" editable="false" headerText="Paired/Single"   width="25">
-					<mx:headerRenderer > 
+				<mx:AdvancedDataGridColumn  dataField="@expSeqRunType" editable="false" headerText="Single/Paired"   width="25">
+					<mx:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 								<mx:Label text="Single/"/>
 								<mx:Label text="Paired"/>
 							</mx:VBox>
 						</mx:Component>
-					</mx:headerRenderer>                     
+					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="@expNumSeqCycles"  editable="false" headerText="# Cycles"   width="32" />
-				<mx:AdvancedDataGridColumn  dataField="@expReadApp" editable="false" headerText="Experiment Type" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@labFullName" editable="false" headerText="Lab" width="60">
-				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="@expReadApp" editable="false" headerText="Experiment Type" width="60" />
+				<mx:AdvancedDataGridColumn  dataField="@labFullName" editable="false" headerText="Lab" width="60" />
 				<mx:AdvancedDataGridColumn  dataField="@samplePrepDate" editable="false" headerText="Library Prep Completed" width="60" />
-				<mx:AdvancedDataGridColumn  dataField="@expCreateDate" editable="false" headerText="Submission Date" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="@expInstrument" editable="false" headerText="Instrument" width="60">
-				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn  dataField="@expCreateDate" editable="false" headerText="Submission Date" width="60" />
+				<mx:AdvancedDataGridColumn  dataField="@expInstrument" editable="false" headerText="Instrument" width="60" />
 			</util:columns>
-			
 		</util:AdvancedDataGridCopyPaste>
 		<util:AdvancedDataGridCopyPaste id="experimentCopy" width="100%" height="90%"
 										dataProvider="{copyList}"
@@ -519,44 +581,37 @@
 										dragMoveEnabled="true"
 										allowMultipleSelection="true">
 			<util:columns>
-				<mx:AdvancedDataGridColumn  dataField="experimentID" editable="false" headerText="Experiment ID"  width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="client" editable="false" headerText="Client" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="sampleNumber" editable="false" headerText="Sample Number" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="sampleName" editable="false" headerText="Sample Name" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="indexTag" editable="false" headerText="Index Tag"   width="28">
-					<mx:headerRenderer> 
+				<util:CustomAdvancedDataGridColumn  dataField="experimentID" editable="false" headerText="Experiment ID" isLocked="true" width="60" />
+				<util:CustomAdvancedDataGridColumn  dataField="client" editable="false" headerText="Client" isLocked="true" width="60" />
+				<util:CustomAdvancedDataGridColumn  dataField="sampleNumber" editable="false" headerText="Sample Number" isLocked="true" width="60" />
+				<util:CustomAdvancedDataGridColumn  dataField="sampleName" editable="false" headerText="Sample Name" width="60" />
+				<util:CustomAdvancedDataGridColumn  dataField="indexTag" editable="false" headerText="Index Tag"   width="28">
+					<util:headerRenderer>
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 								<mx:Label text="Index"/>
 								<mx:Label text="Tag"/>
 							</mx:VBox>
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>	
-				<mx:AdvancedDataGridColumn  dataField="paired/single" editable="false" headerText="Paired/Single"   width="25">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-								<mx:Label text="Single/"/>
-								<mx:Label text="Paired"/>
-							</mx:VBox>
-						</mx:Component>
-					</mx:headerRenderer>                     
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="cycles"  editable="false" headerText="# Cycles"   width="32" />
-				<mx:AdvancedDataGridColumn  dataField="experimentType" editable="false" headerText="Experiment Type" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="lab" editable="false" headerText="Lab" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="libraryPrepCompleted" editable="false" headerText="Library Prep Completed" width="60" />
-				<mx:AdvancedDataGridColumn  dataField="submissionDate" editable="false" headerText="Submission Date" width="60">
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn  dataField="instrument" editable="false" headerText="Instrument" width="60">
-				</mx:AdvancedDataGridColumn>
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>	
+					<util:CustomAdvancedDataGridColumn  dataField="single/Paired" editable="false" headerText="Single/Paired"   width="25">
+						<util:headerRenderer > 
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Single/"/>
+									<mx:Label text="Paired"/>
+								</mx:VBox>
+							</mx:Component>
+						</util:headerRenderer>                     
+				</util:CustomAdvancedDataGridColumn>
+						<util:CustomAdvancedDataGridColumn  dataField="cycles"  editable="false" headerText="# Cycles" isLocked="true" width="32" />
+						<util:CustomAdvancedDataGridColumn  dataField="experimentType" editable="false" headerText="Experiment Type" isLocked="true" width="60" />
+						<util:CustomAdvancedDataGridColumn  dataField="lab" editable="false" headerText="Lab" isLocked="true" width="60" />
+						<util:CustomAdvancedDataGridColumn  dataField="libraryPrepCompleted" editable="false" headerText="Library Prep Completed" isLocked="true" width="60" />
+						<util:CustomAdvancedDataGridColumn  dataField="submissionDate" editable="false" headerText="Submission Date" isLocked="true" width="60" />
+						<util:CustomAdvancedDataGridColumn  dataField="instrument" editable="false" headerText="Instrument" isLocked="true" width="60" />
+
 			</util:columns>
 		</util:AdvancedDataGridCopyPaste>
 	</mx:VBox>

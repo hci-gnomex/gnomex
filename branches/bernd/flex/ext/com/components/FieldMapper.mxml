@@ -13,7 +13,6 @@
 			import ext.com.Consts;
 			import ext.com.events.FieldMapperEvent;
 			import ext.com.utils.StringUtils;
-			import ext.com.vos.Person;
 			
 			import mx.collections.ArrayCollection;
 			import mx.containers.FormItem;
