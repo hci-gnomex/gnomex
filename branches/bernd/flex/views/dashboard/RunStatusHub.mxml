@@ -137,6 +137,12 @@
 		}
 	]]>
 </mx:Script>
+	<mx:states>
+		<mx:State name="AdminState"/>
+		<mx:State name="BillingState"/>
+		<mx:State name="WorkflowState"/>
+		<mx:State name="UserState"/>
+	</mx:states>
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox width="497" height="32" horizontalAlign="center" paddingTop="5">
 			<mx:Label id="mainTitle" height="24" fontSize="18" text="Sequencer Status"/>
