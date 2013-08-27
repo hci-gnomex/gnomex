@@ -229,9 +229,13 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fd.setBaseFilePath(getAnalysisDirectory(baseDir,a));
               fd.setIdLab(a.getIdLab());
               
+              String comments = "";
+              if ((fd.getType() == null || !fd.getType().equals("dir")) && fd.getComments() != null) {
+                comments = fd.getComments();
+              }
               fdNode.setAttribute("idAnalysis", a.getIdAnalysis()!=null?a.getIdAnalysis().toString():"");
               fdNode.setAttribute("dirty", "N");
-              fdNode.setAttribute("key", directoryName != "" ? a.getKey(directoryName) : a.getKey());
+              fdNode.setAttribute("key", directoryName != null && directoryName.length() > 0 ? a.getKey(directoryName) : a.getKey());
               fdNode.setAttribute("type", fd.getType() != null ? fd.getType() : "");
               fdNode.setAttribute("displayName", fd.getDisplayName() != null ? fd.getDisplayName() : "");
               fdNode.setAttribute("fileSize", String.valueOf(fd.getFileSize()));
@@ -240,7 +244,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("fileName", fd.getFileName() != null ? fd.getFileName() : "");
               fdNode.setAttribute("qualifiedFilePath", fd.getQualifiedFilePath() != null ? fd.getQualifiedFilePath() : "");
               fdNode.setAttribute("baseFilePath", fd.getBaseFilePath() != null ? fd.getBaseFilePath() : "");
-              fdNode.setAttribute("comments", fd.getComments() != null & fd.getType()!="dir" ? fd.getComments() : "");
+              fdNode.setAttribute("comments", comments);
               fdNode.setAttribute("lastModifyDate", fd.getLastModifyDate() != null ? fd.getLastModifyDate().toString() : "");
               fdNode.setAttribute("zipEntryName", fd.getZipEntryName() != null ? fd.getZipEntryName() : "");
               fdNode.setAttribute("number", fd.getAnalysisNumber() != null ? fd.getAnalysisNumber() : "");
@@ -458,11 +462,11 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
   public static void recurseAddChildren(Element fdNode, AnalysisFileDescriptor fd, Map fileMap, Map knownFilesMap, Session sess) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType() != null && fd.getType().equals("dir") ) {
         fdNode.setAttribute("isEmpty", "Y");
       }
     } else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType() != null && fd.getType().equals("dir") ) {
         fdNode.setAttribute("isEmpty", "N");
       }
     }
@@ -472,14 +476,18 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
       
       childFd.setIdAnalysis(fd.getIdAnalysis());
-      childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != "" ? fd.getQualifiedFilePath() + File.separator + fd.getDisplayName() : fd.getDisplayName());
+      childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath() + File.separator + fd.getDisplayName() : fd.getDisplayName());
       childFd.setBaseFilePath(fd.getBaseFilePath());
       childFd.setIdLab(fd.getIdLab());
       
       AnalysisFile af = (AnalysisFile)knownFilesMap.get(childFd.getQualifiedFileName());
       
       if (af != null) {
-        fdNode.setAttribute("comments",fd.getType()!="dir"&af.getComments()!=null?af.getComments():"");
+        if ((fd.getType() == null || !fd.getType().equals("dir")) && af.getComments() != null) {
+          fdNode.setAttribute("comments",af.getComments());
+        } else {
+          fdNode.setAttribute("comments","");
+        }
         childFd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
         childFd.setUploadDate(af.getUploadDate());
         childFd.setComments(af.getComments());
@@ -536,7 +544,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
         recurseAddChildren(childFdNode, childFd, fileMap, knownFilesMap, sess);
       } else {
-        if ( childFd.getType() == "dir" ) {
+        if ( childFd.getType() != null && childFd.getType().equals("dir") ) {
           childFdNode.setAttribute("isEmpty", "Y");
         }
       }
