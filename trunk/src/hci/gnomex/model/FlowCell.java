@@ -145,7 +145,7 @@ public class FlowCell extends HibernateDetailObject {
     // the folder name automatically.
     Boolean pieceNull = false;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
-    Boolean isMiSeq = this.getCodeSequencingPlatform() == SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM ? true : false;
+    Boolean isMiSeq = this.getCodeSequencingPlatform().equals(SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM) ? true : false;
     if (this.getCreateDate() != null) {
       runFolder += dateFormat.format(this.getCreateDate());
     } else {
