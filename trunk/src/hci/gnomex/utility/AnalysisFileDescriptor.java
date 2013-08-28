@@ -229,7 +229,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public String getFilePathName() {
     String fullPathName = "";
     
-    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
+    if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
       fullPathName += getQualifiedFilePath() + "/"; 
     }
     fullPathName += getDisplayName();
@@ -244,7 +244,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public String getQualifiedFileName() {
     String fullPathName = "";
     
-    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
+    if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
       fullPathName += getQualifiedFilePath() + "/"; 
     }
     fullPathName += getDisplayName();
