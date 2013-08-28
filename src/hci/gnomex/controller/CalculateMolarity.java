@@ -1,35 +1,15 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MolarityCalculator;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.utility.MolarityCalculator;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.swing.text.NumberFormatter;
-
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.jdom.Element;
-import org.jdom.Document;
-import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Lab;
 
 
 public class CalculateMolarity extends GNomExCommand implements Serializable {

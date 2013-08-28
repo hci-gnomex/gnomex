@@ -57,7 +57,7 @@ public class FlowCellHTMLFormatter  extends DetailObject {
        folderName.append(", ");
      }      
    }
-   return folderName.toString() == "" ? "&nbsp;" : folderName.toString();
+   return folderName.toString().length() == 0 ? "&nbsp;" : folderName.toString();
    
  }
  
