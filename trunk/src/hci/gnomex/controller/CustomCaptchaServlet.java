@@ -3,8 +3,6 @@ package hci.gnomex.controller;
 import static nl.captcha.Captcha.NAME;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,12 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
-import nl.captcha.backgrounds.TransparentBackgroundProducer;
-import nl.captcha.noise.CurvedLineNoiseProducer;
 import nl.captcha.servlet.CaptchaServletUtil;
 import nl.captcha.text.producer.FiveLetterFirstNameTextProducer;
-import nl.captcha.text.renderer.ColoredEdgesWordRenderer;
-import nl.captcha.text.renderer.DefaultWordRenderer;
 
 
 /**

@@ -1,15 +1,14 @@
 package hci.gnomex.model;
 
 
+import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.framework.model.DetailObject;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class ProjectRequestFilter extends DetailObject {
   

@@ -1,13 +1,12 @@
 package hci.gnomex.model;
 
 import hci.gnomex.utility.DictionaryHelper;
-
 import hci.hibernate3utils.HibernateDetailObject;
 
-import java.util.Set;
-import java.util.TreeSet;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class FlowCell extends HibernateDetailObject {

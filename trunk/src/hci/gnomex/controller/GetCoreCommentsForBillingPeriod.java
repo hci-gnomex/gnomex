@@ -2,21 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;

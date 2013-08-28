@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.DiskUsageByMonth;

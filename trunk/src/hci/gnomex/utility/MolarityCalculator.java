@@ -1,6 +1,5 @@
 package hci.gnomex.utility;
 
-import java.math.BigDecimal;
 
 
 public class MolarityCalculator {

@@ -1,11 +1,29 @@
 package hci.gnomex.useq.apps;
-import java.io.*;
-import java.util.regex.*;
-import java.util.zip.*;
-import java.util.*;
+import hci.gnomex.useq.ArchiveInfo;
+import hci.gnomex.useq.SliceInfo;
+import hci.gnomex.useq.USeqArchive;
+import hci.gnomex.useq.USeqUtilities;
+import hci.gnomex.useq.data.PositionData;
+import hci.gnomex.useq.data.PositionScoreData;
+import hci.gnomex.useq.data.PositionScoreTextData;
+import hci.gnomex.useq.data.PositionTextData;
+import hci.gnomex.useq.data.RegionData;
+import hci.gnomex.useq.data.RegionScoreData;
+import hci.gnomex.useq.data.RegionScoreTextData;
+import hci.gnomex.useq.data.RegionTextData;
 
-import hci.gnomex.useq.*;
-import hci.gnomex.useq.data.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 
 /**Converts USeq binary archives to minimal native output, wig or bed format.*/

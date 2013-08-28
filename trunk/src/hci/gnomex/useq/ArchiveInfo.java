@@ -1,8 +1,22 @@
 package hci.gnomex.useq;
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-import java.util.zip.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**This contains information related to all of the data slices in a USeq archive. It is always called archiveReadMe.xxx and is the first ZipEntry in the archive. 
  * The format of the archiveReadMe.txt version is simply comment lines beginning with '#' that are not parsed and key=values delimited by a return, thus one per line.

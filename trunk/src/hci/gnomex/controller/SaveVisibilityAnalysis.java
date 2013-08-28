@@ -2,8 +2,6 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.AnalysisGroup;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisVisibilityParser;
 import hci.gnomex.utility.HibernateSession;
 

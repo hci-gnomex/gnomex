@@ -7,35 +7,32 @@ package hci.gnomex.controller;
  *@created    August 17, 2002
  */
 
-import java.io.*;
-import java.util.*;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.LogLongExecutionTimes;
-import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
-import hci.gnomex.utility.MailUtil;
 import hci.utility.server.JNDILocator;
-import hci.framework.control.*;
-import javax.ejb.*;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.rmi.*;
+import java.rmi.RemoteException;
+import java.util.Date;
+import java.util.Properties;
 
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
 import javax.mail.Session;
-import javax.naming.*;
-
-import org.jdom.output.XMLOutputter;
-
-import hci.utility.server.JNDILocator;
-import hci.gnomex.controller.ChangePassword;
-import hci.gnomex.controller.PublicSaveSelfRegisteredAppUser;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class GNomExFrontController extends HttpServlet {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GNomExFrontController.class);

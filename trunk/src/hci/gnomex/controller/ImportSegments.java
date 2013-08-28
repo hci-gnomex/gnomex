@@ -2,16 +2,12 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.DataTrackFolder;
-import hci.gnomex.model.Segment;
 import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Segment;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

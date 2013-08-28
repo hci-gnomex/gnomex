@@ -2,10 +2,9 @@ package hci.gnomex.model;
 
 
 
-import java.math.BigDecimal;
-import java.sql.Date;
-
 import hci.hibernate3utils.HibernateDetailObject;
+
+import java.math.BigDecimal;
 
 
 

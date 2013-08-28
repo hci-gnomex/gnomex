@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Assay;
@@ -7,10 +8,8 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.IScanChip;
-import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Project;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -19,13 +18,10 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.SlideSource;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.dictionary.utility.DictionaryManager;
-import hci.framework.model.DetailObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +29,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 
 public class RequestHTMLFormatter {

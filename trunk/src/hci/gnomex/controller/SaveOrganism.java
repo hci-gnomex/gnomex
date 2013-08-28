@@ -11,12 +11,9 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-//import java.util.Date;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

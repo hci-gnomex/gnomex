@@ -1,10 +1,14 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExCommand;
+import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,12 +18,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Session;
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.controller.FastDataTransferDownloadAnalysisServlet;
-import hci.gnomex.controller.GNomExCommand;
-import hci.gnomex.model.Request;
-import hci.gnomex.security.SecurityAdvisor;
 
 public class UploadDownloadHelper {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadDownloadHelper.class);

@@ -1,11 +1,18 @@
 package hci.gnomex.useq.apps;
 
-import java.io.*;
-import java.util.*;
+import hci.gnomex.useq.ArchiveInfo;
+import hci.gnomex.useq.SliceInfo;
+import hci.gnomex.useq.USeqUtilities;
+import hci.gnomex.useq.data.PositionScore;
+import hci.gnomex.useq.data.PositionScoreData;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import hci.gnomex.useq.*;
-import hci.gnomex.useq.data.*;
 
 public class Wig2USeq {
 

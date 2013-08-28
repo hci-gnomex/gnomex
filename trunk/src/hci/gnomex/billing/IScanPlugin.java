@@ -3,7 +3,6 @@ package hci.gnomex.billing;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;

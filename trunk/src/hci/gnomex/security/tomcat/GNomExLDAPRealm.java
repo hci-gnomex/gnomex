@@ -3,9 +3,7 @@ package hci.gnomex.security.tomcat;
 import hci.gnomex.security.EncrypterService;
 
 import java.security.Principal;
-import java.security.cert.X509Certificate;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +24,6 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.realm.RealmBase;
 

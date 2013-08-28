@@ -1,22 +1,18 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PropertyPlatformApplication;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.PropertyType;
-import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -24,10 +20,8 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.jdom.Element;
 
 
 

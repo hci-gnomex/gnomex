@@ -1,12 +1,8 @@
 package hci.gnomex.model;
 
 
-import java.sql.Date;
-import java.util.Iterator;
-import java.util.Set;
-
-import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.model.DetailObject;
+import hci.gnomex.security.SecurityAdvisor;
 
 public class SlideDesignFilter extends DetailObject {
   

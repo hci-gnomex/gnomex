@@ -1,9 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.constants.Constants;
-
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -12,12 +8,10 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
