@@ -189,7 +189,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
               Element analysisUploadNode = new Element("AnalysisUpload");
               filesNode.addContent(analysisUploadNode);
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
-              GetAnalysisDownloadList.addExpandedFileNodes(baseDir, aNode, analysisUploadNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, sess);
+              Map<Integer, Integer> dataTrackMap = GetAnalysisDownloadList.getDataTrackMap(sess, idAnalysis);
+              GetAnalysisDownloadList.addExpandedFileNodes(baseDir, aNode, analysisUploadNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess);
             }
           }
         }
