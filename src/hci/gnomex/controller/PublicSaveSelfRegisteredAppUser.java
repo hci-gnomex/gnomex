@@ -235,7 +235,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           if (appUser.getUserNameExternal() != null  && !appUser.getUserNameExternal().trim().equals("")) {
             appUser.setuNID(null);
           }
-          if (appUser.getPasswordExternal() != null && appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+          if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
             String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
             appUser.setPasswordExternal(encryptedPassword);      
           }
@@ -359,7 +359,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         CoreFacility f = (CoreFacility)facilityIter.next();
         String add = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, f.getIdCoreFacility()); 
         if (add != null && add.length() > 0) {
-          if (toAddress != "") {
+          if (toAddress != null && !toAddress.equals("")) {
             toAddress += ",";
           }
           toAddress += add;
