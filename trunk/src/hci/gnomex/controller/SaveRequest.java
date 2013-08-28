@@ -2300,7 +2300,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
-    if(emailRecipients != "" && !MailUtil.isValidEmail(emailRecipients)){
+    if(!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }
     if (otherRecipients != null && otherRecipients.length() > 0) {
