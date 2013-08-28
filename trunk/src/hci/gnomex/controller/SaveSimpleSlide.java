@@ -129,7 +129,7 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
       for(int i = slide.size()-2; i < slide.size(); i++){
         SlideProduct temp = (SlideProduct) slide.get(i);
         
-        if(temp.getName() == slideInfo.getName()){
+        if(temp.getName().equals(slideInfo.getName())){
           slideDesign.setName(slideInfo.getName());
           slideDesign.setIsActive(slideInfo.getIsActive());
           slideDesign.setIdSlideProduct(temp.getIdSlideProduct()); 
