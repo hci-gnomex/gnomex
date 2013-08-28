@@ -159,7 +159,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               if (appUser.getUserNameExternal() != null  && !appUser.getUserNameExternal().trim().equals("")) {
                 appUser.setuNID(null);
               }
-              if (appUser.getPasswordExternal() != null && appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+              if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
                 String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
                 appUser.setPasswordExternal(encryptedPassword);      
               }
