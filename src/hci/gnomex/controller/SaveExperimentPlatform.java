@@ -74,7 +74,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       isNewRequestCategory = true;
     }
     
-    if(request.getParameter("type") == null || request.getParameter("type") == ""){
+    if(request.getParameter("type") == null || request.getParameter("type").equals("")){
       setResponsePage(this.ERROR_JSP);
       this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
     }
