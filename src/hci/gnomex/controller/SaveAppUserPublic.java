@@ -1,22 +1,17 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.AppUser;
-import hci.gnomex.security.EncrypterService;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisGenomeBuildParser;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.security.EncrypterService;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

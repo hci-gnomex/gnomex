@@ -1,10 +1,5 @@
 package hci.gnomex.lucene;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
 
 public class ProtocolIndexHelper extends IndexHelper {

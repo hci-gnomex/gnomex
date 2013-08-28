@@ -1,6 +1,5 @@
 package hci.gnomex.daemon;
 
-import hci.gnomex.controller.SaveAnalysis;
 import hci.gnomex.daemon.RegisterFiles.AnalysisFileInfo;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
@@ -18,7 +17,6 @@ import hci.gnomex.model.Request;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DeleteOldExperimentAndAnalysisFilesEmailFormatter;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -34,9 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
 
 import org.apache.log4j.Level;
 import org.hibernate.Query;

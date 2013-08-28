@@ -12,20 +12,19 @@ package hci.gnomex.utility;
  * 6/10/03    K. Henrie        Change for hibernate 2.0
  */
 
+import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.naming.NamingException;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
-
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.controller.GNomExFrontController;
-
-import javax.naming.*;
-import javax.servlet.ServletContext;
-
-import java.sql.*;
 
 public class HibernateSession {
 

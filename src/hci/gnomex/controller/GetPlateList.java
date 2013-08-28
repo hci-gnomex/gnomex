@@ -2,18 +2,14 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateFilter;
-import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.ReactionType;
-import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

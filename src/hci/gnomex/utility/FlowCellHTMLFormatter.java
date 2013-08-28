@@ -3,8 +3,8 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
 
 import java.util.Iterator;
 import java.util.Set;

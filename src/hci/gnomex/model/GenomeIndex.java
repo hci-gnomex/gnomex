@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+
 import java.io.Serializable;
 
 public class GenomeIndex extends DictionaryEntry implements Serializable {

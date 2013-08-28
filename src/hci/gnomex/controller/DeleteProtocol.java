@@ -1,13 +1,11 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.HybProtocol;
-import hci.gnomex.model.LabelingProtocol;
-import hci.gnomex.model.SeqLibProtocolApplication;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.HibernateSession;
 import hci.dictionary.model.DictionaryEntry;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.SeqLibProtocolApplication;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;

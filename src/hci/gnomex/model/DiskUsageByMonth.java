@@ -2,12 +2,12 @@ package hci.gnomex.model;
 
 
 
+import hci.hibernate3utils.HibernateDetailObject;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.Set;
 import java.util.TreeSet;
-
-import hci.hibernate3utils.HibernateDetailObject;
 
 
 

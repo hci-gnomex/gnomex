@@ -1,22 +1,14 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ArrayCoordinate;
-import hci.gnomex.model.ExperimentDesign;
-import hci.gnomex.model.ExperimentDesignEntry;
-import hci.gnomex.model.ExperimentFactor;
-import hci.gnomex.model.ExperimentFactorEntry;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.QualityControlStep;
-import hci.gnomex.model.QualityControlStepEntry;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,9 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 
 

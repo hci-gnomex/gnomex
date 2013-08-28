@@ -4,7 +4,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 
 import java.io.Serializable;

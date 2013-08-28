@@ -1,8 +1,7 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.OtherAccountFieldsConfiguration;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.OtherAccountFieldsConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;

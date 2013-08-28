@@ -1,13 +1,16 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AppUserNameComparator;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
+import hci.gnomex.model.Lab;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AppUserNameComparator;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -26,14 +29,9 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.Lab;
 
 
 public class GetLab extends GNomExCommand implements Serializable {

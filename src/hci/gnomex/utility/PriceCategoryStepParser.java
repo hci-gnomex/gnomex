@@ -1,7 +1,7 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.model.Step;
 import hci.framework.model.DetailObject;
+import hci.gnomex.model.Step;
 
 import java.io.Serializable;
 import java.util.HashMap;

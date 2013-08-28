@@ -1,8 +1,6 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.RequestCategory;
 
 import java.io.Serializable;
 import java.util.HashMap;

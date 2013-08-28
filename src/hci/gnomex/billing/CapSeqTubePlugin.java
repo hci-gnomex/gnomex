@@ -1,11 +1,8 @@
 package hci.gnomex.billing;
 
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PlateType;
@@ -14,15 +11,11 @@ import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.RequestParser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

@@ -1,17 +1,31 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HybNumberComparator;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisExperimentItem;
+import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Organism;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyType;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.Topic;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HybNumberComparator;
+import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -21,7 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -33,35 +46,9 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.jdom.Element;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisCollaborator;
-import hci.gnomex.model.AnalysisExperimentItem;
-import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.AnalysisType;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.DataTrackFile;
-import hci.gnomex.model.ExperimentDesign;
-import hci.gnomex.model.ExperimentDesignEntry;
-import hci.gnomex.model.ExperimentFactor;
-import hci.gnomex.model.ExperimentFactorEntry;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyType;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Topic;
 
 
 public class GetAnalysis extends GNomExCommand implements Serializable {

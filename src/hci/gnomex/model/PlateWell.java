@@ -1,9 +1,9 @@
 package hci.gnomex.model;
 
+import hci.hibernate3utils.HibernateDetailObject;
+
 import java.util.Date;
 import java.util.Set;
-
-import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class PlateWell extends HibernateDetailObject {

@@ -1,17 +1,14 @@
 package hci.gnomex.model;
 
 
-import java.io.Serializable;
-import java.sql.Date;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.framework.model.DetailObject;
+
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 public class RequestDownloadFilter extends DetailObject {
   

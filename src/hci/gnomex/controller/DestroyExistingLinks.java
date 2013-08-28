@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -11,10 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 

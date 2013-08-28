@@ -1,9 +1,6 @@
 package hci.gnomex.utility;
 
-import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
-import hci.gnomex.model.AnalysisCollaborator;
-import hci.gnomex.model.AppUser;
 
 import java.io.Serializable;
 import java.util.Calendar;

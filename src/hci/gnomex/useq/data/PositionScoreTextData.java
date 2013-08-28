@@ -1,7 +1,15 @@
 package hci.gnomex.useq.data;
-import hci.gnomex.useq.*;
-import hci.gnomex.useq.apps.*;
-import java.io.*;
+import hci.gnomex.useq.SliceInfo;
+import hci.gnomex.useq.USeqUtilities;
+import hci.gnomex.useq.apps.Text2USeq;
+
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;

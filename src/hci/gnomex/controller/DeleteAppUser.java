@@ -1,12 +1,12 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Iterator;

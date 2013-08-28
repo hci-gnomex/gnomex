@@ -1,7 +1,17 @@
 
 package hci.gnomex.controller;
 
-import java.io.*;
+import hci.dictionary.utility.DictionaryCommand;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.DictionaryEntryUserOwned;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+
+import java.io.Serializable;
 import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,15 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.DictionaryEntryUserOwned;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.dictionary.utility.DictionaryCommand;
-import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.*;
 
 /**
  *

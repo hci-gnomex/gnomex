@@ -14,28 +14,22 @@ import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-
-import org.apache.commons.validator.routines.EmailValidator;
-
-import sun.tools.tree.ThisExpression;
 
 
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {

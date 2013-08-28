@@ -12,16 +12,16 @@ package hci.gnomex.utility;
  * 6/10/03    K. Henrie        Change for hibernate 2.0
  */
 
+import hci.gnomex.controller.GNomExFrontController;
+
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+
+import javax.naming.NamingException;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-
-import hci.gnomex.controller.GNomExFrontController;
-
-import javax.naming.*;
-
-import java.sql.*;
 
 public class HibernateBSTXSession {
 
