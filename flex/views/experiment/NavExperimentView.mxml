@@ -147,17 +147,19 @@
  
 	   <mx:Script> 
         <![CDATA[
-        import mx.collections.ArrayCollection;
-        import mx.collections.XMLListCollection;
-        import mx.controls.Alert;
-        import mx.controls.Menu;
-        import mx.core.DragSource;
-        import mx.events.CloseEvent;
-        import mx.events.DragEvent;
-        import mx.managers.DragManager;
-        import mx.managers.PopUpManager;
-        import mx.rpc.events.ResultEvent;
-		import views.util.PromptXMLListCollection;
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.Menu;
+			import mx.core.DragSource;
+			import mx.events.CloseEvent;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.util.PickDateRangeView;
+			import views.util.PromptXMLListCollection;
         
         public var selectedIdRequest:Object;
         public var selectedRequestNumber:Object;
@@ -196,7 +198,6 @@
         [Bindable]
     	public var rowCountMessage:String = new String();
     	
-
     	private var showDownloads:Boolean = false;
     	
     	public var shortcutToDownloadTab:Boolean = false;
@@ -208,6 +209,9 @@
 	 	public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
 	 	
 	 	public var isInitialized:Boolean = false;
+		
+		[Bindable]
+		private var pickDateRangeWindow:PickDateRangeView = new PickDateRangeView();
 
 		public function checkDirty():void {
 		}
@@ -1042,7 +1046,7 @@
 					params.isExternalOnly = 'Y';
 				}
 
-				if (lastWeekCheckbox.selected) { 
+				/* if (lastWeekCheckbox.selected) { 
 					params.lastWeek = 'Y'; 
 				} else if (lastMonthCheckbox.selected) {
 					params.lastMonth = 'Y';
@@ -1050,7 +1054,7 @@
 					params.lastThreeMonths = 'Y';
 				} else if (lastYearCheckbox.selected) {
 					params.lastYear = 'Y';
-				}
+				} */
 				
 				
 				if (publicExperimentsOtherGroupsCheckbox.selected) {
@@ -1059,9 +1063,6 @@
 					params.publicExperimentsInOtherGroups = 'N';
 				}
 				if (currentState == 'AdminState' || 
-					lastWeekCheckbox.selected || 
-					lastMonthCheckbox.selected || 
-					lastYearCheckbox.selected ||
 					this.MicroarrayCheckbox.selected ||
 					this.NextGenSeqCheckbox.selected ||
 					this.BioanalyzerCheckbox.selected ) {
@@ -1082,6 +1083,11 @@
 
 			}
 
+			if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
+				params.createDateFrom = dateFormatter.format( this.pickDateRangeButton.fromDate );
+				params.createDateTo = dateFormatter.format( this.pickDateRangeButton.toDate );
+			}
+			
 			params.showEmptyProjectFolders = this.showEmptyProjectFolders.selected ? "Y" : "N";
 			
 			params.showSamples = 'N';
@@ -1102,9 +1108,6 @@
 			this.NextGenSeqCheckbox.selected = false;
 			this.BioanalyzerCheckbox.selected = false;
 			
-			this.lastMonthCheckbox.selected = false;
-			this.lastWeekCheckbox.selected = false;
-			this.lastYearCheckbox.selected = false;
 			
 			if (this.currentState == null) {
 				this.myExperimentsCheckbox.selected = false;
@@ -1352,7 +1355,7 @@
 			}
 		}			
 
-	private function toggleDateCheckboxes(checkBoxNumber:int):void {
+	/* private function toggleDateCheckboxes(checkBoxNumber:int):void {
 		this.ccLookupText.text = '';
 		if (checkBoxNumber == 1) {
 			this.lastMonthCheckbox.selected = false;
@@ -1383,7 +1386,7 @@
 				this.allExperimentsCheckbox.selected = false;
 			}
 		}   
-	} 		 
+	} 		  */
 	
 	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
@@ -1488,10 +1491,6 @@
 				this.MicroarrayCheckbox.enabled = false;
 				this.NextGenSeqCheckbox.enabled = false;
 				this.BioanalyzerCheckbox.enabled = false;
-				this.lastWeekCheckbox.enabled = false;
-				this.lastMonthCheckbox.enabled = false;
-				this.lastThreeMonthsCheckbox.enabled = false;
-				this.lastYearCheckbox.enabled = false;
 				this.externalExperimentsOnlyCheckbox.enabled = false;
 				this.CapSeqCheckbox.enabled = false;
 				this.MitSeqCheckbox.enabled = false;
@@ -1504,10 +1503,6 @@
 				this.MicroarrayCheckbox.enabled = true;
 				this.NextGenSeqCheckbox.enabled = true;
 				this.BioanalyzerCheckbox.enabled = true;
-				this.lastWeekCheckbox.enabled = true;
-				this.lastMonthCheckbox.enabled = true;
-				this.lastThreeMonthsCheckbox.enabled = true;
-				this.lastYearCheckbox.enabled = true;
 				this.externalExperimentsOnlyCheckbox.enabled = true;
 				this.CapSeqCheckbox.enabled = true;
 				this.MitSeqCheckbox.enabled = true;
@@ -1556,6 +1551,14 @@
 		} 
 	}
 		
+			
+	/* private function pickDateRange():void 
+	{
+		PopUpManager.addPopUp(pickDateRangeWindow, pickDateRangeButton, false);
+		PopUpManager.centerPopUp(pickDateRangeWindow);
+		
+	} */
+			
        ]]>
     </mx:Script> 
    	
@@ -1563,10 +1566,10 @@
    	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
 	<mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
      
-	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
 	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="1" borderStyle="none" borderColor="#D2D2D2" backgroundAlpha="0">
-		<mx:HBox width="100%" paddingRight="6" paddingTop="8" styleName="panelBox" paddingBottom="4" paddingLeft="6" borderThickness="1">
+		<mx:HBox width="100%" paddingRight="6" paddingTop="8" styleName="panelBox" paddingBottom="4" paddingLeft="6" borderThickness="1" horizontalGap="15">
 			
 			<mx:VBox  verticalGap="6" height="100%">
 				<mx:HBox horizontalGap="0" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
@@ -1594,21 +1597,9 @@
 								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:RadioButton>
 						</mx:HBox>
-						<mx:Spacer width="14" id="spacer1"/>
-						<mx:HBox horizontalGap="2" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0" id="hbox3">
-							<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" horizontalGap="0" styleName="labelSmall">
-								<mx:click>toggleDateCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-							</mx:CheckBox>
-							<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" horizontalGap="0" styleName="labelSmall" selected="false">
-								<mx:click>toggleDateCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-							</mx:CheckBox>
-							<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" horizontalGap="0" styleName="labelSmall">
-								<mx:click>toggleDateCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-							</mx:CheckBox>		    		
-							<mx:CheckBox  id="lastYearCheckbox" label="year"  horizontalGap="0" styleName="labelSmall">
-								<mx:click>toggleDateCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-							</mx:CheckBox>			
-						</mx:HBox>
+						<mx:Spacer width="10" id="spacer1"/>
+						
+						<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
 						
 					</mx:HBox>	
 				</mx:HBox>
@@ -1825,7 +1816,6 @@
 	<mx:states>
 		<mx:State name="GuestState">
 			<mx:RemoveChild target="{hbox2}"/>
-			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 			<mx:RemoveChild target="{label1}"/>
 			<mx:RemoveChild target="{ccLookupText}"/>
 			<mx:RemoveChild target="{coreFacilityCombo}"/>
@@ -1845,6 +1835,7 @@
 				<mx:Spacer width="14"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall"/>
 				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+										  removeFilterOnSelection="true"
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="160" 
@@ -1854,7 +1845,6 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
-			<mx:SetProperty target="{lastMonthCheckbox}" name="selected" value="false"/>
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
