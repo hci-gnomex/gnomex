@@ -1045,17 +1045,7 @@
 				if (this.externalExperimentsOnlyCheckbox.selected) {
 					params.isExternalOnly = 'Y';
 				}
-
-				/* if (lastWeekCheckbox.selected) { 
-					params.lastWeek = 'Y'; 
-				} else if (lastMonthCheckbox.selected) {
-					params.lastMonth = 'Y';
-				} else if (lastThreeMonthsCheckbox.selected) {
-					params.lastThreeMonths = 'Y';
-				} else if (lastYearCheckbox.selected) {
-					params.lastYear = 'Y';
-				} */
-				
+			
 				
 				if (publicExperimentsOtherGroupsCheckbox.selected) {
 					params.publicExperimentsInOtherGroups = 'Y';
@@ -1355,38 +1345,6 @@
 			}
 		}			
 
-	/* private function toggleDateCheckboxes(checkBoxNumber:int):void {
-		this.ccLookupText.text = '';
-		if (checkBoxNumber == 1) {
-			this.lastMonthCheckbox.selected = false;
-			this.lastThreeMonthsCheckbox.selected = false;
-			this.lastYearCheckbox.selected  = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} else if (checkBoxNumber == 2) {
-			this.lastWeekCheckbox.selected = false;
-			this.lastThreeMonthsCheckbox.selected = false;
-			this.lastYearCheckbox.selected  = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} else if (checkBoxNumber == 3) {
-			this.lastWeekCheckbox.selected  = false;
-			this.lastMonthCheckbox.selected = false; 
-			this.lastYearCheckbox.selected  = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}  else if (checkBoxNumber == 4) {
-			this.lastWeekCheckbox.selected  = false;
-			this.lastMonthCheckbox.selected = false; 
-			this.lastThreeMonthsCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}   
-	} 		  */
 	
 	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
 		if (checkBoxNumber == 1) {
