@@ -192,7 +192,7 @@ package views.util
 				index++;
 			}
 			
-			return index;
+			return Math.min(index,(theListCollection.length - 1));
 		}
 		
 		private function findBottomIndex(theListCollection:XMLListCollection, startIndex:int, rowCount:int):int{
