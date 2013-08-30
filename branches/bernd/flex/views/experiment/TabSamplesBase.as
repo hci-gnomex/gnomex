@@ -21,7 +21,9 @@ package views.experiment
 	import views.util.AnnotationAdvancedDataGridColumn;
 	import views.util.CopySampleSheetColumnView;
 	import views.util.UploadSampleSheetView;
-
+	import flash.system.Security;
+	import mx.events.*;
+	
 	[Bindable]
 	public class TabSamplesBase extends Canvas
 	{
@@ -270,6 +272,7 @@ package views.experiment
 		}
 		
 		protected function init():void {
+			Security.allowDomain( "*" );
 			if (parentDocument != null) {
 				showHideColumns();
 				initButtons();

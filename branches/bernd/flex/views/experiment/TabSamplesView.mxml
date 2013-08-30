@@ -4,6 +4,7 @@
 		   xmlns:util="views.util.*"
 		   xmlns:fx="*.views.renderers"
 		   xmlns:exp="views.experiment.*"
+		   xmlns:components="ext.com.components.*"
 		   show="{this.init();}"
 		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
 
@@ -46,7 +47,6 @@
 			import views.util.CopySampleSheetColumnView;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 			
@@ -1353,8 +1353,6 @@
 				}
 			}
 			
-
-
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>

@@ -360,6 +360,8 @@
 					
 					if(originalRow != null){
 						if(!experimentCopy.columns[zeroPointCol].isLocked){			// Check wether column is locked.
+							// Run validity checks for entries here.
+							// Correlate index sequence entries with dictionary entries.
 							originalRow[colVarName] = colItem.col1;
 							copyList.setItemAt(originalRow, loopIdx);
 							offset++;
@@ -367,7 +369,6 @@
 							Alert.show("Im sorry. This column is locked. Pasting is not possible.", "Locked");
 							break;
 						}
-						
 					}else{
 						break;						
 					}
@@ -445,9 +446,7 @@
 					experimentOverview._mode = "col";
 					experimentOverview._selectedCell = experimentCopy.selectedItem;
 				}
-
 			}
-			
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />

@@ -19,7 +19,6 @@ package views.util
 	import mx.managers.FocusManager;
 	import mx.utils.ObjectUtil;
 	
-	
 	public class AdvancedDataGridCopyPaste extends AdvancedDataGrid
 	{
 		private var dragScrollingInterval:int = 0;
@@ -28,6 +27,7 @@ package views.util
 		
 		public var _pasteFunction:Function;
 		public var _pasteEnabled:Boolean;
+		public var _multiColumnSupport:Boolean;
 		
 		public var _mode:String = "row";
 		public var _selectedCell:Object;
@@ -39,7 +39,7 @@ package views.util
 		public function AdvancedDataGridCopyPaste()
 		{
 			super();
-		}		
+		}
 		
 		public function init():void
 		{
@@ -58,6 +58,23 @@ package views.util
 			_contextMenu.customItems = [ _copyMenuItem ];
 			
 			this.contextMenu = _contextMenu;										
+		}
+		
+		public function clearEventListeners():Boolean{
+			this.removeEventListener( KeyboardEvent.KEY_DOWN, handleKeyPressed, false );
+			this.removeEventListener( KeyboardEvent.KEY_UP, handleKeyReleased, false );
+			this.removeEventListener( MouseEvent.CLICK, handleClick, false );
+			this.removeEventListener( Event.CHANGE, handleChange, false );
+			
+			if(	!this.hasEventListener( KeyboardEvent.KEY_DOWN )
+			|| 	!this.hasEventListener( KeyboardEvent.KEY_UP ) 
+			|| 	!this.hasEventListener( MouseEvent.CLICK )
+			||	!this.hasEventListener( Event.CHANGE ))
+			{
+				return true;
+			}else{
+				return false;				
+			}
 		}
 		
 		private function handleChange( event:Event ):void

@@ -9,17 +9,28 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import ext.com.Consts;
+			import ext.com.components.FieldMapper;
+			import ext.com.events.FieldMapperEvent;
+			import ext.com.utils.AdvancedDataGridUtils;
+			import ext.com.utils.StringUtils;
+			
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
+			import mx.collections.ArrayCollection;
 			import mx.collections.Grouping;
 			import mx.collections.GroupingCollection;
 			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.AdvancedDataGridBaseEx;
 			import mx.controls.Alert;
+			import mx.controls.TextArea;
 			import mx.controls.TextInput;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.events.CloseEvent;
 			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
@@ -29,12 +40,14 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
+			import mx.utils.object_proxy;
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
 			import views.renderers.ComboBoxWorkflowStatus;
+			import views.renderers.FilterComboBoxOligoBarcode;
 			import views.renderers.GridColumnFillButton;
 			import views.renderers.LabelBarcodeSequence;
 			import views.renderers.MultiselectRenderer;
@@ -45,7 +58,9 @@
 			import views.util.CopySampleSheetColumnView;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			
+			/*
+				End
+			*/
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 			
@@ -875,10 +890,179 @@
 			public function numberSequencingLanesColTip(item:Object):String{
 				return "May edit to 2 or greater lanes";
 			}
+
+			/*
+			* Insert
+			*/
+			private function handleCopyClick():void
+			{
+				System.setClipboard( samplesGrid.getTextFromItems() );
+			}
+			
+			private function handleTextPaste( event:TextEvent ):void
+			{
+				var data:Array = AdvancedDataGridUtils.getItemsFromText( event.text );
+				var dataAC:ArrayCollection = new ArrayCollection( data );				
+				var obj:Object = dataAC.getItemAt(0);
+				var cnt:int=0;
+				
+				// Count number of columns.
+				for (var s:String in obj) cnt++;
+				
+				/*
+				* Test amount of columns, if 1 column map without column mapper and paste in selected cell.
+				* Else show fieldMapper.
+				*/
+				if(cnt > 1 && samplesGrid._multiColumnSupport){
+					showFieldMapper( dataAC );
+				}else if(cnt == 1){
+					singleColumnMapper( data );
+				}else if(cnt > 1 && !samplesGrid._multiColumnSupport){
+					Alert.show("You are only allowed to paste one column in this grid.", "Error");
+				}
+				
+			}
+			
+			private function singleColumnMapper( data:Array ):void{
+				var datasource:XMLListCollection = parentDocument.samples;
+				
+				var dgIdx:Object = samplesGrid.selectedCells;
+				var zeroPointRow:int = dgIdx[0].rowIndex;
+				var zeroPointCol:int = dgIdx[0].columnIndex;
+				var offset:int = 0;
+				
+				for each(var colItem:Object in data){
+					var loopIdx:int = zeroPointRow+offset;
+					var originalRow:Object = datasource.getItemAt(loopIdx);
+					var colVarName:String = samplesGrid.columns[zeroPointCol].dataField;
+
+					if(originalRow != null){
+						// Check wether column is locked.
+						if(!samplesGrid.columns[zeroPointCol].isLocked){			
+							// Run validity checks for entries here & run column mapping function if defined.
+							var fill:String = colItem.col1;
+							if(samplesGrid.columns[zeroPointCol].mappingFunction){
+								fill = samplesGrid.columns[zeroPointCol].mappingFunction(colItem.col1);
+							}
+							originalRow[colVarName] = fill;
+							datasource.setItemAt(originalRow, loopIdx);
+							offset++;
+						}else{
+							Alert.show("Im sorry. This column is locked. Pasting is not possible.", "Locked");
+							break;
+						}
+					}
+				}
+				samplesGrid.dataProvider = datasource;
+				datasource.refresh();
+				samplesGrid.invalidateDisplayList();
+				samplesGrid.validateNow();		
+			}
+			
+			private function transformBarcode(indexSeq:String):int{
+				var match:int = -1;
+				for each (var barcode : XML in barcodes){
+					if(barcode.@barcodeSequence == indexSeq){
+						match = barcode.@idOligoBarcode;
+					}
+				}
+				
+				return match;
+			}
+			
+			private function showFieldMapper( data:ArrayCollection = null ):void
+			{
+				var fieldMapper:FieldMapper = new FieldMapper();
+				fieldMapper.objectClass = Object;
+				var comboObject:Object = new Object();
+				var dataFields:Array = new Array();
+				
+				// Add columns as datafields.				
+				for each(var str:String in data.getItemAt(0))
+				{
+					dataFields.push(StringUtils.stripDownSpecial(str));
+				}
+				fieldMapper.fields = new ArrayCollection( dataFields );
+				fieldMapper.data = data;
+				fieldMapper.addEventListener( FieldMapperEvent.FIELDS_MAPPED, handleFieldsMapped );
+				
+				PopUpManager.addPopUp( fieldMapper, this );
+				PopUpManager.centerPopUp( fieldMapper );			
+				fieldMapper.setFocus();
+			}
+			
+			private function handleFieldsMapped( event:FieldMapperEvent ):void
+			{
+				var datasource:Object = samplesGrid.dataProvider;
+				var insertIdx:int = samplesGrid.selectedIndex;
+				if(insertIdx == -1){		// First entry in datagrid, datagrid source is empty.
+					insertIdx = 0;
+				}else{
+					var evtDataLen:int = event.data.length;
+					var totalLen:int = evtDataLen+insertIdx;
+					if(samplesGrid._mode == "row"){
+						if(insertIdx != datasource.length-1){
+							for(var idx:int = insertIdx; idx <= totalLen-1; idx++){
+								datasource.removeItemAt(insertIdx);
+							}
+						}
+					}else if(samplesGrid._mode == "col"){
+						
+					}
+				}
+				
+				var id:int = insertIdx;		
+				var evtar:Array = event.data.reverse();
+				
+				for each (var objData:Object in evtar)
+				{
+					datasource.addItemAt(objData, id);
+					id++;
+				}
+				samplesGrid.dataProvider = datasource;
+			}			
+			
+			protected function copyModeButton_clickHandler(event:MouseEvent):void
+			{
+				Security.allowDomain( "*" );
+				
+				var lblTxt:String = copyModeButton.label;
+				if(lblTxt == "Switch to 'Normal Edit'"){
+					if(samplesGrid.clearEventListeners()){
+						Alert.show("All event listeners gonee!");
+					}
+					samplesGrid._pasteEnabled = false;
+					samplesGrid._pasteFunction = null;
+					setSamplesGridDataProvider();
+					samplesGrid.invalidateDisplayList();
+					copyModeButton.label = "Switch to 'Column Copy Mode'";
+					samplesGrid._mode = "row";
+					samplesGrid.selectionMode="singleRow";
+					samplesGrid.editable = "true";
+					barcodeColumn.visible = "true";
+				}else{
+					samplesGrid.init();
+					samplesGrid._pasteEnabled = true;
+					samplesGrid._pasteFunction = handleTextPaste;
+					samplesGrid.dataProvider = parentDocument.samples;
+					samplesGrid.invalidateDisplayList();
+					barcodeColumn.visible = "true";
+					copyModeButton.label = "Switch to 'Normal Edit'";
+					samplesGrid.selectionMode="singleCell";
+					samplesGrid._mode = "col";
+					samplesGrid.editable = "false";
+					samplesGrid._selectedCell = samplesGrid.selectedItem;
+					barcodeColumn.editable = "false";
+				}
+			}
 			
 			
+			/*
+			* Till here
+			*/			
 		]]>
-	</mx:Script>	
+	</mx:Script>
+	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
 	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 	<mx:XMLList id="barcodeList"/>
@@ -911,64 +1095,67 @@
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
+				<mx:LinkButton textDecoration="underline" label="Switch to 'Column Copy Mode'" click="copyModeButton_clickHandler(event);" icon="@Embed('../../assets/duplicate.png')" id="copyModeButton" toolTip="Paste data by column" />
 			</mx:HBox>
 		</mx:HBox>
 		
-		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
+		<util:AdvancedDataGridCopyPaste width="100%" height="100%" id="samplesGrid"  
 							 editable="true"
 							 allowMultipleSelection="false" 
 							 itemFocusOut="checkSamplesCompleteness()"  
 							 horizontalScrollPolicy="auto" 
 							 variableRowHeight="true"
 							 sortableColumns="false"
+							 initialize="samplesGrid.init()"
 							 sortExpertMode="true"  
 							 dragDrop="onDragDropSample(event)"
 							 defaultLeafIcon="{null}" 
 							 iconFunction="getSampleTreeIcon"
 							 displayItemsExpanded="true"  
-							 selectionColor="#DDF3FB">
-			<mx:columns>
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
+							 selectionColor="#DDF3FB"
+							 _multiColumnSupport="false">
+			<util:columns>
+				<util:CustomAdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
 										   width="60">
-					<mx:headerRenderer>
+					<util:headerRenderer>
 						<mx:Component>
 							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
 								<mx:Label text="Index Tag"/>
 								<mx:Label text="Group"/>
 							</mx:VBox> 
 						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
-				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+					</util:headerRenderer> 
+				</util:CustomAdvancedDataGridColumn>
+				<util:CustomAdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+				<util:CustomAdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
+				<util:CustomAdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
+				<util:CustomAdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
 										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
 										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
-					<mx:itemEditor>
+					<util:itemEditor>
 						<mx:Component id ="sampleNameTextField">
 							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)">
 							</mx:TextInput>
 						</mx:Component>
-					</mx:itemEditor> 
+					</util:itemEditor> 
 					
-				</mx:AdvancedDataGridColumn>   
+				</util:CustomAdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+				<util:CustomAdvancedDataGridColumn headerText="Conc." id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />
-				<mx:AdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
+				<util:CustomAdvancedDataGridColumn id="concentrationUnitColumn" visible="true" width="40" headerText="Unit" dataField="@codeConcentrationUnit" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@idConcentrationUnit', true).newInstance(), '')}"/>
-				<mx:AdvancedDataGridColumn id="qc_260_280Column"
+				<util:CustomAdvancedDataGridColumn id="qc_260_280Column"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 
 										   dataField="@qual260nmTo280nmRatio" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
+				<util:CustomAdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="76"
 										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
@@ -982,59 +1169,59 @@
 													 dataField="@sourceWell" rendererIsEditor="false" editorDataField="value" sortable="false"
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.wellList, '@name', '@name', '@sourceWell')}"                
 													 itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@sourceWell', true)}"/>
-				<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="false" headerText="Dest. Well" width="75" resizable="false"
+				<util:CustomAdvancedDataGridColumn id="destinationWellCol" visible="false" editable="false" headerText="Dest. Well" width="75" resizable="false"
 										   dataField="@destinationWell" sortable="false"/>
 				
-				<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+				<util:CustomAdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 				
 				
-				<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
+				<util:CustomAdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@sequenceLaneCount" 
 										   editable="false">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Existing #"/> 
 								<mx:Label text="Seq Lanes"/> 
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn> 
 				
 				
-				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
+				<util:CustomAdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
 										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="# Seq"/> 
 								<mx:Label text="Lanes"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>  
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>  
 				
 				
-				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
+				<util:CustomAdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@numberSequencingLanes" 
 										   editable="true"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Addtl #"/> 
 								<mx:Label text="Seq Lanes"/> 
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn> 
 				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
@@ -1044,24 +1231,24 @@
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
 													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
-				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
+				<util:CustomAdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 										   width="140" dataField="@otherOrganism"
 										   visible="false"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
 				
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumber" editable="true" visible="true"
+				<util:CustomAdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumber" editable="true" visible="true"
 										   width="54">
-					<mx:headerRenderer>
+					<util:headerRenderer>
 						<mx:Component>
 							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
 								<mx:Label text="Index tag"/>
 								<mx:Label text="Group"/>
 							</mx:VBox> 
 						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+					</util:headerRenderer> 
+				</util:CustomAdvancedDataGridColumn>
+				<util:CustomAdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
@@ -1076,7 +1263,8 @@
 													 editorDataField="value"
 													 sortable="false" 
 													 editable="true" 
-													 rendererIsEditor="false" 
+													 rendererIsEditor="false"
+													 mappingFunction="transformBarcode"
 													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode')}">
 					<util:itemEditor>
 						<mx:Component>
@@ -1123,86 +1311,86 @@
 						</mx:Component>
 					</util:itemEditor> 					
 				</util:AdvancedDataGridColumnWithType>
-				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
+				<util:CustomAdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="true" visible="true"
 										   width="80"
 										   itemRenderer="views.renderers.LabelBarcodeSequence"               
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Index Tag"/> 
 								<mx:Label text="Sequence"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="true" visible="true"
+				<util:CustomAdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="true" visible="true"
 										   width="80"
 										   itemRenderer="views.renderers.LabelBarcodeSequence"               
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Index Tag"/> 
 								<mx:Label text="Sequence B"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn> 
 				
 				
 				
-				<mx:AdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
+				<util:CustomAdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
 										   rendererIsEditor="false" editorDataField="value" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Sample Sequence Lane"/>
 								<mx:Label text="Type"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState' &amp;&amp; parentApplication.isInternalExperimentSubmission}"  width="70" dataField="@idNumberSequencingCycles" 
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>
+				<util:CustomAdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState' &amp;&amp; parentApplication.isInternalExperimentSubmission}"  width="70" dataField="@idNumberSequencingCycles" 
 										   rendererIsEditor="false" editorDataField="value" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true).newInstance(), '')}">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="# Seq"/>
 								<mx:Label text="Cycles"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="60"  dataField="@seqPrepByCore"
+				<util:CustomAdvancedDataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="60"  dataField="@seqPrepByCore"
 										   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSeqPrepByCore(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Core to"/>
 								<mx:Label text="prep lib?"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>          
+					</util:headerRenderer>
+				</util:CustomAdvancedDataGridColumn>          
 				
-				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
+				<util:CustomAdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
 				
 				
-				<mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
+				<util:CustomAdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Conc. ng/uL" 
 										   width="80" 
@@ -1210,8 +1398,8 @@
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Mean Lib Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<util:CustomAdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Mean Lib Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
 										   width="80" 
@@ -1219,7 +1407,7 @@
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC RIN" 
 										   width="70" 
@@ -1227,7 +1415,7 @@
 										   id="qualRINCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (from)" 
 										   width="87" 
@@ -1235,7 +1423,7 @@
 										   id="qualFragSizeFromCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (to)" 
 										   width="87" 
@@ -1243,16 +1431,16 @@
 										   id="qualFragSizeToCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
+				<util:CustomAdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
 				
-				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
+				<util:CustomAdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
 				
-			</mx:columns>
-		</mx:AdvancedDataGrid>
+			</util:columns>
+		</util:AdvancedDataGridCopyPaste>
 		
 		
 		
