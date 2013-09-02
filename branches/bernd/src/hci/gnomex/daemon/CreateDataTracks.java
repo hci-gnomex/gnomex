@@ -1,8 +1,8 @@
 package hci.gnomex.daemon;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
@@ -16,8 +16,6 @@ import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestParser;
-
-import java.lang.Thread;
 
 import java.io.File;
 import java.util.ArrayList;

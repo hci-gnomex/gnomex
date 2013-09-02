@@ -8,15 +8,12 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncrypterService;
-
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-
 import java.util.Iterator;
 import java.util.UUID;
 

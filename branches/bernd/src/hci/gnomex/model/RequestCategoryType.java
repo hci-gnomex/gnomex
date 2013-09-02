@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+
 import java.io.Serializable;
 
 public class RequestCategoryType extends DictionaryEntry implements Comparable, Serializable {

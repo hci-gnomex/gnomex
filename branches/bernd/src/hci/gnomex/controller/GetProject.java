@@ -1,29 +1,10 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
-
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.jdom.Element;
-import org.jdom.Document;
-import org.jdom.output.XMLOutputter;
-
-
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
@@ -31,6 +12,20 @@ import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
+
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 
 public class GetProject extends GNomExCommand implements Serializable {

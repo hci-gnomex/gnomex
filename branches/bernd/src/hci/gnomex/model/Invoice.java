@@ -1,6 +1,5 @@
 package hci.gnomex.model;
 
-import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;

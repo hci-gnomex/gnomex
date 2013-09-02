@@ -1,16 +1,14 @@
 package hci.gnomex.utility;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Query;
-import org.hibernate.Session;
-
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.WorkItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 /*
  * Auto Completes billing items based on work item step being processed.

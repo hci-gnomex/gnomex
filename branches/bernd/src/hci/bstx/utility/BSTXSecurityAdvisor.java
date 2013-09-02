@@ -3,9 +3,6 @@ package hci.bstx.utility;
 import java.util.List;
 import java.util.Map;
 
-import hci.framework.security.UnknownPermissionException;
-
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 

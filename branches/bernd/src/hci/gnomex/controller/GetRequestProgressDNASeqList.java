@@ -13,7 +13,6 @@ import hci.gnomex.utility.DictionaryHelper;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

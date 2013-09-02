@@ -5,14 +5,12 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellHTMLFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;

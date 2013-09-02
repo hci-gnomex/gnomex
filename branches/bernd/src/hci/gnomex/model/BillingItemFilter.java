@@ -1,11 +1,11 @@
 package hci.gnomex.model;
 
 
-import java.util.Set;
-import java.util.Iterator;
-
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
+
+import java.util.Iterator;
+import java.util.Set;
 
 public class BillingItemFilter extends DetailObject {
   

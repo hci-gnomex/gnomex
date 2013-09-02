@@ -1,8 +1,5 @@
 package hci.gnomex.model;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import hci.hibernate3utils.HibernateDetailObject;
 
 

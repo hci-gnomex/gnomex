@@ -1,22 +1,16 @@
 package hci.gnomex.utility;
 
+import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
-import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -95,7 +89,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
 
         String percentageDisplay = node.getAttributeValue("percentageDisplay") != null ? node.getAttributeValue("percentageDisplay") : "";        
         percentageDisplay = percentageDisplay.replaceAll("\\%", "");
-        billingItem.setPercentagePrice(percentageDisplay != "" ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
+        billingItem.setPercentagePrice(percentageDisplay.length() != 0 ? new BigDecimal(percentageDisplay).movePointLeft(2) : null);
 
         
         if (billingItem.getQty() != null && billingItem.getUnitPrice() != null) {
@@ -153,10 +147,10 @@ public class BillingItemParser extends DetailObject implements Serializable {
         BillingItem billingItem = null;
         if (idBillingItemString == null || idBillingItemString.equals("") || idBillingItemString.startsWith("BillingItem")) {
           continue;
-        } else {
+        } 
           billingItem = (BillingItem)sess.load(BillingItem.class, new Integer(idBillingItemString));
           billingItemsToRemove.add(billingItem);
-        }
+        
       }
     }
 
@@ -172,12 +166,12 @@ public class BillingItemParser extends DetailObject implements Serializable {
         Invoice invoice = null;
         if (idInvoice == null || idInvoice.equals("")) {
           continue;
-        } else {
+        } 
           invoice = (Invoice)sess.load(Invoice.class, new Integer(idInvoice));
           if (invoice.getInvoiceNumber() == null || !invoice.getInvoiceNumber().equals(node.getAttributeValue("invoiceNumber"))) {
             invoice.setInvoiceNumber(node.getAttributeValue("invoiceNumber"));
             invoices.add(invoice);
-          }
+          
         }
       }
     }

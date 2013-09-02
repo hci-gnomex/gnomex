@@ -5,7 +5,6 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
@@ -15,8 +14,6 @@ import hci.gnomex.utility.UploadDownloadHelper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
 import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
 
 
 public class FastDataTransferDownloadExpServlet extends HttpServlet {

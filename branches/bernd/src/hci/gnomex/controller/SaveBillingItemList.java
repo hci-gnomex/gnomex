@@ -19,9 +19,9 @@ import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LogLongExecutionTimes;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 
 import java.io.Serializable;
 import java.io.StringReader;

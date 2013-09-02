@@ -3,11 +3,10 @@ package hci.gnomex.model;
 import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Iterator;
+import java.util.Set;
 
 
 public class FlowCellChannel extends HibernateDetailObject {

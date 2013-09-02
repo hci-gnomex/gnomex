@@ -4,7 +4,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Visibility;
 
 import java.io.Serializable;
@@ -241,7 +240,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     String lastName   = row[19] != null ? (String)row[19] : "";
     String firstName  = row[20] != null ? (String)row[20] : "";
     String ownerName = "";
-    if (firstName != "") {
+    if (firstName.length() > 0) {
       ownerName += firstName;
     }
     if (lastName != null) {

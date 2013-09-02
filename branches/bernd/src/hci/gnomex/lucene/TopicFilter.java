@@ -2,9 +2,9 @@ package hci.gnomex.lucene;
 
 
 
-import java.util.List;
-
 import hci.framework.model.DetailObject;
+
+import java.util.List;
 
 public class TopicFilter extends DetailObject {
   

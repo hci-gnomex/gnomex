@@ -1,12 +1,13 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.GenomeIndex;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 

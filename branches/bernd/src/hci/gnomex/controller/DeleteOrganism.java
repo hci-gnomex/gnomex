@@ -1,18 +1,15 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.GenomeBuild;
-import hci.gnomex.model.Organism;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.model.Organism;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

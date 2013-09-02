@@ -13,8 +13,6 @@ import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URLEncoder;

@@ -1,7 +1,6 @@
 
 package hci.gnomex.utility;
 
-import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
@@ -14,7 +13,6 @@ import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -37,9 +35,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
   private Document doc;
   
   private SecurityAdvisor secAdvisor = null;
-  private String launchAppURL = null;
-  private String appURL = null;
-  private String serverName = null;
   private Integer idReleaser;
   
   private Map redoRequestsMap = new HashMap();
@@ -59,9 +54,6 @@ public class ChromatogramParser extends DetailObject implements Serializable
     Element root = this.doc.getRootElement();
 
     this.secAdvisor = secAdvisor;
-    this.launchAppURL = launchAppURL;
-    this.appURL = appURL;
-    this.serverName = serverName;
     this.idReleaser = this.secAdvisor.getIdAppUser();
     
     // Loop through each chromatogram
@@ -77,7 +69,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
         idChromatogram = ch.getIdChromatogram().toString();
       } else {
         ch = (Chromatogram) sess.get(Chromatogram.class,
-            Integer.parseInt(idChromatogram));
+            Integer.parseInt( idChromatogram ));
       }
       
       this.initializeChromat(sess, node, ch);
@@ -212,7 +204,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if ( idRequest == 0 && idPlateWell != 0 ) {
       PlateWell pw = (PlateWell) sess.get( PlateWell.class, idPlateWell );
       if ( pw != null && pw.getIdRequest() != null ) {
-        if ( pw.getIsControl() != null && pw.getIsControl() != "Y" ) { 
+        if ( pw.getIsControl() != null && !pw.getIsControl().equals("Y") ) { 
           idRequest = pw.getIdRequest();
         }
       }
@@ -245,7 +237,9 @@ public class ChromatogramParser extends DetailObject implements Serializable
 
   public void requeueSourceWells( int idReactionWell, Session sess ) {
       PlateWell reactionWell = (PlateWell) sess.get( PlateWell.class, idReactionWell );
-      
+      if ( reactionWell.getIsControl() != null && reactionWell.getIsControl().equals("Y") ) {
+        return;
+      }
       StringBuffer buf = getRedoQuery( reactionWell, false );
       Query query = sess.createQuery(buf.toString());
       List redoWells = query.list();

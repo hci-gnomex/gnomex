@@ -3,12 +3,12 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
-import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SlideDesign;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.SlideDesign;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;

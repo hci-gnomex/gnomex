@@ -1,23 +1,12 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.ArrayCoordinate;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.Slide;
-import hci.gnomex.model.SlideDesign;
-import hci.gnomex.model.SlideProduct;
-import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;

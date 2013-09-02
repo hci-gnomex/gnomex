@@ -1315,7 +1315,7 @@
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4"> 
-					<mx:HBox horizontalGap="0">
+					<mx:HBox horizontalGap="0" width="100%" >
 						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
@@ -1362,7 +1362,7 @@
 							
 						</mx:VBox>
 						
-						<mx:VBox width="300" borderStyle="none" verticalGap="4">
+						<mx:VBox borderStyle="none" verticalGap="4" width="100%">
 							<mx:HBox verticalGap="0" horizontalGap="0">
 								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
@@ -1386,6 +1386,15 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 								<mx:Text  width="100" text="Institution"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{institutionName}" width="200"/>
+							</mx:HBox>
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top">
+								<mx:Text  width="100" text="Collaborators"  styleName="formLabel" textAlign="left"/>
+								<mx:VBox verticalGap="0">
+									<mx:Repeater id="collaboratorRepeater" dataProvider="{this.selectedExperiment.collaborators.ExperimentCollaborator}"> 
+										<mx:Text id="collaborator" 
+												 text="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', collaboratorRepeater.currentItem.@idAppUser)}" />
+									</mx:Repeater>
+								</mx:VBox>
 							</mx:HBox>
 							
 						</mx:VBox>

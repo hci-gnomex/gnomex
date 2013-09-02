@@ -4,7 +4,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -13,7 +12,6 @@ import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
-import hci.gnomex.utility.DictionaryHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

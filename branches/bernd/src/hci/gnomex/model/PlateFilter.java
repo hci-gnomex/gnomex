@@ -1,10 +1,10 @@
 package hci.gnomex.model;
 
 
-import java.util.Calendar;
-
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
+
+import java.util.Calendar;
 
 public class PlateFilter extends DetailObject {
 

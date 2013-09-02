@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="libEnv/HCIDictionary.jar"/>
 	<classpathentry kind="lib" path="libEnv/HCIReport.jar"/>
 	<classpathentry kind="lib" path="C:/Orion/lib/jdom.jar"/>
-	<classpathentry kind="lib" path="C:/Orion/lib/tools.jar"/>
 	<classpathentry kind="lib" path="libEnv/hci_framework.jar"/>
 	<classpathentry kind="lib" path="libEnv/log4j-1.2.11.jar"/>
 	<classpathentry kind="lib" path="libEnv/commons-logging-1.0.4.jar"/>

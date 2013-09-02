@@ -300,7 +300,7 @@
 				if (samplesGrid.selectedItem != null) {
 					var sample:Object = samplesGrid.selectedItem;
 					for each(var row:XML in allErrorsList) {
-						if (row.@rowOrdinal == sample.@rowOrdinal) {
+						if (row.@rowOrdinal == sample.@rowOrdinal || row.@rowOrdinal == '') {
 							sampleErrorsList.addItem(row);
 						}
 					}

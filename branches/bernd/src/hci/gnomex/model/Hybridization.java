@@ -1,14 +1,12 @@
 package hci.gnomex.model;
 
 
-import java.io.Serializable;
-import java.sql.Date;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-
 import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
+
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 
 

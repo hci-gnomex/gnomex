@@ -1,8 +1,8 @@
 package hci.gnomex.utility;
 
+import hci.framework.model.DetailObject;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
-import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

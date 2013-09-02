@@ -1,27 +1,22 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.AppUser;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.GenomeBuildAlias;
 import hci.gnomex.model.Segment;
-import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.jdom.Element;
 
 
 

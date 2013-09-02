@@ -1,7 +1,6 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.dictionary.model.NullDictionaryEntry;
 
 import java.io.Serializable;
 

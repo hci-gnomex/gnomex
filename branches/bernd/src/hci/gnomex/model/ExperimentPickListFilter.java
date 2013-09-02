@@ -1,12 +1,12 @@
 package hci.gnomex.model;
 
 
-import java.util.Iterator;
-import java.util.List;
-
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class ExperimentPickListFilter extends DetailObject {
   

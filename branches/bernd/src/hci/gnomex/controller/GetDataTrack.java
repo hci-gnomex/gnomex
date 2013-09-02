@@ -6,22 +6,17 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
-import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;

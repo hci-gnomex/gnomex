@@ -14,14 +14,8 @@ import java.util.Properties;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import com.orionsupport.security.SimpleUserManager;
 

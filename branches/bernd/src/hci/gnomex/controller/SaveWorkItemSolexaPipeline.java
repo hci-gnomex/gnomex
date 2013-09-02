@@ -3,12 +3,12 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
@@ -278,7 +278,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     
-    if(request.getIsExternal().equals("N")){
+    if(request.getIsExternal().equals("N") && request.getIdCoreFacility() == CoreFacility.CORE_FACILITY_GENOMICS_ID){
       introNote.append("<br><br>" + dictionaryHelper.getPropertyDictionary(PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
     

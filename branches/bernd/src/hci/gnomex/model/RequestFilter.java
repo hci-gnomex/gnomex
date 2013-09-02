@@ -1,11 +1,11 @@
 package hci.gnomex.model;
 
 
+import hci.framework.model.DetailObject;
+import hci.gnomex.security.SecurityAdvisor;
+
 import java.sql.Date;
 import java.util.Calendar;
-
-import hci.gnomex.security.SecurityAdvisor;
-import hci.framework.model.DetailObject;
 
 public class RequestFilter extends DetailObject {
   
