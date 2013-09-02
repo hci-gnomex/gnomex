@@ -71,8 +71,8 @@
 				metrixInterface.send();
 						
 				// Set Connection status default
-				mainTitle.setStyle("fontWeight", "bold");
-				mainTitle.setStyle("color", "red");
+				//mainTitle.setStyle("fontWeight", "bold");
+				//mainTitle.setStyle("color", "red");
 				conStatus = false;
 				runStatusTab.overViewButton.enabled = false;
 			}
@@ -97,13 +97,19 @@
 		
 		private function onGetMetrixInterface(event:ResultEvent):void {
 			if(event.result.name() == "SummaryCollection"){
-				mainTitle.setStyle("fontWeight","bold");
-				mainTitle.setStyle("color","green");
 				conStatus = true;
-				
+				failText.visible = false;
+				RSTbox.includeInLayout = true;
+				RSTbox.visible = true;
 				if(MIList.length == 0){
+					emptyNote.visible = true;
+					emptyText.visible = true;
+					emptyNote.includeInLayout = true;
+					emptyText.includeInLayout = true;
 					refreshTimer.delay = 60000;
 				}else{
+					emptyNote.visible = true;
+					emptyText.visible = true;
 					refreshTimer.delay = 600000;
 				}
 				
@@ -132,7 +138,11 @@
 				refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
 				refreshTimer.start();
 			} else {
-				
+				RSTbox.includeInLayout = false;
+				RSTbox.visible = false;
+				emptyText.visible = false;
+				emptyNote.visible = true;
+				failText.visible = true;
 			}
 		}
 	]]>
@@ -140,7 +150,7 @@
 	<mx:states>
 		<mx:State name="AdminState"/>
 		<mx:State name="BillingState"/>
-		<mx:State name="WorkflowState"/>
+		<mx:State name="WorkflowState" />
 		<mx:State name="UserState"/>
 	</mx:states>
 	<mx:VBox width="100%" height="100%">
@@ -148,9 +158,14 @@
 			<mx:Label id="mainTitle" height="24" fontSize="18" text="Sequencer Status"/>
 		</mx:HBox>
 		<mx:VBox verticalGap="3" label="Recent" width="90%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" backgroundAlpha="1" fontSize="10">
-			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+			<mx:HBox id="RSTbox" verticalGap="0" visible="false" includeInLayout="{!emptyNote.includeInLayout}" horizontalGap="0" verticalAlign="middle">
 				<db:RunStatusTab id="runStatusTab" filterState="0" />
 			</mx:HBox>
+			<mx:VBox id="emptyNote"  height="200" width="351" visible="true" includeInLayout="{!RSTbox.includeInLayout}" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold">
+				<mx:Spacer id="emptySpace" width="100%" />
+				<mx:Text id="emptyText" selectable="false" visible="false" text="No Active Runs" color="0xFF8000" paddingLeft="180"/>
+				<mx:Text id="failText" selectable="false" visible="false" text="Error Connecting to server" fontStyle="italic" color="0xE10000" paddingLeft="160"/>
+			</mx:VBox>
 		</mx:VBox>
 	</mx:VBox>
 </mx:Canvas>

@@ -43,15 +43,16 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   public Command execute() throws RollBackCommandException {
     
     try {
-    	
+    	//if(isValid()){
     //  if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DASHBOARD)) {
 
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         
         /// Process filter calling here 
         Document doc = new Document(new Element("NewsItemList"));
         
-        StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
+        
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
 
         for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
@@ -77,13 +78,17 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         this.xmlResult = out.outputString(doc);
         
         // Send redirect with response SUCCESS or ERROR page.
-        setResponsePage(this.SUCCESS_JSP);
+        if (isValid()) {
+            setResponsePage(this.SUCCESS_JSP);
+          } else {
+            setResponsePage(this.ERROR_JSP);
+          }
 
       /*} else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to retrieve NewsItems.");
         setResponsePage(this.ERROR_JSP);
       }*/
-
+    //	}
     }catch (NamingException e){
       log.error("An exception has occurred in GetNewsItem ", e);
       e.printStackTrace(System.out);

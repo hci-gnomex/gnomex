@@ -939,8 +939,9 @@
 					if(originalRow != null){
 						// Check wether column is locked.
 						if(!samplesGrid.columns[zeroPointCol].isLocked){			
-							// Run validity checks for entries here & run column mapping function if defined.
+							// Run validity checks for entries here
 							var fill:String = colItem.col1;
+							// Execute column transformation function if defined.
 							if(samplesGrid.columns[zeroPointCol].mappingFunction){
 								fill = samplesGrid.columns[zeroPointCol].mappingFunction(colItem.col1);
 							}
@@ -1028,9 +1029,8 @@
 				
 				var lblTxt:String = copyModeButton.label;
 				if(lblTxt == "Switch to 'Normal Edit'"){
-					if(samplesGrid.clearEventListeners()){
-						Alert.show("All event listeners gonee!");
-					}
+					// Clear all event listeners 
+					samplesGrid.clearEventListeners(); 
 					samplesGrid._pasteEnabled = false;
 					samplesGrid._pasteFunction = null;
 					setSamplesGridDataProvider();
@@ -1039,23 +1039,23 @@
 					samplesGrid._mode = "row";
 					samplesGrid.selectionMode="singleRow";
 					samplesGrid.editable = "true";
-					barcodeColumn.visible = "true";
+					barcodeColumn.visible = true;
 				}else{
 					samplesGrid.init();
 					samplesGrid._pasteEnabled = true;
 					samplesGrid._pasteFunction = handleTextPaste;
 					samplesGrid.dataProvider = parentDocument.samples;
 					samplesGrid.invalidateDisplayList();
-					barcodeColumn.visible = "true";
+					barcodeColumn.visible = true;
 					copyModeButton.label = "Switch to 'Normal Edit'";
 					samplesGrid.selectionMode="singleCell";
 					samplesGrid._mode = "col";
 					samplesGrid.editable = "false";
 					samplesGrid._selectedCell = samplesGrid.selectedItem;
-					barcodeColumn.editable = "false";
+					barcodeColumn.editable = false;
 				}
+				checkSamplesCompleteness();
 			}
-			
 			
 			/*
 			* Till here

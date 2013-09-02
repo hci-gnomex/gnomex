@@ -49,118 +49,123 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   public Command execute() throws RollBackCommandException {
    
 	try {
-    	
-    	Boolean adminAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_ADMIN_NOTIFICATION);
-    	Boolean billingAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_BILLING_NOTIFICATION);
-    	Boolean workflowAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_WORKFLOW_NOTIFICATION);
-    	
-        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+	//	if(isValid()){
+		
+	    	Boolean adminAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_ADMIN_NOTIFICATION);
+	    	Boolean billingAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_BILLING_NOTIFICATION);
+	    	Boolean workflowAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_WORKFLOW_NOTIFICATION);
+	    	
+	        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+	        DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+	        
+	        // Process filter calling here 
+	        Document doc = new Document(new Element("NotificationCollection"));
+	        
+	        StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
+	        List rows = (List) sess.createQuery(queryBuf.toString()).list();
+	        
+	        // Foreach step in permission level (user, admin, billing, workflow) create subnodes.
+	        // Get sourceType and determine parsing type.
+	        Element x = null;
+	        
+	        Integer idUser = this.getSecAdvisor().getIdAppUser();
+	        
+	      for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
+	            Object[] row = (Object[]) i1.next();
+	            x = null;
+	            String sourceType = (String)row[1].toString();
+	
+	            if(sourceType.equals("ADMIN")){
+	            	if(adminAuth){
+	            		// Set admin level notification node
+	            		x = new Element("admin");
+	            	}else{
+	            		continue;
+	            	}
+	            }else if(sourceType.equals("USER")){
+	            	// Set user level notification node
+	            	Integer uid = null;
+	            	
+	            	if((Integer) row[4] != null){
+	            		uid = (Integer) row[4];
+	            	}
+	            	
+	            	if(uid.equals(idUser)){
+	            		x = new Element("user");
+	            	}else{
+	            		continue;
+	            	}
+	            }else if(sourceType.equals("BILLING")){
+	            	if(billingAuth){
+	            		// Set billing level notification node
+	           			x = new Element("billing");
+	            	}else{
+	            		continue;
+	            	}
+	            }else{ // Unknown
+	            	x = new Element("Unknown");
+	            }
+	            
+	    		x.setAttribute("notificationId",	row[0] == null ? "0" : ((Integer)row[0]).toString());
+	    		x.setAttribute("sourceType",		row[1] == null ? "" : sourceType);						// Should not be undef.
+	    		x.setAttribute("state", 			row[2] == null ? "" : (String)row[2]);
+	    		x.setAttribute("date",				row[3] == null ? "" : this.formatDate((java.util.Date)row[3]));
+	    		x.setAttribute("idTargetUser", 		row[4] == null ? "" : ((Integer)row[4]).toString());
+	    		x.setAttribute("idTargetLab",		row[5] == null ? "" : ((Integer)row[5]).toString());
+	    		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
+	    		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
+	    		x.setAttribute("fullNameUser", 		row[8] == null ? "" : (String)row[8]);
+	           
+	            // Add node content to rootElement XML output.
+	            if(row[0] != null){
+	            	doc.getRootElement().addContent(x);	
+	            }
+	        }
+	
+	        // If authorized for workflow management 
+	        	if(workflowAuth){
+	                StringBuffer buf = new StringBuffer();
+	                // Build the workflow samples
+	                buf.append("SELECT wi.codeStepNext, count(wi.codeStepNext)");
+	                buf.append(" FROM  Sample s ");
+	          	  	buf.append(" JOIN    s.request as req ");
+	          	  	buf.append(" LEFT JOIN	 s.workItems wi ");
+	          	  	
+	          	  	if(workflowCoreFacility != null){
+	          	  		buf.append(" WHERE req.idCoreFacility='");
+	          	  		buf.append(workflowCoreFacility);
+	          	  		buf.append("'");
+	          	  	}
+	          	  	
+	          	  	buf.append(" GROUP BY wi.codeStepNext ");
+	          	  	
+	                rows = sess.createQuery(buf.toString()).list();
+	                if (rows.size() > 0) {
+	                  for(Iterator i = rows.iterator(); i.hasNext();) {
+	                    Object[] row = (Object[])i.next();
+	                    x = new Element("workflow");
+	                    
+	                    x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
+	                    x.setAttribute("count", 	row[1] == null ? "" : ((Integer)row[1]).toString());
+	                    x.setAttribute("sourceType", "WORKFLOW");
+	                    x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));
+	                    
+	                    if((String)row[0] != null){
+	                    	doc.getRootElement().addContent(x);
+	                    }
+	                  }
+	                }
+	        	}
+	        XMLOutputter out = new org.jdom.output.XMLOutputter();
+	        this.xmlResult = out.outputString(doc);
         
-        // Process filter calling here 
-        Document doc = new Document(new Element("NotificationCollection"));
-        
-        StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
-        List rows = (List) sess.createQuery(queryBuf.toString()).list();
-        
-        // Foreach step in permission level (user, admin, billing, workflow) create subnodes.
-        // Get sourceType and determine parsing type.
-        Element x = null;
-        
-        Integer idUser = this.getSecAdvisor().getIdAppUser();
-        
-      for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
-            Object[] row = (Object[]) i1.next();
-            x = null;
-            String sourceType = (String)row[1].toString();
-
-            if(sourceType.equals("ADMIN")){
-            	if(adminAuth){
-            		// Set admin level notification node
-            		x = new Element("admin");
-            	}else{
-            		continue;
-            	}
-            }else if(sourceType.equals("USER")){
-            	// Set user level notification node
-            	Integer uid = null;
-            	
-            	if((Integer) row[4] != null){
-            		uid = (Integer) row[4];
-            	}
-            	
-            	if(uid.equals(idUser)){
-            		x = new Element("user");
-            	}else{
-            		continue;
-            	}
-            }else if(sourceType.equals("BILLING")){
-            	if(billingAuth){
-            		// Set billing level notification node
-           			x = new Element("billing");
-            	}else{
-            		continue;
-            	}
-            }else{ // Unknown
-            	x = new Element("Unknown");
-            }
-            
-    		x.setAttribute("notificationId",	row[0] == null ? "0" : ((Integer)row[0]).toString());
-    		x.setAttribute("sourceType",		row[1] == null ? "" : sourceType);						// Should not be undef.
-    		x.setAttribute("state", 			row[2] == null ? "" : (String)row[2]);
-    		x.setAttribute("date",				row[3] == null ? "" : this.formatDate((java.util.Date)row[3]));
-    		x.setAttribute("idTargetUser", 		row[4] == null ? "" : ((Integer)row[4]).toString());
-    		x.setAttribute("idTargetLab",		row[5] == null ? "" : ((Integer)row[5]).toString());
-    		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
-    		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
-    		x.setAttribute("fullNameUser", 		row[8] == null ? "" : (String)row[8]);
-           
-            // Add node content to rootElement XML output.
-            if(row[0] != null){
-            	doc.getRootElement().addContent(x);	
-            }
-        }
-
-        // If authorized for workflow management 
-        	if(workflowAuth){
-                StringBuffer buf = new StringBuffer();
-                // Build the workflow samples
-                buf.append("SELECT wi.codeStepNext, count(wi.codeStepNext)");
-                buf.append(" FROM  Sample s ");
-          	  	buf.append(" JOIN    s.request as req ");
-          	  	buf.append(" LEFT JOIN	 s.workItems wi ");
-          	  	
-          	  	if(workflowCoreFacility != null){
-          	  		buf.append(" WHERE req.idCoreFacility='");
-          	  		buf.append(workflowCoreFacility);
-          	  		buf.append("'");
-          	  	}
-          	  	
-          	  	buf.append(" GROUP BY wi.codeStepNext ");
-          	  	
-                rows = sess.createQuery(buf.toString()).list();
-                if (rows.size() > 0) {
-                  for(Iterator i = rows.iterator(); i.hasNext();) {
-                    Object[] row = (Object[])i.next();
-                    x = new Element("workflow");
-                    
-                    x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
-                    x.setAttribute("count", 	row[1] == null ? "" : ((Integer)row[1]).toString());
-                    x.setAttribute("sourceType", "WORKFLOW");
-                    x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));
-                    
-                    if((String)row[0] != null){
-                    	doc.getRootElement().addContent(x);
-                    }
-                  }
-                }
-        	}
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
-        this.xmlResult = out.outputString(doc);
-        
-        // Send redirect with response SUCCESS.
-        setResponsePage(this.SUCCESS_JSP);
-        
+         // Send redirect with response SUCCESS or ERROR page.
+         if (isValid()) {
+            setResponsePage(this.SUCCESS_JSP);
+          } else {
+            setResponsePage(this.ERROR_JSP);
+         }
+	//	}
     }catch (NamingException e){
       log.error("An exception has occurred in GetNotification ", e);
       e.printStackTrace(System.out);
