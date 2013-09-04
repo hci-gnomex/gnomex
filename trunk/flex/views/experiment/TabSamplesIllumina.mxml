@@ -1210,7 +1210,7 @@
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Mean Lib Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
