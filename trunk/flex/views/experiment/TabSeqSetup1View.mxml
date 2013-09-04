@@ -71,7 +71,7 @@
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
 			
-			if(numberSamplesPerChannel.text != null && numberSamplesPerChannel.text != ""){
+			if(currentState == 'BarCodeState' && numberSamplesPerChannel.text != null && numberSamplesPerChannel.text != ""){
 				changeNumberSamplesPerChannel();
 			}
 			
