@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="{'Folders for Data track ' + dataTrack.@name}"
+	showCloseButton="true" 
+	width="538" 
+	height="134"
+	verticalGap="0"
+	close="closeWindow()"
+	layout="vertical" backgroundAlpha="100" defaultButton="{cancelButton}">
+
+    
+       
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import mx.controls.Alert;
+	
+	[Bindable]
+	private var dataTrack:XML = null;
+	
+	public function init(dataTrack:XML):void {
+		this.dataTrack = dataTrack;
+	}
+   
+    private function closeWindow():void {
+		PopUpManager.removePopUp(this);		
+	}
+	
+	]]>
+    </mx:Script>
+    
+    <mx:VBox height="100%" width="100%" styleName="form" verticalGap="8">
+		<mx:Tree id="dataTrackGroupingTree" height="100%" width="100%" labelField="@name" defaultLeafIcon="@Embed(source='../../assets/folder.png')" borderStyle="none">
+	    	<mx:dataProvider>{dataTrack.DataTrackFolders.DataTrackFolder}</mx:dataProvider>
+	    </mx:Tree>
+
+    </mx:VBox>
+
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button id="cancelButton" label="Close" click="closeWindow()"/>
+	</mx:ControlBar>
+</mx:TitleWindow>

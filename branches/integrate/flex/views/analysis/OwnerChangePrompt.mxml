@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="Reassignment"
+	showCloseButton="true" 
+	width="440" 
+	height="140"
+	close="closeWindow('No')"
+	xmlns:util="views.util.*" verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
+	
+	<mx:HTTPService             
+		id="getLab" 
+		url="GetLab.gx" 
+		destination="getLab" 
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService> 
+	
+	<mx:HTTPService 
+		id="saveAnalysisOwner" 
+		url="SaveAnalysisOwner.gx"
+		destination="saveAnalysisOwner"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="onSaveAnalysisOwner(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis owner', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService >		
+	
+    <mx:Script>
+	<![CDATA[
+	
+	import mx.collections.Sort;
+	import mx.collections.XMLListCollection;
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	import views.topics.NavTopicsView;
+	import views.util.GNomExStringUtil;
+
+		
+	private var analysisEditView:AnalysisEditView;
+	private var idAnalysis:String;
+	private var idOwner:String;
+	private var idLab:String;
+		
+	[Bindable]
+	private var appUsersForLab:XMLListCollection;
+	private var appUserSort:Sort;
+			
+	public	function init(analysisEditView:AnalysisEditView, idAnalysis:String, idLab:String):void {
+		this.analysisEditView = analysisEditView;
+		this.idAnalysis = idAnalysis;
+		this.idLab = idLab;
+		var params:Object = new Object();
+		params.idLab = idLab;
+		getLab.send(params);		
+	}	
+		
+	private function onSaveAnalysisOwner(event:ResultEvent):void {          	
+		if (saveAnalysisOwner.lastResult.name() == "SUCCESS") {
+			if(analysisEditView.parentDocument is NavAnalysisView) {
+				parentApplication.navAnalysisView.noOnBrowseTreeCall = true;		
+				parentApplication.navAnalysisView.refreshAnalysis();		
+				//parentApplication.navAnalysisView.showEditView = true;
+				parentApplication.navAnalysisView.analysisDetailView.refreshSavedAnalysis(idAnalysis);							
+			} else if (analysisEditView.parentDocument is NavTopicsView) {
+				parentApplication.navTopicsView.analysisDetailView.refreshSavedAnalysis(idAnalysis);
+				parentApplication.navTopicsView.analysisViews.selectedChild = parentApplication.navTopicsView.analysisDetailView;
+			}	
+			callLater(disposePopup);
+			       
+		} else {
+			Alert.show("Unable to save analysis owner.");
+		}
+	}
+		
+	private function disposePopup():void {
+		PopUpManager.removePopUp(this);	   
+	}
+		
+    private function closeWindow(closeStatus:String):void {
+		if(closeStatus == "Yes") {
+			if (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0) {
+				ownerCombo.setFocus();
+				Alert.show("Please select select the analysis owner.");
+				return;        		
+			} 
+			idOwner = ownerCombo.selectedItem.@idAppUser;
+			analysisEditView.parentIdLab = null;
+			var params:Object = new Object();
+			params.idAnalysis = idAnalysis;
+			params.idOwner = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";
+			saveAnalysisOwner.send(params);
+			return;
+		}
+		PopUpManager.removePopUp(this);		
+	}
+		
+	private function onGetLab(event:ResultEvent):void {	
+		if (getLab.lastResult.name() == "OpenLabList") {		
+			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
+			for each (var mgr:Object in lab.managers.AppUser) {
+				if (!appUsersForLab.contains(mgr)) {
+					if(mgr.@isActive=='Y') {
+						appUsersForLab.addItem(mgr);
+					}
+					
+				}
+			}
+			appUsersForLab.addItemAt(emptyNode, 0);
+			
+			appUserSort = new Sort();
+			appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
+			appUsersForLab.sort = appUserSort;
+			appUsersForLab.refresh();
+			ownerCombo.dataProvider = appUsersForLab;
+			ownerCombo.selectedItem = emptyNode;				
+		}		
+	}		
+		
+	]]>
+    </mx:Script>
+    <mx:VBox width="100%" height="100%" verticalGap="10"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:HBox width="100%" >
+			<mx:TextArea id="message" editable="false" text="There is either no current owner assigned, or the owner of this analysis is not a member of the assigned lab. Please select a new owner." wordWrap="true" fontSize="11" width="100%" backgroundColor="#DDDDDD" />
+		</mx:HBox>				
+		<mx:HBox width="100%">
+			<mx:Label text="Owner" width="105"/>
+			<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+		</mx:HBox>		
+
+    </mx:VBox>
+
+	<mx:ControlBar horizontalAlign="right" height="29">
+		<mx:Button id="saveButton"  
+			label="Save"
+			click="{closeWindow('Yes')}"/>
+		<mx:Button label="Cancel" click="{closeWindow('No')}"/>
+	</mx:ControlBar>
+</mx:TitleWindow>
