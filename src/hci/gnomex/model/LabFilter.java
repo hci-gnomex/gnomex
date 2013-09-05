@@ -1,10 +1,11 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
-import hci.gnomex.security.SecurityAdvisor;
-
 import java.util.Iterator;
+import java.util.Set;
+
+import hci.gnomex.security.SecurityAdvisor;
+import hci.framework.model.DetailObject;
 
 public class LabFilter extends DetailObject {
   

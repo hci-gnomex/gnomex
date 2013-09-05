@@ -21,8 +21,8 @@ import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;

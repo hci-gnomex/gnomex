@@ -1,14 +1,19 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UsageRowDescriptor;
 import hci.gnomex.utility.UsageRowDescriptorComparator;
+import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.Annotations;
+import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -31,10 +36,17 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
+
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.LabFilter;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Visibility;
 
 
 public class GetUsageData extends GNomExCommand implements Serializable {

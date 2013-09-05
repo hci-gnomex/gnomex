@@ -8,7 +8,9 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRunFilter;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.ReactionType;
+import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;

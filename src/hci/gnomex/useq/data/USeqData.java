@@ -1,12 +1,8 @@
 package hci.gnomex.useq.data;
 
-import hci.gnomex.useq.SliceInfo;
-import hci.gnomex.useq.USeqUtilities;
+import java.io.*;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import hci.gnomex.useq.*;
 
 /**Parent Container for a sorted Data[] and it's associated SliceInfo.
  * @author david.nix@hci.utah.edu*/

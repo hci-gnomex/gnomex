@@ -11,16 +11,12 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,8 +29,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 import org.hibernate.Query;
 import org.hibernate.Session;
+
+
+import java.io.BufferedWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**Edited 1/15/2013 Mosbruger
 

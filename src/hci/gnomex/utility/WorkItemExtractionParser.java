@@ -2,8 +2,14 @@ package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.Slide;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.jdom.Document;

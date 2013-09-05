@@ -2,25 +2,39 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
+import hci.gnomex.model.WorkItem;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ApplicationParser;
+import hci.gnomex.utility.FlowCellChannelParser;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
@@ -115,7 +129,7 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
       for(int i = slide.size()-2; i < slide.size(); i++){
         SlideProduct temp = (SlideProduct) slide.get(i);
         
-        if(temp.getName().equals(slideInfo.getName())){
+        if(temp.getName() == slideInfo.getName()){
           slideDesign.setName(slideInfo.getName());
           slideDesign.setIsActive(slideInfo.getIsActive());
           slideDesign.setIdSlideProduct(temp.getIdSlideProduct()); 

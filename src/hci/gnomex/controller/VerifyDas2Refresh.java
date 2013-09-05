@@ -19,6 +19,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.dom4j.Document;
 import org.hibernate.Session;
 
 

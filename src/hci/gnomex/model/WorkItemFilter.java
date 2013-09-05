@@ -1,11 +1,15 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
-import hci.gnomex.security.SecurityAdvisor;
-
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import hci.gnomex.security.SecurityAdvisor;
+import hci.framework.model.DetailObject;
 
 public class WorkItemFilter extends DetailObject {
   

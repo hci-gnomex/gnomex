@@ -4845,14 +4845,18 @@
 							params.allExperiments = 'Y';
 						}
 					}
+					if (parentDocument.lastWeekCheckbox.selected) {
+						params.lastWeek = 'Y';
+					}
+					if (parentDocument.lastMonthCheckbox.selected) {
+						params.lastMonth = 'Y';
+					}
+					if (parentDocument.lastYearCheckbox.selected) { 
+						params.lastYear = 'Y';
+					}
 					if (parentDocument.publicExperimentsOtherGroupsCheckbox.selected) {
 						params.publicExperimentsInOtherGroups = 'Y';
 					}
-					if ( parentDocument.pickDateRangeButton.fromDate != null && parentDocument.pickDateRangeButton.toDate != null ) {
-						params.createDateFrom = dateFormatter.format( parentDocument.pickDateRangeButton.fromDate );
-						params.createDateTo = dateFormatter.format( parentDocument.pickDateRangeButton.toDate );
-					}
-					
 					params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
 					params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
 					params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
@@ -5017,9 +5021,6 @@
 			}
 		]]>
 	</mx:Script>
-	
-	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
-		
 	<mx:XMLListCollection id="assayCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Assay').DictionaryEntry.(@display != '')}"/>
 	<mx:XMLListCollection id="selectedAssaysCollection"/>
 	

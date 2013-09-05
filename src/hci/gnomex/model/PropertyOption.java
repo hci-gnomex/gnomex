@@ -1,6 +1,11 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import java.util.Iterator;
+import java.util.Set;
+
+import hci.dictionary.model.DictionaryEntry;
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class PropertyOption  extends DictionaryEntry {

@@ -1,15 +1,6 @@
 package hci.gnomex.model;
 
 
-import hci.dictionary.utility.DictionaryManager;
-import hci.framework.model.DetailObject;
-import hci.framework.model.FieldFormatter;
-import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DataTrackUtil;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.USeqUtilities;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -24,6 +15,15 @@ import java.util.logging.Logger;
 
 import org.jdom.Document;
 import org.jdom.Element;
+
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.model.DetailObject;
+import hci.framework.model.FieldFormatter;
+import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.USeqUtilities;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.DataTrackUtil;
 
 
 

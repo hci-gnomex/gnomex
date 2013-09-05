@@ -8,6 +8,7 @@ import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideDesignFilter;
 import hci.gnomex.model.SlideProduct;
+import hci.gnomex.model.SlideProductFilter;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jdom.Document;

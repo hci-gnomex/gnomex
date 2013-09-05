@@ -2,10 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.billing.IlluminaSeqPlugin;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;

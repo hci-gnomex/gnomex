@@ -16,6 +16,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.RequestParser;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -1,12 +1,17 @@
 package hci.gnomex.model;
 
+import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.text.NumberFormat;
+
+import javax.swing.text.NumberFormatter;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+
+import java.sql.Date;
 
 public class BillingItem extends HibernateDetailObject {
   

@@ -1,8 +1,7 @@
 package hci.gnomex.useq;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 /**Container to hold chrom, strand, firstStartPosition, lastStartPosition, numberRecords, and binaryType from a useq data slice. 
  * Each slice name should look like chr5+8394834-8394854-10000.isft, no spaces, interbase coordinates, strand is +,-,or .

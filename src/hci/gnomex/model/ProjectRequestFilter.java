@@ -1,14 +1,15 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.framework.model.DetailObject;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class ProjectRequestFilter extends DetailObject {
   
@@ -38,10 +39,6 @@ public class ProjectRequestFilter extends DetailObject {
   private String                showSamples = "Y";
   private String                showCategory = "Y";
   private String                showExternalExperiments = "Y";
-  
-  private Date                  createDateFrom;
-  private Date                  createDateTo;
-  
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
@@ -76,7 +73,6 @@ public class ProjectRequestFilter extends DetailObject {
         idProject != null ||
         idAppUser != null ||
         ccNumber != null ||
-        createDateFrom != null ||
         (allExperiments != null && allExperiments.equalsIgnoreCase("Y")) ||
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
@@ -389,20 +385,7 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal = 'Y'");
     } 
-    //  Search by create date from 
-    if (createDateFrom != null){
-      this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    } 
-    //  Search by create date from 
-    if (createDateTo != null){
-      this.addWhereOrAnd();
-      queryBuf.append(" req.createDate <= '");
-      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    } 
+    
     // Search for requests submitted in last week
     if (lastWeek.equals("Y")) {
 
@@ -1054,23 +1037,5 @@ public class ProjectRequestFilter extends DetailObject {
     this.ccNumber = ccNumber;
   }
   
-  public Date getCreateDateFrom() {
-    return createDateFrom;
-  }
-
-
   
-  public void setCreateDateFrom(Date createDateFrom) {
-    this.createDateFrom = createDateFrom;
-  }
-
-  
-  public Date getCreateDateTo() {
-    return createDateTo;
-  }
-
-  
-  public void setCreateDateTo(Date createDateTo) {
-    this.createDateTo = createDateTo;
-  }
 }

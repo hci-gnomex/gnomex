@@ -1315,7 +1315,7 @@
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4"> 
-					<mx:HBox horizontalGap="0" width="100%" >
+					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
@@ -1362,7 +1362,7 @@
 							
 						</mx:VBox>
 						
-						<mx:VBox borderStyle="none" verticalGap="4" width="100%">
+						<mx:VBox width="300" borderStyle="none" verticalGap="4">
 							<mx:HBox verticalGap="0" horizontalGap="0">
 								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
@@ -1386,15 +1386,6 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 								<mx:Text  width="100" text="Institution"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{institutionName}" width="200"/>
-							</mx:HBox>
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top">
-								<mx:Text  width="100" text="Collaborators"  styleName="formLabel" textAlign="left"/>
-								<mx:VBox verticalGap="0">
-									<mx:Repeater id="collaboratorRepeater" dataProvider="{this.selectedExperiment.collaborators.ExperimentCollaborator}"> 
-										<mx:Text id="collaborator" 
-												 text="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', collaboratorRepeater.currentItem.@idAppUser)}" />
-									</mx:Repeater>
-								</mx:VBox>
 							</mx:HBox>
 							
 						</mx:VBox>
@@ -1517,7 +1508,7 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 							
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
-							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
+							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Mean Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 								<mx:itemRenderer>
 									<mx:Component>
 										<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>

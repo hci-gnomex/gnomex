@@ -1,10 +1,10 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -31,11 +31,23 @@
 			if(parentDocument.request.@captureLibDesignId != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
 				capLibDesignBox.visible = true;
 				capLibDesignBox.includeInLayout = true;
+				avgInsertSizeBox.includeInLayout = false;
+				avgInsertSizeBox.visible = false;
 				capLibLabel.text = parentDocument.request.@captureLibDesignId;
+			}
+			else if(parentDocument.request.@meanInsertSizeRequested != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
+				avgInsertSizeBox.visible = true;
+				avgInsertSizeBox.includeInLayout = true;
+				capLibDesignBox.includeInLayout = false;
+				capLibDesignBox.visible = false;
+				avgInsertSizeLabel.text = parentDocument.request.@meanInsertSizeRequested + " bp";
+				
 			}
 			else{
 				capLibDesignBox.includeInLayout = false;
 				capLibDesignBox.visible = false;
+				avgInsertSizeBox.includeInLayout = false;
+				avgInsertSizeBox.visible = false;
 			}
 			
 			submitterName.text = parentDocument.getSubmitterName();
@@ -461,6 +473,10 @@
 					<mx:VBox id="capLibDesignBox" visible="false" includeInLayout="false">
 						<mx:Label text="Capture Library Design Id" styleName="formLabel" height="16"/>
 						<mx:Label id="capLibLabel" alpha="0.8" text=""/>
+					</mx:VBox>
+					<mx:VBox id="avgInsertSizeBox" visible="false" includeInLayout="false">
+						<mx:Label text="Requested Mean Insert Size" styleName="formLabel" height="16"/>
+						<mx:Label id="avgInsertSizeLabel" alpha="0.8" text=""/>
 					</mx:VBox>
 					<mx:VBox id="sampleDropOffLocationVbox" visible="false">
 						<mx:Label text="Sample Drop Off Location" styleName="formLabel" height="16"/>

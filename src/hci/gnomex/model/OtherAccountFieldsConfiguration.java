@@ -1,13 +1,14 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
+
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class OtherAccountFieldsConfiguration extends HibernateDetailObject implements Serializable {

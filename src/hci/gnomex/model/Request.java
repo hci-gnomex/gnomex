@@ -1,22 +1,26 @@
 package hci.gnomex.model;
 
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.constants.Constants;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.hibernate3utils.HibernateDetailObject;
-
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import hci.gnomex.constants.Constants;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.framework.model.DetailObject;
+import hci.framework.model.FieldFormatter;
+import hci.framework.security.UnknownPermissionException;
+import hci.framework.utilities.XMLReflectException;
+import hci.hibernate3utils.HibernateDetailObject;
+import java.sql.Date;
 
 import org.jdom.Document;
 import org.jdom.Element;

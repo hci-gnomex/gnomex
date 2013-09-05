@@ -1,7 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
@@ -9,31 +7,33 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.Invoice;
+import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PropertyPlatformApplication;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Plate;
-import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
@@ -48,16 +48,21 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
+import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
-import hci.gnomex.utility.RequestParser.HybInfo;
 import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemHybParser;
+import hci.gnomex.utility.RequestParser.HybInfo;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.File;
 import java.io.Serializable;
@@ -66,6 +71,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -74,6 +80,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.mail.MessagingException;
@@ -81,6 +88,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -2292,7 +2300,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
-    if(!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)){
+    if(emailRecipients != "" && !MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }
     if (otherRecipients != null && otherRecipients.length() > 0) {

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
@@ -18,9 +19,12 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -70,7 +74,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       isNewRequestCategory = true;
     }
     
-    if(request.getParameter("type") == null || request.getParameter("type").equals("")){
+    if(request.getParameter("type") == null || request.getParameter("type") == ""){
       setResponsePage(this.ERROR_JSP);
       this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
     }

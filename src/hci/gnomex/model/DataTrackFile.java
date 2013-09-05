@@ -1,5 +1,7 @@
 package hci.gnomex.model;
 
+import java.io.File;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
 public class DataTrackFile extends HibernateDetailObject {

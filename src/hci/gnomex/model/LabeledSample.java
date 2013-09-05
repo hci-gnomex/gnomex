@@ -2,11 +2,16 @@ package hci.gnomex.model;
 
 
 
-import hci.gnomex.constants.Constants;
-import hci.hibernate3utils.HibernateDetailObject;
-
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.jdom.Document;
+
+import hci.gnomex.constants.Constants;
+import hci.framework.utilities.XMLReflectException;
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 

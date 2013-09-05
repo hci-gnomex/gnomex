@@ -1,19 +1,22 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.Util;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -11,10 +11,11 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
-import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 

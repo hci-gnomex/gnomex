@@ -5,6 +5,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

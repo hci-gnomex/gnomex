@@ -9,6 +9,7 @@ import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;

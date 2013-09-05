@@ -1,24 +1,30 @@
 package hci.gnomex.controller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BSTSampleInformation;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.text.SimpleDateFormat;
-
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
 
 
 public class DownloadOncoCartaFDFServlet extends HttpServlet {

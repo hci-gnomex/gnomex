@@ -1,7 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
+import hci.gnomex.lucene.SearchListParser;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
@@ -9,9 +8,12 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -156,7 +159,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
               if (appUser.getUserNameExternal() != null  && !appUser.getUserNameExternal().trim().equals("")) {
                 appUser.setuNID(null);
               }
-              if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+              if (appUser.getPasswordExternal() != null && appUser.getPasswordExternal() != "" && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
                 String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
                 appUser.setPasswordExternal(encryptedPassword);      
               }

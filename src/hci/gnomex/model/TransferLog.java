@@ -5,6 +5,9 @@ import hci.hibernate3utils.HibernateDetailObject;
 import java.math.BigDecimal;
 
 
+import javax.swing.text.NumberFormatter;
+
+
 public class TransferLog extends HibernateDetailObject {
   public static final String     TYPE_DOWNLOAD = "download";
   public static final String     TYPE_UPLOAD = "upload";

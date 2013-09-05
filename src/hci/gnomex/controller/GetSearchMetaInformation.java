@@ -5,23 +5,28 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.lucene.AllObjectsIndexHelper;
 import hci.gnomex.lucene.AnalysisIndexHelper;
 import hci.gnomex.lucene.ExperimentIndexHelper;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.LabFilter;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.SlideProductFilter;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 

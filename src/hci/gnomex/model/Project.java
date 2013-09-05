@@ -1,12 +1,15 @@
 package hci.gnomex.model;
 
-import hci.framework.utilities.XMLReflectException;
-import hci.hibernate3utils.HibernateDetailObject;
-
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import hci.framework.utilities.XMLReflectException;
+import hci.hibernate3utils.HibernateDetailObject;
+import java.sql.Date;
 
 import org.jdom.Document;
 import org.jdom.Element;

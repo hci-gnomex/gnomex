@@ -10,6 +10,7 @@ import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqLibProtocol;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;

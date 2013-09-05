@@ -1,16 +1,14 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LogLongExecutionTimes;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.Institution;
-import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.LabFilter;
-import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -24,10 +22,18 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
+
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.LabFilter;
+import hci.gnomex.model.Visibility;
 
 
 public class GetLabList extends GNomExCommand implements Serializable {

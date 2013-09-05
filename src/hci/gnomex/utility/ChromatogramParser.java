@@ -204,7 +204,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if ( idRequest == 0 && idPlateWell != 0 ) {
       PlateWell pw = (PlateWell) sess.get( PlateWell.class, idPlateWell );
       if ( pw != null && pw.getIdRequest() != null ) {
-        if ( pw.getIsControl() != null && !pw.getIsControl().equals("Y") ) { 
+        if ( pw.getIsControl() != null && pw.getIsControl() != "Y" ) { 
           idRequest = pw.getIdRequest();
         }
       }

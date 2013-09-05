@@ -251,7 +251,7 @@
 			  <attribute name="class-path" value="log4j.jar"/>
 					<section name="gnomex">
 	  	      <attribute name="Built-By" value="${user.name}"/>
-            <attribute name="Implementation-Version" value="${gnomex_version}    (${build.date})"/>
+  	  	    <attribute name="Implementation-Version" value="${gnomex_version}"/>
 					</section>
     		</manifest>
 

@@ -1,9 +1,14 @@
   package hci.gnomex.lucene;
 
 
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.framework.model.DetailObject;
 
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class ExperimentFilter extends DetailObject {
   

@@ -1,17 +1,27 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.PriceSheet;
+import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.SampleType;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SampleTypeApplication;
+import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocolApplication;
+import hci.gnomex.model.SeqRunType;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
@@ -21,11 +31,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;

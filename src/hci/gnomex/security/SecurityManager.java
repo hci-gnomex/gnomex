@@ -9,13 +9,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import com.orionsupport.security.SimpleUserManager;
 
@@ -31,6 +38,9 @@ public class SecurityManager extends SimpleUserManager  {
   private String ldap_sec_protocol = null;
   private String ldap_sec_auth = null;
   private String ldap_sec_principal = null;
+  private String ldap_domain = null;
+  private String ldap_user_attributes  = null;
+  private HashMap<String, String> ldap_user_attribute_map = new HashMap<String, String>();
   
   public SecurityManager() {
     super();
@@ -194,7 +204,6 @@ public class SecurityManager extends SimpleUserManager  {
   }
   
   private boolean checkUniversityCredentials(String uid, String password) {
-        
     
     Hashtable env = new Hashtable();
     env.put(Context.INITIAL_CONTEXT_FACTORY,ldap_init_context_factory);
@@ -209,10 +218,20 @@ public class SecurityManager extends SimpleUserManager  {
     try {
       
       DirContext ctx = new InitialDirContext(env);
-      
       ctx.close();
+      
 
-      return true;
+      // At this point, the user and password has authenticated; otherwise, an exception would have
+      // been thrown.  
+      boolean authenticationSuccess = true;
+      
+      // Now check the user attributes.  If no ldap_user_attributes are provided,
+      // the method returns true;
+      boolean attributeSuccess = doesUserMatchAnyAttribute(uid, (InitialDirContext)ctx);
+      
+      
+      return authenticationSuccess && attributeSuccess;
+      
     } catch (AuthenticationException ae) {
       // Auth failed so return false
       System.err.println("hci.gnomex.security.SecurityManager Authentication Exception : " + ae.toString());
@@ -222,6 +241,57 @@ public class SecurityManager extends SimpleUserManager  {
       return false;
     }
   }
+  
+  private boolean doesUserMatchAnyAttribute(String username, InitialDirContext ctx) {
+      // If the ldap domain property has not been provided, we cannot look up user
+      // attributes
+      if (ldap_domain == null) {
+        return true;
+      }
+      // Don't look for user attributes unless a property for user attributes has been
+      // provided
+      if (this.ldap_user_attribute_map == null || this.ldap_user_attribute_map.isEmpty()) {
+        return true;
+      }
+      
+      boolean matches = false;
+      try { 
+
+          // The array of attribute names represents the contraints of the search.
+          SearchControls constraints = new SearchControls();  
+          constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);            
+          String[] attrIDs = (String[])ldap_user_attribute_map.keySet().toArray();
+          constraints.setReturningAttributes(attrIDs);  
+          
+          // Search the active directory.  The first input parameter is search base, 
+          // the ldap domain (example - "CN=Users,DC=YourDomain,DC=com")  
+          // The second Attribute is the user name  
+          NamingEnumeration<SearchResult> answer = ctx.search(ldap_domain, 
+                                                              "sAMAccountName=" + username, 
+                                                              constraints);  
+          // Iterate through the results, the user attributes.  Determine every user attribute
+          // matches its expected value.  ANY matching attribute is sufficient
+          
+          if (answer.hasMore()) {  
+              Attributes attrs = ((SearchResult) answer.next()).getAttributes();  
+              for (String attributeName : ldap_user_attribute_map.keySet()) {                
+                String expectedValue = ldap_user_attribute_map.get(attributeName);
+                if (attrs.get(attributeName).contains(expectedValue)) {
+                  matches = true;
+                  break;
+                }
+              }
+          } else {  
+              System.err.println("Cannot obtain user info from LDAP");
+              matches = false;
+          }  
+
+      } catch (Exception ex) {  
+          ex.printStackTrace();  
+      }  
+      return matches;
+  }  
+
   
   
   private void loadProperties()  throws Exception {
@@ -257,6 +327,26 @@ public class SecurityManager extends SimpleUserManager  {
         ldap_sec_principal = p.getProperty("ldap_sec_principal");
       } else if (p.getProperty("uofu_ldap_sec_principal") != null) {
         ldap_sec_principal = p.getProperty("uofu_ldap_sec_principal");
+      }
+      if (p.getProperty("ldap_domain") != null) {
+        ldap_domain = p.getProperty("ldap_domain");
+      }
+      if (p.getProperty("ldap_user_attributes") != null) {
+        ldap_user_attributes = p.getProperty("ldap_user_attributes");
+      }
+      // Populate user attributes and values into a may (key=attribute, value=attribute value)
+      if (ldap_user_attributes != null) {
+        String attributeTokens[] = ldap_user_attributes.split(",");
+        for (int x = 0; x < attributeTokens.length; x++) {
+          String tokens[] = attributeTokens[x].split(":");
+          String attribute = tokens.length > 0 ? tokens[0] : null;
+          String value = tokens.length > 1 ? tokens[1] : null;
+          if (attribute != null && value != null) {
+            ldap_user_attribute_map.put(attribute, value);            
+          } else {
+            System.err.println("Unexpected token for ldap_user_attributes: " + " attribute entry=" + attributeTokens[x] + " tokens=" + tokens);
+          }
+        }
       }
       if (p.getProperty("dbUsername") != null) {
         dbUsername = p.getProperty("dbUsername");

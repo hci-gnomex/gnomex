@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.WorkItem;
 

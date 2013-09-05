@@ -13,6 +13,7 @@ import hci.gnomex.utility.RequestComparator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
