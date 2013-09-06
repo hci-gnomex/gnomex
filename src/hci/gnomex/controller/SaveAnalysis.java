@@ -346,7 +346,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         // Save analysis groups
         //
-        if (!isNewAnalysisGroup) {
+        if (!isNewAnalysisGroup && (existingAnalysisGroup != null || analysisGroupParser != null) ) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
           if (existingAnalysisGroup != null) {
             analysisGroups.add(existingAnalysisGroup);
@@ -379,7 +379,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         ArrayList experimentItemsToRemove = new ArrayList();
         if (!isNewAnalysisGroup) {
-          ArrayList filesToRemove = new ArrayList();
           for (Iterator i = analysis.getExperimentItems().iterator(); i.hasNext();) {
             AnalysisExperimentItem ex = (AnalysisExperimentItem) i.next();
             boolean found = false;
@@ -534,7 +533,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         // Add/update collaborators
         if (collaboratorParser != null) {
-          Set collaborators = new TreeSet();
           for(Iterator i = collaboratorParser.getCollaboratorUploadMap().keySet().iterator(); i.hasNext();) {
             Integer idAppUser = (Integer)i.next();
             String canUploadData = (String)collaboratorParser.getCollaboratorUploadMap().get(idAppUser);
@@ -831,7 +829,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
     
     StringBuffer buf = new StringBuffer("SELECT ag from AnalysisGroup ag where ag.name = '" + newAnalysisGroupName + "' and ag.idLab = " + analysisScreen.getIdLab());
-    List results = (List)sess.createQuery(buf.toString()).list();
+    List results = sess.createQuery(buf.toString()).list();
     if (results.size() > 0) {
       existingAnalysisGroup = (AnalysisGroup)results.get(0);
       isNewAnalysisGroup = false;
@@ -865,9 +863,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String fileName = analysisFile.getFileName();
     fileName = fileName.replaceAll("'", "''"); // Replace any single quotes in file with double quotes so SQL won't fail
 
@@ -886,9 +881,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String fileName;
     if (!analysisFile.getQualifiedFilePath().equals("") && analysisFile.getQualifiedFilePath() != null) {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();    
@@ -904,9 +896,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   public static void removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String dirName = getAnalysisDirectory(baseDir, analysis);
     File f = new File(dirName);
     if (!f.delete()) {
