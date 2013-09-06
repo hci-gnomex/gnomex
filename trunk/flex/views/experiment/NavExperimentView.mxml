@@ -581,7 +581,7 @@
 	    }
     
 
-		private function onBrowseTree():void {
+		public function onBrowseTree():void {
 			setResultsCount();
 			
 			browseView.dirtyProject.resetDirty();
@@ -1509,13 +1509,6 @@
 		} 
 	}
 		
-			
-	/* private function pickDateRange():void 
-	{
-		PopUpManager.addPopUp(pickDateRangeWindow, pickDateRangeButton, false);
-		PopUpManager.centerPopUp(pickDateRangeWindow);
-		
-	} */
 			
        ]]>
     </mx:Script> 
