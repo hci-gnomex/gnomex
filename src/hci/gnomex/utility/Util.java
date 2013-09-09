@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import java.util.Map;
+
 public class Util {
 
   // Parses a comma delimited string where commas are ignored if between quotes.
@@ -67,4 +69,20 @@ public class Util {
     
     return num;
   }
+  
+  /* 
+   * return the key set of the Map as an array of Strings. 
+   */
+  public static String[] keysToArray(Map<String, ?> map) {
+    String[] keys = new String[map.size()];    
+   
+    int index = 0;
+    for (String key : map.keySet()) {
+        keys[index] = key;
+        index++;
+    }
+    return keys;
+  }
+
+  
 }
