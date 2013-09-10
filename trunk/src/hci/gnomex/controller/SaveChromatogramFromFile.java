@@ -79,7 +79,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         int ind1 = comments.indexOf("<ID:");
         int ind2 = comments.indexOf(">");
         String idString = comments.substring(ind1+4, ind2);
-        idPlateWell = !idString.equals(null) ? Integer.parseInt(idString):0;
+        idPlateWell = idString!=null ? Integer.parseInt(idString):0;
       }
       
       // Find out if we already have a chromatogram for this plate well, named the same.
