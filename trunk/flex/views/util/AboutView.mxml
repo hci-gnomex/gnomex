@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="760" height="535"  
-				xmlns:views="views.*"
-				initialize="init()"
+				xmlns:views="views.*" 
 				showCloseButton="true" 
 				close="{PopUpManager.removePopUp(this)}" 
 				title="{'GNomEx ' + parentApplication.version }" 
@@ -37,9 +36,20 @@
 			<mx:Text text="Contact Info" fontWeight="normal" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To report software bugs and/or provide feedback:"/>
-				<mx:LinkButton paddingLeft="12" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="0"/>
+				<mx:Text text="To report software bugs and/or provide feedback:" paddingRight="12"/>
+				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
 			</mx:HBox>
+			<mx:Repeater id="coreRepeater" dataProvider="{parentApplication.coreFacilityList}"> 
+				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+					<mx:Image source="{parentApplication.iconBullet}"/>
+					<mx:Text paddingLeft="2" text="{coreRepeater.currentItem.@coreName + ' Core:'}"/>
+					<mx:Text htmlText="{'&lt;b&gt;' + coreRepeater.currentItem.@contactName + '&lt;/b&gt;'}" />
+					<mx:Text paddingLeft="4" htmlText="{'&lt;i&gt; Phone: &lt;/i&gt;'}" />
+					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactNumber}" />
+					<mx:Text paddingLeft="4" paddingRight="0" htmlText="{'&lt;i&gt; Email: &lt;/i&gt;'}" />
+					<mx:LinkButton id="emailLink" label="{coreRepeater.currentItem.@contactEmail}" click="emailLinkClick(event)" textDecoration="underline" color="#0000ff" paddingTop="1"/>
+				</mx:HBox>
+			</mx:Repeater>
 		</mx:VBox>
 		
 		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">
@@ -70,44 +80,10 @@
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			
-			private function init() : void {
-				
-				if (!parentApplication.isExternalDataSharingSite) {
-					for each(var cf:XML in parentApplication.coreFacilityList) {
-						var coreContactBox:HBox = new HBox();
-						coreContactBox.setStyle("horizontalGap",0);
-						coreContactBox.setStyle("verticalAlign","middle");
-						coreContactBox.setStyle("width","100%");
-						
-						var bullet:Image = new Image();
-						bullet.source = parentApplication.iconBullet;
-						coreContactBox.addChild(bullet);
-						
-						var genericText:Text = new Text();
-						genericText.text = cf.@coreName + " Core:";
-						//genericText.width = 340;
-						coreContactBox.addChild(genericText);
-						
-						var contactText:Text = new Text();
-						contactText.htmlText = "<b>" + cf.@contactName + "</b>" + "<i> &nbsp;Phone: </i>" + cf.@contactNumber + "<i> &nbsp;Email: </i>";
-						coreContactBox.addChild(contactText);
-						
-						
-						var emailLink:LinkButton = new LinkButton();
-						emailLink.label = cf.@contactEmail;
-						emailLink.setStyle("textDecoration","underline");
-						emailLink.setStyle("color","#0000ff");
-						emailLink.setStyle("paddingLeft", 0);
-						emailLink.addEventListener("click", function (e:Event):void{navigateToURL(new URLRequest('mailto:' + e.target.label));});
-						
-						
-						coreContactBox.addChild(emailLink);
-						contactBox.addChild(coreContactBox);
-					}
-					
-				}
+			private function emailLinkClick(e:Event):void {
+				navigateToURL(new URLRequest('mailto:' + e.target.label));
 			}
-				
+			
 		]]>
 	</mx:Script>
 </mx:TitleWindow>
