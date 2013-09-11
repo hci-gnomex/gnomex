@@ -265,13 +265,11 @@
 					deleteOrders();
 				}
 			}
-			
+						
 			private function deleteOrders():void {
-				for each ( var req:Object in selectedOrders ) {
-					var params:Object = new Object;
-					params.idRequest = req.@idRequest;					
-					deleteRequest.send( params );
-				}
+				var params:Object = new Object;
+				params.requestsToDeleteXMLString = "<requests>" +  selectedOrders.toXMLString() + "</requests>";
+				deleteRequest.send(params);
 			}
 			
 			private function onDeleteRequest(event:ResultEvent): void {
