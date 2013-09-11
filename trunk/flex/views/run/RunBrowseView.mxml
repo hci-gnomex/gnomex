@@ -48,7 +48,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.util.InstrumentRunEmailWindow;
+			import views.util.EmailWindowForInstrumentRuns;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -277,9 +277,9 @@
 			}
 			
 			private function showEmailWindow():void{
-				var emailWindow:InstrumentRunEmailWindow = InstrumentRunEmailWindow(mx.managers.PopUpManager.createPopUp(this, InstrumentRunEmailWindow, true));
+				var emailWindow:EmailWindowForInstrumentRuns = EmailWindowForInstrumentRuns(PopUpManager.createPopUp(this, EmailWindowForInstrumentRuns, true));
 				emailWindow.selectedRuns = this.selectedRuns;
-				mx.managers.PopUpManager.centerPopUp(emailWindow);
+				PopUpManager.centerPopUp(emailWindow);
 				this.setFocus();
 				
 			}
@@ -418,7 +418,7 @@
 		<mx:LinkButton textDecoration="underline"
 					   label="Email"
 					   icon="@Embed('../../assets/email_go.png')"
-					   toolTip="Email collaborators"
+					   toolTip="Email GNomEx users associated with selected runs"
 					   click="{showEmailWindow()}" 
 					   disabledIcon="@Embed('../../assets/email_go_disable.png')"
 					   enabled="{selectedRuns.length>0}"/>
