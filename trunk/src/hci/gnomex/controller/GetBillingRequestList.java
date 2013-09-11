@@ -84,7 +84,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     
     StringBuffer buf = billingItemFilter.getBillingNewRequestQuery();
     log.info("Query: " + buf.toString());
-    List newRequests = (List)sess.createQuery(buf.toString()).list();
+    List newRequests = sess.createQuery(buf.toString()).list();
     
     
     Element statusNode = new Element("Status");
@@ -176,7 +176,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     
     buf = billingItemFilter.getBillingRequestQuery();
     log.info("Query: " + buf.toString());
-    List billingItemRequests = (List)sess.createQuery(buf.toString()).list();
+    List billingItemRequests = sess.createQuery(buf.toString()).list();
     String prevCodeBillingStatus = "NEW";
     // 
     // Query all requests with billing items.  Determine status by looking
@@ -300,7 +300,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
     
     buf = billingItemFilter.getBillingDiskUsageQuery();
     log.info("Query: " + buf.toString());
-    List billingItemDiskUsage = (List)sess.createQuery(buf.toString()).list();
+    List billingItemDiskUsage = sess.createQuery(buf.toString()).list();
     prevCodeBillingStatus = "NEW";
     // 
     // Query all disk usage rows with billing items.  Determine status by looking
@@ -478,6 +478,16 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           }
 
         }
+        if (codeBillingStatus == null) {
+          for(Iterator i1 = statusList.iterator(); i1.hasNext();) {
+            String code = (String)i1.next();
+            if (code.equals(BillingStatus.APPROVED_CC)) {
+              codeBillingStatus = code;
+              break;
+            }
+          }
+
+        }
       }
       
 
@@ -548,6 +558,20 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
       }
     }
+    status = (Element)statusNodeMap.get(BillingStatus.APPROVED_CC);
+    if (status != null) {
+      doc.getRootElement().addContent(status);      
+
+      // Add non-empty labNodes onto status
+      Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_CC);
+      for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
+        String key = (String)i1.next();
+        Element labNode = (Element)labNodeMap.get(key);
+        if (labNode.hasChildren()) {
+          status.addContent(labNode);
+        }
+      }      
+    }
     status = (Element)statusNodeMap.get(BillingStatus.APPROVED_PO);
     if (status != null) {
       doc.getRootElement().addContent(status);      
@@ -613,22 +637,20 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
       if (key1.startsWith(DISK_USAGE_PREFIX) || key2.startsWith(DISK_USAGE_PREFIX)) {
         return key1.compareTo(key2);
-      } else {
-        String[] tokens1 = key1.split(DELIM);
-        String[] tokens2 = key2.split(DELIM);
-        
-        String reqNumber1    = tokens1[0];
-        String remainder1    = tokens1[1];
-        
-        String reqNumber2    = tokens2[0];
-        String remainder2    = tokens2[1];
-  
-        if (reqNumber1.equals(reqNumber2)) {
-          return remainder1.compareTo(remainder2);        
-        } else {
-          return Util.compareRequestNumbers(reqNumber1, reqNumber2);
-        }
-      }      
+      }
+      String[] tokens1 = key1.split(DELIM);
+      String[] tokens2 = key2.split(DELIM);
+      
+      String reqNumber1    = tokens1[0];
+      String remainder1    = tokens1[1];
+      
+      String reqNumber2    = tokens2[0];
+      String remainder2    = tokens2[1];
+ 
+      if (reqNumber1.equals(reqNumber2)) {
+        return remainder1.compareTo(remainder2);        
+      }
+      return Util.compareRequestNumbers(reqNumber1, reqNumber2);      
     }
   }
 
