@@ -21,7 +21,7 @@
 
 
   	 <mapping resource="SchemaGNomEx.hbm.xml"/>
-     <mapping resource="SchemaMetaAttribute.hbm.xml"/>
+ <!--    <mapping resource="SchemaMetaAttribute.hbm.xml"/>
      <mapping resource="SchemaMetaAttributePath.hbm.xml"/>
      <mapping resource="SchemaAssoc.hbm.xml"/>
      <mapping resource="SchemaPath.hbm.xml"/>
@@ -29,7 +29,7 @@
      <mapping resource="SchemaPersonResearch.hbm.xml"/>
      <mapping resource="SchemaTumorReg.hbm.xml"/>  
      <mapping resource="SchemaBSTX.hbm.xml"/>    
-        
+ -->       
 
     </session-factory>
 

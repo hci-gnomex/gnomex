@@ -527,12 +527,12 @@
 			    <include name="*.*" />
 			</fileset>
 		</copy>
-    <copy todir="${dist.dir}/tomcat" overwrite="true">
+ <!--   <copy todir="${dist.dir}/tomcat" overwrite="true">
         <fileset dir="${hcienv.dir}/src" >
           <include name="*.hbm.xml" />
       </fileset>
     </copy>
-    
+ -->
 		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
 			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
 			 <lib dir="${lib.dir}"                  includes="*.jar"/>
@@ -541,7 +541,7 @@
 			   <exclude name="mail.jar"/>
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
-			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
+<!--			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>-->
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 

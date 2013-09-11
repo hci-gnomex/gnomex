@@ -2,7 +2,7 @@
 
 
   <Valve
-	    className="org.apache.catalina.valves.FastCommonAccessLogValve"
+	    className="org.apache.catalina.valves.AccessLogValve"
 	    directory="${catalina.home}/logs/"
 	    prefix="gnomex-"
 	    suffix=".log"
@@ -10,13 +10,16 @@
 
 	    
   <Resource auth="Container" 
-    mail.smtp.host="yourmailserver.someplace.somewhere.edu" 
+    mail.smtp.host="${hci.mailserver}"
     name="mail/MailSession" 
     type="javax.mail.Session"/>
 
     
   <!-- GNomEx Realm for authenticating user  -->
-  <Realm className="hci.gnomex.security.tomcat.GNomExRealm"/>
+<!--  <Realm className="hci.gnomex.security.tomcat.GNomExRealm"/> -->
+ 	<!-- GNomEx Realm for authenticating user  -->
+   <Realm className="hci.gnomex.security.tomcat.GNomExLDAPRealm"
+         datasource_lookup_name="java:comp/env/jdbc/GNOMEX"/>
   
   
     <!-- Local MySql -->
@@ -31,6 +34,9 @@
            password="${hci.gnomex.password}"
            type="javax.sql.DataSource"
            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
+           	removeAbandoned="true"
+			removeAbandonedTimeout="20"
+			validationQuery="select 1"
            url="${hci.gnomex.url}" />
 
    <Resource name="jdbc/GNOMEX_GUEST"
@@ -42,6 +48,9 @@
            username="${hci.gnomexguest.username}"
            password="${hci.gnomexguest.password}"
            type="javax.sql.DataSource"
+           removeAbandoned="true"
+		   removeAbandonedTimeout="20"
+		   validationQuery="select 1"
            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
            url="${hci.gnomexguest.url}" />
     
