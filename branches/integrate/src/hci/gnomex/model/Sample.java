@@ -75,6 +75,8 @@ public class Sample extends HibernateDetailObject {
   private Integer     idOligoBarcodeB;
   private String      barcodeSequenceB;
   
+  private Set        workItems;
+   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
   private String      idSampleString;  // a non-persistent variable used for estimated billing charges
@@ -863,6 +865,14 @@ public class Sample extends HibernateDetailObject {
     this.sequenceLanes = sequenceLanes;
   }
 
+  public Set getWorkItems() {
+	    return workItems;
+  }
+
+  public void setWorkItems(Set workItems) {
+    this.workItems = workItems;
+  }  
+  
   public Integer getIdSampleSource() {
     return idSampleSource;
   }

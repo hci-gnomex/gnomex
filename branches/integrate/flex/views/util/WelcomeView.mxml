@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 		   xmlns:views="views.*"    
-		   xmlns:util="views.util.*"   
-		   creationPolicy="all" width="100%" height="100%"  		
-		   show="init()" 
-		    >
+			xmlns:db="views.dashboard.*"
+		    xmlns:util="views.util.*" 			
+			creationPolicy="all" width="100%" height="100%"
+			creationComplete="init()"
+			>
 	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
@@ -14,6 +15,8 @@
 		</mx:State>
 		<mx:State name="AdminState">
 			<mx:SetProperty target="{text5}" name="text" value="Admin privileges&#xa;"/>
+			<mx:SetProperty target="{runMonitor}" name="visible" value="true" />
+			<mx:SetProperty target="{runMonitor}" name="includeInLayout" value="true" />
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:AddChild relativeTo="{spacer2}" position="before"> 
@@ -25,6 +28,8 @@
 		
 		<mx:State name="UserState">
 			<mx:SetProperty target="{text5}" name="text" value=""/>
+			<mx:SetProperty target="{notificationHub.adminBox}" name="visible" value="false" />
+			<mx:SetProperty target="{notificationHub.adminBox}" name="includeInLayout" value="false"/>
 		</mx:State>
 
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
@@ -68,19 +73,19 @@
 			}
 			
 			public function checkSecurity():void {
+				
 				if (parentApplication.currentState == "GuestState") {
 					if (parentApplication.isUniversityOnlyUser) {
 						this.currentState = "UnivGuestState"
 					} else {
 						this.currentState = "GuestState";
 					}
-				} else if (parentApplication.isAdminState) {
-				    currentState = "AdminState";
-				} else if (parentApplication.isBillingAdminState) {
+				} else if (parentApplication.hasPermission("canReceiveAdminNotification")) {
+					currentState = "AdminState";
+				}  else if (parentApplication.hasPermission("canReceiveBillingNotification")) {
 					currentState = "BillingAdminState";
-
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
-					currentState = "UserNonSubmitterState";						
+					currentState = "UserNonSubmitterState";
 				} else {
 					currentState = "UserState";
 				}
@@ -271,8 +276,8 @@
 		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center">
 		<mx:Spacer height="60" />
 
-		<mx:HBox paddingTop="4" verticalAlign="middle" >
-			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
+		<mx:HBox paddingTop="4" verticalAlign="middle">
+			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  show="{showSplash()}" visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
 		</mx:HBox>
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
@@ -280,6 +285,30 @@
 				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal"  textAlign="left" height="100%"   id="text4" width="100%"/>  			
 			</mx:VBox>
 		</mx:VBox>
+		
+		<mx:VBox verticalAlign="middle" horizontalAlign="center" width="100%" height="100%">
+			<mx:Spacer height="25" />
+
+			<!--
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Label height="106" fontSize="33" text="Welcome to GNomEx" />
+			</mx:HBox>
+			-->
+			<mx:Spacer height="10" />
+			
+			<mx:VBox verticalAlign="middle" horizontalAlign="center">
+				<mx:HBox>
+					<db:News id="newsHub" />
+					<db:FAQ id="faqHub" />
+				</mx:HBox>
+				<mx:Spacer height="10" />		
+				<mx:HBox id="permissionBox">
+					<db:NotificationHub id="notificationHub" />
+					<db:RunStatusHub id="runMonitor" visible="false" includeInLayout="false"/>	
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		
 		<mx:Spacer  height="100%"/>
 		<mx:HBox width="100%" horizontalGap="20">
 			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel" textAlign="right" fontSize="12"/>

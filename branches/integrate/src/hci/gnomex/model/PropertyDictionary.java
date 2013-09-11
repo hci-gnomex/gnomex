@@ -108,7 +108,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
 
-
+  public static final String		METRIX_SERVER_HOST					= "metrix_server_host";
+  public static final String		METRIX_SERVER_PORT					= "metrix_server_port";
+  
   private Integer       idPropertyDictionary;
   private String        propertyName;
   private String        propertyValue;

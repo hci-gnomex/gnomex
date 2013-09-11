@@ -16,6 +16,8 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Notification;
+import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
@@ -85,6 +87,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -963,6 +966,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           message.append(msg + "\n");
         }              
       }
+      
+     // Add to BILLING Notification to table.
+     saveNotification(requestParser.getRequest(), sess, "NEW", "BILLING", "REQUEST");      
+      
     }        
     return message.toString();
     
@@ -1047,10 +1054,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     request.setDescription(description);
     sess.save(request);
+    String state = "EXIST";
     
     if (requestParser.isNewRequest()) {
       request.setNumber(getNextRequestNumber(request, sess));
       sess.save(request);
+      state = "NEW";
       
       if (request.getName() == null || request.getName().trim().equals("")) {
         sess.flush();  
@@ -1060,10 +1069,44 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     } 
     
+    // Bernd added.
+    saveNotification(request, sess, state, "ADMIN", "REQUEST");
+    saveNotification(request, sess, state, "USER", "REQUEST");
+    
     originalRequestNumber = request.getNumber();
     
     sess.flush();  
   }
+  
+  private void saveNotification(Request req, Session sess, String state, String targetGroup, String source){
+	  Notification note = new Notification();
+	  note.setSourceType(targetGroup);
+	  note.setType(source);
+	  note.setExpID(Integer.parseInt(req.getRequestNumberNoR(req.getNumber())));
+	  note.setDate(new java.sql.Date(System.currentTimeMillis()));
+	  note.setIdLabTarget(req.getIdLab());
+	  note.setIdUserTarget(req.getIdAppUser());
+	  note.setMessage(state);
+	  
+	  
+      StringBuffer buf = new StringBuffer();
+	  buf.append("SELECT firstName, lastName FROM AppUser WHERE idAppUser='" + req.getIdAppUser() +"'");
+
+	  List rows = (List) sess.createQuery(buf.toString()).list();
+	  String fullName = "";
+      if (rows.size() > 0) {
+        for(Iterator i = rows.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          fullName = row[0] == null ? "" : (String)row[0].toString();
+          fullName += " ";
+          fullName += row[1] == null ? "" : (String)row[1].toString();
+        }
+      }
+	  note.setFullNameUser(fullName);
+	  
+	  sess.save(note);
+	  sess.flush();
+  }  
   
   private String getNextRequestNumber(Request request, Session sess) throws SQLException {
     String requestNumber = "";
@@ -2343,6 +2386,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
     String requestNumber = requestParser.getRequest().getNumber();
     String requestCategoryMsg = "";
+    
+    String state = "NEW";
     String submitterName = requestParser.getRequest().getSubmitterName();
     String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
    
@@ -2355,7 +2400,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     
     if(requestCategoryMsg.length() == 0) {
-      // Don't send message if not Microarry or Illumina request
+      // Don't send message if not Microarray or Illumina request
       return;
     }
     
@@ -2366,11 +2411,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
+      ".");
+      state = "NEW";
     } else {
       emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
-      
+      ".");
+      state = "EXIST";
     }
    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
 
@@ -2395,7 +2441,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       contactEmail = ccEmail;
       ccEmail = null;
       if(contactEmail == null) {
-        // If neither email present then just cend to the lab
+        // If neither email present then just send to the lab
         contactEmail = senderEmail;
       }
     } else if(ccEmail != null && ccEmail.length() == 0) {

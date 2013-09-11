@@ -1059,6 +1059,9 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("isSelected",             "N");
     root.setAttribute("analysisNames",          "");
     root.setAttribute("idSubmitter",              this.getNonNullString(this.getIdSubmitter()));
+
+    // Bernd added
+    root.setAttribute("application",			this.getNonNullString(this.getApplication()));
     
     if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       root.setAttribute("requestPublicNote",          "(Public) ");

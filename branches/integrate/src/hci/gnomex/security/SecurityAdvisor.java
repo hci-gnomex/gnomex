@@ -20,6 +20,9 @@ import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.NewsItem;
+import hci.gnomex.model.FAQ;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
@@ -85,6 +88,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public static final String          CAN_DELETE_REQUESTS                         = "canDeleteRequests";   
   public static final String          CAN_MANAGE_DNA_SEQ_CORE                     = "canManageDNASeqCore";
   public static final String          CAN_MANAGE_GENOMICS_CORE                    = "canManageGenomicsCore";
+  
+  public static final String          CAN_MANAGE_DASHBOARD                        = "canManageDashboard";
+  public static final String		  CAN_RECEIVE_ADMIN_NOTIFICATION			  = "canReceiveAdminNotification";
+  public static final String		  CAN_RECEIVE_BILLING_NOTIFICATION			  = "canReceiveBillingNotification";
+  public static final String		  CAN_RECEIVE_WORKFLOW_NOTIFICATION			  = "canReceiveWorkflowNotification";
   
   public static final String          CAN_PARTICIPATE_IN_GROUPS                   = "canParticipateInGroups";            
   public static final String          CAN_SUBMIT_REQUESTS                         = "canSubmitRequests";            
@@ -1188,7 +1196,26 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         } 
         
       } 
-    } 
+    }
+    //
+    // News Item
+    // 
+    else if (object instanceof NewsItem) {
+    	// Admins
+        if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+          canUpdate = true;
+        }
+    }
+    
+    //
+    // FAQ
+    //
+    else if(object instanceof FAQ){
+    	// Admins
+    	if(hasPermission(this.CAN_WRITE_ANY_OBJECT)){
+    		canUpdate = true;
+    	}
+    }   
 
     return canUpdate;
   }
@@ -1536,6 +1563,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       else if (isGroupIAmMemberOf(t.getIdLab()) && isOwner(t.getIdAppUser())) {
           canDelete = true;
       }
+    }
+    //
+    // NewsItem
+    //
+    else if (object instanceof NewsItem){
+    	if(hasPermission(this.CAN_MANAGE_DASHBOARD)){
+    		canDelete = true;
+    	}
+    }
+    
+    //
+    // FAQ
+    //
+    else if(object instanceof FAQ){
+    	if(hasPermission(this.CAN_MANAGE_DASHBOARD)){
+    		canDelete = true;
+    	}
     }    
     return canDelete;
   }
@@ -1716,6 +1760,44 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
         globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
       }
+
+      // Can manage dashboard
+      if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+          globalPermissionMap.put(new Permission(CAN_MANAGE_DASHBOARD), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+          if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE)) {
+        	  globalPermissionMap.put(new Permission(CAN_MANAGE_DASHBOARD), null);  
+          }
+      }
+
+      // Can receive admin notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_ADMIN_NOTIFICATION), null);
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+          if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_ADMIN_NOTIFICATION), null);  
+          }
+      }
+      
+      // Can receive billing notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);	  
+      } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    	  if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);  
+          }
+      } else if (appUser.getCodeUserPermissionKind().equals(CAN_MANAGE_BILLING)) {
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_BILLING_NOTIFICATION), null);
+      }
+      
+      // Can receive workflow notifications
+      if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+    	  globalPermissionMap.put(new Permission(CAN_RECEIVE_WORKFLOW_NOTIFICATION), null);
+      } else if(appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
+    	  if (hasPermission(this.CAN_MANAGE_GENOMICS_CORE) || (hasPermission(this.CAN_MANAGE_DNA_SEQ_CORE))) {
+        	  globalPermissionMap.put(new Permission(CAN_RECEIVE_WORKFLOW_NOTIFICATION), null);  
+          }
+      }            
       
       // Can administer users
       if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||

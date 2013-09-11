@@ -23,6 +23,9 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  idInstrument;
   private String   side;
   private Set      flowCellChannels = new TreeSet();
+
+  // Bernd added
+  private Instrument instrument;  
   
   public Integer getIdFlowCell() {
     return idFlowCell;
@@ -181,5 +184,15 @@ public class FlowCell extends HibernateDetailObject {
       return runFolder;
     }
   }
+  
+  	//Bernd added
+ 
+	public Instrument getInstrument() {
+		return instrument;
+	}
+	
+	public void setInstrument(Instrument instrument) {
+		this.instrument = instrument;
+	}
     
 }

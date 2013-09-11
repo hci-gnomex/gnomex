@@ -577,7 +577,15 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  
+ 
+  public String getCodeStepName(String abbr) {
+	  lazyLoadManagedDictionaries();
+	  String codeStep = "";
+	    if (codeStep != null) {
+	      codeStep = DictionaryManager.getDisplay("hci.gnomex.model.Step", abbr);
+	    }
+    return codeStep;
+  }  
 
   public List<Organism> getOrganisms() {
     return this.organismList;

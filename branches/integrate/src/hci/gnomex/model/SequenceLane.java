@@ -38,7 +38,19 @@ public class SequenceLane extends HibernateDetailObject {
   private String          analysisInstructions;
   private Integer         idFlowCellChannel;
   private FlowCellChannel flowCellChannel;
+
+  // Bernd addition
+  private NumberSequencingCycles numberSeqCycles;
+  private SeqRunType	  seqRunType;
+
+  public void setSeqRunType(SeqRunType srt){
+	  this.seqRunType = srt;
+  }
   
+  public SeqRunType getSeqRunType(){
+	  return seqRunType;
+  }  
+  //
   public Integer getIdSample() {
     return idSample;
   }
@@ -418,6 +430,10 @@ public class SequenceLane extends HibernateDetailObject {
     this.excludeMethodFromXML("getFlowCellChannel");
     this.excludeMethodFromXML("getSample");
     this.excludeMethodFromXML("getRequest");
+    // Bernd additions
+    this.excludeMethodFromXML("getSeqRunType");
+    this.excludeMethodFromXML("getNumberSeqCycles");
+    //
   }
 
   
@@ -724,5 +740,13 @@ public class SequenceLane extends HibernateDetailObject {
     }
     return laneGroups;
   }
-    
+  // Bernd additions
+	public NumberSequencingCycles getNumberSeqCycles() {
+		return numberSeqCycles;
+	}
+	
+	public void setNumberSeqCycles(NumberSequencingCycles numberSeqCycles) {
+		this.numberSeqCycles = numberSeqCycles;
+	}
+    //
 }  
