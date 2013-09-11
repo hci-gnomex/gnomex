@@ -274,6 +274,7 @@ VALUES (1, 'Agilent Gene Expression 44K', 'Y'),
 INSERT INTO `gnomex`.`BillingStatus`(`codeBillingStatus`, `billingStatus`, `isActive`)
 VALUES ('APPROVED', 'Approved', 'Y'),
   ('APPROVEDEX', 'Approved (External)', 'Y'),
+  ('APPROVEDCC', 'Approved (Credit Card)', 'Y'),
   ('COMPLETE', 'Completed', 'Y'),
   ('NEW', 'New', 'Y'),
   ('PENDING', 'Pending', 'Y');

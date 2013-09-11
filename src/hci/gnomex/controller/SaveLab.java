@@ -320,10 +320,28 @@ public class SaveLab extends GNomExCommand implements Serializable {
                 }
               }
             }
+            else if(ba.getIsCreditCard().equals("Y")){
+              for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
+                BillingItem bi = (BillingItem)bIterator.next();
+                if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED)){
+                  bi.setCodeBillingStatus(BillingStatus.APPROVED_CC);
+                  sess.save(bi);
+                }
+              }  
+            }
             else if(ba.getIsPO().equals("N")){
               for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
                 BillingItem bi = (BillingItem)bIterator.next();
                 if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)){
+                  bi.setCodeBillingStatus(BillingStatus.APPROVED);
+                  sess.save(bi);
+                }
+              }  
+            }
+            else if(ba.getIsCreditCard().equals("N")){
+              for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
+                BillingItem bi = (BillingItem)bIterator.next();
+                if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC)){
                   bi.setCodeBillingStatus(BillingStatus.APPROVED);
                   sess.save(bi);
                 }
