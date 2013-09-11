@@ -484,7 +484,7 @@
 			}
 			
 			
-			private function onBrowseTree():void {
+			public function onBrowseTree():void {
 				if(browseTree.selectedItems.length != 1){
 					return;
 				}

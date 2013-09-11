@@ -123,7 +123,7 @@
 							   editable="true"                        	
 							   dataField="@isSelected" 
 							   editorDataField="selected"
-							   itemRenderer="views.renderers.CheckBoxRenderer">			 
+							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null,true)}">			 
 			</mx:DataGridColumn>
 			<mx:DataGridColumn headerText="Collaborators"  dataField="@name" >
 			</mx:DataGridColumn>

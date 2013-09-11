@@ -109,11 +109,10 @@ public class ProjectRequestFilter extends DetailObject {
     // automatically
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       return hasLimitingCriteria;
-    } else {
-      // Non-admins are always scoped by either lab, own experiments,
-      // so no need to require any additional filtering.
-      return true;
     }
+    // Non-admins are always scoped by either lab, own experiments,
+    // so no need to require any additional filtering.
+    return true;
   }
     
   
@@ -217,9 +216,8 @@ public class ProjectRequestFilter extends DetailObject {
     if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
         idSlideProduct != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
   
   
@@ -398,8 +396,9 @@ public class ProjectRequestFilter extends DetailObject {
     } 
     //  Search by create date from 
     if (createDateTo != null){
+      createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate <= '");
+      queryBuf.append(" req.createDate < '");
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     } 
