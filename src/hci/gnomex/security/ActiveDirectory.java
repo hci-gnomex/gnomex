@@ -129,17 +129,11 @@ public class ActiveDirectory {
     try {
       // Iterate through the results, the user attributes.  Determine every user attribute
       // matches its expected value.  ANY matching attribute is sufficient
-      System.out.println("\n\n\nLooking at user attributes ");
-      System.out.println("answer.hasMore()=" + answer.hasMore());
       if (answer.hasMore()) {  
           Attributes attrs = ((SearchResult) answer.next()).getAttributes();  
-          System.out.println("attrs.size=" + attrs.size());
           for (String attributeName : ldap_user_attribute_map.keySet()) {                
             String expectedValue = ldap_user_attribute_map.get(attributeName);
-            javax.naming.directory.Attribute attr = attrs.get(attributeName);            
-            System.out.println(attributeName + " = " + attr != null && attr.toString() != null ? attr.toString() : "");
-            if (attrs.get(attributeName).contains(expectedValue)) {
-              System.out.println("matches");
+            if (attrs.get(attributeName) != null && attrs.get(attributeName).contains(expectedValue)) {
               matches = true;
               break;
             }
