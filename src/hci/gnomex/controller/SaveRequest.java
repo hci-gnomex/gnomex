@@ -62,6 +62,7 @@ import hci.gnomex.utility.WorkItemHybParser;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,6 +86,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -2180,7 +2182,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
     
     List billingItems = new ArrayList<BillingItem>();
-
+    List discountBillingItems = new ArrayList<BillingItem>();
+    
     
     // Find the appropriate price sheet
     PriceSheet priceSheet = null;
@@ -2214,9 +2217,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Instantiate plugin for billing category
         BillingPlugin plugin = null;
+        Boolean isDiscount = false;
         if (priceCategory.getPluginClassName() != null) {
           try {
             plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+            if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
+              isDiscount = true;
+            }
           } catch(Exception e) {
             log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
           }
@@ -2226,18 +2233,33 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Get the billing items
         if (plugin != null) {
           List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap);    
-          
-          billingItems.addAll(billingItemsForCategory);                
+          if (isDiscount) {
+            discountBillingItems.addAll(billingItemsForCategory);
+          } else {
+            billingItems.addAll(billingItemsForCategory);
+          }              
         }
       }
       
-     
+      BigDecimal grandInvoicePrice = new BigDecimal(0);
       for(Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
+        grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
         if (bi.resetInvoiceForBillingItem(sess)) {
           sess.save(bi);
         }
       }
+      for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem)i.next();
+        if (bi.getUnitPrice() != null) {
+          BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
+          bi.setUnitPrice( invoicePrice );
+          bi.setInvoicePrice( invoicePrice );
+          bi.resetInvoiceForBillingItem(sess);
+          sess.save(bi);
+        }
+      }
+      
     }    
   }
   
