@@ -144,7 +144,7 @@ public class ActiveDirectory {
           for (String attributeName : ldap_user_attribute_map.keySet()) {                
             String expectedValue = ldap_user_attribute_map.get(attributeName);
             javax.naming.directory.Attribute attr = attrs.get(attributeName);            
-            System.out.println(attributeName + " = " + attr != null ? attr.toString() : "");
+            System.out.println(attributeName + " = " + attr != null && attr.toString() != null ? attr.toString() : "");
             if (attrs.get(attributeName).contains(expectedValue)) {
               System.out.println("matches");
               matches = true;
