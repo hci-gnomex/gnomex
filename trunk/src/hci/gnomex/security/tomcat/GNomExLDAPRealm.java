@@ -268,8 +268,6 @@ public class GNomExLDAPRealm extends RealmBase {
     } else if(ldap_sec_principal != null && ldap_sec_principal.contains("[")) {
       // Need brackets if provided in a property because <> messes up parsing of context (xml) file
       ldap_sec_principal = ldap_sec_principal.replace("[uid]", username);            
-    } else {
-      return false;
     }
     
     try {

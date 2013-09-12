@@ -70,7 +70,7 @@ public class ActiveDirectory {
         String ldap_provider_url, 
         String ldap_sec_protocol, 
         String ldap_sec_auth, 
-        String ldap_sec_principal ) {
+        String ldap_sec_principal ) throws NamingException {
       
         properties = new Properties();        
         
@@ -83,14 +83,7 @@ public class ActiveDirectory {
 
         
         // initializing active directory LDAP connection
-        try {
-          dirContext = new InitialDirContext(properties);
-        } catch (NamingException e) {
-          LOG.severe(e.getMessage());
-          e.printStackTrace();
-        }
-
-
+        dirContext = new InitialDirContext(properties);
     }
     
     /**
