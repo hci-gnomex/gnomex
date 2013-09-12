@@ -263,12 +263,15 @@ public class GNomExLDAPRealm extends RealmBase {
 
     boolean isAuthenticated = false;
     
-    if (ldap_sec_principal.contains("<")) {
+    if (ldap_sec_principal != null && ldap_sec_principal.contains("<")) {
       ldap_sec_principal = ldap_sec_principal.replace("<uid>", username);      
-    } else if(ldap_sec_principal.contains("[")) {
+    } else if(ldap_sec_principal != null && ldap_sec_principal.contains("[")) {
       // Need brackets if provided in a property because <> messes up parsing of context (xml) file
       ldap_sec_principal = ldap_sec_principal.replace("[uid]", username);            
+    } else {
+      return false;
     }
+    
     try {
       ActiveDirectory ad = new ActiveDirectory(username, 
           password, 
@@ -282,7 +285,8 @@ public class GNomExLDAPRealm extends RealmBase {
       // to see if they match the expected value.  
       if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
         NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
-        isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);        
+        isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);     
+  
       } else {
         // If no user attributes property present, we have passed authentication at this point.
         isAuthenticated = true;
