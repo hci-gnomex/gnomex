@@ -33,6 +33,10 @@ public class PercentDiscountPlugin implements BillingPlugin {
       return billingItems;
     }
     
+    if ( request.getLab() == null || request.getLab().isExternalLab() ) {
+      return billingItems;
+    }
+    
     // Now find the price
     Price price = null;
 
