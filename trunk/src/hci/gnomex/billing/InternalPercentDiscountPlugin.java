@@ -23,7 +23,7 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class PercentDiscountPlugin implements BillingPlugin {
+public class InternalPercentDiscountPlugin implements BillingPlugin {
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
 
@@ -32,7 +32,11 @@ public class PercentDiscountPlugin implements BillingPlugin {
     if (samples == null || samples.size() == 0) {
       return billingItems;
     }
-        
+    
+    if ( request.getLab() == null || request.getLab().isExternalLab() ) {
+      return billingItems;
+    }
+    
     // Now find the price
     Price price = null;
 
