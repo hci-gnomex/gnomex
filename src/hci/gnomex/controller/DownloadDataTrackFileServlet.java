@@ -228,7 +228,11 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
       res.setStatus(99);
     } finally {
       if (sess != null) {
-        sess.close();
+        try {
+          HibernateGuestSession.closeGuestSession();
+        } catch(Exception e) {
+          log.error("Unable to close guest sesion in DownloadDataTrackFileServlet", e);
+        }
       }
     }
   }

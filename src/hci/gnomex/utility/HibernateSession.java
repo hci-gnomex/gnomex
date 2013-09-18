@@ -37,7 +37,7 @@ public class HibernateSession {
 
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
-    if (s == null || s.connection() == null || s.connection().isClosed()) {
+    if (s == null || !s.isOpen()) {
       
       if (GNomExFrontController.isTomcat()) {
         s = HibernateUtil.getSessionFactory().openSession();
