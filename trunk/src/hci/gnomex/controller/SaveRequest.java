@@ -86,10 +86,8 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 
 
@@ -113,13 +111,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private BillingPeriod    billingPeriod;
   
   private String           launchAppURL;
-  private String           showRequestFormURLBase;
   private String           appURL;
   private String           serverName;
 
   private String           originalRequestNumber;
 
-  private Integer          idProject;
   private Map              labelMap = new HashMap();
   private Map              idSampleMap = new HashMap();
   private TreeSet          hybs = new TreeSet(new HybNumberComparator());
@@ -208,12 +204,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     
     if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
-      idProject = new Integer(request.getParameter("idProject"));
+      new Integer(request.getParameter("idProject"));
     }
     
     try {
       launchAppURL = this.getLaunchAppURL(request);  
-      showRequestFormURLBase = this.getShowRequestFormURL(request);
+      this.getShowRequestFormURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
@@ -396,15 +392,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         // save samples
         sampleCountOnPlate = 1;
+        boolean hasNewSample = false;
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
         for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
           String idSampleString = (String)i.next();
           boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+          hasNewSample = isNewSample || hasNewSample;
           Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
           saveSample(idSampleString, sample, sess, dictionaryHelper);
           
-
           // if this is a new request, create QC work items for each sample
           if (!requestParser.isExternalExperiment() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())
                 && !requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) && !requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
@@ -728,7 +725,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         
         // Add/update collaborators
-        Set collaborators = new TreeSet();
         for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
           Integer idAppUser = Integer.parseInt(key);
@@ -795,13 +791,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           } else if (!requestParser.isNewRequest() && 
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
-            createBillingItems = true;
-            
-            // For dna seq facility orders, we don't want to create billing items on an edit if no billing items have yet to be created
-            // (because order has not been submitted.)
+                        
+            // For dna seq facility orders, warn the admin to adjust billing if samples have been added.  
+            // (We don't automatically adjust billing items because of tiered pricing issues.)
             if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-              if (requestParser.getRequest().getBillingItems() == null || requestParser.getRequest().getBillingItems().isEmpty()) {
-                createBillingItems = false;
+              if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
+                if ( hasNewSample ) {
+                  billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
+                }
               }
             }
           }
@@ -864,8 +861,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
-        
         String emailErrorMessage = sendEmails(sess);
        
 
@@ -1211,7 +1206,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         continue;
       }
       
-      Property property = (Property)dh.getPropertyObject(idProperty);
+      Property property = dh.getPropertyObject(idProperty);
      
       
       PropertyEntry entry = new PropertyEntry();
@@ -1226,7 +1221,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       // If the sample property type is "url", save the options.
       if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
-        Set urlValues = new TreeSet();
         String[] valueTokens = value.split("\\|");
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];

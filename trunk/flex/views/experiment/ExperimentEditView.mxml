@@ -3711,40 +3711,56 @@
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 				dirty.resetDirty();
 				
-				// Inform if billing accounts reassigned on billing items
-				if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
-					Alert.show(saveExistingRequest.lastResult.@billingAccountMessage);
-				}
-				
-				// Warn if billing should be adjusted to take into account
-				// delete hybs or lanes
-				if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
-				    saveExistingRequest.lastResult.@deleteHybCount > 0 || 
-				    saveExistingRequest.lastResult.@deleteLaneCount > 0) {
-					if (parentApplication.hasPermission("canWriteAnyObject")) {
-						
-						var deleteTarget:String = "";
-						if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
-							deleteTarget += "Samples";
-						} 
-						if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
-							if (deleteTarget.length > 0) {
-								deleteTarget += " and ";								
-							}
-							deleteTarget += "Hybs";
-						} 
-						if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
-							if (deleteTarget.length > 0) {
-								deleteTarget += " and ";								
-							}
-							deleteTarget += "Sequence Lanes";
-						} 					
+				// For cap seq, warn if editing a submitted request so that billing is adjusted accordingly.
+				if (this.isCapSeqState() ){ 
+					// If samples have been removed:
+					if( saveExistingRequest.lastResult.@deleteSampleCount > 0 ) {
+						if (parentApplication.hasPermission("canWriteAnyObject")) {
+							Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.\n\nSome samples have been deleted, please adjust billing accordingly.", 
+								"Warning");				
+						}
+					} else {
+						// If samples have been added, we get the message from saveExistingRequest.
+						if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
+							Alert.show(saveExistingRequest.lastResult.@billingAccountMessage, "Warning");
+						}
+					}
+				} else {
+					// Inform if billing accounts reassigned on billing items
+					if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
+						Alert.show(saveExistingRequest.lastResult.@billingAccountMessage, "Warning");
+					}
 					
-						Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
-						"Warning");				
+					// Warn if billing should be adjusted to take into account
+					// delete hybs or lanes
+					if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
+						saveExistingRequest.lastResult.@deleteHybCount > 0 || 
+						saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+						if (parentApplication.hasPermission("canWriteAnyObject")) {
+							
+							var deleteTarget:String = "";
+							if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
+								deleteTarget += "Samples";
+							} 
+							if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
+								if (deleteTarget.length > 0) {
+									deleteTarget += " and ";								
+								}
+								deleteTarget += "Hybs";
+							} 
+							if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+								if (deleteTarget.length > 0) {
+									deleteTarget += " and ";								
+								}
+								deleteTarget += "Sequence Lanes";
+							} 					
+							
+							Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
+								"Warning");				
+						}
 					}
 				}
-
+				
 			 	var parms:Object = new Object();
 			 	parms.idRequest = request.@idRequest;
 			 	getRequest.send(parms);
