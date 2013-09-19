@@ -1514,7 +1514,11 @@ values (2, 'Test', 'User', 'Y');
 insert into gnomex.LabUser(idLab, idAppUser)
 values (1, 2);
 
-
+insert into gnomex.SampleFileType(codeSampleFileType, description)
+  values('fastqRead1', 'fastqRead1'),
+        ('fastqRead2', 'fastqRead2'),
+        ('BAM', 'BAM'),
+        ('Other', 'Other');
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
