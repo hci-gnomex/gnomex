@@ -263,11 +263,13 @@ public class GNomExLDAPRealm extends RealmBase {
 
     boolean isAuthenticated = false;
     
-    if (ldap_sec_principal != null && ldap_sec_principal.contains("<")) {
-      ldap_sec_principal = ldap_sec_principal.replace("<uid>", username);      
-    } else if(ldap_sec_principal != null && ldap_sec_principal.contains("[")) {
+    // Change local copy since GNomExLDAPRealm is apparently static in tomcat
+    String localPrincipal = ldap_sec_principal;
+    if (localPrincipal != null && localPrincipal.contains("<")) {
+      localPrincipal = localPrincipal.replace("<uid>", username);      
+    } else if(localPrincipal != null && localPrincipal.contains("[")) {
       // Need brackets if provided in a property because <> messes up parsing of context (xml) file
-      ldap_sec_principal = ldap_sec_principal.replace("[uid]", username);            
+      localPrincipal = localPrincipal.replace("[uid]", username);            
     }
     
     try {
@@ -277,7 +279,7 @@ public class GNomExLDAPRealm extends RealmBase {
           ldap_provider_url, 
           ldap_protocol, 
           ldap_auth_meth, 
-          ldap_sec_principal);
+          localPrincipal);
       
       // If user attributes are property is present, then check the user attributes
       // to see if they match the expected value.  
