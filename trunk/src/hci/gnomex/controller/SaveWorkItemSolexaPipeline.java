@@ -16,6 +16,7 @@ import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
@@ -277,9 +278,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
-    
-    if(request.getIsExternal().equals("N") && request.getIdCoreFacility() == CoreFacility.CORE_FACILITY_GENOMICS_ID){
-      introNote.append("<br><br>" + dictionaryHelper.getPropertyDictionary(PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
+    if(request.getIsExternal().equals("N") && request.getIdCoreFacility().equals(CoreFacility.CORE_FACILITY_GENOMICS_ID)){
+      introNote.append("<br><br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(CoreFacility.CORE_FACILITY_GENOMICS_ID, PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
     
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
