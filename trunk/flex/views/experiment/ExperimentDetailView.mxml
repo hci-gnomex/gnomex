@@ -1401,7 +1401,7 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top"
 									 visible="{this.selectedExperiment.@canUpdate == 'Y'}"
 									 includeInLayout="{this.selectedExperiment.@canUpdate == 'Y'}">
-								<mx:LinkButton  width="100" label="Collaborators"
+								<mx:LinkButton  width="100" label="Collaborators" textDecoration="underline"
 												enabled="{this.selectedExperiment.@canUpdateVisibility == 'Y'}"
 												styleName="formLabel" textAlign="left" click="showCollaboratorWindow()" paddingLeft="0" />
 								<mx:VBox verticalGap="0">
