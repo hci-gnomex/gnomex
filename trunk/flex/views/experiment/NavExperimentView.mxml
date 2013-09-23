@@ -1037,9 +1037,11 @@
 				} else if (currentState != "GuestState") {
 					if (myExperimentsCheckbox.selected) {
 						params.idAppUser = parentApplication.getIdAppUser();
-					}		
-					if (this.userAllExperimentsCheckbox.selected) {
+					}	else if (this.userAllExperimentsCheckbox.selected) {
 						params.allExperiments = 'Y';
+					}	else if (this.myCollaborationsCheckbox.selected) {				
+						params.allCollaborations = 'Y';
+						params.idAppUser = parentApplication.getIdAppUser();
 					}
 				}
 				if (this.externalExperimentsOnlyCheckbox.selected) {
@@ -1532,18 +1534,23 @@
 						
 						<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0" id="hbox2">
 							<mx:RadioButtonGroup id="experimentRadioGroup"/>
-							<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted">
+							<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+								<mx:toolTip><![CDATA[Experiments that I submitted]]></mx:toolTip>
 								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="true">
-								<mx:toolTip><![CDATA[Experiments of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
+							<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="true">
+								<mx:toolTip><![CDATA[Experiments of my lab and those visible to to my institution]]></mx:toolTip>
 								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Other labs" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:RadioButton label="My collaborations" id="myCollaborationsCheckbox" groupName="experimentRadioGroup" letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="false">
+								<mx:toolTip><![CDATA[Experiments I collaborate on]]></mx:toolTip>
+								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							</mx:RadioButton>
+							<mx:RadioButton label="Other labs" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup"  letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 								<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
 								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup"  letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
 								<mx:toolTip>All experiments I have access to</mx:toolTip>
 								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
 							</mx:RadioButton>
@@ -1780,6 +1787,7 @@
 			<mx:RemoveChild target="{myExperimentsCheckbox}"/>
 			<mx:RemoveChild target="{publicExperimentsOtherGroupsCheckbox}"/>
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
+			<mx:RemoveChild target="{myCollaborationsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();" />
