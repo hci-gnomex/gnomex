@@ -645,8 +645,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setContactCodeState(labScreen.getContactCodeState());
     lab.setContactEmail(labScreen.getContactEmail());
     lab.setContactName(labScreen.getContactName());
+    lab.setContactDepartment(labScreen.getContactDepartment());
     lab.setContactPhone(labScreen.getContactPhone());
-    lab.setContactZip(labScreen.getContactZip());
+    lab.setContactPostalCode(labScreen.getContactPostalCode());
+    lab.setContactCountry(labScreen.getContactCountry());
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
     lab.setIsExternalPricingCommercial(labScreen.getIsExternalPricingCommercial());

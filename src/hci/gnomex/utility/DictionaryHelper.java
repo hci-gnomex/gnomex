@@ -15,6 +15,7 @@ import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
@@ -46,6 +47,7 @@ public class DictionaryHelper implements Serializable {
   private Map                                   seqLibTreatmentMap       = new HashMap();
   private Map                                   slideDesignMap           = new HashMap();
   private Map                                   propertyDictionaryMap    = new HashMap();
+  private Map									seqLibProtocolsMap		 = new HashMap();
   private Map<String, RequestCategoryType>      requestCategoryTypeMap   = new HashMap<String, RequestCategoryType>();
   private List                                  seqRunTypeList           = new ArrayList();
   private Boolean                               dictionariesLoaded       = false; // Indicates if the non-managed dictionaries have been loaded.
@@ -226,6 +228,15 @@ public class DictionaryHelper implements Serializable {
       SeqLibTreatment st = (SeqLibTreatment)de;
       seqLibTreatmentMap.put(st.getIdSeqLibTreatment(), st);
     }
+    
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqLibProtocol").iterator(); i.hasNext();) {
+        Object de = i.next();
+        if (de instanceof NullDictionaryEntry) {
+          continue;
+        }
+        SeqLibProtocol sp = (SeqLibProtocol)de;
+        seqLibProtocolsMap.put(sp.getIdSeqLibProtocol(), sp);
+      }
     
     for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SlideDesign").iterator(); i.hasNext();) {
       Object de = i.next();
@@ -522,7 +533,17 @@ public class DictionaryHelper implements Serializable {
       return t;
     }
     return null;
-  }   
+  }  
+  
+  public SeqLibProtocol getSeqLibProtocolObject(Integer id) {
+	    lazyLoadManagedDictionaries();
+	    if (id != null) {
+	      SeqLibProtocol sp = (SeqLibProtocol)seqLibProtocolsMap.get(id);
+	      return sp;
+	    }
+	    return null;
+	  } 
+  
   public Set getSeqLibTreatments() {
     lazyLoadManagedDictionaries();
     return DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqLibTreatment");
