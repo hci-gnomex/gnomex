@@ -140,7 +140,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
  }
  
  public Element makeRemittanceAddress(){
-   String addressArray[] = contactRemitAddressCoreFacility.split("\n");
+   String addressArray[] = contactRemitAddressCoreFacility.split("\r");
    Element p = new Element("P");
    p.addContent("REMIT TO ADDRESS:");
    p.addContent(new Element("BR"));
@@ -154,7 +154,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
  }
  
  public Element makeLabAddress(){
-   String addressArray[] = contactAddressCoreFacility.split("\n");
+   String addressArray[] = contactAddressCoreFacility.split("\r");
    Element p = new Element("P");
    p.addContent("LAB ADDRESS:");
    p.addContent(new Element("BR"));
@@ -380,7 +380,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element cell = new Element("TD");
     cell.setAttribute("CLASS", "label");
     cell.setAttribute("ALIGN", "LEFT");
-    String addressArray[] = header1.split("\n");
+    String addressArray[] = header1.split("\r");
     for(int i = 0; i < addressArray.length; i++){
       cell.addContent(addressArray[i]);
       if(i + 1 < addressArray.length){
