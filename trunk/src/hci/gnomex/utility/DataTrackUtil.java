@@ -441,16 +441,23 @@ public class DataTrackUtil {
     	String fileName = f.getName();
     	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
     		if (fileName.endsWith(ext)){
-    			if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
-    	        else if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
-    	        filesAL.add(f);
-    	        break;
-    		}
+    	     if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
+    	     filesAL.add(f);
+    	     break;
+    		} 
     	}
+      if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+      
     }
+    
 
-    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
     ArrayList<File> convertedUSeqFiles = null;
+    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
+    /*  FOR NOW, WE ARE COMMENTING THIS OUT.  WE DON'T WANT TO RUN USEQ CONVERSIONS
+     *  IN REALTIME AS IT IS TOO PRONE TO CONSUME THE CPU, ESPECIALLY IF THE
+     *  USEQ FILE IS CORRUPT.
+     */
+    /*
     if (bigFile == null && useq !=null && autoConvertUSeqArchives){
       //this can consume alot of resources and take 1-10min
       USeq2UCSCBig c = new USeq2UCSCBig(ucscWig2BigWigExe, ucscBed2BigBedExe, useq);
@@ -460,6 +467,7 @@ public class DataTrackUtil {
       c.convert(); //same thread!
       //c.start(); //separate thread!
     }
+    */
 
     if (filesAL.size() !=0){
       //stranded?
