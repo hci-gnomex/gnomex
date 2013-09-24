@@ -131,7 +131,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           response.setContentType(mimeType);
         } else {
           response.setContentType("application/x-download");
-          response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
+          response.setHeader("Content-Disposition", "attachment;filename=" + "\"" + fileName + "\"");          
           response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         }
         
