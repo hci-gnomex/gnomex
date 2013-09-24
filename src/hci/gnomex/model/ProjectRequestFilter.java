@@ -1,14 +1,15 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.framework.model.DetailObject;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class ProjectRequestFilter extends DetailObject {
   
@@ -35,14 +36,9 @@ public class ProjectRequestFilter extends DetailObject {
   private String                searchOrganismOnSample;
   private String                publicExperimentsInOtherGroups;
   private String                allExperiments = "N";
-  private String                allCollaborations = "N";
   private String                showSamples = "Y";
   private String                showCategory = "Y";
   private String                showExternalExperiments = "Y";
-  
-  private Date                  createDateFrom;
-  private Date                  createDateTo;
-  
   private String                lastWeek  = "N";
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
@@ -77,7 +73,6 @@ public class ProjectRequestFilter extends DetailObject {
         idProject != null ||
         idAppUser != null ||
         ccNumber != null ||
-        createDateFrom != null ||
         (allExperiments != null && allExperiments.equalsIgnoreCase("Y")) ||
         (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
@@ -110,10 +105,11 @@ public class ProjectRequestFilter extends DetailObject {
     // automatically
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       return hasLimitingCriteria;
+    } else {
+      // Non-admins are always scoped by either lab, own experiments,
+      // so no need to require any additional filtering.
+      return true;
     }
-    // Non-admins are always scoped by either lab, own experiments,
-    // so no need to require any additional filtering.
-    return true;
   }
     
   
@@ -217,8 +213,9 @@ public class ProjectRequestFilter extends DetailObject {
     if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
         idSlideProduct != null) {
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
   
   
@@ -339,19 +336,10 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest is not null ");
     }
-    // Search by collaborator
-    if (allCollaborations != null && allCollaborations.equals("Y")){
-      this.addWhereOrAnd();
-      queryBuf.append(" collab.idAppUser = ");
-      queryBuf.append(idAppUser);
-    } else if (idAppUser != null){
-      // Search by user
+    // Search by user 
+    if (idAppUser != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idSubmitter = ");
-      queryBuf.append(idAppUser);
-   
-      queryBuf.append(" OR ");
-      queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
     } 
     //  Search by idRequest 
@@ -397,21 +385,7 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal = 'Y'");
     } 
-    //  Search by create date from 
-    if (createDateFrom != null){
-      this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    } 
-    //  Search by create date from 
-    if (createDateTo != null){
-      createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
-      this.addWhereOrAnd();
-      queryBuf.append(" req.createDate < '");
-      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    } 
+    
     // Search for requests submitted in last week
     if (lastWeek.equals("Y")) {
 
@@ -1033,13 +1007,6 @@ public class ProjectRequestFilter extends DetailObject {
     this.allExperiments = allExperiments;
   }
   
-  public String getAllCollaborations() {
-	    return allCollaborations;
-	  }
-
-  public void setAllCollaborations(String allCollaborations) {
-	    this.allCollaborations = allCollaborations;
-	  }
 
   public String getShowEmptyProjectFolders() {
     return showEmptyProjectFolders;
@@ -1068,23 +1035,7 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setCcNumber( String ccNumber ) {
     this.ccNumber = ccNumber;
-  }  
-
-  public Date getCreateDateFrom() {
-    return createDateFrom;
   }
   
-  public void setCreateDateFrom(Date createDateFrom) {
-    this.createDateFrom = createDateFrom;
-  }
-
   
-  public Date getCreateDateTo() {
-    return createDateTo;
-  }
-  
-  public void setCreateDateTo(Date createDateTo) {
-    this.createDateTo = createDateTo;
-  }
-
 }

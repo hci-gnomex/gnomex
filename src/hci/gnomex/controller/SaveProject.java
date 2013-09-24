@@ -1,15 +1,18 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentDesign;
 import hci.gnomex.model.ExperimentDesignEntry;
 import hci.gnomex.model.ExperimentFactor;
 import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Project;
+import hci.gnomex.model.QualityControlStep;
 import hci.gnomex.model.QualityControlStepEntry;
+import hci.gnomex.model.Visibility;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.RequestParser;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.io.StringReader;

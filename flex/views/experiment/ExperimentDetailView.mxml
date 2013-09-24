@@ -40,7 +40,6 @@
 		import views.renderers.Text;
 		import views.renderers.URLRenderer;
 		import views.util.RunAlignmentWindow;
-		import views.util.CollaboratorWindow;
 		
 		public var sampleGroupingCollection:GroupingCollection = null;		
 		
@@ -1165,13 +1164,6 @@
         	params.protocolClassName = protocolClassName;
         	getProtocol.send(params);
         }
-		
-		private function showAdapters(protocolClassName:String, fivePrime:String, threePrime:String):void {
-			var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
-			PopUpManager.centerPopUp(adapterWindow);
-			adapterWindow.title = protocolClassName;
-			adapterWindow.adapterTextArea.text = "Five prime:\n " + fivePrime + "\n\n" + "Three prime:\n " + threePrime;
-		}
         
     	private function onGetProtocol(event:ResultEvent): void { 
 			if (getProtocol.lastResult.name() != "Protocol") {
@@ -1182,8 +1174,6 @@
    			PopUpManager.centerPopUp(protocolWindow);
    			protocolWindow.title = getProtocol.lastResult.name;
    			protocolWindow.protocolDescription.text = getProtocol.lastResult.description;
-			protocolWindow.ThreePrimeAdapter.text = getProtocol.lastResult.adapterSequenceThreePrime;
-			protocolWindow.FivePrimeAdapter.text = getProtocol.lastResult.adapterSequenceFivePrime;
     	}
     	
 		public function getSampleTreeIcon(item:Object):Class {
@@ -1299,15 +1289,6 @@
 			navigateToURL( new URLRequest(url), '_blank' );
 		}
 
-		private function showCollaboratorWindow():void {
-			var collaboratorWindow:CollaboratorWindow = CollaboratorWindow(PopUpManager.createPopUp(parentApplication.theBody, CollaboratorWindow, true));
-			PopUpManager.centerPopUp(collaboratorWindow);
-			collaboratorWindow.init("Collaborators for Experiment " + selectedExperiment.@number, 
-				collaborators, 
-				selectedExperiment);
-			
-		}
-		
 	]]>
 </mx:Script>
 
@@ -1320,7 +1301,6 @@
 <mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 <mx:XMLListCollection id="sortedTopics"
 					  source="{this.selectedExperiment.topics.Topic}">
-
 	<mx:sort>
 		<mx:Sort>
 			<mx:fields>
@@ -1331,11 +1311,11 @@
 		</mx:Sort>
 	</mx:sort>
 </mx:XMLListCollection>
-	<mx:XMLListCollection id="collaborators" source="{selectedExperiment.collaborators.ExperimentCollaborator}"/>
+
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4"> 
-					<mx:HBox horizontalGap="0" width="100%" >
+					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
@@ -1382,7 +1362,7 @@
 							
 						</mx:VBox>
 						
-						<mx:VBox borderStyle="none" verticalGap="4" width="100%">
+						<mx:VBox width="300" borderStyle="none" verticalGap="4">
 							<mx:HBox verticalGap="0" horizontalGap="0">
 								<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
 								<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
@@ -1407,19 +1387,6 @@
 								<mx:Text  width="100" text="Institution"  styleName="formLabel" textAlign="left"/>
 								<mx:Text  text="{institutionName}" width="200"/>
 							</mx:HBox>
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top"
-									 visible="{this.selectedExperiment.@canUpdate == 'Y'}"
-									 includeInLayout="{this.selectedExperiment.@canUpdate == 'Y'}">
-								<mx:LinkButton  width="100" label="Collaborators" textDecoration="underline"
-												enabled="{this.selectedExperiment.@canUpdateVisibility == 'Y'}"
-												styleName="formLabel" textAlign="left" click="showCollaboratorWindow()" paddingLeft="0" />
-								<mx:VBox verticalGap="0">
-									<mx:Repeater id="collaboratorRepeater" dataProvider="{this.selectedExperiment.collaborators.ExperimentCollaborator}"> 
-										<mx:Text id="collaborator" 
-												 text="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', collaboratorRepeater.currentItem.@idAppUser)}" />
-									</mx:Repeater>
-								</mx:VBox>
-							</mx:HBox>
 							
 						</mx:VBox>
 					</mx:HBox>
@@ -1432,21 +1399,9 @@
 												   paddingLeft="1" paddingRight="1"
 												   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
 								</mx:Repeater>
-							</mx:Tile>							
+							</mx:Tile>
+							
 						</mx:HBox>
-						<mx:HBox id="adaptersBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">		
-							<mx:Label text="Adapter Trimming"  id="labelAdapter" styleName="formLabel" width="100" textAlign="left"/>
-							<mx:Tile horizontalGap="0" direction="vertical" id="tileAdapter" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-								<mx:HBox>
-									<mx:Label text="Five prime: "/>
-									<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
-								</mx:HBox>
-								<mx:HBox>
-									<mx:Label text="Three prime: "/>
-									<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
-								</mx:HBox>		
-							</mx:Tile>							
-						</mx:HBox>	
 					</mx:VBox>            
 					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">
 						<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
@@ -1553,7 +1508,7 @@
 	              				itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 							
 							<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
-							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
+							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Mean Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 								<mx:itemRenderer>
 									<mx:Component>
 										<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>

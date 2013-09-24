@@ -1,9 +1,11 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Session;
 

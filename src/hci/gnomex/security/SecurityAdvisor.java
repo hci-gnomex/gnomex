@@ -6,6 +6,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.CreateBillingItems;
 import hci.gnomex.lucene.GlobalIndexHelper;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
@@ -23,12 +24,12 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Project;
-import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
@@ -172,23 +173,26 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public String getIsGuest() {
     if (isGuest) {
       return "Y";
+    } else {
+      return "N";
     }
-    return "N";
   }
 
   public String getIsUniversityOnlyUser() {
     if (this.isUniversityOnlyUser) {
       return "Y";
+    } else {
+      return "N";
     }
-    return "N";
   }
 
 
   public String getIsExternalUser() {
     if (this.isGNomExExternalUser) {
       return "Y";
+    } else {
+      return "N";
     }
-    return "N";
   }
 
   public static SecurityAdvisor create(Session   sess, 
@@ -686,6 +690,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         canRead = true;
         
+      }
+      // Normal users can read only their own AppUserLite dictionary entry
+      else if (object instanceof AppUserLite) {
+        AppUserLite u = (AppUserLite)object;
+        if (u.getIdAppUser() != null && !this.isGuest() &&
+            u.getIdAppUser().equals(this.getIdAppUser())) {
+          canRead = true;
+        } 
       }
       // Filter out server-only properties
       else if (object instanceof PropertyDictionary) {
@@ -1532,8 +1544,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public Boolean canDeleteSample(Request req) throws UnknownPermissionException {
     if (req.isDNASeqExperiment().equals("Y")) {
       return canDelete(req);
+    } else {
+      return hasPermission(CAN_WRITE_ANY_OBJECT);
     }
-    return hasPermission(CAN_WRITE_ANY_OBJECT);
   }
   
   public void flagPermissions(DetailObject object) throws UnknownPermissionException {
@@ -1779,24 +1792,27 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public String getUserFirstName() {
     if (isGuest) {
       return "guest";
+    } else {
+      return appUser.getFirstName();      
     }
-    return appUser.getFirstName();
   }
 
   
   public String getUserLastName() {
     if (isGuest) {
       return "";
+    } else {
+      return appUser.getLastName();
     }
-    return appUser.getLastName();
   }
   
   
   public String getUserEmail() {
     if (isGuest) {
       return "";
+    } else {
+      return appUser.getEmail();      
     }
-    return appUser.getEmail();
   }
 
   
@@ -1856,8 +1872,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public Set getGroupsIAmMemberOf() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       return this.getAppUser().getLabs();
+    } else { 
+      return new TreeSet();
     }
-    return new TreeSet();
   }
 
   
@@ -1875,15 +1892,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public Set getGroupsICollaborateWith() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       return this.getAppUser().getCollaboratingLabs();
+    } else {
+      return new TreeSet();
     }
-    return new TreeSet();
   }
   
   public Set getGroupsIManage() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       return this.getAppUser().getManagingLabs();
+    } else {
+      return new TreeSet();
     }
-    return new TreeSet();
   }
   
   // For XML
@@ -1897,12 +1916,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       lab.excludeMethodFromXML("getDepartment");
       lab.excludeMethodFromXML("getNotes");
       lab.excludeMethodFromXML("getContactName");
-      lab.excludeMethodFromXML("getContactDepartment");
       lab.excludeMethodFromXML("getContactAddress");
       lab.excludeMethodFromXML("getContactCity");
       lab.excludeMethodFromXML("getContactCodeState");
-      lab.excludeMethodFromXML("getContactPostalCode");
-      lab.excludeMethodFromXML("getContactCountry");
+      lab.excludeMethodFromXML("getContactZip");
       lab.excludeMethodFromXML("getContactEmail");
       lab.excludeMethodFromXML("getContactPhone");
 
@@ -2105,8 +2122,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public AppUser getAppUser() {
     if (isGuest) {
       return null;
+    } else {
+      return appUser;      
     }
-    return appUser;
   }
 
   
@@ -3006,8 +3024,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public Set getCoreFacilitiesIManage() {
     if (appUser != null && appUser.getManagingCoreFacilities() != null) {
       return appUser.getManagingCoreFacilities();
+    } else {
+      return new TreeSet();
     }
-    return new TreeSet();
   }
   
   public Set getCoreFacilitiesForMyLab() {
@@ -3055,7 +3074,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       queryBuf.append(") ");
       
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 }

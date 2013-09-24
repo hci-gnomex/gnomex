@@ -1,6 +1,5 @@
 package hci.gnomex.utility;
 
-import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExFrontController;
 import hci.gnomex.model.AppUser;
@@ -11,6 +10,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.framework.model.DetailObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

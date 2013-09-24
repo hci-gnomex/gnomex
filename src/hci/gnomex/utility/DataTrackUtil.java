@@ -1,19 +1,14 @@
 package hci.gnomex.utility;
 
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Segment;
 import hci.gnomex.model.UCSCLinkFiles;
+
+import javax.servlet.http.HttpServletRequest;
+
 import hci.gnomex.useq.USeq2UCSCBig;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.sql.Date;
@@ -27,13 +22,10 @@ import java.util.Random;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileReader;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
+import net.sf.samtools.*;
 import net.sf.samtools.SAMFileReader.ValidationStringency;
-import net.sf.samtools.SAMRecordIterator;
-import net.sf.samtools.SAMSequenceRecord;
 
 
 public class DataTrackUtil {

@@ -10,6 +10,9 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
+			
+			import mx.events.ListEvent;
+			
 			import hci.flex.controls.Label;
 			
 			import mx.collections.Grouping;
@@ -22,7 +25,6 @@
 			import mx.controls.TextInput;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
 			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
@@ -1353,8 +1355,6 @@
 			
 
 
-
-
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1365,7 +1365,7 @@
 		<mx:HBox width="100%" id="topBox">
 			<mx:CheckBox id="showCCNumberCheckbox" 
 						 selected="false"
-						 click="toggleShowCCNumber()" 
+						 click="toggleShowCCNumber()"  
 						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
 						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
 						 label="Link to BST samples using CC Number" />
@@ -1578,7 +1578,7 @@
 
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"                 
 													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   

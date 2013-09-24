@@ -45,8 +45,8 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       String canRead = "N";
       String canUpdate = "N";
       String canDelete = "N";
-      String adapterSequenceThreePrime = null;
-      String adapterSequenceFivePrime = null;
+      String adapterSequenceRead1 = null;
+      String adapterSequenceRead2 = null;
       
       if (this.idProtocol != null || this.idProtocol.intValue() != 0) {
         if (this.protocolClassName.equals(FeatureExtractionProtocol.class.getName())) {
@@ -108,8 +108,8 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           url = sp.getUrl();
           isActive = sp.getIsActive();
           setPermissions(sp);
-          adapterSequenceThreePrime = sp.getAdapterSequenceThreePrime() != null ? sp.getAdapterSequenceThreePrime() : "";
-          adapterSequenceFivePrime = sp.getAdapterSequenceFivePrime() != null ? sp.getAdapterSequenceFivePrime() : "";
+          adapterSequenceRead1 = sp.getAdapterSequenceRead1() != null ? sp.getAdapterSequenceRead1() : "";
+          adapterSequenceRead2 = sp.getAdapterSequenceRead2() != null ? sp.getAdapterSequenceRead2() : "";
           canRead   = sp.canRead() ? "Y" : "N";
           canUpdate = sp.canUpdate() ? "Y" : "N";
           canDelete = sp.canDelete() ? "Y" : "N";
@@ -135,8 +135,8 @@ public class GetProtocol extends GNomExCommand implements Serializable {
         root.addContent(new Element("description").addContent(description));
         root.addContent(new Element("url").addContent(url));
         root.addContent(new Element("idAppUser").addContent(idAppUser != null ? idAppUser.toString() : ""));
-        root.addContent(new Element("adapterSequenceThreePrime").addContent(adapterSequenceThreePrime));
-        root.addContent(new Element("adapterSequenceFivePrime").addContent(adapterSequenceFivePrime));
+        root.addContent(new Element("adapterSequenceRead1").addContent(adapterSequenceRead1));
+        root.addContent(new Element("adapterSequenceRead2").addContent(adapterSequenceRead2));
         root.addContent(new Element("canRead").addContent(canRead));
         root.addContent(new Element("canUpdate").addContent(canUpdate));
         root.addContent(new Element("canDelete").addContent(canDelete));

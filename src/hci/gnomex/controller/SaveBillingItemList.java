@@ -18,9 +18,9 @@ import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LogLongExecutionTimes;
-import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -102,7 +102,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   private String                       billingItemXMLString;
   private Document                     billingItemDoc;
   private BillingItemParser            parser;
-    
+  
+  private String                       appURL;
+  
   private String                       serverName;
   
   private Map<LabAccountBillingPeriod, Object[]>  labAccountBillingPeriodMap = new HashMap<LabAccountBillingPeriod, Object[]>();
@@ -129,6 +131,13 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         log.error( "Cannot parse billingItemXMLString", je );
         this.addInvalidField( "BillingItemXMLString", "Invalid work item xml");
       }
+    }
+
+    
+    try {
+      appURL = this.getLaunchAppURL(request);      
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveBillingItemList", e);
     }
     
     serverName = request.getServerName();
@@ -185,11 +194,10 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
               if (billingItem.getBillingAccount().getIsPO() != null && billingItem.getBillingAccount().getIsPO().equals("Y")) {
                 billingItem.setCodeBillingStatus(BillingStatus.APPROVED_PO);
               }
-              if (billingItem.getBillingAccount().getIsCreditCard() != null && billingItem.getBillingAccount().getIsCreditCard().equals("Y")) {
-                billingItem.setCodeBillingStatus(BillingStatus.APPROVED_CC);
-              }
             }
-                      }
+            
+
+          }
           
           sess.flush();
           executionLogger.endLogItem(li);
@@ -223,7 +231,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           executionLogger.endLogItem(li);
           
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
-            LabAccountBillingPeriod labp = i.next();
+            LabAccountBillingPeriod labp = (LabAccountBillingPeriod) i.next();
             this.checkToSendInvoiceEmail(sess, labp.getLab(), labp.getIdBillingPeriod(), labp.getBillingAccount(), labp.getIdCoreFacility());
           }       
           
@@ -368,7 +376,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         String codeBillingStatus = (String)countRow[0];
         Integer count = (Integer)countRow[1];
         
-        if (codeBillingStatus.equals(BillingStatus.APPROVED) || codeBillingStatus.equals(BillingStatus.APPROVED_PO) || codeBillingStatus.equals(BillingStatus.APPROVED_CC)) {
+        if (codeBillingStatus.equals(BillingStatus.APPROVED) || codeBillingStatus.equals(BillingStatus.APPROVED_PO)) {
           approvedCount = count.intValue();
         } else {
           otherCount += count.intValue();

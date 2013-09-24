@@ -7,16 +7,26 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PriceSheetCategoryParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequestEmailBodyFormatter;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -24,6 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 

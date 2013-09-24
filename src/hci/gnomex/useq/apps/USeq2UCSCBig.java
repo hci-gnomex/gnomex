@@ -1,16 +1,12 @@
 package hci.gnomex.useq.apps;
 
-import hci.gnomex.useq.USeqArchive;
-import hci.gnomex.useq.USeqUtilities;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import hci.gnomex.useq.USeqArchive;
+import hci.gnomex.useq.USeqUtilities;
 
 /**Class to convert xxx.useq archives to UCSC xxx.bb or xxx.bw archives.*/
 public class USeq2UCSCBig extends Thread{

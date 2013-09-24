@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.constants.Constants;
 
 import java.io.File;
 import java.io.IOException;

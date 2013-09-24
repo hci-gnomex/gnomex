@@ -1,12 +1,13 @@
 package hci.gnomex.model;
 
 import hci.gnomex.utility.DictionaryHelper;
+
 import hci.hibernate3utils.HibernateDetailObject;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.TreeSet;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 
 public class FlowCell extends HibernateDetailObject {
@@ -144,7 +145,7 @@ public class FlowCell extends HibernateDetailObject {
     // the folder name automatically.
     Boolean pieceNull = false;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
-    Boolean isMiSeq = this.getCodeSequencingPlatform().equals(SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM) ? true : false;
+    Boolean isMiSeq = this.getCodeSequencingPlatform() == SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM ? true : false;
     if (this.getCreateDate() != null) {
       runFolder += dateFormat.format(this.getCreateDate());
     } else {

@@ -29,6 +29,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetChromatogram.class);
 
   private String  fileName = null;
+  private String  baseDir;
   private int     idChromatogram;
   private Boolean includeSeqString = false;
   private Boolean includeQualArray = false;
@@ -145,10 +146,10 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
 
 
       // Signal Strengths:
-      String aSignalStrength = Integer.toString(chromatReader.getSignalStrengths()[1]);
-      String cSignalStrength = Integer.toString(chromatReader.getSignalStrengths()[3]);
-      String gSignalStrength = Integer.toString(chromatReader.getSignalStrengths()[0]);
-      String tSignalStrength = Integer.toString(chromatReader.getSignalStrengths()[2]);
+      String aSignalStrength = new Integer(chromatReader.getSignalStrengths()[1]).toString();
+      String cSignalStrength = new Integer(chromatReader.getSignalStrengths()[3]).toString();
+      String gSignalStrength = new Integer(chromatReader.getSignalStrengths()[0]).toString();
+      String tSignalStrength = new Integer(chromatReader.getSignalStrengths()[2]).toString();
       // Stringify all signal strengths
       String signalStrengths = "A=" + aSignalStrength + ", C=" + cSignalStrength +
                              ", G=" + gSignalStrength + ", T=" + tSignalStrength;
@@ -178,13 +179,13 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         // INFO
         Element chromNode = new Element("Chromatogram");
         
-        chromNode.setAttribute("idChromatogram", Integer.toString(idChromatogram));
+        chromNode.setAttribute("idChromatogram", new Integer(idChromatogram).toString());
         chromNode.setAttribute("displayName", abiFile.getName());
         chromNode.setAttribute("requestNumber", request != null ? request.getNumber() : "");
         chromNode.setAttribute("wellRowCol", wellRowCol);
         chromNode.setAttribute("idPlateWell", idPlateWellString );
         chromNode.setAttribute("comments", chromatReader.getComments());
-        chromNode.setAttribute("readLength", Integer.toString(chromatReader.getSeq().toString().length()));
+        chromNode.setAttribute("readLength", new Integer(chromatReader.getSeq().toString().length()).toString());
         chromNode.setAttribute("signalStrengths", signalStrengths);
         chromNode.setAttribute("mobility", chromatReader.getMobility());
         chromNode.setAttribute("user", request != null && request.getAppUser() != null ? request.getAppUser().getDisplayName() : "" );

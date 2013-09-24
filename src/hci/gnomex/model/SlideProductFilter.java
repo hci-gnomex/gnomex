@@ -1,17 +1,20 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.security.SecurityAdvisor;
-
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.jdom.Element;
+
+import hci.gnomex.security.SecurityAdvisor;
+import hci.framework.model.DetailObject;
+import hci.framework.security.UnknownPermissionException;
 
 public class SlideProductFilter extends DetailObject {
   

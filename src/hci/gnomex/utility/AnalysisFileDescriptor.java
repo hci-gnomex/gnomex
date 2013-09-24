@@ -229,7 +229,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public String getFilePathName() {
     String fullPathName = "";
     
-    if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
+    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
       fullPathName += getQualifiedFilePath() + "/"; 
     }
     fullPathName += getDisplayName();
@@ -244,7 +244,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   public String getQualifiedFileName() {
     String fullPathName = "";
     
-    if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
+    if (qualifiedFilePath != null && qualifiedFilePath!= "") {
       fullPathName += getQualifiedFilePath() + "/"; 
     }
     fullPathName += getDisplayName();
@@ -368,13 +368,6 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
         String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
         viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
-    } else if(fileName.toLowerCase().endsWith(".csv") ||
-        fileName.toLowerCase().endsWith(".ppt") ||
-        fileName.toLowerCase().endsWith(".pptx") ||
-        fileName.toLowerCase().endsWith(".xls")) {
-      String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
-      viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
-
     }
     return viewURL;
   }

@@ -104,32 +104,35 @@ public class BillingAccount extends HibernateDetailObject {
       }
       return accountNumber;
 
-    }
-    if ((accountNumberBus != null && !accountNumberBus.equals("")) || 
-        (accountNumberOrg != null && !accountNumberOrg.equals("")) || 
-        (accountNumberFund != null && !accountNumberFund.equals("")) || 
-        (accountNumberActivity != null && !accountNumberActivity.equals("")) || 
-        (accountNumberProject != null && !accountNumberProject.equals("")) || 
-        (accountNumberAccount != null && !accountNumberAccount.equals("")) ||
-        (accountNumberAu != null && !accountNumberAu.equals("")) || 
-        (accountNumberYear != null && !accountNumberYear.equals(""))) {
-      return this.getNonNullString(accountNumberBus) + 
-      this.getAccountNumberPart(accountNumberOrg) +
-      this.getAccountNumberPart(accountNumberFund) +
-      this.getAccountNumberPart(accountNumberActivity) + 
-      this.getAccountNumberPart(accountNumberProject) +
-      this.getAccountNumberPart(accountNumberAccount + 
-      this.getAccountNumberPart(accountNumberAu) + 
-      this.getAccountNumberPart(accountNumberYear) );      
-    }
-    return "";    
+    } else {
+      if ((accountNumberBus != null && !accountNumberBus.equals("")) || 
+          (accountNumberOrg != null && !accountNumberOrg.equals("")) || 
+          (accountNumberFund != null && !accountNumberFund.equals("")) || 
+          (accountNumberActivity != null && !accountNumberActivity.equals("")) || 
+          (accountNumberProject != null && !accountNumberProject.equals("")) || 
+          (accountNumberAccount != null && !accountNumberAccount.equals("")) ||
+          (accountNumberAu != null && !accountNumberAu.equals("")) || 
+          (accountNumberYear != null && !accountNumberYear.equals(""))) {
+        return this.getNonNullString(accountNumberBus) + 
+        this.getAccountNumberPart(accountNumberOrg) +
+        this.getAccountNumberPart(accountNumberFund) +
+        this.getAccountNumberPart(accountNumberActivity) + 
+        this.getAccountNumberPart(accountNumberProject) +
+        this.getAccountNumberPart(accountNumberAccount + 
+        this.getAccountNumberPart(accountNumberAu) + 
+        this.getAccountNumberPart(accountNumberYear) );      
+      } else {
+        return "";
+      }
+    }    
   }  
   
   private String getAccountNumberPart(String part) {
     if (part != null && !part.equals("")) {
       return "-" + part;
+    } else {
+      return "";
     }
-    return "";
   }
 
   
@@ -396,8 +399,9 @@ public class BillingAccount extends HibernateDetailObject {
   public String getTotalDollarAmountDisplay() {
     if (totalDollarAmount != null) {
       return NumberFormat.getCurrencyInstance().format(totalDollarAmount);
+    } else {
+      return "";
     }
-    return "";
   }
   
 
@@ -409,8 +413,9 @@ public class BillingAccount extends HibernateDetailObject {
   public String getTotalChargesToDateDisplay() {
     if (totalChargesToDate != null) {
       return NumberFormat.getCurrencyInstance().format(totalChargesToDate);
+    } else {
+      return "";
     }
-    return "";
   }
 
   public Date getStartDate() {
@@ -469,15 +474,17 @@ public class BillingAccount extends HibernateDetailObject {
   public BigDecimal getTotalDollarAmountRemaining() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
       return totalDollarAmount.subtract(totalChargesToDate);
+    } else {
+      return null;
     }
-    return null;
   }
   
   public String getTotalDollarAmountRemainingDisplay() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
       return NumberFormat.getCurrencyInstance().format(totalDollarAmount.subtract(totalChargesToDate));
+    } else {
+      return null;
     }
-    return null;
   }
 
   public void registerMethodsToExcludeFromXML() {

@@ -2,17 +2,22 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;

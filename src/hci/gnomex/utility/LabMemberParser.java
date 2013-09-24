@@ -1,11 +1,20 @@
 package hci.gnomex.utility;
 
-import hci.framework.model.DetailObject;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.ArrayCoordinate;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.Slide;
+import hci.gnomex.model.WorkItem;
+import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;

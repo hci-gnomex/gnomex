@@ -5,9 +5,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -23,6 +25,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;

@@ -2,19 +2,35 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GNomExFrontController;
+import hci.gnomex.controller.ShowBillingInvoiceForm;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Request;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
+import javax.swing.text.NumberFormatter;
+
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;

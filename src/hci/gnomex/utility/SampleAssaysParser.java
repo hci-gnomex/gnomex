@@ -1,10 +1,13 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.security.SecurityAdvisor;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import org.hibernate.Session;
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 

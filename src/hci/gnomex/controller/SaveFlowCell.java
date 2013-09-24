@@ -1,17 +1,20 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellChannelParser;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,9 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;

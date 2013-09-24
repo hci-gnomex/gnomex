@@ -1,7 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
@@ -9,31 +7,33 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ExperimentCollaborator;
+import hci.gnomex.model.Institution;
+import hci.gnomex.model.Invoice;
+import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PropertyPlatformApplication;
+import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Plate;
-import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.SeqLibTreatment;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Slide;
@@ -48,25 +48,30 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
+import hci.gnomex.utility.LabeledSampleNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequestParser;
-import hci.gnomex.utility.RequestParser.HybInfo;
 import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemHybParser;
+import hci.gnomex.utility.RequestParser.HybInfo;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -75,6 +80,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.mail.MessagingException;
@@ -82,12 +88,14 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 
 
@@ -111,11 +119,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private BillingPeriod    billingPeriod;
   
   private String           launchAppURL;
+  private String           showRequestFormURLBase;
   private String           appURL;
   private String           serverName;
 
   private String           originalRequestNumber;
 
+  private Integer          idProject;
   private Map              labelMap = new HashMap();
   private Map              idSampleMap = new HashMap();
   private TreeSet          hybs = new TreeSet(new HybNumberComparator());
@@ -204,12 +214,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     
     if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
-      new Integer(request.getParameter("idProject"));
+      idProject = new Integer(request.getParameter("idProject"));
     }
     
     try {
       launchAppURL = this.getLaunchAppURL(request);  
-      this.getShowRequestFormURL(request);
+      showRequestFormURLBase = this.getShowRequestFormURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
@@ -392,16 +402,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         // save samples
         sampleCountOnPlate = 1;
-        boolean hasNewSample = false;
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
         for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
           String idSampleString = (String)i.next();
           boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-          hasNewSample = isNewSample || hasNewSample;
           Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
           saveSample(idSampleString, sample, sess, dictionaryHelper);
           
+
           // if this is a new request, create QC work items for each sample
           if (!requestParser.isExternalExperiment() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())
                 && !requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) && !requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
@@ -725,6 +734,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         
         // Add/update collaborators
+        Set collaborators = new TreeSet();
         for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
           Integer idAppUser = Integer.parseInt(key);
@@ -791,14 +801,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           } else if (!requestParser.isNewRequest() && 
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
-                        
-            // For dna seq facility orders, warn the admin to adjust billing if samples have been added.  
-            // (We don't automatically adjust billing items because of tiered pricing issues.)
+            createBillingItems = true;
+            
+            // For dna seq facility orders, we don't want to create billing items on an edit if no billing items have yet to be created
+            // (because order has not been submitted.)
             if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-              if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
-                if ( hasNewSample ) {
-                  billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
-                }
+              if (requestParser.getRequest().getBillingItems() == null || requestParser.getRequest().getBillingItems().isEmpty()) {
+                createBillingItems = false;
               }
             }
           }
@@ -861,6 +870,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
         }
 
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        
         String emailErrorMessage = sendEmails(sess);
        
 
@@ -1206,7 +1217,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         continue;
       }
       
-      Property property = dh.getPropertyObject(idProperty);
+      Property property = (Property)dh.getPropertyObject(idProperty);
      
       
       PropertyEntry entry = new PropertyEntry();
@@ -1221,6 +1232,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
       // If the sample property type is "url", save the options.
       if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
+        Set urlValues = new TreeSet();
         String[] valueTokens = value.split("\\|");
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];
@@ -2176,8 +2188,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
     
     List billingItems = new ArrayList<BillingItem>();
-    List discountBillingItems = new ArrayList<BillingItem>();
-    
+
     
     // Find the appropriate price sheet
     PriceSheet priceSheet = null;
@@ -2211,13 +2222,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Instantiate plugin for billing category
         BillingPlugin plugin = null;
-        Boolean isDiscount = false;
         if (priceCategory.getPluginClassName() != null) {
           try {
             plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-            if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
-              isDiscount = true;
-            }
           } catch(Exception e) {
             log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
           }
@@ -2227,33 +2234,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Get the billing items
         if (plugin != null) {
           List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap);    
-          if (isDiscount) {
-            discountBillingItems.addAll(billingItemsForCategory);
-          } else {
-            billingItems.addAll(billingItemsForCategory);
-          }              
+          
+          billingItems.addAll(billingItemsForCategory);                
         }
       }
       
-      BigDecimal grandInvoicePrice = new BigDecimal(0);
+     
       for(Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
-        grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
         if (bi.resetInvoiceForBillingItem(sess)) {
           sess.save(bi);
         }
       }
-      for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
-        BillingItem bi = (BillingItem)i.next();
-        if (bi.getUnitPrice() != null) {
-          BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
-          bi.setUnitPrice( invoicePrice );
-          bi.setInvoicePrice( invoicePrice );
-          bi.resetInvoiceForBillingItem(sess);
-          sess.save(bi);
-        }
-      }
-      
     }    
   }
   
@@ -2308,7 +2300,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
-    if(!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)){
+    if(emailRecipients != "" && !MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }
     if (otherRecipients != null && otherRecipients.length() > 0) {

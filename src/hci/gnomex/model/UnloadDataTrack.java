@@ -3,6 +3,7 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class UnloadDataTrack extends DetailObject implements Serializable {
 

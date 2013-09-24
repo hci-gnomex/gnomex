@@ -19,7 +19,9 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -71,7 +73,7 @@ public class ShowBillingMonthendReportUMergeFormat extends ReportCommand impleme
     if (request.getParameter("codeBillingStatus") != null && !request.getParameter("codeBillingStatus").equals("")) {
       codeBillingStatus = request.getParameter("codeBillingStatus");
       
-      if (!codeBillingStatus.equals(BillingStatus.APPROVED) && !codeBillingStatus.equals(BillingStatus.APPROVED_PO) && !codeBillingStatus.equals(BillingStatus.APPROVED_CC)) {
+      if (!codeBillingStatus.equals(BillingStatus.APPROVED) && !codeBillingStatus.equals(BillingStatus.APPROVED_PO)) {
         this.addInvalidField("billingStatusInvalid", "Please select the 'Approved' or 'Approved (External)' folder");
       }
     } else {

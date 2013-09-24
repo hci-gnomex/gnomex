@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.framework.model.DetailObject;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.Request;
@@ -10,17 +11,19 @@ import hci.gnomex.security.SecurityAdvisor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 
 public class TopicQuery implements Serializable {

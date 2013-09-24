@@ -3,20 +3,18 @@ import hci.gnomex.controller.CheckDataTrackPermission;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.Properties;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.naming.Context;
-import javax.sql.DataSource;
-
-import org.apache.tomcat.jdbc.pool.DataSourceFactory;
-import org.apache.tomcat.jdbc.pool.PoolConfiguration;
-import org.apache.tomcat.jdbc.pool.XADataSource;
+import java.security.InvalidKeyException; 
+import java.security.NoSuchAlgorithmException; 
+import java.sql.SQLException; 
+import java.util.Properties;   
+import javax.crypto.BadPaddingException; 
+import javax.crypto.IllegalBlockSizeException; 
+import javax.crypto.NoSuchPaddingException; 
+import javax.naming.Context; 
+import javax.sql.DataSource;   
+import org.apache.tomcat.jdbc.pool.DataSourceFactory; 
+import org.apache.tomcat.jdbc.pool.PoolConfiguration; 
+import org.apache.tomcat.jdbc.pool.XADataSource;   
 
 public class EncryptedDataSourceFactory extends DataSourceFactory {       
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CheckDataTrackPermission.class);

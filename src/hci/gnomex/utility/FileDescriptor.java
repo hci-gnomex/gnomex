@@ -3,14 +3,20 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.lang.SystemUtils;
 
 import org.hibernate.Session;
 
@@ -255,15 +261,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
         dirParm.replace("/", "&#47;");
         viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
-      //Browsers don't know how to open the following file types so download them instead of showing in browser
-    } else if(fileName.toLowerCase().endsWith(".csv") ||
-        fileName.toLowerCase().endsWith(".ppt") ||
-        fileName.toLowerCase().endsWith(".pptx") ||
-        fileName.toLowerCase().endsWith(".xls")) {
-      String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
-      dirParm.replace("/", "&#47;");
-      viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
-
     }
     return viewURL;
   }

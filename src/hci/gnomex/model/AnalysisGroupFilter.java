@@ -1,12 +1,12 @@
 package hci.gnomex.model;
 
 
-import hci.framework.model.DetailObject;
-import hci.gnomex.security.SecurityAdvisor;
-
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+
+import hci.framework.model.DetailObject;
+import hci.gnomex.security.SecurityAdvisor;
 
 public class AnalysisGroupFilter extends DetailObject {
   

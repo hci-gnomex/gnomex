@@ -1,7 +1,6 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
-
 import java.io.Serializable;
 
 
@@ -12,8 +11,8 @@ public class SeqLibProtocol extends DictionaryEntry implements Serializable {
   private String   description;
   private String   url;
   private String   isActive;
-  private String   adapterSequenceThreePrime;
-  private String   adapterSequenceFivePrime;
+  private String   adapterSequenceRead1;
+  private String   adapterSequenceRead2;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSeqLibProtocol());
@@ -79,20 +78,20 @@ public class SeqLibProtocol extends DictionaryEntry implements Serializable {
     this.url = url;
   }
 
-  public String getAdapterSequenceThreePrime() {
-    return adapterSequenceThreePrime;
+  public String getAdapterSequenceRead1() {
+    return adapterSequenceRead1;
   }
 
-  public void setAdapterSequenceThreePrime(String threeAdapterSequence) {
-    this.adapterSequenceThreePrime = threeAdapterSequence;
+  public void setAdapterSequenceRead1(String threeAdapterSequence) {
+    this.adapterSequenceRead1 = threeAdapterSequence;
   }
 
-  public String getAdapterSequenceFivePrime() {
-    return adapterSequenceFivePrime;
+  public String getAdapterSequenceRead2() {
+    return adapterSequenceRead2;
   }
 
-  public void setAdapterSequenceFivePrime(String fiveAdapterSequence) {
-    this.adapterSequenceFivePrime = fiveAdapterSequence;
+  public void setAdapterSequenceRead2(String fiveAdapterSequence) {
+    this.adapterSequenceRead2 = fiveAdapterSequence;
   }
 
 

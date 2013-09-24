@@ -2,7 +2,7 @@
 
 
   <Valve
-	    className="org.apache.catalina.valves.FastCommonAccessLogValve"
+	    className="org.apache.catalina.valves.AccessLogValve"
 	    directory="${catalina.home}/logs/"
 	    prefix="gnomex-"
 	    suffix=".log"

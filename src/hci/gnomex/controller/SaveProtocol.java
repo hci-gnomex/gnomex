@@ -1,9 +1,7 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.model.DictionaryEntry;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisProtocol;
+import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -11,8 +9,13 @@ import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.dictionary.model.DictionaryEntry;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -37,8 +40,8 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
   private String    codeRequestCategory;
   private Integer   idAnalysisType;
   private Integer   idAppUser;
-  private String    adapterSequenceThreePrime;
-  private String    adapterSequenceFivePrime;
+  private String    adapterSequenceRead1;
+  private String    adapterSequenceRead2;
   
   private Integer   idProtocolSaved;
   
@@ -82,11 +85,11 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
     if (protocolName == null) {
       this.addInvalidField("protocolName", "protocolName is required");
     }
-    if (request.getParameter("adapterSequenceThreePrime") != null && !request.getParameter("adapterSequenceThreePrime").equals("")) {
-      adapterSequenceThreePrime = request.getParameter("adapterSequenceThreePrime");
+    if (request.getParameter("adapterSequenceRead1") != null && !request.getParameter("adapterSequenceRead1").equals("")) {
+      adapterSequenceRead1 = request.getParameter("adapterSequenceRead1");
     }
-    if (request.getParameter("adapterSequenceFivePrime") != null && !request.getParameter("adapterSequenceFivePrime").equals("")) {
-      adapterSequenceFivePrime = request.getParameter("adapterSequenceFivePrime");
+    if (request.getParameter("adapterSequenceRead2") != null && !request.getParameter("adapterSequenceRead2").equals("")) {
+      adapterSequenceRead2 = request.getParameter("adapterSequenceRead2");
     }
     
 
@@ -193,8 +196,8 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
             ((SeqLibProtocol)protocol).setDescription(protocolDescription);
             ((SeqLibProtocol)protocol).setIsActive(isActive);
             ((SeqLibProtocol)protocol).setUrl(protocolUrl);
-            ((SeqLibProtocol)protocol).setAdapterSequenceThreePrime(adapterSequenceThreePrime);
-            ((SeqLibProtocol)protocol).setAdapterSequenceFivePrime(adapterSequenceFivePrime);
+            ((SeqLibProtocol)protocol).setAdapterSequenceRead1(adapterSequenceRead1);
+            ((SeqLibProtocol)protocol).setAdapterSequenceRead2(adapterSequenceRead2);
           } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
             protocol =  (DictionaryEntry)sess.load(AnalysisProtocol.class, idProtocol);
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);

@@ -1,8 +1,8 @@
 package hci.gnomex.model;
 
-import hci.framework.model.DetailObject;
-
 import java.io.Serializable;
+
+import hci.framework.model.DetailObject;
 
 
 public class Segment extends DetailObject implements Serializable {

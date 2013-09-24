@@ -1,37 +1,10 @@
 package hci.gnomex.useq.apps;
-import hci.gnomex.useq.ArchiveInfo;
-import hci.gnomex.useq.SliceInfo;
-import hci.gnomex.useq.USeqArchive;
-import hci.gnomex.useq.USeqUtilities;
-import hci.gnomex.useq.data.Position;
-import hci.gnomex.useq.data.PositionData;
-import hci.gnomex.useq.data.PositionScore;
-import hci.gnomex.useq.data.PositionScoreData;
-import hci.gnomex.useq.data.PositionScoreText;
-import hci.gnomex.useq.data.PositionScoreTextData;
-import hci.gnomex.useq.data.PositionText;
-import hci.gnomex.useq.data.PositionTextData;
-import hci.gnomex.useq.data.Region;
-import hci.gnomex.useq.data.RegionData;
-import hci.gnomex.useq.data.RegionScore;
-import hci.gnomex.useq.data.RegionScoreData;
-import hci.gnomex.useq.data.RegionScoreText;
-import hci.gnomex.useq.data.RegionScoreTextData;
-import hci.gnomex.useq.data.RegionText;
-import hci.gnomex.useq.data.RegionTextData;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import hci.gnomex.useq.*;
+import hci.gnomex.useq.data.*;
 
 /**Converts text files to binary useq.*/
 public class Text2USeq {

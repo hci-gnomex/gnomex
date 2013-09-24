@@ -1,31 +1,9 @@
 package hci.gnomex.useq;
-import hci.gnomex.useq.data.PositionData;
-import hci.gnomex.useq.data.PositionScoreData;
-import hci.gnomex.useq.data.PositionScoreTextData;
-import hci.gnomex.useq.data.PositionTextData;
-import hci.gnomex.useq.data.RegionData;
-import hci.gnomex.useq.data.RegionScoreData;
-import hci.gnomex.useq.data.RegionScoreTextData;
-import hci.gnomex.useq.data.RegionTextData;
-import hci.gnomex.useq.data.USeqData;
+import hci.gnomex.useq.data.*;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
+import java.io.*;
+import java.util.zip.*;
+import java.util.*;
 
 /**Class for parsing USeq binary files for DAS2 requests and writing the data to stream. A USeqArchive is created upon request for a USeq data file
  * this should be cached to speed up subsequent retrieval.

@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.controller.CacheAnalysisFileDownloadList;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
@@ -27,8 +28,12 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Level;

@@ -1,14 +1,8 @@
 package hci.gnomex.useq.data;
 
+import java.util.*;
+import java.io.*;
 import hci.gnomex.useq.USeqUtilities;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 
 
 /**

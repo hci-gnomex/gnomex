@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.SaveRequest.LabeledSampleComparator;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -27,7 +28,10 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.SampleNumberComparator;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -36,6 +40,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -300,8 +305,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       }
 
-      List discountBillingItems = new ArrayList<BillingItem>();
-      
+
       // Find the appropriate price sheet
       PriceSheet priceSheet = null;
       List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
@@ -332,27 +336,19 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Instantiate plugin for billing category
           BillingPlugin plugin = null;
-          Boolean isDiscount = false;
           if (priceCategory.getPluginClassName() != null) {
             try {
               plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-              if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
-                isDiscount = true;
-              }
             } catch(Exception e) {
               log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
             }
-            
+
           }
 
           // Get the billing items
           if (plugin != null) {
             List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null);
-            if (isDiscount) {
-              discountBillingItems.addAll(billingItemsForCategory);
-            } else {
-              billingItems.addAll(billingItemsForCategory);
-            }
+            billingItems.addAll(billingItemsForCategory);                
           }
         }
 
@@ -388,21 +384,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         billingItemNode.setAttribute("isDirty", "Y");
         requestNode.addContent(billingItemNode);
       }
-      // Add in any discounts
-      for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
-        BillingItem bi = (BillingItem)i.next();
-        Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-        if (bi.getUnitPrice() != null) {
-          BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
-          bi.setUnitPrice( invoicePrice );
-          bi.setInvoicePrice( invoicePrice );
-          billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));
-          billingItemNode.setAttribute("unitPrice", nf.format(bi.getInvoicePrice().doubleValue()));
-          grandInvoicePrice = grandInvoicePrice.add(invoicePrice); 
-        }
-        billingItemNode.setAttribute("isDirty", "Y");
-        requestNode.addContent(billingItemNode);
-      }
+      
 
       StringBuffer buf = new StringBuffer();
       buf.append("SELECT sum(bi.invoicePrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());

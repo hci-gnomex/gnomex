@@ -7,6 +7,7 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 
 import javax.servlet.ServletException;

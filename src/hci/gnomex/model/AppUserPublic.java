@@ -1,9 +1,11 @@
 package hci.gnomex.model;
 
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Set;
+
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.hibernate3utils.HibernateDetailObject;
-
-import java.io.Serializable;
 
 
 public class AppUserPublic extends HibernateDetailObject implements Serializable, Comparable {

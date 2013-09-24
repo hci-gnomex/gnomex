@@ -1,15 +1,16 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Application;
 import hci.gnomex.model.ArrayCoordinate;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideDesignFilter;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

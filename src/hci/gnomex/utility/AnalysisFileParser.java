@@ -3,11 +3,14 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.AnalysisFile;
 
+import java.io.File;
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 
 import org.hibernate.Session;
 import org.jdom.Document;

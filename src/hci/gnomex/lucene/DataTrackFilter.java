@@ -2,9 +2,9 @@ package hci.gnomex.lucene;
 
 
 
-import hci.framework.model.DetailObject;
-
 import java.util.List;
+
+import hci.framework.model.DetailObject;
 
 public class DataTrackFilter extends DetailObject {
   

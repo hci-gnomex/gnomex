@@ -1,13 +1,17 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.DataTrackFolder;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.Topic;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.Topic;
-import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.jdom.Element;
 
 
 

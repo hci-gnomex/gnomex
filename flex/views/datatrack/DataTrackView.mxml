@@ -30,7 +30,7 @@
 						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
 						   click="{parentDocument.createURLLinks()}" 
 						   id="makeURLLinksButton"   textDecoration="underline"/>
-			<mx:LinkButton label="Remove Links"
+			<mx:LinkButton label="Clear file links"
 					       icon="@Embed(source='../../assets/link_delete.png')"
 					       disabledIcon="@Embed(source='../../assets/link_delete_disable.png')"
 					       toolTip="Destroys all existing IGV, UCSC and URL links to user-owned datatracks.  Re-created links will have different random paths, making tracks private if old paths were distributed."

@@ -7,9 +7,11 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MultiRequestSampleSheetXMLParser;
+import hci.gnomex.utility.SampleAssaysParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 

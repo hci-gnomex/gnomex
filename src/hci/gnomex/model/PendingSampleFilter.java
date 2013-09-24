@@ -1,7 +1,12 @@
 package hci.gnomex.model;
 
 
+import java.util.Calendar;
+import java.util.Set;
+import java.util.Iterator;
+
 import hci.framework.model.DetailObject;
+import hci.gnomex.security.SecurityAdvisor;
 
 public class PendingSampleFilter extends DetailObject {
   

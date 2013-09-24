@@ -1,11 +1,12 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.model.ExperimentFactor;
+import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.ExperimentFactor;
 
 import java.io.Serializable;
 import java.sql.SQLException;

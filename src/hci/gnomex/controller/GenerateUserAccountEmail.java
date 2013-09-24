@@ -4,13 +4,17 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.VerifyLabUsersEmailFormatter;
 
 import java.io.Serializable;
@@ -18,6 +22,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.mail.MessagingException;

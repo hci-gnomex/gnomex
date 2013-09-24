@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.Plate;
@@ -12,12 +13,16 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,8 +33,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.biojava.bio.program.formats.Ligand.Reaction;
 import org.hibernate.Session;
+
+import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 
 public class DownloadABIRunFileServlet extends HttpServlet { 
 

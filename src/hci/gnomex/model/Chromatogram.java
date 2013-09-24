@@ -1,8 +1,8 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
-
 import java.util.Date;
+
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class Chromatogram extends HibernateDetailObject {

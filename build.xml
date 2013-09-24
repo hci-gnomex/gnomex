@@ -63,6 +63,7 @@
 	<!--                                                -->
 	<!-- ============================================== -->
 	<target name="release" depends="init">
+		<antcall target="clean" />
 		<antcall target="-release-opensource" />
 	</target>
 
@@ -250,7 +251,7 @@
 			  <attribute name="class-path" value="log4j.jar"/>
 					<section name="gnomex">
 	  	      <attribute name="Built-By" value="${user.name}"/>
-            <attribute name="Implementation-Version" value="${gnomex_version}    (${build.date})"/>
+  	  	    <attribute name="Implementation-Version" value="${gnomex_version}"/>
 					</section>
     		</manifest>
 
@@ -318,8 +319,6 @@
              jarfile="${dist.dir}/${realmjar.name}">
 
             <fileset dir="${build.class.dir}">
-            	<include name="hci/gnomex/utility/Util.class" />
-            	<include name="hci/gnomex/security/ActiveDirectory.class" />
             	<include name="hci/gnomex/security/EncrypterService.class" />
             	<include name="hci/gnomex/security/tomcat/*.class" />
             </fileset>
@@ -701,7 +700,8 @@
 		<echo>+  Deploying (tomcat)                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
+		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>
+		<delete  dir="${tomcat.dir}/webapps/${app.name}" />
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
 	
@@ -936,7 +936,7 @@
           <fileset dir="${basedir}" includes="build.xml"/>
     </subant>
 		
-		<!-- Build war, this time allowing http (nonsecure) connections -->
+		<!-- Build ear again, this time allowing http (nonsecure) connections -->
 		<subant target="war-tomcat">
 		    <property name="opensource" value="true"/>
 			<property name="dist.dir" value="${dist.dir}"/>
@@ -1222,14 +1222,44 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 			
-		<!-- Copy over the jars required in tomcat/lib -->
-		<copy todir="${sandbox.dir}/server/tomcat/lib">
-			<fileset dir="${basedir}/config/tomcat_config">
-	        	<include name="*.jar"/>
-	     	 </fileset>
+		<!-- Copy over the jars required in tomcat/common/lib -->
+		<copy todir="${sandbox.dir}/server/tomcat/common/lib">
+	       <fileset dir="${lib.tomcat.common.dir}">
+	        <include name="*.jar"/>
+	      </fileset>
 	    </copy>
 		
+	  <!-- Copy example tomcat config files -->
+      <mkdir dir="${sandbox.dir}/server/tomcat/conf" />
+	  <copy todir="${sandbox.dir}/server/tomcat/conf">
+	    <fileset dir="${basedir}/config/tomcat_config">
+	      <include name="*/**"/>
+	      <exclude name="**/CVS"/>
+	      <exclude name="**/.cvsignore"/>
+	    </fileset>
+	  </copy>
+		
+		<!-- Change name of db user accounts for openejb.xml -->
+		<replace file="${sandbox.dir}/server/tomcat/conf/openejb.xml"
+			  token="SysGNomEx"
+		      value="gnomex">
+		</replace>
+		<replace file="${sandbox.dir}/server/tomcat/conf/openejb.xml"
+			  token="GuestGNomEx"
+		      value="gnomexGuest">
+		</replace>		
 
+		
+		<!-- Change to use MySSQL jdbc driver in openejb.xml -->
+		<replace file="${sandbox.dir}/server/tomcat/conf/openejb.xml"
+				  token="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+		         value="com.mysql.jdbc.Driver">
+		</replace>
+		<replace file="${sandbox.dir}/server/tomcat/conf/openejb.xml"
+				     token="jdbc:sqlserver://db_server_goes_here:1433;databaseName=GNomEx;SelectMethod=cursor"
+		         value="jdbc:mysql://localhost:3306/gnomex">
+		</replace>
+		
 		
 		<!-- Use the tomcat version of the script files -->
 		<copy todir="${sandbox.dir}/tomcat/scripts">
@@ -1245,7 +1275,7 @@
 
 		<!-- Use the tomcat version of the README_INSTALL -->
 		<copy todir="${sandbox.dir}/tomcat">
-		    <fileset dir="${basedir}">
+		    <fileset dir="${sandbox.dir}">
 			    <include name="README_INSTALL_TOMCAT.txt" />
 			</fileset>
 		</copy>

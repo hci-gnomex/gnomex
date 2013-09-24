@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
 import hci.gnomex.model.Analysis;
@@ -13,6 +14,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;

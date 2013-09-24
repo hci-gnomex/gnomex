@@ -2,11 +2,15 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.Project;
+import hci.gnomex.model.Request;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.RequestVisibilityParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

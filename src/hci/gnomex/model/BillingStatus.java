@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
 
+
 import java.io.Serializable;
 
 
@@ -12,7 +13,6 @@ public class BillingStatus extends DictionaryEntry implements Serializable {
   public static final String                  COMPLETED           = "COMPLETE";
   public static final String                  APPROVED            = "APPROVED";
   public static final String                  APPROVED_PO         = "APPROVEDEX";
-  public static final String                  APPROVED_CC         = "APPROVEDCC";
   
   private String   codeBillingStatus;
   private String   billingStatus;

@@ -9,6 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;

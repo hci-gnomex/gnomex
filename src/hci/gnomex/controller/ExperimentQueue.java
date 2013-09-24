@@ -1,15 +1,16 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
+
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 
+
+import hci.gnomex.model.NumberSequencingCyclesAllowed;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,10 +18,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+
+
+
+
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Set;
 
 
 public class ExperimentQueue extends HttpServlet {

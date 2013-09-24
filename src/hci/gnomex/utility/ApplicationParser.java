@@ -1,7 +1,8 @@
 package hci.gnomex.utility;
 
-import hci.framework.model.DetailObject;
+import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.Application;
+import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.util.HashMap;

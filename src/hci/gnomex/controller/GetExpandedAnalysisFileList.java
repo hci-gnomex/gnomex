@@ -1,12 +1,13 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Analysis;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.XMLReflectException;
 
 import java.io.File;
 import java.io.Serializable;
@@ -14,6 +15,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +27,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
+
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.RequestFilter;
+import hci.gnomex.model.Request;
 
 
 public class GetExpandedAnalysisFileList extends GNomExCommand implements Serializable {

@@ -90,10 +90,8 @@
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
-			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.util.EmailWindowForRequests;
 			import views.util.PromptXMLListCollection;
 			
 			
@@ -267,11 +265,13 @@
 					deleteOrders();
 				}
 			}
-						
+			
 			private function deleteOrders():void {
-				var params:Object = new Object;
-				params.requestsToDeleteXMLString = "<requests>" +  selectedOrders.toXMLString() + "</requests>";
-				deleteRequest.send(params);
+				for each ( var req:Object in selectedOrders ) {
+					var params:Object = new Object;
+					params.idRequest = req.@idRequest;					
+					deleteRequest.send( params );
+				}
 			}
 			
 			private function onDeleteRequest(event:ResultEvent): void {
@@ -532,14 +532,6 @@
 					this.clearCheckBoxes();
 					this.getList();
 				} 
-			}
-			
-			private function showEmailWindow():void{
-				var emailWindow:EmailWindowForRequests = EmailWindowForRequests(PopUpManager.createPopUp(this, EmailWindowForRequests, true));
-				emailWindow.selectedRequests = this.selectedOrders;
-				PopUpManager.centerPopUp(emailWindow);
-				this.setFocus();
-				
 			}
 			
 		]]>
@@ -945,14 +937,6 @@
 					   toolTip="Delete selected orders"
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
-					   enabled="{selectedOrders.length>0}"/>
-		
-		<mx:LinkButton textDecoration="underline"
-					   label="Email"
-					   icon="@Embed('../../assets/email_go.png')"
-					   toolTip="Email GNomEx users"
-					   click="{showEmailWindow()}" 
-					   disabledIcon="@Embed('../../assets/email_go_disable.png')"
 					   enabled="{selectedOrders.length>0}"/>
 		<mx:Spacer width="100%"/>
 		

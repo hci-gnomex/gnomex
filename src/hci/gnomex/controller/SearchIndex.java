@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.lucene.AnalysisFilter;
 import hci.gnomex.lucene.AnalysisIndexHelper;
 import hci.gnomex.lucene.DataTrackFilter;
@@ -23,6 +24,8 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DataTrackQuery;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequestParser;
+
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -52,6 +55,7 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Searcher;
 import org.hibernate.Session;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 

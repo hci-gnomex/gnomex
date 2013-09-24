@@ -3,7 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -36,6 +38,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.swing.text.DateFormatter;
 
 import org.hibernate.Session;
 
@@ -264,6 +267,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 BillingItem bi = (BillingItem)i1.next();
 
                 String acctNum = bi.getBillingAccount().getAccountNumber();
+                String acctName = bi.getBillingAccount().getAccountName();
                 String labName = bi.getLabName();
                 
                 String labBillingName = bi.getLabName() + acctNum;
@@ -325,8 +329,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               buf.append("FROM   BillingItem bi ");
               buf.append("JOIN   bi.lab as lab ");
               buf.append("JOIN   bi.billingAccount as ba ");
-              buf.append("WHERE  (bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
-              buf.append("OR     bi.codeBillingStatus = '" + BillingStatus.APPROVED_CC + "') ");
+              buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
               buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
               buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
               if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {

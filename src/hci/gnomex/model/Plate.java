@@ -1,10 +1,10 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
-
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class Plate extends HibernateDetailObject {

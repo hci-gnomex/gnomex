@@ -1,22 +1,33 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.ShowBillingInvoiceForm;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
+import hci.gnomex.model.FlowCell;
+import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SequenceLane;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
+import javax.swing.text.NumberFormatter;
+
+import org.hibernate.Session;
 import org.jdom.Element;
 
 

@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
@@ -345,7 +346,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
           AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
           fd.setQualifiedFilePath(dirTokens[0]);
 
-          if(fd.getType()!=null && !fd.getType().equals("dir") ) {
+          if(fd.getType()!=null && fd.getType()!= "dir") {
             String dirParm = fd.getQualifiedFilePath() != null && !fd.getQualifiedFilePath().equals("") ? "&dir=" + fd.getQualifiedFilePath() : "";
 
             Element downloadLink = new Element("A");

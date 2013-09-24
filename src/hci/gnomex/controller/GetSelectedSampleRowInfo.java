@@ -1,17 +1,25 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.XMLReflectException;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.jdom.Document;
+import org.hibernate.Session;
 import org.jdom.Element;
+import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
