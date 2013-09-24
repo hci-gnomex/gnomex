@@ -91,6 +91,7 @@ public class Constants {
     ".bw",
     ".bed",
     ".bgr",
+    ".brs",
     ".gff", 
     ".gtf",
     ".vcf.gz",
