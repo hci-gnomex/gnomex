@@ -880,7 +880,8 @@
 				sampleSetupView.otherSamplePrepMethod.text = "";
 				
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
-					sampleSetupView.iScanChipRadioGroup.selectedValue = '';
+					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
+					sampleSetupView.iScanChipRadioGroup.selection = null;
 				}
 				if ( sampleSetupView.numberIScanSamples != null ){
 					sampleSetupView.numberIScanSamples.selectedIndex = -1;
