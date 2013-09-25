@@ -96,10 +96,24 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");
     
-    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){
-      table.addContent(makeRow("ATTN: " + lab.getName()));
-      if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
-        table.addContent(makeRow(lab.getContactAddress()));
+    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){    
+      if(lab.getContactName() != null && !lab.getContactName().equals(""))
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
+      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
+    	  table.addContent(makeRow(lab.getContactDepartment()));		
+      if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
+          table.addContent(makeRow(lab.getContactAddress()));
+      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      {
+    	// no state => non-U.S. address
+      if(lab.getContactCodeState() == null){
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    			  + " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    	}
       }
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
@@ -114,22 +128,59 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(new Element("TR"));
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
       table.addContent(makeRow(billingAccount.getAccountNumber()));
-    } else if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
+    } 
+    else if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
       table.addContent(makeRow(coreFacilityName));
       table.addContent(new Element("TR"));
       table.addContent(makeAddressRow(contactAddressCoreFacility));
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
-      table.addContent(makeRow("ATTN: " + lab.getName()));
+      table.addContent(makeRow(lab.getName()));
+      if(lab.getContactName() != null && !lab.getContactName().equals(""))
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
+      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
+    	  table.addContent(makeRow(lab.getContactDepartment()));
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
         table.addContent(makeRow(lab.getContactAddress()));
       }
+      
+      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      {
+    	  // no state => non-U.S. address
+      if(lab.getContactCodeState() == null){
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    			  + " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    	}
+      }
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
       table.addContent(makeRow(billingAccount.getAccountName()));
-    } else{
+    } 
+    else{
       table.addContent(makeRow(lab.getName()));
       table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
+      if(lab.getContactName() != null && !lab.getContactName().equals(""))
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
+      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
+    	  table.addContent(makeRow(lab.getContactDepartment()));		
+      if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
+          table.addContent(makeRow(lab.getContactAddress()));
+      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      {
+    	// no state => non-U.S. address
+      if(lab.getContactCodeState() == null){
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    			  + " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    	}
+      }
       table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
       if(invoice != null){
         table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));

@@ -1373,7 +1373,7 @@
 										</mx:LinkButton>
 									</mx:HBox>
 									<mx:VBox verticalGap="0" horizontalAlign="right">
-										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="74" change="dirty.setDirty()" labelField="@value">
+										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="74" change="dirty.setDirty()" labelField="@value" toolTip="Leave blank for non-U.S. address">
 										</mx:ComboBox>
 									</mx:VBox>
 								</mx:VBox>
