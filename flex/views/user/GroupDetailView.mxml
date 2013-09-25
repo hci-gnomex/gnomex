@@ -691,11 +691,11 @@
 				params.lastName =  this.groupLastName.text;
 				params.department = this.department.text;
 				params.contactName =  this.contactName.text;
-				params.contactDepartment =  this.contactDepartment.text;
+				params.contactAddress2 =  this.contactAddress2.text;
 				params.contactAddress = this.contactAddress.text;
 				params.contactCity =  this.contactCity.text;
 				params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
-				params.contactPostalCode = this.contactPostalCode.text;
+				params.contactZipCode = this.contactZipCode.text;
 				params.contactCountry = this.contactCountry.text;
 				params.contactPhone = this.contactPhone.text;
 				params.contactEmail = this.contactEmail.text;
@@ -1353,7 +1353,7 @@
 							<mx:HBox width="100%">
 								<mx:VBox verticalGap="0">
 									<mx:Label text="Department" styleName="formLabel"/>
-									<mx:TextInput id="contactDepartment" text="{parentDocument.fullLab.@contactDepartment}" width="260"/>
+									<mx:TextInput id="contactAddress2" text="{parentDocument.fullLab.@contactAddress2}" width="260"/>
 								</mx:VBox>
 							</mx:HBox>
 							
@@ -1379,7 +1379,7 @@
 								</mx:VBox>
 								<mx:VBox  verticalGap="0">
 									<mx:Label text="Postal Code"  styleName="formLabel"/>
-									<mx:TextInput id="contactPostalCode" text="{parentDocument.fullLab.@contactPostalCode}" width="84" click="dirty.setDirty()"/>
+									<mx:TextInput id="contactZipCode" text="{parentDocument.fullLab.@contactZipCode}" width="84" click="dirty.setDirty()"/>
 								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="3">

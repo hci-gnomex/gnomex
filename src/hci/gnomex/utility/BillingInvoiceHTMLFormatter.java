@@ -99,20 +99,20 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){    
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
     	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
-      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
-    	  table.addContent(makeRow(lab.getContactDepartment()));		
+      if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
+    	  table.addContent(makeRow(lab.getContactAddress2()));		
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
           table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
       {
     	// no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(new Element("TR"));
@@ -139,22 +139,22 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(makeRow(lab.getName()));
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
     	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
-      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
-    	  table.addContent(makeRow(lab.getContactDepartment()));
+      if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
+    	  table.addContent(makeRow(lab.getContactAddress2()));
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
         table.addContent(makeRow(lab.getContactAddress()));
       }
       
-      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
       {
     	  // no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
@@ -165,20 +165,20 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
     	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
-      if(lab.getContactDepartment() != null && !lab.getContactDepartment().equals(""))
-    	  table.addContent(makeRow(lab.getContactDepartment()));		
+      if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
+    	  table.addContent(makeRow(lab.getContactAddress2()));		
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
           table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactPostalCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
       {
     	// no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactPostalCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactPostalCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
