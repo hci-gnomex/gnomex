@@ -549,7 +549,7 @@
     	<property name="isExternalPricingCommercial" column="isExternalPricingCommercial" type="string"/>
 		<property name="department" column="department" type="string"/>
 		<property name="contactName" column="contactName" type="string"/>
- 		<property name="contactDepartment" column="contactDepartment" type="string"/>
+ 		<property name="contactDepartment" column="contactAddress2" type="string"/>
 		<property name="contactAddress" column="contactAddress" type="string"/>
 		<property name="contactCodeState" column="contactCodeState" type="string"/>
 		<property name="contactCity" column="contactCity" type="string"/>

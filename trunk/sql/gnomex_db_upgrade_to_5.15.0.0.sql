@@ -36,4 +36,7 @@ CREATE TABLE `gnomex`.`SampleExperimentFile` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+alter table Lab add contactAddress2 varchar(200) NULL;
+alter table Lab add contactCountry varchar(200) NULL;
         
