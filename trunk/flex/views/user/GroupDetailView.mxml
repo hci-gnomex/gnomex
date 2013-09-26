@@ -695,7 +695,7 @@
 				params.contactAddress = this.contactAddress.text;
 				params.contactCity =  this.contactCity.text;
 				params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
-				params.contactZipCode = this.contactZipCode.text;
+				params.contactZip = this.contactZip.text;
 				params.contactCountry = this.contactCountry.text;
 				params.contactPhone = this.contactPhone.text;
 				params.contactEmail = this.contactEmail.text;
@@ -1379,7 +1379,7 @@
 								</mx:VBox>
 								<mx:VBox  verticalGap="0">
 									<mx:Label text="Postal Code"  styleName="formLabel"/>
-									<mx:TextInput id="contactZipCode" text="{parentDocument.fullLab.@contactZipCode}" width="84" click="dirty.setDirty()"/>
+									<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="84" click="dirty.setDirty()"/>
 								</mx:VBox>
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalGap="3">

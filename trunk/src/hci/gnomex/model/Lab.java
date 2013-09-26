@@ -21,7 +21,7 @@ public class Lab extends HibernateDetailObject {
   private String  contactAddress;
   private String  contactCodeState;
   private String  contactCity;
-  private String  contactZipCode;
+  private String  contactZip;
   private String  contactCountry;
   private String  contactEmail;
   private String  contactPhone;
@@ -100,12 +100,12 @@ public class Lab extends HibernateDetailObject {
     this.contactPhone = contactPhone;
   }
   
-  public String getContactZipCode() {
-    return contactZipCode;
+  public String getContactZip() {
+    return contactZip;
   }
   
-  public void setContactZipCode(String contactZip) {
-    this.contactZipCode = contactZip;
+  public void setContactZip(String contactZip) {
+    this.contactZip = contactZip;
   }
   
   public String getContactCountry() {

@@ -234,7 +234,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
     lab.excludeMethodFromXML("getContactAddress");
     lab.excludeMethodFromXML("getContactCity");
     lab.excludeMethodFromXML("getContactCodeState");
-    lab.excludeMethodFromXML("getContactZipCode");
+    lab.excludeMethodFromXML("getContactZip");
     lab.excludeMethodFromXML("getContactCountry");
     //lab.excludeMethodFromXML("getContactEmail");
     lab.excludeMethodFromXML("getContactPhone");

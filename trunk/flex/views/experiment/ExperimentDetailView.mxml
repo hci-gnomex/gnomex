@@ -172,15 +172,15 @@
 					theTab.removeChild(billingTab);
 				}
 			}
-			if (this.protocolsBox.visible) {
-				if (!this.headerBox.contains(this.protocolsBox)) {
-					this.headerBox.addChild(this.protocolsBox);
-				} 
-			} else {
-				if (this.headerBox.contains(this.protocolsBox)) {
-					this.headerBox.removeChild(this.protocolsBox);
-				} 
-			}
+	//		if (this.protocolsBox.visible) {
+	//			if (!this.headerBox.contains(this.protocolsBox)) {
+	//				this.headerBox.addChild(this.protocolsBox);
+	//			} 
+	//		} else {
+	//			if (this.headerBox.contains(this.protocolsBox)) {
+	//				this.headerBox.removeChild(this.protocolsBox);
+	//			} 
+	//		}
 			if (selectedExperiment.@projectDescription == ''){
 				this.projectDescVBox.visible = false;
 				this.projectDescVBox.includeInLayout = false;
@@ -1334,7 +1334,7 @@
 	<mx:XMLListCollection id="collaborators" source="{selectedExperiment.collaborators.ExperimentCollaborator}"/>
         
 			<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4"> 
+				<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%"> 
 					<mx:HBox horizontalGap="0" width="100%" >
 						<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 							
@@ -1423,30 +1423,57 @@
 							
 						</mx:VBox>
 					</mx:HBox>
-					<mx:VBox id="headerBox" paddingLeft="4">
-						<mx:HBox id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
+					<mx:VBox id="headerBox" width="100%" paddingLeft="4">
+						<mx:HBox id="protocolsBox"
+								 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}"
+								 width="100%" horizontalAlign="left" horizontalGap="0"
+								 verticalAlign="top">
 							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="left"/>
-							<mx:Tile horizontalGap="0" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-								<mx:VBox verticalGap="0">									
-									<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-										<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
-													   paddingLeft="1" paddingRight="1"
-													   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
+							<mx:Tile id="tile1" width="100%" height="100%" direction="horizontal"
+									 fontSize="9" horizontalGap="0" paddingBottom="0"
+									 paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+																
+									<mx:Repeater id="protocolRepeater" width="100%" height="100%"
+												 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+										<mx:LinkButton id="labelProtocol" width="100%" height="100%"
+													   label="{protocolRepeater.currentItem.@label}"
+													   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
+													   paddingBottom="0" paddingLeft="1"
+													   paddingRight="1" paddingTop="0"
+													   styleName="formLinkProtocolButton"
+													   textAlign="left"/>
 									</mx:Repeater>									
-								</mx:VBox>
+								
 							</mx:Tile>							
 						</mx:HBox>
 					</mx:VBox>										
-					<mx:HBox id="adaptersBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">		
+					<mx:HBox id="adaptersBox"
+							 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 &amp;&amp; (this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!='' || this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!='')}"
+							 width="100%" horizontalAlign="left" horizontalGap="0"
+							 verticalAlign="top">		
 						<mx:Label text="Adapter Trimming"  id="labelAdapter" styleName="formLabel" width="100" textAlign="left"/>
-						<mx:Tile horizontalGap="0" direction="vertical" id="tileAdapter" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-							<mx:HBox>
+						<mx:Tile id="tileAdapter" direction="vertical" fontSize="9"
+								 horizontalGap="0" paddingBottom="0" paddingLeft="0"
+								 paddingRight="0" paddingTop="0" verticalGap="0" width="100%">
+							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!=''}"
+									 width="100%">
 								<mx:Label text="Five prime: "/>
-								<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
+								<mx:LinkButton width="100%"
+											   label="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}"
+											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
+											   paddingLeft="1" paddingRight="1"
+											   styleName="formLinkProtocolButton"
+											   textAlign="left"/>
 							</mx:HBox>
-							<mx:HBox>
+							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!=''}"
+									 width="100%">
 								<mx:Label text="Three prime: "/>
-								<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
+								<mx:LinkButton width="100%"
+											   label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}"
+											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
+											   paddingLeft="1" paddingRight="1"
+											   styleName="formLinkProtocolButton"
+											   textAlign="left"/>
 							</mx:HBox>		
 						</mx:Tile>							
 					</mx:HBox>				          
@@ -2048,7 +2075,7 @@
 		</mx:AddChild>
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
-		<mx:SetProperty target="{tile1}" name="tileWidth" value="220"/>
+		<mx:SetProperty target="{tile1}" name="tileWidth"/>
 	</mx:State>
 	<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
 		<mx:RemoveChild target="{tile1}"/>

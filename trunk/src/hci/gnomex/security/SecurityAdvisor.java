@@ -1901,7 +1901,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       lab.excludeMethodFromXML("getContactAddress");
       lab.excludeMethodFromXML("getContactCity");
       lab.excludeMethodFromXML("getContactCodeState");
-      lab.excludeMethodFromXML("getContactZipCode");
+      lab.excludeMethodFromXML("getContactZip");
       lab.excludeMethodFromXML("getContactCountry");
       lab.excludeMethodFromXML("getContactEmail");
       lab.excludeMethodFromXML("getContactPhone");
