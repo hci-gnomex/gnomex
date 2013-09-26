@@ -1114,6 +1114,10 @@
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
+				
+				if (theTab.contains(seqSetupView)) {
+					seqSetupView.init();
+				} 
 
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 

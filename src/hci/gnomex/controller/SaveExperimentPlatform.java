@@ -3,9 +3,11 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
@@ -353,6 +355,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       return;
     }
 
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    RequestCategoryType rct = dh.getRequestCategoryType(rc.getType());
+    
     //
     // Save applications
     //
@@ -371,18 +376,33 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         app = (Application) sess.load(Application.class, codeApplication);
       }
 
+      if (app.getCodeApplicationType() == null) {
+        app.setCodeApplicationType(ApplicationType.getCodeApplicationType(rct));
+      }
+
       String idLabelingProtocolDefault = node.getAttributeValue("idLabelingProtocolDefault");
       String idHybProtocolDefault = node.getAttributeValue("idHybProtocolDefault");
       String idScanProtocolDefault = node.getAttributeValue("idScanProtocolDefault");
       String idFeatureExtractionProtocolDefault = node.getAttributeValue("idFeatureExtractionProtocolDefault");
       String idApplicationTheme = node.getAttributeValue("idApplicationTheme");
+      String sortOrder = node.getAttributeValue("sortOrder");
 
       app.setHasCaptureLibDesign(node.getAttributeValue("hasCaptureLibDesign"));
+      app.setOnlyForLabPrepped(node.getAttributeValue("onlyForLabPrepped"));
       app.setApplication(node.getAttributeValue("display"));
-      app.setIsActive(node.getAttributeValue("isActive"));
+      if (app.getIsActive() != null && app.getIsActive().equals("Y") && !node.getAttributeValue("isActive").equals("Y")) {
+        // if app selected in request category just quietly ignore setting it to inactive.  Front end shouldn't allow this.
+        // note null getIsActive() means it's a new one.
+        if (!appSelectedInRequestCategory(sess, app, node.getAttributeValue("isSelected"), rc)) {
+          app.setIsActive(node.getAttributeValue("isActive"));
+        }
+      } else {
+        app.setIsActive(node.getAttributeValue("isActive"));
+      }
       app.setIdApplicationTheme(idApplicationTheme != null && !idApplicationTheme.equals("") ? Integer.valueOf(idApplicationTheme) : null);
       app.setCoreSteps(node.getAttributeValue("coreSteps"));
       app.setCoreStepsNoLibPrep(node.getAttributeValue("coreStepsNoLibPrep"));
+      app.setSortOrder(sortOrder != null && sortOrder.length() > 0 ? Integer.valueOf(sortOrder) : 0);
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);
@@ -392,6 +412,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       //
       List existingAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + app.getCodeApplication() + "' and x.codeRequestCategory = '" + rc.getCodeRequestCategory() + "'").list();
       if (node.getAttributeValue("isSelected").equals("Y")) {
+        // if selected make it active
+        app.setIsActive("Y");
         if (existingAssociations.size() == 0) {
           RequestCategoryApplication x = new RequestCategoryApplication();
           x.setCodeApplication(app.getCodeApplication());
@@ -465,7 +487,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     // Remove applications
     for (Iterator i = sess.createQuery("SELECT a from Application a").list().iterator(); i.hasNext();) {
       Application application = (Application)i.next();
-      if (!applicationMap.containsKey(application.getCodeApplication())) {
+      if (application.isApplicableApplication(rct) && !applicationMap.containsKey(application.getCodeApplication())) {
 
         boolean deleteApplication = true;
         List experiments = sess.createQuery("select count(*)from Request r where r.codeApplication = '" + application.getCodeApplication() + "'").list();
@@ -504,6 +526,23 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }    
     sess.flush();
 
+  }
+  
+  private Boolean appSelectedInRequestCategory(Session sess, Application app, String isSelected, RequestCategory rc) {
+    Boolean hasSelections = false;
+    if (isSelected.equals("Y")) {
+      hasSelections = true;
+    } else {
+      Query q = sess.createQuery("Select x from RequestCategoryApplication x where codeApplication = :codeApplication AND codeRequestCategory != :codeRequestCategory");
+      q.setParameter("codeApplication", app.getCodeApplication());
+      q.setParameter("codeRequestCategory", rc.getCodeRequestCategory());
+      List l = q.list();
+      if (l.size() > 0) {
+        hasSelections = true;
+      }
+    }
+    
+    return hasSelections;
   }
   
   private void saveSequencingOptions(Session sess, RequestCategory rc) {
