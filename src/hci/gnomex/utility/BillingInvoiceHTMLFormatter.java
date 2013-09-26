@@ -103,16 +103,16 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     	  table.addContent(makeRow(lab.getContactAddress2()));		
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
           table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
       {
     	// no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(new Element("TR"));
@@ -145,16 +145,16 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         table.addContent(makeRow(lab.getContactAddress()));
       }
       
-      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
       {
     	  // no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
@@ -169,16 +169,16 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     	  table.addContent(makeRow(lab.getContactAddress2()));		
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
           table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactZipCode() != null && lab.getContactCountry() != null)
+      if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
       {
     	// no state => non-U.S. address
       if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZipCode() 
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
     			  + " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-    			 + lab.getContactZipCode() + ", " + lab.getContactCountry()));       
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
       table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
