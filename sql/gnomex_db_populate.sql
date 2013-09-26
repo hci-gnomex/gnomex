@@ -1524,6 +1524,11 @@ insert into gnomex.SampleFileType(codeSampleFileType, description)
         ('fastqRead2', 'fastqRead2'),
         ('BAM', 'BAM'),
         ('Other', 'Other');
+		
+insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
+  ('Microarray', 'Microarray'),
+  ('QC', 'Sample Quality'),
+  ('Other', 'Other');
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
