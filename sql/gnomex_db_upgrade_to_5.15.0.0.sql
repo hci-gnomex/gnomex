@@ -45,4 +45,54 @@ ENGINE = INNODB;
 
 alter table Lab add contactAddress2 varchar(200) NULL;
 alter table Lab add contactCountry varchar(200) NULL;
-        
+
+-- Set prices to not null default 0
+update Price set unitPrice=0 where unitPrice is null;
+update Price set unitPriceExternalAcademic=0 where unitPriceExternalAcademic is null;
+update Price set unitPriceExternalCommercial=0 where unitPriceExternalCommercial is null;
+alter table gnomex.Price MODIFY unitPrice DECIMAL(6,2) NOT NULL DEFAULT 0;
+alter table gnomex.Price MODIFY unitPriceExternalAcademic DECIMAL(6,2) NOT NULL DEFAULT 0;
+alter table gnomex.Price MODIFY unitPriceExternalCommercial DECIMAL(6,2) NOT NULL DEFAULT 0;
+
+-- Changes for the new experiment platform logic.
+alter table Application add onlyForLabPrepped char(1) not null default 'Y'; 
+create table gnomex.ApplicationType (
+  codeApplicationType varchar(10) not null,
+  applicationType varchar(100),
+  PRIMARY KEY (codeApplicationType)
+) ENGINE = INNODB;
+alter table Application add codeApplicationType varchar(10);
+alter table gnomex.Application add CONSTRAINT FK_Application_ApplicationType 
+  FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
+    REFERENCES gnomex.ApplicationType (codeApplicationType)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
+  ('Microarray', 'Microarray'),
+  ('QC', 'Sample Quality'),
+  ('Other', 'Other');
+update Application set codeApplicationType = 'Illumina'
+  where codeApplication in ('CHIPSEQ','DMRNASEQ','DNASEQ','TDNASEQ','MRNASEQ','SMRNASEQ','DNAMETHSEQ','MONNUCSEQ','TSCRPTSEQ');
+update Application set codeApplicationType = 'Microarray'
+  where codeApplication in ('CGH','CHIP','EXON','EXP','METH','MIRNA','SNP','WTRANSCRP');
+update Application set codeApplicationType = 'QC'
+  where codeApplication in ('BIOAN','QUBIT');
+update Application   
+  join RequestCategoryApplication on RequestCategoryApplication.codeApplication = Application.codeApplication
+  join RequestCategory on RequestCategory.codeRequestCategory=RequestCategoryApplication.codeRequestCategory
+  join RequestCategoryType on RequestCategoryType.codeRequestCategoryType = RequestCategory.type
+  set codeApplicationType='Illumina'
+  where RequestCategoryType.isIllumina = 'Y' and Application.isActive='Y' and codeApplicationType is null;
+update Application 
+  join RequestCategoryApplication on RequestCategoryApplication.codeApplication = Application.codeApplication
+  join RequestCategory on RequestCategory.codeRequestCategory=RequestCategoryApplication.codeRequestCategory
+  join RequestCategoryType on RequestCategoryType.codeRequestCategoryType = RequestCategory.type
+  set codeApplicationType='Microarray'
+  where RequestCategoryType.codeRequestCategoryType='Microarray' and codeApplicationType is null;
+update Application
+  join RequestCategoryApplication on RequestCategoryApplication.codeApplication = Application.codeApplication
+  join RequestCategory on RequestCategory.codeRequestCategory=RequestCategoryApplication.codeRequestCategory
+  join RequestCategoryType on RequestCategoryType.codeRequestCategoryType = RequestCategory.type
+  set codeApplicationType='QC'
+  where RequestCategoryType.codeRequestCategoryType='QC' and codeApplicationType is null;
+update Application set codeApplicationType='Other' where codeApplicationType is null;
