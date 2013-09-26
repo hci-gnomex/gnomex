@@ -186,7 +186,7 @@
 	
 	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
 		<mx:HBox id="overViewBar"  width="100%" >
-			<mx:LinkButton id="overViewButton" fontWeight="bold" label="Overview" click="Application.application.theViews.selectedChild = parentApplication.sequencerOverview"/>
+			<mx:LinkButton id="overViewButton" enabled="false" fontWeight="bold" label="Overview" click="Application.application.theViews.selectedChild = parentApplication.sequencerOverview"/>
 		</mx:HBox>
 		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
 			<mx:VBox cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE" verticalGap="11">
