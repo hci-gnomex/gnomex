@@ -410,7 +410,7 @@
 				}
 			}
 			
-			private function showDownloadHelp() {
+			private function showDownloadHelp():void {
 				var helpURL:String = parentApplication.getProperty(parentApplication.PROPERTY_FDT_HELP_URL);
 				var urlRequest:URLRequest = new URLRequest(helpURL);				
 				navigateToURL(urlRequest);
