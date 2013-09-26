@@ -66,7 +66,7 @@
 			currencyFormatter.precision = 2;
 			currencyFormatter.useThousandsSeparator;
 			
-			maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+			maxSamplesPerChannelValidator = parentDocument.samples.length;
 			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
