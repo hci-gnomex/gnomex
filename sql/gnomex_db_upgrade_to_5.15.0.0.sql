@@ -3,6 +3,12 @@ use gnomex;
 -- Add approved billing status for credit cards.
 insert into BillingStatus (codeBillingStatus, billingStatus, isActive) 
   values ('APPROVEDCC', 'Approved (Credit Card)', 'Y');
+  
+--New property which is a note that is appended to the "sequencing complete" email that notifies users who to contact if they have
+--any further questions about the processing of their request. 
+insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
+  values('analysis_assistance_note', 'If you would like data analysis assistance from the Bioinformatics Shared Resource, please contact them via email at bioinformaticshelp@bio.hci.utah.edu . Please include the sequencing or microarray request number, the aims of the experiment, and any specific analysis questions you would like to have addressed.', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N', 1, null);
+
     
 -- New table to associate ExperimentFile and Sample.  Will add front end code to populate this in future release.
 -- for now can be populated manually
