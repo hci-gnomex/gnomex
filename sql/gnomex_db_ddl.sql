@@ -235,6 +235,13 @@ CREATE TABLE `gnomex`.`ApplicationTheme` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`ApplicationType`;
+CREATE TABLE `gnomex`.`ApplicationType` (
+  codeApplicationType VARCHAR(10) NOT NULL,
+  applicationType VARCHAR(100),
+  PRIMARY KEY (codeApplicationType)
+) ENGINE = INNODB;
+
 DROP TABLE IF EXISTS `gnomex`.`AppUser`;
 CREATE TABLE `gnomex`.`AppUser` (
   `idAppUser` INT(10) NOT NULL AUTO_INCREMENT,
