@@ -553,7 +553,7 @@
 		<property name="contactAddress" column="contactAddress" type="string"/>
 		<property name="contactCodeState" column="contactCodeState" type="string"/>
 		<property name="contactCity" column="contactCity" type="string"/>
-		<property name="contactZipCode" column="contactZip" type="string"/>
+		<property name="contactZip" column="contactZip" type="string"/>
 		<property name="contactCountry" column="contactCountry" type="string"/>	
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
