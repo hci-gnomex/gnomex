@@ -35,6 +35,8 @@ public class Application extends DictionaryEntry implements Serializable {
   private String hasCaptureLibDesign;
   private String coreSteps;
   private String coreStepsNoLibPrep;
+  private String codeApplicationType;
+  private String onlyForLabPrepped;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -125,5 +127,33 @@ public class Application extends DictionaryEntry implements Serializable {
 	
 	public void setCoreStepsNoLibPrep(String coreStepsNoLibPrep) {
 		this.coreStepsNoLibPrep = coreStepsNoLibPrep;
+	}
+	
+	public String getCodeApplicationType() {
+	  return codeApplicationType;
+	}
+	
+	public void setCodeApplicationType(String codeApplicationType) {
+	  this.codeApplicationType = codeApplicationType;
+	}
+	
+	public String getOnlyForLabPrepped() {
+	  return onlyForLabPrepped;
+	}
+	
+	public void setOnlyForLabPrepped(String onlyForLabPrepped) {
+	  this.onlyForLabPrepped = onlyForLabPrepped;
+	}
+	
+	public Boolean isApplicableApplication(RequestCategoryType rct) {
+	  Boolean isApplicable = true;
+    String appType = ApplicationType.getCodeApplicationType(rct);
+    if (getCodeApplicationType() == null && !appType.equals(ApplicationType.TYPE_OTHER)) {
+      isApplicable = false;
+    } else if (!getCodeApplicationType().equals(appType)) {
+      isApplicable = false;
+    }
+
+    return isApplicable;
 	}
 }

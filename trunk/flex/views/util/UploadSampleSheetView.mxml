@@ -724,7 +724,7 @@
 			
 			// only called if there is an  error detected by flash player browsing or uploading a file   
 			private function uploadIoErrorHandler(event:IOErrorEvent):void{
-				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload (" + event.text + ")  Please contact GNomEx support.",
 					"Upload IO error",0);
 				PopUpManager.removePopUp(this);
 			}    

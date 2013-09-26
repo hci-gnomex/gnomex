@@ -1,13 +1,16 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
@@ -17,6 +20,8 @@ import hci.gnomex.utility.DictionaryHelper;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +49,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<Integer, Map<String, ?>> sampleTypeXApplicationMap = new HashMap<Integer, Map<String, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
+  private HashMap<String, Map<String, String>> applicationToRequestCategoryMap = new HashMap<String, Map<String, String>>();
   
   
   public void validate() {
@@ -66,8 +72,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      hashSupportingDictionaries(sess);
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      hashSupportingDictionaries(sess, dh);
       
       Document doc = new Document(new Element("ExperimentPlatformList"));
 
@@ -93,11 +99,36 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         
         listNode = new Element("applications");
         node.addContent(listNode);
-        for(Iterator i1 = applications.iterator(); i1.hasNext();) {
-          Application a = (Application)i1.next();
+        RequestCategoryType rct = dh.getRequestCategoryType(rc.getType());
+        Element parentNode = listNode; 
+        String prevTheme = "UnInitialized";
+        Integer prevThemeId = -1;
+        DictionaryManager dm;
+        Boolean foundSelected = false;
+        for(Application a : this.getApplications(rc, rct)) {
           this.getSecAdvisor().flagPermissions(a);
+          String curTheme = DictionaryManager.getDisplay("hci.gnomex.model.ApplicationTheme", 
+              a.getIdApplicationTheme() == null ? "" : a.getIdApplicationTheme().toString());
+          Integer curThemeId = a.getIdApplicationTheme();
+          if (!prevTheme.equals(curTheme) && rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
+            if (parentNode != listNode) {
+              parentNode.setAttribute("isSelected", foundSelected ? "Y" : "N");
+            }
+            Element themeNode = new Element("ApplicationTheme");
+            themeNode.setAttribute("applicationTheme", curTheme);
+            themeNode.setAttribute("idApplicationTheme", curThemeId.toString());
+            parentNode = themeNode;
+            listNode.addContent(themeNode);
+            prevTheme = curTheme;
+            prevThemeId = curThemeId;
+            foundSelected = false;
+          }
+          if (isAssociated(rc, a)) {
+            foundSelected = true;
+          }
           Element applicationNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          listNode.addContent(applicationNode);
+          parentNode.addContent(applicationNode);
+          applicationNode.setAttribute("applicationThemeDisplay", curTheme);
           applicationNode.setAttribute("isSelected", isAssociated(rc, a) ? "Y" : "N");
           applicationNode.setAttribute("idSeqLibProtocols", getIdSeqLibProtocols(a));
           RequestCategoryApplication x = (RequestCategoryApplication)getRequestCategoryApplication(rc, a);
@@ -105,6 +136,23 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("idHybProtocolDefault", x != null && x.getIdHybProtocolDefault() != null ? x.getIdHybProtocolDefault().toString() : "");
           applicationNode.setAttribute("idScanProtocolDefault", x != null && x.getIdScanProtocolDefault() != null ? x.getIdScanProtocolDefault().toString() : "");
           applicationNode.setAttribute("idFeatureExtractionProtocolDefault", x != null && x.getIdFeatureExtractionProtocolDefault() != null ? x.getIdFeatureExtractionProtocolDefault().toString() : "");
+          applicationNode.setAttribute("selectedInOtherCategory", "N");
+          
+          Map<String, String> rcAppMap = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
+          if (rcAppMap != null) {
+            for(String key : rcAppMap.keySet()) {
+              if (!rc.getCodeRequestCategory().equals(key)) {
+                applicationNode.setAttribute("selectedInOtherCategory", "Y");
+              }
+              Element rcAppNode = new Element("ApplicationRequestCategory");
+              applicationNode.addContent(rcAppNode);
+              rcAppNode.setAttribute("codeRequestCategory", key);
+              rcAppNode.setAttribute("requestCategory", rcAppMap.get(key));
+            }
+          }
+        }
+        if (parentNode != listNode) {
+          parentNode.setAttribute("isSelected", foundSelected ? "Y" : "N");
         }
 
         listNode = new Element("sequencingOptions");
@@ -163,9 +211,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   }
   
   private boolean isAssociated(RequestCategory rc, Application a) {
-    Map idMap = applicationMap.get(rc.getCodeRequestCategory());
-    return idMap != null && idMap.containsKey(a.getCodeApplication());
+    if (a.getIsActive() == null || !a.getIsActive().equals("Y")) {
+      return false;
+    } else {
+      Map idMap = applicationMap.get(rc.getCodeRequestCategory());
+      return idMap != null && idMap.containsKey(a.getCodeApplication());
+    }
   }
+  
   private RequestCategoryApplication getRequestCategoryApplication(RequestCategory rc, Application a) {
     Map<String, RequestCategoryApplication> idMap = applicationMap.get(rc.getCodeRequestCategory());
     if (idMap != null && idMap.containsKey(a.getCodeApplication())) {
@@ -205,7 +258,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     return buf;
   }
   
-  private void hashSupportingDictionaries(Session sess) throws Exception {
+  private void hashSupportingDictionaries(Session sess, DictionaryHelper dh) throws Exception {
     sampleTypes = sess.createQuery("SELECT st from SampleType st order by st.sampleType").list();
     List sampleTypeXrefs = sess.createQuery("SELECT x from SampleTypeRequestCategory x").list();
     for(Iterator i = sampleTypeXrefs.iterator(); i.hasNext();) {
@@ -228,6 +281,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
+      
+      String rc = dh.getRequestCategory(x.getCodeRequestCategory());
+      Map<String, String> rcMap = this.applicationToRequestCategoryMap.get(x.getCodeApplication());
+      if (rcMap == null) {
+        rcMap = new HashMap<String, String>();
+      }
+      rcMap.put(x.getCodeRequestCategory(), rc);
+      this.applicationToRequestCategoryMap.put(x.getCodeApplication(), rcMap);
     }
     
     List sampleTypeXApplications = sess.createQuery("SELECT x from SampleTypeApplication x").list();
@@ -262,6 +323,84 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       allowedList.add(x);
       numberSeqCyclesAllowedMap.put(x.getCodeRequestCategory(), allowedList);
+    }
+  }
+  
+  private List<Application> getApplications(RequestCategory rc, RequestCategoryType rct) {
+    ArrayList<Application> apps = new ArrayList<Application>();
+    Map<Integer, Integer> selectedThemes = new HashMap<Integer, Integer>(); 
+    for(Iterator i1 = applications.iterator(); i1.hasNext();) {
+      Application a = (Application)i1.next();
+      // Skip applications not of right application type for this request category.
+      if (!a.isApplicableApplication(rct)) {
+        continue;
+      }
+
+      if (isAssociated(rc, a)) {
+        selectedThemes.put(a.getIdApplicationTheme(), a.getIdApplicationTheme());
+      }
+      
+      apps.add(a);
+    }
+    
+    if (rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
+      Collections.sort(apps, new illuminaAppComparator(selectedThemes, applicationMap.get(rc.getCodeRequestCategory())));
+    } else {
+      Collections.sort(apps, new appComparator(applicationMap.get(rc.getCodeRequestCategory())));
+    }
+    
+    return apps;
+  }
+  
+  private class appComparator implements Comparator<Application>, Serializable {
+    private Map<String, RequestCategoryApplication> appMap;
+
+    public appComparator(Map<String, RequestCategoryApplication> appMap) {
+      this.appMap = appMap;
+      if (this.appMap == null) {
+        this.appMap = new HashMap<String, RequestCategoryApplication>();
+      }
+    }
+    
+    public int compare(Application a1, Application a2) {
+      
+      Integer sort1 = a1.getSortOrder() == null ? -1 : a1.getSortOrder();
+      Integer sort2 = a2.getSortOrder() == null ? -1 : a2.getSortOrder();
+
+      if (a1.getNonNullString(a1.getIsActive()).equals("Y") && !a2.getNonNullString(a2.getIsActive()).equals("Y")) {
+        return -1;
+      } else if (!a1.getNonNullString(a1.getIsActive()).equals("Y") && a2.getNonNullString(a2.getIsActive()).equals("Y")) {
+        return 1;
+      } else if (appMap.containsKey(a1.getCodeApplication()) && !appMap.containsKey(a2.getCodeApplication())) {
+        return -1;
+      } else if (!appMap.containsKey(a1.getCodeApplication()) && appMap.containsKey(a2.getCodeApplication())) {
+        return 1;
+      } else if (sort1.equals(sort2)) {
+        return a1.getApplication().compareTo(a2.getApplication());
+      } else {
+        return sort1.compareTo(sort2);
+      }
+    }
+ }
+  
+  private class illuminaAppComparator extends appComparator implements Serializable {
+    private Map<Integer, Integer> selectedThemes;
+    
+    public illuminaAppComparator(Map<Integer, Integer>selectedThemes, Map<String, RequestCategoryApplication> appMap) {
+      super(appMap);
+      this.selectedThemes = selectedThemes;
+    }
+    
+    public int compare(Application a1, Application a2) {
+      if (selectedThemes.containsKey(a1.getIdApplicationTheme()) && !selectedThemes.containsKey(a2.getIdApplicationTheme())) {
+        return -1;
+      } else if (!selectedThemes.containsKey(a1.getIdApplicationTheme()) && selectedThemes.containsKey(a2.getIdApplicationTheme())) {
+        return 1;
+      } else if (a1.getIdApplicationTheme() == null || a2.getIdApplicationTheme() == null || a1.getIdApplicationTheme().equals(a2.getIdApplicationTheme())) {
+        return super.compare(a1, a2);
+      } else {
+        return a1.getIdApplicationTheme().compareTo(a2.getIdApplicationTheme());
+      }
     }
   }
 }

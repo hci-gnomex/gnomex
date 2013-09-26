@@ -28,6 +28,7 @@
 		[Bindable]
 		private var meanInsertSizes:ArrayCollection = null;
 
+		private var codeRequestCategoryInitted:String = "";
 		
 		public function init():void {
 			checkSecurity();
@@ -38,9 +39,14 @@
 			}
 			
 			// Only initialize once.
-			if (this.seqAppBox.getChildren().length > 0) {
+			if (this.seqAppBox.getChildren().length > 0 && codeRequestCategoryInitted == parentDocument.getRequestCategory().@codeRequestCategory) {
 				return;
 			}
+			
+			// clear the box
+			seqAppBox.removeAllChildren();
+			
+			this.codeRequestCategoryInitted = parentDocument.getRequestCategory().@codeRequestCategory;
 			
 			// Map the apps by theme
 			var themeMap:Array= new Array();
@@ -93,9 +99,11 @@
 						designSpacer.validateNow();
 						capLibBoxSet = true;
 					}
+				}
 			}
+			
+			checkSeqAppSetupCompleteness();
 		}
-	}
 		
 		public function checkSecurity():void {
 		}
