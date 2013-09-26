@@ -637,28 +637,33 @@ VALUES (1, 'DNA Sequencing', 'Y'),
   (3, 'Microarray', 'Y'),
   (4, 'Sample Quality', 'Y');
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`)
-VALUES ('CGH', 'CGH', 'Y', 3, NULL),
-  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL),
-  ('EXON', 'Exon', 'Y', 3, NULL),
-  ('EXP', 'Gene Expression', 'Y', 3, NULL),
-  ('METH', 'DNA Methylation', 'Y', 3, NULL),
-  ('MIRNA', 'miRNA', 'Y', 3, NULL),
-  ('SNP', 'SNP', 'Y', 3, NULL),
-  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL),
-  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4),
-  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2),
-  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1),
-  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3),
-  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4),
-  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL),
-  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL),
-  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL),
-  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2),
-  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
-  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3),
-  ('OTHER', 'Custom', 'Y', NULL, 100);
+insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
+  ('Microarray', 'Microarray'),
+  ('QC', 'Sample Quality'),
+  ('Other', 'Other');
+
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`)
+VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray'),
+  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL, 'Microarray'),
+  ('EXON', 'Exon', 'Y', 3, NULL, 'Microarray'),
+  ('EXP', 'Gene Expression', 'Y', 3, NULL, 'Microarray'),
+  ('METH', 'DNA Methylation', 'Y', 3, NULL, 'MicroArray'),
+  ('MIRNA', 'miRNA', 'Y', 3, NULL, 'MicroArray'),
+  ('SNP', 'SNP', 'Y', 3, NULL, 'MicroArray'),
+  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL, 'MicroArray'),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4, 'Illumina'),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2, 'Illumina'),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1, 'Illumina'),
+  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3, 'Illumina'),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1, 'Illumina'),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4, 'Illumina'),
+  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL, 'QC'),
+  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL, 'QC'),
+  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL, 'Other'),
+  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2, 'Illumina'),
+  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5, 'Illumina'),
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3, 'Illumina'),
+  ('OTHER', 'Custom', 'Y', NULL, 100, 'Other');
 
 -- Populate InstrumentRunStatus dictionary
 insert into gnomex.InstrumentRunStatus 
