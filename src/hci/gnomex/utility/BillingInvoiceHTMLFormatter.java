@@ -94,27 +94,28 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
  public Element makeHeader() {
     Element table = new Element("TABLE");    
-    table.setAttribute("CELLPADDING", "0");
-    
+    table.setAttribute("CELLPADDING", "0");    
     if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){    
-      if(lab.getContactName() != null && !lab.getContactName().equals(""))
+    	table.addContent(new Element("TR"));
+    	if(lab.getContactName() != null && !lab.getContactName().equals(""))
     	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
-      if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
+    	if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
     	  table.addContent(makeRow(lab.getContactAddress2()));		
-      if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
+    	if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
           table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
-      {
-    	// no state => non-U.S. address
-      if(lab.getContactCodeState() == null){
-    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
-    			  + " " + lab.getContactCountry()));      
+    	if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
+    	{
+    		// no state => non-U.S. address
+    		if(lab.getContactCodeState() == null){
+    			table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
+    					+ " " + lab.getContactCountry()));      
     	}
       else {
     	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
     			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
+    	
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       table.addContent(makeRow("The following billing summary (or statement) is presented for your review from the " + coreFacilityName + ". This bill will be electronically processed using the specified chartfield number without further action on your behalf. If you have any questions in regards to the billing statement, please contact Derek Warner at derek.warner@hci.utah.edu."));
@@ -133,7 +134,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(makeRow(coreFacilityName));
       table.addContent(new Element("TR"));
       table.addContent(makeAddressRow(contactAddressCoreFacility));
-      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));// add line break before billing address
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       table.addContent(makeRow(lab.getName()));
@@ -157,12 +158,18 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
+      table.addContent(new Element("TR"));// add line break after billing address
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
       table.addContent(makeRow(billingPeriod.getBillingPeriod()));
       table.addContent(makeRow(billingAccount.getAccountName()));
     } 
     else{
       table.addContent(makeRow(lab.getName()));
       table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
+      table.addContent(new Element("TR"));// add line break before billing address
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
     	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
       if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
@@ -181,6 +188,9 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
     	}
       }
+      table.addContent(new Element("TR"));// add line break after billing address
+      table.addContent(new Element("TR"));
+      table.addContent(new Element("TR"));
       table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
       if(invoice != null){
         table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
