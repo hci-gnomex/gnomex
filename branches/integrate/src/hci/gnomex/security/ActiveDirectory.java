@@ -38,6 +38,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.dom4j.Attribute;
+
 /**
  * Query Active Directory using Java
  * 
@@ -68,7 +70,7 @@ public class ActiveDirectory {
         String ldap_provider_url, 
         String ldap_sec_protocol, 
         String ldap_sec_auth, 
-        String ldap_sec_principal ) {
+        String ldap_sec_principal ) throws NamingException {
       
         properties = new Properties();        
         
@@ -81,14 +83,7 @@ public class ActiveDirectory {
 
         
         // initializing active directory LDAP connection
-        try {
-          dirContext = new InitialDirContext(properties);
-        } catch (NamingException e) {
-          LOG.severe(e.getMessage());
-          e.printStackTrace();
-        }
-
-
+        dirContext = new InitialDirContext(properties);
     }
     
     /**
@@ -112,6 +107,8 @@ public class ActiveDirectory {
       
       String filter = this.baseFilter;     
       filter += "(samaccountname=" + searchValue + "))";
+      
+      System.out.println("\n\nsearchUser=" + searchValue);
     	
     	return this.dirContext.search(searchBase, filter, searchCtls);
     }
@@ -136,14 +133,14 @@ public class ActiveDirectory {
           Attributes attrs = ((SearchResult) answer.next()).getAttributes();  
           for (String attributeName : ldap_user_attribute_map.keySet()) {                
             String expectedValue = ldap_user_attribute_map.get(attributeName);
-            if (attrs.get(attributeName).contains(expectedValue)) {
+            if (attrs.get(attributeName) != null && attrs.get(attributeName).contains(expectedValue)) {
               matches = true;
               break;
             }
           }
       }        
     } catch (Exception e) {
-      System.out.println("Unexpected exception when iterating over user attributes");
+      System.out.println("\nUnexpected exception when iterating over user attributes");
       System.out.println(e.toString());
       e.printStackTrace();
     }

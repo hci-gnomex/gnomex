@@ -245,8 +245,8 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(sp.getSeqLibProtocol()));
     e.setAttribute("isActive", this.getNonNullString(sp.getIsActive()));
     e.setAttribute("protocolClassName", sp.getClass().getName());
-    e.setAttribute("adapterSequenceRead1", sp.getAdapterSequenceRead1() != null ? sp.getAdapterSequenceRead1() : "");
-    e.setAttribute("adapterSequenceRead2", sp.getAdapterSequenceRead2() != null ? sp.getAdapterSequenceRead2() : "");
+    e.setAttribute("adapterSequenceThreePrime", sp.getAdapterSequenceThreePrime() != null ? sp.getAdapterSequenceThreePrime() : "");
+    e.setAttribute("adapterSequenceFivePrime", sp.getAdapterSequenceFivePrime() != null ? sp.getAdapterSequenceFivePrime() : "");
 
     setPermissions(sp);
     e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");

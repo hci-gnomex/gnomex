@@ -1068,6 +1068,8 @@ CREATE TABLE `gnomex`.`Lab` (
   `excludeUsage` VARCHAR(1) NULL,
   `billingContactEmail` VARCHAR(200) NULL,
   `version` BIGINT(20) NOT NULL DEFAULT 0,
+  `contactAddress2` varchar(200) NULL,
+  `contactCountry` varchar(200) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
@@ -2973,6 +2975,35 @@ CREATE TABLE `gnomex`.`RequestCategoryType` (
 ENGINE = INNODB;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleFileType`;
+CREATE TABLE gnomex.SampleFileType(
+  codeSampleFileType varchar(10),
+  description varchar(200) NULL,
+ PRIMARY KEY (codeSampleFileType) 
+ ) ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleExperimentFile`;
+CREATE TABLE `gnomex`.`SampleExperimentFile` (
+  `idSampleExperimentFile` INT(10) NOT NULL AUTO_INCREMENT,
+  `idSample` INT(10),
+  `idExperimentFile` INT(10),
+  `codeSampleFileType` varchar(10),
+  PRIMARY KEY (`idSampleExperimentFile`),
+  CONSTRAINT `FK_SampleExperimentFile_Sample` FOREIGN KEY `FK_SampleExperimentFile_Sample` (`idSample`)
+    REFERENCES `gnomex`.`Sample` (`idSample`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile` (`idExperimentFile`)
+    REFERENCES `gnomex`.`ExperimentFile` (`idExperimentFile`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleExperimentFile_SampleFileType` FOREIGN KEY `FK_SampleExperimentFile_SampleFileType` (`codeSampleFileType`)
+    REFERENCES `gnomex`.`SampleFileType` (`codeSampleFileType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
 
 -- ----------------------------------------------------------------------
 -- EOF

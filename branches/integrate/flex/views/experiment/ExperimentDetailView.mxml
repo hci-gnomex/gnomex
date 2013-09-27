@@ -1165,6 +1165,13 @@
         	params.protocolClassName = protocolClassName;
         	getProtocol.send(params);
         }
+		
+		private function showAdapters(protocolClassName:String, fivePrime:String, threePrime:String):void {
+			var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
+			PopUpManager.centerPopUp(adapterWindow);
+			adapterWindow.title = protocolClassName;
+			adapterWindow.adapterTextArea.text = "Five prime:\n " + fivePrime + "\n\n" + "Three prime:\n " + threePrime;
+		}
         
     	private function onGetProtocol(event:ResultEvent): void { 
 			if (getProtocol.lastResult.name() != "Protocol") {
@@ -1175,6 +1182,8 @@
    			PopUpManager.centerPopUp(protocolWindow);
    			protocolWindow.title = getProtocol.lastResult.name;
    			protocolWindow.protocolDescription.text = getProtocol.lastResult.description;
+			protocolWindow.ThreePrimeAdapter.text = getProtocol.lastResult.adapterSequenceThreePrime;
+			protocolWindow.FivePrimeAdapter.text = getProtocol.lastResult.adapterSequenceFivePrime;
     	}
     	
 		public function getSampleTreeIcon(item:Object):Class {
@@ -1401,7 +1410,7 @@
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top"
 									 visible="{this.selectedExperiment.@canUpdate == 'Y'}"
 									 includeInLayout="{this.selectedExperiment.@canUpdate == 'Y'}">
-								<mx:LinkButton  width="100" label="Collaborators"
+								<mx:LinkButton  width="100" label="Collaborators" textDecoration="underline"
 												enabled="{this.selectedExperiment.@canUpdateVisibility == 'Y'}"
 												styleName="formLabel" textAlign="left" click="showCollaboratorWindow()" paddingLeft="0" />
 								<mx:VBox verticalGap="0">
@@ -1418,15 +1427,29 @@
 						<mx:HBox id="protocolsBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">
 							<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="left"/>
 							<mx:Tile horizontalGap="0" direction="horizontal" id="tile1" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
-								<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-									<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
-												   paddingLeft="1" paddingRight="1"
-												   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
-								</mx:Repeater>
-							</mx:Tile>
-							
+								<mx:VBox verticalGap="0">									
+									<mx:Repeater id="protocolRepeater" dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+										<mx:LinkButton id="labelProtocol" label="{protocolRepeater.currentItem.@label}" styleName="formLinkProtocolButton" 
+													   paddingLeft="1" paddingRight="1"
+													   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}" paddingTop="0" paddingBottom="0"/>
+									</mx:Repeater>									
+								</mx:VBox>
+							</mx:Tile>							
 						</mx:HBox>
-					</mx:VBox>            
+					</mx:VBox>										
+					<mx:HBox id="adaptersBox"   visible="{this.selectedExperiment.protocols.Protocol.length() > 0}" horizontalGap="0" horizontalAlign="left" verticalAlign="top">		
+						<mx:Label text="Adapter Trimming"  id="labelAdapter" styleName="formLabel" width="100" textAlign="left"/>
+						<mx:Tile horizontalGap="0" direction="vertical" id="tileAdapter" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0" fontSize="9">
+							<mx:HBox>
+								<mx:Label text="Five prime: "/>
+								<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
+							</mx:HBox>
+							<mx:HBox>
+								<mx:Label text="Three prime: "/>
+								<mx:LinkButton label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}" styleName="formLinkProtocolButton" paddingLeft="1" paddingRight="1" click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"/>
+							</mx:HBox>		
+						</mx:Tile>							
+					</mx:HBox>				          
 					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">
 						<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 							<mx:HBox width="100%" >

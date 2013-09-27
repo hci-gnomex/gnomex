@@ -239,7 +239,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
     buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
 
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");
@@ -342,7 +342,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
     buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_PO + "')");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
 
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       buf.append(" AND ");

@@ -288,8 +288,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		        } //end if_else data tracks found
 		    } //end for each genome
 						
-			sess.close();
-			
+			secAdvisor.closeHibernateSession();
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {

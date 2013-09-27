@@ -124,112 +124,103 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 	private ArrayList<String>  makeUCSCLink(Session sess) throws Exception {
 
 		ArrayList<String> urlsToLoad = new ArrayList<String>();
-		try {
+		// What is the users preferred ucsc url?
+		String ucscUrl = this.getSecAdvisor().getUserUcscUrl();
 
+		//load dataTrack
+		DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));      
 
-			// What is the users preferred ucsc url?
-			String ucscUrl = this.getSecAdvisor().getUserUcscUrl();
+		//check genome has UCSC name
+		GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
+		String ucscGenomeBuildName = gv.getUcscName();
+		if (ucscGenomeBuildName == null || ucscGenomeBuildName.length() ==0) throw new Exception ("Missing UCSC Genome Version name, update, and resubmit.");
 
-			//load dataTrack
-			DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));      
+		List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
 
-			//check genome has UCSC name
-			GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
-			String ucscGenomeBuildName = gv.getUcscName();
-			if (ucscGenomeBuildName == null || ucscGenomeBuildName.length() ==0) throw new Exception ("Missing UCSC Genome Version name, update, and resubmit.");
+		//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
+		UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
+		if (link == null) {
+		  throw new Exception ("No files to link?!");
+		}
+		File[] filesToLink = link.getFilesToLink();
+		if (filesToLink == null) {
+		  throw new Exception ("No files to link?!");
+		}
 
-			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
+		// When new .bw/.bb files are created, add analysis files and then link via data
+		// track file to the data track.
+		registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
 
-			//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
-			UCSCLinkFiles link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath());
-			if (link == null) {
-			  throw new Exception ("No files to link?!");
-			}
-			File[] filesToLink = link.getFilesToLink();
-			if (filesToLink == null) {
-			  throw new Exception ("No files to link?!");
-			}
+		//look and or make directory to hold softlinks to data, also removes old softlinks
+		File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
+		
+		String linkPath = this.checkForUserFolderExistence(urlLinkDir, username);
+	  	
+		if (linkPath == null) {
+			linkPath = UUID.randomUUID().toString() + username;
+		}
 
-			// When new .bw/.bb files are created, add analysis files and then link via data
-			// track file to the data track.
-			registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
+		//if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
+		//if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
 
-			//look and or make directory to hold softlinks to data, also removes old softlinks
-			File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
-			
-			String linkPath = this.checkForUserFolderExistence(urlLinkDir, username);
-		  	
-			if (linkPath == null) {
-				linkPath = UUID.randomUUID().toString() + username;
-			}
+		//Create the users' data directory
+		File dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
+		if (!dir.exists())
+			dir.mkdir();
 
-			//if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
-			//if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
+		//what data type (bam, bigBed, bigWig, vcfTabix)
+		String type = "type=" + DataTrackUtil.fetchUCSCDataType (filesToLink);
 
-			//Create the users' data directory
-			File dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
-			if (!dir.exists())
-				dir.mkdir();
+		//is there a summary?
+		String summary = dataTrack.getSummary();
+		if (summary !=null && summary.trim().length() !=0) {
+			summary = Constants.HTML_BRACKETS.matcher(summary).replaceAll("");
+			summary = "description=\""+summary+"\"";
+		}
+		else summary = "";
 
-			//what data type (bam, bigBed, bigWig, vcfTabix)
-			String type = "type=" + DataTrackUtil.fetchUCSCDataType (filesToLink);
+		//TODO: color indicated? look for property named color, convert to RGB, comma delimited and set 'color='
 
-			//is there a summary?
-			String summary = dataTrack.getSummary();
-			if (summary !=null && summary.trim().length() !=0) {
-				summary = Constants.HTML_BRACKETS.matcher(summary).replaceAll("");
-				summary = "description=\""+summary+"\"";
-			}
-			else summary = "";
+		
+		//for each file, there might be two for xxx.bam and xxx.bai files, xxx.vcf.gz and xxx.vcf.gz.tbi, possibly two for converted useq files, plus/minus strands, otherwise just one.
+		String customHttpLink = null;
+		String toEncode = null;
+		for (File f: filesToLink){
+			File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
+			String annoString = annoFile.toString();
 
-			//TODO: color indicated? look for property named color, convert to RGB, comma delimited and set 'color='
+			//make soft link
+			DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
-			
-			//for each file, there might be two for xxx.bam and xxx.bai files, xxx.vcf.gz and xxx.vcf.gz.tbi, possibly two for converted useq files, plus/minus strands, otherwise just one.
-			String customHttpLink = null;
-			String toEncode = null;
-			for (File f: filesToLink){
-				File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-				String annoString = annoFile.toString();
+			//is it a bam index xxx.bai or vcf index? If so then skip after making soft link.
+			if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.gz.tbi")) continue;
 
-				//make soft link
-				DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
-
-				//is it a bam index xxx.bai or vcf index? If so then skip after making soft link.
-				if (annoString.endsWith(".bai") || annoString.endsWith(".vcf.gz.tbi")) continue;
-
-				//stranded?
-				String strand = "";
-				if (link.isStranded()){
-					if (annoString.endsWith("_Plus.bw")) strand = " + ";
-					else if (annoString.endsWith("_Minus.bw")) strand = " - ";
-					else throw new Exception ("\nCan't determine strand of bw file? "+annoString);
-				}
-
-				String datasetName = "name=\""+dataTrack.getName()+ strand +" "+dataTrack.getFileName()+"\"";
-
-				//make bigData URL e.g. bigDataUrl=http://genome.ucsc.edu/goldenPath/help/examples/bigBedExample.bb
-				int index = annoString.indexOf(Constants.URL_LINK_DIR_NAME);
-				String annoPartialPath = annoString.substring(index);
-				String bigDataUrl = "bigDataUrl="+ baseURL + annoPartialPath;
-
-				//make final html link
-				customHttpLink = ucscUrl + "/cgi-bin/hgTracks?db=" + ucscGenomeBuildName + "&hgct_customText=track+visibility=full+";
-				toEncode = type +" "+ datasetName +" "+ summary +" "+ bigDataUrl;
-
-				//System.out.println("LinkForLoading "+customHttpLink + toEncode);
-				//System.out.println(customHttpLink+ GeneralUtils.URLEncode(toEncode)+"\n");
-
-				//remove any returns
-				toEncode = TO_STRIP.matcher(toEncode).replaceAll(" ");
-
-				urlsToLoad.add(customHttpLink + URLEncoder.encode(toEncode, "UTF-8"));
+			//stranded?
+			String strand = "";
+			if (link.isStranded()){
+				if (annoString.endsWith("_Plus.bw")) strand = " + ";
+				else if (annoString.endsWith("_Minus.bw")) strand = " - ";
+				else throw new Exception ("\nCan't determine strand of bw file? "+annoString);
 			}
 
-		} catch (Exception e) {
-			throw e;      
-		} finally {
-			if (sess != null) sess.close();
+			String datasetName = "name=\""+dataTrack.getName()+ strand +" "+dataTrack.getFileName()+"\"";
+
+			//make bigData URL e.g. bigDataUrl=http://genome.ucsc.edu/goldenPath/help/examples/bigBedExample.bb
+			int index = annoString.indexOf(Constants.URL_LINK_DIR_NAME);
+			String annoPartialPath = annoString.substring(index);
+			String bigDataUrl = "bigDataUrl="+ baseURL + annoPartialPath;
+
+			//make final html link
+			customHttpLink = ucscUrl + "/cgi-bin/hgTracks?db=" + ucscGenomeBuildName + "&hgct_customText=track+visibility=full+";
+			toEncode = type +" "+ datasetName +" "+ summary +" "+ bigDataUrl;
+
+			//System.out.println("LinkForLoading "+customHttpLink + toEncode);
+			//System.out.println(customHttpLink+ GeneralUtils.URLEncode(toEncode)+"\n");
+
+			//remove any returns
+			toEncode = TO_STRIP.matcher(toEncode).replaceAll(" ");
+
+			urlsToLoad.add(customHttpLink + URLEncoder.encode(toEncode, "UTF-8"));
 		}
 		return urlsToLoad;
 

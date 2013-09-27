@@ -17,10 +17,12 @@ public class Lab extends HibernateDetailObject {
   private String  isExternalPricingCommercial;
   private String  department;
   private String  contactName;
+  private String  contactAddress2;
   private String  contactAddress;
   private String  contactCodeState;
   private String  contactCity;
-  private String  contactZip;
+  private String  contactZipCode;
+  private String  contactCountry;
   private String  contactEmail;
   private String  contactPhone;
   private String  isCcsgMember;
@@ -82,6 +84,14 @@ public class Lab extends HibernateDetailObject {
     this.contactName = contactName;
   }
   
+  public String getContactAddress2() {
+    return contactAddress2;
+  }
+  
+  public void setContactAddress2(String contactAddress2) {
+    this.contactAddress2 = contactAddress2;
+  }
+  
   public String getContactPhone() {
     return contactPhone;
   }
@@ -90,13 +100,21 @@ public class Lab extends HibernateDetailObject {
     this.contactPhone = contactPhone;
   }
   
-  public String getContactZip() {
-    return contactZip;
+  public String getContactZipCode() {
+    return contactZipCode;
   }
   
-  public void setContactZip(String contactZip) {
-    this.contactZip = contactZip;
+  public void setContactZipCode(String contactZip) {
+    this.contactZipCode = contactZip;
   }
+  
+  public String getContactCountry() {
+	    return contactCountry;
+	  }
+	  
+	  public void setContactCountry(String contactCountry) {
+	    this.contactCountry = contactCountry;
+	  }
   
   public String getDepartment() {
     return department;

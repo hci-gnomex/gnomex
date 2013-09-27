@@ -4,7 +4,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -33,6 +32,8 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadExperimentFileServlet extends HttpServlet {
   
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadExperimentFileServlet.class);
+
   private Integer idRequest = null;
   private String  requestNumber = null;
   private String  directoryName = "";
@@ -55,9 +56,6 @@ public class UploadExperimentFileServlet extends HttpServlet {
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
       Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
-      
-      // Get the dictionary helper
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -131,11 +129,11 @@ public class UploadExperimentFileServlet extends HttpServlet {
           ParamPart paramPart = (ParamPart) part;
           String value = paramPart.getStringValue();
           if (name.equals("idRequest")) {
-            idRequest = new Integer((String)value);
+            idRequest = new Integer(value);
             break;
           }
           if (name.equals("requestNumber")) {
-            requestNumber = (String)value;
+            requestNumber = value;
             if (body != null) {
               Element h3 = body.addElement("H3");
               h3.addCDATA("Upload experiment files for " + request.getNumber());              
@@ -254,9 +252,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
       
     } catch (Exception e) {
       HibernateSession.rollback();
-      System.out.println("UploadExperimentFileServlet - unable to upload file " + fileName + " for request idRequest=" + idRequest);
-      System.out.println(e.toString());
-      e.printStackTrace();
+      log.error("An exception has occurred in UploadExperimentFileServlet ", e);
       throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
     }  finally {
       try {

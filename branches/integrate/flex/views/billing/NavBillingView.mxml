@@ -1404,7 +1404,7 @@
 							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 						navigateToURL(showUrl, '_blank');
 					}
-				} else if (!email && this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETE")){
+				} else if (!email && this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "APPROVEDCC" || this.requestTree.selectedItem.@status == "COMPLETE")){
 					Alert.show("Print all invoices for this folder?", "", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
 				} else{
 					Alert.show("Please select a lab folder");	
@@ -1446,7 +1446,7 @@
 					statusNode = this.requestTree.selectedItem;
 				}
 				if (statusNode != null && 
-				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX" || statusNode.@status == "APPROVEDCC") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
 					    '?codeBillingStatus=' + statusNode.@status +
 						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
@@ -1476,7 +1476,7 @@
 					statusNode = this.requestTree.selectedItem;
 				}
 				if (statusNode != null && 
-					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX" || statusNode.@status == "APPROVEDCC") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReportUMergeFormat.gx' +
 						'?codeBillingStatus=' + statusNode.@status +
 						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +

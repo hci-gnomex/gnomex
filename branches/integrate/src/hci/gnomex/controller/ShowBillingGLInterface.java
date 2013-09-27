@@ -264,7 +264,6 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 BillingItem bi = (BillingItem)i1.next();
 
                 String acctNum = bi.getBillingAccount().getAccountNumber();
-                String acctName = bi.getBillingAccount().getAccountName();
                 String labName = bi.getLabName();
                 
                 String labBillingName = bi.getLabName() + acctNum;
@@ -326,7 +325,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               buf.append("FROM   BillingItem bi ");
               buf.append("JOIN   bi.lab as lab ");
               buf.append("JOIN   bi.billingAccount as ba ");
-              buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
+              buf.append("WHERE  (bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
+              buf.append("OR     bi.codeBillingStatus = '" + BillingStatus.APPROVED_CC + "') ");
               buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
               buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
               if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {

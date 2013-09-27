@@ -35,6 +35,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                searchOrganismOnSample;
   private String                publicExperimentsInOtherGroups;
   private String                allExperiments = "N";
+  private String                allCollaborations = "N";
   private String                showSamples = "Y";
   private String                showCategory = "Y";
   private String                showExternalExperiments = "Y";
@@ -338,10 +339,19 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest is not null ");
     }
-    // Search by user 
-    if (idAppUser != null){
+    // Search by collaborator
+    if (allCollaborations != null && allCollaborations.equals("Y")){
+      this.addWhereOrAnd();
+      queryBuf.append(" collab.idAppUser = ");
+      queryBuf.append(idAppUser);
+    } else if (idAppUser != null){
+      // Search by user
       this.addWhereOrAnd();
       queryBuf.append(" req.idSubmitter = ");
+      queryBuf.append(idAppUser);
+   
+      queryBuf.append(" OR ");
+      queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
     } 
     //  Search by idRequest 
@@ -1023,6 +1033,13 @@ public class ProjectRequestFilter extends DetailObject {
     this.allExperiments = allExperiments;
   }
   
+  public String getAllCollaborations() {
+	    return allCollaborations;
+	  }
+
+  public void setAllCollaborations(String allCollaborations) {
+	    this.allCollaborations = allCollaborations;
+	  }
 
   public String getShowEmptyProjectFolders() {
     return showEmptyProjectFolders;
@@ -1051,13 +1068,11 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setCcNumber( String ccNumber ) {
     this.ccNumber = ccNumber;
-  }
-  
+  }  
+
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
-
-
   
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
@@ -1067,9 +1082,9 @@ public class ProjectRequestFilter extends DetailObject {
   public Date getCreateDateTo() {
     return createDateTo;
   }
-
   
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
+
 }

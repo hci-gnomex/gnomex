@@ -195,7 +195,7 @@
 		<property name="expirationDate" column="expirationDate" type="date"/>
 		<property name="idFundingAgency" column="idFundingAgency" type="integer"/>
 		<property name="idCreditCardCompany" column="idCreditCardCompany" type="integer"/>
-		<property name="zipCode" column="zipCode" type="string"/>		
+		<property name="zipCode" column="zipCode" type="string"/>			
 		<property name="isPO" column="isPO" type="string"/>		
 		<property name="isCreditCard" column="isCreditCard" type="string"/>		
 		<property name="isApproved" column="isApproved" type="string"/>		
@@ -548,19 +548,21 @@
 		<property name="firstName" column="firstName" type="string"/>
 		<property name="lastName" column="lastName" type="string"/>
 		<property name="isExternalPricing" column="isExternalPricing" type="string"/>
-    <property name="isExternalPricingCommercial" column="isExternalPricingCommercial" type="string"/>
+    	<property name="isExternalPricingCommercial" column="isExternalPricingCommercial" type="string"/>
 		<property name="department" column="department" type="string"/>
 		<property name="contactName" column="contactName" type="string"/>
+ 		<property name="contactAddress2" column="contactAddress2" type="string"/>
 		<property name="contactAddress" column="contactAddress" type="string"/>
 		<property name="contactCodeState" column="contactCodeState" type="string"/>
 		<property name="contactCity" column="contactCity" type="string"/>
-		<property name="contactZip" column="contactZip" type="string"/>
+		<property name="contactZipCode" column="contactZip" type="string"/>
+		<property name="contactCountry" column="contactCountry" type="string"/>	
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
 		<property name="isCcsgMember" column="isCCSGMember" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
 		<property name="excludeUsage" column="excludeUsage" type="string"/>
-    <property name="billingContactEmail" column="billingContactEmail" type="string"/>
+    	<property name="billingContactEmail" column="billingContactEmail" type="string"/>
  		<set name="members" table="LabUser" lazy="true" cascade="none">
 			<key column="idLab"/>
 			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUser"/>
@@ -1848,8 +1850,8 @@
 		<property name="description" column="description" type="string"/>
 		<property name="url" column="url" type="string"/>
 		<property name="isActive" column="isActive" type="string"/>
-		<property name="adapterSequenceRead1" column="adapterSequenceRead1" type="string"/>
-		<property name="adapterSequenceRead2" column="adapterSequenceRead2" type="string"/>
+		<property name="adapterSequenceThreePrime" column="adapterSequenceRead1" type="string"/>
+		<property name="adapterSequenceFivePrime" column="adapterSequenceRead2" type="string"/>
 	</class>	
 
 	<!-- hci.gnomex.model.SeqLibProtocolApplication -->
