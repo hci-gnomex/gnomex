@@ -1048,7 +1048,6 @@
 					params.isExternalOnly = 'Y';
 				}
 			
-				
 				if (publicExperimentsOtherGroupsCheckbox.selected) {
 					params.publicExperimentsInOtherGroups = 'Y';
 				} else {
@@ -1348,12 +1347,12 @@
 		}			
 
 	
-	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
-		if (checkBoxNumber == 1) {
-			this.publicExperimentsOtherGroupsCheckbox.selected = false;
-		} else if (checkBoxNumber == 2) { 
-			this.myExperimentsCheckbox.selected = false;
-		} 
+	private function toggleOwnershipRadio():void {
+		this.ccLookupText.text = '';
+		selectedIdProject=null;
+		selectedIdLab=null;
+		selectedIdRequest=null;
+		selectedRequestNumber=null;
 	}
 	private function toggleRequestKindCheckboxes(checkBoxNumber:int):void {
 		this.ccLookupText.text = '';
@@ -1527,36 +1526,72 @@
 			<mx:VBox  verticalGap="6" height="100%">
 				<mx:HBox horizontalGap="0" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
 					<mx:HBox paddingLeft="0" verticalAlign="middle" width="100%">
-						<mx:HBox horizontalGap="0" width="100" verticalAlign="middle">
+						<mx:HBox horizontalGap="0" width="100" verticalAlign="middle" >
 							<mx:Image source="assets/flask.png"/>
 							<mx:Label text="Experiments" styleName="titleLabel"/>	
 						</mx:HBox>
 						
+						<mx:Spacer width="17"/>
+						
 						<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0" id="hbox2">
 							<mx:RadioButtonGroup id="experimentRadioGroup"/>
-							<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
-								<mx:toolTip><![CDATA[Experiments that I submitted]]></mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							<mx:RadioButton label="" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" paddingRight="2" selected="true">
+								<mx:toolTip>Experiments that I submitted</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="true">
-								<mx:toolTip><![CDATA[Experiments of my lab and those visible to to my institution]]></mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							<mx:VBox styleName="{myExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox5">
+								<mx:Label text="My experiments" styleName="{myExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label2">
+									<mx:toolTip>Experiments that I submitted</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2" >
+								<mx:toolTip>Experiments of my lab and those visible to to my institution</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="My collaborations" id="myCollaborationsCheckbox" groupName="experimentRadioGroup" letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="false">
-								<mx:toolTip><![CDATA[Experiments I collaborate on]]></mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							<mx:VBox styleName="{myLabsExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox6">
+								<mx:Label text="My lab" styleName="{myLabsExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="label3">
+									<mx:toolTip>Experiments of my lab and those visible to to my institution</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myLabsExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="myCollaborationsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
+								<mx:toolTip>Experiments I collaborate on</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Other labs" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup"  letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+							<mx:VBox styleName="{myCollaborationsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox7">
+								<mx:Label text="My collaborations" styleName="{myCollaborationsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label4">
+									<mx:toolTip>Experiments I collaborate on</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myCollaborationsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
 								<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup"  letterSpacing=".4" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+							<mx:VBox styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox8">
+								<mx:Label text="Public data" styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label5">
+									<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();publicExperimentsOtherGroupsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
 								<mx:toolTip>All experiments I have access to</mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
+							<mx:VBox styleName="{userAllExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox9">
+								<mx:Label text="All" styleName="{userAllExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="label6">
+									<mx:toolTip>All experiments I have access to</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();userAllExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
 						</mx:HBox>
 						<mx:Spacer width="10" id="spacer1"/>
-						
 						<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
 						
 					</mx:HBox>	
@@ -1564,7 +1599,7 @@
 				
 				<mx:VBox id="filterBox" verticalGap="4" visible="false" includeInLayout="false">
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox7">
-						<mx:Spacer width="100"/>
+						<mx:Spacer width="125"/>
 						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
 							<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments" paddingRight="0" horizontalGap="0" 
 										  styleName="labelSmall" toolTip="External experiments (only)" 
@@ -1593,7 +1628,7 @@
 					</mx:HBox>
 					
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
-						<mx:Spacer width="100"/>
+						<mx:Spacer width="125"/>
 						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
 							
 							<mx:HBox horizontalGap="2" id="hbox5" verticalAlign="middle">
@@ -1816,6 +1851,16 @@
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:RemoveChild target="{label2}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:RemoveChild target="{vbox5}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{vbox6}"/>
+			<mx:RemoveChild target="{label5}"/>
+			<mx:RemoveChild target="{vbox7}"/>
+			<mx:RemoveChild target="{label6}"/>
+			<mx:RemoveChild target="{vbox8}"/>
+			<mx:RemoveChild target="{vbox9}"/>
 
 		</mx:State>
 
