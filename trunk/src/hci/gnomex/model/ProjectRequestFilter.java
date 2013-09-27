@@ -347,12 +347,13 @@ public class ProjectRequestFilter extends DetailObject {
     } else if (idAppUser != null){
       // Search by user
       this.addWhereOrAnd();
-      queryBuf.append(" req.idSubmitter = ");
+      queryBuf.append(" ( req.idSubmitter = ");
       queryBuf.append(idAppUser);
    
       queryBuf.append(" OR ");
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
+      queryBuf.append(" ) ");
     } 
     //  Search by idRequest 
     if (idRequest != null){
