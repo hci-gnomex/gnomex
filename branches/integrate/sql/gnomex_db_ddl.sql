@@ -607,9 +607,9 @@ CREATE TABLE `gnomex`.`Price` (
   `idPrice` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NULL,
   `description` VARCHAR(500) NULL,
-  `unitPrice` DECIMAL(6, 2) NULL,
-  `unitPriceExternalAcademic` DECIMAL(6, 2) NULL,
-  `unitPriceExternalCommercial` DECIMAL(6, 2) NULL,
+  `unitPrice` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalAcademic` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalCommercial` DECIMAL(6, 2) NOT NULL DEFAULT 0,
   `idPriceCategory` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idPrice`),
@@ -1242,13 +1242,26 @@ CREATE TABLE `gnomex`.`Application` (
   `hasCaptureLibDesign` CHAR(1) NULL,
   `coreSteps` VARCHAR(5000) NULL,
   `coreStepsNoLibPrep` VARCHAR(5000) NULL,
+  `codeApplicationType` varchar(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_Application_ApplicationType 
+    FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
+    REFERENCES gnomex.ApplicationType (codeApplicationType)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS gnomex.ApplicationType;
+CREATE TABLE gnomex.ApplicationType (
+  codeApplicationType varchar(10) not null,
+  applicationType varchar(100),
+  PRIMARY KEY (codeApplicationType)
+) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCycles`;
 CREATE TABLE `gnomex`.`NumberSequencingCycles` (

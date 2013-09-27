@@ -34,8 +34,10 @@
 
 	<Dictionary displayName="Application Theme" className="hci.gnomex.model.ApplicationTheme" >
 	</Dictionary>
+	<Dictionary displayName="Application Type" className="hci.gnomex.model.ApplicationType" editable="N" />
 	<Dictionary displayName="Application" className="hci.gnomex.model.Application"  editable="N" >
 			<Filter className="hci.gnomex.model.ApplicationTheme" filterField="idApplicationTheme"/>
+      <Filter className="hci.gnomex.model.ApplicationType"  filterField="codeApplicationType"/>
 	</Dictionary>
 	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication"  editable="N">
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>

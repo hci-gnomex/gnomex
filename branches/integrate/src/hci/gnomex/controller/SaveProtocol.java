@@ -134,7 +134,19 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
           } else if (protocolClassName.equals(SeqLibProtocol.class.getName())) {
             protocol = new SeqLibProtocol();
             ((SeqLibProtocol)protocol).setSeqLibProtocol(protocolName);
-            ((SeqLibProtocol)protocol).setIsActive("Y");
+            if (protocolDescription != null) {
+              ((SeqLibProtocol)protocol).setDescription(protocolDescription);
+            }
+            ((SeqLibProtocol)protocol).setIsActive(isActive);
+            if (protocolUrl != null) {
+              ((SeqLibProtocol)protocol).setUrl(protocolUrl);
+            }
+            if (adapterSequenceThreePrime != null) {
+              ((SeqLibProtocol)protocol).setAdapterSequenceThreePrime(adapterSequenceThreePrime);
+            }
+            if (adapterSequenceFivePrime != null) {
+              ((SeqLibProtocol)protocol).setAdapterSequenceFivePrime(adapterSequenceFivePrime);
+            }
           } else if (protocolClassName.equals(AnalysisProtocol.class.getName())) {
             protocol = new AnalysisProtocol();
             ((AnalysisProtocol)protocol).setAnalysisProtocol(protocolName);
@@ -224,7 +236,7 @@ public class SaveProtocol extends GNomExCommand implements Serializable {
 
           idProtocolSaved = new Integer(protocol.getValue());
           
-          this.xmlResult = "<SUCCESS idProtocolSaved=\"" + idProtocolSaved + "\" savedProtocolClassName=\""+protocolClassName+"\" newProtocol=\""+newProtocol+"\"/>";
+          this.xmlResult = "<SUCCESS idProtocolSaved=\"" + idProtocolSaved + "\"protocolName=\""+protocolName +"\" savedProtocolClassName=\""+protocolClassName+"\" newProtocol=\""+newProtocol+"\"/>";
         }
 
         if (this.isValid()) {

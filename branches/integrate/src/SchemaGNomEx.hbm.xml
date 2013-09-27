@@ -555,7 +555,7 @@
 		<property name="contactAddress" column="contactAddress" type="string"/>
 		<property name="contactCodeState" column="contactCodeState" type="string"/>
 		<property name="contactCity" column="contactCity" type="string"/>
-		<property name="contactZipCode" column="contactZip" type="string"/>
+		<property name="contactZip" column="contactZip" type="string"/>
 		<property name="contactCountry" column="contactCountry" type="string"/>	
 		<property name="contactPhone" column="contactPhone" type="string"/>
 		<property name="contactEmail" column="contactEmail" type="string"/>
@@ -1064,6 +1064,14 @@
 		<property name="url" column="url" type="string"/>
 	</class>
 
+  <!-- hci.gnomex.model.ApplicationType -->
+  <class name="hci.gnomex.model.ApplicationType" table="ApplicationType">
+    <id name="codeApplicationType" column="codeApplicationType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="applicationType" column="applicationType" type="string"/>
+  </class>
+
 	<!-- hci.gnomex.model.Application -->
 	<class name="hci.gnomex.model.Application" table="Application">
 		<id name="codeApplication" column="codeApplication" type="string">
@@ -1076,7 +1084,8 @@
 		<property name="hasCaptureLibDesign" column="hasCaptureLibDesign" type="string"/>
 		<property name="coreSteps" column="coreSteps" type="string"/>
 		<property name="coreStepsNoLibPrep" column="coreStepsNoLibPrep" type="string"/>
-		
+		<property name="codeApplicationType" column="codeApplicationType" type="string"/>
+		<property name="onlyForLabPrepped" column="onlyForLabPrepped" type="string" />
 	</class>
 
   <!-- hci.gnomex.model.ApplicationTheme -->
