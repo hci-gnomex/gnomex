@@ -431,6 +431,14 @@ TextArea {
 	fontWeight: normal;	
 	fontSize: 10;
 }
+.selectedLabel
+{
+	backgroundColor: #ace788;
+	backgroundAlpha: 0.80;
+	fontWeight: bold;
+	fontSize: 11;
+	
+}
 .navTabNavigator {
 	
 	backgroundAlpha:            1.0;
