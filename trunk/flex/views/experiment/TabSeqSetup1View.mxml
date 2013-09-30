@@ -185,7 +185,7 @@
 			var numberSequencingCycles:Object = null;
 			if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
 				for each(var item:Object in filteredNumberSequencingCyclesAllowedList) {
-					if (item.@value == this.numberSequencingCyclesRadioGroup.selectedValue) {
+					if (item.@value.toString() == this.numberSequencingCyclesRadioGroup.selectedValue.toString()) {
 						numberSequencingCycles = item;
 						break;
 					}
@@ -214,36 +214,24 @@
 		
 	    public function checkSeqSetup1Completeness():Boolean {
         	var isComplete:Boolean = false;
-        	if (parentDocument.isEditState()) {
-        		isComplete = true;
-        	}else if (parentDocument.isSolexaState()) {
-	        	if (this.getNumberSequencingCyclesSelected() != null) {
-	        	
+			if (parentDocument.currentState == 'SolexaLaneAmendState') {
+				if(this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != ''){
 					isComplete = true;
-	        		 if (this.currentState == 'BarcodeState') {
+				}				
+			} else if (parentDocument.isEditState()) {
+        		isComplete = true;
+        	} else if (parentDocument.isSolexaState()) {
+				if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != ''){
+	        		if (this.currentState == 'BarcodeState') {
 						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){ // && this.barcodes.length > 0) {
 							isComplete = true;							
 						}        			
 	        		} else {
 		        		isComplete = true;
-	        			
 	        		} 
-	        	    
 	        	 }
         	} 
 			
-			// If we are adding lanes, just make sure that the number of cycles has been selected
-			if (parentDocument.currentState == 'SolexaLaneAmendState') {
-				if(this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
-					isComplete = false;
-				}				
-			} else {
-				// If we are a new experiment, make sure we have a valid number of samples per lane and that the number of cycles has been specified
-				if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
-					isComplete = false;
-				}
-				
-			}
         	
     		parentDocument.samplesView.enabled = isComplete; 
     			
@@ -379,7 +367,7 @@
 			}
    		    this.propagateNumberSequencingCycles();				
 			this.propagateSeqRunType();			
-			this.checkSeqSetup1Completeness();
+			callLater(checkSeqSetup1Completeness);
         }
 		
 		private function changeNumberSamplesPerChannel():void {
@@ -395,7 +383,7 @@
 			} else{
 				maxSamplesWarning.visible = true;
 			}
-			this.checkSeqSetup1Completeness();
+			callLater(checkSeqSetup1Completeness);
 		}
 		
 		private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
