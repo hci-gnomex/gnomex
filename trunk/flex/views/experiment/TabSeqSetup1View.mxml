@@ -469,9 +469,9 @@
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
 						<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
-						<mx:HBox visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
+						<mx:HBox paddingTop="8" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
 							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
-							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabelSevere" />
+							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabel" />
 						</mx:HBox>
 					    <mx:HBox verticalAlign="middle" width="100%">
 					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
