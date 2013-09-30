@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="730" height="219"  
+				layout="vertical" width="950" height="219"  
 				xmlns:views="views.*" 
 				showCloseButton="true" 
 				close="{PopUpManager.removePopUp(this)}" 
@@ -9,7 +9,7 @@
 	<mx:VBox width="100%" height="100%" backgroundSize="100%" borderStyle="none" fontSize="10"
 			 paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" styleName="form"
 			 verticalAlign="middle" verticalGap="8">
-		<mx:VBox id="contactBox" width="100%" verticalGap="12" fontSize="12" paddingLeft="10">		
+		<mx:VBox id="contactBox" width="100%" verticalGap="12" fontSize="12" paddingLeft="0">		
 			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
 				<mx:Text width="320" paddingRight="12"
