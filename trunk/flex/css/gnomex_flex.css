@@ -941,6 +941,37 @@ MenuBar.linkMenuBar1
 	color: #6A5858;
 	textDecoration: underline;
 }
+
+MenuBar.topMenuBar {	
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #000000;
+	menuStyleName: topMenuItem;
+	fontSize: 10;
+	fontWeight: normal;
+	highlightAlphas: .25, .9;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
+	borderColor: #FFFFFF;
+}
+
+
+.topMenuItem {
+	backgroundAlpha: 0;
+	borderColor: #FDFDFD;
+	fillAlphas: 1, 1;
+	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
+	color: #2E2D2C;
+	fontSize: 10;
+	disabledColor: #ACE2F2;
+	errorColor: #ACE2F2;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	highlightAlphas: 0,0;
+}	
+
 .titleWindowStatus
 {
 }
