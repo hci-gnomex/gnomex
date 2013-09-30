@@ -14,7 +14,7 @@ To compile GNomEx:
  - Adobe Flex 3.6 Open source  - Adobe Flex 3.6 Open source (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk)
  - Adobe Flex 3.6 Data Visualization Components for Flex Builder (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk)
  - Adobe Flex 3.5 Data Visualization Components for Flex Builder  - Adobe Flex 3.6 Open source (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk)
- - Adobe Flex 3.6 Data Visualization Components for Flex Builder (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk).  Thes files should be extracted into the sampe directory as the SDK (above).
+ - Adobe Flex 3.6 Data Visualization Components for Flex Builder (http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk).  These files should be extracted into the sampe directory as the SDK (above).
 
 
 
