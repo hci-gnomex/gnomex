@@ -1009,24 +1009,7 @@
 				}
 				
 			}
-			
-			if ((this.currentState == 'SolexaAmendState' || this.currentState == 'SolexaLaneAmendState') && theTab.selectedChild == this.seqSetup1View) {
-				// This is the 'Add services' view, so check the number of cycles radio button
-				if (this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == '') {
-					
-					nextButton.enabled = false;
-				} else {
-					nextButton.enabled = true;
-				}
-			} else if(theTab.selectedChild == this.seqSetup1View) {
-				// This is the new experiment order screen, so check both number of samples per lane as well as number of cycles radio button
-				if(this.seqSetup1View.numberSamplesPerChannel != null && 
-					(this.seqSetup1View.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == '')){
-					nextButton.enabled = false;
-				} else{
-					nextButton.enabled = true;
-				}
-			}
+
 			
 		}
 
