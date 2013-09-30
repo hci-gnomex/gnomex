@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:protocol = "views.protocol.*"
+	 showCloseButton="true"
+	  close="{mx.managers.PopUpManager.removePopUp(this)}"
+	layout="vertical" width="900" height="400">
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+	]]>
+</mx:Script>
+	<protocol:ProtocolsView id="editor">		
+	</protocol:ProtocolsView>
+</mx:TitleWindow>
