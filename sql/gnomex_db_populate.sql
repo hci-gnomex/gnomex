@@ -821,7 +821,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (6,'contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
  (7,'contact_name_core_facility','','Core facility\'s contact name', 'N'),
  (8,'contact_email_core_facility','first.last@somwhere.edu','Core facility\'s email adress', 'N'),
- (9,'help_url','http://hci-bio-wiki/biowiki','The URL to the GNomEx help documentation', 'N'),
+ (9,'help_url','http://hci-scrum.hci.utah.edu/gnomexdoc','The URL to the GNomEx help documentation', 'N'),
  (10,'pricing_url','','The URL containing pricing info.', 'N'),
  (18,'core_facility_name','Microarray and Genomic Analysis Core Facility','The name of the core facility', 'N'),
  (19,'university_user_authentication','N','Always set to \'N\' for open source GNomEx.  Indicates that authentication is performed against local user name and passwords, stored in GNomEx database.', 'N'),
@@ -913,7 +913,9 @@ Test City, UT 12345',
  (100,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
  (101,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
  (102,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
- (103,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N');
+ (103,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'),
+ (104,'fdt_help_url','http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=116','The URL to the GNomEx FDT help documentation', 'N');
+ 
  
  
  
