@@ -97,6 +97,7 @@ update Application
   where RequestCategoryType.codeRequestCategoryType='QC' and codeApplicationType is null;
 update Application set codeApplicationType='Other' where codeApplicationType is null;
 
-# Update the help_url and fdt_help
+# Update the help_url and fdt_help properties
 update PropertyDictionary set propertyValue = 'http://hci-scrum.hci.utah.edu/gnomexdoc' where propertyName = 'help_url';
 update PropertyDictionary set propertyValue = 'http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=116' where propertyName = 'fdt_help_url';
+
