@@ -437,12 +437,12 @@
 						</mx:VBox>
 						<mx:VBox left="10" top="136" right="10"  verticalGap="0" styleName="formDisplay" visible="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}" includeInLayout="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}">
 							<mx:HBox styleName="formDisplay" verticalAlign="middle">
-								<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
-								<mx:Label text="{fullProtocol.adapterSequenceThreePrime}" width="100%" />
-							</mx:HBox>
-							<mx:HBox styleName="formDisplay" verticalAlign="middle">
 								<mx:Label text="5' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
 								<mx:Label text="{fullProtocol.adapterSequenceFivePrime}" width="100%" />
+							</mx:HBox>
+							<mx:HBox styleName="formDisplay" verticalAlign="middle">
+								<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="{fullProtocol.adapterSequenceThreePrime}" width="100%" />
 							</mx:HBox>
 						</mx:VBox>
 						<mx:VBox top="180" bottom="10" left="10" right="10">

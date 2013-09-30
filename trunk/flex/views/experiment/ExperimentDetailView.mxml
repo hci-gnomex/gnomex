@@ -1170,7 +1170,7 @@
 			var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
 			PopUpManager.centerPopUp(adapterWindow);
 			adapterWindow.title = protocolClassName;
-			adapterWindow.adapterTextArea.text = "Five prime:\n " + fivePrime + "\n\n" + "Three prime:\n " + threePrime;
+			adapterWindow.adapterTextArea.text = "5' Adapter:\n " + fivePrime + "\n\n" + "3' Adapter:\n " + threePrime;
 		}
         
     	private function onGetProtocol(event:ResultEvent): void { 
@@ -1451,13 +1451,14 @@
 							 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 &amp;&amp; (this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!='' || this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!='')}"
 							 width="100%" horizontalAlign="left" horizontalGap="0"
 							 verticalAlign="top">		
-						<mx:Label text="Adapter Trimming"  id="labelAdapter" styleName="formLabel" width="100" textAlign="left"/>
+						<mx:Label id="labelAdapter" width="104" paddingLeft="4" styleName="formLabel"
+								  text="Adapter Trimming" textAlign="left"/>
 						<mx:Tile id="tileAdapter" direction="vertical" fontSize="9"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0"
 								 paddingRight="0" paddingTop="0" verticalGap="0" width="100%">
 							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!=''}"
 									 width="100%">
-								<mx:Label text="Five prime: "/>
+								<mx:Label width="20" fontSize="10" text="5'"/>
 								<mx:LinkButton width="100%"
 											   label="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}"
 											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
@@ -1467,7 +1468,7 @@
 							</mx:HBox>
 							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!=''}"
 									 width="100%">
-								<mx:Label text="Three prime: "/>
+								<mx:Label width="20" fontSize="10" text="3'"/>
 								<mx:LinkButton width="100%"
 											   label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}"
 											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
