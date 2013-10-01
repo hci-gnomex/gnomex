@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.output.XMLOutputter;
 
 
 
@@ -53,7 +52,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   private Integer          idRequest = 0;
   private String           launchAppURL;
   private String           appURL;
-  private String           showRequestFormURLBase;
   private String           serverName;
   
   public void validate() {
@@ -63,7 +61,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     try {
       launchAppURL = this.getLaunchAppURL(request);  
-      showRequestFormURLBase = this.getShowRequestFormURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
@@ -86,7 +83,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
             
       if ( codeRequestStatus.equals(null) || idRequest.equals("0") ) {
         this.addInvalidField( "Missing information", "id and code request status needed" );
@@ -211,8 +207,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         }
         
         sess.flush();
-
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
 
         this.xmlResult = "<SUCCESS idRequest=\"" + idRequest + 
         "\" codeRequestStatus=\"" + codeRequestStatus  +
@@ -383,7 +377,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       return false;
     }
     
-    String numberChips = req.getNumberIScanChips() != null ? req.getNumberIScanChips().toString() : "";
     String chipName = chip.getName() != null ? chip.getName() : "";
     String catNumber = chip.getCatalogNumber() != null ? chip.getCatalogNumber() : "";
     
@@ -400,7 +393,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     emailBody.append("<br><br><table border='0' width = '600'><tr><td>Experiment:</td><td>" + requestNumber );
     emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
     emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
-    emailBody.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
+    emailBody.append("</td></tr><tr><td>Number of Samples:</td><td>" + req.getNumberOfSamples() );
 
     emailBody.append("</td></tr></table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME + " - Upload Quote Info</a>.");
 
