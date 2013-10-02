@@ -1760,7 +1760,7 @@
 							</mx:CheckBox>
 						</mx:HBox>
 						<mx:HBox>
-							<mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow()" 
+							<mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow();showEmptyProjectFolders.selected=true;" 
 										   icon="@Embed('../../assets/folder_add.png')" 
 											   toolTip="New project..." 
 											   enabled="false" 
