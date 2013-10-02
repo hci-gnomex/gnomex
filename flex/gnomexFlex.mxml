@@ -982,7 +982,7 @@
 			
 			private var properties:Object;
 			
-			private var requestCategoryTypeMap:Object;
+			public var requestCategoryTypeMap:Object;
 			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
 			

@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -49,7 +50,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<Integer, Map<String, ?>> sampleTypeXApplicationMap = new HashMap<Integer, Map<String, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
-  private HashMap<String, Map<String, String>> applicationToRequestCategoryMap = new HashMap<String, Map<String, String>>();
+  private Map<String, List<Element>> applicationToRequestCategoryMap = new HashMap<String, List<Element>>();
   
   
   public void validate() {
@@ -105,6 +106,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         Integer prevThemeId = -1;
         DictionaryManager dm;
         Boolean foundSelected = false;
+        applicationToRequestCategoryMap = this.getApplicationRequestCategoryMap(sess, dh);
         for(Application a : this.getApplications(rc, rct)) {
           this.getSecAdvisor().flagPermissions(a);
           String curTheme = DictionaryManager.getDisplay("hci.gnomex.model.ApplicationTheme", 
@@ -115,8 +117,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
               parentNode.setAttribute("isSelected", foundSelected ? "Y" : "N");
             }
             Element themeNode = new Element("ApplicationTheme");
-            themeNode.setAttribute("applicationTheme", curTheme);
-            themeNode.setAttribute("idApplicationTheme", curThemeId.toString());
+            themeNode.setAttribute("applicationTheme", curTheme == null ? "" : curTheme);
+            themeNode.setAttribute("idApplicationTheme", curThemeId == null ? "" : curThemeId.toString());
             parentNode = themeNode;
             listNode.addContent(themeNode);
             prevTheme = curTheme;
@@ -138,16 +140,15 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("idFeatureExtractionProtocolDefault", x != null && x.getIdFeatureExtractionProtocolDefault() != null ? x.getIdFeatureExtractionProtocolDefault().toString() : "");
           applicationNode.setAttribute("selectedInOtherCategory", "N");
           
-          Map<String, String> rcAppMap = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
-          if (rcAppMap != null) {
-            for(String key : rcAppMap.keySet()) {
-              if (!rc.getCodeRequestCategory().equals(key)) {
+          List<Element> rcAppList = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
+          if (rcAppList != null) {
+            for(Element rcAppNode : rcAppList) {
+              String rcAppCodeRequestCategory = rcAppNode.getAttributeValue("codeRequestCategory");
+              String isSelected = rcAppNode.getAttributeValue("isSelected");
+              if (!rc.getCodeRequestCategory().equals(rcAppCodeRequestCategory) && isSelected.equals("Y")) {
                 applicationNode.setAttribute("selectedInOtherCategory", "Y");
               }
-              Element rcAppNode = new Element("ApplicationRequestCategory");
               applicationNode.addContent(rcAppNode);
-              rcAppNode.setAttribute("codeRequestCategory", key);
-              rcAppNode.setAttribute("requestCategory", rcAppMap.get(key));
             }
           }
         }
@@ -281,14 +282,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
-      
-      String rc = dh.getRequestCategory(x.getCodeRequestCategory());
-      Map<String, String> rcMap = this.applicationToRequestCategoryMap.get(x.getCodeApplication());
-      if (rcMap == null) {
-        rcMap = new HashMap<String, String>();
-      }
-      rcMap.put(x.getCodeRequestCategory(), rc);
-      this.applicationToRequestCategoryMap.put(x.getCodeApplication(), rcMap);
     }
     
     List sampleTypeXApplications = sess.createQuery("SELECT x from SampleTypeApplication x").list();
@@ -350,6 +343,45 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
     
     return apps;
+  }
+  
+  private Map<String, List<Element>> getApplicationRequestCategoryMap(Session sess, DictionaryHelper dh) throws XMLReflectException {
+    Map<String, List<Element>> arcMap = new HashMap<String, List<Element>>();
+    String appQueryString = "from Application";
+    Query appQuery = sess.createQuery(appQueryString);
+    List apps = appQuery.list();
+    
+    Map<String, String> selectedCategories = new HashMap<String, String>();
+    String rcaQueryString = "from RequestCategoryApplication";
+    Query rcaQuery = sess.createQuery(rcaQueryString);
+    List rcaQueryList =rcaQuery.list();
+    for(RequestCategoryApplication rca : (List<RequestCategoryApplication>)rcaQueryList) {
+      String key = rca.getCodeApplication() + "\t" + rca.getCodeRequestCategory();
+      selectedCategories.put(key, key);
+    }
+    
+    String rcQueryString = "from RequestCategory";
+    Query rcQuery = sess.createQuery(rcQueryString);
+    List rcList = rcQuery.list();
+    for (RequestCategory rc : (List<RequestCategory>)rcList) {
+      Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      for(Application app : (List<Application>)apps) {
+        if (app.isApplicableApplication(rc.getCategoryType())) {
+          Element rcaNode = (Element)node.clone();
+          rcaNode.setName("RequestCategoryApplication");
+          String key = app.getCodeApplication() + "\t" + rc.getCodeRequestCategory();
+          rcaNode.setAttribute("isSelected", selectedCategories.containsKey(key) ? "Y" : "N");
+          List<Element> appRCList = arcMap.get(app.getCodeApplication());
+          if (appRCList == null) {
+            appRCList = new ArrayList<Element>();
+          }
+          appRCList.add(rcaNode);
+          arcMap.put(app.getCodeApplication(), appRCList);
+        }
+      }
+    }
+    
+    return arcMap;
   }
   
   private class appComparator implements Comparator<Application>, Serializable {

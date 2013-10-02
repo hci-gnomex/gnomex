@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -52,11 +53,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private String                         sequencingOptionsXMLString;
   private Document                       sequencingOptionsDoc; 
+
+  private Document                       requestCategoryApplicationsDoc;
   
   private RequestCategory                rcScreen;
   private boolean                        isNewRequestCategory = false;
   
   private String                         newCodeRequestCategory;
+  
+  private Map<String, String>            newCodeApplicationMap;
   
   
   public void validate() {
@@ -137,6 +142,18 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
     } 
+    
+    if (request.getParameter("requestCategoryApplicationXMLString") != null && !request.getParameter("requestCategoryApplicationXMLString").equals("")) {
+      String requestCategoryApplicationXMLString = request.getParameter("requestCategoryApplicationXMLString");
+      StringReader reader = new StringReader(requestCategoryApplicationXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        requestCategoryApplicationsDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse requestCategoryApplicationXMLString", je );
+        this.addInvalidField( "requestCategoryApplicationXMLString", "Invalid requestCategoryApplicationXMLString");
+      }
+    }
       
 
   }
@@ -183,7 +200,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSampleTypes(sess, rc);
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
-
+        saveRequestCategoryApplications(sess);
+        
         sess.flush();
 
 
@@ -358,6 +376,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategoryType rct = dh.getRequestCategoryType(rc.getType());
     
+    newCodeApplicationMap = new HashMap<String, String>();
+    
     //
     // Save applications
     //
@@ -372,6 +392,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (codeApplication.startsWith("Application")) {
         app = new Application();
         app.setCodeApplication("APP" + getNextAssignedAppNumber(sess));
+        newCodeApplicationMap.put(codeApplication, app.getCodeApplication());
       } else {
         app = (Application) sess.load(Application.class, codeApplication);
       }
@@ -407,45 +428,48 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       applicationMap.put(app.getCodeApplication(), null);
 
-      //
-      // Save association between application and request category
-      //
-      List existingAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + app.getCodeApplication() + "' and x.codeRequestCategory = '" + rc.getCodeRequestCategory() + "'").list();
-      if (node.getAttributeValue("isSelected").equals("Y")) {
-        // if selected make it active
-        app.setIsActive("Y");
-        if (existingAssociations.size() == 0) {
-          RequestCategoryApplication x = new RequestCategoryApplication();
-          x.setCodeApplication(app.getCodeApplication());
-          x.setCodeRequestCategory(rc.getCodeRequestCategory());
-          x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
-          x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
-          x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
-          x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
-          sess.save(x);
-        } else {
-          for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
-            RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+      if (this.requestCategoryApplicationsDoc == null) {
+        //
+        // Save association between application and request category
+        // Note if requestCategoryApplicationsDoc is parsed then it is done in saveRequestCategoryApplications
+        //
+        List existingAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + app.getCodeApplication() + "' and x.codeRequestCategory = '" + rc.getCodeRequestCategory() + "'").list();
+        if (node.getAttributeValue("isSelected").equals("Y")) {
+          // if selected make it active
+          app.setIsActive("Y");
+          if (existingAssociations.size() == 0) {
+            RequestCategoryApplication x = new RequestCategoryApplication();
+            x.setCodeApplication(app.getCodeApplication());
+            x.setCodeRequestCategory(rc.getCodeRequestCategory());
             x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
             x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
             x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
             x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
             sess.save(x);
+          } else {
+            for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
+              RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+              x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
+              x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
+              x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
+              x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
+              sess.save(x);
+            }
           }
+        } else {
+          for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
+            RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+            sess.delete(x);
+          }
+          sess.flush();
         }
-      } else {
-        for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
-          RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
-          sess.delete(x);
-        }
-        sess.flush();
       }
-
+      
       //
       // Save association between applications and seq lib protocols
       //
       String idSeqLibProtocols = node.getAttributeValue("idSeqLibProtocols");
-      existingAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + app.getCodeApplication() + "'").list();
+      List existingAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + app.getCodeApplication() + "'").list();
       HashMap<Integer, SeqLibProtocolApplication> existingProtocolMap = new HashMap<Integer, SeqLibProtocolApplication>();
       for (Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
         SeqLibProtocolApplication x = (SeqLibProtocolApplication)i1.next();
@@ -526,6 +550,47 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }    
     sess.flush();
 
+  }
+  
+  private void saveRequestCategoryApplications(Session sess) {
+    if (requestCategoryApplicationsDoc == null || requestCategoryApplicationsDoc.getRootElement().getChildren().size() == 0) {
+      return;
+    }
+   
+    Map<String, Element> requestCategoryApplicationMap = new HashMap<String, Element>();
+    for(Iterator i = this.requestCategoryApplicationsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      String key = node.getAttributeValue("codeApplication") + "\t" + node.getAttributeValue("codeRequestCategory");
+      node.setAttribute("isStored", "N");
+      requestCategoryApplicationMap.put(key, node);
+    }
+    
+    for (RequestCategoryApplication recApp : (List<RequestCategoryApplication>)sess.createQuery("from RequestCategoryApplication").list()) {
+      String key = recApp.getCodeApplication() + "\t" + recApp.getCodeRequestCategory();
+      Element node = requestCategoryApplicationMap.get(key);
+      if (node != null) {
+        if (!node.getAttributeValue("isSelected").equals("Y")) {
+          sess.delete(recApp);
+        } else {
+          node.setAttribute("isStored", "Y");
+        }
+      }
+    }
+    
+    for(String key : requestCategoryApplicationMap.keySet()) {
+      Element node = requestCategoryApplicationMap.get(key);
+      if (!node.getAttributeValue("isStored").equals("Y") && node.getAttributeValue("isSelected").equals("Y")) {
+        RequestCategoryApplication recApp = new RequestCategoryApplication();
+        String codeApplication = node.getAttributeValue("codeApplication");
+        if (this.newCodeApplicationMap.containsKey(codeApplication)) {
+          codeApplication = this.newCodeApplicationMap.get(codeApplication);
+        }
+        recApp.setCodeApplication(codeApplication);
+        recApp.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
+        sess.save(recApp);
+      }
+    }
+    
   }
   
   private Boolean appSelectedInRequestCategory(Session sess, Application app, String isSelected, RequestCategory rc) {
