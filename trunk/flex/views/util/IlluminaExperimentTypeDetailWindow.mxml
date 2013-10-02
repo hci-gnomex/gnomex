@@ -38,9 +38,12 @@
 			
 			private var selectedItem:Object;
 			
+			private var MULTI_SEQ_LIB_PROTOCOL:String = "seqLibProtocol";
+			private var MULTI_REQUEST_CATEGORY:String = "requestCategory";
+			private var multiSelectOpened:String = "";
+			
 			public function init(parentWindow:views.util.ExperimentPlatformWindow, selectedItem:Object):void {
 				this.parentWindow = parentWindow;
-				includeInSelectedPlatform.label = "Include In " + parentWindow.requestCategory.@requestCategory.toString(); 
 				themeCombo.setFocus();
 				var test:XMLList = parentWindow.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry;
 				allSeqLibProtocols = parentWindow.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' && @isActive != 'N');
@@ -48,7 +51,6 @@
 				
 				initValues(selectedItem);
 			}
-			
 			
 			private function initValues(selectedItem:Object):void {
 				for each (var t:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.ApplicationTheme')) {
@@ -73,8 +75,31 @@
 				captureLibDesign.selected = selectedItem.hasOwnProperty("@hasCaptureLibDesign") ? selectedItem.@hasCaptureLibDesign == 'Y' : false;
 				
 				initSelectedProtocols(selectedItem.hasOwnProperty("@idSeqLibProtocols") ? selectedItem.@idSeqLibProtocols : "");
+
+				setPlatformText();
 				
 				dirty.resetDirty();
+			}
+			
+			private function setPlatformText():void {
+				var txt:String = "";
+				for each(var p:XML in selectedItem..RequestCategoryApplication) {
+					if (p.@isSelected == 'Y') {
+						if (p.@codeRequestCategory == parentWindow.requestCategory.@codeRequestCategory) {
+							if (txt.length > 0) {
+								txt = ", " + txt;
+							}
+							txt = "<b>" + p.@requestCategory.toString() + "</b>" + txt;
+						} else {
+							if (txt.length > 0) {
+								txt += ", ";
+							}
+							txt += p.@requestCategory.toString();
+						}
+					}
+				}
+				
+				this.platforms.htmlText = txt;
 			}
 			
 			private function initSelectedProtocols(ids:String):void {
@@ -86,6 +111,38 @@
 				}
 			}
 			
+			private function setSelectedRequestCategories(ids:String):void {
+				var values:Array = ids.split(",");
+				var anyFound:Boolean = false;
+				selectedItem.@isSelected = "N";
+				for each (var node:XML in selectedItem..RequestCategoryApplication) {
+					var found:Boolean = false;
+					for each (var id:String in values) {
+						if (id == node.@codeRequestCategory) {
+							found = true;
+							anyFound = true;
+							if (id == parentWindow.requestCategory.@codeRequestCategory) {
+								selectedItem.@isSelected = "Y";
+							}
+							break;
+						}
+					}
+					if (found) {
+						node.@isSelected = "Y";
+					} else {
+						node.@isSelected = "N";
+					}
+				}
+				setPlatformText();
+				if (anyFound) {
+					isActiveCheckBox.selected = true;
+				}
+				
+				isActiveCheckBox.enabled = !anyFound;
+				
+				dirty.setDirty();
+			}
+
 			private function configureStepsClick():void {
 				var configureStepsWindow:LibPrepStepsWindow = LibPrepStepsWindow(mx.managers.PopUpManager.createPopUp(this, LibPrepStepsWindow, true));
 				configureStepsWindow.init(this.dirty, selectedItem);
@@ -105,6 +162,8 @@
 			}
 			
 			private function addExistingSeqLibProtocol():void {
+				// Note that MultiselectPopupCommon will call updatedp function at end.  Should change to event.
+				this.multiSelectOpened = this.MULTI_SEQ_LIB_PROTOCOL;
 				var protocols:String = buildProtocolsString();
 				var pop:MultiselectPopupCommon = MultiselectPopupCommon(PopUpManager.createPopUp(parentApplication.theBody, MultiselectPopupCommon,true));
 				pop.initializeData("Select Protocols", protocols, allSeqLibProtocols);
@@ -113,7 +172,11 @@
 			}
 			
 			public function updateDP(str:String):void{
-				initSelectedProtocols(str);
+				if (this.multiSelectOpened == this.MULTI_SEQ_LIB_PROTOCOL) {
+					initSelectedProtocols(str);
+				} else if (this.multiSelectOpened == this.MULTI_REQUEST_CATEGORY) {
+					setSelectedRequestCategories(str);
+				} 
 			}
 
 			private function buildProtocolsString():String {
@@ -186,7 +249,7 @@
 				selectedItem.@application = experimentTypeName.text;
 				selectedItem.@display = experimentTypeName.text;
 				selectedItem.@sortOrder = sortOrderCombo.selectedItem == null ? '0' : sortOrderCombo.selectedItem;
-				selectedItem.@isSelected = includeInSelectedPlatform.selected ? 'Y' : 'N';
+				// isSelected is set in updateDP function
 				selectedItem.@onlyForLabPrepped = onlyWhenLabPrepsSamples.selected ? 'Y' : 'N';
 				selectedItem.@hasCaptureLibDesign = captureLibDesign.selected ? 'Y' : 'N';
 				selectedItem.@idSeqLibProtocols = buildProtocolsString();
@@ -237,6 +300,35 @@
 				
 				dirty.setDirty();
 			}
+			
+			private function buildRequestCategoriesString():String {
+				var ids:String = "";
+				for each(var p:XML in selectedItem..RequestCategoryApplication) {
+					if (p.@isSelected == 'Y') {
+						if (ids.length > 0) {
+							ids += ",";
+						}
+						ids += p.@codeRequestCategory.toString();
+					}
+				}
+				
+				return ids;
+			}
+			
+			private function includeInSelectedPlatformClick():void {
+				// Note that MultiselectPopupCommon will call updatedp function at end.  Should change to event.
+				this.multiSelectOpened = this.MULTI_REQUEST_CATEGORY;
+				var categories:String = buildRequestCategoriesString();
+				var pop:MultiselectPopupCommon = MultiselectPopupCommon(PopUpManager.createPopUp(parentApplication.theBody, MultiselectPopupCommon, true));
+				var allActiveCategories:XMLList = new XMLList();
+				for each (var cat:XML in selectedItem..RequestCategoryApplication) {
+					if (cat.@isActive == 'Y') {
+						allActiveCategories += cat;
+					}
+				} 
+				pop.initializeData("Select Platforms", categories, allActiveCategories);
+				pop.opener=this;
+			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
@@ -271,11 +363,16 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-			<mx:CheckBox id="includeInSelectedPlatform" label="Include In Selected Platform" click="{includeInSelectedPlatformChanged()}" width="100%" /> 
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="top" paddingTop="0">
+			<!--<mx:CheckBox id="includeInSelectedPlatform" label="Include In Selected Platform" click="{includeInSelectedPlatformChanged()}" width="100%" />-->
+			<mx:LinkButton id="includeInSelectedPlatform" label="Platforms" click="includeInSelectedPlatformClick()" textDecoration="underline"
+						   styleName="formLabel" textAlign="left"/>
+			<mx:HBox width="100%" verticalScrollPolicy="auto" height="40" paddingTop="0" paddingBottom="0" >
+				<mx:Text width="100%" id="platforms" />
+			</mx:HBox>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
 			<mx:CheckBox id="captureLibDesign" label="Capture Lib Design" click="{dirty.setDirty()}" /> 
 			<mx:Spacer width="100%" />
 			<mx:LinkButton label="Configure Lib Prep Steps" 

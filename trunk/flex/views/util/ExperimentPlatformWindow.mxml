@@ -92,6 +92,7 @@
 			}
 			
 			private function onGetExperimentPlatformList(event:ResultEvent): void {
+				this.enabled = true;
 				if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
 					this.nextNewAppNum = 0;
 					platforms.filterFunction = isPlatformVisible;
@@ -162,6 +163,25 @@
 				params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
 				params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
 				
+				if (this.typeCombo.selectedItem != null && this.typeCombo.selectedItem.@isIllumina=='Y') {
+					// Illumina allows setting of app/request cateogry relationship across multiple request categories.
+					var rcAppsList:XMLListCollection = new XMLListCollection();
+					for each (var app:XML in applications) {
+						for each (var rcApp:XML in app.children()) {
+							if (rcApp.name() == "RequestCategoryApplication") {
+								var ra:XML = new XML("<RequestCategoryApplication />");
+								ra.@isSelected = rcApp.@isSelected;
+								ra.@codeRequestCategory = rcApp.@codeRequestCategory;
+								ra.@codeApplication = app.@codeApplication;
+								ra.@appIsActive = app.@isActive;
+								ra.@requestCategoryIsActive = rcApp.@isActive;
+								rcAppsList.addItem(ra);
+							}
+						}
+					}
+					params.requestCategoryApplicationXMLString = "<requestCategoryApplications>" + rcAppsList.toXMLString() + "</requestCategoryApplications>";
+				}
+				
 				saveExperimentPlatform.send(params);
 			}			
 			
@@ -189,23 +209,22 @@
 			
 			private function onSaveExperimentPlatform(event:ResultEvent): void {
 				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+					this.enabled = false;
 					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
-					getExperimentPlatformList.send();
 					parentApplication.dictionaryManager.reload();
+					getExperimentPlatformList.send();
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
+			
 			private function addPlatform():void {
-				
 				var addWindow:ExperimentPlatformAddWindow = ExperimentPlatformAddWindow(PopUpManager.createPopUp(mainBody, ExperimentPlatformAddWindow, true));
 				PopUpManager.centerPopUp(addWindow);
 				addWindow.parentWindow = this;
 				addWindow.platformName.setFocus();
 				this.theViews.selectedIndex = 1;
 				this.theTabs.selectedIndex = 0;
-				
-				
 			}
 			
 			private function removePlatform():void {
@@ -312,6 +331,10 @@
 			}
 			
 			private function editExperimentType():void {
+				if (XML(appTree.selectedItem).name().toString() == "ApplicationTheme") {
+					Alert.show("Please click on an experiment type instead of a theme.  (Choose 'Other' checkbox above to see unselected experiment types)");
+					return;
+				}
 				showEditExperimentTypeWindow(appTree.selectedItem);
 			}
 
@@ -336,6 +359,18 @@
 					" isActive='Y'" +
 					" />");
 				if (typeCombo.selectedItem.@isIllumina == 'Y') {
+					// Illumina window needs list of all illumina request categories.
+					var rcApps:XMLList = new XMLList();
+					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						var rct:Object = parentApplication.requestCategoryTypeMap[rc.@type];
+						if (rct.@isIllumina == 'Y') {
+							var rcApp:XML = XML(rc).copy();
+							rcApp.setName("RequestCategoryApplication");
+							rcApp.@isSelected = rcApp.@isActive;
+							rcApps += rcApp;
+						}
+					}
+					newNode.setChildren(rcApps);
 					showEditExperimentTypeWindow(newNode);
 				} else {
 					this.applications.addItemAt(newNode, 0);
@@ -679,7 +714,7 @@
 						newList += child;
 					} else if (child.name() == 'Application' && applicationIsVisible(child)) { 
 						newList += child;
-					} // note ignore ApplicationRequestCategory children
+					} // note ignore RequestCategoryApplication children
 				}
 				
 				return new XMLListCollection(newList);
@@ -688,7 +723,7 @@
 			private function applicationIsVisible(obj:Object):Boolean {
 				var node:XML = XML(obj);
 				var v:Boolean = false;
-				if (appGrid.selectedIndex == 0) {
+				if (this.typeCombo.selectedItem == null || this.typeCombo.selectedItem.@isIllumina!='Y') {
 					v = true;
 				} else if (node.name() == 'Application') {
 					if (node.@isSelected == 'Y') {
