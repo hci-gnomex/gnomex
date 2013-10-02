@@ -2,7 +2,6 @@
 
 TOMCAT_HOME=../../../
 COMMON_LIB=$TOMCAT_HOME/lib
-OPENEJB_LIB=$TOMCAT_HOME/webapps/openejb/lib
 
 GNOMEX_LIB=../WEB-INF/lib
 GNOMEX_CLASSES=../WEB-INF/classes
