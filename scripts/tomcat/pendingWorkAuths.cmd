@@ -1,14 +1,13 @@
 @echo off
 
 set TOMCAT_HOME=..\..\..\
-set COMMON_LIB=%TOMCAT_HOME%\common\lib
-set OPENEJB=%TOMCAT_HOME%\webapps\openejb\lib
+set COMMON_LIB=%TOMCAT_HOME%\lib
 
 set GNOMEX_LIB=..\WEB-INF\lib
 set GNOMEX_CLASSES=..\WEB-INF\classes
 
 
-set CP=.;%GNOMEX_CLASSES%;%OPENEJB%\commons-logging-1.1.jar;%OPENEJB%\commons-collections-3.2.jar;%OPENEJB%\javaee-api-5.0-3.jar;
+set CP=.;%GNOMEX_CLASSES%;
 
 for %%i in (%GNOMEX_LIB%\*.jar) do call append_classpath.cmd %%i
 

@@ -22,8 +22,6 @@ import org.xml.sax.SAXException;
 
 public class BatchDataSource extends DetailObject {
   
-  private static final String         GNOMEX_AES_KEY = "gnomex.aes.key"; 
-
   
   private String          gnomex_db_driver;
   private String          gnomex_db_url;
@@ -36,7 +34,7 @@ public class BatchDataSource extends DetailObject {
   private String          specifiedOrionPath = "";
   private String          specifiedSchemaPath = "";
   
-  private Properties      catalinaProperties;
+  private TomcatCatalinaProperties catalinaProperties;
   
   
   public BatchDataSource() {
@@ -71,7 +69,7 @@ public class BatchDataSource extends DetailObject {
   }
 
   public Session connectTomcat(File dataSourcesFile) throws Exception {
-    getCatalinaProperties();
+    catalinaProperties = new TomcatCatalinaProperties(specifiedOrionPath);
     this.registerTomcatDataSources(dataSourcesFile);
     String filePath = "../WEB-INF/classes/";
     if(specifiedSchemaPath.length() > 0) {
@@ -80,20 +78,6 @@ public class BatchDataSource extends DetailObject {
     filePath = filePath + "SchemaGNomEx.hbm.xml";
     configuration = new Configuration().addFile(filePath);
     return connectImpl();
-  }
-  
-  private void getCatalinaProperties() throws IOException {
-    String filePath = specifiedOrionPath + "../../../conf/catalina.properties";
-    catalinaProperties = new Properties();
-    catalinaProperties.load(new FileInputStream(filePath));
-    
-    filePath = "/properties/gnomex_tomcat.properties";
-    File f = new File(filePath);
-    if (f.exists()) {
-      Properties p1 = new Properties();
-      p1.load(new FileInputStream(filePath));
-      catalinaProperties.put(GNOMEX_AES_KEY, p1.getProperty("key"));
-    }
   }
   
   public Session connectOrion(File dataSourcesFile) throws Exception {
@@ -187,30 +171,12 @@ public class BatchDataSource extends DetailObject {
     while (i.hasNext()) {
       Element e = (Element) i.next();
       if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("jdbc/GNOMEX_GUEST")) {
-        gnomex_db_driver = getTomcatPropertyToken(e.getAttributeValue("driverClassName"));
-        gnomex_db_url = getTomcatPropertyToken(e.getAttributeValue("url"));
-        gnomex_db_password = decryptPassword(getTomcatPropertyToken(e.getAttributeValue("password")));
-        gnomex_db_username = getTomcatPropertyToken(e.getAttributeValue("username"));
+        gnomex_db_driver = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("driverClassName"));
+        gnomex_db_url = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("url"));
+        gnomex_db_password = catalinaProperties.decryptPassword(catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("password")));
+        gnomex_db_username = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("username"));
       } 
     }
-  }
-  
-  private String getTomcatPropertyToken(String inputToken) {
-    String outputToken = inputToken;
-    if (inputToken != null && inputToken.startsWith("${") && inputToken.endsWith("}")) {
-      outputToken = catalinaProperties.getProperty(inputToken.substring(2, inputToken.length() - 1));
-    }
-    return outputToken;
-  }
-  
-  private String decryptPassword(String encryptedPassword) throws Exception {
-    String key = catalinaProperties.getProperty(GNOMEX_AES_KEY);
-    String decryptedPassword = encryptedPassword;
-    if (key != null) {
-      AESEncryption e = new AESEncryption(key);
-      decryptedPassword = e.decrypt(encryptedPassword);
-    }
-    return decryptedPassword;
   }
   
   // Bypassed dtd validation when reading data sources.
