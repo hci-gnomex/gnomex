@@ -260,6 +260,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     }
     
     String labName = lab.getName()!=null ? lab.getName() : "";
+    String submitterName = req.getSubmitterName()!=null ? req.getSubmitterName() : "";
     String acctName = acct.getAccountName() != null ? acct.getAccountName() : "";
     String acctNumber = acct.getAccountNumber() != null ? acct.getAccountNumber() : "";
     String numberChips = req.getNumberIScanChips() != null ? req.getNumberIScanChips().toString() : "";
@@ -271,8 +272,9 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     estimatedCost = chip.getCostPerSample().multiply( new BigDecimal(chip.getSamplesPerChip()) );
     estimatedCost = estimatedCost.multiply( new BigDecimal(req.getNumberIScanChips()) );
 
+    // Email to purchasing department
     StringBuffer emailBody = new StringBuffer();
-
+    
     emailBody.append("A purchasing request for Illumina iScan chips has been submitted by the " + 
         labName +
     ".");
@@ -286,21 +288,42 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     emailBody.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
 
     emailBody.append("</td></tr></table><br><br>");
+    
+    // Email for the lab PI and Billing contact requesting signature on req form
+    StringBuffer emailBodyForLab = new StringBuffer();
 
+    emailBodyForLab.append("A purchasing request for Illumina iScan chips has been submitted by " + 
+        submitterName +
+    ".");
+    emailBodyForLab.append("<br><br><table border='0' width = '600'><tr><td>Lab:</td><td>" + labName );
+    emailBodyForLab.append("</td></tr><tr><td>Account Name:</td><td>" + acctName );
+    emailBodyForLab.append("</td></tr><tr><td>Account Number:</td><td>" + acctNumber );
+    emailBodyForLab.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
+    emailBodyForLab.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
+    emailBodyForLab.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
+    emailBodyForLab.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + "$" + estimatedCost);
+    emailBodyForLab.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
+
+    emailBodyForLab.append("</td></tr></table><br><br>");
+    emailBodyForLab.append("</td></tr></table>");
+    
+    emailBodyForLab.append("<b><FONT COLOR=\"#ff0000\">Please sign the attached requisition form and send it to the purchasing department.</FONT></b>");
+    
     String subject = "Purchasing Request for iScan Chips";
 
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
-
+    String contactEmailLabBilling = lab.getBillingContactEmail() != null ? lab.getBillingContactEmail() : "";
+    String contactEmailLabPI = lab.getContactEmail() != null ? lab.getContactEmail() : "";
+    
     String senderEmail = contactEmailCoreFacility;
-
     String contactEmail = contactEmailPurchasing;
     String ccEmail = null;
-
 
     String emailInfo = "";
     boolean send = false;
 
+    // Check that purchasing email is valid
     if(contactEmail.contains(",")){
       for(String e: contactEmail.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){
@@ -327,13 +350,14 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     String createYear = formatter.format(req.getCreateDate());
     String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, req.getIdCoreFacility());
     baseDir +=  "/" + createYear;
-    String directoryName = baseDir + "/" + Request.getBaseRequestNumber(req.getNumber());
-    directoryName += "/" + Constants.REQUISITION_DIR;
+    baseDir = baseDir + "/" + Request.getBaseRequestNumber(req.getNumber());
+    String directoryName = baseDir + "/" + Constants.REQUISITION_DIR;
     File reqFolder = new File(directoryName);
     if ( !reqFolder.exists() ) {
       send = false;
     }
     
+    // Send email to purchasing
     if (send) {
       if(!MailUtil.isValidEmail(senderEmail)){
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
@@ -344,8 +368,57 @@ public class UploadQuoteInfoServlet extends HttpServlet {
           subject, 
           emailInfo + emailBody.toString(),
           true,
+          new File(baseDir));      
+    }
+    
+    // Now send the email to lab billing contact and PI
+    contactEmail = contactEmailLabPI;
+    ccEmail = contactEmailLabBilling;
+    
+    // Check billing contact email
+    if(contactEmail.contains(",")){
+      for(String e: contactEmail.split(",")){
+        if(!MailUtil.isValidEmail(e.trim())){
+          System.out.println("Invalid email address for lab: " + e);
+        }
+      }
+    } else{
+      if(!MailUtil.isValidEmail(contactEmail)){
+        System.out.println("Invalid email address for lab: " + contactEmail);
+      }
+    }
+    
+    // Check PI email
+    if(ccEmail.contains(",")){
+      for(String e: ccEmail.split(",")){
+        if(!MailUtil.isValidEmail(e.trim())){
+          ccEmail = null;
+        }
+      }
+    } else{
+      if(!MailUtil.isValidEmail(ccEmail)){
+        ccEmail = null;
+      }
+    }
+    if ( contactEmail.equals("") && ccEmail != null ) {
+      contactEmail = ccEmail;
+      ccEmail = null;
+    }
+    if (!dictionaryHelper.isProductionServer(serverName)) {
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + ( ccEmail!=null ? ", " + ccEmail : "" ) + "]<br><br>";
+      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      ccEmail = null;
+    } 
+    if (send && !contactEmail.equals( "" )) {
+      MailUtil.send_attach(contactEmail, 
+          ccEmail,
+          senderEmail, 
+          subject, 
+          emailInfo + emailBodyForLab.toString(),
+          true,
           reqFolder);      
     }
-     return send;
+    
+    return send;
   }
 }
