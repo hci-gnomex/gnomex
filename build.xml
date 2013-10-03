@@ -542,6 +542,7 @@
 			   <exclude name="mail.jar"/>
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
+       <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
 			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
