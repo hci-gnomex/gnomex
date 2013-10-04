@@ -170,7 +170,7 @@ public class BatchDataSource extends DetailObject {
     Iterator i = root.getChildren("Resource").iterator();
     while (i.hasNext()) {
       Element e = (Element) i.next();
-      if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("jdbc/GNOMEX_GUEST")) {
+      if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("jdbc/GNOMEX")) {
         gnomex_db_driver = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("driverClassName"));
         gnomex_db_url = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("url"));
         gnomex_db_password = catalinaProperties.decryptPassword(catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("password")));
