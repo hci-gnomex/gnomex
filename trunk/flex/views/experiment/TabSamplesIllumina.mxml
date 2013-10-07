@@ -211,6 +211,18 @@
 				samplesGrid.selectedIndex = idx;
 			}
 			
+			private function promptToDeleteSample():void{
+				if(samplesGrid.selectedItem != null){
+					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
+				}
+			}
+			
+			private function onPromptToDeleteSample(event:CloseEvent):void{
+				if(event.detail == Alert.YES){
+					deleteTheSample();
+				}
+			}
+			
 			override public function initializeSamplesGrid():void {
 				if (parentDocument.requestToClone != null) {
 					return;
@@ -907,7 +919,7 @@
 							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-				<mx:LinkButton textDecoration="underline" label="Delete sample" click="deleteTheSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Delete sample" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 				<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 			</mx:HBox>
