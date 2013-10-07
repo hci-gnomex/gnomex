@@ -716,8 +716,7 @@
 					if (currentState != null && currentState.indexOf('QCSamples') >= 0){
 						if (!parentApplication.submitInternalExperiment()) {
 							if (isEntered(sample, "@name") &&
-								reqdAnnotationsEntered(sample) &&
-								isEntered(sample, "@idSampleType")) {
+								reqdAnnotationsEntered(sample)) {
 								completeCount++;
 							}
 						} else {
@@ -785,8 +784,7 @@
 						completeCount++;
 						
 					} else {
-						if (isEntered(sample, "@name") &&
-							isEntered(sample, "@idSampleType") &&		        		
+						if (isEntered(sample, "@name") &&	        		
 							(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
 							reqdAnnotationsEntered(sample) &&
 							isEntered(sample, "@idOrganism")) {
@@ -1578,7 +1576,7 @@
 
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
 													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
