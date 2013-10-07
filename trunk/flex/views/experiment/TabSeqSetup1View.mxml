@@ -44,7 +44,7 @@
 		[Bindable]
 		private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
 		
-		private var configuredCodeRequestCategory:String = "";
+		public var configuredCodeRequestCategory:String = "";
 		private var configuredEditState:String = "";
 		
 		[Bindable]
@@ -58,7 +58,7 @@
 		public var selectedIdLab:String = null;
 		public var selectedCodeRequestCategory:String = null;
 		private var loadedIdLab:String = null;
-		private var loadedCodeRequestCategory:String = null;
+		public var loadedCodeRequestCategory:String = null;
 		private var priceMap:Dictionary = new Dictionary();
 		
 		private function init():void {
