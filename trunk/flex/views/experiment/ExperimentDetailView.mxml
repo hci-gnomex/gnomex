@@ -39,8 +39,8 @@
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.Text;
 		import views.renderers.URLRenderer;
-		import views.util.RunAlignmentWindow;
 		import views.util.CollaboratorWindow;
+		import views.util.RunAlignmentWindow;
 		
 		public var sampleGroupingCollection:GroupingCollection = null;		
 		
@@ -1002,7 +1002,8 @@
 					this.qcRINCol.visible = true;
 					this.qcStatusCol.visible = true;
         		}
-        	} 
+        	}
+
         	this.initializeBarcoding();
 			otherOrganismCol.visible = false;
         }
@@ -1354,7 +1355,7 @@
 								<mx:Label width="100"  id="label5"/>
 								<mx:Text   text="{experimentCategoryName}" width="280"/>
 							</mx:HBox>
-							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y'}" id="hbox3">
+							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName.indexOf(',') != -1}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName.indexOf(',') != -1}" id="hbox3">
 								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="left" id="label6"/>
 								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
 							</mx:HBox>
