@@ -942,14 +942,6 @@
 				}
 				parentDocument.samples.enableAutoUpdate();
 			}
-			
-			override public function propagateOrganism(idOrganism:String):void {
-				if (!parentApplication.submitInternalExperiment()) {
-					for each (var s:Object in parentDocument.samples) {
-						s.@idOrganism = idOrganism;
-					}
-				}
-			}
 
 			override public function propagateNumberSequencingCycles(theSample:Object):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
