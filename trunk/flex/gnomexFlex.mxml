@@ -2007,8 +2007,14 @@
 				if (!usesKindOfRequestCategory("MISEQ")) {
 					hideMenusByContext(navMenu, "MISEQ");
 				}
-				if (!usesKindOfRequestCategory("SOLEXA")) {
-					hideMenusByContext(navMenu, "SOLEXA");
+				if (!usesExperimentType("HISEQ")) {
+					hideMenusByContext(navMenu, "HISEQ");
+				}
+				if (!usesExperimentType("QC")) {
+					hideMenusByContext(navMenu, "QC");
+				}
+				if (!usesExperimentType("Microarray")) {
+					hideMenusByContext(navMenu, "microarray");
 				}
 				if(this.isGuestMode()){
 					hideMenusByContext(navMenu, "guest");
@@ -3555,33 +3561,27 @@
 		<menuitem label="Topics" icon="iconTopic" context="bioinformatics"   />
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
-			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
-			<menuitem type="separator"/>
-			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
-			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
-			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
-			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
-			<menuitem type="separator"/>
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
 				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
-			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
-				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
-				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
-				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
-				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
-			</menuitem>
-			<menuitem label="Microarray..." icon="iconMicroarray"   >
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"  >
 				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
 				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
 				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
 			</menuitem>
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="workflowAllSeparator"/>
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="plateRunSeparator"/>
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
@@ -3589,31 +3589,25 @@
 		</menuitem>
 
 		<menuitem label="Workflow" icon="iconWorkflow">
-			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
-			<menuitem type="separator"/>
-			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
-			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
-			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
-			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
-			<menuitem type="separator"/>
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  context="HISEQ" />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
 				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
-			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
-				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
-				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
-				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
-				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
-			</menuitem>
-			<menuitem label="Microarray..." icon="iconMicroarray"   >
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"  >
 				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
 				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
 				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
 			</menuitem>
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="workflowAllSeparator"/>
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
 			
 		</menuitem>
@@ -3778,33 +3772,27 @@
 		</menuitem>
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
-			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
-			<menuitem type="separator"/>
-			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
-			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
-			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
-			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
-			<menuitem type="separator"/>
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
 				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
-			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
-				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
-				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
-				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
-				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
-			</menuitem>
-			<menuitem label="Microarray..." icon="iconMicroarray"   >
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"   >
 				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
 				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
 				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
 			</menuitem>
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="workflowAllSeparator"/>
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="plateRunSeparator"/>
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
