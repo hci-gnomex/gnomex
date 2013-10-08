@@ -274,21 +274,32 @@ public class GetRequest extends GNomExCommand implements Serializable {
           requestNode.setAttribute("organismName", "");
           requestNode.setAttribute("otherOrganism","");
           if (request.getSamples().size() > 0) {
-            Integer idOrganism = ((Sample)(request.getSamples().toArray()[0])).getIdOrganism();
-            String otherOrganism = ((Sample)(request.getSamples().toArray()[0])).getOtherOrganism();
-            if (otherOrganism == null) {
-              otherOrganism = "";
-            }
-            if (idOrganism != null) {
-              String organismName = dh.getOrganism(idOrganism);
-              if (organismName.equals("Other")) {
-                organismName += " (" + otherOrganism + ")";
+            String organismName = "";
+            Integer idOrganism = null;
+            String otherOrganism = "";
+            for(Iterator i = request.getSamples().iterator(); i.hasNext();) {
+              Sample s = (Sample) i.next();
+              idOrganism = s.getIdOrganism();
+              otherOrganism = s.getOtherOrganism();
+
+              if (otherOrganism == null) {
+                otherOrganism = "";
               }
-              requestNode.setAttribute("idOrganism", idOrganism.toString());
-              requestNode.setAttribute("organismName", organismName);
-              requestNode.setAttribute("otherOrganism", otherOrganism);
+              if (idOrganism != null) {
+                organismName += dh.getOrganism(idOrganism) + ", ";
+                if (organismName.equals("Other")) {
+                  organismName += " (" + otherOrganism + ")";
+                }
+              }
             }
+            if(organismName.contains(",")) {
+              organismName = organismName.substring(0, organismName.lastIndexOf(","));
+            }
+            requestNode.setAttribute("idOrganism", idOrganism.toString());
+            requestNode.setAttribute("organismName", organismName);
+            requestNode.setAttribute("otherOrganism", otherOrganism);
           }
+        
           
           // Show list of property entries
           Element scParentNode = new Element("PropertyEntries");
