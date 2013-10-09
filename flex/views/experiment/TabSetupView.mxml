@@ -330,6 +330,10 @@
 				
 				refreshRequestCategories();
 				setOrganismValidatorSource();
+				//Reset the following two variables on seqSetup1View so that it will show updated Pricing info in case the Pricing scheme changed for the lab.
+				//(ie: From internal pricing to external commercial pricing)
+				parentDocument.seqSetup1View.configuredCodeRequestCategory = ""; 
+				parentDocument.seqSetup1View.loadedCodeRequestCategory = "";
 			}
 			
 			private function refreshRequestCategories():void {
