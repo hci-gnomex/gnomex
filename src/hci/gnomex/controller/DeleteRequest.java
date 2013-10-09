@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.Hybridization;
@@ -24,14 +25,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -114,6 +118,37 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
         if (this.getSecAdvisor().canDelete(req)) {
 
+          // Check for related analyses and data tracks
+          HashMap<Integer, Integer> analysisHash = new HashMap<Integer, Integer>();  
+          
+          int dataTrackCount = 0;
+          for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)req.getAnalysisExperimentItems()) {
+            if (!analysisHash.containsKey(x.getAnalysis().getIdAnalysis())) {
+              
+              if (x.getAnalysis().getFiles().size() > 0) {
+                StringBuffer queryBuf = new StringBuffer();
+                queryBuf.append("SELECT DISTINCT dt FROM DataTrack dt ");
+                queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+                queryBuf.append("JOIN dtf.analysisFile af ");
+                queryBuf.append("WHERE af.idAnalysis=:id");
+                Query q = sess.createQuery(queryBuf.toString());
+                q.setParameter("id", x.getAnalysis().getIdAnalysis());
+                
+                List dataTracks = q.list();
+                dataTrackCount +=  dataTracks.size();         
+              }
+
+              analysisHash.put(x.getAnalysis().getIdAnalysis(), null);
+            }
+          }
+          
+          if ( analysisHash.size() > 0 ) {
+            this.addInvalidField("Related data", "There are " + analysisHash.size() + " analyses" + (dataTrackCount > 0 ? " and " + dataTrackCount + " data tracks" : "")  +  " associated with this request. Please deleted these and try again.");
+            setResponsePage(this.ERROR_JSP);
+            HibernateSession.closeSession();
+            return;
+          }
+          
           // Remove the work items
           for(Iterator i = req.getWorkItems().iterator(); i.hasNext();) {
             WorkItem wi = (WorkItem)i.next();
