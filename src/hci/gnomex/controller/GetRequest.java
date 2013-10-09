@@ -295,7 +295,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if(organismName.contains(",")) {
               organismName = organismName.substring(0, organismName.lastIndexOf(","));
             }
-            requestNode.setAttribute("idOrganism", idOrganism.toString());
+            requestNode.setAttribute("idOrganism", idOrganism != null ? idOrganism.toString() : "");
             requestNode.setAttribute("organismName", organismName);
             requestNode.setAttribute("otherOrganism", otherOrganism);
           }
