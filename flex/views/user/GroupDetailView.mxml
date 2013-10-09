@@ -734,10 +734,6 @@
 					parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 					parentApplication.getLabList.send();
 					parentApplication.dictionaryManager.call("reload", "");
-					//Reset the following two variables on seqSetup1View so that it will show updated Pricing info in case the Pricing scheme changed for the lab.
-					//(ie: From internal pricing to external commercial pricing)
-					parentApplication.submitRequestView.seqSetup1View.configuredCodeRequestCategory = ""; 
-					parentApplication.submitRequestView.seqSetup1View.loadedCodeRequestCategory = "";
 				} else {
 					Alert.show(saveGroup.lastResult..ACTMESSAGE.@TEXT);
 				}
