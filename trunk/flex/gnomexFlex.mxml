@@ -327,11 +327,11 @@
 			import views.user.EditBillingAcctWindow;
 			import views.user.UserPublicView;
 			import views.util.AboutView;
-			import views.util.ContactView;
 			import views.util.AnalysisProtocolsEvent;
 			import views.util.AppProgressView;
 			import views.util.BroadcastEmailWindow;
 			import views.util.CaptchaView;
+			import views.util.ContactView;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
 			import views.util.IScanChipEvent;
@@ -341,6 +341,7 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
+			import views.util.StringUtils;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
 			
@@ -2024,6 +2025,7 @@
 				
 				addPricingMenus(navMenu);
 				
+				addNewExperimentMenus(navMenu);
 			}
 			
 			private function addPricingMenus(navMenu:XMLList):void {
@@ -2085,6 +2087,44 @@
 					}
 				}
 				
+			}
+			
+			private function addNewExperimentMenus(navMenu:XMLList):void {
+				if (this.myCoreFacilities.length() > 1) {
+					for(var i:int; i < navMenu.length(); i++) {
+						var children:XMLList = new XMLList();
+						var changed:Boolean = false;
+						if (navMenu[i].@context == "newExperimentTopLevel") {
+							children = addCoreNewExperiments(navMenu[i], children);
+							changed = true;
+						} else {
+							for each (var child:XML in navMenu[i].children()) {
+								if (child.@context == "newInternalExperiment") {
+									children = addCoreNewExperiments(child, children);
+									changed = true;
+								} else {
+									children += child;
+								}
+							}
+						}
+						if (changed) {
+							navMenu[i].setChildren(children);
+						}
+					}
+				}
+			}
+			
+			private function addCoreNewExperiments(template:XML, children:XMLList):XMLList {
+				for each(var core:Object in myCoreFacilities) {
+					var label:String = template.@label + " for " + core.@facilityName;
+					var xml:XML = new XML("<menuitem/>");
+					xml.@label = label;
+					xml.@icon = template.@icon;
+					xml.@idCoreFacility = core.@idCoreFacility;
+					children += xml;
+				}
+				
+				return children;
 			}
 			
 			private function hideMenusByContext(navMenu:XMLList, context:String):void {
@@ -3246,10 +3286,19 @@
 			
 			
 			private function showView(menuitem:Object):void {
+				if (menuitem.children().length() > 0) {
+					return;
+				}
 				var label:String = menuitem.@label;
 				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
 				var codeStepNext:String = menuitem.hasOwnProperty("@codeStepNext") ? menuitem.@codeStepNext : "";
 				var codeSequencingPlatform:String = menuitem.hasOwnProperty("@codeSequencingPlatform") ? menuitem.@codeSequencingPlatform : "";
+				var idCoreFacility:String = "";
+				if (menuitem.hasOwnProperty("@idCoreFacility") && menuitem.@idCoreFacility != '') {
+					idCoreFacility = menuitem.@idCoreFacility;
+				} else {
+					idCoreFacility = myCoreFacilities[0].@idCoreFacility;
+				}
 				
 				if (label == 'Analysis') {
 					theViews.selectedChild = navAnalysisView;
@@ -3265,14 +3314,14 @@
 				} else if (label == "Add Services to Experiment Order") {
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
-				} else if (label == "Upload Experiment data generated at third party facility" || label=="Create New Experiment and Upload Files") {
+				} else if (StringUtils.startsWith(label,"Upload Experiment data generated at third party facility") || StringUtils.startsWith(label,"Create New Experiment and Upload Files")) {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 						this.submitRequestView.startNewRequest();
 					}
 					this.isInternalExperimentSubmission = false;
 					this.theViews.selectedChild = homeView;
-					callLater(this.homeView.submitExternalExperiment);	
+					callLater(this.homeView.submitExternalExperiment, [idCoreFacility]);	
 					// If new experiment then initialize ShowCCNumber checkbox
 					this.submitRequestView.showCCNumberColumn = false; 
 				} else if (label == "Track Usage") {
@@ -3301,12 +3350,12 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
-				} else if (label == "New Experiment Order") {
+				} else if (StringUtils.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = homeView;
-					callLater(this.homeView.submitRequest);	
+					callLater(this.homeView.submitRequest, [idCoreFacility]);	
 				} else if (label == "Browse Experiments" || label == "Experiments") {
 					this.navExperimentView.shortcutToExperimentListTab = true;
 					theViews.selectedChild = navExperimentView;
@@ -3545,10 +3594,10 @@
 
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
@@ -3665,7 +3714,7 @@
 	<mx:XMLList id="adminESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
@@ -3701,7 +3750,7 @@
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
@@ -3731,7 +3780,7 @@
 	<mx:XMLList id="userESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
@@ -3765,9 +3814,9 @@
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3828,14 +3877,14 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="userMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
+		<menuitem label="New Experiment Order" icon="iconSubmitExperiment" context="newExperimentTopLevel" />
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3870,10 +3919,10 @@
 	<mx:XMLList id="managerMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		

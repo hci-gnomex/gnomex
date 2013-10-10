@@ -8,7 +8,7 @@
 			<mx:AddChild relativeTo="{labAndInstructionBox}" position="after">
 				<mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
 					<mx:Text width="200" id="text7">
-						<mx:htmlText>(2) Verify your name.</mx:htmlText>
+						<mx:htmlText>(3) Verify your name.</mx:htmlText>
 					</mx:Text>
 					<mx:ComboBox dataProvider="{appUsers}" 
 								 selectedIndex="-1" labelField="@displayName" 
@@ -18,7 +18,7 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetProperty target="{text1}" name="htmlText" value="(4) Pick the account to be &lt;br&gt; billed."/>
-			<mx:SetProperty target="{label11}" name="text" value="(3) Select a service."/>
+			<mx:SetProperty target="{label11}" name="text" value="(1) Select a service."/>
 			<mx:SetProperty target="{text2}" name="htmlText">
 				<mx:value>(5) Select a project folder for organizing experiments.</mx:value>
 			</mx:SetProperty>
@@ -525,13 +525,10 @@
 					getLab.send();				
 				} else {
 					lab = null;
-					refreshRequestCategories();
 				}
 			}
 			private function onGetLab(event:ResultEvent):void {			
 				lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-				
-				refreshRequestCategories();
 				
 				if (parentDocument != null && !parentDocument.isAmendState()) {
 					parentDocument.filteredProjectList.refresh();       	
@@ -1055,6 +1052,11 @@
 						// If a request category is not associated with a core facility,
 						// don't show it
 						keep = false;
+					} else if (parentDocument != null && parentDocument.coreFacility != null) {
+						// Should always get here if not clinical research.
+						if (item.@idCoreFacility == parentDocument.coreFacility.@idCoreFacility) {
+							keep = true;
+						}
 					} else if (lab == null) {
 						keep = false;
 					} else {
@@ -1144,37 +1146,11 @@
 	
 	
 	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="2" id="vbox1" enabled="true">
-		<mx:HBox width="100%" id="labAndInstructionBox">
-			<mx:VBox verticalGap="4" id="vBox5">
-				<mx:HBox horizontalGap="0" verticalAlign="top" id="selectLabBox">
-					<mx:Label text="(1) Verify your lab group." width="200" id="label12"/>
-					<renderers:FilterComboBox dataProvider="{parentDocument.filteredLabList}" 
-								 labelField="@name" 
-								 prompt="Select a lab..."
-								 width="400"
-								 removeFilterOnSelection="true"
-								 close="projectCombo.selectedIndex = -1;getMembersOfLab();" 
-								 id="labCombo">
-					</renderers:FilterComboBox>
-				</mx:HBox>
-				
-			</mx:VBox>
-			<mx:VBox  horizontalAlign="center" id="vbox4">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}" toolTip="1.  Select the dropdown or radio button options for&#13;      each line.&#13; 2. After completing all line items, click the 'Next' button&#13;      at the bottom of the page to proceed.&#13; 3.  The account selected from this work request will be&#13;      electronically billed following completion of the work."/>
-				<mx:TextArea styleName="instructionBox" width="350" wordWrap="true" height="90" id="textarea1" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br> 1.  Select the dropdown or radio button options for each line.<br> 2. After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.<br> 3.  The account selected from this work request will be<br>      electronically billed following completion of the work.]]></mx:htmlText>
-				</mx:TextArea>
-			</mx:VBox>  
-		</mx:HBox>	
 		<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="12">
-			<mx:Text text="(2) Select a service category." width="200" id="label11"/> 
+			<mx:Text text="(1) Select a service category." width="200" id="label11"/> 
 			<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="650" verticalAlign="bottom">
 				<mx:RadioButtonGroup id="requestTypeGroup" change="{refreshBillingAccounts()}" />
 				<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
-					<mx:Label text="{parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategoryRepeater.currentItem.@idCoreFacility).@display}"
-							  visible="{requestCategoryRepeater.currentItem.hasOwnProperty('@isCoreFacilityVisible') &amp;&amp; requestCategoryRepeater.currentItem.@isCoreFacilityVisible=='Y'}"
-							  includeInLayout="{requestCategoryRepeater.currentItem.hasOwnProperty('@isCoreFacilityVisible') &amp;&amp; requestCategoryRepeater.currentItem.@isCoreFacilityVisible=='Y'}"
-							  textDecoration="underline"/>
 					<mx:HBox  paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 						<mx:HBox horizontalAlign="center" paddingBottom="0" paddingTop="0">
 							<mx:Image 						    	
@@ -1191,7 +1167,29 @@
 				<mx:Label id="noServicesText" text="No experiment platforms are associated with this lab. Please contact customer support." includeInLayout="false" visible="false" />
 				<mx:Label id="selectLabText" text="Please select a laboratory." includeInLayout="false" visible="false" />
 			</mx:VBox>
+			<mx:VBox  horizontalAlign="center" id="vbox4">
+				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}" toolTip="1.  Select the dropdown or radio button options for&#13;      each line.&#13; 2. After completing all line items, click the 'Next' button&#13;      at the bottom of the page to proceed.&#13; 3.  The account selected from this work request will be&#13;      electronically billed following completion of the work."/>
+				<mx:TextArea styleName="instructionBox" width="350" wordWrap="true" height="90" id="textarea1" visible="false" includeInLayout="false">
+					<mx:htmlText><![CDATA[Instructions<br> 1.  Select the dropdown or radio button options for each line.<br> 2. After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.<br> 3.  The account selected from this work request will be<br>      electronically billed following completion of the work.]]></mx:htmlText>
+				</mx:TextArea>
+			</mx:VBox>  
 		</mx:HBox>
+		<mx:HBox width="100%" id="labAndInstructionBox">
+			<mx:VBox verticalGap="4" id="vBox5">
+				<mx:HBox horizontalGap="0" verticalAlign="top" id="selectLabBox">
+					<mx:Label text="(2) Verify your lab group." width="200" id="label12"/>
+					<renderers:FilterComboBox dataProvider="{parentDocument.filteredLabList}" 
+											  labelField="@name" 
+											  prompt="Select a lab..."
+											  width="400"
+											  removeFilterOnSelection="true"
+											  close="projectCombo.selectedIndex = -1;getMembersOfLab();" 
+											  id="labCombo">
+					</renderers:FilterComboBox>
+				</mx:HBox>
+				
+			</mx:VBox>
+		</mx:HBox>	
 		<mx:VBox id="accountBox" width="100%" verticalGap="0"> 
 			<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5">
 				<mx:Text  width="200"  id="text1">

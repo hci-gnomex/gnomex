@@ -230,6 +230,9 @@
         
     	[Bindable]
 		public var selectedIdSlideProduct:Object;
+			
+		[Bindable]
+		public var coreFacility:Object = null;
 
         [Bindable]
         private var submittedIdRequest:String;
@@ -856,6 +859,8 @@
 			submittedIdRequest = null;
 			submittedRequestNumber = null;
 
+			this.filteredLabList.refresh();
+
 			setupView.selectDefaultLab();
 			setupView.projectCombo.selectedIndex = -1;
 			if ( setupView.appUserCombo != null ){
@@ -944,8 +949,6 @@
 			// disable tabs we missed above.
 			enableTabs(false);
 			setupView.enabled = true;
-			
-			this.filteredLabList.refresh();
 		}
 
 		private function nextTab():void {
@@ -4952,7 +4955,16 @@
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;
 				if (defaultCodeRequestCategory == null) {
-					keep=true;
+					if (coreFacility != null) {
+						for each(var core:XML in item..CoreFacility) {
+							if (core.@idCoreFacility == coreFacility.@idCoreFacility) {
+								keep = true;
+								break;
+							}
+						}
+					} else {
+						keep=true;
+					}
 				} else {
 					if (defaultRequestCategory == null) {
 						keep = true;   // should never happen.
@@ -5160,7 +5172,9 @@
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Upload experiment data from a third party facility'}" fontWeight="normal" paddingRight="50"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" 
+					  text="{(parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Upload experiment data from a third party facility') + (coreFacility != null ? ' For ' + coreFacility.@facilityName : '')}" 
+					  fontWeight="normal" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
