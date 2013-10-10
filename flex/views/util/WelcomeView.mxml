@@ -86,13 +86,14 @@
 				}
 			}
 			
-			public function submitRequest():void {
+			public function submitRequest(idCoreFacility:String):void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && !this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
 				}
 				this.parentApplication.isInternalExperimentSubmission = true;
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+				this.parentApplication.submitRequestView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', idCoreFacility);
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
 				
@@ -121,13 +122,15 @@
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navDataView;
 			}
 			
-			public function submitExternalExperiment():void {
+			public function submitExternalExperiment(idCoreFacility:String):void {
 				// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 				if(this.parentApplication.submitRequestView.request != null && this.parentApplication.isInternalExperimentSubmission) {
 					this.parentApplication.submitRequestView.startNewRequest();
 				}
 				this.parentApplication.isInternalExperimentSubmission = false;
 				this.parentApplication.theViews.selectedChild = this.parentApplication.submitRequestView;
+				this.parentApplication.submitRequestView.coreFacility = null;	// external does multiple cores simultaneously
+				//this.parentApplication.submitRequestView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', idCoreFacility);
 				// If new experiment then initialize ShowCCNumber checkbox
 				this.parentApplication.submitRequestView.showCCNumberColumn = "N";
 				
