@@ -200,13 +200,13 @@ public class GetProtocol extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    if (request.getParameter("id") != null && request.getParameter("id") != "") {
+    if (request.getParameter("id") != null && !request.getParameter("id").equals("")) {
       this.idProtocol = new Integer(request.getParameter("id"));
     } else {
       this.addInvalidField("Protocol Id", "Protocol ID is required.");
     }
     
-    if (request.getParameter("protocolClassName") != null && request.getParameter("protocolClassName") != "") {
+    if (request.getParameter("protocolClassName") != null && !request.getParameter("protocolClassName").equals("")) {
       this.protocolClassName = request.getParameter("protocolClassName");
     } else {
       this.addInvalidField("Protocol Class Name", "Protocol Class Name is required");
