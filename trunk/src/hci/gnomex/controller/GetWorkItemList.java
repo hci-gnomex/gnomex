@@ -701,7 +701,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       firstCycleStatus = Constants.STATUS_COMPLETED;
     } else if (n.getAttributeValue("firstCycleFailed").equals("Y")) {
       firstCycleStatus = Constants.STATUS_TERMINATED;
-    } else if (n.getAttributeValue("firstCycleStartDate") != "") {
+    } else if (!n.getAttributeValue("firstCycleStartDate").equals("")) {
       firstCycleStatus = Constants.STATUS_IN_PROGRESS;
     } 
     
