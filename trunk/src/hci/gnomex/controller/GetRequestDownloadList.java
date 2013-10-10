@@ -597,11 +597,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   
   private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "Y");
       }
     } else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "N");
       }
     }
@@ -624,7 +624,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
         recurseAddChildren(childFdNode, childFd, isFlowCellDirectory);
       }else {
-        if ( childFd.getType() == "dir" ) {
+        if ( childFd.getType().equals("dir")) {
           childFdNode.setAttribute("isEmpty", "Y");
         }
       }
