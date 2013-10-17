@@ -15,7 +15,7 @@
 	<mx:states>
 		<mx:State name="BarcodeState">
 			<mx:SetProperty target="{label10}" name="text">
-				<mx:value>(2) Select a HiSeq Run Type.</mx:value>
+				<mx:value>(2) Select a Sequencing Option.</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
@@ -66,7 +66,7 @@
 			currencyFormatter.precision = 2;
 			currencyFormatter.useThousandsSeparator;
 			
-			maxSamplesPerChannelValidator = parentDocument.samples.length;
+			maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
 			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
@@ -185,7 +185,7 @@
 			var numberSequencingCycles:Object = null;
 			if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
 				for each(var item:Object in filteredNumberSequencingCyclesAllowedList) {
-					if (item.@value.toString() == this.numberSequencingCyclesRadioGroup.selectedValue.toString()) {
+					if (item.@value == this.numberSequencingCyclesRadioGroup.selectedValue) {
 						numberSequencingCycles = item;
 						break;
 					}
@@ -214,24 +214,36 @@
 		
 	    public function checkSeqSetup1Completeness():Boolean {
         	var isComplete:Boolean = false;
-			if (parentDocument.currentState == 'SolexaLaneAmendState') {
-				if(this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != ''){
-					isComplete = true;
-				}				
-			} else if (parentDocument.isEditState()) {
+        	if (parentDocument.isEditState()) {
         		isComplete = true;
-        	} else if (parentDocument.isSolexaState()) {
-				if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != ''){
-	        		if (this.currentState == 'BarcodeState') {
+        	}else if (parentDocument.isSolexaState()) {
+	        	if (this.getNumberSequencingCyclesSelected() != null) {
+	        	
+					isComplete = true;
+	        		 if (this.currentState == 'BarcodeState') {
 						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){ // && this.barcodes.length > 0) {
 							isComplete = true;							
 						}        			
 	        		} else {
 		        		isComplete = true;
+	        			
 	        		} 
+	        	    
 	        	 }
         	} 
 			
+			// If we are adding lanes, just make sure that the number of cycles has been selected
+			if (parentDocument.currentState == 'SolexaLaneAmendState') {
+				if(this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}				
+			} else {
+				// If we are a new experiment, make sure we have a valid number of samples per lane and that the number of cycles has been specified
+				if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}
+				
+			}
         	
     		parentDocument.samplesView.enabled = isComplete; 
     			
@@ -367,7 +379,7 @@
 			}
    		    this.propagateNumberSequencingCycles();				
 			this.propagateSeqRunType();			
-			callLater(checkSeqSetup1Completeness);
+			this.checkSeqSetup1Completeness();
         }
 		
 		private function changeNumberSamplesPerChannel():void {
@@ -383,7 +395,7 @@
 			} else{
 				maxSamplesWarning.visible = true;
 			}
-			callLater(checkSeqSetup1Completeness);
+			this.checkSeqSetup1Completeness();
 		}
 		
 		private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -452,14 +464,14 @@
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<mx:Label text="(1)  Select a HiSeq Run Type." width="314"  id="label10"/>
+				<mx:Label text="(1)  Select a Sequencing Option." width="314"  id="label10"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
-						<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
-						<mx:HBox paddingTop="8" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
-							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
-							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabel" />
+						<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
+						<mx:HBox visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
+							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
+							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabelSevere" />
 						</mx:HBox>
 					    <mx:HBox verticalAlign="middle" width="100%">
 					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
