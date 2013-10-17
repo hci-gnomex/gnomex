@@ -204,12 +204,13 @@ public class RequestEmailBodyFormatter extends DetailObject{
     if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
       Element hApp = new Element("H4");
       hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+      if ( request.getCodeApplication().equals("OTHER") && request.getApplicationNotes() != null && !request.getApplicationNotes().equals( "" ) ) {
+        hApp.addContent( " - " + request.getApplicationNotes() );
+      }
       center1.addContent(hApp);              
     }
     
-    String seqLibTreatments = ""; 
     if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-      int count = 0;
       for(Iterator i = request.getSeqLibTreatments().iterator(); i.hasNext();) {
         SeqLibTreatment t = (SeqLibTreatment)i.next();
         Element hTreatment = new Element("H4");

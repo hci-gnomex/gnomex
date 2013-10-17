@@ -208,6 +208,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
                 Element hApp = new Element("H4");
                 hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+                if ( request.getCodeApplication().equals("OTHER") && request.getApplicationNotes() != null && !request.getApplicationNotes().equals( "" ) ) {
+                  hApp.addContent( " - " + request.getApplicationNotes() );
+                }
                 maindiv.addContent(hApp);
             }
             
