@@ -1746,7 +1746,7 @@
 											click="{pickSequenomApp()}"/>
 					   </mx:Repeater>
 				   </mx:VBox>
-				   <mx:HBox id="sequenomPanelContainer" height="100%" width="400" horizontalGap="0" verticalAlign="bottom" paddingBottom="5">
+				   <mx:HBox id="sequenomPanelContainer" height="{seqAppBox.height}" width="400" horizontalGap="0" verticalAlign="bottom" paddingBottom="5">
 					   <mx:Label text="Please specify" id="seqPanelLabel"/>
 					   <mx:TextInput width="100%" id="sequenomApplicationDesc" styleName="requiredBox" focusOut="onAppDescChanged()" />
 				   </mx:HBox>
