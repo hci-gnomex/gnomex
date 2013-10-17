@@ -3003,6 +3003,7 @@ CREATE TABLE `gnomex`.`SampleExperimentFile` (
   `idExperimentFile` INT(10),
   `codeSampleFileType` varchar(10),
   PRIMARY KEY (`idSampleExperimentFile`),
+  UNIQUE KEY `UN_SampleExperimentFile` (idSample, idExperimentFile),
   CONSTRAINT `FK_SampleExperimentFile_Sample` FOREIGN KEY `FK_SampleExperimentFile_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
@@ -3017,6 +3018,26 @@ CREATE TABLE `gnomex`.`SampleExperimentFile` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+-- Procedure to modify columns in audit tables if they exist.
+drop procedure if exists ExecuteIfTableExists;
+delimiter '//'
+
+create procedure ExecuteIfTableExists(
+  IN dbName tinytext,
+  IN tableName tinytext,
+  IN statement text)
+begin
+  IF EXISTS (SELECT * FROM information_schema.TABLES WHERE table_name=tableName and table_schema=dbName)
+  THEN
+    set @ddl=statement;
+    prepare stmt from @ddl;
+    execute stmt;
+  END IF;
+end;
+//
+
+delimiter ';'
 
 -- ----------------------------------------------------------------------
 -- EOF
