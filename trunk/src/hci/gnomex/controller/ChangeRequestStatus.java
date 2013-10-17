@@ -144,7 +144,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   }
 
                 } catch (Exception e) {
-                  String msg = "Unable to download and/or fill out requisition form for request "
+                  String msg = "Unable to download requisition form OR unable to send purchasing email for Request "
                     + req.getNumber()
                     + ".  " + e.toString();
                   log.error(msg);
@@ -152,14 +152,16 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                 }
                 // ILLUMINA EMAIL
                 // Send email to illumina contact requesting quote #
-                try {
-                  sendIlluminaEmail(sess, req);
-                } catch (Exception e) {
-                  String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
-                    + req.getNumber()
-                    + ".  " + e.toString();
-                  log.error(msg);
-                  e.printStackTrace();
+                if ( req.getMaterialQuoteNumber() == null || req.getMaterialQuoteNumber().equals( "" ) ) {
+                  try {
+                    sendIlluminaEmail(sess, req);
+                  } catch (Exception e) {
+                    String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
+                      + req.getNumber()
+                      + ".  " + e.toString();
+                    log.error(msg);
+                    e.printStackTrace();
+                  }
                 }
               }
             } 
