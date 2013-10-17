@@ -278,8 +278,8 @@ public class MailUtil
         multipart.addBodyPart( messageBodyPart );
   
         // Add file attachment(s)
-         recurseAddAttachment( multipart, file );
-                  
+        recurseAddAttachment( multipart, file );
+                
         msg.setHeader( "X-Mailer", "JavaMailer" );
         msg.setSentDate( new Date(  ) );
   
@@ -288,11 +288,18 @@ public class MailUtil
         Transport.send( msg );
       }
     }
+    
     private static void recurseAddAttachment(Multipart multipart, File file) throws MessagingException, IOException
     {
       if ( multipart== null || file == null || !file.exists() ) {
         return;
       }
+      
+      // If multipart has more than 10 file attachments, don't send.
+      if ( multipart.getCount() > 11 ) {
+        throw new IOException("Too many files. Cannot send more than 10 files at once.");
+      }
+      
       if ( file.isFile() ) {
         addAttachment( multipart, file );
         return;
