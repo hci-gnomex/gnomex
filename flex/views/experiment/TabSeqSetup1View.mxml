@@ -15,7 +15,7 @@
 	<mx:states>
 		<mx:State name="BarcodeState">
 			<mx:SetProperty target="{label10}" name="text">
-				<mx:value>(2) Select a HiSeq Run Type.</mx:value>
+				<mx:value>(2) Select a Sequencing Option.</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label10}" name="width" value="340"/>
 			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
@@ -66,7 +66,12 @@
 			currencyFormatter.precision = 2;
 			currencyFormatter.useThousandsSeparator;
 			
-			maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+			if (parentDocument.isAmendState()) {
+				maxSamplesPerChannelValidator = parentDocument.samples.length;
+			} else {
+				maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+				
+			}
 			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
@@ -393,7 +398,7 @@
 				pickBarcodeScheme();
 				parentDocument.samplesView.initializeSamplesGrid();
 			} else{
-				maxSamplesWarning.visible = true;
+				maxSamplesWarning.visible = this.numberSamplesPerChannel.text != '';
 			}
 			this.checkSeqSetup1Completeness();
 		}
@@ -464,14 +469,14 @@
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<mx:Label text="(1)  Select a HiSeq Run Type." width="314"  id="label10"/>
+				<mx:Label text="(1)  Select a Sequencing Option." width="314"  id="label10"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
-						<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
+						<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
 						<mx:HBox visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
-							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
-							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabelSevere" />
+							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
+							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabelSevere" />
 						</mx:HBox>
 					    <mx:HBox verticalAlign="middle" width="100%">
 					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
