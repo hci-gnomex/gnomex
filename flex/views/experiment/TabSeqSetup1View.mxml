@@ -66,7 +66,12 @@
 			currencyFormatter.precision = 2;
 			currencyFormatter.useThousandsSeparator;
 			
-			maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+			if (parentDocument.isAmendState()) {
+				maxSamplesPerChannelValidator = parentDocument.samples.length;
+			} else {
+				maxSamplesPerChannelValidator = int(parentDocument.sampleSetupView.numberOfSamples.text);
+				
+			}
 			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
 			//So re-validate it so it is redrawn
 			numberSequencingCyclesBox.validateNow();
@@ -393,7 +398,7 @@
 				pickBarcodeScheme();
 				parentDocument.samplesView.initializeSamplesGrid();
 			} else{
-				maxSamplesWarning.visible = true;
+				maxSamplesWarning.visible = this.numberSamplesPerChannel.text != '';
 			}
 			this.checkSeqSetup1Completeness();
 		}
