@@ -12,8 +12,8 @@
 					</mx:Text>
 					<mx:ComboBox dataProvider="{appUsers}" 
 								 selectedIndex="-1" labelField="@displayName" 
-								 id="appUserCombo" width="400" close="{userSelected()}">
-						<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness()}</mx:change>
+								 id="appUserCombo" width="400">
+						<mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness();userSelected()}</mx:change>
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
