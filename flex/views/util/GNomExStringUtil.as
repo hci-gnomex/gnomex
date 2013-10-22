@@ -8,6 +8,14 @@ package views.util
 
 		public function GNomExStringUtil() {
 		}
+
+		public static function startsWith(string:String, pattern:String, caseSensitive:Boolean=true):Boolean {
+			if (!caseSensitive) {
+				string = string.toLowerCase();
+				pattern = pattern.toLowerCase();
+			}
+			return pattern == string.substr(0, pattern.length);
+		}
 		
 		public static function cleanRichTextHTML(htmlText:String):String {
 			var pattern:RegExp = /<TEXTFORMAT.*?>/g;
