@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -71,6 +72,10 @@ public class ActiveDirectory {
         String ldap_sec_protocol, 
         String ldap_sec_auth, 
         String ldap_sec_principal ) throws NamingException {
+      
+        if (username == null || username.length() == 0 || password == null || password.length() == 0) {
+          throw new AuthenticationException("Invalid username/password");
+        }
       
         properties = new Properties();        
         
