@@ -334,6 +334,7 @@
 			import views.util.ContactView;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
+			import views.util.GNomExStringUtil;
 			import views.util.IScanChipEvent;
 			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
@@ -341,7 +342,6 @@
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.SessionTimeoutData;
-			import views.util.StringUtils;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
 			
@@ -2090,7 +2090,7 @@
 			}
 			
 			private function addNewExperimentMenus(navMenu:XMLList):void {
-				if (this.myCoreFacilities.length() > 1) {
+				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
 					for(var i:int; i < navMenu.length(); i++) {
 						var children:XMLList = new XMLList();
 						var changed:Boolean = false;
@@ -3314,7 +3314,7 @@
 				} else if (label == "Add Services to Experiment Order") {
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
-				} else if (StringUtils.startsWith(label,"Upload Experiment data generated at third party facility") || StringUtils.startsWith(label,"Create New Experiment and Upload Files")) {
+				} else if (GNomExStringUtil.startsWith(label,"Upload Experiment data generated at third party facility") || GNomExStringUtil.startsWith(label,"Create New Experiment and Upload Files")) {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 						this.submitRequestView.startNewRequest();
@@ -3350,7 +3350,7 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
-				} else if (StringUtils.startsWith(label,"New Experiment Order")) {
+				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
 					this.isInternalExperimentSubmission = true;
