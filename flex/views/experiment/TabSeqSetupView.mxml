@@ -116,7 +116,7 @@
 
 		public function checkSeqAppSetupCompleteness():Boolean {
 			var isComplete:Boolean = false;
-			if (parentDocument.isEditState() && parentDocument.request.captureLibDesignId != "") {
+			if (parentDocument.isEditState() && parentDocument.request.@captureLibDesignId != "") {
 				isComplete = true;
 			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
 				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
@@ -125,7 +125,7 @@
 						
 						// If the capture design lib id is visible, it is required, so
 						// make sure it has been filled in.
-						if (parentDocument.request.captureLibDesignId != "") {
+						if (parentDocument.request.@captureLibDesignId != "") {
 							isComplete = true;
 						}
 					} else {
