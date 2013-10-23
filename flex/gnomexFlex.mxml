@@ -344,6 +344,9 @@
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
+
+			import mx.core.IUIComponent;
+			import mx.graphics.ImageSnapshot;
 			
 			
 			[Bindable]
@@ -1080,6 +1083,20 @@
 			public var baseURL:String = "";
 			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
 			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
+			
+			
+			
+			
+			public function takeScreenshotForReportIssue(source:IBitmapDrawable):void {
+				var imageSnap:ImageSnapshot = ImageSnapshot.captureImage(source);
+				var imageByteArray:ByteArray = new ByteArray();		
+					imageByteArray = imageSnap.data as ByteArray;					
+				var screenshotWindow:ScreenshotWindow = ScreenshotWindow(PopUpManager.createPopUp(DisplayObject(this.theBody), ScreenshotWindow, false));			
+				screenshotWindow.imageByteArray = imageByteArray;
+				PopUpManager.centerPopUp(screenshotWindow);
+				screenshotWindow.swfLoader.load(imageByteArray);
+				
+			}
 			
 			// email address entered when guest downloads files.
 			public var guestEmailAddress:String = "";	
@@ -4028,6 +4045,11 @@
 						<mx:HBox  paddingTop="12">
 							<mx:Image source="{siteLogo}" useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 						</mx:HBox>
+						<mx:Spacer width="30"/>
+						<mx:VBox paddingTop="12">						
+							<mx:Button label="Report Issue" height="30"
+								   		click="takeScreenshotForReportIssue(this.theBody);" />
+						</mx:VBox>
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							
