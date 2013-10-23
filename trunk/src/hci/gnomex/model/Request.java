@@ -88,6 +88,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          materialQuoteNumber;
   private Date            quoteReceivedDate;
   private String          uuid;
+  private String          codeDNAPrepType;
+  private DNAPrepType     dnaPrepType;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1324,6 +1326,22 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   
   public void setUuid( String uuid ) {
     this.uuid = uuid;
+  }
+  
+  public String getCodeDNAPrepType() {
+    return codeDNAPrepType;
+  }
+  
+  public void setCodeDNAPrepType( String codeDNAPrepType ) {
+    this.codeDNAPrepType = codeDNAPrepType;
+  }
+  
+  public DNAPrepType getDnaPrepType() {
+    return dnaPrepType;
+  }
+  
+  public void setDnaPrepType( DNAPrepType dnaPrepType ) {
+    this.dnaPrepType = dnaPrepType;
   }
 
 }

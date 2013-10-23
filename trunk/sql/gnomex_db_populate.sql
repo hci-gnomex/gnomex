@@ -640,6 +640,7 @@ VALUES (1, 'DNA Sequencing', 'Y'),
 insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
   ('Microarray', 'Microarray'),
   ('QC', 'Sample Quality'),
+  ('Sequenom', 'Sequenom'),
   ('Other', 'Other');
 
 INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`)

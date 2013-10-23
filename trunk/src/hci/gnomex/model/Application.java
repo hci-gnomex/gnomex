@@ -37,6 +37,7 @@ public class Application extends DictionaryEntry implements Serializable {
   private String coreStepsNoLibPrep;
   private String codeApplicationType;
   private String onlyForLabPrepped;
+  private Integer samplesPerBatch;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -98,9 +99,8 @@ public class Application extends DictionaryEntry implements Serializable {
   public int compareTo(Object other) {
     if (other instanceof Application) {
       return this.getCodeApplication().compareTo(((Application)other).getCodeApplication());
-    } else {
-      return 1;
     }
+    return 1;
   }
 
   
@@ -156,4 +156,14 @@ public class Application extends DictionaryEntry implements Serializable {
 
     return isApplicable;
 	}
+
+  
+  public Integer getSamplesPerBatch() {
+    return samplesPerBatch;
+  }
+
+  
+  public void setSamplesPerBatch( Integer samplesPerBatch ) {
+    this.samplesPerBatch = samplesPerBatch;
+  }
 }

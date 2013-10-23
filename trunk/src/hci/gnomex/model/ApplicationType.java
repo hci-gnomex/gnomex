@@ -10,6 +10,7 @@ public class ApplicationType extends DictionaryEntry implements Serializable {
   public static final String   TYPE_ILLUMINA            = "Illumina";
   public static final String   TYPE_MICROARRAY          = "Microarray";
   public static final String   TYPE_QC                  = "QC";
+  public static final String   TYPE_SEQUENOM            = "Sequenom";
   public static final String   TYPE_OTHER               = "Other";
 
   private String  codeApplicationType;
@@ -51,6 +52,8 @@ public class ApplicationType extends DictionaryEntry implements Serializable {
       code = TYPE_MICROARRAY;
     } else if (rct.getIsIllumina().equals("Y")) {
       code = TYPE_ILLUMINA;
+    } else if (rct.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_SEQUENOM) || rct.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+      code = TYPE_SEQUENOM;
     }
     
     return code;

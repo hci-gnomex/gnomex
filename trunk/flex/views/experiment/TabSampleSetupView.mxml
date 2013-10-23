@@ -591,11 +591,11 @@
 		private function pickSequenomApp():void {
 			if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 				sequenomPanelContainer.visible = true;
-				sequenomPanelContainer.visible = true;
+				sequenomPanelContainer.includeInLayout = true;
 				sequenomApplicationDesc.styleName = 'requiredBox';
 			} else {
 				sequenomPanelContainer.visible = false;
-				sequenomPanelContainer.visible = false;
+				sequenomPanelContainer.includeInLayout = false;
 				sequenomApplicationDesc.styleName = 'normalBox';
 				sequenomApplicationDesc.text = '';
 			}
@@ -1064,6 +1064,7 @@
 		
 		private function onCoreToExtractDNACheckBoxChanged():void {
 			parentDocument.request.@coreToExtractDNA = coreToExtractDNACheckBox.selected ? 'Y' : 'N';
+			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedItem != null ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
 			checkSampleSetupCompleteness();
 		}
 		
@@ -1128,6 +1129,11 @@
         lowerThanMinError="This field is required."
         property="selectedIndex"
         minValue="1" />
+	<mx:NumberValidator id="dnaPrepTypeValidator"
+						source="{this.dnaPrepTypeCombo}"
+						lowerThanMinError="This field is required."
+						property="selectedIndex"
+						minValue="1" />
 	<mx:NumberValidator id="sampleDropOffLocationValidator"
 						source="{this.sampleDropOffLocationCombo}"
 						lowerThanMinError="This field is required."
@@ -1315,7 +1321,7 @@
              <mx:AddChild relativeTo="{hbox5}" position="before">
                   <mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
                        <mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
-                       	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
+                       	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot; &amp;&amp; @isActive == 'Y')}</mx:dataProvider>
                        	<mx:columns>
                        	    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
                        	        	width="20" 
@@ -1736,20 +1742,26 @@
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox7">
 				   <mx:Text text="(1) Select an application." width="334" id="labelSeqApplication"/>
-				   <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
-					   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
-					   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
-						   <mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
-											paddingLeft="1" paddingRight="1"
-											value="{seqAppRepeater.currentItem.@value}"
-											groupName="radioGroupSeqApp"
-											click="{pickSequenomApp()}"/>
-					   </mx:Repeater>
+				   <mx:VBox verticalGap="2">
+					   <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+						   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
+						   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
+							   <mx:HBox verticalAlign="middle">
+								   <mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
+													paddingLeft="1" paddingRight="1"
+													value="{seqAppRepeater.currentItem.@value}"
+													groupName="radioGroupSeqApp"
+													click="{pickSequenomApp()}"/>
+								   <mx:Label text="{seqAppRepeater.currentItem.@samplesPerBatch != '' ? '(' + seqAppRepeater.currentItem.@samplesPerBatch + ' samples/batch)' : ''}" />
+							   </mx:HBox>
+						   </mx:Repeater>
+					   </mx:VBox>
+					   <mx:HBox id="sequenomPanelContainer" width="400" verticalAlign="middle" paddingBottom="5" >
+						   <mx:Spacer width="22"/>
+						   <mx:Label text="Please specify" id="seqPanelLabel"/>
+						   <mx:TextInput width="100%" id="sequenomApplicationDesc" styleName="requiredBox" focusOut="onAppDescChanged()" />
+					   </mx:HBox>
 				   </mx:VBox>
-				   <mx:HBox id="sequenomPanelContainer" height="{seqAppBox.height}" width="400" horizontalGap="0" verticalAlign="bottom" paddingBottom="5">
-					   <mx:Label text="Please specify" id="seqPanelLabel"/>
-					   <mx:TextInput width="100%" id="sequenomApplicationDesc" styleName="requiredBox" focusOut="onAppDescChanged()" />
-				   </mx:HBox>
 			   </mx:HBox>
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
@@ -1848,21 +1860,27 @@
 		   <mx:AddChild relativeTo="{hbox3}" position="before">
 		   	<mx:HBox horizontalGap="0" id="hbox0" verticalAlign="middle">
 		   		<mx:Label text="(2) Would you like the core facility to extract the DNA?" width="334"  id="label1"/>
-				<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%"/>					
-		   	</mx:HBox>
+				<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9"/>		
+				<mx:Label text="DNA prep type?" paddingRight="9"
+						  visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>	
+				<mx:ComboBox labelField="@display" width="245" id="dnaPrepTypeCombo"
+							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
+							 change="{parentDocument.request.@codeDNAPrepType = dnaPrepTypeCombo.selectedItem != null ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : ''}"
+							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>		
+			</mx:HBox>
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox6}"/>
 		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{hbox6}"/>
 		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   
 	   </mx:State>
 	   <mx:State name="ClinicalSequenomState" basedOn="SequenomState">
-	   	<mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
-	   	<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-	   		<mx:Text text="{parentDocument.applicationName}" 
+		   <mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
+		   <mx:AddChild relativeTo="{hbox7}" position="lastChild">
+			   <mx:Text text="{parentDocument.applicationName}" 
 					 id="seqApplicationText"/>
 	   	</mx:AddChild>
 	   	<mx:RemoveChild target="{seqAppBox}"/>
-	   	<mx:RemoveChild target="{sequenomPanelContainer}"/>
 	   	<mx:RemoveChild target="{hbox8}"/>
 	   	<mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
 	   	<mx:RemoveChild target="{sequenomPlateNamesBox}"/>

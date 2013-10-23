@@ -20,3 +20,27 @@ delimiter ';'
 
 -- Add unique constraint
 alter table SampleExperimentFile add constraint UN_SampleExperimentFile UNIQUE (idSample, idExperimentFile);
+
+-- Add DNA prep type
+DROP TABLE IF EXISTS `gnomex`.`DNAPrepType`;
+CREATE TABLE `gnomex`.`DNAPrepType` (
+  `codeDNAPrepType` VARCHAR(10) NOT NULL,
+  `dnaPrepType` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeDNAPrepType`)
+)
+ENGINE = INNODB;
+
+-- Samples per batch on Application
+alter table Application add samplesPerBatch int(10) NULL;
+
+-- DNA Prep type on request
+alter table Request add codeDNAPrepType varchar(10) NULL;
+alter table Request add 
+  CONSTRAINT `FK_Request_DNAPrepType` FOREIGN KEY `FK_Request_DNAPrepType` (`codeDNAPrepType`)
+    REFERENCES `gnomex`.`DNAPrepType` (`codeDNAPrepType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    
+-- Sequenom application type
+insert into gnomex.ApplicationType values('Sequenom', 'Sequenom');

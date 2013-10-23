@@ -538,7 +538,14 @@ CREATE TABLE `gnomex`.`BillingStatus` (
 ENGINE = INNODB;
 
 
-
+DROP TABLE IF EXISTS `gnomex`.`DNAPrepType`;
+CREATE TABLE `gnomex`.`DNAPrepType` (
+  `codeDNAPrepType` VARCHAR(10) NOT NULL,
+  `dnaPrepType` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeDNAPrepType`)
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`PriceSheet`;
 CREATE TABLE `gnomex`.`PriceSheet` (
@@ -1244,6 +1251,7 @@ CREATE TABLE `gnomex`.`Application` (
   `coreStepsNoLibPrep` VARCHAR(5000) NULL,
   `codeApplicationType` varchar(10) NULL,
   `onlyForLabPrepped` char(1) not null default 'Y',
+  `samplesPerBatch` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -1568,6 +1576,7 @@ CREATE TABLE `gnomex`.`Request` (
   `materialQuoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
   `uuid` VARCHAR(36) NULL,
+  `codeDNAPrepType` VARCHAR(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1628,7 +1637,11 @@ CREATE TABLE `gnomex`.`Request` (
   CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY  (`idIScanChip`)
     REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION 
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_DNAPrepType` FOREIGN KEY `FK_Request_DNAPrepType` (`codeDNAPrepType`)
+    REFERENCES `gnomex`.`DNAPrepType` (`codeDNAPrepType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 

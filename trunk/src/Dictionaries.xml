@@ -166,7 +166,7 @@
   <Dictionary displayName="DNA Seq Core - Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
   
 
-
+  <Dictionary displayName="Molecular Diagnostics - DNA Prep Type" className="hci.gnomex.model.DNAPrepType" editable="Y" />
 	
 	
 	

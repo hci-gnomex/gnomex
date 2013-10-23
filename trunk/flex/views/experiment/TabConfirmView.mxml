@@ -366,6 +366,12 @@
 						<mx:Text  text="{parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'Yes' : 'No'}" 
 								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}" />
 					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
+							 includeInLayout="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}" 
+							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
+						<mx:Label text="Prep type:" textAlign="left" />
+						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
+					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
