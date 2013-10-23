@@ -19,7 +19,7 @@
 		useProxy="false"/>	
 	
 	<mx:HTTPService
-		id="reportIssueService"
+		id="ReportIssueService"
 		url="ReportIssueServlet.gx"
 		resultFormat="e4x"
 		showBusyCursor="true"
