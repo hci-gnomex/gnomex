@@ -546,7 +546,7 @@
 			<url-pattern>UploadDataTrackFileServlet.gx</url-pattern>
 			<url-pattern>UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
-			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>	
+			<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>	
 			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>ExperimentQueue.gx</url-pattern>
 			<url-pattern>VerifyDas2Refresh</url-pattern>	

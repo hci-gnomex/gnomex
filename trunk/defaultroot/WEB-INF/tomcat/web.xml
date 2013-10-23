@@ -229,6 +229,13 @@
 	</servlet>
 	
 	<servlet>
+		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadAndBroadcastEmailURLServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<servlet-name>ReportIssueServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.ReportIssueFeedbackServlet
@@ -239,13 +246,6 @@
 		<servlet-name>ReportIssueServletGetURL</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.ReportIssueFeedbackServletGetURL
-		</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.UploadAndBroadcastEmailURLServlet
 		</servlet-class>
 	</servlet>
 
@@ -416,6 +416,11 @@
 	<servlet-mapping>
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
 		<url-pattern>/UploadAndBroadcastEmailServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
+		<url-pattern>/UploadAndBroadcastEmailURLServlet.gx</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
@@ -607,7 +612,7 @@
 			<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>/UploadExperimentFileServlet.gx</url-pattern>
-			<url-pattern>/UploadAndBroadcastEmailServlet</url-pattern>		
+			<url-pattern>/UploadAndBroadcastEmailServlet.gx</url-pattern>		
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	
 			<url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>  
