@@ -68,8 +68,8 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 		try {
-			Session sess = HibernateGuestSession.currentGuestSession(req
-					.getUserPrincipal().getName());
+			Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+			
 
 			// Get the dictionary helper
 			DictionaryHelper dh = DictionaryHelper.getInstance(sess);
