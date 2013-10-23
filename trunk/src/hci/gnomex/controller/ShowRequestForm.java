@@ -204,6 +204,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(he);              
             }
             
+            // FORM HEADER
             // Application
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
                 Element hApp = new Element("H4");
@@ -261,7 +262,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             }
 
             maindiv.addContent(new Element("BR"));
-            maindiv.addContent(formatter.makeRequestTable());
+            maindiv.addContent(formatter.makeRequestTable()); //Header details
 
             maindiv.addContent(new Element ("BR"));
 
@@ -294,8 +295,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             }
 
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-            	formatter.addIlluminaSampleTable(maindiv,  request.getSamples());
-            	formatter.addCovarisSampleTable(maindiv, request.getSamples());
+            	formatter.addIlluminaSampleTable(maindiv,  request.getSamples()); // Samples(#) table
+            	formatter.addCovarisSampleTable(maindiv, request.getSamples()); // Covaris Information table
             } else {
                 formatter.addSampleTable(maindiv, request.getSamples());
             }
@@ -318,7 +319,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
               formatter.makePageBreak(maindiv);
 
-              formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
+              formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);   
             }
             
             // Append the submission instructions to the printable form

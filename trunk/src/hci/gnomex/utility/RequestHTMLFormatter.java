@@ -106,7 +106,7 @@ public class RequestHTMLFormatter {
    
    return img;
  }
-
+// Header details
  public Element makeRequestTable() {
     
     
@@ -1138,6 +1138,8 @@ public class RequestHTMLFormatter {
     
     // Group lanes by create Date
     TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
+    
+    // for each lane, add to Map's List for this lane's date if one exists or create a new List for this lane's date.
     for(Iterator i = lanes.iterator(); i.hasNext();) {
       SequenceLane lane = (SequenceLane)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(lane.getCreateDate());

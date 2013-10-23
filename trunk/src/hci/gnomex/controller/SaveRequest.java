@@ -616,12 +616,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 
               }
             }
-
             
+            Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in this batch
             for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
               RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
               boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-              SequenceLane lane = saveSequenceLane(laneInfo, sess, lastSampleSeqCount);
+              SequenceLane lane = saveSequenceLane(laneInfo, sess, lastSampleSeqCount, timestamp);
               
               if (!isNewLane) {
                 existingLanesSaved.put(lane.getIdSequenceLane(), lane);
@@ -2093,7 +2093,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sess.flush();
   }
   
-  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int lastSampleSeqCount) throws Exception {
+  private SequenceLane saveSequenceLane(RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int lastSampleSeqCount, Date theTime) throws Exception {
 
     
     SequenceLane sequenceLane = null;
@@ -2103,7 +2103,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (isNewSequenceLane) {
       sequenceLane = new SequenceLane();
       sequenceLane.setIdRequest(requestParser.getRequest().getIdRequest());
-      sequenceLane.setCreateDate(new Date(System.currentTimeMillis()));
+      sequenceLane.setCreateDate(theTime);
       isNewSequenceLane = true;
     } else {
       sequenceLane = (SequenceLane)sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
@@ -2132,7 +2132,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sess.flush();
       
       sequenceLanes.add(sequenceLane);
-      sequenceLanesAdded.add(sequenceLane);
+      sequenceLanesAdded.add(sequenceLane); // used in createBillingItems
     }
   
     // Update workflow fields (for flow cell channel)
