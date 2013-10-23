@@ -2178,6 +2178,13 @@
 				<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
 			</mx:HBox>
 		</mx:AddChild>
+		<mx:AddChild relativeTo="{hbox3}" position="before">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA=='Y'}">
+				<mx:Label text="DNA prep type"  width="100" styleName="formLabel" textAlign="left" />
+				<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
+						 width="280"/>
+			</mx:HBox>
+		</mx:AddChild>
 	</mx:State>
 	<mx:State name="ClinicalSeqState" basedOn="SequenomState"/>
 </mx:states>

@@ -730,6 +730,8 @@
 		<many-to-one name="requestCategory" column="codeRequestCategory" class="hci.gnomex.model.RequestCategory" cascade="none" insert="false" update="false" />
 		<property name="codeApplication" column="codeApplication" type="string"/>
 		<many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
+    	<property name="codeDNAPrepType" column="codeDNAPrepType" type="string"/>
+   		<many-to-one name="dnaPrepType" column="codeDNAPrepType" class="hci.gnomex.model.DNAPrepType" cascade="none" insert="false" update="false" />
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
     	<many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
@@ -1077,6 +1079,7 @@
 		<property name="coreStepsNoLibPrep" column="coreStepsNoLibPrep" type="string"/>
 		<property name="codeApplicationType" column="codeApplicationType" type="string"/>
 		<property name="onlyForLabPrepped" column="onlyForLabPrepped" type="string" />
+    	<property name="samplesPerBatch" column="samplesPerBatch" type="integer"/>
 	</class>
 
   <!-- hci.gnomex.model.ApplicationTheme -->
@@ -1214,6 +1217,15 @@
 		<property name="sortOrder" column="sortOrder" type="integer"/>
 	</class>
 	
+  <!-- hci.gnomex.model.DNAPrepType -->
+  <class name="hci.gnomex.model.DNAPrepType" table="DNAPrepType">
+      <id name="codeDNAPrepType" column="codeDNAPrepType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="dnaPrepType" column="dnaPrepType" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
+  
 	<!-- hci.gnomex.model.ExperimentDesign -->
 	<class name="hci.gnomex.model.ExperimentDesign" table="ExperimentDesign">
 		<id name="codeExperimentDesign" column="codeExperimentDesign" type="string">

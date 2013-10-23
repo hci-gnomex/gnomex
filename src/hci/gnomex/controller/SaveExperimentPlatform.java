@@ -410,6 +410,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       app.setHasCaptureLibDesign(node.getAttributeValue("hasCaptureLibDesign"));
       app.setOnlyForLabPrepped(node.getAttributeValue("onlyForLabPrepped"));
+      if (app.getOnlyForLabPrepped() == null) {
+        app.setOnlyForLabPrepped("Y");
+      }
       app.setApplication(node.getAttributeValue("display"));
       if (app.getIsActive() != null && app.getIsActive().equals("Y") && !node.getAttributeValue("isActive").equals("Y")) {
         // if app selected in request category just quietly ignore setting it to inactive.  Front end shouldn't allow this.
