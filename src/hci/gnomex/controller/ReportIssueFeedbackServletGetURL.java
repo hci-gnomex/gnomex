@@ -62,7 +62,7 @@ package hci.gnomex.controller;
 	      //
 	      //
 	      
-	      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
+	      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 	      String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, req.getServerName());
 	      if (portNumber == null) {
 	        portNumber = "";
