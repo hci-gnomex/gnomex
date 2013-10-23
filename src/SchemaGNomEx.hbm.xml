@@ -944,7 +944,7 @@
 			<generator class="native"/>
 		</id>
 		<property name="number" column="number" type="string"/>
-		<property name="createDate" column="createDate" type="date"/>
+		<property name="createDate" column="createDate" type="timestamp"/>
 		<property name="idSample" column="idSample" type="integer"/>
 		<many-to-one name="sample" column="idSample" class="hci.gnomex.model.Sample" cascade="none" insert="false" update="false" />
 		<many-to-one name="request" column="idRequest" class="hci.gnomex.model.Request" cascade="none" insert="false" update="false" />
