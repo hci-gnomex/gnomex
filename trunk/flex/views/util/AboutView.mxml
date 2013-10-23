@@ -2,10 +2,12 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="760" height="467"  
 				xmlns:views="views.*" 
+				initialize="init()"
 				showCloseButton="true" 
 				close="{PopUpManager.removePopUp(this)}" 
 				title="About" 
 				backgroundColor="#ffffff"  alpha="1.0" >
+	
 	<mx:VBox width="100%" verticalGap="2" height="100%" fontSize="10" paddingTop="2" paddingLeft="2" styleName="form" paddingRight="2" paddingBottom="2" backgroundSize="100%" borderStyle="none">
 		<mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingTop="2" paddingBottom="4">
 			<mx:Image source="assets/gnomex_logo_small.png"/>
@@ -59,12 +61,18 @@
 			<mx:Image source="assets/hcsLogoTransparent.gif"/>
 		</mx:HBox>
 	</mx:VBox>
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
+			import mx.events.FlexMouseEvent;
 			
-			private function emailLinkClick(e:Event):void {
-				navigateToURL(new URLRequest('mailto:' + e.target.label));
+			public function init():void {
+				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);
+			}
+			
+			protected function mouseDownOutsideHandler(event:Object):void {
+				PopUpManager.removePopUp(this);
 			}
 			
 		]]>

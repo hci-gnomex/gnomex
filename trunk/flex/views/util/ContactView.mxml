@@ -2,10 +2,12 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="950" height="219"  
 				xmlns:views="views.*" 
+				initialize="init()"
 				showCloseButton="true" 
 				close="{PopUpManager.removePopUp(this)}" 
 				title="Contact Us" 
 				backgroundColor="#ffffff"  alpha="1.0" >
+	
 	<mx:VBox width="100%" height="100%" backgroundSize="100%" borderStyle="none" fontSize="10"
 			 paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" styleName="form"
 			 verticalAlign="middle" verticalGap="8">
@@ -35,12 +37,22 @@
 			</mx:Repeater>
 		</mx:VBox>
 	</mx:VBox>
+	
 	<mx:Script>
-		<![CDATA[
+		<![CDATA[			
 			import mx.managers.PopUpManager;
+			import mx.events.FlexMouseEvent;
 			
 			private function emailLinkClick(e:Event):void {
 				navigateToURL(new URLRequest('mailto:' + e.target.label));
+			}
+						
+			public function init():void {
+				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);
+			}
+			
+			protected function mouseDownOutsideHandler(event:Object):void {
+				PopUpManager.removePopUp(this);
 			}
 			
 		]]>
