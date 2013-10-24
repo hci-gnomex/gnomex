@@ -289,7 +289,7 @@ package views.experiment
 			var numPlates:int = getNumPlates();
 			var nextPlate:int = getNextPlate();
 			
-			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup(), parentDocument.getAnnotationView());
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView());
 			if (parentDocument.isEditState()) {
 				uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
 			}
@@ -306,7 +306,7 @@ package views.experiment
 		protected function getSampleSheetFieldList():XMLListCollection {
 			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
 			var addAllAnnotations:Boolean = getAddAllAnnotations();
-			return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), addAllAnnotations);
+			return UploadSampleSheetView.getFieldList(this, fieldList, null, parentDocument.getAnnotationView(), addAllAnnotations);
 		}
 		
 		protected function getAddAllAnnotations():Boolean {

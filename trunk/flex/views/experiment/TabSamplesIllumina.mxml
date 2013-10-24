@@ -568,7 +568,7 @@
 				this.sampleRowNumberCol.visible = true;
 				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && parentDocument.request.@isExternal != 'Y';
 				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
-					|| (parentDocument.isSolexaState() && !parentDocument.isEditState)) {
+					|| (parentDocument.isSolexaState() && !parentDocument.isEditState())) {
 					this.multiplexGroupNumberEditColumn.editable = true;
 				} else {
 					multiplexGroupNumberEditColumn.editable = false;
@@ -952,7 +952,7 @@
 				</mx:AdvancedDataGridColumn> 
 				
 				
-				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
+				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" 
 										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
