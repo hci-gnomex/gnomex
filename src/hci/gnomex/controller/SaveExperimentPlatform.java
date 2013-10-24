@@ -9,7 +9,6 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibProtocolApplication;
@@ -272,6 +271,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       st.setSampleType(node.getAttributeValue("display"));
       st.setIsActive(node.getAttributeValue("isActive"));
+      st.setCodeNucleotideType(node.getAttributeValue("codeNucleotideType"));
       sess.save(st);
 
       //
@@ -293,44 +293,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
 
-      //
-      // Save association between sample types and applications
-      //
-      String codeApplications = node.getAttributeValue("codeApplications");
-      existingAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where idSampleType = " + st.getIdSampleType()).list();
-      HashMap<String, SampleTypeApplication> existingApplicationMap = new HashMap<String, SampleTypeApplication>();
-      for (Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
-        SampleTypeApplication sta = (SampleTypeApplication)i1.next();
-        existingApplicationMap.put(sta.getCodeApplication(), sta);
-      }
-      HashMap<String, Application> applicationMap = new HashMap<String, Application>();
-      if (codeApplications != null && !codeApplications.equals("")) {
-        String[] tokens = codeApplications.split(",");
-        for (int x = 0; x < tokens.length; x++) {
-          String codeApplication = tokens[x];
-          applicationMap.put(codeApplication, null);
-        }
-      }
-      // Add associations
-      for (Iterator i1 = applicationMap.keySet().iterator(); i1.hasNext();) {
-        String codeApplication = (String)i1.next();
-        if (!existingApplicationMap.containsKey(codeApplication)) {
-          SampleTypeApplication sta = new SampleTypeApplication();
-          sta.setIdSampleType(st.getIdSampleType());
-          sta.setCodeApplication(codeApplication);
-          sess.save(sta);
-        }
-      }
-
-      // Remove associations
-      for (Iterator i1 = existingApplicationMap.keySet().iterator(); i1.hasNext();) {
-        String codeApplication = (String)i1.next();
-        if (!applicationMap.containsKey(codeApplication)) {
-          SampleTypeApplication sta = existingApplicationMap.get(codeApplication);
-          sess.delete(sta);
-        }
-      }
-
       sess.flush();
       sampleTypeMap.put(st.getIdSampleType(), null);
     }
@@ -349,13 +311,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           if (count.intValue() > 0) {
             deleteSampleType = false;
           }
-        }
-        
-        // Remove associations
-        List existingsAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where idSampleType = " + sampleType.getIdSampleType()).list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SampleTypeApplication x = (SampleTypeApplication)i1.next();
-          sess.delete(x);
         }
         
         if (deleteSampleType) {
@@ -526,12 +481,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
 
         // Remove associations
-        List existingsAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SampleTypeApplication x = (SampleTypeApplication)i1.next();
-          sess.delete(x);
-        }
-        existingsAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
+        List existingsAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
         for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
           SeqLibProtocolApplication x = (SeqLibProtocolApplication)i1.next();
           sess.delete(x);

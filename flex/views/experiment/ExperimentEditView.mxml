@@ -275,7 +275,9 @@
 		[Bindable]
 		public var sampleSourceList:XMLListCollection;
 		[Bindable]
-		public var filteredSampleTypeList:XMLListCollection;
+		public var filteredSampleTypeListRna:XMLListCollection;
+		[Bindable]
+		public var filteredSampleTypeListDna:XMLListCollection;
 		[Bindable]
 		public var filteredSampleDropOffLocationList:XMLListCollection;
 		[Bindable]
@@ -392,7 +394,7 @@
 
 			// Always perform checkSecurity on setupView
 			if (this.theTab.contains(setupView)) {
-				setupView.checkSecurity();
+				setupView.init();
 			}
 			
 			// Always perform checkSecurity on annotationView
@@ -411,8 +413,6 @@
         	}	
 
 			this.theTab.selectedIndex = 0;
-			
-			this.samplesView.setMultiplexGroupNumberImported(false);
 		}
 
 		private function enableTabs(enable:Boolean):void {
@@ -478,11 +478,14 @@
 	        sampleSourceList.refresh();
 			
         	
-        	filteredSampleTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
+        	filteredSampleTypeListRna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
+			filteredSampleTypeListDna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
         	sampleTypeSorter = new Sort();
         	sampleTypeSorter.compareFunction = this.sortSampleTypes;	   
-        	filteredSampleTypeList.sort = sampleTypeSorter;     	
-        	filteredSampleTypeList.refresh();
+        	filteredSampleTypeListRna.sort = sampleTypeSorter;     	
+			filteredSampleTypeListDna.sort = sampleTypeSorter;     	
+        	filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.refresh();
 			
 			filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
 			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
@@ -558,8 +561,10 @@
 			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
 
-			filteredSampleTypeList.filterFunction = filterSampleType;
-			filteredSampleTypeList.refresh();
+			filteredSampleTypeListRna.filterFunction = filterSampleTypeRna;
+			filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.filterFunction = filterSampleTypeDna;
+			filteredSampleTypeListDna.refresh();
 			
 			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 			filteredSampleDropOffLocationList.refresh();
@@ -879,7 +884,7 @@
 				if (this.samples != null && this.samples.length > 0) {
 					this.samples.removeAll();
 				}
-				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = null;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
 				sampleSetupView.otherSamplePrepMethod.text = "";
@@ -901,7 +906,6 @@
 				}
 				if (isSolexaState()) {
 					seqSetupView.enabled = false;
-					seqSetup1View.enabled = false;
 					bioinformaticsView.enabled = false;
 				}
 			}
@@ -1090,9 +1094,6 @@
 					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
 				this.samplesView.currentState = 'SolexaSamplesState';
-				if (theTab.contains(setupView) && setupView.labCombo.selectedItem != null) {
-					this.seqSetup1View.loadPriceList(setupView.labCombo.selectedItem.@idLab.toString(), requestCategory.@codeRequestCategory.toString());
-				}
 				
 				if (parentApplication.submitInternalExperiment()) {
 					showHideBarcodingQuestion();
@@ -1333,7 +1334,8 @@
 
 			
 			
-			filteredSampleTypeList.refresh();
+			filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.refresh();
 			filteredSampleDropOffLocationList.refresh();
 			seqLibProtocolList.refresh();
 			
@@ -1346,9 +1348,14 @@
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
 			}
-			this.setupView.checkSecurity();
 		}
-			
+
+		public function labSelected(lab:Object):void {
+			if (requestCategory != null && requestCategory.@codeRequestCategory != null && lab != null && theTab.contains(sampleSetupView)) {
+				this.sampleSetupView.loadPriceList(lab.@idLab.toString(), requestCategory.@codeRequestCategory.toString());
+			}
+		}
+
 		private function setTabsVisible():void {
 			for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
 				theTab.getTabAt(tabIdx).visible = true;
@@ -1365,9 +1372,11 @@
             // experiment submission, don't show the question,
 			// that asks about sample barcode tags
 			if (requestCategory.@isSampleBarcodingOptional == "N" || !parentApplication.submitInternalExperiment()) {
-				sampleSetupView.barcodeQuestionVisible = false;
+				sampleSetupView.barcodeContainer.visible = false;
+				sampleSetupView.barcodeContainer.includeInLayout = false;
 			} else {
-				sampleSetupView.barcodeQuestionVisible = true;
+				sampleSetupView.barcodeContainer.visible = true;
+				sampleSetupView.barcodeContainer.includeInLayout = true;
 			}			
 		}
 			
@@ -1667,15 +1676,18 @@
 			return requestCategory;			
 		}
 			
-        private function filterSampleType(item:Object):Boolean {
+        private function filterSampleType(item:Object, codeNucleotideType:String):Boolean {
         	if (item.@value == "") {
-        		return true;
+        		return false;
         	}
 
 			if (!isEditState() && item.@isActive == 'N') {
 				return false;	
 			}
         	
+			if (item.@codeNucleotideType != codeNucleotideType) {
+				return false;
+			}
         	
         	var doesMatchRequestCategory:Boolean = false;
         	var requestCategory:Object = this.getRequestCategory();
@@ -1687,25 +1699,16 @@
     	   		}
     	   	}
 
-			// If this is a solexa request, filter the sample type
-			// by the selected application
-			var doesMatchApplication:Boolean = true;
-			if (this.isSolexaState()) {
-				var codeApplication:Object = this.seqSetupView.radioGroupSeqApp.selectedValue;
-				if (codeApplication != null) {
-					doesMatchApplication = false;
-		        	var theSampleTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeApplication').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
-		    	   	for each (var xref2:Object in theSampleTypes) {
-		    	   		if (xref2.@codeApplication.toString() == codeApplication.toString()) {
-			   				doesMatchApplication = true;
-		    	   		    break;
-		    	   		}
-		    	   	}
-	    	   	}
-			}
-
-        	return doesMatchRequestCategory && doesMatchApplication;
+        	return doesMatchRequestCategory;
         }  
+			
+		private function filterSampleTypeRna(item:Object):Boolean {
+			return filterSampleType(item, 'RNA');
+		}
+			
+		private function filterSampleTypeDna(item:Object):Boolean {
+			return filterSampleType(item, 'DNA');
+		}
 			
 		private function filterSampleDropOffLocation(item:Object):Boolean {
 			if (item.@value == "") {
@@ -2508,7 +2511,7 @@
 
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 				
 				if (currentState == 'QCState') {
 					for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
@@ -2692,44 +2695,6 @@
 				
 			}
 		}	
-        
-        public function isSampleTypeCompatibile():Boolean {
-        	var compatible:Boolean = true;
-        	var sampleTypeX:Object = null;
-        	if (this.isSolexaState()) {
-        		return compatible;		
-        	}
-        	
-        	if (isEditState()) {
-        		if (request.@codeApplication!= '' && 
-        		    request.@idSampleTypeDefault != '') {
-    	    		compatible = false;
-					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
-						if (sampleTypeX.@codeApplication == request.@codeApplication &&
-					    	sampleTypeX.@idSampleType == request.@idSampleTypeDefault) {
-							compatible = true;
-							break;
-						}
-					}    
-        		}
-        	} else {
-	        	if (hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
-	        	    hybSetupView.microarrayAppRadioGroup.selectedValue!= '' &&
-	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
-	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
-	        	    compatible = false;
-					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
-						if (sampleTypeX.@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue &&
-						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
-							compatible = true;
-							break;
-						}
-					}        		    	
-	        	}
-        		
-        	}
-        	return compatible;
-        }        
 
 		private function validateRequest():void {
 			errorMessage = '';
@@ -3291,13 +3256,11 @@
 				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
 				}
-				
-				request.@name = notesView.experimentName.text;
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
-				if (sampleSetupView.contains(sampleSetupView.sampleTypeCombo) && sampleSetupView.sampleTypeCombo.selectedItem != null) {
-					request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				if (sampleSetupView.contains(sampleSetupView.sampleTypeHBox) && sampleSetupView.sampleTypeRadioGroup.selectedValue != null) {
+					request.@idSampleTypeDefault = sampleSetupView.sampleTypeRadioGroup.selectedValue;
 				}
 				
 				if (this.isCapSeqState()) {
@@ -3320,7 +3283,7 @@
 					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
-				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState') {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3629,8 +3592,7 @@
 					if (theTab.contains(seqSetupView)) {
 						this.seqSetupView.enabled = false;					
 					}
-					if (theTab.contains(seqSetup1View)) {
-						this.seqSetup1View.enabled = false;
+					if (theTab.contains(bioinformaticsView)) {
 						bioinformaticsView.enabled = false;
 					}
 				}
@@ -4181,7 +4143,6 @@
 					this.filteredAppList.refresh();
 					this.currentState = "SolexaBaseAmendState";
 					setAmendTitle();
-					this.seqSetup1View.currentState = "BarcodeState";
 				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_MICROARRAY) {
 					this.currentState = "MicroarrayAmendState"; 
 					setAmendTitle();
@@ -4371,9 +4332,9 @@
 			
 
 			if (currentState == "SolexaBaseAmendState") {
-	    		seqSetupView.enabled = isComplete;
+	    		sampleSetupView.enabled = isComplete;
         	} else if (currentState == "SolexaLaneAmendState") {
-        		this.seqSetup1View.enabled = isComplete;
+        		this.sampleSetupView.enabled = isComplete;
         	} else if (currentState == "MicroarrayAmendState" ) {
 	    		sampleSetupView.enabled = isComplete;
     			if (theTab.contains(this.annotationView)) {
@@ -4397,7 +4358,7 @@
     			if (currentState == "SolexaBaseAmendState") {
     				this.seqSetupView.enabled = false;
     			} else if (currentState == "SolexaLaneAmendState") {
-    				this.seqSetup1View.enabled = false;
+    				this.sampleSetupView.enabled = false;
 					bioinformaticsView.enabled = false;
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.enabled = false;
@@ -4414,7 +4375,7 @@
     			if (currentState == "SolexaBaseAmendState") {
     				this.seqSetupView.checkSeqAppSetupCompleteness();
     			} else if (currentState == "SolexaLaneAmendState") {
-    				this.seqSetup1View.checkSeqSetup1Completeness();
+    				this.sampleSetupView.checkSampleSetupCompleteness();
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.checkSampleSetupCompleteness();
     			}
@@ -4484,9 +4445,11 @@
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
-				if (this.currentState != "SolexaLaneAmendState") {
+				if (this.currentState == "SolexaLaneAmendState") {
+					this.sampleSetupView.currentState = "SolexaLaneAmendState";
+				} else {
 					this.sampleSetupView.currentState = "SolexaAmendState";
-				} 
+				}
 				this.samplesView.currentState = "SolexaSamplesState";
 			} else if (this.isMicroarayAmendState()) {				
 				this.sampleSetupView.currentState = "MicroarrayAmendState";
@@ -4544,10 +4507,12 @@
 				// additional lanes
 				lanes.removeAll();
 				
-				// Propagate the entries on seq setup1 that
+				// Propagate the entries on sample setup that
 				// may have been selected from prev amend request
-				this.seqSetup1View.propagateSeqRunType();
-				this.seqSetup1View.propagateNumberSequencingCycles();
+				if (theTab.contains(sampleSetupView)) {
+					this.sampleSetupView.propagateSeqRunType();
+					this.sampleSetupView.propagateNumberSequencingCycles();
+				}
 				this.bioinformaticsView.propagateGenomeBuild();
 
 				
@@ -4556,7 +4521,8 @@
 			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 				// We are converting a QC request to a microarray or illumina
 				// sequencing request.
-				this.filteredSampleTypeList.refresh();
+				filteredSampleTypeListRna.refresh();
+				filteredSampleTypeListDna.refresh();
 			
 				// Set the default sample type on the request based on the first sample listed
 				var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
@@ -4571,7 +4537,7 @@
 				}
 
 				// Default the sample type on sample setup
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 				
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -4593,7 +4559,7 @@
 				
 				// Default the sample type and nucleic acid extraction
 				// dropdowns on sample setup
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -4788,8 +4754,7 @@
 					show = false;
 				} else if (sampleSetupView.barcodeRadioGroup != null && 
 					sampleSetupView.barcodeRadioGroup.selectedValue != null && 
-					sampleSetupView.barcodeRadioGroup.selectedValue != 'N' && 
-					this.seqSetup1View.numberSamplesPerChannel != null) {
+					sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
 					show = true;
 				} else {
 					show = false;
@@ -5191,15 +5156,12 @@
 			
 			<experiment:TabNotesView id="notesView" enabled="false">
 			</experiment:TabNotesView>
+			
+			<experiment:TabSampleSetupView id="sampleSetupView">		    	
+			</experiment:TabSampleSetupView>
 						
 		    <experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
 		    </experiment:TabSeqSetupView>			
-			
-		    <experiment:TabSampleSetupView id="sampleSetupView">		    	
-		    </experiment:TabSampleSetupView>
-
-		    <experiment:TabSeqSetup1View id="seqSetup1View">		    	
-		    </experiment:TabSeqSetup1View>
 		   
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
@@ -5292,7 +5254,6 @@
 				</mx:HBox>
 			</mx:AddChild>
 
-    		<mx:RemoveChild target="{seqSetup1View}"/>
     		<mx:AddChild relativeTo="{theTab}" position="lastChild">
     			<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
     			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
@@ -5477,19 +5438,17 @@
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
 		<mx:State name="MicroarrayExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
             <mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
         </mx:State>
@@ -5498,8 +5457,8 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
 		<mx:State name="QCExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
@@ -5507,7 +5466,6 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
         <mx:State name="QCAmendState" basedOn="AmendState">
@@ -5515,7 +5473,6 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="SequencingEditState" basedOn="EditState">
@@ -5535,9 +5492,9 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="CapSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5547,7 +5504,6 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -5568,8 +5524,8 @@
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="FragAnalEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5579,7 +5535,6 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
@@ -5587,9 +5542,9 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="MitSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5599,7 +5554,6 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
@@ -5607,9 +5561,9 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="CherryPickEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5619,16 +5573,15 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="IScanEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5636,16 +5589,15 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="SequenomEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5654,7 +5606,6 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -5672,11 +5623,11 @@
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
          </mx:State>
 		<mx:State name="SolexaBaseExternalState">
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
@@ -5694,7 +5645,6 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-    		<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="MicroarrayEditState" basedOn="EditState">
@@ -5704,7 +5654,6 @@
             <mx:RemoveChild target="{hybSetupView.numberOfHybsContainer}"/>
             <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-    		<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="EditState">
@@ -5740,7 +5689,7 @@
             <mx:SetStyle target="{agreeCheckbox}" name="textSelectedColor" value="#3A940E"/>
         </mx:State>
         <mx:State name="AmendState"> 
-            <mx:AddChild relativeTo="{seqSetupView}" position="before">
+            <mx:AddChild relativeTo="{sampleSetupView}" position="before">
                 <mx:VBox id="amendSetupView" label="Choose the services you want to add" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
@@ -5844,7 +5793,6 @@
 			
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
-            <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{seqSetupView}"/>
         </mx:State>
 

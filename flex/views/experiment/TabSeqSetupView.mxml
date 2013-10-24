@@ -139,7 +139,12 @@
 			} 
 			
 			if (this.currentState != "EditState") {
-				parentDocument.sampleSetupView.enabled = isComplete; 
+				parentDocument.samplesView.enabled = isComplete; 
+			}
+			
+			
+			if (this.currentState != "EditState" && parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
 			}
 			
 			parentDocument.enableNextButtons();
@@ -153,13 +158,16 @@
         private function postSeqAppSetupCompleteness(isComplete:Boolean):void {
 	    		
 	    	if (!isComplete) {
-	        	if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
-		        	parentDocument.sampleSetupView.enabled = false;
+	        	if (parentDocument.theTab.contains(parentDocument.samplesView)) {
+		        	parentDocument.samplesView.enabled = false;
 	        	}
+				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = false;
+				}
 	        	parentDocument.confirmView.enabled = false;
     		} else {
-    			if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
-		    		parentDocument.sampleSetupView.checkSampleSetupCompleteness();
+    			if (parentDocument.theTab.contains(parentDocument.samplesView)) {
+		    		parentDocument.samplesView.checkSamplesCompleteness();
 		    	}
     		}
         	
@@ -194,9 +202,6 @@
 			}
 			
 			this.checkSeqAppSetupCompleteness();
-			if (!this.parentDocument.isAmendState()) {
-				this.parentDocument.sampleSetupView.pickSeqApp();
-			}
 		}
 		
 		

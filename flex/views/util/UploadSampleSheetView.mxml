@@ -317,7 +317,6 @@
 					// Make sure there is an initial row
 					tabSamplesView.addSample();
 				}
-				tabSamplesView.setMultiplexGroupNumberImported(false);
 				for each (var ssRowItem:XML in ssRowList) {				
 					if(hasColNames.selected && ssRowCount==1) {
 						// Skip row 1 if it consists of column names
@@ -335,9 +334,6 @@
 						var ssColumnForThisField:int = node.@selectedSSColumn;
 						ssColumnForThisField--;
 						if(ssColumnForThisField >= 0) {
-							if (thisDataField == "multiplexGroupNumber" && this.allowMultiPlexGroupNumber) {
-								tabSamplesView.setMultiplexGroupNumberImported(true);
-							}
 							var ssColList:XMLList = ssRowItem.Column;
 							if(ssColumnForThisField >= ssColList.length()) {
 								continue;	// Skip this column if it doesn't exist.

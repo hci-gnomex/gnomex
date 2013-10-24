@@ -12,9 +12,6 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection;
-			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -49,8 +46,6 @@
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 			
-			public var sampleGroupingCollection:GroupingCollection = null;
-			
 			[Bindable]
 			private var isExternal:Boolean = false;
 			
@@ -59,8 +54,6 @@
 			private var docTypes:FileFilter;
 			private var hasColumnNames:Boolean; 
 			private var	sampleSheetXML:XML;
-			
-			public  var multiplexGroupNumberImported:Boolean = false;
 			
 			override protected function initButtons():void {
 				if (parentDocument.isEditState()) {
@@ -108,11 +101,11 @@
 							" canChangeNumberSequencingCycles='Y'" +
 							" concentration=''" + 
 							" label=''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
-							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
-							" numberSequencingLanes='1'" +
+							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdNumberSequencingCyclesSelected() : '') + "'" +				
+							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdSeqRunTypeSelected() : '') + "'" +				
+							" numberSequencingLanes='" + (parentDocument.request.@isRapidMode == 'Y' ? '2' : '1') + "'" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
 							" seqPrepByCore = 'N'" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
@@ -142,11 +135,11 @@
 							" barcodeSequence = ''" +
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
-							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
+							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdNumberSequencingCyclesSelected() : '') + "'" +
+							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdSeqRunTypeSelected() : '') + "'" +				
 							" numberSequencingLanes='1'" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
 							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 							" idSeqLibProtocol = ''" +
 							" seqPrepByCore = 'Y'" +
@@ -174,7 +167,7 @@
 						" idOligoBarcodeB = ''" +
 						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
-						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@value : '') + "'" +
+						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
 						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
 						" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 						" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
@@ -254,16 +247,6 @@
 				}
 			}
 			
-			override public function setMultiplexGroupNumberImported(val:Boolean):void {
-				this.multiplexGroupNumberImported = val;
-				if (this.addSampleButton != null) {
-					this.addSampleButton.enabled = !val;
-				}
-				if (this.copySampleButton != null) {
-					this.copySampleButton.enabled = !val;
-				}
-			}
-			
 			override public function checkSamplesCompleteness():void {
 				parentDocument.userWarningsSamples = "";
 				
@@ -303,6 +286,7 @@
 								isEntered(sample, "@idOrganism") &&
 								isEntered(sample, "@idSeqRunType") &&
 								isEntered(sample, "@idNumberSequencingCycles") &&
+								isEntered(sample, "@multiplexGroupNumber") &&
 								reqdAnnotationsEntered(sample) &&  
 								(isEntered(sample, "@numberSequencingLanes") || numberOfAdditionalLanes > 0)) {
 								
@@ -327,6 +311,7 @@
 								isEntered(sample, "@concentration") &&
 								isEntered(sample, "@idOrganism") &&
 								isEntered(sample, "@idSeqRunType") &&
+								isEntered(sample, "@multiplexGroupNumber") &&
 								reqdAnnotationsEntered(sample) &&  
 								isEntered(sample, "@idNumberSequencingCycles")) {
 								
@@ -371,6 +356,12 @@
 						parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
 						isComplete = false;
 					}
+				}
+				
+				// Make sure lane #'s are grouped
+				if (isComplete && !areLaneNumbersSequential()) {
+					parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
+					isComplete = false;
 				}
 				
 				// Make sure the sample index tags are unique
@@ -441,6 +432,22 @@
 				
 			}
 			
+			private function areLaneNumbersSequential():Boolean {
+				var numsUsed:Object = new Object();
+				var prevSample:Object = null;
+				for each (var theSample:Object in parentDocument.samples) {
+					if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+						if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+							return false;
+						} else {
+							numsUsed[theSample.@multiplexGroupNumber] = true;
+						}
+					}
+					prevSample = theSample;
+				}
+				return true;
+			}
+			
 			private function showMaxLaneError(numberSeqLanes:String):void {
 				Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
 			}
@@ -468,10 +475,7 @@
 			}
 			
 			private function addSequencingLaneForSample(sample:Object):void {
-				var lanePlus:int = parentDocument.lanes.length + 100000;
-				if (this.multiplexGroupNumberImported) {
-					lanePlus = parseInt(sample.@multiplexGroupNumber) + 100000;
-				}
+				var lanePlus:int = parseInt(sample.@multiplexGroupNumber) + 100000;
 				var laneStr:String = lanePlus.toString().substr(1);
 				
 				var emptyNode:XML = new XML("<SequenceLane " +
@@ -523,31 +527,18 @@
 			}
 			
 			override public function propagateBarcode():void {
-				if (!multiplexGroupNumberImported && parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
-					var x:int = 0;
-					var multiplexGroupNumber:int = 1;
+				if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
+					var lastMultiplexGroupNumber:String = '1';
 					for each (var sample:Object in parentDocument.samples) {
-						if (parentDocument.request.@hasBarCodes == "Y") {
-							if (x == parentDocument.request.@numberSamplesPerChannel) {
-								x = 0;
-								multiplexGroupNumber++;
-							}
-							if (parentDocument.showSampleMultiplexGroup()) {
-								sample.@multiplexGroupNumber = multiplexGroupNumber;
-							} else {
-								sample.@multiplexGroupNumber = '';
-							}
-							x++;
+						if (sample.@multiplexGroupNumber == null || sample.@multiplexGroupNumber.toString().length == 0) {
+							sample.@multiplexGroupNumber = lastMultiplexGroupNumber;
 						} else {
-							sample.@idOligoBarcode = '';
-							sample.@multiplexGroupNumber = '';
-							sample.@barcodeSequence = '';
+							lastMultiplexGroupNumber = sample.@multiplexGroupNumber;
+						}
+						if (parentDocument.request.@isRapidMode == 'Y') {
+							sample.@numberSequencingLanes = '2';
 						}
 					} 
-					if (this.sampleGroupingCollection != null) {
-						this.sampleGroupingCollection.refresh();
-						this.samplesGrid.validateNow();
-					}
 				}
 			}
 			
@@ -567,42 +558,18 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				if (parentDocument.showSampleMultiplexGroup()) {
-					this.samplesGrid.dataProvider = null;
-					sampleGroupingCollection = new GroupingCollection();
-					sampleGroupingCollection.source = parentDocument.samples;
-					var group:Grouping = new Grouping();
-					var gf:GroupingField = new GroupingField();
-					gf.name = "@multiplexGroupNumber";
-					group.fields = [gf];
-					gf.compareFunction = sampleCompareFunction;
-					sampleGroupingCollection.grouping  = group;
-					sampleGroupingCollection.refresh(); 
-					this.samplesGrid.dataProvider = sampleGroupingCollection;
-					
-					this.samplesGrid.dragMoveEnabled = true;
-					this.samplesGrid.dropEnabled = true;
-					this.samplesGrid.dragEnabled = true;
-					
-					this.sampleRowNumberCol.visible = false;
-					this.multiplexGroupNumberColumn.visible = true;
-					this.barcodeColumn.visible = false;
-					this.multiplexGroupNumberEditColumn.visible = false;
-					
-				} else {
-					this.samplesGrid.sortableColumns = false;
-					sampleGroupingCollection = null;
-					this.samplesGrid.dataProvider = parentDocument.samples;
-					
-					this.samplesGrid.dragMoveEnabled = false;
-					this.samplesGrid.dropEnabled = false;
-					this.samplesGrid.dragEnabled = false;
-					
-					this.sampleRowNumberCol.visible = true;
-					this.multiplexGroupNumberColumn.visible = false;
-					this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.isEditState();
-					this.multiplexGroupNumberEditColumn.editable = parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState;
-					
+				this.samplesGrid.sortableColumns = false;
+				this.samplesGrid.dataProvider = parentDocument.samples;
+				
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+				
+				this.sampleRowNumberCol.visible = true;
+				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y';
+				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
+					|| (parentDocument.isSolexaState() && !parentDocument.isEditState)) {
+					this.multiplexGroupNumberEditColumn.editable = true;
 				}
 			}
 			
@@ -647,14 +614,13 @@
 				this.concentrationCol.visible = !isExternal;
 				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
-				this.preppedByCoreCol.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
 				this.seqLibProtocolCol.visible = !isExternal;
 				
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
 				
 				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
-					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal;
+					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal && parentDocument.request.@isRapidMode != 'Y';
 					numberSequencingLanesCol.editable = true;
 					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
 					this.qual260_230Col.visible = false;
@@ -667,7 +633,7 @@
 						existingNumberSequencingLanesCol.visible = true;
 					} else if (parentDocument.currentState == "SolexaBaseAmendState") {
 						numberSequencingLanesCol.editable = false;
-						numberSequencingLanesCol.visible = true;
+						numberSequencingLanesCol.visible = parentDocument.request.@isRapidMode != 'Y';
 						numberSequencingLanesCol.editable = true;
 					}
 					
@@ -927,18 +893,11 @@
 							 displayItemsExpanded="true"  
 							 selectionColor="#DDF3FB">
 			<mx:columns>
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumberDisplay" editable="false" visible="true"
-										   width="60">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-								<mx:Label text="Index Tag"/>
-								<mx:Label text="Group"/>
-							</mx:VBox> 
-						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Lane #" editorDataField="text" dataField="@multiplexGroupNumber" editable="true" visible="true"
+										   width="54" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
+										   itemEditor="{views.renderers.TextInput.create('@multiplexGroupNumber', true)}">
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
@@ -1049,17 +1008,6 @@
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
 				
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Index Tag Group" dataField="@multiplexGroupNumber" editable="true" visible="true"
-										   width="54">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-								<mx:Label text="Index tag"/>
-								<mx:Label text="Group"/>
-							</mx:VBox> 
-						</mx:Component> 
-					</mx:headerRenderer> 
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
@@ -1178,19 +1126,6 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				
-				<mx:AdvancedDataGridColumn id="preppedByCoreCol" headerText="Core to prep lib?"   visible="{true}" width="60"  dataField="@seqPrepByCore"
-										   itemRenderer="{hci.flex.controls.Label.create('@seqPrepByCore')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSeqPrepByCore(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Core to"/>
-								<mx:Label text="prep lib?"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>          
 				
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 

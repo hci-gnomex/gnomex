@@ -12,7 +12,6 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocolApplication;
 import hci.gnomex.utility.DictionaryHelper;
@@ -47,7 +46,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
-  private HashMap<Integer, Map<String, ?>> sampleTypeXApplicationMap = new HashMap<Integer, Map<String, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
   private Map<String, List<Element>> applicationToRequestCategoryMap = new HashMap<String, List<Element>>();
@@ -92,9 +90,11 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           SampleType st = (SampleType)i1.next();
           this.getSecAdvisor().flagPermissions(st);
           Element sampleTypeNode = st.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+          if (st.getCodeNucleotideType() == null) {
+            sampleTypeNode.setAttribute("codeNucleotideType", "DNA");
+          }
           listNode.addContent(sampleTypeNode);
           sampleTypeNode.setAttribute("isSelected", isAssociated(rc, st) ? "Y" : "N");
-          sampleTypeNode.setAttribute("codeApplications", getCodeApplications(st));
         }
         
         
@@ -229,21 +229,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
   }
   
-  private String getCodeApplications(SampleType st) {
-    String buf = "";
-    Map idMap = sampleTypeXApplicationMap.get(st.getIdSampleType());
-    if (idMap != null) {
-      for(Iterator i = idMap.keySet().iterator(); i.hasNext();) {
-        String codeApplication = (String)i.next();
-        if (buf.length() > 0) {
-          buf += ",";
-        }
-        buf += codeApplication;
-      }
-    }
-    return buf;
-  }
-  
   private String getIdSeqLibProtocols(Application app) {
     String buf = "";
     Map idMap = applicationXSeqLibProtocolMap.get(app.getCodeApplication());
@@ -282,17 +267,6 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
-    }
-    
-    List sampleTypeXApplications = sess.createQuery("SELECT x from SampleTypeApplication x").list();
-    for(Iterator i = sampleTypeXApplications.iterator(); i.hasNext();) {
-      SampleTypeApplication x = (SampleTypeApplication)i.next();
-      Map idMap = (Map)sampleTypeXApplicationMap.get(x.getIdSampleType());
-      if (idMap == null) {
-        idMap = new HashMap();
-      }
-      idMap.put(x.getCodeApplication(), null);
-      sampleTypeXApplicationMap.put(x.getIdSampleType(), idMap);
     }
     
     List applicationXSeqLibProtocols = sess.createQuery("SELECT x from SeqLibProtocolApplication x").list();
