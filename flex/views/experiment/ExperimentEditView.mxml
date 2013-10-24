@@ -541,7 +541,7 @@
 			filteredProjectList.refresh();
 		}
 		
-		public function initFilters():void {
+		private function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
 	        this.filteredProjectList.refresh();
 						
@@ -4932,14 +4932,10 @@
 						keep=true;
 					}
 				} else {
-					if (defaultRequestCategory == null) {
-						keep = true;   // should never happen.
-					} else {
-						for each(var cf:Object in item..CoreFacility) {
-							if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
-								keep = true;
-								break;
-							}
+					for each(var cf:Object in item..CoreFacility) {
+						if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
+							keep = true;
+							break;
 						}
 					}
 				}

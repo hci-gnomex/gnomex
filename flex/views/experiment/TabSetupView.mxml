@@ -357,24 +357,24 @@
 			private function setVisibility():void {
 				var visible:Boolean = true;
 				if (this.requestTypeGroup.selectedValue == null) {
-					visible = false;
+					visible = false || !parentApplication.submitInternalExperiment();
 				}
 				this.labAndInstructionBox.visible = visible;
 				this.labAndInstructionBox.includeInLayout = visible;
 				if (this.labCombo.selectedIndex < 0) {
-					visible = false;
+					visible = false || !parentApplication.submitInternalExperiment();
 				}
 				if (appUserContainer != null && this.contains(this.appUserContainer)) {
 					appUserContainer.visible = visible;
 					appUserContainer.includeInLayout = visible;
 					if (appUserCombo.selectedItem == null || appUserCombo.selectedItem.@idAppUser == '') {
-						visible = false;
+						visible = false || !parentApplication.submitInternalExperiment();
 					}
 				}
 				this.accountBox.visible = visible;
 				this.accountBox.includeInLayout = visible;
 				if (this.billingAccountCombo.selectedIndex < 0 || this.billingAccountCombo.selectedItem.@accountNameAndNumber == '') {
-					visible = false;
+					visible = false || !parentApplication.submitInternalExperiment();
 				}
 				this.projectHBox.visible = visible;
 				this.projectHBox.includeInLayout = visible;

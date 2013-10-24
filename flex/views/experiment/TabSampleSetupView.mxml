@@ -1993,7 +1993,7 @@
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox7">
 				   <mx:Text text="(1) Select an application." width="334" id="labelSeqApplication"/>
-				   <mx:VBox verticalGap="2">
+				   <mx:VBox verticalGap="2" id="appAndPanelContainerVBox">
 					   <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
 						   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
 						   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
@@ -2131,7 +2131,7 @@
 			   <mx:Text text="{parentDocument.applicationName}" 
 					 id="seqApplicationText"/>
 	   	</mx:AddChild>
-	   	<mx:RemoveChild target="{seqAppBox}"/>
+	   	<mx:RemoveChild target="{appAndPanelContainerVBox}"/>
 	   	<mx:RemoveChild target="{hbox8}"/>
 	   	<mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
 	   	<mx:RemoveChild target="{sequenomPlateNamesBox}"/>
