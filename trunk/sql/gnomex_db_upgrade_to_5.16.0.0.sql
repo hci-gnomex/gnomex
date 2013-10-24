@@ -21,6 +21,28 @@ delimiter ';'
 -- Add unique constraint
 alter table SampleExperimentFile add constraint UN_SampleExperimentFile UNIQUE (idSample, idExperimentFile);
 
+-- remove SampleTypeApplication
+drop table SampleTypeApplication;
+
+-- Categorize SampleType by Nucleotide type
+create table gnomex.NucleotideType (
+  codeNucleotideType varchar(50), 
+  PRIMARY KEY(codeNucleotideType)) ;
+insert into NucleotideType values('RNA');
+insert into NucleotideType values('DNA');
+alter table gnomex.SampleType add codeNucleotideType varchar(50) NULL;
+update SampleType set codeNucleotideType='DNA';
+update SampleType set codeNucleotideType='RNA' where sampleType like '%RNA%';
+alter table gnomex.SampleType add CONSTRAINT FK_SampleType_NucleotideType 
+  FOREIGN KEY FK_SampleType_NucleotideType (codeNucleotideType)
+    REFERENCES gnomex.NucleotideType (codeNucleotideType)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+-- Add sort order to application theme
+alter table ApplicationTheme add sortOrder INT(10) null;
+update ApplicationTheme set sortOrder=idApplicationTheme;
+
 -- Add DNA prep type
 DROP TABLE IF EXISTS `gnomex`.`DNAPrepType`;
 CREATE TABLE `gnomex`.`DNAPrepType` (

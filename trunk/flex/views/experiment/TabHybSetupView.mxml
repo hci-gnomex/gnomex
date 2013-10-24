@@ -86,11 +86,10 @@
 			
 		 	var isComplete:Boolean = false;
 			parentDocument.userWarningsHybSetup = "";
-			this.checkForSampleTypeCompatibility();
 			
         	if (this.numberOfHybs.text != null && this.numberOfHybs.text != '' &&
         	    this.slideProductCombo.selectedItem != null && this.slideProductCombo.selectedItem.@idSlideProduct != '' &&
-        	    this.getCheckedCodeSlideSource() != '' && parentDocument.isSampleTypeCompatibile() ) {
+        	    this.getCheckedCodeSlideSource() != '' ) {
         	    	
         		isComplete = true;
         	    	
@@ -121,26 +120,6 @@
     			parentDocument.hybsView.checkHybsCompleteness();
     		}        	
         }        
-        
-        public function checkForSampleTypeCompatibility():void {
-        	if (!this.parentDocument.isSampleTypeCompatibile()) {
-        		if (parentDocument.isEditState()) {
-					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
-					var sampleTypeName:String = sampleType.@display.toString();
-        			// This warning message is bothersome when old requests were
-        			// submitted with incompatible sample type for the microarray
-        			// application.  Don't show a warning message.
-        			
-        		} else {
-	        		this.parentDocument.userWarningsHybSetup += 'Sample type ' + parentDocument.sampleSetupView.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + parentDocument.applicationName + 
-	        		' experiments.  Please change the sample type or microarray application.';
-	        		this.slideProductCombo.selectedIndex = 0;
-        			
-        		} 
-
-        	} 
-        }
 
         public function checkForSlideProductWarning():void {
         	if (currentState == "EditState") {
@@ -336,10 +315,10 @@
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(3) Select one of the following." width="250" />
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
-			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)">
+			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
-			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning();callLater(this.checkForSampleTypeCompatibility)" paddingLeft="12">
+			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()" paddingLeft="12">
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
 		</mx:HBox>

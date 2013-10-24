@@ -231,6 +231,7 @@ CREATE TABLE `gnomex`.`ApplicationTheme` (
   `idApplicationTheme` INT(10) NOT NULL AUTO_INCREMENT,
   `applicationTheme` VARCHAR(200) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idApplicationTheme`)
 )
 ENGINE = INNODB;
@@ -2089,9 +2090,19 @@ CREATE TABLE `gnomex`.`SampleType` (
   `sampleType` VARCHAR(50) NULL,
   `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idSampleType`)
+  `codeNucleotideType` VARCHAR(50) NULL,
+  PRIMARY KEY (`idSampleType`),
+  CONSTRAINT `FK_SampleType_NucleotideType` FOREIGN KEY `FK_SampleType_NucleotideType` (`codeNucleotideType`)
+    REFERENCES `gnomex`.`NucleotideType` (`codeNucleotideType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`NucleotideType`;
+create table gnomex.NucleotideType (
+  codeNucleotideType varchar(50), 
+  PRIMARY KEY(codeNucleotideType)) ;
 
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
 CREATE TABLE `gnomex`.`SampleTypeApplication` (

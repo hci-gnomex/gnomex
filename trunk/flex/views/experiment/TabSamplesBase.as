@@ -105,10 +105,6 @@ package views.experiment
 			return true;
 		}
 		
-		public function setMultiplexGroupNumberImported(val:Boolean):void {
-			
-		}
-		
 		public function setShowCCNumber(show:Boolean):void {
 			
 		}
@@ -535,7 +531,6 @@ package views.experiment
 			if (event.detail==Alert.YES) {
 				parentDocument.samples.removeAll();
 				parentDocument.lanes.removeAll();
-				setMultiplexGroupNumberImported(false);
 				addSample(); 	// Add an initial blank sample to the grid
 				checkSamplesCompleteness();
 				this.initializeBarcoding();

@@ -631,11 +631,11 @@ INSERT INTO `gnomex`.`LabelingReactionSize`(`codeLabelingReactionSize`, `labelin
 VALUES ('STD', 'Standard', 'Y', 1),
   ('LRG', 'Large', 'Y', 2);
 
-INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`)
-VALUES (1, 'DNA Sequencing', 'Y'),
-  (2, 'RNA Sequencing', 'Y'),
-  (3, 'Microarray', 'Y'),
-  (4, 'Sample Quality', 'Y');
+INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`, sortOrder)
+VALUES (1, 'DNA Sequencing', 'Y', 1),
+  (2, 'RNA Sequencing', 'Y', 2),
+  (3, 'Microarray', 'Y', 3),
+  (4, 'Sample Quality', 'Y', 4);
 
 insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
   ('Microarray', 'Microarray'),
@@ -1091,19 +1091,21 @@ VALUES (1, 'Cell Line', 'Y'),
   (5, 'Other (specify in notes)', 'Y'),
   (6, 'Blood', 'Y');
 
-INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`)
-VALUES (1, 'DNA', 3, 'Y'),
-  (2, 'aRNA', 6, 'N'),
-  (3, 'miRNA', 8, 'Y'),
-  (4, 'mRNA', 7, 'Y'),
-  (5, 'Total RNA (eukaryote)', 1, 'Y'),
-  (6, 'FFPE DNA', 5, 'Y'),
-  (7, 'chIP DNA', 4, 'Y'),
-  (8, 'polyA RNA', NULL, 'N'),
-  (9, 'Total RNA (prokaryote)', 2, 'Y'),
-  (10, 'cDNA', 5, 'Y'),
-  (11, 'cap RNA', 6, 'Y'),
-  (12, 'small RNA', 10, 'Y');
+INSERT INTO `gnomex`.`NucleotideType` values('RNA'), ('DNA');
+
+INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`)
+VALUES (1, 'DNA', 3, 'Y', 'DNA'),
+  (2, 'aRNA', 6, 'N', `RNA`),
+  (3, 'miRNA', 8, 'Y', `RNA`),
+  (4, 'mRNA', 7, 'Y', `RNA`),
+  (5, 'Total RNA (eukaryote)', 1, 'Y', `RNA`),
+  (6, 'FFPE DNA', 5, 'Y', 'DNA'),
+  (7, 'chIP DNA', 4, 'Y', 'DNA'),
+  (8, 'polyA RNA', NULL, 'N', `RNA`),
+  (9, 'Total RNA (prokaryote)', 2, 'Y', `RNA`),
+  (10, 'cDNA', 5, 'Y', 'DNA'),
+  (11, 'cap RNA', 6, 'Y', `RNA`),
+  (12, 'small RNA', 10, 'Y', `RNA`);
 
 INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `isActive`)
 VALUES (2, 5, 'EXP',  'Y'),

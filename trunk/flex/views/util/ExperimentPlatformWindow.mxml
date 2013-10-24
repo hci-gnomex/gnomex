@@ -518,8 +518,8 @@
 					" isSelected='N'" +
 					" idSampleType='" + 'SampleType' + "'" +
 					" display='" + 'enter sample type here...' + "'" +
-					" codeApplications=''" +
 					" isActive='Y'" +
+					" codeNucleotideType='DNA'" +
 					" />");
 				this.sampleTypes.addItemAt(newNode, 0);
 				this.sampleTypeGrid.selectedItem = newNode;
@@ -1013,7 +1013,6 @@
 												   enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   
 												   icon="@Embed(source='../../assets/delete.png')" 
 												   disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
-									<mx:Text text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6"/>
 									
 								</mx:HBox>
 								<mx:DataGrid id="sampleTypeGrid" 
@@ -1033,10 +1032,13 @@
 														   rendererIsEditor="false"
 														   dataField="@display" editable="true" >
 										</mx:DataGridColumn>
-										<mx:DataGridColumn headerText="Experiment Types"  
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
-														   dataField="@codeApplications" >
-										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Nucleotide Type"  id="nucleotideTypeCol"  dataField="@codeNucleotideType"  
+														   width="135"
+														   editorDataField="value"  
+														   wordWrap="true"
+														   sortable="false" editable="true" rendererIsEditor="false"  
+														   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NucleotideType').DictionaryEntry.(@value != ''), '@display', '@value', '@codeNucleotideType')}"                
+														   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NucleotideType').DictionaryEntry.(@value != ''), '@display', '@value', '@codeNucleotideType', null, true)}"/>
 										<mx:DataGridColumn headerText="Active"  
 														   width="45"  editable="false"                      	
 														   dataField="@isActive" 

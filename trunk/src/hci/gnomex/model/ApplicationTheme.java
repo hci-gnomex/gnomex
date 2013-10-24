@@ -11,6 +11,7 @@ public class ApplicationTheme extends DictionaryEntry implements Serializable {
   private Integer  idApplicationTheme;
   private String   applicationTheme;
   private String   isActive;
+  private Integer  sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getApplicationTheme());
@@ -68,6 +69,14 @@ public class ApplicationTheme extends DictionaryEntry implements Serializable {
   
   public void setApplicationTheme(String applicationTheme) {
     this.applicationTheme = applicationTheme;
+  }
+  
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+  
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
   
 }
