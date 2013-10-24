@@ -102,7 +102,6 @@
 			private var numPlates:int;
 			private var startRow:int;
 			private var specifiedFieldList:Dictionary;
-			private var allowMultiPlexGroupNumber:Boolean;
 			private var tabAnnotationView:TabAnnotationView;
 			private var fullHeight:int;
 			private var fullWidth:int;
@@ -132,8 +131,8 @@
 				return displayText;
 			}
 			
-			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
-				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, allowMultiPlexGroupNumber, tabAnnotationView);
+			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
+				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, tabAnnotationView);
 				
 				// Cap seq window is simplified and should be smaller.
 				fullWidth = 738;
@@ -171,11 +170,10 @@
 				}
 			}
 
-			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
+			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
-				this.allowMultiPlexGroupNumber = allowMultiPlexGroupNumber;
 				this.tabAnnotationView = tabAnnotationView;
 				this.startRow = 0;
 				
@@ -585,7 +583,7 @@
 					sampleSheetColumnList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
 					markColumnsWithData(sampleSheetColumnList);
 
-					fieldList = getFieldList(tabSamplesView, specifiedFieldList, allowMultiPlexGroupNumber, sampleSheetColumnList, tabAnnotationView);
+					fieldList = getFieldList(tabSamplesView, specifiedFieldList, sampleSheetColumnList, tabAnnotationView);
 					
 					vsMain.selectedChild=chooseColumns;
 					this.changeHeightWidth(fullHeight, fullWidth);
@@ -630,7 +628,7 @@
 				}
 			}
 			
-			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, 
+			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, 
 												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, sampleSheetDownload:Boolean = false):XMLListCollection {
 				
 				var samplesViewState:String = tabSamplesView.currentState;
@@ -664,10 +662,6 @@
 					}
 					if ( (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') && (col.visible && col.editable && col.dataField != null) ){
 						
-						addColumn = true;
-					}
-					
-					if ((col.dataField == '@multiplexGroupNumber' && allowMultiPlexGroupNumber) && (samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState')) {
 						addColumn = true;
 					}
 					
