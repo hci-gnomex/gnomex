@@ -615,14 +615,12 @@
 				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
-				this.seqLibProtocolCol.visible = !isExternal;
 				
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
 				
 				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
 					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal && parentDocument.request.@isRapidMode != 'Y';
 					numberSequencingLanesCol.editable = true;
-					numberSequencingCyclesCol.visible = !parentDocument.isEditState() && !isExternal;
 					this.qual260_230Col.visible = false;
 					
 					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
@@ -637,15 +635,6 @@
 						numberSequencingLanesCol.editable = true;
 					}
 					
-					if (parentDocument.isEditState() ||
-						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
-						seqLibProtocolCol.visible = !isExternal;
-					} else {
-						seqLibProtocolCol.visible = false;
-					}
-					
-					idSeqRunTypeCol.visible = !parentDocument.isEditState() && !isExternal; 
 					concentrationUnitColumn.visible = !isExternal;
 					concentrationUnitColumn.editable = false;
 					sampleOrganismColumn.editable = !isExternal;
@@ -1008,12 +997,6 @@
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
 				
-				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
-										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
-				
-				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumn" 
 													 visible="true" 
@@ -1097,36 +1080,6 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
-				
-				
-				
-				<mx:AdvancedDataGridColumn headerText="Sample Sequence Lane Type" id="idSeqRunTypeCol" visible="{currentState == 'SolexaSamplesState'  &amp;&amp; parentApplication.isInternalExperimentSubmission}"  editable="{!parentApplication.isInternalExperimentSubmission}" width="150" dataField="@idSeqRunType"
-										   rendererIsEditor="false" editorDataField="value" 
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', false).newInstance(), '')}">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Sample Sequence Lane"/>
-								<mx:Label text="Type"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn headerText="# Seq Cycles" id="numberSequencingCyclesCol" visible="{currentState == 'SolexaSamplesState' &amp;&amp; parentApplication.isInternalExperimentSubmission}"  width="70" dataField="@idNumberSequencingCycles" 
-										   rendererIsEditor="false" editorDataField="value" 
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true).newInstance(), '')}">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="# Seq"/>
-								<mx:Label text="Cycles"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
