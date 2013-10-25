@@ -37,6 +37,12 @@ package views.experiment
 				} else {
 					return new TabSamplesIllumina();
 				}
+			} else if (requestCategory.@codeRequestCategory == 'SEQUENOM') {
+				if (existingTab is TabSamplesSequenom) {
+					return existingTab;
+				} else {
+					return new TabSamplesSequenom();
+				}
 			} else {
 				if (existingTab is TabSamplesView) {
 					return existingTab;
@@ -143,7 +149,7 @@ package views.experiment
 			grid.validateNow();
 		}
 		
-		private function isDescriptionEnabled():Boolean {
+		protected function isDescriptionEnabled():Boolean {
 			var enabled:Boolean = false;
 			for each(var node:XML in parentDocument.propertyEntries) {
 				if (node.@idProperty == "-1") {
@@ -156,7 +162,7 @@ package views.experiment
 			return enabled;
 		}
 		
-		private function addAnnotationProperties(columns:Array, newColumns:Array):void {
+		protected function addAnnotationProperties(columns:Array, newColumns:Array):void {
 			// Add real annotations.
 			for each(var node:XML in parentDocument.propertyEntries) {
 				// -1 check is because description is handled above.
@@ -166,7 +172,7 @@ package views.experiment
 			}
 		}
 		
-		private function addAnnotationProperty(columns:Array, newColumns:Array, node:XML):void {
+		protected function addAnnotationProperty(columns:Array, newColumns:Array, node:XML):void {
 			var dc:AnnotationAdvancedDataGridColumn = findAnnotationGridColumn(columns, node);
 			if (dc == null) {
 				dc = buildNewAnnotationGridColumn(node);
@@ -176,7 +182,7 @@ package views.experiment
 			newColumns.push(dc);
 		}
 		
-		private function findAnnotationGridColumn(columns:Array, propertyNode:XML):AnnotationAdvancedDataGridColumn {
+		protected function findAnnotationGridColumn(columns:Array, propertyNode:XML):AnnotationAdvancedDataGridColumn {
 			var dcFound:AnnotationAdvancedDataGridColumn = null;
 			for each (var dc:AdvancedDataGridColumn in columns) {
 				if (dc is AnnotationAdvancedDataGridColumn && 
@@ -189,14 +195,14 @@ package views.experiment
 			return dcFound;
 		}
 		
-		private function buildNewAnnotationGridColumn(propertyNode:XML):AnnotationAdvancedDataGridColumn {
+		protected function buildNewAnnotationGridColumn(propertyNode:XML):AnnotationAdvancedDataGridColumn {
 			var fieldName:String = "@ANNOT" + propertyNode.@idProperty;
 			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
 			refreshAnnotationGridColumn(propertyNode, newCol);
 			return newCol;
 		}
 		
-		private function refreshAnnotationGridColumn(propertyNode:XML, dc:AnnotationAdvancedDataGridColumn):void {
+		protected function refreshAnnotationGridColumn(propertyNode:XML, dc:AnnotationAdvancedDataGridColumn):void {
 			var property:XML = parentApplication.getSampleProperty(propertyNode.@idProperty);
 			if (property == null) {
 				dc.visible = false;

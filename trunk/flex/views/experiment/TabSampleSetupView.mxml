@@ -578,8 +578,7 @@
 				iScanNumSourcePlatesValidator.validate();
 				
 			} else if (parentDocument.isSequenomState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeRadioGroup.selectedValue) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 					if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 						if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
 							isComplete = true;
@@ -587,7 +586,23 @@
 					} else if (this.radioGroupSeqApp.selectedValue != null ){
 						isComplete = true;
 					}
+					if ( coreToExtractDNACheckBox.selected ) {
+						isComplete  = isComplete && ( dnaPrepTypeCombo.selectedItem != null && dnaPrepTypeCombo.selectedIndex > 0 );
+					} else {
+						isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
+					}
+					if ( this.radioGroupSeqApp.selectedValue != null ){  
+						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+						var samplesPerBatch:int = application.@samplesPerBatch;
+						if ( parseInt(this.numberOfSamples.text) % samplesPerBatch != 0 && this.radioGroupSeqApp.selectedValue != "OTHER") {
+							sampleCountWarning.text = " You have selected a panel which runs in batches of " + samplesPerBatch + " samples. Please note you will be responsible to pay for unused wells.";
+						} else {
+							sampleCountWarning.text = "";
+						}
+						
+					}
 				}
+				
 			} else if (parentDocument.isClinicalSequenomState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeRadioGroup.selectedValue) {
@@ -619,6 +634,7 @@
 
         	callLater(postSampleSetupCompleteness, [isComplete]);
         	
+			
     		return isComplete;
     	    	
         }
@@ -733,7 +749,9 @@
 				this.seqAppBox.styleName = 'requiredBox';
 				this.parentDocument.applicationName = '';
 			}
-			this.checkSampleSetupCompleteness();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function pickSampleType():void {
@@ -1188,8 +1206,21 @@
 		
 		private function onCoreToExtractDNACheckBoxChanged():void {
 			parentDocument.request.@coreToExtractDNA = coreToExtractDNACheckBox.selected ? 'Y' : 'N';
-			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedItem != null ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
-			checkSampleSetupCompleteness();
+			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
+			this.sampleTypeRadioGroup.enabled = !coreToExtractDNACheckBox.selected;
+			if ( coreToExtractDNACheckBox.selected ) {				
+				this.sampleTypeRadioGroup.selectedValue = null;
+			}
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
+		private function onDNAPrepTypeChanged():void {
+			parentDocument.request.@codeDNAPrepType = dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '';
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function onAppDescChanged():void{
@@ -1203,7 +1234,9 @@
 			} else if (this.radioGroupSeqApp.selectedValue != null ){
 				parentDocument.request.@applicationDescription = "";
 			}
-			checkSampleSetupCompleteness();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function pickChip():void {
@@ -1319,13 +1352,15 @@
 						requiredFieldError="Please enter the number of samples you are submitting."
 						required="true" 
 						lowerThanMinError="You must submit at least 1 sample." minValue="1" allowNegative="false" domain="int" maxValue="384" />	
-	<mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
-         required="false" />
+	<mx:NumberValidator id="otherSamplePrepMethodValidator" 
+						source="{otherSamplePrepMethod}" 
+						property="text" 
+         				required="false" />
     <mx:NumberValidator id="organismValidator"
-        source="{this.sampleOrganismCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="0" />
+				        source="{this.sampleOrganismCombo}"
+				        lowerThanMinError="This field is required."
+				        property="selectedIndex"
+				        minValue="0" />
 	<mx:NumberValidator id="sampleTypeValidator"
 						source="{this.sampleTypeRadioGroup}"
 						lowerThanMinError="This field is required."
@@ -1353,7 +1388,7 @@
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
-			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
+			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
 				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" >
 					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
@@ -2116,13 +2151,18 @@
 						  visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>	
 				<mx:ComboBox labelField="@display" width="245" id="dnaPrepTypeCombo"
 							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
-							 change="{parentDocument.request.@codeDNAPrepType = dnaPrepTypeCombo.selectedItem != null ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : ''}"
+							 change="{onDNAPrepTypeChanged()}"
 							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>		
 			</mx:HBox>
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
 		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
 		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:AddChild relativeTo="{hbox3}" position="lastChild">
+		   	<mx:HBox width="100%">
+				<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
+		   	</mx:HBox>
+		   </mx:AddChild>
 		   
 	   </mx:State>
 	   <mx:State name="ClinicalSequenomState" basedOn="SequenomState">
