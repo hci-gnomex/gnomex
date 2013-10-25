@@ -370,7 +370,7 @@
 							 includeInLayout="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}" 
 							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
 						<mx:Label text="Prep type:" textAlign="left" />
-						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
+						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedIndex > 0 ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
 					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
