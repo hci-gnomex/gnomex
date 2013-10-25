@@ -1225,8 +1225,7 @@
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 				this.currentState = "SequenomState";
-				this.sampleSetupView.currentState = 'SequenomState';
-				this.samplesView.currentState = 'SequenomState';				
+				this.sampleSetupView.currentState = 'SequenomState';		
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 
@@ -2276,9 +2275,7 @@
 			}  else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 				this.currentState = "SequenomEditState";
 				this.sampleSetupView.currentState = 'SequenomState';
-				
-				this.samplesView.currentState = 'SequenomState';
-				
+								
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomEditState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';

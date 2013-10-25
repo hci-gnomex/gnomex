@@ -247,7 +247,6 @@
 			} else if (requestCategory.@type == 'SEQUENOM') {
 				this.currentState = "SequenomState";
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
-				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'SequenomState';	
 			} else if (requestCategory.@type == 'CLINSEQ') {
 				this.currentState = "ClinicalSeqState";
 				parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
