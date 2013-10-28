@@ -360,6 +360,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
      
     subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     boolean bioSend = false;
+    fromAddress = PropertyDictionary.GENERIC_NO_REPLY_EMAIL;
     if (dictionaryHelper.isProductionServer(serverName)) {
       if (analysisInstruction != null && !analysisInstruction.equals("")) {
         bioSend = true;
