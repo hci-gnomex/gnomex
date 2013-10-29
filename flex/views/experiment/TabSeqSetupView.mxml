@@ -29,6 +29,10 @@
 		private var meanInsertSizes:ArrayCollection = null;
 
 		private var codeRequestCategoryInitted:String = "";
+		private var seqPrepByCoreInitted:String = "NotInitted";
+		
+		[Bindable]
+		private var themeList:XMLListCollection = null;
 		
 		public function init():void {
 			checkSecurity();
@@ -38,69 +42,41 @@
 				return;
 			}
 			
+			var localPrepByCore:String = "";
+			if (parentDocument.samples.length > 0) {
+				localPrepByCore = parentDocument.samples.getItemAt(0).@seqPrepByCore;
+			}
 			// Only initialize once.
-			if (this.seqAppBox.getChildren().length > 0 && codeRequestCategoryInitted == parentDocument.getRequestCategory().@codeRequestCategory) {
+			if (themeList != null && codeRequestCategoryInitted == parentDocument.getRequestCategory().@codeRequestCategory
+				&& seqPrepByCoreInitted == localPrepByCore) {
 				return;
 			}
 			
-			// clear the box
-			seqAppBox.removeAllChildren();
-			
 			this.codeRequestCategoryInitted = parentDocument.getRequestCategory().@codeRequestCategory;
+			this.seqPrepByCoreInitted = localPrepByCore;
+			
+			parentDocument.filteredAppList.refresh();
 			
 			// Map the apps by theme
-			var themeMap:Array= new Array();
+			this.applicationThemeRepeater.dataProvider = null;
+			var themeMap:Array = new Array();
 			for each(var item:Object in parentDocument.filteredAppList) {
-				var theKey:Object = item.@idApplicationTheme;
-				var apps:XMLListCollection = themeMap[theKey];
-				if (apps == null) {
-					apps = new XMLListCollection();
-					themeMap[theKey] = apps;
-				}
-				apps.addItem(item);
-			}
-			
-			var meanInsertSizeSet:Boolean = false;
-			var capLibBoxSet:Boolean = false;
-			// Organize the sequencing appliction radio buttons by theme.  
-			for (var key:Object in themeMap) {
-				var theApps:XMLListCollection = themeMap[key];
-				
-				if (seqAppBox.getChildren().length > 0) {
-					var spacer:Spacer = new Spacer();
-					spacer.height = 10;
-					seqAppBox.addChild(spacer);
-				}
-				
-				
-				var header:mx.controls.Label = new mx.controls.Label();
-				header.text = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.ApplicationTheme", key);
-				if (header.text != "" && header.text != null) {
-					seqAppBox.addChild(header);
-				}
-				else{
-					header.text = "Other";
-					seqAppBox.addChild(header);
-				}
-				
-				for each(var app:Object in theApps) {
-					var rb:RadioButton = new RadioButton();
-					rb.value = app.@value;
-					rb.label = app.@application;
-					
-					rb.group = radioGroupSeqApp;
-					rb.setStyle("paddingLeft", 10);
-					rb.addEventListener("click", onSeqAppRadioClick);
-					seqAppBox.addChild(rb);
-					seqAppBox.validateNow();
-					
-					if(app.@hasCaptureLibDesign == 'Y' && !capLibBoxSet){
-						designSpacer.height = rb.y;
-						designSpacer.validateNow();
-						capLibBoxSet = true;
-					}
+				var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
+				if (de.length() >= 1) {
+					themeMap[item.@idApplicationTheme.toString()] = de[0];
 				}
 			}
+			themeList = new XMLListCollection();
+			for each(var theme:Object in themeMap) {
+				themeList.addItem(theme);
+			}
+			this.applicationThemeRepeater.dataProvider = themeList;
+			themeList.refresh();
+			this.chosenThemeLabel.text = "";
+			libraryDesign.visible = false;
+			libraryDesign.includeInLayout = false;
+
+			seqAppBox.styleName="normalBox";
 			
 			checkSeqAppSetupCompleteness();
 		}
@@ -108,7 +84,7 @@
 		public function checkSecurity():void {
 		}
 		
-		private function onSeqAppRadioClick(event:Object):void {
+		private function onSeqAppRadioClick():void {
 			pickSeqApp();
 		}
 	
@@ -215,33 +191,75 @@
 			
 			checkSeqAppSetupCompleteness();
 		}
+		
+		private function chooseTheme(applicationTheme:Object):void {
+			chosenThemeLabel.text = applicationTheme.@display.toString();
+			var capLibBoxSet:Boolean = false;
+			for(var i:int = 0; i < seqAppBox.numChildren; i++) {
+				var child:Object = seqAppBox.getChildAt(i);
+				if (child is RadioButton) {
+					var radio:RadioButton = RadioButton(child);
+					var app:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radio.value);
+					if (app != null) {
+						if (app.@idApplicationTheme == applicationTheme.@value) {
+							radio.visible = true;
+							radio.includeInLayout = true;
+							seqAppBox.validateNow();
+							if(app.@hasCaptureLibDesign == 'Y' && !capLibBoxSet){
+								designSpacer.height = radio.y;
+								designSpacer.validateNow();
+								capLibBoxSet = true;
+							}
+						} else {
+							radio.visible = false;
+							radio.includeInLayout = false;
+						}
+					}
+				}
+			}
 			
+			pickSeqApp();
+		}
 	]]>
 </mx:Script>
 
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
   <mx:Canvas width="100%" height="100%">
-        	
-	<mx:HBox id="mainBox" width="100%" height="100%" verticalGap="2">
-   		<mx:VBox height="100%"  paddingTop="2"  verticalGap="2" id="sampleSetupContainer" enabled="true" >
-			<mx:Text text="Select a sequencing application."  id="labelApplication"/>
-		   <mx:HBox horizontalGap="0" id="hbox1" paddingLeft="12">
-		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
-		       </mx:RadioButtonGroup> 
-		       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
-		       </mx:VBox>
-		   </mx:HBox>
-		</mx:VBox>	
-		<mx:VBox  visible="{libraryDesign.visible}" includeInLayout="{libraryDesign.visible}"  height="100%"  paddingTop="2">
-			<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
-			<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
-				<mx:HBox paddingBottom="10" paddingRight="10">
-					<mx:Label text="Capture Library Design ID: " id="designIDLabel" />
-					<mx:TextInput id="designID" change="propagateDesign()"/>
-				</mx:HBox>
+    <mx:VBox id="topBox" width="100%" verticalGap="0">
+		<mx:Text text="Select a sequencing application."  id="labelApplication"/>
+		<mx:Tile width="100%" direction="horizontal" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" >
+			<mx:Repeater id="applicationThemeRepeater" dataProvider="{themeList}">
+				<mx:LinkButton label="{applicationThemeRepeater.currentItem.@display}" click="chooseTheme(event.currentTarget.getRepeaterItem())" fontWeight="normal" textDecoration="underline" enabled="true" visible="true" />
+			</mx:Repeater>
+		</mx:Tile>
+		<mx:HBox id="mainBox" width="100%" height="100%" verticalGap="2" paddingTop="0">
+	   		<mx:VBox height="100%" paddingTop="2"  verticalGap="2" id="sampleSetupContainer" enabled="true" >
+			   	<mx:HBox horizontalGap="0" id="hbox1" paddingLeft="12">
+			       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+			       </mx:RadioButtonGroup> 
+			       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox">
+					   <mx:Label text="" id="chosenThemeLabel" width="400" fontWeight="bold" />
+					   <mx:Repeater id="applicationRepeater" dataProvider="{parentDocument.filteredAppList}">
+						   <mx:RadioButton id="applicationButton" groupName="radioGroupSeqApp" 
+										   label="{applicationRepeater.currentItem.@display}" 
+										   value="{applicationRepeater.currentItem.@value}" 
+										   click="{onSeqAppRadioClick()}" fontSize="11" paddingTop="0" paddingBottom="0"
+										   visible = "false" includeInLayout="false"/>							
+					   </mx:Repeater>
+			       </mx:VBox>
+			   	</mx:HBox>
+			</mx:VBox>	
+			<mx:VBox  visible="{libraryDesign.visible}" includeInLayout="{libraryDesign.visible}"  height="100%"  paddingTop="2">
+				<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
+				<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
+					<mx:HBox paddingBottom="10" paddingRight="10">
+						<mx:Label text="Capture Library Design ID: " id="designIDLabel" />
+						<mx:TextInput id="designID" change="propagateDesign()"/>
+					</mx:HBox>
+				</mx:VBox>
 			</mx:VBox>
-		</mx:VBox>
-	</mx:HBox>
+		</mx:HBox>
+	</mx:VBox>
 	
  </mx:Canvas>
 </mx:Canvas>
