@@ -1339,8 +1339,15 @@
 				}
 			}
 			
+			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+				coreFacilityNoteVBox.visible = vis;
+				coreFacilityNoteVBox.includeInLayout = vis;
+			}
 
-
+			override public function setTopBoxVisibility(vis:Boolean):void {
+				topBox.visible = vis;
+				topBox.includeInLayout = vis;
+			}
 
 
 		]]>
@@ -1351,15 +1358,24 @@
 
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
-			<mx:CheckBox id="showCCNumberCheckbox" 
-						 selected="false"
-						 click="toggleShowCCNumber()" 
-						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
-						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
-						 label="Link to BST samples using CC Number" />
-			<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>		  	
+			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0">
+				<mx:HBox width="100%" paddingTop="0" paddingBottom="0">
+					<mx:CheckBox id="showCCNumberCheckbox" scaleX=".75" scaleY=".75"
+								 selected="false"
+								 click="toggleShowCCNumber()"  
+								 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
+								 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
+								 label="Link to BST samples using CC Number" />
+					<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>
+				</mx:HBox>
+				<mx:VBox height="100%" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="0">
+					<mx:Label text="Enter a note for the Core Facility. (optional)"  id="coreFacilityNoteLabel" fontSize="10"/>
+					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
+											 width ="100%" height="100%"/>
+				</mx:VBox>
+			</mx:VBox>
 			<mx:TextArea styleName="instructionBox" width="{parentApplication.isInternalExperimentSubmission ? 590 : 0}" wordWrap="true" height="{parentApplication.isInternalExperimentSubmission ? 88 : 0}" visible="{parentApplication.isInternalExperimentSubmission}" id="textarea1" verticalScrollPolicy="off" horizontalScrollPolicy="off">
-				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name, label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+				<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
 			</mx:TextArea>
 
 		</mx:HBox>
