@@ -64,7 +64,9 @@
 			
 			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
 			//So re-validate it so it is redrawn
-			numberSequencingCyclesBox.validateNow();
+			if (numberSequencingCyclesBox != null) {
+				numberSequencingCyclesBox.validateNow();
+			}
 
 			//Since old values are not cleared out when creating second experiment in same session
 			//Check to make sure that the old values are valid enough to enable the next button right away.

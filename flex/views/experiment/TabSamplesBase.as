@@ -599,5 +599,28 @@ package views.experiment
 			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
 			PopUpManager.centerPopUp(addOrganismWindow);
 		}
+		
+		public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+			
+		}
+		
+		public function setTopBoxVisibility(vis:Boolean):void {
+			
+		}
+		
+		public function setExternalNoteVisibility():void {
+			if (!parentApplication.isInternalExperimentSubmission) {
+				if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
+					setCoreFacilityNoteVisibility(false);
+					setTopBoxVisibility(false);
+				} else {
+					setCoreFacilityNoteVisibility(true);
+					setTopBoxVisibility(true);
+				}
+			} else {
+				setCoreFacilityNoteVisibility(true);
+				setTopBoxVisibility(true);
+			}
+		}
 	}
 }
