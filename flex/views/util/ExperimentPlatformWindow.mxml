@@ -918,11 +918,11 @@
 											</mx:DataGridColumn>
 											<mx:DataGridColumn headerText="Experiment Type"  
 															   itemRenderer="views.renderers.LabelActive"
-															   rendererIsEditor="false"
-															   width="200"
+															   rendererIsEditor="false"  width="350"
 															   editable="true" wordWrap="true" dataField="@display" >
 											</mx:DataGridColumn>
-											<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"  
+											<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
+															   width="80"
 															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
 															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
 															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
@@ -935,22 +935,22 @@
 															   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false"/>
 											<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@value == 'MICROARRAY'}" dataField="@idLabelingProtocol"  
 															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
-															   wordWrap="true"
+															   wordWrap="true" width="80"
 															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
 															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
 											<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="@idHybProtocol" 
 															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-															   wordWrap="true"
+															   wordWrap="true" width="80"
 															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
 															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
 											<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="@idScanProtocol"  
 															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-															   wordWrap="true"
+															   wordWrap="true" width="80"
 															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
 															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
 											<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="@idFeatureExtractionProtocol"  
 															   editorDataField="value"  
-															   wordWrap="true"
+															   wordWrap="true" width="80"
 															   sortable="false" editable="true" rendererIsEditor="false"  
 															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
 															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
@@ -966,11 +966,14 @@
 													</mx:Component>
 												</mx:itemRenderer>
 											</mx:DataGridColumn>
+											<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
+															   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@value == 'SEQUENOM'}" 
+															   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
 											<mx:DataGridColumn headerText="Active"  
-															   width="25"  
+															   width="25"   
 															   editable="false"                      	
 															   dataField="@isActive" 
-															   editorDataField="selected"
+															   editorDataField="selected" textAlign="center"
 															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty, true, null, appIsActiveEnabled)}">			 
 											</mx:DataGridColumn>
 										</mx:columns>

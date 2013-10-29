@@ -362,6 +362,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       String idFeatureExtractionProtocolDefault = node.getAttributeValue("idFeatureExtractionProtocolDefault");
       String idApplicationTheme = node.getAttributeValue("idApplicationTheme");
       String sortOrder = node.getAttributeValue("sortOrder");
+      String samplesPerBatch = node.getAttributeValue("samplesPerBatch");
 
       app.setHasCaptureLibDesign(node.getAttributeValue("hasCaptureLibDesign"));
       app.setOnlyForLabPrepped(node.getAttributeValue("onlyForLabPrepped"));
@@ -382,6 +383,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       app.setCoreSteps(node.getAttributeValue("coreSteps"));
       app.setCoreStepsNoLibPrep(node.getAttributeValue("coreStepsNoLibPrep"));
       app.setSortOrder(sortOrder != null && sortOrder.length() > 0 ? Integer.valueOf(sortOrder) : 0);
+      app.setSamplesPerBatch(samplesPerBatch != null && !samplesPerBatch.equals("") ? Integer.valueOf(samplesPerBatch) : null);
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);
