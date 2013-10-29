@@ -2031,7 +2031,7 @@
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox7">
 				   <mx:Text text="(1) Select an application." width="334" id="labelSeqApplication"/>
 				   <mx:VBox verticalGap="2" id="appAndPanelContainerVBox">
-					   <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+					   <mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
 						   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
 						   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
 							   <mx:HBox verticalAlign="middle">
@@ -2039,8 +2039,9 @@
 													paddingLeft="1" paddingRight="1"
 													value="{seqAppRepeater.currentItem.@value}"
 													groupName="radioGroupSeqApp"
-													click="{pickSequenomApp()}"/>
-								   <mx:Label text="{seqAppRepeater.currentItem.@samplesPerBatch != '' ? '(' + seqAppRepeater.currentItem.@samplesPerBatch + ' samples/batch)' : ''}" />
+													click="{pickSequenomApp()}"
+													width="200"/>
+								   <mx:Label text="{seqAppRepeater.currentItem.@samplesPerBatch != '' ? seqAppRepeater.currentItem.@samplesPerBatch + ' samples/batch' : ''}" />
 							   </mx:HBox>
 						   </mx:Repeater>
 					   </mx:VBox>
