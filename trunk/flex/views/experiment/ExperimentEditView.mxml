@@ -1775,7 +1775,20 @@
     	   		}
     	   	}
         	        	
-        	return doesMatchRequestCategory;
+			var doesMatchSeqPrepByCore:Boolean = false;
+			if (doesMatchRequestCategory) {
+				if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y') {
+					doesMatchSeqPrepByCore = true;
+				} else {
+					for each (var sample:Object in samples) {
+						if ((sample.@seqPrepByCore == "Y" && item.@onlyForLabPrepped == "N") || sample.@seqPrepByCore == "N") {
+							doesMatchSeqPrepByCore = true;
+							break;
+						}
+					}
+				}
+			}
+        	return doesMatchRequestCategory && doesMatchSeqPrepByCore;
         }  
 
 		private function filterMicroarrayApplication(item:Object):Boolean {
