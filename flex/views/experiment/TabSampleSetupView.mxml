@@ -50,6 +50,10 @@
 			if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
 				initIllumina();
 			}
+			if ( qcInstructions != null ) {
+				qcInstructions.text = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS);
+			}
+			
 		}
 		
 		private function initIllumina():void {
@@ -1461,7 +1465,7 @@
 						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" 
 							horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="5">
 							<mx:Text width="100%" id="qcInstructions" styleName="submitNote">									
-								<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
+								<mx:text>{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
 							</mx:Text>
 						</mx:HBox>
 					</mx:HBox>
