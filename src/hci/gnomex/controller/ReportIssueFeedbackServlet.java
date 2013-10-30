@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,9 +47,14 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 	private String fromAddress;
 	private String body = "Feedback";
 	private String format = "text";
-	BufferedImage image = null;
-	File outputfile = null;
-	String Filename = null;
+	private String IdAppUser = "";
+	private String AppUserName = "";
+	private String UNID = "";		
+	private BufferedImage image = null;
+	private File outputfile = null;
+	private String Filename = null; //not needed
+	private SimpleDateFormat sdf = new SimpleDateFormat();
+	private Date currentDate = new Date(System.currentTimeMillis());
 
 	private static final int STATUS_ERROR = 999;
 
@@ -117,8 +124,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 					.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
 				throw new ServletException("Insufficent permissions");
 			}
-*/
-
+*/			
 			MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE);
 			Part part;
 			while ((part = mp.readNextPart()) != null) {
@@ -135,6 +141,12 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 						this.fromAddress = value;
 					} else if (name.equals("body")) {
 						this.body = value;
+					} else if (name.equals("IdAppUser")) {
+						this.IdAppUser = value;
+					} else if (name.equals("AppUserName")) {
+						this.AppUserName = value;
+					} else if (name.equals("UNID")) {
+						this.UNID = value;
 					}
 				} else if (part.isFile()) {
 					FilePart filePart = (FilePart) part;
@@ -151,7 +163,11 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 						ByteArrayInputStream bais = new ByteArrayInputStream(
 								binaryData);
 						image = ImageIO.read(bais);
-						File outputfileTemp = new File("ReportIssueScreenshot.png");
+						String filename = "IssueReportedScreenshot " + currentDate.toString() + ".png";
+						filename = filename.replaceAll("\\s", "");
+						filename = filename.replaceAll(":", "");
+						File outputfileTemp = new File(filename);
+						//File outputfileTemp = new File("ReportIssueScreenshot.png");
 						ImageIO.write(image, "png", outputfileTemp);
 						String absolutePath = outputfileTemp.getAbsolutePath();
 						outputfile = new File(absolutePath);
@@ -170,7 +186,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			}
 
 			boolean send = false;
-			String theSubject = subject;
+			String theSubject = subject + " " + currentDate.toString();
 			String emailInfo = "";
 			String emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
 			if (dh.isProductionServer(req.getServerName())) {
@@ -185,7 +201,15 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 						.getPropertyDictionary(
 								PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
 			}
-
+			
+			
+			
+			String emailBody =  "Time: "					+ currentDate.toString() + " -- " + sdf.format(currentDate)	+ "\r" +
+								"RequestURL: " 				+ req.getRequestURL().toString() 							+ "\r" + 
+								"IdAppUser: " 				+ this.IdAppUser 											+ "\r" +
+								"AppUserName: " 			+ this.AppUserName 											+ "\r" +
+								"UNID: " 					+ this.UNID 												+ "\r" +
+								"User Feedback: " 	+ "\r" 	+ body.toString() 											+ "\r";
 			// Email app user
 			if (send) {
 				if (!MailUtil.isValidEmail(fromAddress)) {
@@ -195,7 +219,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 				}
 				MailUtil.send_attach(emailRecipients,
 						"", fromAddress, theSubject,
-						emailInfo + "User Feedback:\r" + body.toString(),
+						emailInfo + emailBody,
 						format.equalsIgnoreCase("HTML") ? true : false,
 						outputfile);
 				outputfile.delete();
