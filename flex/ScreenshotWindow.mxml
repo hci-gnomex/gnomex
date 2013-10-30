@@ -146,6 +146,7 @@
 		
 	</mx:HBox>		
 	<mx:ControlBar   width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
+		<mx:Label text="All information will be encrypted to protect health information and proprietary research data."/>
 		<mx:HBox width="100%" horizontalAlign="right">		
 			<mx:Button id="sendEmailButton" label="Submit" click="reportIssue()"/>
 			<mx:Button label="Close"  click="{PopUpManager.removePopUp(this)}"/>			
