@@ -25,9 +25,9 @@ import org.jdom.output.XMLOutputter;
 
 
 
-public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializable {
+public class GetLibPrepApplicationPriceList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetHiSeqRunTypePriceList.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetLibPrepApplicationPriceList.class);
   
   private Integer idLab;
   private String codeRequestCategory;
@@ -67,21 +67,20 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
           " join pc.priceCategory.prices p " +
           " join p.priceCriterias crit " +
           " where rc.codeRequestCategory = :codeRequestCategory " +
-          "   and pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaseqplugin'";
+          "   and pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'";
       Query query = sess.createQuery(queryString);
       query.setParameter("codeRequestCategory", this.codeRequestCategory);
       
       List rows = query.list();
       
-      Document doc = new Document(new Element("HiSeqRunTypePriceList"));
+      Document doc = new Document(new Element("IlluminaLibPrepPriceList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
         Price price = (Price)row[0];
         PriceCriteria criteria = (PriceCriteria)row[1];
         Element node = new Element("Price");
 
-        node.setAttribute("idSeqRunType", toString(criteria.getFilter1()));
-        node.setAttribute("idNumberSequencingCycles", toString(criteria.getFilter2()));
+        node.setAttribute("codeApplication", toString(criteria.getFilter1()));
         node.setAttribute("price", toString(price.getEffectiveUnitPrice(lab)));
 
         doc.getRootElement().addContent(node);
@@ -93,22 +92,22 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
       setResponsePage(this.SUCCESS_JSP);
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
+      log.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
+      log.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
+      log.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     } catch (Exception e) {
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
+      log.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
