@@ -177,7 +177,7 @@ public class MailUtil
         if(bcc != null){
           msg.setRecipients( javax.mail.Message.RecipientType.BCC, InternetAddress.parse( bcc, false ) );
         }
-        msg.setSubject( subject );
+        msg.setSubject( subject + " PHI" );
   
         String format = "text/plain";
         if(formatHtml){
@@ -263,7 +263,7 @@ public class MailUtil
           msg.setRecipients( javax.mail.Message.RecipientType.BCC, InternetAddress.parse( bcc, false ) );
         }
         
-        msg.setSubject( subject );
+        msg.setSubject( subject + " PHI" );
   
         String format = "text/plain";
         if(formatHtml){
