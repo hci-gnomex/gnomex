@@ -573,7 +573,7 @@
 					refreshBillingAccounts();
 				} else if (parentDocument != null) {
 					parentDocument.labSelected(lab);
-					setVisibility();
+					callLater(setVisibility);
 				}
 				
 				this.checkSetupCompleteness();
