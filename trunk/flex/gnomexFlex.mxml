@@ -304,9 +304,11 @@
 			import mx.controls.menuClasses.MenuBarItem;
 			import mx.controls.treeClasses.TreeItemRenderer;
 			import mx.core.IFlexDisplayObject;
+			import mx.core.IUIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
+			import mx.graphics.ImageSnapshot;
 			import mx.managers.CursorManager;
 			import mx.managers.CursorManagerPriority;
 			import mx.managers.PopUpManager;
@@ -344,10 +346,23 @@
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
-
-			import mx.core.IUIComponent;
-			import mx.graphics.ImageSnapshot;
 			
+			
+			override protected function focusOutHandler(event:FocusEvent):void 
+			{				
+				if(event.type == FocusEvent.FOCUS_OUT)
+				{
+					if(event.currentTarget.id == 'searchText')
+					{
+						searchText.text==''?searchText.text='Search':'';						
+					}
+					else if(event.currentTarget.id == 'requestNumber' ) {
+						requestNumber.text==''?requestNumber.text='Lookup by #':'';
+					}
+				}
+				super.focusOutHandler(event);
+				
+			}
 			
 			[Bindable]
 			public var dictionaryManager:DictionaryManager;
@@ -3473,6 +3488,8 @@
 					}
 				} else if (label== "Sign out") {
 					this.logout();
+				} else if (label== "Report Issue") {
+					takeScreenshotForReportIssue(this.theBody);
 				}
 
 			}
@@ -4005,6 +4022,7 @@
 	<mx:XMLList id="topMenu">
 		<menuitem label="Home"/>
 		<menuitem label="My Account"  />
+		<menuitem label="Report Issue" />
 		<menuitem label="Help..."  >
 		
 			<menuitem label="User Guide"  />
@@ -4045,27 +4063,35 @@
 						<mx:HBox  paddingTop="12">
 							<mx:Image source="{siteLogo}" useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 						</mx:HBox>
-						<mx:Spacer width="30"/>
+		<!--				<mx:Spacer width="30"/>
 						<mx:VBox paddingTop="12">						
 							<mx:Button label="Report Issue" height="30"
 								   		click="takeScreenshotForReportIssue(this.theBody);" />
-						</mx:VBox>
+						</mx:VBox> -->
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							
-							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-							<mx:TextInput id="requestNumber"   
+					<!--		<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  /> -->
+							<mx:TextInput id="requestNumber"
+										  text="Lookup by #"
+										  click="requestNumber.text=='Lookup by #'?requestNumber.text='':''"
+										  focusOut="focusOutHandler(event)"
 										  toolTip="Enter experiment, analysis, data track, or topic #. Example: 6145R, A210, DT45, T21" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="lookupButton" 
 									   width="30"
 									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 						</mx:HBox>
+						
+						
+										  
 						<mx:HBox height="36" paddingTop="8" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
-							<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
-							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
+					<!--		<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/> -->
+							<mx:TextInput id="searchText"
+										  text="Search"
+										  click="searchText.text=='Search'?searchText.text='':''"
+										  focusOut="focusOutHandler(event)"										  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-							<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
-							</mx:LinkButton>
+						<!--	<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20"/> -->							
 						</mx:HBox>
 						
 						<mx:Spacer width="100%"/>
@@ -4180,14 +4206,13 @@
 			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 			<mx:SetProperty target="{theViews}" name="visible" value="true"/>
-			<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
+		<!--	<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> --> 
 			<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
 			<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
+		<!--	<mx:SetProperty target="{searchLabel}" name="visible" value="true"/> -->
 			<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 			<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
+			<!-- <mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/> -->
 			<mx:SetProperty target="{mainArea}" name="visible" value="true"/>
 			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
