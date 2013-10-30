@@ -1104,10 +1104,6 @@
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
-				
-				if (theTab.contains(seqSetupView)) {
-					seqSetupView.init();
-				} 
 
 				// Only show the barcode labeling option if we have
 				// at least one set of barcodes 
@@ -1352,14 +1348,25 @@
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
 			}
+			
+			loadPriceLists(getIdLab());
 		}
 
 		public function labSelected(lab:Object):void {
-			if (requestCategory != null && requestCategory.@codeRequestCategory != null && lab != null && theTab.contains(sampleSetupView)) {
-				this.sampleSetupView.loadPriceList(lab.@idLab.toString(), requestCategory.@codeRequestCategory.toString());
-			}
+			loadPriceLists(lab.@idLab.toString());
 		}
 
+		private function loadPriceLists(idLab:String):void {
+			if (requestCategory != null && requestCategory.@codeRequestCategory != null && idLab != null) {
+				if (theTab.contains(sampleSetupView)) {
+					this.sampleSetupView.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
+				}
+				if (theTab.contains(seqSetupView)) {
+					this.seqSetupView.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
+				}
+			}
+		}
+			
 		private function setTabsVisible():void {
 			for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
 				theTab.getTabAt(tabIdx).visible = true;
@@ -1974,16 +1981,7 @@
         	var doesMatchGroup:Boolean = true;
 			// Only filter by custom slides if this is an internal experiment
 			if (parentApplication.submitInternalExperiment()) {
-				var idLab:Object = null;
-				if (this.isAmendState() || this.isEditState()) {
-					if  (request != null && request.hasOwnProperty("@idLab")) {
-						idLab = request.@idLab;    			
-					}
-				} else {
-					if (setupView.labCombo.selectedItem != null) {
-						idLab = setupView.labCombo.selectedItem.@idLab;
-					}
-				}
+				var idLab:Object = getIdLab();
 				if (idLab != null && idLab != "" && hybSetupView.isCustomRadio.selected) {
 					if (item.@isCustom == "Y" && item.@idLab == idLab) {
 						doesMatchGroup = true;
@@ -2002,6 +2000,20 @@
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
+		public function getIdLab():String {
+			var idLab:String = null;
+			if (this.isAmendState() || this.isEditState()) {
+				if  (request != null && request.hasOwnProperty("@idLab")) {
+					idLab = request.@idLab;    			
+				}
+			} else {
+				if (setupView.labCombo.selectedItem != null) {
+					idLab = setupView.labCombo.selectedItem.@idLab;
+				}
+			}
+			return idLab;
+		}	
+			
 		public function cloneRequest(requestToClone:Object):void {
 			this.requestToClone = requestToClone;
 			getRequestToClone.send();

@@ -17,6 +17,18 @@ package views.util
 			return pattern == string.substr(0, pattern.length);
 		}
 		
+		public static function endsWith(string:String, pattern:String, caseSensitive:Boolean=true):Boolean {
+			if (!caseSensitive) {
+				string = string.toLowerCase();
+				pattern = pattern.toLowerCase();
+			}
+			if (string.length < pattern.length) {
+				return false;
+			} else {
+				return pattern == string.substr(string.length - pattern.length, pattern.length);
+			}
+		}
+		
 		public static function cleanRichTextHTML(htmlText:String):String {
 			var pattern:RegExp = /<TEXTFORMAT.*?>/g;
 			var str:String = htmlText.replace(pattern, "");
