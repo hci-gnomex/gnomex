@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.model.AppUser;
+
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -8,19 +8,19 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -32,15 +32,15 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.hibernate.Query;
+
 import org.hibernate.Session;
 
-import com.itextpdf.text.pdf.codec.PngWriter;
+
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-import com.oreilly.servlet.MultipartRequest;
+
 
 public class ReportIssueFeedbackServlet extends HttpServlet {
 	private String subject = "Issue Reported";
@@ -186,14 +186,14 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			}
 
 			boolean send = false;
-			String theSubject = subject + " " + currentDate.toString();
+			String theSubject = subject + " " + currentDate.toString() + " PHI ";
 			String emailInfo = "";
 			String emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
 			if (dh.isProductionServer(req.getServerName())) {
 				send = true;
 			} else {
 				send = true;
-				theSubject = subject + "  (TEST)";
+				theSubject = theSubject + "  (TEST)";
 				emailInfo = "[If this were a production environment then this email would have been sent to: "
 						+ emailRecipients + "]\r\r";
 				emailRecipients = DictionaryHelper
@@ -204,12 +204,13 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			
 			
 			
-			String emailBody =  "Time: "					+ currentDate.toString() + " -- " + sdf.format(currentDate)	+ "\r" +
-								"RequestURL: " 				+ req.getRequestURL().toString() 							+ "\r" + 
-								"IdAppUser: " 				+ this.IdAppUser 											+ "\r" +
-								"AppUserName: " 			+ this.AppUserName 											+ "\r" +
-								"UNID: " 					+ this.UNID 												+ "\r" +
-								"User Feedback: " 	+ "\r" 	+ body.toString() 											+ "\r";
+			String emailBody =  "Time: "					+ sdf.format(currentDate)															+ "\r" +
+								"RequestURL: " 				+ req.getRequestURL().toString() 													+ "\r" + 
+								"IdAppUser: " 				+ this.IdAppUser 																	+ "\r" +
+								"AppUserName: " 			+ this.AppUserName 																	+ "\r" +
+								"UNID: " 					+ this.UNID 																		+ "\r" +
+								"-------------------------------------------User Feedback-----------------------------------------------------" + "\r" +
+								body.toString();
 			// Email app user
 			if (send) {
 				if (!MailUtil.isValidEmail(fromAddress)) {

@@ -1,11 +1,29 @@
-package
+package views.util
 {	
 	import flash.errors.IOError;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
 	public class UploadPostHelper
-	{		
+	{	
+		/**
+		 * Take a fileName, byteArray, and parameters object as input and return ByteArray post data suitable for a UrlRequest as output
+		 *
+		 * @see http://marstonstudio.com/?p=36
+		 * @see http://www.w3.org/TR/html4/interact/forms.html
+		 * @see http://www.jooce.com/blog/?p=143
+		 * @see http://www.jooce.com/blog/wp%2Dcontent/uploads/2007/06/uploadFile.txt
+		 * @see http://blog.je2050.de/2006/05/01/save-bytearray-to-file-with-php/
+		 *
+		 * @author Jonathan Marston
+		 * @version 2007.08.19
+		 *
+		 * This work is licensed under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
+		 * @see http://creativecommons.org/licenses/by-nc-sa/3.0/
+		 *
+		 */
+		
+		
 		/**
 		 *  Boundary used to break up different parts of the http POST body
 		 * */

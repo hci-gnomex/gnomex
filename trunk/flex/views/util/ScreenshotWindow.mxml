@@ -7,7 +7,7 @@
 				defaultButton="{sendEmailButton}"
 				showCloseButton="true"  
 				close="{mx.managers.PopUpManager.removePopUp(this)}"
-				titleIcon="@Embed(source='./assets/email_go.png')">
+				titleIcon="@Embed(source='../../assets/email_go.png')">
 	<mx:HTTPService
 		id="ReportIssueGetURLService"
 		url="ReportIssueServletGetURL.gx"
@@ -30,7 +30,7 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import UploadPostHelper;
+			import views.util.UploadPostHelper;
 			
 			import flash.net.FileReference;
 			

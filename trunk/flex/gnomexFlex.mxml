@@ -347,6 +347,8 @@
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
 			
+			import views.util.ScreenshotWindow;
+			
 			
 			override protected function focusOutHandler(event:FocusEvent):void 
 			{				
