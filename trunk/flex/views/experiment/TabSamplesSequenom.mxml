@@ -66,13 +66,13 @@
 				}
 				
 					this.addSampleButton.visible = false;
+					this.addSampleButton.includeInLayout = false;
 					this.addSampleButton.enabled = false;
 					this.deleteSampleButton.visible = true;
 					this.deleteSampleButton.enabled = true;
 					this.copySampleButton.visible = false;
+					this.copySampleButton.includeInLayout = false;
 					this.copySampleButton.enabled = false;				
-					this.copyColumnButton.visible = false;
-					this.copyColumnButton.enabled = false;
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
@@ -463,6 +463,13 @@
 				}
 			}
 			
+			private function setButtonsVisibility(vis:Boolean):void {
+				buttonsContainer1.visible = vis;
+				buttonsContainer1.includeInLayout = vis;
+				buttonsContainer2.visible = vis;
+				buttonsContainer2.includeInLayout = vis;
+			}
+			
 			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
@@ -471,13 +478,11 @@
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				showCCNumberCheckbox.width = isExternal ? 0 : 250;
 				
-				buttonsContainer.visible = true;
-				buttonsContainer.includeInLayout = buttonsContainer.visible;
+				setButtonsVisibility(true);
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
 				if (isEditState && !parentApplication.isAdminState && !isExternal && !parentDocument.isSequencingState()) {
-					buttonsContainer.visible = false;
-					buttonsContainer.includeInLayout = false;
+					setButtonsVisibility(false);
 				}
 				
 				// Edit columns shown
@@ -536,13 +541,14 @@
 	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
-			<mx:CheckBox id="showCCNumberCheckbox" 
-						 width="350"
-						 selected="false"
-						 click="toggleShowCCNumber()" 
-						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
-						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
-						 label="Link to itBioPath samples using CC #" />		  	
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+			<mx:HBox id="buttonsContainer2" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+							   label="Upload help" 
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			</mx:HBox>
 			<mx:TextArea styleName="instructionBox" 
 						 width="500" 
 						 wordWrap="true" 
@@ -558,19 +564,19 @@
 		</mx:HBox>
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%">
-			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-			<mx:HBox id="buttonsContainer" horizontalGap="2">
-				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
-				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
-							   label="Upload help" 
-							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
-							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			<mx:HBox id="buttonsContainer1" horizontalGap="2">
 				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
 				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Delete sample" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
 				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
-				<mx:LinkButton textDecoration="underline" label="Copy column" click="copyColumn();" icon="@Embed('../../assets/table_multiple.png')" id="copyColumnButton" toolTip="Copy contents of one column to another" />
 			</mx:HBox>
+			<mx:CheckBox id="showCCNumberCheckbox" 
+						 width="350"
+						 selected="false"
+						 click="toggleShowCCNumber()" 
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+						 label="Link to itBioPath samples using CC #" />		  	
 		</mx:HBox>
 
 		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  

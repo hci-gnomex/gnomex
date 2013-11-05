@@ -368,13 +368,6 @@ package views.experiment
 			mx.controls.Alert.show("Example sample sheet downloaded.");
 		}
 		
-		public function copyColumn():void {
-			var copySampleSheetColumnWindow:CopySampleSheetColumnView = CopySampleSheetColumnView(PopUpManager.createPopUp(this, CopySampleSheetColumnView, true));
-			PopUpManager.centerPopUp(copySampleSheetColumnWindow);
-			copySampleSheetColumnWindow.init(this);
-		}
-
-		
 		protected function getNextSampleId():Number {
 			var lastId:Number = -1;
 			
