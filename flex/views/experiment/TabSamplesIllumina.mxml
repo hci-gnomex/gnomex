@@ -15,12 +15,16 @@
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
 			import mx.controls.TextInput;
 			import mx.controls.ToolTip;
 			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
 			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
 			import mx.events.ValidationResultEvent;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
@@ -67,6 +71,10 @@
 					}
 				}
 				
+				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				setGridColors();
+
 				this.addSampleButton.visible = true;
 				this.deleteSampleButton.visible = true;
 				this.copySampleButton.visible = true;
@@ -80,7 +88,7 @@
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
-				return this.samplesGrid;
+				return AdvancedDataGrid(this.samplesGrid);
 			}
 			
 			override public function addSample():Boolean {
@@ -437,6 +445,44 @@
 				callLater(postSamplesCompleteness, [isComplete]);
 				
 				
+			}
+			
+			private function onSampleChanged(event:CollectionEvent):void {
+				if (event.kind == CollectionEventKind.UPDATE) {
+					var groupNumberChanged:Boolean = false;
+					for each (var item:PropertyChangeEvent in event.items) {
+						if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
+							groupNumberChanged = true;
+							break;
+						}
+					}
+					
+					if (groupNumberChanged) {
+						setGridColors();
+					}
+				}
+			}
+
+			private function setGridColors():void {
+				var numsUsed:Object = new Object();
+				var prevSample:Object = null;
+				var colors:Array = ["0xFFFFFF","0xEEEEE0"];
+				var redColor:String = "0xF90F0F";
+				var colorIdx:int = 1;
+				for each (var theSample:Object in parentDocument.samples) {
+					theSample.@customColor = colors[colorIdx];
+					if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+						if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+							theSample.@customColor = redColor;
+						} else {
+							numsUsed[theSample.@multiplexGroupNumber] = true;
+							colorIdx++;
+							if (colorIdx > 1) colorIdx = 0;
+							theSample.@customColor = colors[colorIdx];
+						}
+					}
+					prevSample = theSample;
+				}
 			}
 			
 			private function areLaneNumbersSequential():Boolean {
@@ -920,7 +966,7 @@
 			<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton"/>
 		</mx:HBox>
 		
-		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
+		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"  
 							 editable="true"
 							 allowMultipleSelection="false" 
 							 itemFocusOut="checkSamplesCompleteness()"  
@@ -933,7 +979,7 @@
 							 iconFunction="getSampleTreeIcon"
 							 displayItemsExpanded="true"  
 							 selectionColor="#DDF3FB">
-			<mx:columns>
+			<util:columns>
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Lane #" editorDataField="text" dataField="@multiplexGroupNumber" editable="true" visible="true"
 										   width="54" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
@@ -1190,8 +1236,8 @@
 											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
 				
-			</mx:columns>
-		</mx:AdvancedDataGrid>
+			</util:columns>
+		</util:AdvancedDataGridWithCustomRowColors>
 		
 		
 		
