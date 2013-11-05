@@ -1315,7 +1315,7 @@
 			</mx:HBox>
 		</mx:HBox>
 		<mx:VBox id="nameDescriptionHBox" width="100%" paddingBottom="0" paddingLeft="0" paddingTop="0" paddingRight="0">
-			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="4" paddingTop="0" paddingBottom="0">
+			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0">
 				<mx:Text width='200' id="nameLabel">
 					<mx:htmlText>(5) Name your experiment. (optional)</mx:htmlText>
 				</mx:Text>
