@@ -51,6 +51,9 @@
 		private var possibleCollaborators:XMLListCollection;
 
 		[Bindable]
+		private var collaborators:XMLListCollection;
+		
+		[Bindable]
 		private var possibleInstitutions:PromptXMLListCollection;
 
 		public function init():void {
@@ -70,7 +73,6 @@
 					privacyExpirationPicker.text = parentApplication.formatDate(expireDate);
 				}
 			}
-			this.collaboratorCombo.selectedItem = null;
 			this.institutionCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
 			
@@ -96,8 +98,8 @@
 				    " displayName=''"  +
 					"/>");
 				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				collaboratorGrid.dataProvider = null;
 				possibleCollaborators = new XMLListCollection(lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
-				possibleCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 				if (this.idInstitution != null && this.idInstitution != '') {
@@ -125,6 +127,26 @@
 						this.institutionCombo.selectedIndex = 0;
 					}	
 				}
+				
+				collaborators = new XMLListCollection();
+				for each (var old:XML in possibleCollaborators) {
+					var o:XML = old.copy();
+					o.@canView = "N";
+					o.@canUpdate = "N";
+					o.@canUploadData = "N";
+					for each (var o1:XML in parentDocument.request.collaborators.ExperimentCollaborator) {
+						if (o1.@idAppUser == o.@idAppUser) {
+							o.@canView = "Y";
+							o.@canUpdate = o1.@canUpdate;
+							o.@canUploadData = o1.@canUploadData;
+							break;
+						}
+					}
+					collaborators.addItem(o);
+				}
+				
+				collaboratorGrid.dataProvider = collaborators;
+				collaboratorGrid.validateNow();
 				checkVisibilitySetupCompleteness();
 			}
 		}
@@ -155,26 +177,41 @@
     		return isComplete;
     	    	
         }
-        
-		private function addCollaborator():void {
-			parentDocument.dirty.setDirty();
-			var node:XML = new XML("<ExperimentCollaborator " +
-			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
-				"/>");
-			this.collaborators.addItem(node);
+		
+		public function getCollaborators():XMLListCollection {
+			var list:XMLListCollection = new XMLListCollection();
+			for each (var c:XML in collaborators) {
+				if (c.@canView == "Y") {
+					var c1:XML = XML("<ExperimentCollaborator></ExperimentCollaborator>");
+					c1.@idAppUser = c.@idAppUser;
+					c1.@displayName = c.@displayName;
+					c1.@canUpdate = c.hasOwnProperty("@canUpdate") ? c.@canUpdate : "N";
+					c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
+					list.addItem(c1);
+				}
+			}
+			return list;
 		}
 		
-		private function removeCollaborator():void {
-			parentDocument.dirty.setDirty();
-			if (collaboratorGrid.selectedIndex != -1) {
-				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
+		private function toggleCheck(event:ListEvent):void {
+			if (event.columnIndex == 1 ) {
+				
+				if (collaboratorGrid.selectedItem.@canView == "Y") {
+					collaboratorGrid.selectedItem.@canView = "N";
+				} else {
+					collaboratorGrid.selectedItem.@canView = "Y";
+				}
+				
 			}
+			if (collaboratorGrid.selectedItem.@canView == "N") {
+				collaboratorGrid.selectedItem.@canUploadData = "N";
+				collaboratorGrid.selectedItem.@canUpdate = "N";
+			}
+			
 		}
 	]]>
 </mx:Script>
 
-  <mx:XMLListCollection id="collaborators" source="{parentDocument.request.collaborators.ExperimentCollaborator}"/>
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="20" horizontalScrollPolicy="off" verticalScrollPolicy="off">
@@ -217,48 +254,51 @@
 
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-			<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;"   width="330"/>
-			<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
-										  labelField="@displayName" 
-										  prompt="Collaborator to add..."
-										  width="270"  
-										  removeFilterOnSelection="true"
-										  id="collaboratorCombo">
-				</renderers:FilterComboBox>
-				<mx:Button 
-					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
-					icon="@Embed(source='../../assets/add.png')" 
-					disabledIcon="@Embed(source='../../assets/add_disable.png')"
-					click="addCollaborator()" 
-					width="25">
-				</mx:Button>
-				<mx:Button  
-					icon="@Embed(source='../../assets/delete.png')" 
-					disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-					enabled="{collaboratorGrid.selectedItem != null}" 
-					click="removeCollaborator()" width="25"/>
-			</mx:HBox>
-			<mx:HBox width="100%" height="100%">
-				<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%" showHeaders="true">
-					<mx:columns>
-						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />  
-						<mx:DataGridColumn headerText="Upload" 
-										   width="65" 
-										   editable="true"                        	
-										   dataField="@canUploadData" 
-										   editorDataField="selected" sortable="false"
-										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
-						<mx:DataGridColumn headerText="Update" 
-										   width="65" 
-										   editable="true"                        	
-										   dataField="@canUpdate" 
-										   editorDataField="selected" sortable="false"
-										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
-					</mx:columns>
-				</mx:DataGrid>		   		
-			</mx:HBox>
+			<mx:Text text="(2) Select other individual collaborators allowed access to this experiment&#xa;"   width="500"/>
+			<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%"	itemClick="toggleCheck(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText=""  
+									   width="25" 
+									   editable="true"                        	
+									   dataField="@canView" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true)}">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="" toolTip="If checked then collaborator can view experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name"  
+									   width="250" 
+									   editable="false"
+									   dataField="@displayName" />                        	
+					<mx:DataGridColumn headerText="Upload"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUploadData" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Upload" toolTip="If checked then collaborator can upload files to the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Update"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUpdate" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Update" toolTip="If checked then collaborator can update data on the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
 		</mx:VBox>
 		
 	</mx:VBox>
