@@ -373,6 +373,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (app.getIsActive() != null && app.getIsActive().equals("Y") && !node.getAttributeValue("isActive").equals("Y")) {
         // if app selected in request category just quietly ignore setting it to inactive.  Front end shouldn't allow this.
         // note null getIsActive() means it's a new one.
+        app.setIsActive(node.getAttributeValue("isActive"));
         if (!appSelectedInRequestCategory(sess, app, node.getAttributeValue("isSelected"), rc)) {
           app.setIsActive(node.getAttributeValue("isActive"));
         }
