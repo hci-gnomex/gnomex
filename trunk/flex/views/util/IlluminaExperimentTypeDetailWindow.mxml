@@ -2,7 +2,8 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
 				implements="views.renderers.MultiselectRendererCommonInterface"
 				layout="vertical" 
-				title="Edit Experiment Type" width="650" height="400" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+				title="Edit Experiment Type" width="650" height="400" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				horizontalScrollPolicy="off">
 	
 	<mx:HTTPService
 		id="deleteProtocol"
@@ -136,9 +137,6 @@
 				setPlatformText();
 				if (anyFound) {
 					isActiveCheckBox.selected = true;
-					isActiveCheckBox.enabled = false;
-				} else {
-					isActiveCheckBox.enabled = true;
 				}
 				
 				dirty.setDirty();
@@ -291,12 +289,6 @@
 			private function includeInSelectedPlatformChanged():void {
 				if (includeInSelectedPlatform.selected) {
 					isActiveCheckBox.selected = true;
-				}
-				
-				if (includeInSelectedPlatform.selected || selectedItem.@selectedInOtherCategory == "Y") {
-					isActiveCheckBox.enabled = false;
-				} else {
-					isActiveCheckBox.enabled = true;
 				}
 				
 				dirty.setDirty();
