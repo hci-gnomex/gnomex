@@ -3416,12 +3416,12 @@
 			}
 			
 			// Collaborators
-			if (request.toString().indexOf("<collaborators>") >= 0) {
+			if (request.toString().indexOf("<collaborators") >= 0) {
 				request.replace("collaborators", <collaborators></collaborators>);
 			} else{
 				request.appendChild("<collaborators></collaborators>");
 			}
-			for each(var collaborator:Object in visibilityView.collaborators) {
+			for each(var collaborator:Object in visibilityView.getCollaborators()) {
 				request.collaborators.appendChild(collaborator);
 		 	}
 			
@@ -3530,7 +3530,7 @@
 			
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
-			for each(var collaborator:Object in visibilityView.collaborators) {
+			for each(var collaborator:Object in visibilityView.getCollaborators()) {
 				request.collaborators.appendChild(collaborator);
 			}
 			
