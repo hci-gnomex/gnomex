@@ -1562,7 +1562,7 @@
 													 paddingLeft="0" paddingRight="1"
 													 value="{numberSequencingCyclesRepeater.currentItem.@value}"
 													 groupName="numberSequencingCyclesRadioGroup"
-													 click="{pickNumberSequencingCycles()}" width="300"/>
+													 click="{pickNumberSequencingCycles()}" width="400" toolTip="{numberSequencingCyclesRepeater.currentItem.@display}"/>
 									<mx:Label text="{numberSequencingCyclesRepeater.currentItem.@price}" toolTip="Price per lane"/>
 								</mx:HBox>
 							</mx:Repeater>
