@@ -274,6 +274,11 @@
 						}
 					}
 				}
+				
+				if(numberOfAdditionalLanes == 0 && additionalNumberSequencingLanesCol.visible){
+					parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
+				}
+				
 				var completeCount:int = 0;
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
@@ -914,6 +919,16 @@
 					}
 				}
 			}
+			
+			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
+				if(item[column.dataField] == ''){
+					item[column.dataField] = '0';
+					return item[column.dataField];
+				} else{
+					return item[column.dataField];
+				}
+				
+			}
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1067,7 +1082,7 @@
 				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@numberSequencingLanes" 
-										   editable="true"
+										   editable="true" labelFunction="defaultToZero"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
