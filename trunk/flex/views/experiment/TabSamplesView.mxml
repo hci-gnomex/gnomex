@@ -1370,6 +1370,16 @@
 					}
 				}
 			}
+			
+			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
+				if(item.@numberSequencingLanes == ''){
+					item.@numberSequencingLanes = '0';
+					return '0';
+				} else{
+					return item.@numberSequencingLanes;
+				}
+				
+			}
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1592,7 +1602,7 @@
 				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@numberSequencingLanes" 
-										   editable="true"
+										   editable="true" labelFunction="defaultToZero"
 										   rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
