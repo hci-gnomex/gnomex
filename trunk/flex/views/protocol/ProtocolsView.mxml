@@ -215,6 +215,9 @@
 					parentApplication.dictionaryManager.call("reload", "");
 					dirty.resetDirty();
 				} else if (call.marker == "doneDeleteProtocol") {
+					if(deleteProtocol.lastResult.hasOwnProperty("@inactiveProtocol")){
+						Alert.show(deleteProtocol.lastResult.@inactiveProtocol + " was set to an inactive status instead of being deleted because it has associations with other sensitive data.");
+					}
 					fullProtocol = null;
 					lastSavedProtocolId = null;
 					protocolViews.selectedChild = blankProtocol;
