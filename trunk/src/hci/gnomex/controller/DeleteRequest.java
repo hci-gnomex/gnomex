@@ -143,7 +143,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           }
           
           if ( analysisHash.size() > 0 ) {
-            this.addInvalidField("Related data", "There are " + analysisHash.size() + " analyses" + (dataTrackCount > 0 ? " and " + dataTrackCount + " data tracks" : "")  +  " associated with this request. Please deleted these and try again.");
+            this.addInvalidField("Related data", "There are " + analysisHash.size() + " analyses" + (dataTrackCount > 0 ? " and " + dataTrackCount + " data tracks" : "")  +  " associated with this request. Please delete these and try again.");
             setResponsePage(this.ERROR_JSP);
             HibernateSession.closeSession();
             return;
