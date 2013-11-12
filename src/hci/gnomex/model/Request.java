@@ -90,6 +90,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          uuid;
   private String          codeDNAPrepType;
   private DNAPrepType     dnaPrepType;
+  private String          bioinformaticsAssist;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -319,10 +320,18 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public String getNotes() {
     return notes;
   }
-
   
   public void setNotes(String notes) {
     this.notes = notes;
+  }
+
+  
+  public String getBioinformaticsAssist() {
+    return bioinformaticsAssist;
+  }
+  
+  public void setBioinformaticsAssist(String bioinformaticsAssist) {
+    this.bioinformaticsAssist = bioinformaticsAssist;
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {

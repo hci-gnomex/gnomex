@@ -284,6 +284,9 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
+    if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {
+      introNote.append("<br><br>Bioinformatics core has been informed that the experiment is complete.");
+    }
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
     
@@ -319,13 +322,21 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
     
     // Send email to bioinformatics core
+    if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {
+      sendBioinformaticsEmail(sess, request, laneText, finishedLaneText, haveText, genomeAlignTo, analysisInstruction, downloadRequestURL);
+    }
+  }
+  
+  private void sendBioinformaticsEmail(Session sess, Request request, String laneText, String finishedLaneText, String haveText, 
+      String genomeAlignTo, String analysisInstruction, String downloadRequestURL) throws NamingException, MessagingException {
+    
     StringBuffer bioIntroNote = new StringBuffer();
-
+    
     bioIntroNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     bioIntroNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     bioIntroNote.append("<br>");
     
-    emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
+    String emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
     //As of 08/14/2013 the Bioinformatics contact email property is currently removed from gnomex.  So this email address is currently being set null.
     //I've decided to just silently return out of this function for now if this email is null.  Otherwise we get an invalid email error in the server log.
     if(emailRecipients == null){
@@ -358,9 +369,10 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     RequestEmailBodyFormatter bioEmailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), bioIntroNote.toString());
     bioEmailFormatter.setIncludeMicroarrayCoreNotes(false);
      
-    subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
+    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     boolean bioSend = false;
-    fromAddress = PropertyDictionary.GENERIC_NO_REPLY_EMAIL;
+    String fromAddress = PropertyDictionary.GENERIC_NO_REPLY_EMAIL;
+    String emailInfo = "";
     if (dictionaryHelper.isProductionServer(serverName)) {
       if (analysisInstruction != null && !analysisInstruction.equals("")) {
         bioSend = true;

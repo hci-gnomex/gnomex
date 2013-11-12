@@ -66,3 +66,6 @@ alter table Request add
     
 -- Sequenom application type
 insert into gnomex.ApplicationType values('Sequenom', 'Sequenom');
+
+-- Bioinformatics assist flag
+alter table Request add bioinformaticsAssist char(1) null;

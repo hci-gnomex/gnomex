@@ -1578,6 +1578,7 @@ CREATE TABLE `gnomex`.`Request` (
   `quoteReceivedDate` DATETIME NULL,
   `uuid` VARCHAR(36) NULL,
   `codeDNAPrepType` VARCHAR(10) NULL,
+  `bioinformaticsAssist` CHAR(1) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

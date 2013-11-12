@@ -288,6 +288,14 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeDNAPrepType") != null && !n.getAttributeValue("codeDNAPrepType").equals("")) {
       request.setCodeDNAPrepType(n.getAttributeValue("codeDNAPrepType"));      
     }
+    
+    if (n.getAttributeValue("bioinformaticsAssist") != null && !n.getAttributeValue("bioinformaticsAssist").equals("")) {
+      request.setBioinformaticsAssist(n.getAttributeValue("bioinformaticsAssist"));
+    }
+    if (request.getBioinformaticsAssist() == null || (!request.getBioinformaticsAssist().equals("Y") && !request.getBioinformaticsAssist().equals("N"))) {
+      request.setBioinformaticsAssist("N");
+    }
+    
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       // Don't change request status to submitted unless the request is in new status
       if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&& 

@@ -23,6 +23,21 @@
    		<idRequest>0</idRequest>    	
     </mx:request>
   </mx:HTTPService>
+	
+  <mx:HTTPService  
+	id="getNewRequestWithShowExperiment" 
+	url="GetRequest.gx"
+	destination="getRequest" 
+	resultFormat="e4x"
+	showBusyCursor="true"
+	result="onGetNewRequestWithShowExperiment(event)"
+	fault="parentApplication.onFailHttpRequest('Unable to get request', event)"
+	method="POST"
+	useProxy="false">
+	<mx:request>
+		<idRequest>0</idRequest>    	
+	</mx:request>
+  </mx:HTTPService>
 
    <mx:HTTPService  
     id="getRequestToClone" 
@@ -350,7 +365,11 @@
 		
 		[Bindable]
 		private var labList:XMLListCollection = null;
-		
+
+		// Variables to hold parameters for showExperiment after experiment is submitted.
+		private var theRequestNumber:String;
+		private var showPromptToUpload:Boolean;
+			
 		private function init():void {
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
@@ -2458,6 +2477,13 @@
 
 		}
 		
+		private function onGetNewRequestWithShowExperiment(event:ResultEvent):void {
+			onGetNewRequest(event);
+			parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
+			theRequestNumber = null;
+			showPromptToUpload = false;
+		}
+			
 		private function refreshLab():void {
 			if (requestEditLabCombo.selectedItem != null && requestEditLabCombo.selectedItem.@idLab != '') {
 
@@ -3666,7 +3692,7 @@
 		
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
-				var showPromptToUpload:Boolean = false;
+				showPromptToUpload = false;
 				if (this.isExternalExperimentSubmission()) {
 					externalRequestNumber = submittedRequestNumber;
 					externalIdRequest = submittedIdRequest;
@@ -3678,10 +3704,8 @@
 				}
 				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
-				var theRequestNumber:String = this.submittedRequestNumber;
-				getNewRequest.send();  
-				initializeSubmitForm();
-				parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
+				theRequestNumber = this.submittedRequestNumber;
+				getNewRequestWithShowExperiment.send();  
 				
 
 			} else {
