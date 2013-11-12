@@ -41,7 +41,7 @@
 			<mx:Text text="Credits" fontWeight="normal" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray and Genomics Analysis Core Facility and the University of Utah Bioinformatics Core." width="100%"/>
+				<mx:Text text="GNomEx was developed by Huntsman Cancer Institute Informatics and designed in conjuction with the Microarray and Genomics Analysis Core Facility and the University of Utah Bioinformatics Core." width="100%"/>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
 				<mx:Image source="{parentApplication.iconBullet}"/>
