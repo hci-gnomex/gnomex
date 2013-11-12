@@ -23,21 +23,6 @@
    		<idRequest>0</idRequest>    	
     </mx:request>
   </mx:HTTPService>
-	
-  <mx:HTTPService  
-	id="getNewRequestWithShowExperiment" 
-	url="GetRequest.gx"
-	destination="getRequest" 
-	resultFormat="e4x"
-	showBusyCursor="true"
-	result="onGetNewRequestWithShowExperiment(event)"
-	fault="parentApplication.onFailHttpRequest('Unable to get request', event)"
-	method="POST"
-	useProxy="false">
-	<mx:request>
-		<idRequest>0</idRequest>    	
-	</mx:request>
-  </mx:HTTPService>
 
    <mx:HTTPService  
     id="getRequestToClone" 
@@ -2475,13 +2460,11 @@
 			
 			initializeSubmitForm();		
 
-		}
-		
-		private function onGetNewRequestWithShowExperiment(event:ResultEvent):void {
-			onGetNewRequest(event);
-			parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
-			theRequestNumber = null;
-			showPromptToUpload = false;
+			if (theRequestNumber != null) {
+				parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
+				theRequestNumber = null;
+				showPromptToUpload = false;
+			}
 		}
 			
 		private function refreshLab():void {
@@ -3705,7 +3688,7 @@
 				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
 				theRequestNumber = this.submittedRequestNumber;
-				getNewRequestWithShowExperiment.send();  
+				getNewRequest.send();  
 				
 
 			} else {
