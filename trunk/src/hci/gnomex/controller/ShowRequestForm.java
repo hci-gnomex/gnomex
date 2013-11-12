@@ -253,6 +253,15 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	            }
             }
             
+            if (request.getSamples().size() > 0) {
+              Sample s = (Sample)request.getSamples().iterator().next();
+              if (s.getOtherSamplePrepMethod() != null && s.getOtherSamplePrepMethod().length() > 0) {
+                Element othSamplePrepMethod = new Element("H4");
+                othSamplePrepMethod.addContent("Sample Nucl. Extraction Method: " + s.getOtherSamplePrepMethod());
+                maindiv.addContent(othSamplePrepMethod);
+              }
+            }
+            
             
             if (request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
               Element capLibDesign = new Element("H5");
