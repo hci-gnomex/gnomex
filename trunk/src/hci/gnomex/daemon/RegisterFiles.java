@@ -293,7 +293,7 @@ public class RegisterFiles extends TimerTask {
           // If we don't find the file on the file system, delete it from the db.
           if (fd == null) {
             System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
-            //sess.delete(ef);
+            sess.delete(ef);
           } else {
             // Mark that the file system file has been found
             fd.isFound(true);
@@ -465,7 +465,9 @@ public class RegisterFiles extends TimerTask {
             hashForNotification(emailAddress, af, null);
             
 
-          } 
+          }
+          
+          sess.delete(af);
           
         } else {
           // Mark that the file system file has been found
