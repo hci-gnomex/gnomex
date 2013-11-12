@@ -714,7 +714,7 @@
 			}
 		}
 		public function getOrganism():XML {
-			if (theTab.contains(sampleSetupView) && (this.isMicroarrayState() || this.isSolexaState())) {
+			if (theTab.contains(sampleSetupView) && (this.isMicroarrayState() || this.isSolexaState()) && currentState != 'SolexaLaneAmendState') {
 				return sampleSetupView.sampleOrganismCombo.selectedItem as XML;
 			} else if (request != null) {
 				var idOrganism:Object = null;
