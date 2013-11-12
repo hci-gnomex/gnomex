@@ -34,7 +34,7 @@
 					this.bioAssistCheckBox.selected = true;
 				}
 				
-				organismString = 'Organism: ' + parentDocument.getOrganism().@organism;
+				organismString = 'Organism: ' + parentDocument.getOrganism() != null ? parentDocument.getOrganism().@organism : "N/A";
 			}
 			
 			private function setAnalysisInstructions():void {
