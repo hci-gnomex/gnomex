@@ -1426,7 +1426,7 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
-				<renderers:FilterComboBox labelField="@display" 
+				<renderers:FilterComboBox labelField="@combinedName" 
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
@@ -1443,7 +1443,7 @@
 				</mx:TextInput>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Text text="(4) Specify the nucleic acid extraction method (optional)." width="334" id="label2"/>
+				<mx:Text text="(4) Specify the nucleic acid extraction method." width="334" id="label2"/>
 				<mx:TextInput width="300" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}" maxChars="50"/>
 			</mx:HBox>
 			
@@ -1476,7 +1476,7 @@
         	<mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
         	<mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
         	<mx:SetProperty target="{label2}" name="text">
-        		<mx:value>(4) Specify the nucleic acid extraction method (optional).</mx:value>
+        		<mx:value>(4) Specify the nucleic acid extraction method.</mx:value>
         	</mx:SetProperty>
         	<mx:SetProperty target="{label5}" name="width" value="334"/>
         	<mx:SetProperty target="{label2}" name="width" value="334"/>
@@ -1633,7 +1633,7 @@
              </mx:SetProperty>
              <mx:RemoveChild target="{hbox3}"/>
              <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method."/>
              <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop"/>
         </mx:State>
         <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
@@ -1642,7 +1642,7 @@
              <mx:SetProperty target="{label7}" name="text">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method."/>
              <mx:SetProperty target="{text1}" name="text">
                   <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
              </mx:SetProperty>
@@ -1659,7 +1659,7 @@
              <mx:SetProperty target="{label7}" name="text">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
+             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method."/>
              <mx:SetProperty target="{text1}" name="text">
                   <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
              </mx:SetProperty>

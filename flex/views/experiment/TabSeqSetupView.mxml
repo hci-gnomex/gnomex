@@ -186,6 +186,12 @@
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = false;
 				}
+				if (parentDocument.theTab.contains(parentDocument.bioinformaticsView)) {
+					parentDocument.bioinformaticsView.enabled = false;
+				}
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = false;
+				}
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.samplesView)) {
@@ -265,8 +271,13 @@
 					if (app.@value == radioGroupSeqApp.selectedValue && app.@hasCaptureLibDesign == 'Y') {
 						libraryDesign.visible = false;
 					}
+					if (app.@value == radioGroupSeqApp.selectedValue) {
+						radioGroupSeqApp.selection = null;
+					}
 				}
 			}
+			
+			checkSeqAppSetupCompleteness();
 		}
 		
 		public function loadPriceList(idLab:String, codeRequestCategory:String):void {
