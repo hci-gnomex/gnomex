@@ -404,7 +404,8 @@
 					this.sampleTypeRadioGroup.selectedValue &&
 					numberSequencingCyclesRadioGroup.selectedValue != null && numberSequencingCyclesRadioGroup.selectedValue != '' &&
 	        	    hasOrganism() &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
+	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '' &&
+					this.otherSamplePrepMethod.text.length > 0) {
 	        	    	
 	        	    if (currentState == 'SolexaSetupPreppedState') {
  						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
@@ -418,7 +419,8 @@
         	
         	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeRadioGroup.selectedValue) {
+					this.sampleTypeRadioGroup.selectedValue &&
+					this.otherSamplePrepMethod.text.length > 0) {
 	        	    	
 	        	   	// Only need to check if chip type selected if this is 
 	        	   	// a bioanalyzer qc request.
@@ -617,7 +619,8 @@
 			} else {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeRadioGroup.selectedValue &&
-					hasOrganism()) {
+					hasOrganism() &&
+					this.otherSamplePrepMethod.text.length > 0) {
 					isComplete = true;	        	    	
 				}
 			}
@@ -1358,10 +1361,6 @@
 						requiredFieldError="Please enter the number of samples you are submitting."
 						required="true" 
 						lowerThanMinError="You must submit at least 1 sample." minValue="1" allowNegative="false" domain="int" maxValue="384" />	
-	<mx:NumberValidator id="otherSamplePrepMethodValidator" 
-						source="{otherSamplePrepMethod}" 
-						property="text" 
-         				required="false" />
     <mx:NumberValidator id="organismValidator"
 				        source="{this.sampleOrganismCombo}"
 				        lowerThanMinError="This field is required."
@@ -1387,6 +1386,7 @@
 						lowerThanMinError="You must submit your samples on at least 1 plate."
 						requiredFieldError="Please enter the number of plates you are submitting your samples on."
 						exceedsMaxError="You can only submit up to 12 plates per order."/>
+	<mx:Validator id="samplePrepValidator" source="{this.otherSamplePrepMethod}" required="true" property="text" requiredFieldError="This field is required" />
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
