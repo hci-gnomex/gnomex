@@ -36,7 +36,16 @@ public class Organism extends DictionaryEntry implements Serializable, OntologyE
     return getIdOrganism().toString();
   }
 
-  
+  public String getCombinedName() {
+    if (organism == null || organism.length() == 0) {
+      return binomialName == null ? "" : binomialName;
+    } else if (binomialName != null && binomialName.length() > 0 && !binomialName.equals(organism)) {
+      return organism + " - " + binomialName;
+    } else {
+      return organism;
+    }
+  }
+
   public Integer getIdOrganism() {
     return idOrganism;
   }
