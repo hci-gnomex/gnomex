@@ -116,8 +116,8 @@
 							" canChangeNumberSequencingCycles='Y'" +
 							" concentration=''" + 
 							" label=''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdNumberSequencingCyclesSelected() : '') + "'" +				
-							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdSeqRunTypeSelected() : '') + "'" +				
+							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
+							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 							" numberSequencingLanes='" + (parentDocument.request.@isRapidMode == 'Y' ? '2' : '1') + "'" +
 							" codeConcentrationUnit='ng/ul'" + 
 							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
@@ -150,8 +150,8 @@
 							" barcodeSequence = ''" +
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdNumberSequencingCyclesSelected() : '') + "'" +
-							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getIdSeqRunTypeSelected() : '') + "'" +				
+							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
+							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
 							" numberSequencingLanes='1'" +
 							" codeConcentrationUnit='ng/ul'" + 
 							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
