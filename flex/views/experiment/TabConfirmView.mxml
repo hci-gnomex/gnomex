@@ -53,6 +53,8 @@
 			}
 			
 			if (this.parentDocument.isSolexaState()) {
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
 					this.confirmContainer.removeChild(this.hybsConfirmContainer);
 				}
@@ -103,9 +105,9 @@
 					this.sampleDropOffLocationVbox.visible = false;	
 				}
 				this.vbox4.visible = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				this.vbox4.includeInLayout = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
 				this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
 				if (parentDocument.isMitSeqState()) {
