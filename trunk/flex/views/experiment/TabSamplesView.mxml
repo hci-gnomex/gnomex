@@ -5,7 +5,7 @@
 		   xmlns:fx="*.views.renderers"
 		   xmlns:exp="views.experiment.*"
 		   show="{this.init();}"
-		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
+		   label="Exp. Layout" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
 
 	<mx:Script>
 		<![CDATA[
