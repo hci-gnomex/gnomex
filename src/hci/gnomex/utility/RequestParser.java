@@ -384,7 +384,12 @@ public class RequestParser implements Serializable {
     sample.setIdSampleString(idSampleString);
     
     PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-    initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
+    
+    if(requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY) || requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+      initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
+    } else {
+      initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, false);
+    }
     
     if (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y")) {
       // the request create screen doesn't do the idOrganism at the request level so skip.
@@ -400,7 +405,7 @@ public class RequestParser implements Serializable {
   }
   
  
-  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyDictionaryHelper propertyHelper) throws Exception {
+  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyDictionaryHelper propertyHelper, boolean isHiseqOrMiseq) throws Exception {
     
     sample.setName(unEscape(n.getAttributeValue("name")));
     
@@ -451,11 +456,21 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOligoBarcodeB(null);
     }
-    if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
-      sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+    
+    if(isHiseqOrMiseq) {
+      if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
+        sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+      } else {
+        throw new Exception("MultiplexGroupNumber cannot be empty for HiSeq or MiSeq experiments");
+      }
     } else {
-      sample.setMultiplexGroupNumber(null);
-    }    
+      if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
+        sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+      } else {
+        sample.setMultiplexGroupNumber(null);
+      }
+    }
+        
     if (n.getAttributeValue("barcodeSequence") != null && !n.getAttributeValue("barcodeSequence").equals("")) {
       sample.setBarcodeSequence(n.getAttributeValue("barcodeSequence"));
     } else {
