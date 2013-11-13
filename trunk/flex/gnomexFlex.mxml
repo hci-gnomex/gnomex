@@ -3328,10 +3328,13 @@
 				var codeStepNext:String = menuitem.hasOwnProperty("@codeStepNext") ? menuitem.@codeStepNext : "";
 				var codeSequencingPlatform:String = menuitem.hasOwnProperty("@codeSequencingPlatform") ? menuitem.@codeSequencingPlatform : "";
 				var idCoreFacility:String = "";
-				if (menuitem.hasOwnProperty("@idCoreFacility") && menuitem.@idCoreFacility != '') {
-					idCoreFacility = menuitem.@idCoreFacility;
-				} else {
-					idCoreFacility = myCoreFacilities[0].@idCoreFacility;
+				
+				if(!isGuest){
+					if (menuitem.hasOwnProperty("@idCoreFacility") && menuitem.@idCoreFacility != '') {
+						idCoreFacility = menuitem.@idCoreFacility;
+					} else {
+						idCoreFacility = myCoreFacilities[0].@idCoreFacility;
+					}
 				}
 				
 				if (label == 'Analysis') {
