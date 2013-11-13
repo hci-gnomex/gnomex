@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}">
+<mx:Canvas  label="Seq Options" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}">
 	<mx:HTTPService  
 		id="getHiSeqRunTypePriceList" 
 		url="GetHiSeqRunTypePriceList.gx"

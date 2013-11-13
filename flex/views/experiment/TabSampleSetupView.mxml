@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Sample setup" 
+<mx:Canvas label="Sample Details" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
 	xmlns:renderers="views.renderers.*"
