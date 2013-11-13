@@ -5202,9 +5202,6 @@
 		    
 		    <experiment:TabSamplesBase id="samplesView">		    	
 		    </experiment:TabSamplesBase>
-		    
-			<experiment:TabBioinformaticsView id="bioinformaticsView">
-			</experiment:TabBioinformaticsView>
 			
 			<experiment:TabHybSetupView id="hybSetupView">				
 			</experiment:TabHybSetupView>
@@ -5214,6 +5211,9 @@
 			
 			<experiment:TabVisibilityView id="visibilityView">
 			</experiment:TabVisibilityView>
+			
+			<experiment:TabBioinformaticsView id="bioinformaticsView">
+			</experiment:TabBioinformaticsView>
 			
 			<experiment:TabConfirmBase id="confirmView">				
 			</experiment:TabConfirmBase>
