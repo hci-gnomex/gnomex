@@ -948,7 +948,7 @@ MenuBar.topMenuBar {
 	fillAlphas: 0,0;
 	color: #000000;
 	menuStyleName: topMenuItem;
-	fontSize: 10;
+	fontSize: 13;
 	fontWeight: normal;
 	highlightAlphas: .25, .9;
 	disabledColor: #000000;
