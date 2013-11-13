@@ -25,12 +25,15 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
+		import views.util.OrganismAddEvent;
 		import views.util.OrganismEvent; 
 
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
 		public var numIScanChips:int = 0;
+
+		private var addOrganismOpen:Boolean = false;
 		
 		[Bindable]
 		private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
@@ -797,6 +800,20 @@
 		
 		private function pickOrganism():void {
 			
+			// kludge because close event is fired twice for combo box.
+			if (addOrganismOpen) {
+				return;
+			}
+			
+			if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.text != null && sampleOrganismCombo.text.length > 0 && sampleOrganismCombo.text != sampleOrganismCombo.prompt) {
+				addOrganismOpen = true;
+				var oName:String = sampleOrganismCombo.text;
+				sampleOrganismCombo.text = '';
+				propagateOtherSampleOrganism();
+				callLater(addOrganism,[oName]);
+				return;
+			}
+			
 			// Clear other organism if non 'Other' selected
 			if (this.sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@display != 'Other') {
 				otherOrganism.text = '';
@@ -1263,17 +1280,27 @@
 			this.onNumberOfSamplesChanged();
 		}
 		
-		private function addOrganism():void {
+		private function addOrganism(oName:String):void {
 			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
 			PopUpManager.centerPopUp(addOrganismWindow);
+			addOrganismWindow.oName.text = oName;
 			
-			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
-			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		                                  
+			this.systemManager.addEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		
+			
+			addOrganismOpen = false;
 		}
 		
-		private function onOrganismRefreshed(event:Event):void {
+		private function onOrganismRefreshed(event:OrganismAddEvent):void {
 			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
-			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
+			
+			for each (var o:Object in sampleOrganismCombo.dataProvider) {
+				if (o.@organism == event.nameAdded) {
+					sampleOrganismCombo.selectedItem = o;
+					break;
+				}
+			}
 		}
 		
 		private function pickNumberSequencingCycles():void {
@@ -1433,8 +1460,6 @@
 										  dataProvider="{parentApplication.activeOrganismList.source}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
-				<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton">		  	
-				</mx:LinkButton>						
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
