@@ -611,8 +611,8 @@ package views.experiment
 					setTopBoxVisibility(true);
 				}
 			} else {
-				setCoreFacilityNoteVisibility(true);
-				setTopBoxVisibility(true);
+				setCoreFacilityNoteVisibility(false);
+				setTopBoxVisibility(false);
 			}
 		}
 	}
