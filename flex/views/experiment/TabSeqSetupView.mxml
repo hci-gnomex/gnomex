@@ -180,6 +180,9 @@
         private function postSeqAppSetupCompleteness(isComplete:Boolean):void {
 	    		
 	    	if (!isComplete) {
+				if (parentDocument.theTab.contains(parentDocument.seqSetup1View)) {
+					parentDocument.seqSetup1View.enabled = false;
+				}
 	        	if (parentDocument.theTab.contains(parentDocument.samplesView)) {
 		        	parentDocument.samplesView.enabled = false;
 	        	}
@@ -195,7 +198,8 @@
 	        	parentDocument.confirmView.enabled = false;
     		} else {
     			if (parentDocument.theTab.contains(parentDocument.samplesView)) {
-		    		parentDocument.samplesView.checkSamplesCompleteness();
+					parentDocument.seqSetup1View.enabled = true;
+		    		parentDocument.seqSetup1View.checkSeqSetup1Completeness();
 		    	}
     		}
         	

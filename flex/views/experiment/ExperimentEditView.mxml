@@ -1362,8 +1362,8 @@
 
 		private function loadPriceLists(idLab:String):void {
 			if (requestCategory != null && requestCategory.@codeRequestCategory != null && idLab != null) {
-				if (theTab.contains(sampleSetupView)) {
-					this.sampleSetupView.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
+				if (theTab.contains(seqSetup1View)) {
+					this.seqSetup1View.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
 				}
 				if (theTab.contains(seqSetupView)) {
 					this.seqSetupView.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
@@ -3618,6 +3618,10 @@
 				if (theTab.contains(setupView)) {
 					setupView.enabled = false;				
 				}
+				
+				if (theTab.contains(seqSetup1View)) {
+					seqSetup1View.enabled = false;				
+				}
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.enabled = false;				
 				}
@@ -4368,17 +4372,17 @@
 			
 
 			if (currentState == "SolexaBaseAmendState") {
-	    		sampleSetupView.enabled = isComplete;
+	    		seqSetup1View.enabled = isComplete;
         	} else if (currentState == "SolexaLaneAmendState") {
-        		this.sampleSetupView.enabled = isComplete;
+        		this.seqSetup1View.enabled = isComplete;
         	} else if (currentState == "MicroarrayAmendState" ) {
-	    		sampleSetupView.enabled = isComplete;
+				seqSetup1View.enabled = isComplete;
     			if (theTab.contains(this.annotationView)) {
         			annotationView.enabled = isComplete;
        			}        			
     		} else {
 				// capillary sequencing
-				sampleSetupView.enabled = isComplete;
+				seqSetup1View.enabled = isComplete;
 			}
     		
     		enableNextButtons();
@@ -4481,11 +4485,6 @@
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
-				if (this.currentState == "SolexaLaneAmendState") {
-					this.sampleSetupView.currentState = "SolexaLaneAmendState";
-				} else {
-					this.sampleSetupView.currentState = "SolexaAmendState";
-				}
 				this.samplesView.currentState = "SolexaSamplesState";
 			} else if (this.isMicroarayAmendState()) {				
 				this.sampleSetupView.currentState = "MicroarrayAmendState";
@@ -4545,9 +4544,9 @@
 				
 				// Propagate the entries on sample setup that
 				// may have been selected from prev amend request
-				if (theTab.contains(sampleSetupView)) {
-					this.sampleSetupView.propagateSeqRunType();
-					this.sampleSetupView.propagateNumberSequencingCycles();
+				if (theTab.contains(seqSetup1View)) {
+					this.seqSetup1View.propagateSeqRunType();
+					this.seqSetup1View.propagateNumberSequencingCycles();
 				}
 				this.bioinformaticsView.propagateGenomeBuild();
 
@@ -5194,6 +5193,9 @@
 						
 		    <experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
 		    </experiment:TabSeqSetupView>			
+			
+			<experiment:TabSeqSetup1View id="seqSetup1View" enabled="false">
+			</experiment:TabSeqSetup1View>			
 		   
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
@@ -5470,17 +5472,20 @@
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
 		<mx:State name="MicroarrayExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
             <mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
         </mx:State>
@@ -5489,6 +5494,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
@@ -5498,6 +5504,7 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
         <mx:State name="QCAmendState" basedOn="AmendState">
@@ -5505,6 +5512,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="SequencingEditState" basedOn="EditState">
@@ -5524,6 +5532,7 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{notesView}"/>
@@ -5536,6 +5545,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -5556,6 +5566,7 @@
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
@@ -5567,6 +5578,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
@@ -5574,6 +5586,7 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{notesView}"/>
@@ -5586,6 +5599,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
@@ -5593,6 +5607,7 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{annotationView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{notesView}"/>
@@ -5605,12 +5620,14 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{notesView}"/>
@@ -5621,12 +5638,14 @@
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{notesView}"/>
@@ -5638,6 +5657,7 @@
 			<mx:RemoveChild target="{confirmView}"/>
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -5660,6 +5680,7 @@
 		<mx:State name="SolexaBaseExternalState">
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
@@ -5677,6 +5698,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="MicroarrayEditState" basedOn="EditState">
@@ -5686,11 +5708,13 @@
             <mx:RemoveChild target="{hybSetupView.numberOfHybsContainer}"/>
             <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="EditState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{hybSetupView}"/>
@@ -5826,6 +5850,7 @@
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
             <mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
         </mx:State>
 
     </mx:states>
