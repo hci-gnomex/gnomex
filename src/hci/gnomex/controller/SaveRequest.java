@@ -592,7 +592,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             lanes.add(laneInfo);
           }
           
-          
+          Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in this batch
           for(Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
             List lanes = (List)sampleToLaneMap.get(idSampleString);
@@ -617,7 +617,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
             
-            Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in this batch
+            
             for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
               RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
               boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");

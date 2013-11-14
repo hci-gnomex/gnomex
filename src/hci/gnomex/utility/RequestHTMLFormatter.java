@@ -1137,7 +1137,7 @@ public class RequestHTMLFormatter {
 
     
     // Group lanes by create Date
-    TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
+    TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator()); //***********
     
     // for each lane, add to Map's List for this lane's date if one exists or create a new List for this lane's date.
     for(Iterator i = lanes.iterator(); i.hasNext();) {
@@ -1151,33 +1151,20 @@ public class RequestHTMLFormatter {
     }
     
     //Now show a lane table for each create date, most recent date first
-    int sectionCount = 0;
+
     for(Iterator i = laneDateMap.keySet().iterator(); i.hasNext();) {
       Date createDate = (Date)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(createDate);
-
-      String caption = "Sample Sequence Lanes";
-      if (laneDateMap.size() > 1 || 
-          (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES))) {
-        if (sectionCount == 0) {
-          caption = "Most recent Sequence Lanes added on " + request.formatDate(createDate);
-        } else {
-          caption = "Sequence Lanes added on " + request.formatDate(createDate);
-        }
+      String caption = "Sequence Lanes added on " + request.formatDate(createDate);
+      if (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES)) {          
+          addSequenceLaneTableSection(parentNode, caption, theLanes, captionStyle);
+          break;	// if we are adding lanes, only add the most recent entries, otherwise print all
       }
-
       addSequenceLaneTableSection(parentNode, caption, theLanes, captionStyle);
       
-      // If the user just added lanes from the 'Add services' window,
-      // just show the lanes just added, not all of the existing lanes.
-      if (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES)) {
-        break;
-      }
-      
-      if (i.hasNext()) {
+      if (i.hasNext()) { // New date section
         makePageBreak(parentNode);        
       }
-      sectionCount++;
     }
     
     
@@ -1192,7 +1179,7 @@ public class RequestHTMLFormatter {
     String analysisInstructions = null;
     boolean uniqueInstructions = false;
     boolean showColInstructions = true;
-    for(Iterator i = lanes.iterator(); i.hasNext();) {
+    for(Iterator i = lanes.iterator(); i.hasNext();) { // have to group by lane
       SequenceLane l = (SequenceLane)i.next();
       if (analysisInstructions != null && l.getAnalysisInstructions() != null && !l.getAnalysisInstructions().equals(analysisInstructions)) {
         uniqueInstructions = true;
