@@ -584,7 +584,6 @@ public class RegisterFiles extends TimerTask {
         }
       }
       
-      
       if (sendMail) {
         MailUtil.send( mailProps,
             emailAddress,
@@ -595,7 +594,7 @@ public class RegisterFiles extends TimerTask {
             false
           );
       }
-    }
+   }
   }
 
   private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
@@ -639,7 +638,21 @@ public class RegisterFiles extends TimerTask {
     String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
     
     String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+    String directoryName = baseExperimentDir + Request.getCreateYear(createDate) + File.separator + baseRequestNumber;
     
+    String [] fileList = new File(directoryName).list();
+    //Get all files directly underneath the experiment number directory
+    if(fileList != null) {
+      for (int x = 0; x < fileList.length; x++) {
+        String fileName = directoryName + File.separator + fileList[x];
+        File f1 = new File(fileName);
+        if(f1.isFile()) {
+          FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + File.separator + fileList[x]);
+          fileMap.put(fd.getZipEntryName(), fd);
+        }
+
+      }
+    }
     
     // Get all of the folders in the experiment directory
     Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber, Request.getCreateYear(createDate), codeRequestCategory);
