@@ -474,19 +474,21 @@
 				var colors:Array = ["0xFFFFFF","0xEEEEE0"];
 				var redColor:String = "0xF90F0F";
 				var colorIdx:int = 1;
-				for each (var theSample:Object in parentDocument.samples) {
-					theSample.@customColor = colors[colorIdx];
-					if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
-						if (numsUsed[theSample.@multiplexGroupNumber] != null) {
-							theSample.@customColor = redColor;
-						} else {
-							numsUsed[theSample.@multiplexGroupNumber] = true;
-							colorIdx++;
-							if (colorIdx > 1) colorIdx = 0;
-							theSample.@customColor = colors[colorIdx];
+				if (parentDocument != null && parentDocument.samples != null) {
+					for each (var theSample:Object in parentDocument.samples) {
+						theSample.@customColor = colors[colorIdx];
+						if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+							if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+								theSample.@customColor = redColor;
+							} else {
+								numsUsed[theSample.@multiplexGroupNumber] = true;
+								colorIdx++;
+								if (colorIdx > 1) colorIdx = 0;
+								theSample.@customColor = colors[colorIdx];
+							}
 						}
+						prevSample = theSample;
 					}
-					prevSample = theSample;
 				}
 			}
 			

@@ -231,7 +231,23 @@
 	        	if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism()) {
 		        	isComplete = true;
 	        	 }
-        	
+			} else if (parentDocument.isSolexaAmendState()) {
+				if (hasOrganism() && 
+					this.sampleTypeRadioGroup.selectedValue &&
+					otherSamplePrepMethod.text.length > 0) {
+					
+					if (this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
+						if (currentState == 'SolexaAmendPreppedState') {
+							if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
+								isComplete = true;
+							}	        	    	
+						} else {
+							if (this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
+								isComplete = true;
+							}
+						}
+					}					
+				}
         	} else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 					this.sampleTypeRadioGroup.selectedValue &&
