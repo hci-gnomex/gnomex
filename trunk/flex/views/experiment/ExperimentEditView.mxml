@@ -1055,13 +1055,6 @@
 			request.@applicationNotes = '';
 			request.@codeApplication = '';
 			
-			if (theTab.contains(notesView)) {
-				notesView.setExternalNoteVisibility();
-			}
-			if (theTab.contains(samplesView)) {
-				samplesView.setExternalNoteVisibility();
-			}
-			
 			if (theTab.contains(confirmView)) {
 				this.confirmView.setBarcodeColVisibility(false);        					
 			}
@@ -1351,6 +1344,13 @@
 			
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
+			}
+			
+			if (theTab.contains(notesView)) {
+				notesView.setExternalNoteVisibility();
+			}
+			if (theTab.contains(samplesView)) {
+				samplesView.setExternalNoteVisibility();
 			}
 			
 			loadPriceLists(getIdLab());
@@ -4372,16 +4372,16 @@
 			
 
 			if (currentState == "SolexaBaseAmendState") {
-	    		seqSetup1View.enabled = isComplete;
+	    		sampleSetupView.enabled = isComplete;
         	} else if (currentState == "SolexaLaneAmendState") {
         		this.seqSetup1View.enabled = isComplete;
         	} else if (currentState == "MicroarrayAmendState" ) {
-				seqSetup1View.enabled = isComplete;
+				sampleSetupView.enabled = isComplete;
     			if (theTab.contains(this.annotationView)) {
         			annotationView.enabled = isComplete;
        			}        			
     		} else {
-				// capillary sequencing
+				// capillary sequencing -- never happens
 				seqSetup1View.enabled = isComplete;
 			}
     		
@@ -4413,7 +4413,8 @@
 	        	this.confirmView.enabled = false;
     		} else {
     			if (currentState == "SolexaBaseAmendState") {
-    				this.seqSetupView.checkSeqAppSetupCompleteness();
+					this.sampleSetupView.currentState = "SolexaAmendState";
+    				this.sampleSetupView.checkSampleSetupCompleteness();
     			} else if (currentState == "SolexaLaneAmendState") {
     				this.sampleSetupView.checkSampleSetupCompleteness();
     			} else if (currentState == "MicroarrayAmendState") {

@@ -605,14 +605,18 @@ package views.experiment
 			if (!parentApplication.isInternalExperimentSubmission) {
 				if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
 					setCoreFacilityNoteVisibility(false);
-					setTopBoxVisibility(false);
+					setTopBoxVisibility(true);
 				} else {
 					setCoreFacilityNoteVisibility(true);
 					setTopBoxVisibility(true);
 				}
 			} else {
-				setCoreFacilityNoteVisibility(false);
-				setTopBoxVisibility(false);
+				if (parentDocument.isSequencingState()) {
+					setCoreFacilityNoteVisibility(false);
+				} else {
+					setCoreFacilityNoteVisibility(true);
+				}
+				setTopBoxVisibility(true);
 			}
 		}
 	}
