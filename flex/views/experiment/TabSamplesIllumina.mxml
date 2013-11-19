@@ -5,7 +5,7 @@
 	xmlns:fx="*.views.renderers"
 	xmlns:exp="views.experiment.*"
 	show="{this.init();}"
-	label="Exp. Layout" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
+	label="Experiment Layout" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -588,7 +588,7 @@
 			
 			override public function propagateBarcode():void {
 				if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
-					var lastMultiplexGroupNumber:String = '1';
+					var lastMultiplexGroupNumber:String = '';
 					for each (var sample:Object in parentDocument.samples) {
 						if (sample.@multiplexGroupNumber == null || sample.@multiplexGroupNumber.toString().length == 0) {
 							sample.@multiplexGroupNumber = lastMultiplexGroupNumber;
@@ -892,8 +892,20 @@
 				}
 			}
 			
-			public function numberSequencingLanesColTip(item:Object):String{
+			private function numberSequencingLanesColTip(item:Object):String{
 				return "May edit to 2 or greater lanes";
+			}
+			
+			private function multiplexGroupNumberColTip(item:Object):String{
+				var tip:String = "Enter which lane sample is associated with"
+					+ "\nExample:"
+					+ "\n1\tA"
+					+ "\n1\tB"
+					+ "\n2\tC"
+					+ "\n3\tD"
+					+ "\n\nA and B are in lane 1, C is in lane 2 and D is in lane 3";
+					
+				return tip;
 			}
 			
 			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
@@ -998,9 +1010,18 @@
 							 selectionColor="#DDF3FB">
 			<util:columns>
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Lane #" editorDataField="text" dataField="@multiplexGroupNumber" editable="true" visible="true"
-										   width="54" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
-										   itemEditor="{views.renderers.TextInput.create('@multiplexGroupNumber', true)}">
+				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex Group #" dataField="@multiplexGroupNumber" editable="true" visible="true"
+										   width="60" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@multiplexGroupNumber', true).newInstance(), '')}" editorDataField="value"
+										   showDataTips="true" dataTipFunction="multiplexGroupNumberColTip">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<mx:Label text="Multiplex"/> 
+								<mx:Label text="Group #"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
