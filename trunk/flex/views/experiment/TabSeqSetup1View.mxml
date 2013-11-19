@@ -120,6 +120,9 @@
 
 			loadedIdLab = selectedIdLab;
 			loadedCodeRequestCategory = selectedCodeRequestCategory;
+
+			// Force repeater to refresh.
+			this.configuredCodeRequestCategory = "";
 		}
 		
        	public function propagateSeqRunType():void {
