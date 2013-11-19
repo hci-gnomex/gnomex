@@ -266,6 +266,7 @@
 			import mx.controls.Alert;
 			import mx.controls.ComboBase;
 			import mx.controls.RadioButton;
+			import mx.controls.richTextEditorClasses.ToolBar;
 			import mx.graphics.RadialGradient;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
@@ -1157,10 +1158,18 @@
 				this.overallDescript.toolbar.removeChild(overallDescript.colorPicker);
 				this.overallDescript.toolbar.removeChild(overallDescript.fontFamilyCombo);
 				this.overallDescript.toolbar.removeChild(overallDescript.fontSizeCombo);
+				this.overallDescript.toolbar.removeChild(overallDescript.linkTextInput);
 				// move controls to top
-				var displayObj:DisplayObject = this.overallDescript.toolbar;
+				var displayObj:ToolBar = this.overallDescript.toolbar;
 				this.overallDescript.toolbar.parent.removeChild(displayObj);
-				this.overallDescript.addChildAt(displayObj, 0);
+				var hbox:HBox = new HBox();
+				hbox.width=overallDescript.width;
+				//hbox.setStyle("horizontalAlign", "right");
+				//var spacer:Spacer = new Spacer();
+				//spacer.percentWidth = 100;
+				//hbox.addChild(spacer);
+				hbox.addChild(displayObj);
+				this.overallDescript.addChildAt(hbox, 0);
 			}
 			
 			private function scrollOnFocus(evt:FocusEvent):void {
@@ -1330,7 +1339,7 @@
 			<mx:VBox id="descriptionVBox" width="100%" paddingRight="20" paddingTop="0">
 				<mx:Label text="(6) Experiment Description. (optional)" id="descriptionLabel"/>
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-									id="overallDescript" width="100%" 
+									id="overallDescript" width="900" minWidth="900"
 									htmlText="{parentDocument.request == null ? '' : parentDocument.request.@description}" 
 									showControlBar="true"
 									change="parentDocument.dirty.setDirty();"
