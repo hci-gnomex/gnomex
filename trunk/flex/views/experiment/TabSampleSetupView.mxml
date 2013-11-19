@@ -509,6 +509,7 @@
     			if (parentDocument.isSolexaState()) {
         			parentDocument.seqSetupView.checkSeqAppSetupCompleteness();				
     			} else {
+					parentDocument.samplesView.enabled = true;
 	    			parentDocument.samplesView.checkSamplesCompleteness();
     			}
     		}
