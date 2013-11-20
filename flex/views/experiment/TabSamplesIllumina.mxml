@@ -5,7 +5,7 @@
 	xmlns:fx="*.views.renderers"
 	xmlns:exp="views.experiment.*"
 	show="{this.init();}"
-	label="Experiment Layout" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
+	label="Experiment Design" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -909,13 +909,13 @@
 			}
 			
 			private function multiplexGroupNumberColTip(item:Object):String{
-				var tip:String = "Enter which lane sample is associated with"
+				var tip:String = "Enter which group sample is associated with"
 					+ "\nExample:"
 					+ "\n1\tA"
 					+ "\n1\tB"
 					+ "\n2\tC"
 					+ "\n3\tD"
-					+ "\n\nA and B are in lane 1, C is in lane 2 and D is in lane 3";
+					+ "\n\nA and B are in group 1, C is in group 2 and D is in group 3";
 					
 				return tip;
 			}
