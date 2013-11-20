@@ -72,8 +72,13 @@
 					this.downloadButton.visible = true;
 					this.downloadButton.includeInLayout = true;
 				} else {
-					this.downloadButton.visible = false;
-					this.downloadButton.includeInLayout = false;
+					if (parentApplication.submitInternalExperiment()) {
+						this.downloadButton.visible = false;
+						this.downloadButton.includeInLayout = false;
+					} else {
+						this.downloadButton.visible = true;
+						this.downloadButton.includeInLayout = true;
+					}
 				}
 				
 				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
@@ -965,7 +970,7 @@
 				<mx:HBox width="100%" paddingTop="0" paddingBottom="0">
 					<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
 					<mx:HBox id="buttonsContainer2" horizontalGap="2">
-						<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+						<mx:LinkButton textDecoration="underline"  label="Upload tab delimited sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
 						<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
 									   label="Upload help" 
 									   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
