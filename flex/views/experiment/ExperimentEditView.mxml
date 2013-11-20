@@ -2209,8 +2209,6 @@
 			samplesView.enabled = request.@canUpdateSamples == "Y";
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
-			notesView.setExternalNoteVisibility();
-			samplesView.setExternalNoteVisibility();
 			bioinformaticsView.currentState = "EditState";
 
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
@@ -2384,6 +2382,8 @@
 
 			}
 			
+			notesView.setExternalNoteVisibility();
+			samplesView.setExternalNoteVisibility();
 			
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.

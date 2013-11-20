@@ -1958,6 +1958,7 @@
 	<mx:State name="QCState">		
 	</mx:State>
 	<mx:State name="SolexaState">
+		<mx:SetProperty target="{samplesTab}" name="label" value="Experiment Layout"/>
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
 				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
 						<mx:AdvancedDataGrid width="100%" 
@@ -2087,6 +2088,7 @@
 		<mx:RemoveChild target="{headerBox}"/>
 	</mx:State>
 	<mx:State name="ExternalSeqState">
+		<mx:SetProperty target="{samplesTab}" name="label" value="Experiment Layout"/>
 	</mx:State>
 	<mx:State name="BaseSeqState">
 		<mx:AddChild relativeTo="{this.nameBox}" position="after">
