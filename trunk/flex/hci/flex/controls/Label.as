@@ -14,7 +14,7 @@ package hci.flex.controls
  		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 	    public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 	    public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
-		public var highlightedColor:uint = RendererFactory.DEFAULT_HIGHLIGHT_COLOR;
+		public var highlightedColor:uint = 0xD6EFFF;
 	    
 		public static function create(dataField:String):IFactory {
 				return RendererFactory.create(hci.flex.controls.Label,
