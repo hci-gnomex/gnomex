@@ -917,8 +917,8 @@ Test City, UT 12345',
  (103,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'),
  (104,'fdt_help_url','http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=116','The URL to the GNomEx FDT help documentation', 'N'),
  (105,'request_work_auth_link_text','Submit Work Authorization','Text for the link on the experiment setup tab to submit a work authorization', 'N'),
- (106,'request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N');
- 
+ (106,'request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N'),
+ (107,'contact_email_manage_sample_file_link','','Email address of who should be notified when a sample experiment file is deleted from the database', 'Y');
  
  
  
