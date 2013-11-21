@@ -1260,7 +1260,7 @@
 	
 		<mx:VBox  width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 			<mx:HBox horizontalGap="0" id="hbox1">
-				<mx:Text text="(1) Pick the level of visibility this analysis should have." id="labelApplication"/>
+				<mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 				</mx:RadioButtonGroup>
 			</mx:HBox>
@@ -1273,16 +1273,12 @@
 							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to all members of the lab group"/>
 						</mx:VBox>
 					</mx:HBox>
-					<mx:Text width="100%" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}"
-							 includeInLayout="{this.radioInstitutionVisibility.enabled ? false : true}">									
-						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-					</mx:Text>
-					<mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
 					<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
 						<mx:HBox width="100%" verticalAlign="middle">
 							<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
