@@ -131,10 +131,44 @@
 		}
 		
 		private function onSeqAppRadioClick():void {
-			pickSeqApp();
+			if (this.radioGroupSeqApp.selectedValue != null) {
+				this.seqAppBox.styleName = 'normalBox';
+				application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+				if (application != null && application is XMLList) {
+					this.parentDocument.applicationName = application[0].@display;
+					this.parentDocument.codeApplication = application[0].@codeApplication;
+					if(application[0].@hasCaptureLibDesign == 'Y'){ //If it is sure select we need to show the library capture id input box
+						libraryDesign.visible = true;
+						libraryDesign.includeInLayout = true;
+					} else {
+						libraryDesign.visible = false;
+						libraryDesign.includeInLayout = false;
+						designID.text = "";
+						libraryDesign.styleName = "requiredBox";
+						parentDocument.request.@captureLibDesignId = "";
+					}
+				} else if (application != null && application is XML) {
+					this.parentDocument.applicationName = application.@display;
+					this.parentDocument.codeApplication = application.@codeApplication;
+				}
+			} else {
+				this.seqAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+				this.parentDocument.codeApplication = '';	
+			}
+			
+			propagateSeqLibProtocol();
+			
+			this.checkSeqAppSetupCompleteness();
 		}
 	
-	 
+		private function propagateSeqLibProtocol():void {
+			var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+			var id:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSeqLibProtocol = id;
+			}
+		}		
 
 		public function checkSeqAppSetupCompleteness():Boolean {
 			var isComplete:Boolean = false;
@@ -204,38 +238,6 @@
     		}
         	
         }
-
-		private function pickSeqApp():void {
-			if (this.radioGroupSeqApp.selectedValue != null) {
-				this.seqAppBox.styleName = 'normalBox';
-				application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
-				if (application != null && application is XMLList) {
-					this.parentDocument.applicationName = application[0].@display;
-					this.parentDocument.codeApplication = application[0].@codeApplication;
-					if(application[0].@hasCaptureLibDesign == 'Y'){ //If it is sure select we need to show the library capture id input box
-						libraryDesign.visible = true;
-						libraryDesign.includeInLayout = true;
-					}
-					else{
-						libraryDesign.visible = false;
-						libraryDesign.includeInLayout = false;
-						designID.text = "";
-						libraryDesign.styleName = "requiredBox";
-						parentDocument.request.@captureLibDesignId = "";
-					}
-				} else if (application != null && application is XML) {
-					this.parentDocument.applicationName = application.@display;
-					this.parentDocument.codeApplication = application.@codeApplication;
-				}
-			} else {
-				this.seqAppBox.styleName = 'requiredBox';
-				this.parentDocument.applicationName = '';
-				this.parentDocument.codeApplication = '';	
-			}
-			
-			this.checkSeqAppSetupCompleteness();
-		}
-		
 		
 		private function propagateDesign():void{
 			libraryDesign.styleName = "requiredBox";

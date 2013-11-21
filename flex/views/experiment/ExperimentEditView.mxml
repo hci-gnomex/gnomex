@@ -1094,26 +1094,9 @@
 					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
 				this.samplesView.currentState = 'SolexaSamplesState';
-				
-				if (parentApplication.submitInternalExperiment()) {
-					showHideBarcodingQuestion();
-				}
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
-
-				// Only show the barcode labeling option if we have
-				// at least one set of barcodes 
-				if (parentApplication.submitInternalExperiment()) {
-					var barcodes:XMLList = this.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.OligoBarcode');
-					if (barcodes.length() > 0) {
-						this.sampleSetupView.barcodeContainer.visible = true;
-					} else {
-						this.sampleSetupView.radioNoBarcoding.selected = true;
-						this.sampleSetupView.barcodeContainer.visible = false;
-						this.sampleSetupView.pickRadioBarcoding();
-					}
-				}
 				
 				this.samplesView.currentState = 'SolexaSamplesState';	
 				if (parentApplication.submitInternalExperiment()) {
@@ -1377,24 +1360,6 @@
 				theTab.getTabAt(tabIdx).includeInLayout = true;
 			}
 		}
-			
-		public function showHideBarcodingQuestion():void {
-			sampleSetupView.radioYesBarcoding.selected = true;
-			sampleSetupView.pickRadioBarcoding();
-
-			var requestCategory:Object = getRequestCategory();
-			// If barcoding is not optional or this is an external
-            // experiment submission, don't show the question,
-			// that asks about sample barcode tags
-			if (requestCategory.@isSampleBarcodingOptional == "N" || !parentApplication.submitInternalExperiment()) {
-				sampleSetupView.barcodeContainer.visible = false;
-				sampleSetupView.barcodeContainer.includeInLayout = false;
-			} else {
-				sampleSetupView.barcodeContainer.visible = true;
-				sampleSetupView.barcodeContainer.includeInLayout = true;
-			}			
-		}
-			
 
 		private function pickDefaultOrganism():void {
 			// Select the default organism on sample setup if the request category specifies one
@@ -4724,7 +4689,7 @@
 					show = false;
 				} else if (this.isEditState()) {
     				show = true;
-    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				} 	
     		}
@@ -4745,7 +4710,7 @@
 					show = false;
 				} else if (this.isEditState()) {
 					show = true;
-				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				} 	
 			}
@@ -4766,7 +4731,7 @@
 					show = false;
 				} else if (this.isEditState()) {
 					show = true;
-				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'C') {
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				}	
     		}
@@ -4788,12 +4753,8 @@
 					show = false;
 				}  else if (!parentApplication.submitInternalExperiment()) {
 					show = false;
-				} else if (sampleSetupView.barcodeRadioGroup != null && 
-					sampleSetupView.barcodeRadioGroup.selectedValue != null && 
-					sampleSetupView.barcodeRadioGroup.selectedValue != 'N') {
-					show = true;
 				} else {
-					show = false;
+					show = true;
 				}	
     		}
     		return show;
