@@ -373,6 +373,7 @@
 				}
 				this.accountBox.visible = visible;
 				this.accountBox.includeInLayout = visible;
+				this.workAuthLink1.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT);
 				if (this.billingAccountCombo.selectedIndex < 0 || this.billingAccountCombo.selectedItem.@accountNameAndNumber == '') {
 					visible = false || !parentApplication.submitInternalExperiment();
 				}
@@ -1301,7 +1302,7 @@
 						</mx:Text>
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
-							<mx:LinkButton  label="Submit U of Utah Chart Fields"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
+							<mx:LinkButton  label="Submit Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showNewWorkAuthForm()</mx:click>
 							</mx:LinkButton>
 						</mx:HBox>
