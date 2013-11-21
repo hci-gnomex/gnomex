@@ -45,6 +45,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
+			import views.util.DictionaryHelper;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
@@ -116,6 +117,8 @@
 				if (parentDocument.isSolexaState()) {
 					if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 						parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
+						var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+						var idSeqLibProtocol:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
 						emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
 							" name='' description='' " +
@@ -139,7 +142,7 @@
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
 							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idSeqLibProtocol='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.seqLibProtocolCombo.selectedItem.@value : '') + "'" +				
+							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +				
 							" prepInstructions=\"" + (prepInstructions) + "\"" +				
 							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
 							" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				

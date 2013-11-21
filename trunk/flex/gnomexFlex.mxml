@@ -334,6 +334,7 @@
 			import views.util.BroadcastEmailWindow;
 			import views.util.CaptchaView;
 			import views.util.ContactView;
+			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
 			import views.util.GNomExStringUtil;
@@ -343,11 +344,10 @@
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
+			import views.util.ScreenshotWindow;
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
-			
-			import views.util.ScreenshotWindow;
 			
 			
 			override protected function focusOutHandler(event:FocusEvent):void 
@@ -368,6 +368,9 @@
 			
 			[Bindable]
 			public var dictionaryManager:DictionaryManager;
+			
+			[Bindable]
+			public var dictionaryHelper:DictionaryHelper;
 			
 			private var navSearchView:NavSearchView;
 			
@@ -2362,6 +2365,8 @@
 			}
 			
 			public function onDictionariesLoaded(event:Event):void {
+				dictionaryHelper = new DictionaryHelper(dictionaryManager);
+				
 				properties = new Object();
 				for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (prop.@value == '') {
