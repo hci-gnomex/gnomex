@@ -902,6 +902,16 @@
 		</set>
 		
   </class>
+  
+  	<!-- hci.gnomex.model.SampleExperimentFile -->
+	<class name="hci.gnomex.model.SampleExperimentFile" table="SampleExperimentFile">
+		<id name="idSampleExperimentFile" column="idSampleExperimentFile" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="idSample" column="idSample" type="integer"/>
+		<property name="idExperimentFile" column="idExperimentFile" type="integer"/>
+		<property name="codeSampleFileType" column="codeSampleFileType" type="string"/>
+	</class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
 	<class name="hci.gnomex.model.PropertyEntry" table="PropertyEntry">
