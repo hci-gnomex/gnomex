@@ -78,3 +78,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`prope
 -- Text for details on bioinformatics tab
 INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
 ('request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N');
+
+-- New property contact_email_manage_sample_file_link
+insert into PropertyDictionary values('contact_email_manage_sample_file_link', '', 'Email address of who should be notified when a sample experiment file is deleted from the database', 'Y', null, null);
+
