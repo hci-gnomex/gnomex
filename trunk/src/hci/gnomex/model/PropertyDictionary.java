@@ -103,6 +103,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        HISEQ_RUN_TYPE_LABEL_CUSTOM         = "hiseq_run_type_label_custom";
   public static final String        HISEQ_RUN_TYPE_CUSTOM_WARNING       = "hiseq_run_type_custom_warning";
   public static final String        ANALYSIS_ASSISTANCE_NOTE            = "analysis_assistance_note";
+  public static final String        CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK = "contact_email_manage_sample_file_link";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
