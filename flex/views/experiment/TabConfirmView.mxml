@@ -228,6 +228,7 @@
 			}
 			
 			if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+				
 				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
@@ -246,6 +247,10 @@
 					this.sampleNameColumn.visible = false;
 				} else if ( parentDocument.isIScanState() ) {
 					this.sampleTypeColumn.visible = false;
+				} else if ( parentDocument.isSequenomState() ) {
+					this.sampleTypeColumn.visible =  (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					this.concentrationCol.visible = (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					
 				}
 				
 			} else if (parentDocument.isSolexaState()) {
