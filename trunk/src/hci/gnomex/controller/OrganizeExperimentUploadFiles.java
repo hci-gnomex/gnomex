@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
@@ -11,6 +12,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -98,6 +100,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
 
         Request request = (Request)sess.load(Request.class, idRequest);
+        String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
         baseDir += request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
 
@@ -122,21 +125,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           //Rename files
           for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
             String file = (String)i.next();
+            String newFileName = (String)parser.getFilesToRenameMap().get(file);
             File f1 = new File(file);
-            File f2 = new File((String)parser.getFilesToRenameMap().get(file));
+            File f2 = new File(newFileName);
             boolean success = f1.renameTo(f2);
-            if(f1.exists() && f1.isDirectory() && success){
-              for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
-                String directory = (String)j.next();
-                if(directory.equals(f1.getCanonicalPath())){
-                  List fileNames = (List)parser.getFileNameMap().get(directory);
-                  parser.getFileNameMap().remove(directory);
-                  parser.getFileNameMap().put(f2.getCanonicalPath(), fileNames);
-                  break;
-                }
-              }
-            }
-            else if(success){
+            if(success){
               for(Iterator k = parser.getFileNameMap().keySet().iterator(); k.hasNext();) {
                 String directory = (String)k.next();
                 List fileNames = (List)parser.getFileNameMap().get(directory);
@@ -149,6 +142,15 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     break;
                   }
                 }
+              }
+              //Update experiment file name if registered in the db
+              String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+              String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
+              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + oldExpFileName + "'").list();
+              if(expFiles.size() == 1) {
+                ExperimentFile ef = (ExperimentFile)expFiles.get(0);
+                ef.setFileName(newExpFileName);
+                sess.save(ef); 
               }
             }
             else{
@@ -163,11 +165,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             String newFolder = (String)parser.getFoldersToRenameMap().get(folder);
             File f1 = new File(baseDir + File.separator + folder);
             File f2 = new File(baseDir + File.separator + newFolder);
-            boolean success = f1.renameTo(f2);
-            if(success){
+            f2.mkdir();
               for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
                 String directory = (String)j.next();
-                if(directory.contains(folder + "\\")){
+                if(directory.contains(folder + File.separator)){
                   parser.getFileNameMap().remove(directory);
                   j = parser.getFileNameMap().keySet().iterator();
                 }
@@ -178,15 +179,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   j = parser.getFileNameMap().keySet().iterator();
                 }
               }
-            }
-            else{
-              throw new Exception("Unable to rename file");
-            }
-
           }
           
           // Move files to designated folder
           tryLater = new ArrayList();
+          File oldFileToDelete = null;
           for(Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
             String directoryName = (String)i.next();
             List fileNames = (List)parser.getFileNameMap().get(directoryName);
@@ -217,6 +214,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               String td = targetDir.getAbsolutePath();
               String sd = sourceFile.getAbsolutePath();
               sd = sd.substring(0,sd.lastIndexOf(File.separator));
+              oldFileToDelete = new File(sd);
 
               if ( td.equals(sd)) {
                 continue;
@@ -224,9 +222,21 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
               File destFile = new File(targetDir, sourceFile.getName());
               boolean success = sourceFile.renameTo(destFile);
-
-
-              if (!success) {
+              
+              //If we have renamed a file that is registered in the database under the ExperimentFile table, then update the ExperimentFile name
+              //so that we don't do an unnecessary delete in the register files servlet.
+              if(success) {
+                String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+                List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentExpFileName + "'").list();
+                if(expFiles.size() == 1) {
+                  String newExpFileName = targetDirName.substring(targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
+                  newExpFileName += "/" + destFile.getName();
+                  ExperimentFile ef = (ExperimentFile)expFiles.get(0);
+                  ef.setFileName(newExpFileName);
+                  ef.setFileSize(BigDecimal.valueOf(destFile.length()));
+                  sess.save(ef); 
+                }
+              } else {
                 if ( destFile.exists() ) {
                   if ( sourceFile.exists() ) {
                     if (!sourceFile.delete() ) {
@@ -243,6 +253,16 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 }
               }
 
+            }
+            if(oldFileToDelete != null && oldFileToDelete.exists() && oldFileToDelete.list().length == 0) {
+              try {
+                oldFileToDelete.delete();
+              } catch (Exception e) {
+                log.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": ");
+                e.printStackTrace();
+              }
+            } else {
+              log.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
             }
             
           }
