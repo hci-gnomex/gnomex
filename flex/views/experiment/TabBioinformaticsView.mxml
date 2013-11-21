@@ -100,19 +100,15 @@
 	</mx:Script>
 	<mx:VBox id="bioNoteHBox" width="100%" verticalGap="0" >
 		<mx:Spacer height="5" id="bioNoteSpacer" />
-		<mx:Label text="(1) Check here if you would like the Bioinformatic Core Facility to assist with analysis.  (This service is restricted to University of Utah investigators)"/>
+		<mx:Label text="(1) Would you like the Bionformatics Core Faciliy to perform analysis on this experiment."/>
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 			<mx:Spacer width="12"/>
-			<mx:CheckBox label="Bioinformatic Core Assistance?"
+			<mx:CheckBox label="{'Yes   ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ANALYSIS_NOTE)}"
 						 id="bioAssistCheckBox" click="{onBioAssistCheckBoxClick()}" selected="false" />
 		</mx:HBox>
 		<mx:Spacer height="10" />
-		<mx:Label text="(2) Enter a note for the Bioinformatics Group regarding analysis. (optional)" id="label3"/>
-		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
-								 focusOut="setAnalysisInstructions()" width ="100%" height="50%"/>
-		<mx:Spacer height="10" />
 		<mx:HBox id="genomeBuildBox" width="100%" horizontalGap="0">
-			<mx:Label text="(3) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
+			<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
 			<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
 				<mx:Label text="{organismString}"/>
 				<mx:HBox width="100%" horizontalGap="2">
@@ -125,5 +121,9 @@
 				</mx:HBox>
 			</mx:VBox> 
 		</mx:HBox>
+		<mx:Spacer height="10" />
+		<mx:Label text="(3) Enter a note for the Bioinformatics Core Facility regarding analysis. (optional)" id="label3"/>
+		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
+								 focusOut="setAnalysisInstructions()" width ="100%" height="50%"/>
 	</mx:VBox>
 </mx:Canvas>

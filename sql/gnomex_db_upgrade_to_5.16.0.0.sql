@@ -69,3 +69,12 @@ insert into gnomex.ApplicationType values('Sequenom', 'Sequenom');
 
 -- Bioinformatics assist flag
 alter table Request add bioinformaticsAssist char(1) null;
+
+
+-- Text for link 
+INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
+('request_work_auth_link_text','Submit Work Authorization','Text for the link on the experiment setup tab to submit a work authorization', 'N');
+
+-- Text for details on bioinformatics tab
+INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
+('request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N');

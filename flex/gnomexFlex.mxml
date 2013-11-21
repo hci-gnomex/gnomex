@@ -1077,6 +1077,8 @@
 			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD:String      = "hiseq_run_type_label_standard";
 			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM:String        = "hiseq_run_type_label_custom";
 			public var PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING:String      = "hiseq_run_type_custom_warning";
+			public var PROPERTY_REQUEST_BIO_ANALYSIS_NOTE:String 		  = "request_bio_analysis_note";
+			public var PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT:String        = "request_work_auth_link_text"
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
