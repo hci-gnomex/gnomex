@@ -1,5 +1,7 @@
 package hci.gnomex.billing;
 
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
@@ -22,27 +24,23 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class SequenomDNAExtractPlugin implements BillingPlugin {
+public class SequenomPanelPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
-    
-    
+
     List billingItems = new ArrayList<BillingItem>();
     
     if (samples == null || samples.size() == 0) {
       return billingItems;
     }
+
     
-    // If core does not need to extract DNA, do not charge for it.
-    if (request.getCoreToExtractDNA()==null || !request.getCoreToExtractDNA().equals("Y")) {
-      return billingItems;
-    }
-    
-    // Rate is determined by the number of samples
-    int qty = samples.size();
-        
-    
+    // Generate the billing item.  Find the price using the
+    // criteria of the application.
+    int numSamples = samples.size();
+    int qty = 0;
+
     // Find the price
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
@@ -50,7 +48,7 @@ public class SequenomDNAExtractPlugin implements BillingPlugin {
       if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
         for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
           PriceCriteria criteria = (PriceCriteria)i2.next();
-          if (criteria.getFilter1().equals(request.getCodeDNAPrepType())) {          
+          if (criteria.getFilter1().equals(request.getCodeApplication())) {          
             price = p;
             break;            
           }
@@ -58,36 +56,60 @@ public class SequenomDNAExtractPlugin implements BillingPlugin {
       }
     }
     
+    Application application = (Application) sess.get( Application.class, request.getCodeApplication() );
+    if ( application == null) {
+      return billingItems;
+    }
+    
+    int batch = application.getSamplesPerBatch()!=null ? application.getSamplesPerBatch():0;
 
-    // Instantiate a BillingItem for the matched billing price
+    if ( batch == 0 ) {
+      qty = numSamples; 
+    } else {
+      if ( batch >= numSamples ) {
+        qty = batch;
+      } else {
+        qty = (numSamples + (batch-1))/batch * batch;
+      } 
+    }
+    
+    // Instantiate a BillingItem for the matched price
     if (price != null) {
       BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
-      
+
       BillingItem billingItem = new BillingItem();
+      billingItem.setCategory(priceCategory.getName());
       billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
       billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
       billingItem.setDescription(price.getName());
-      billingItem.setQty(qty); 
+      billingItem.setQty(qty);
       billingItem.setUnitPrice(theUnitPrice);
-      billingItem.setPercentagePrice(new BigDecimal(1));        
-      if (qty > 0 && theUnitPrice != null) {      
-        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
+      billingItem.setPercentagePrice(new BigDecimal(1));
+      if (qty > 0 && theUnitPrice != null) {
+        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));          
       }
       billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());
+      billingItem.setIdBillingAccount(request.getIdBillingAccount());
       billingItem.setIdLab(request.getIdLab());
-      billingItem.setIdBillingAccount(request.getIdBillingAccount());        
       billingItem.setIdPrice(price.getIdPrice());
-      billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-      billingItem.setCategory(priceCategory.getName());
+      billingItem.setIdPriceCategory(price.getIdPriceCategory());
+      billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
       billingItem.setIdCoreFacility(request.getIdCoreFacility());
-    
+
+      // Hold off on saving the notes.  Need to reserve note field
+      // for complete date, etc at this time.
+      //billingItem.setNotes(notes);
+
+
       billingItems.add(billingItem);
-      
+
     }
     
     
     return billingItems;
   }
+
   
+
 }

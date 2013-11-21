@@ -65,14 +65,14 @@
 					}
 				}
 				
-					this.addSampleButton.visible = false;
-					this.addSampleButton.includeInLayout = false;
-					this.addSampleButton.enabled = false;
-					this.deleteSampleButton.visible = true;
-					this.deleteSampleButton.enabled = true;
-					this.copySampleButton.visible = false;
-					this.copySampleButton.includeInLayout = false;
-					this.copySampleButton.enabled = false;				
+				this.addSampleButton.visible = false;
+				this.addSampleButton.includeInLayout = false;
+				this.addSampleButton.enabled = false;
+				this.deleteSampleButton.visible = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.visible = false;
+				this.copySampleButton.includeInLayout = false;
+				this.copySampleButton.enabled = false;				
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
@@ -83,8 +83,7 @@
 			override protected function getNumPlates():int {
 				var numPlates:int = 0;
 				if (hasPlates()) {
-						numPlates = parentDocument.numIScanPlates;
-					
+					numPlates = parentDocument.numIScanPlates;
 				}
 				return numPlates;
 			}
@@ -113,9 +112,7 @@
 				return nextPlate;
 			}
 			
-			
 			override protected function getAddAllAnnotations():Boolean {
-			
 				return false;
 			}
 
@@ -187,9 +184,9 @@
 			
 			override protected function addSpecialCopyColumns(emptyNodeString:String):void {
 				
-					emptyNodeString = emptyNodeString +
-						" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
-						" wellName=''";
+				emptyNodeString = emptyNodeString +
+					" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
+					" wellName=''";
 				
 			}
 			
@@ -510,6 +507,24 @@
 				
 			}
 			
+			override protected function rebuildSamplesGrid():void {
+				var grid:AdvancedDataGrid = getSamplesGrid();
+				var columns:Array = grid.columns;
+				var newColumns:Array = new Array();
+				if (grid != null) {
+					var found:Boolean = false;
+					for (var x:Number = 0; x < columns.length; x++) {
+						var dc:AdvancedDataGridColumn = grid.columns[x];
+						
+						if (dc.dataField == null || dc.dataField.substr(0, 6) != "@ANNOT") {
+							newColumns.push(dc);
+						}
+					}
+					addAnnotationProperties(columns, newColumns);
+				}
+				grid.columns = newColumns;
+				grid.validateNow();
+			}
 			
 			private function toggleShowCCNumber():void {
 				if (!this.showCCNumberCheckbox.selected) {

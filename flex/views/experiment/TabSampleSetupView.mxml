@@ -111,7 +111,7 @@
 				if (this.sampleTypeRadioGroup.selectedValue != null) {
 					sample.@idSampleType = this.sampleTypeRadioGroup.selectedValue;
 				} else {
-					sample.@idSampleType = null;
+					sample.@idSampleType = "";
 				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
@@ -409,6 +409,7 @@
 				iScanNumSourcePlatesValidator.validate();
 				
 			} else if (parentDocument.isSequenomState()) {
+				sampleCountWarning.text = "";
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 					if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 						if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
@@ -427,10 +428,7 @@
 						var samplesPerBatch:int = application.@samplesPerBatch;
 						if ( parseInt(this.numberOfSamples.text) % samplesPerBatch != 0 && this.radioGroupSeqApp.selectedValue != "OTHER") {
 							sampleCountWarning.text = " You have selected a panel which runs in batches of " + samplesPerBatch + " samples. Please note you will be responsible to pay for unused wells.";
-						} else {
-							sampleCountWarning.text = "";
 						}
-						
 					}
 				}
 				
@@ -1026,9 +1024,10 @@
 			parentDocument.request.@coreToExtractDNA = coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
 			this.sampleTypeRadioGroup.enabled = !coreToExtractDNACheckBox.selected;
-			if ( coreToExtractDNACheckBox.selected ) {				
+			if ( coreToExtractDNACheckBox.selected ) {	
 				this.sampleTypeRadioGroup.selectedValue = null;
-			}
+			} 
+			this.propagateSampleType();
 			if ( this.checkSampleSetupCompleteness() ) {
 				parentDocument.samplesView.initializeSamplesGrid();
 			}
@@ -1144,7 +1143,7 @@
 			<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
 				<mx:Label text="(2) Which category best describes your samples?" width="334" id="label8"/>
 				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />       	
-				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
+				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
 					<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0}"/>
 					<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
 						<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
@@ -1153,6 +1152,8 @@
 										click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
 										width="250" />							
 					</mx:Repeater>
+					<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup" 
+									label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
 				</mx:VBox>
 				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
 					<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0}" />
