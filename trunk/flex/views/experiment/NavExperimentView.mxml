@@ -1088,14 +1088,22 @@
 		}
 		 
 		public function resetSearchComponents():void {
-						
-			this.coreFacilityCombo.selectedItem = null;
+			
+			if (coreFacilityCombo != null) {
+				this.coreFacilityCombo.selectedItem = null;
+			}
 			requestCategoryRadioGroup.selectedValue = null;
 						
 			if (this.currentState == null) {
-				this.myExperimentsCheckbox.selected = false;
-				this.myLabsExperimentsCheckbox.selected = false;
-				this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				if (myExperimentsCheckbox != null) {
+					this.myExperimentsCheckbox.selected = false;
+				}
+				if (this.myLabsExperimentsCheckbox != null) {
+					this.myLabsExperimentsCheckbox.selected = false;
+				}
+				if (this.publicExperimentsOtherGroupsCheckbox != null) {
+					this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				}
 			} else if (this.currentState == "AdminState") {
 				this.browseUserCombo.selectedItem = null;				
 			}

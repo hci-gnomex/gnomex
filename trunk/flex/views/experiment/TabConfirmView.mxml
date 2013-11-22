@@ -343,7 +343,7 @@
 			this.channel2SampleConfirmColumn.visible = false;
 		}
 		
-		override public function getSamplesGrid():DataGrid {
+		override public function getSamplesGrid():Object {
 			return this.samplesGridConfirm;
 		}
 		

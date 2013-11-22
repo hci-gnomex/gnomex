@@ -1031,3 +1031,7 @@ HRule
 	strokeColor: #D7D5D1;
 	strokeWidth: 1;
 }
+.confirmHeaderLabel {
+	fontStyle: underline;
+	fontWeight: bold;
+}

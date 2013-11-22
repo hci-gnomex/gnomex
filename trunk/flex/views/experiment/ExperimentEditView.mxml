@@ -442,7 +442,7 @@
 					}
 				}
 				if (theTab.getChildAt(tabIdx) == this.confirmView) {
-					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory);
+					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory, requestCategoryType);
 					if (newConfirmView != this.confirmView) {
 						this.confirmView = newConfirmView;
 						theTab.removeChildAt(tabIdx);
