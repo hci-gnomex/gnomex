@@ -27,6 +27,7 @@
   </compiler>
   <applications>
     <application path="gnomexFlex.mxml"/>
+    <application path="TabConfirmIllumina.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

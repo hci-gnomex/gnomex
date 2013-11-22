@@ -541,10 +541,6 @@
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 						parentDocument.confirmView.enabled = false;					
 					}
-				} else {
-					if (parentDocument.isSolexaState() && !parentDocument.isEditState() && !parentDocument.isAmendState()) {
-						this.refreshLanesGrid();
-					}
 				}
 				
 			}
@@ -730,11 +726,6 @@
 						parentDocument.confirmView.showHideColumns();									
 					}
 				}
-			}
-
-			private function refreshLanesGrid():void {
-				parentDocument.confirmView.lanesConfirmGrid.invalidateList();
-				parentDocument.confirmView.lanesConfirmGrid.invalidateDisplayList();
 			}
 			
 			private function toggleShowCCNumber():void {
