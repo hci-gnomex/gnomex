@@ -4822,9 +4822,10 @@
 						params.createDateTo = dateFormatter.format( parentDocument.pickDateRangeButton.toDate );
 					}
 					
-					params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
-					params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
-					params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
+					if ( parentDocument.requestCategoryRadioGroup != null && parentDocument.requestCategoryRadioGroup.selectedValue != null && parentDocument.requestCategoryRadioGroup.selectedValue != ''){
+						params.codeRequestCategory = parentDocument.requestCategoryRadioGroup.selectedValue;
+					}
+					
 					
 				}
 				
