@@ -1062,16 +1062,6 @@
 					params.showMyLabsAlways = 'Y';
 				}
 				
-				/* params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
-				params.isNextGenSeq  = this.NextGenSeqCheckbox.selected ? "Y" : "N";
-				params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
-
-				params.isCapSeq      = this.CapSeqCheckbox.selected ? "Y" : "N";
-				params.isMitSeq      = this.MitSeqCheckbox.selected ? "Y" : "N";
-				params.isFragAnal    = this.FragAnalCheckbox.selected ? "Y" : "N";
-				params.isCherryPick  = this.CherryPickingCheckbox.selected ? "Y" : "N";
-				params.isIScan       = this.IScanCheckbox.selected ? "Y" : "N"; */
-
 			}
 
 			if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
@@ -1562,7 +1552,9 @@
 							
 						</mx:HBox>
 						<mx:Spacer width="10" id="spacer1"/>
-						<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
+						<mx:HBox>
+							<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
+						</mx:HBox>
 						
 					</mx:HBox>	
 				</mx:HBox>

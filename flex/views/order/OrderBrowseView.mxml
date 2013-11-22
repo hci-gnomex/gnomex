@@ -2,6 +2,7 @@
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
 		 backgroundAlpha="0"
+		 xmlns:renderers="views.renderers.*"
 		 xmlns:util="views.util.*"  
 		 verticalGap="3">
 		
@@ -149,12 +150,13 @@
 					return params;
 				}
 				
-				params.number = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
-				params.lastWeek = this.createdLastWeekCheckbox.selected ? 'Y' : 'N' ;
-				params.lastMonth = this.createdLastMonthCheckbox.selected ? 'Y' : 'N' ;
-				params.lastThreeMonths = this.createdLastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-				params.lastYear = this.createdLastYearCheckbox.selected ? 'Y' : 'N' ;
+				if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
+					params.createDateFrom = dateFormatter.format( this.pickDateRangeButton.fromDate );
+					params.createDateTo = dateFormatter.format( this.pickDateRangeButton.toDate );
+				}
 				
+				params.number = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
+								
 				if ( this.newCheckbox.selected ) {
 					params.status = 'NEW' ;
 				}
@@ -234,17 +236,8 @@
 				if ( requestNoLookupField.text != null ? requestNoLookupField.text : '' ) {
 					return false;
 				}
-				if ( this.createdLastWeekCheckbox.selected ) {
-					return false ;
-				}
-				if ( this.createdLastMonthCheckbox.selected ) {
-					return false ;
-				}
-				if ( this.createdLastThreeMonthsCheckbox.selected ) {
-					return false ;
-				}
-				if ( this.createdLastYearCheckbox.selected ) {
-					return false ;
+				if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
+					return false;
 				}
 				if ( this.newCheckbox.selected ) {
 					return false ;
@@ -276,47 +269,7 @@
 			private function selectedFilterFunc(item:XML):Boolean {
 				return item.@isSelected == true;
 			}
-				 
-			
-			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
-				this.requestNoLookupField.text = "";
 				
-				if (checkBoxNumber == 0) {
-					
-					this.createdLastWeekCheckbox.selected  = false;
-					this.createdLastMonthCheckbox.selected = false;
-					this.createdLastThreeMonthsCheckbox.selected = false;
-					this.createdLastYearCheckbox.selected  = false;
-					
-					this.newCheckbox.selected = false;
-					this.processingCheckbox.selected = false;
-					this.submittedCheckbox.selected  = false;
-					this.completeCheckbox.selected = false;
-					this.failedCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 1) {
-					this.createdLastMonthCheckbox.selected = false;
-					this.createdLastThreeMonthsCheckbox.selected = false;
-					this.createdLastYearCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.createdLastWeekCheckbox.selected = false;
-					this.createdLastThreeMonthsCheckbox.selected = false;
-					this.createdLastYearCheckbox.selected  = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.createdLastWeekCheckbox.selected  = false;
-					this.createdLastMonthCheckbox.selected = false; 
-					this.createdLastYearCheckbox.selected  = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.createdLastWeekCheckbox.selected  = false;
-					this.createdLastMonthCheckbox.selected = false; 
-					this.createdLastThreeMonthsCheckbox.selected = false;
-					
-				}   
-			} 		
-			
 			private function clearCheckBoxes():void {
 				this.newCheckbox.selected = false;
 				this.processingCheckbox.selected = false;
@@ -324,10 +277,7 @@
 				this.completeCheckbox.selected = false;
 				this.failedCheckbox.selected  = false;
 				
-				this.createdLastWeekCheckbox.selected  = false;
-				this.createdLastMonthCheckbox.selected = false; 
-				this.createdLastThreeMonthsCheckbox.selected = false;
-				this.createdLastYearCheckbox.selected  = false;
+				this.pickDateRangeButton.resetRange();
 				
 				this.redoCheckbox.selected = false;
 			}
@@ -373,10 +323,7 @@
 			private function setDefaultButton():void {
 				if ( this.requestNoLookupField.text != '' ) {
 					
-					this.createdLastWeekCheckbox.selected  = false;
-					this.createdLastMonthCheckbox.selected = false;
-					this.createdLastThreeMonthsCheckbox.selected = false;
-					this.createdLastYearCheckbox.selected  = false;
+					this.pickDateRangeButton.resetRange();
 					
 					this.newCheckbox.selected = false;
 					this.processingCheckbox.selected = false;
@@ -515,6 +462,8 @@
 	<mx:XMLListCollection id = "selectedOrders" source="{getRequestList.lastResult.Request}" 
 						  filterFunction="selectedFilterFunc"/>
 	
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
 	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%" id="vbox2">
 		<mx:VBox width="100%">
 			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
@@ -607,65 +556,9 @@
 				
 				<mx:VRule height = "20" />
 				
-				<mx:HBox id = "dateCheckboxBar"
-						 horizontalGap = "0"
-						 height = "100%"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right">
-					<mx:CheckBox id = "createdLastWeekCheckbox"
-								 label = "Created in last week"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 paddingLeft = "2"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleCreateDateCheckboxes( 1 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "createdLastMonthCheckbox"
-								 label = "month"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleCreateDateCheckboxes( 2 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "createdLastThreeMonthsCheckbox"
-								 label = "3 months"
-								 paddingRight = "0"
-								 paddingLeft = "2"
-								 horizontalGap = "0"
-								 styleName = "labelSmall">
-						<mx:click>
-							toggleCreateDateCheckboxes( 3 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id = "createdLastYearCheckbox"
-								 label = "year"
-								 paddingLeft = "2"
-								 paddingRight = "0"
-								 horizontalGap = "0"
-								 styleName = "labelSmall" 
-								 visible="false" 
-								 includeInLayout="false">
-						<mx:click>
-							toggleCreateDateCheckboxes( 4 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
+				<mx:HBox height = "100%"
+						 verticalAlign = "middle">
+					<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" toolTip="Click 'Refresh' after selecting a date range to update the results." />
 					
 				</mx:HBox>
 				

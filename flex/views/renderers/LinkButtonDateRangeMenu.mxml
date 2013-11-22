@@ -51,7 +51,7 @@
 			dateRangeMenu.labelField = "@label";
 			
 			var globalPoint:Point = this.contentToGlobal(new Point(this.x, this.y));
-			dateRangeMenu.show(this.x+15, globalPoint.y+25);
+			dateRangeMenu.show(this.parent.x+15, globalPoint.y+25);
 			
 		} 
 		
@@ -84,7 +84,7 @@
 			fromDate = new Date(today.fullYear, today.month, today.date - interval);
 		}
 		
-		private function resetRange():void {
+		public function resetRange():void {
 			fromDate=null; 
 			toDate=null; 
 		}
