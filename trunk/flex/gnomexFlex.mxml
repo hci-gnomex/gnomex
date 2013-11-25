@@ -3336,7 +3336,7 @@
 				var codeSequencingPlatform:String = menuitem.hasOwnProperty("@codeSequencingPlatform") ? menuitem.@codeSequencingPlatform : "";
 				var idCoreFacility:String = "";
 				
-				if(!isGuest){
+				if(!isGuest && myCoreFacilities[0] != null){
 					if (menuitem.hasOwnProperty("@idCoreFacility") && menuitem.@idCoreFacility != '') {
 						idCoreFacility = menuitem.@idCoreFacility;
 					} else {
