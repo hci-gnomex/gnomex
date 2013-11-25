@@ -179,7 +179,6 @@ public class RegisterFiles extends TimerTask {
       dataSource = new BatchDataSource();
       app.connect();
       
-      
       app.initialize();
       app.registerExperimentFiles();
       app.registerAnalysisFiles();
@@ -663,12 +662,16 @@ public class RegisterFiles extends TimerTask {
   
   private void sendErrorReport(String softwareTestEmail, String fromAddress)  {
     try {
+      java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+      if(debug) {
+        printDebugStatement(localMachine.getHostName());
+      }
       if (sendMail) {
         MailUtil.send( mailProps,
           softwareTestEmail,
           null,
           fromAddress,
-          "Register Files Error",
+          "Register Files Error [Server: " + localMachine.getHostName() + "]" ,
           errorMessageString,
           false
         );
@@ -823,26 +826,28 @@ public class RegisterFiles extends TimerTask {
       printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
     }
     
-    StringBuffer buf = new StringBuffer();
-    buf.append("Select s.name from Sample s where idSample = ");
-    for(Iterator j = listOfSampleIds.iterator(); j.hasNext();) {
-      Integer i = (Integer)j.next();
-      listOfSampleIdsString += i.toString();
-      buf.append(i.toString());
-      if(j.hasNext()) {
-        buf.append(" OR idSample = ");
-        listOfSampleIdsString += ", ";
+    if(listOfSampleIds.size() > 0) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("Select s.name from Sample s where idSample = ");
+      for(Iterator j = listOfSampleIds.iterator(); j.hasNext();) {
+        Integer i = (Integer)j.next();
+        listOfSampleIdsString += i.toString();
+        buf.append(i.toString());
+        if(j.hasNext()) {
+          buf.append(" OR idSample = ");
+          listOfSampleIdsString += ", ";
+        }
       }
-    }
-    
-    printDebugStatement(buf.toString());
-    List sampleNames = sess.createQuery(buf.toString()).list();
-    for(Iterator k = sampleNames.iterator(); k.hasNext();) {
-      String sampleName = (String)k.next();
-      printDebugStatement(sampleName);
-      listOfSampleNames += sampleName;
-      if(k.hasNext()) {
-        listOfSampleNames += " ,";
+
+      printDebugStatement(buf.toString());
+      List sampleNames = sess.createQuery(buf.toString()).list();
+      for(Iterator k = sampleNames.iterator(); k.hasNext();) {
+        String sampleName = (String)k.next();
+        printDebugStatement(sampleName);
+        listOfSampleNames += sampleName;
+        if(k.hasNext()) {
+          listOfSampleNames += " ,";
+        }
       }
     }
     
@@ -852,20 +857,22 @@ public class RegisterFiles extends TimerTask {
     printDebugStatement("SAMPLE NAMES: " + listOfSampleNames);
     if(!listOfSampleNames.equals("")) {
       String toAddress = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK);
+      if(!MailUtil.isValidEmail(toAddress)) {
+        System.err.println("Unable to notify of unlinking of sample experiment files due to invalid email address:  " + toAddress);
+        return;
+      }
       String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       String body = "The following Sample Names were unlinked: " + listOfSampleNames + "\n\n";
       body += "(Corresponding Sample Id's: " + listOfSampleIdsString + ")\n\n";
       body += "Please review your sample linkage.";
       
-      printDebugStatement(toAddress + "       " + fromAddress);
+      printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
       try {
         MailUtil.send(mailProps, toAddress, null, fromAddress, subject, body, false);
       } catch (Exception e) {
         System.err.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: " + toAddress + e.toString());
       }
     }
-    
-    
   }
   
   private void printDebugStatement(String message) {
