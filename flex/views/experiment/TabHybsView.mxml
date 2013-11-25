@@ -650,7 +650,7 @@
 					<util:columns>
 					    <mx:DataGridColumn id="hybRowNumberCol" editable="false" visible="{currentState == 'HybsState'}" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>
   					    <mx:DataGridColumn id="hybNumberCol"  headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"   dataField="@number"  editable="false"/>
-			            <mx:DataGridColumn width="50" id="slideNumberColumn" headerText="Slide">
+			            <mx:DataGridColumn width="65" id="slideNumberColumn" headerText="Slide Nbr" editable="false">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
