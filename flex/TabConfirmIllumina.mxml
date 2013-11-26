@@ -77,9 +77,11 @@
 				
 				this.sampleRowNumberCol.visible = true;
 
-				// externals never show organism column in sample
+				// externals never show organism column, mulitplex group number or number sequencing lanes in sample
 				if (parentDocument.request!=null && parentDocument.request.@isExternal == "Y") {
 					this.sampleOrganismConfirmColumn.visible = false;
+					this.multiplexGroupNumberColumn.visible = false;
+					this.numberSequencingLanes.visible = false;
 				}
 			}
 			
@@ -210,6 +212,7 @@
 														horizontalScrollPolicy="off" 
 														verticalScrollPolicy="off"
 							 							sortableColumns="false" 
+														sortExpertMode="true"
 														alpha="0.8" 
 														fontSize="11" 
 														variableRowHeight="true" 
@@ -254,7 +257,7 @@
 						
 						<mx:AdvancedDataGridColumn headerText="Description" id="descriptionColumn" width="100" dataField="@description" wordWrap="true"/>
 						
-						<mx:AdvancedDataGridColumn headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes">
+						<mx:AdvancedDataGridColumn headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" id="numberSequencingLanes">
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 

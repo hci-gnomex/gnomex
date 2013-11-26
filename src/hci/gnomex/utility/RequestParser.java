@@ -384,14 +384,16 @@ public class RequestParser implements Serializable {
     sample.setIdSampleString(idSampleString);
     
     PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+
+    Boolean isExternal = (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y"));
     
-    if(requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY) || requestNode.getAttributeValue("codeRequestCategory").equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+    if(RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory")) && !isExternal) {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
     } else {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, false);
     }
     
-    if (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y")) {
+    if (isExternal) {
       // the request create screen doesn't do the idOrganism at the request level so skip.
       if (requestNode.getAttributeValue("idOrganism") != null && requestNode.getAttributeValue("idOrganism").toString().length() > 0) {
         sample.setIdOrganism(new Integer(requestNode.getAttributeValue("idOrganism")));

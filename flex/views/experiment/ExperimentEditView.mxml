@@ -3093,12 +3093,11 @@
 		public function getMultiplexLanes():void {
 			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
 				this.bioinformaticsView.propagateGenomeBuild();
+				initializeRequestXML();
+				var params:Object = new Object();
+				params.requestXMLString = request.toXMLString();
+				getMultiplexLaneList.send(params);
 			}
-			initializeRequestXML();
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
-			getMultiplexLaneList.send(params);
-			
 		}
 		private function onGetMultiplexLaneList(event:ResultEvent):void {
 			var readyToSubmit:Boolean = true;

@@ -641,10 +641,10 @@
 				this.samplesGrid.dragEnabled = false;
 				
 				this.sampleRowNumberCol.visible = true;
-				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && parentDocument.request.@isExternal != 'Y';
+				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && !parentDocument.isExternalExperimentSubmission();
 				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
 					|| (parentDocument.isSolexaState() && !parentDocument.isEditState())) {
-					this.multiplexGroupNumberEditColumn.editable = true;
+					this.multiplexGroupNumberEditColumn.editable = multiplexGroupNumberEditColumn.visible;
 				} else {
 					multiplexGroupNumberEditColumn.editable = false;
 				}
