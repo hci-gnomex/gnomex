@@ -1179,7 +1179,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
+																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
@@ -1207,7 +1207,7 @@
 																  labelFunction="{outerDocument.getIndexTagName}"
 																  removeFilterOnSelection="false"
 																  removeInputOnFocusOut="false"
-																  focusOut="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
+																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
