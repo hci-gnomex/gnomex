@@ -282,7 +282,7 @@
 				
 				
 				var numberOfAdditionalLanes:int = 0;
-				if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
+				if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState" || parentDocument.sampleSetupView.currentState == 'SolexaSetupState') {
 					for each(var s2:Object in parentDocument.samples) {
 						if (isEntered(s2, "@numberSequencingLanes")) {
 							numberOfAdditionalLanes += s2.@numberSequencingLanes;
@@ -291,6 +291,10 @@
 				}
 				
 				if(numberOfAdditionalLanes == 0 && additionalNumberSequencingLanesCol.visible){
+					parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
+				}
+				
+				if(numberOfAdditionalLanes == 0 && numberSequencingLanesCol.visible && (parentDocument.sampleSetupView.currentState == 'SolexaAmendState' || parentDocument.currentState == 'SolexaLaneAmendState')){
 					parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
 				}
 				
@@ -323,7 +327,7 @@
 								isEntered(sample, "@idNumberSequencingCycles") &&
 								isEntered(sample, "@multiplexGroupNumber") &&
 								reqdAnnotationsEntered(sample) &&  
-								(isEntered(sample, "@numberSequencingLanes") || numberOfAdditionalLanes > 0)) {
+								(isEntered(sample, "@numberSequencingLanes") && numberOfAdditionalLanes > 0)) {
 								
 								
 								completeCount++;
@@ -899,7 +903,7 @@
 			}
 			
 			private function numberSequencingLanesColTip(item:Object):String{
-				return "May edit to 2 or greater lanes";
+				return "This is the number of times (1 or greater) that you want to sequence this sample.";
 			}
 			
 			private function multiplexGroupNumberColTip(item:Object):String{
@@ -1107,7 +1111,7 @@
 				
 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" 
 										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
-										   rendererIsEditor="false"
+										   rendererIsEditor="false" labelFunction="defaultToZero"
 										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
