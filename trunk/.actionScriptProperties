@@ -26,8 +26,8 @@
     <sourceAttachmentPath/>
   </compiler>
   <applications>
+    <application path="views/experiment/TabConfirmIllumina.mxml"/>
     <application path="gnomexFlex.mxml"/>
-    <application path="TabConfirmIllumina.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>
