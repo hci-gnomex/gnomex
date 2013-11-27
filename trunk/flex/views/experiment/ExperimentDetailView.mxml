@@ -1170,7 +1170,7 @@
 			var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
 			PopUpManager.centerPopUp(adapterWindow);
 			adapterWindow.title = protocolClassName;
-			adapterWindow.adapterTextArea.text = "5' Adapter:\n " + fivePrime + "\n\n" + "3' Adapter:\n " + threePrime;
+			adapterWindow.adapterTextArea.text = "Read 1 Adapter:\n " + threePrime + "\n\n" + "Read 2 Adapter:\n " + fivePrime;
 		}
         
     	private function onGetProtocol(event:ResultEvent): void { 
@@ -1456,19 +1456,9 @@
 						<mx:Tile id="tileAdapter" direction="vertical" fontSize="9"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0"
 								 paddingRight="0" paddingTop="0" verticalGap="0" width="100%">
-							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!=''}"
-									 width="100%">
-								<mx:Label width="20" fontSize="10" text="5'"/>
-								<mx:LinkButton width="100%"
-											   label="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}"
-											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
-											   paddingLeft="1" paddingRight="1"
-											   styleName="formLinkProtocolButton"
-											   textAlign="left"/>
-							</mx:HBox>
 							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!=''}"
 									 width="100%">
-								<mx:Label width="20" fontSize="10" text="3'"/>
+								<mx:Label width="20" fontSize="10" text="Read 1 Adapter"/>
 								<mx:LinkButton width="100%"
 											   label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}"
 											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
@@ -1476,6 +1466,16 @@
 											   styleName="formLinkProtocolButton"
 											   textAlign="left"/>
 							</mx:HBox>		
+							<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!=''}"
+									 width="100%">
+								<mx:Label width="20" fontSize="10" text="Read 2 Adapter"/>
+								<mx:LinkButton width="100%"
+											   label="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}"
+											   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
+											   paddingLeft="1" paddingRight="1"
+											   styleName="formLinkProtocolButton"
+											   textAlign="left"/>
+							</mx:HBox>							
 						</mx:Tile>							
 					</mx:HBox>				          
 					<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">

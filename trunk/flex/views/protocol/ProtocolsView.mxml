@@ -440,13 +440,13 @@
 						</mx:VBox>
 						<mx:VBox left="10" top="136" right="10"  verticalGap="0" styleName="formDisplay" visible="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}" includeInLayout="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}">
 							<mx:HBox styleName="formDisplay" verticalAlign="middle">
-								<mx:Label text="5' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
-								<mx:Label text="{fullProtocol.adapterSequenceFivePrime}" width="100%" />
-							</mx:HBox>
-							<mx:HBox styleName="formDisplay" verticalAlign="middle">
-								<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="Read 1 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel"/>
 								<mx:Label text="{fullProtocol.adapterSequenceThreePrime}" width="100%" />
 							</mx:HBox>
+							<mx:HBox styleName="formDisplay" verticalAlign="middle">
+								<mx:Label text="Read 2 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel"/>
+								<mx:Label text="{fullProtocol.adapterSequenceFivePrime}" width="100%" />
+							</mx:HBox>							
 						</mx:VBox>
 						<mx:VBox top="180" bottom="10" left="10" right="10">
 							<mx:Label text="Protocol Description" fontWeight="normal" styleName="formLabel"/>
@@ -487,11 +487,11 @@
 						<mx:VBox left="10" top="360" right="10"  verticalGap="0" id="adapterSequenceBox" visible="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}" includeInLayout="{fullProtocol.protocolClassName == 'hci.gnomex.model.SeqLibProtocol'}">
 							<mx:HBox verticalAlign="middle">
 								<mx:VBox>
-									<mx:Label text="3' adapter sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
+									<mx:Label text="Read 1 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
 									<mx:TextInput text="{fullProtocol.adapterSequenceThreePrime}" width="100%" id="adapterSequenceThreePrimeInput" change="dirty.setDirty()" />
 								</mx:VBox>
 								<mx:VBox>
-									<mx:Label text="5' adapter sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
+									<mx:Label text="Read 2 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
 									<mx:TextInput text="{fullProtocol.adapterSequenceFivePrime}" width="100%" id="adapterSequenceFivePrimeInput" change="dirty.setDirty()" />
 								</mx:VBox>
 							</mx:HBox>
