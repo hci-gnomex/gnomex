@@ -296,6 +296,19 @@ public class RequestParser implements Serializable {
       request.setBioinformaticsAssist("N");
     }
     
+    if (n.getAttributeValue("hasPrePooledLibraries") != null && !n.getAttributeValue("hasPrePooledLibraries").equals("")) {
+      request.setHasPrePooledLibraries(n.getAttributeValue("hasPrePooledLibraries"));
+    }
+    if (request.getHasPrePooledLibraries() == null || (!request.getHasPrePooledLibraries().equals("Y") && !request.getHasPrePooledLibraries().equals("N"))) {
+      request.setHasPrePooledLibraries("N");
+    }
+
+    if (request.getHasPrePooledLibraries().equals("Y") && n.getAttributeValue("numPrePooledTubes") != null && !n.getAttributeValue("numPrePooledTubes").equals("")) {
+      request.setNumPrePooledTubes(new Integer(n.getAttributeValue("numPrePooledTubes")));
+    } else {
+      request.setNumPrePooledTubes(null);
+    }
+
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       // Don't change request status to submitted unless the request is in new status
       if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&& 

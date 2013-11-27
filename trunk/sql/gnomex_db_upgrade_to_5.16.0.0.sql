@@ -83,3 +83,6 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`propertyName`,`propertyValue`,`prope
 insert into `gnomex`.`PropertyDictionary` (`propertyname`,`propertyValue`,`propertyDescription`,`forServerOnly`) values
 ('contact_email_manage_sample_file_link', '', 'Email address of who should be notified when a sample experiment file is deleted from the database', 'Y');
 
+-- new columns for pre-pooled samples.
+alter table Request add hasPrePooledLibraries char(1) null;
+alter table Request add numPrePooledTubes int(10) null;

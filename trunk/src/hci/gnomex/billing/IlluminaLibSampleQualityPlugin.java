@@ -101,6 +101,10 @@ public class IlluminaLibSampleQualityPlugin implements BillingPlugin {
           
       }
       
+      if (request.getHasPrePooledLibraries() != null && request.getHasPrePooledLibraries().equals("Y") && request.getNumPrePooledTubes() != null && request.getNumPrePooledTubes() > 0) {
+        qty = request.getNumPrePooledTubes();
+      }
+      
       // Instantiate a BillingItem for the matched billing price
       if (price != null) {
         BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());

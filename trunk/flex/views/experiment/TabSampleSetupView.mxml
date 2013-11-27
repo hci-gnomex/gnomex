@@ -229,7 +229,7 @@
 					this.sampleTypeRadioGroup.selectedValue &&
 					otherSamplePrepMethod.text.length > 0) {
 					
-					isComplete = true;
+					isComplete = checkPrePooledSamplesCompleteness();
 				}
         	} else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -237,7 +237,7 @@
 	        	    hasOrganism() &&
 					this.otherSamplePrepMethod.text.length > 0) {
 					
-					isComplete = true;
+					isComplete = checkPrePooledSamplesCompleteness();
 	        	 }
         	
         	} else if (parentDocument.isQCState()) {
@@ -467,6 +467,23 @@
     	    	
         }
 		
+		private function checkPrePooledSamplesCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (this.seqPrepRadioGroup != null && this.seqPrepRadioGroup.selectedValue == 'N') {
+				if (this.prePooledSamplesRadioGroup.selectedValue == 'Y') {
+					if (this.prePooledNumTubes.text != null && this.prePooledNumTubes.text != '' && Number(this.prePooledNumTubes.text) > 0) {
+						isComplete = true;
+					}
+				} else if (this.prePooledSamplesRadioGroup.selection != null) {
+					isComplete = true;
+				}
+			} else {
+				isComplete = true;
+			}
+
+			return isComplete;
+		}
+		
 		private function hasOrganism():Boolean {
 			if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
 				return true;
@@ -657,6 +674,8 @@
 		
 		private function pickSeqPrepState():void {
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
+				this.prePooledSamplesRadioGroup.selection = null;
+				this.prePooledNumTubes.text = "";
 				if (parentDocument.isAmendState()) {
 					currentState = 'SolexaAmendState';
 				} else {
@@ -1245,23 +1264,40 @@
          	
             <mx:AddChild relativeTo="{sampleOrganismContainer}" position="after">
             
-				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Text text="(5) Do you want the Core Facility to perform library preparation on the samples?" width="305"  id="text1"/>
-					<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
-                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
-					    <mx:HBox id="hbox2" width="100%">
-							<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
- click="{pickSeqPrepState()}">
-							</mx:RadioButton>									    	
-					    </mx:HBox>
-					    
-						<mx:HBox >
-							<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
- click="{pickSeqPrepState()}">
-							</mx:RadioButton>							
-						</mx:HBox>				
-					</mx:VBox>
-				</mx:HBox>            	
+				<mx:VBox paddingBottom="0" paddingTop="0">
+					<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+						<mx:Text text="(5) Do you want the Core Facility to perform library preparation on the samples?" width="305"  id="text1"/>
+						<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
+	                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
+						    <mx:HBox id="hbox2" width="100%">
+								<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
+	 click="{pickSeqPrepState()}">
+								</mx:RadioButton>									    	
+						    </mx:HBox>
+						    
+							<mx:HBox >
+								<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
+	 click="{pickSeqPrepState()}">
+								</mx:RadioButton>							
+							</mx:HBox>				
+						</mx:VBox>
+					</mx:HBox>
+					<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0" id="prePooledSamplesHBox" visible="{samplesAlreadyPreppedCheckbox.selected}" includeInLayout="{samplesAlreadyPreppedCheckbox.selected}">
+						<mx:Text text="(6) How are the sample pooled?" width="305" />
+						<mx:VBox width="100%" verticalGap="0" paddingLeft="0">
+							<mx:RadioButtonGroup id="prePooledSamplesRadioGroup"/>
+							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be sumitted in a separate microfuge tube."
+											click="{parentDocument.request.@hasPrePooledLibraries='N';this.checkSampleSetupCompleteness()}"/>
+							<mx:HBox paddingLeft="0">
+								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be submitted in"
+												click="{parentDocument.request.@hasPrePooledLibraries='Y';this.checkSampleSetupCompleteness()}"/>
+								<mx:TextInput id="prePooledNumTubes" width="25" restrict="0-9" maxChars="2" enabled="{prePooled.selected}" 
+											  change="{parentDocument.request.@numPrePooledTubes = prePooledNumTubes.text;this.checkSampleSetupCompleteness()}"/>
+								<mx:Label text="(number) microfuge tubes."/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>
+				</mx:VBox>
             </mx:AddChild>
 
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
