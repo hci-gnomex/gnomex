@@ -1133,7 +1133,7 @@
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto" id="sampleSetupCanvas">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
-		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
+		<mx:VBox height="100%"  paddingTop="2"  verticalGap="2" id="sampleSetupContainer" width="100%">
 			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
 				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" >
@@ -1224,11 +1224,12 @@
         	<mx:AddChild relativeTo="{hbox3}" position="before">
         		<mx:HBox width="100%" horizontalGap="0">
         		    <mx:Text text="(1) Select a sample quality application." width="334" id="labelQCApplication"/>
-                    <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="qcAppBox">
+                    <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="qcAppBox">
                         <mx:RadioButtonGroup id="radioGroupQCApp"/>
 						<mx:Repeater id="qcAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
 				    		<mx:RadioButton  label="{qcAppRepeater.currentItem.@display}" 
 				    			paddingLeft="1" paddingRight="1"
+								paddingTop="0" paddingBottom="0"
 				    			value="{qcAppRepeater.currentItem.@value}"
 				    	 	    groupName="radioGroupQCApp"
 				    			click="{pickQCApp()}"/>
