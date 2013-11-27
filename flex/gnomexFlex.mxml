@@ -2726,6 +2726,9 @@
 					if (result == null || result == "") {
 						result = properties[name];
 					}
+					if (result == null) {
+						result = "";
+					}
 				}
 				return result;
 			}
