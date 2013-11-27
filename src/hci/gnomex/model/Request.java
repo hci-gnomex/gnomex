@@ -91,6 +91,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          codeDNAPrepType;
   private DNAPrepType     dnaPrepType;
   private String          bioinformaticsAssist;
+  private String          hasPrePooledLibraries;
+  private Integer         numPrePooledTubes;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1353,4 +1355,19 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.dnaPrepType = dnaPrepType;
   }
 
+  public String getHasPrePooledLibraries() {
+    return this.hasPrePooledLibraries;
+  }
+  
+  public void setHasPrePooledLibraries(String hasPrePooledLibraries) {
+    this.hasPrePooledLibraries = hasPrePooledLibraries;
+  }
+  
+  public Integer getNumPrePooledTubes() {
+    return this.numPrePooledTubes;
+  }
+  
+  public void setNumPrePooledTubes(Integer numPrePooledTubes) {
+    this.numPrePooledTubes = numPrePooledTubes;
+  }
 }
