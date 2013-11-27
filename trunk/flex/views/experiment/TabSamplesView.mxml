@@ -35,7 +35,6 @@
 			import views.renderers.ComboBox;
 			import views.renderers.ComboBoxWorkflowStatus;
 			import views.renderers.GridColumnFillButton;
-			import views.renderers.LabelBarcodeSequence;
 			import views.renderers.MultiselectRenderer;
 			import views.renderers.TextInputSeqPrepByCore;
 			import views.renderers.URLRenderer;

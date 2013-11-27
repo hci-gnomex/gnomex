@@ -907,7 +907,7 @@
 			}
 			
 			private function multiplexGroupNumberColTip(item:Object):String{
-				var tip:String = "Enter which group sample is associated with"
+				var tip:String = "Group together those samples that will be grouped together in one lane."
 					+ "\nExample:"
 					+ "\n1\tA"
 					+ "\n1\tB"
