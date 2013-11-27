@@ -60,7 +60,7 @@
 		private var loadedPriceCodeRequestCategory:String = "";
 		
 		[Bindable]
-		private var colors:ArrayCollection = new ArrayCollection([0xFFFFFF, 0xEEEEE0]);
+		private var colors:ArrayCollection = new ArrayCollection([0xFFFFFF, 0xEDEDE9]);
 
 		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
 

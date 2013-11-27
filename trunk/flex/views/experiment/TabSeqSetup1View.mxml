@@ -13,6 +13,7 @@
 	</mx:HTTPService>
 <mx:Script>
 	<![CDATA[
+		import mx.collections.ArrayCollection;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.events.ValidationResultEvent;
@@ -33,6 +34,9 @@
 		[Bindable]
 		private var maxSamplesPerChannelValidator:int;
 		
+		[Bindable]
+		private var colors:ArrayCollection = new ArrayCollection([0xFFFFFF, 0xEDEDE9]);
+
 		public var selectedIdLab:String = null;
 		public var selectedCodeRequestCategory:String = null;
 		private var loadedIdLab:String = null;
@@ -319,7 +323,7 @@
 							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
 							<mx:Label text="{parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabelSevere" />
 						</mx:HBox>
-					    <mx:HBox verticalAlign="middle" width="100%">
+					    <mx:HBox verticalAlign="middle" width="100%" backgroundColor="{colors.getItemAt(numberSequencingCyclesRepeater.currentIndex % 2) as uint}">
 					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
 					    		paddingLeft="0" paddingRight="1"
 					    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
