@@ -1034,12 +1034,12 @@
 			<util:columns>
 				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
 				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex Group #" dataField="@multiplexGroupNumber" editable="true" visible="true"
-										   width="60" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
+										   width="69" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@multiplexGroupNumber', true).newInstance(), '')}" editorDataField="value"
 										   showDataTips="true" dataTipFunction="multiplexGroupNumberColTip">
 					<mx:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<mx:Label text="Multiplex"/> 
 								<mx:Label text="Group #"/>
 							</mx:VBox> 
