@@ -4077,7 +4077,7 @@
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							<mx:TextInput id="requestNumber"
-										  text="Lookup by #"
+										  text="Lookup by #" fontStyle="italic" color="0x666666"
 										  click="requestNumber.text=='Lookup by #'?requestNumber.text='':''"
 										  focusOut="focusOutHandler(event)"
 										  toolTip="Enter experiment, analysis, data track, or topic #. Example: 6145R, A210, DT45, T21" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
@@ -4088,8 +4088,8 @@
 						<mx:HBox height="36" paddingTop="8" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
 					
 							<mx:TextInput id="searchText"
-										  text="Search"
-										  click="searchText.text=='Search'?searchText.text='':''"
+										  text="Search"   fontStyle="italic" color="0x666666"
+										  click="{searchText.text=='Search'?searchText.text='':''}"
 										  focusOut="focusOutHandler(event)"	width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/> 					
 						</mx:HBox>
