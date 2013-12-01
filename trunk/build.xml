@@ -72,7 +72,7 @@
 	<!-- Clean                                          -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="clean" >
+	<target name="clean" depends="init" >
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Cleaning                                             +</echo>
@@ -144,6 +144,32 @@
       		<include name="**/httpclient/**"/>      		
         </javac>
 	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile batch                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-batch" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (batch)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path">
+
+            <src path="${src.dir}" />
+      		<include name="**/daemon/**"/>      		
+        </javac>
+	</target>
+
 	
 	<!-- ============================================== -->
 	<!--                                                -->
@@ -297,6 +323,42 @@
 
 	</target>
 	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Batch Jar                                      -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="batchjar" depends="init, compile-batch">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building batch jar                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${batchjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${batchjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/daemon/*.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexBatch">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>
 
 	<!-- ============================================== -->
 	<!--                                                -->
@@ -509,9 +571,6 @@
 			<fileset dir="${dist.dir}" includes="${war.name}" />
 		</delete>
 		
-		<!-- Use UNIX eol convention for .sh files -->
-		<fixcrlf srcdir="${basedir}/scripts" includes="*.sh"
-		         eol="lf" eof="remove" />	
 		
 		<!-- Use the tomcat versions of these jsps -->
 		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getHTML.jsp"/>
@@ -528,6 +587,12 @@
 			    <include name="*.*" />
 			</fileset>
 		</copy>
+
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${dist.dir}/tomcat/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />	
+		
+
     <copy todir="${dist.dir}/tomcat" overwrite="true">
         <fileset dir="${hcienv.dir}/src" >
           <include name="*.hbm.xml" />
@@ -991,101 +1056,6 @@
 
 
 
-	<!-- ============================================== -->
-	<!--                                                -->
-	<!-- release opensource                             -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="-release-opensource" depends="init, -prebuild-opensource">
-		<echo>+ ===================================================== +</echo>
-		<echo>+                                                       +</echo>
-		<echo>+   release                                             +</echo>
-		<echo>+                                                       +</echo>
-		<echo>+ ===================================================== +</echo>
-		
-		
-		
-		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
-		<copy todir="${sandbox.dir}" file="${basedir}/README_INSTALL.txt"/>
-		<replace file="${sandbox.dir}/README_INSTALL.txt"
-					     token="$VERSION"
-	      	     value="${gnomex_version}">
-		</replace>
-
-		<copy todir="${sandbox.dir}" file="${basedir}/README_INSTALL_TOMCAT.txt"/>
-		<replace file="${sandbox.dir}/README_INSTALL_TOMCAT.txt"
-					     token="$VERSION"
-	      	     value="${gnomex_version}">
-		</replace>
-
-		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
-		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL.txt"
-		         eol="lf" eof="remove" />		
-		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL_TOMCAT.txt"
-		         eol="lf" eof="remove" />		
-
-		<!-- Copy README_UPGRADE.txt and stick in actual version number into document -->				
-		<copy todir="${sandbox.dir}" file="${basedir}/README_UPGRADE.txt"/>
-		<replace file="${sandbox.dir}/README_UPGRADE.txt"
-					     token="$VERSION"
-	      	     value="${gnomex_version}">
-		</replace>
-
-		<!-- Use UNIX eol convention for README_UPGRADE.txt file -->
-		<fixcrlf srcdir="${sandbox.dir}" includes="README_UPGRADE.txt"
-		         eol="lf" eof="remove" />		
-
-		<!-- Copy LICENSE.txt  -->				
-		<copy todir="${sandbox.dir}" file="${basedir}/LICENSE.txt"/>
-
-		<!-- Use UNIX eol convention for LICENCE.txt file -->
-		<fixcrlf srcdir="${sandbox.dir}" includes="LICENSE.txt"
-		         eol="lf" eof="remove" />		
-		
-		<!-- build orion web app -->
-		<subant target="-build-opensource-orion">
-			   <property name="dist.dir" value="${dist.dir}"/>
-			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
-			   <property name="lib.dir" value="${sandbox.dir}/lib"/>
-			   <property name="src.dir" value="${basedir}/src"/>
-			   <fileset dir="${basedir}" includes="build.xml"/>			
-		</subant>
-
-		<!-- Make an orion specific release -->
-		<subant target="-release-opensource-orion">
-			   <property name="basedir" value="${basedir}"/>
-			   <property name="dist.dir" value="${dist.dir}"/>
-			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
-			   <property name="lib.dir" value="${sandbox.dir}/lib"/>
-			   <property name="src.dir" value="${basedir}/src"/>
-			   <fileset dir="${basedir}" includes="build.xml"/>			
-		</subant>
-		
-		<!-- build tomcat web app -->
-		<subant target="build-opensource-tomcat">
-			   <property name="basedir" value="${basedir}"/>
-			   <property name="dist.dir" value="${dist.dir}"/>
-			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
-			   <property name="lib.dir" value="${sandbox.dir}/lib"/>
-			   <property name="src.dir" value="${basedir}/src"/>
-			   <fileset dir="${basedir}" includes="build.xml"/>			
-		</subant>
-
-
-
-		<!-- Make a tomcat specific release -->
-		<subant target="-release-opensource-tomcat">
-			   <property name="basedir" value="${basedir}"/>
-			   <property name="dist.dir" value="${dist.dir}"/>
-			   <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
-			   <property name="lib.dir" value="${sandbox.dir}/lib"/>
-			   <property name="src.dir" value="${basedir}/src"/>
-			   <fileset dir="${basedir}" includes="build.xml"/>			
-		</subant>
-		
-
-	</target>
-	
 	
 
 	<!-- ============================================== -->
@@ -1100,7 +1070,21 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		
+
 		
+		<!-- Copy README_INSTALL.txt and stick in actual version number into document -->				
+		<copy todir="${sandbox.dir}" file="${basedir}/README_INSTALL.txt"/>
+		<replace file="${sandbox.dir}/README_INSTALL.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
+		<copy todir="${sandbox.dir}" file="${basedir}/README_INSTALL_TOMCAT.txt"/>
+		<replace file="${sandbox.dir}/README_INSTALL_TOMCAT.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
 		<!-- Copy over the jars required in orion/lib -->
 		<copy todir="${sandbox.dir}/server/orion">
 	     <fileset dir="${orion.dir}">
@@ -1222,7 +1206,21 @@
 		<echo>+  release open source  (tomcat)                        +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-			
+
+		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
+		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL.txt"
+		         eol="lf" eof="remove" />		
+		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL_TOMCAT.txt"
+		         eol="lf" eof="remove" />		
+
+		<!-- Copy README_UPGRADE.txt and stick in actual version number into document -->				
+		<copy todir="${sandbox.dir}" file="${basedir}/README_UPGRADE.txt"/>
+		<replace file="${sandbox.dir}/README_UPGRADE.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
+		
 		<!-- Copy over the jars required in tomcat/lib -->
 		<copy todir="${sandbox.dir}/server/tomcat/lib">
 			<fileset dir="${basedir}/config/tomcat_config">
