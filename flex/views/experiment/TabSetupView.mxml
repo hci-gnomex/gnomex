@@ -1169,6 +1169,7 @@
 				//var spacer:Spacer = new Spacer();
 				//spacer.percentWidth = 100;
 				//hbox.addChild(spacer);
+				this.overallDescript.textArea.maxChars = 5000;
 				hbox.addChild(displayObj);
 				this.overallDescript.addChildAt(hbox, 0);
 			}
