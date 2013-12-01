@@ -16,7 +16,7 @@
 
     
   <!-- GNomEx Realm for authenticating user - encrypted passwords stored in GNomEx db -->
-  <Realm className="hci.gnomex.security.tomcat.GNomExRealm"/>
+  <Realm className="hci.gnomex.security.tomcat.GNomExRealm" datasource_lookup_name="java:comp/env/jdbc/GNOMEX_GUEST"/>
   
   <!--  GNomEx Realm for authenticating user against an existing LDAP server.  -->
   <!--  COMMENTED OUT -->
