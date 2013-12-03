@@ -107,20 +107,19 @@
 						 id="bioAssistCheckBox" click="{onBioAssistCheckBoxClick()}" selected="false" />
 		</mx:HBox>
 		<mx:Spacer height="10" />
-		<mx:HBox id="genomeBuildBox" width="100%" horizontalGap="0">
+		<mx:VBox id="genomeBuildBox" width="100%" verticalGap="0">
 			<mx:Label text="(2) Do you want the sequence data to be aligned?" width="314"  id="label11"/>
-			<mx:VBox width="100%" id="alignMoreContainer" paddingRight="4">
+			<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
+				<mx:Spacer width="12"/>
 				<mx:Label text="{organismString}"/>
-				<mx:HBox width="100%" horizontalGap="2">
-					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick()}" selected="false"/>
-					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange()}" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}" enabled="false">							
-					</mx:ComboBox>                			
-				</mx:HBox>
-				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Spacer width="20"/>
-				</mx:HBox>
-			</mx:VBox> 
-		</mx:HBox>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="2" verticalGap="0" paddingBottom="0" paddingTop="0">
+				<mx:Spacer width="20"/>
+				<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick()}" selected="false"/>
+				<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange()}" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}" enabled="false">							
+				</mx:ComboBox>                			
+			</mx:HBox>
+		</mx:VBox>
 		<mx:Spacer height="10" />
 		<mx:Label text="(3) Enter a note for the Bioinformatics Core Facility regarding analysis. (optional)" id="label3"/>
 		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
