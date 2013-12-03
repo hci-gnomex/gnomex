@@ -291,7 +291,7 @@
 		}			
 		
 		private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
-			if (parentDocument.isEditState()) {
+			if (parentDocument == null || parentDocument.isEditState()) {
 				return true;
 			}
 			
