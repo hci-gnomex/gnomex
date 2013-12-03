@@ -46,6 +46,8 @@
 		
 	
 		[Bindable]
+		public var globalAdapterSize:int = 0;
+		[Bindable]
 		private var requestCategoryName:String;
 		[Bindable]
 		public var isClinicalResearch:String = 'N';
@@ -305,6 +307,12 @@
 			} 
 			if (relatedTopics.length > 0) {
 				callLater( this.relatedTopicsTree.expandChildrenOf, [ relatedTopics[0], true]); 
+			}
+			
+			// If property exists, set the adapter size; otherwise it will remain at 0.
+			var propAdapterSize:Object = parentApplication.getProperty(parentApplication.PROPERTY_BASE_INSERT_SIZE);			
+			if (propAdapterSize != null && propAdapterSize != '') {
+				globalAdapterSize = parseInt(String(propAdapterSize));			
 			}
 			
 			// Workflow progress
@@ -1586,7 +1594,7 @@
 							<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 								<mx:itemRenderer>
 									<mx:Component>
-										<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - parseInt(outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_BASE_INSERT_SIZE))).toString() : ''}"/>
+										<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - outerDocument.globalAdapterSize).toString() : ''}"/>
 									</mx:Component>
 								</mx:itemRenderer>
 							</mx:AdvancedDataGridColumn>
