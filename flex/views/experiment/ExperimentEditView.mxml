@@ -5198,13 +5198,13 @@
 							  <mx:ViewStack id="userWarningStack" width="100%">
 							      <mx:HBox width="100%">
 							      </mx:HBox>
-								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
+								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
 										<mx:Label  text="{userWarningsSamples}" width="100%" styleName="warningLabel"/>
 								  </mx:HBox>							  	
-								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
+								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
 										<mx:Label  text="{userWarningsSampleSetup}" width="100%" styleName="warningLabel" />
 								  </mx:HBox>
-								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
+								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
 										<mx:Label  text="{userWarningsHybSetup}" width="100%" styleName="warningLabel"/>
 								  </mx:HBox>
 							  </mx:ViewStack>
