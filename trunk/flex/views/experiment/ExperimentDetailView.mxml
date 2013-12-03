@@ -1977,6 +1977,19 @@
 	<mx:State name="SolexaState">
 		<mx:SetProperty target="{samplesTab}" name="label" value="Experiment Design"/>
 		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
+			<mx:VBox  id="bioinformaticsTab" label="Bioinformatics"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
+						 visible="true"  
+						 includeInLayout="true">
+					<mx:Label text="{this.selectedExperiment.@bioinformaticsAssist == 'Y' ? 'Bioinformatics Core Assistance Requested' : 'No Bioinformatics Core Assistance Desired'}" 
+							  styleName="formLabel"/>
+					<mx:Spacer height="10"/>
+					<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
+					<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
+				</mx:VBox>
+			</mx:VBox>
+		</mx:AddChild>
+		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
 				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
 						<mx:AdvancedDataGrid width="100%" 
 							height="100%" id="lanesConfirmGrid"
@@ -2081,19 +2094,6 @@
 					
 				</mx:VBox>					        			
 		
-		</mx:AddChild>
-		<mx:AddChild relativeTo="{this.samplesTab}" position="after">
-			<mx:VBox  id="bioinformaticsTab" label="Bioinformatics"  verticalGap="0" width="100%" height="100%">
-				<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
-						 visible="true"  
-						 includeInLayout="true">
-					<mx:Label text="{this.selectedExperiment.@bioinformaticsAssist == 'Y' ? 'Bioinformatics Core Assistance Requested' : 'No Bioinformatics Core Assistance Desired'}" 
-							  styleName="formLabel"/>
-					<mx:Spacer height="10"/>
-					<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
-					<util:TextAreaWorkaround id="noteToBio" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@analysisInstructions}" width ="100%" height="100%" />
-				</mx:VBox>
-			</mx:VBox>
 		</mx:AddChild>
 		<mx:SetProperty target="{tile1}" name="tileHeight"/>
 		<mx:SetProperty target="{tile1}" name="width"/>
