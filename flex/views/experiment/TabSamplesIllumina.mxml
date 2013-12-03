@@ -701,7 +701,7 @@
 					numberSequencingLanesCol.editable = true;
 					this.qual260_230Col.visible = false;
 					
-					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && (parentDocument.isEditState() || parentDocument.isAmendState());
+					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState();
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
