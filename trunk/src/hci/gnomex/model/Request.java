@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.hibernate.Hibernate;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -1369,5 +1370,19 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   
   public void setNumPrePooledTubes(Integer numPrePooledTubes) {
     this.numPrePooledTubes = numPrePooledTubes;
+  }
+  
+  public String getSeqPrepByCore() {
+    // Since all samples have to have the same value for this, expose it at this level.
+    if (Hibernate.isInitialized(samples) && samples.size() > 0) {
+      Sample sample = (Sample)samples.iterator().next();
+      if (sample.getSeqPrepByCore() != null) {
+        return sample.getSeqPrepByCore();
+      } else {
+        return "";
+      }
+    } else {
+      return "";
+    }
   }
 }

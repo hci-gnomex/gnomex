@@ -247,7 +247,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 if (!corePrepLib) {
                 	Element preppedByUserNode = new Element("H4");
                 	preppedByUserNode.setAttribute("class", "special");
-                	preppedByUserNode.addContent("Library Prepared By Client");
+                	if (request.getHasPrePooledLibraries() != null && request.getHasPrePooledLibraries().equals("Y") && request.getNumPrePooledTubes() != null) {
+                    preppedByUserNode.addContent("Library Prepared By Client, " + request.getNumPrePooledTubes().toString() + " Pre-Pooled Tubes");
+                	} else {
+                    preppedByUserNode.addContent("Library Prepared By Client");
+                	}
                 	maindiv.addContent(preppedByUserNode);
                 }
 	            }

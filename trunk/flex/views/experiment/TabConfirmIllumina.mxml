@@ -33,6 +33,11 @@
 					if (s1.@seqPrepByCore == 'N') {
 						this.clientPrepLib.visible = true;
 						this.clientPrepLib.includeInLayout = true;
+						
+						this.clientPrepLib.text = "Library Prepared By Client"
+						if (parentDocument.request.@hasPrePooledLibraries == 'Y' && parentDocument.request.@numPrePooledTubes != null && parentDocument.request.@numPrePooledTubes != '') {
+							this.clientPrepLib.text += ", " + parentDocument.request.@numPrePooledTubes.toString() + " Pre-Pooled Tubes";
+						}
 					}
 					break;
 				}
