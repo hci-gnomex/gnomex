@@ -1362,6 +1362,15 @@
 								<mx:Label width="100"  id="label5"/>
 								<mx:Text   text="{experimentCategoryName}" width="280"/>
 							</mx:HBox>
+							<mx:HBox id="prePoolBox"
+									 visible="{this.selectedExperiment.@seqPrepByCore == 'N'}"
+									 includeInLayout="{this.selectedExperiment.@seqPrepByCore == 'N'}"
+									 width="100%" horizontalAlign="left" horizontalGap="0"
+									 verticalAlign="top">
+								<mx:Label width="100"/>
+								<mx:Text width="280"
+										  text="{'Library Prep. By Client' + (this.selectedExperiment.@hasPrePooledLibraries == 'Y' ? ', ' + this.selectedExperiment.@numPrePooledTubes.toString() + ' Pre-Pooled Tubes' : '')}" />
+							</mx:HBox>
 							<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName.indexOf(',') != -1}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName.indexOf(',') != -1}" id="hbox3">
 								<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="left" id="label6"/>
 								<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
