@@ -74,8 +74,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       
       if (secAdvisor.canAccessBSTX()) {
         // Initialize the BSTX Security 
-        Session bstxSession = HibernateBSTXSession.currentBSTXSession(this.getUsername());
-        secAdvisor.getBSTXSecurityAdvisor(request, session, bstxSession, this.getUsername());
+        secAdvisor.getBSTXSecurityAdvisor(request, session, this.getUsername());
       }
 
       // Get gnomex version
