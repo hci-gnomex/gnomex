@@ -154,7 +154,7 @@ public class ComputeMonthlyDiskUsage {
         
         // if disk usage properties are set for the core facility then compute the space.
         app.initialize(f);
-        System.out.println("\n" + new Date() + this.processingStatement);
+        System.out.println("\n" + new Date() + ": " + this.processingStatement);
         app.computeDiskUsage(f);
       }
 
