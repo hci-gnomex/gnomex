@@ -2925,12 +2925,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
    * 
    * @param request A copy of the active HTTP Servlet Request that was passed into the command.
    * @param httpSession A copy of the HTTP Session.
-   * @param bstxSession An active copy of the BSTX Hibernate session.
    * @param username The username of the individual the initiated this request.
    * @return A copy of the BSTX Security Advisor.
    */
-  public BSTXSecurityAdvisor getBSTXSecurityAdvisor(HttpServletRequest request, HttpSession httpSession, 
-    Session bstxSession, String username)
+  public BSTXSecurityAdvisor getBSTXSecurityAdvisor(HttpServletRequest request, HttpSession httpSession, String username) throws SQLException, NamingException
   {
     if (bstxSecurityAdvisor == null && canAccessBSTX)
     {
@@ -2943,8 +2941,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // If it doesn't exist, create it and save it for later (so we only have to create it once).
       else
       {
-        bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, this.ntUserName);
-        httpSession.setAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, bstxSecurityAdvisor);
+        Session bstxSession = HibernateBSTXSession.currentBSTXSession(username);
+        try {
+          bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, this.ntUserName);
+          httpSession.setAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, bstxSecurityAdvisor);
+        } finally {
+          HibernateBSTXSession.closeBSTXSession();
+        }
       }
     }
     
