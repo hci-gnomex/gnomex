@@ -229,6 +229,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                 for(AnalysisFile existingFile : analysisFiles){
                   if(existingFile.getFileName().equals(fileName)){
                     existingFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                    existingFile.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                     existingFile.setFileSize(new BigDecimal(new File(fileName).length()));
                     sess.save(existingFile);
                     isExistingFile = true;
@@ -240,6 +241,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                   AnalysisFile af = new AnalysisFile();
 
                   af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                  af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                   af.setIdAnalysis(Integer.valueOf(idAnalysis));
                   af.setAnalysis(analysis);
                   af.setFileName(new File(fileName).getName());

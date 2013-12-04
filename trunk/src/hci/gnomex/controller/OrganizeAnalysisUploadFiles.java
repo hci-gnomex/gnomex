@@ -227,6 +227,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   } else if(idFileString.startsWith("AnalysisFile") && new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()){
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                    af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setIdAnalysis(Integer.valueOf(idAnalysis));
                     af.setFileName(new File(fileName).getName());
                     af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
@@ -417,20 +418,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
     }
 
     return this;
-  }
-
-  protected AnalysisFile initializeFile(String idAnalysisFileString, Session sess){
-
-    AnalysisFile af = null;
-    if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
-      af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idAnalysisFileString));
-    } else {
-      af = new AnalysisFile();
-      af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
-    }
-    af.setIdAnalysis(Integer.valueOf(idAnalysis));
-    return af;
-
   }
 
   private Boolean deleteDir(File childFile) throws IOException{
