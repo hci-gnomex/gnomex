@@ -702,7 +702,6 @@
 					return;
 				}
 				// Find the plate in the run or plate tree
-				collapseRunTree();
 				for each ( var pl:Object in getInstrumentRunList.lastResult..Plate.(@idInstrumentRun == run.idRun) ) {
 					if ( pl.@quadrant == plateStack.selectedIndex ) {
 						runTree.expandItem( XML(pl).parent(), true );
@@ -1259,7 +1258,6 @@
 						switchActivePlate();
 						return;
 					}
-					collapseRunTree();
 					if ( currentState.substr( 0, 3 ) == "new" ) {
 						switchToEditState();
 					} 
@@ -1268,19 +1266,21 @@
 					}
 				}
 				if ( selection.name() == "Plate" ) {
-					collapseRunTree();
 					if ( run.idRun != selection.@idInstrumentRun || this.isDirty) {
 						loadRunById( selection.@idInstrumentRun )
 					}
-					if ( plateStack.initialized && plateStack.numChildren > selection.@quadrant ) {
-						if ( plateStack.getChildAt(selection.@quadrant) != null ) {
-							plateLinkBar.selectedIndex = plateStack.selectedIndex = selection.@quadrant;
-							switchActivePlate();
-						}
-					}
+					switchToQuadrant(selection.@quadrant);
 				}
 			}
 			
+			public function switchToQuadrant( quad:int ):void {
+				if ( plateStack.initialized && plateStack.numChildren > quad ) {
+					if ( plateStack.getChildAt(quad) != null ) {
+						plateLinkBar.selectedIndex = plateStack.selectedIndex = quad;
+						switchActivePlate();
+					}
+				}
+			}
 			
 			private function loadFromPlateTree( event:Event ):void {
 				
@@ -2976,7 +2976,7 @@
 						 paddingTop="0"
 						 height="100%">
 					
-					<mx:ViewStack id="plateStack" width="525" height="300">
+					<mx:ViewStack id="plateStack" width="100%" height="100%">
 						
 						<plate:Plate visible="false"
 									 id="P1R1"
