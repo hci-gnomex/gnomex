@@ -1459,19 +1459,26 @@
 				
 			}
 			
-			public function showPlate(idPlate:String):void {
+			public function showPlate(plate:Object):void {
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navPlateView;
 				
-				callLater( function():void {
-					
-					navPlateView.loadPlateById(idPlate);
-					navPlateView.toggleBuildState( "PLATE" );
-					navPlateView.switchToViewState();
-					navPlateView.tabNav.selectedChild = navPlateView.plateTab;
-				});
+				var idPlate:String = plate.@idPlate;
+				var idRun:String = plate.@idInstrumentRun;
 				
+				if ( idRun != "" ) {
+					this.showInstrumentRun(idRun);
+				} else {
+					callLater( function():void {
+						
+						navPlateView.loadPlateById(idPlate);
+						navPlateView.toggleBuildState( "PLATE" );
+						navPlateView.switchToViewState();
+						navPlateView.tabNav.selectedChild = navPlateView.plateTab;
+						
+					});
+				}
 			}
 			
 			public function showPlateEditor( buildState:String ):void {
