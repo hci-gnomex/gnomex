@@ -128,7 +128,6 @@ CREATE TABLE `gnomex`.`AnalysisGroup` (
   `idLab` INT(10) NULL,
   `codeVisibility` VARCHAR(10) NULL,
   `idAppUser` INT(10) NULL,
-  ucscUrl varchar(250) null,
   PRIMARY KEY (`idAnalysisGroup`),
   CONSTRAINT `FK_AnalysisGroup_AppUser` FOREIGN KEY `FK_AnalysisGroup_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -1820,7 +1819,6 @@ CREATE TABLE `gnomex`.`Sample` (
   `ccNumber` VARCHAR(20) NULL,
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
-  `isControl` CHAR(1) NULL,
   `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 
