@@ -318,7 +318,6 @@
 				var analysis:Object = getAnalysisDownloadList.lastResult..Analysis[0];
 				uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
 				uploadWindow.addEventListener(CloseEvent.CLOSE, refreshDownloadView);
-				PopUpManager.centerPopUp(uploadWindow);
 				uploadWindow.init(analysis);
 			}
 			
@@ -327,7 +326,6 @@
 				uploadWindow = AnalysisUploadWindow(PopUpManager.createPopUp(parentApplication.mainArea, AnalysisUploadWindow, true));
 				uploadWindow.theTab.selectedIndex = 1;
 				uploadWindow.addEventListener(CloseEvent.CLOSE, refreshDownloadView);
-				PopUpManager.centerPopUp(uploadWindow);
 				uploadWindow.init(analysis);
 			}
 			
