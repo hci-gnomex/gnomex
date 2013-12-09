@@ -42,12 +42,11 @@ public class RequestVisibilityParser implements Serializable {
         if (codeVisibility == null || codeVisibility.equals("")) {
           throw new Exception("Visibility is required for experiment " + request.getNumber());
         }
-        if(idInstitution == null || idInstitution.equals("")){
-          throw new Exception("Please specify Institution for experiment " + request.getNumber());
+        if(idInstitution != null && !idInstitution.equals("")){
+          request.setIdInstitution(Integer.valueOf(idInstitution));
         }
         
         request.setCodeVisibility(codeVisibility);
-        request.setIdInstitution(Integer.valueOf(idInstitution));
         requests.add(request);
       } else {
         // Skip saving requests that user does not have permission to save
