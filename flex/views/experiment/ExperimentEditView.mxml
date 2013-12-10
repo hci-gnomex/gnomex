@@ -1337,6 +1337,7 @@
 			}
 			
 			loadPriceLists(getIdLab());
+			this.setupView.checkSecurity();
 		}
 
 		public function labSelected(lab:Object):void {
@@ -5199,13 +5200,13 @@
 							      <mx:HBox width="100%">
 							      </mx:HBox>
 								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
-										<mx:Label  text="{userWarningsSamples}" width="100%" styleName="warningLabel"/>
+										<mx:Label  text="{userWarningsSamples}" width="100%" />
 								  </mx:HBox>							  	
 								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
-										<mx:Label  text="{userWarningsSampleSetup}" width="100%" styleName="warningLabel" />
+										<mx:Label  text="{userWarningsSampleSetup}" width="100%" />
 								  </mx:HBox>
 								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
-										<mx:Label  text="{userWarningsHybSetup}" width="100%" styleName="warningLabel"/>
+										<mx:Label  text="{userWarningsHybSetup}" width="100%" />
 								  </mx:HBox>
 							  </mx:ViewStack>
 							</mx:HBox>
@@ -5646,7 +5647,6 @@
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{visibilityView}"/>	
 		</mx:State>
         <mx:State name="SolexaBaseAmendState" basedOn="AmendState">
         	<mx:RemoveChild target="{hybSetupView}"/>
