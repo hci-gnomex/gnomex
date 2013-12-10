@@ -297,7 +297,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       
       if (this.isValid()) {
         if (analysisGroupParser != null) {
-          analysisGroupParser.parse(sess);     
+          analysisGroupParser.parse(sess);          
         }
         if (analysisFileParser != null) {
           analysisFileParser.parse(sess);          

@@ -351,45 +351,7 @@
 			
 			
 			
-			override protected function focusOutHandler(event:FocusEvent):void 
-			{				
-				if(event.type == FocusEvent.FOCUS_OUT)
-				{
-					if(event.currentTarget.id == 'searchText')
-					{
-						if (searchText.text == '') {
-							searchText.text = 'Search';
-							searchText.setStyle('fontStyle', 'italic');
-							searchText.setStyle('color', 0x666666);
-						}						
-					}
-					else if(event.currentTarget.id == 'requestNumber' ) {
-						if (requestNumber.text == '') {
-							requestNumber.text = 'Lookup by #';
-							requestNumber.setStyle('fontStyle', 'italic');
-							requestNumber.setStyle('color', 0x666666);
 
-						} 
-					}
-				}
-				super.focusOutHandler(event);
-				
-			}
-			
-			private function onSearchClick():void {
-				if (searchText.text=='Search') {
-					searchText.text='';
-					searchText.setStyle('fontStyle', 'normal');
-					searchText.setStyle('color', 0x000000);
-				} 
-			}
-			private function onLookupClick():void {
-				if (requestNumber.text=='Lookup by #') {
-					requestNumber.text='';
-					requestNumber.setStyle('fontStyle', 'normal');
-					requestNumber.setStyle('color', 0x000000);
-				} 
-			}
 			
 			[Bindable]
 			public var dictionaryManager:DictionaryManager;
@@ -1532,6 +1494,46 @@
 				var parms:Object = new Object();
 				parms.topicNumber = topicNumber;
 				checkTopicPermission.send(parms);									
+			}
+			
+			override protected function focusOutHandler(event:FocusEvent):void 
+			{				
+				if(event.type == FocusEvent.FOCUS_OUT)
+				{
+					if(event.currentTarget.id == 'searchText')
+					{
+						if (searchText.text == '') {
+							searchText.text = 'Search';
+							searchText.setStyle('fontStyle', 'italic');
+							searchText.setStyle('color', 0x666666);
+						}						
+					}
+					else if(event.currentTarget.id == 'requestNumber' ) {
+						if (requestNumber.text == '') {
+							requestNumber.text = 'Lookup by #';
+							requestNumber.setStyle('fontStyle', 'italic');
+							requestNumber.setStyle('color', 0x666666);
+							
+						} 
+					}
+				}
+				super.focusOutHandler(event);
+				
+			}
+			
+			private function onSearchClick():void {
+				if (searchText.text=='Search') {
+					searchText.text='';
+					searchText.setStyle('fontStyle', 'normal');
+					searchText.setStyle('color', 0x000000);
+				} 
+			}
+			private function onLookupClick():void {
+				if (requestNumber.text=='Lookup by #') {
+					requestNumber.text='';
+					requestNumber.setStyle('fontStyle', 'normal');
+					requestNumber.setStyle('color', 0x000000);
+				} 
 			}
 			
 			
