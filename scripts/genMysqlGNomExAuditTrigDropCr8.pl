@@ -38,7 +38,14 @@ if (-e $outFl) { die ".\n. Output file $outFl already exists!\n.\n"; }
 open( MYOUTFILE, ">$outFl" ) || die ".\n. Unable to open output file $outFl for writing.\n.\n";
 
 print MYOUTFILE "\nUSE gnomex\;\n\n";
-print MYOUTFILE "delimiter \$\$\n\n\n";
+print MYOUTFILE "delimiter \$\$\n\n";
+
+print MYOUTFILE "DROP PROCEDURE IF EXISTS setAppUser\$\$\n";
+print MYOUTFILE "CREATE PROCEDURE setAppUser( IN userName text)\n";
+print MYOUTFILE "BEGIN\n";
+print MYOUTFILE "  SET \@userName=userName;\n";
+print MYOUTFILE "END;\n";
+print MYOUTFILE "\$\$\n\n\n";
 
 $tQry = "SELECT t.table_name ".
           "FROM information_schema.tables t ".
@@ -123,19 +130,19 @@ while ( $tCur->fetch() ) {
             "\n  , AuditOperationDate";
 
   $tAIvalBuf = "\n  VALUES".
-               "\n  ( USER()".
+               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'I'".
-               "\n  , CURRENT_USER()".
+               "\n  , USER()".
                "\n  , NOW()";
   $tAUvalBuf = "\n  VALUES".
-               "\n  ( USER()".
+               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'U'".
-               "\n  , CURRENT_USER()".
+               "\n  , USER()".
                "\n  , NOW()";
   $tADvalBuf = "\n  VALUES".
-               "\n  ( USER()".
+               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'D'".
-               "\n  , CURRENT_USER()".
+               "\n  , USER()".
                "\n  , NOW()";
 
   #
