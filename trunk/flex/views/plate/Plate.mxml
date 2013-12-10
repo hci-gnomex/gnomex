@@ -230,7 +230,7 @@
 			// Function to return an array of all the wells in the plate
 			public function getWellsXML():String {
 				
-				var wellXMLString:String = "<plateWellXMLString>"
+				var wellXMLString:String = "<plateWellXMLString>";
 				var gr:GridRow;
 				var gi:GridItem;
 				var well:WellContainer;
