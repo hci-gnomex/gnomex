@@ -48,8 +48,7 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            req.name, ");
     queryBuf.append("            req.submitter,  ");
     queryBuf.append("            sample.name, ");
-    queryBuf.append("            well.redoFlag, ");
-    queryBuf.append("            well.idPlateWell");
+    queryBuf.append("            well.redoFlag");
    
     
     queryBuf.append(" FROM       Request as req ");
@@ -98,8 +97,7 @@ public class PendingSampleFilter extends DetailObject {
     queryBuf.append("            req.name,  ");
     queryBuf.append("            req.submitter,  ");
     queryBuf.append("            sample.name,  ");
-    queryBuf.append("            sourceWell.redoFlag, ");
-    queryBuf.append("            sourceWell.idPlateWell");
+    queryBuf.append("            sourceWell.redoFlag");
     
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");

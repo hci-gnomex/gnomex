@@ -1011,8 +1011,6 @@
 					// If dropped within Lab then use first AnalysisGroup
 					var item:Object;
 					p = node;
-					if(p.AnalysisGroup.length() == 0) {	// Adding to Lab with no AnalysisGroups. No longer illegal as backend can now handle this.						
-						illegalDrop = false;}					
 					for each(item in p.AnalysisGroup) {
 						p = XML(item);
 						illegalDrop = false;
