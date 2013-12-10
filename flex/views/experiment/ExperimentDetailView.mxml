@@ -2105,7 +2105,7 @@
 			<mx:RemoveChild target="{headerBox}"/>
 		</mx:State>
 		<mx:State name="ExternalSeqState">
-			<mx:SetProperty target="{samplesTab}" name="label" value="Experiment Design"/>
+			<mx:SetProperty target="{samplesTab}" name="label" value="Samples"/>
 		</mx:State>
 		<mx:State name="BaseSeqState">
 			<mx:AddChild relativeTo="{this.nameBox}" position="after">
