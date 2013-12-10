@@ -637,15 +637,6 @@
 				this.samplesGrid.dragMoveEnabled = false;
 				this.samplesGrid.dropEnabled = false;
 				this.samplesGrid.dragEnabled = false;
-				
-				this.sampleRowNumberCol.visible = true;
-				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && !parentDocument.isExternalExperimentSubmission();
-				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
-					|| (parentDocument.isSolexaState() && !parentDocument.isEditState())) {
-					this.multiplexGroupNumberEditColumn.editable = multiplexGroupNumberEditColumn.visible;
-				} else {
-					multiplexGroupNumberEditColumn.editable = false;
-				}
 			}
 			
 			private function setButtonsVisibility(vis:Boolean):void {
@@ -658,6 +649,15 @@
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
 				
+				this.sampleRowNumberCol.visible = true;
+				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && !isExternal;
+				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
+					|| (parentDocument.isSolexaState() && !isEditState)) {
+					this.multiplexGroupNumberEditColumn.editable = multiplexGroupNumberEditColumn.visible;
+				} else {
+					multiplexGroupNumberEditColumn.editable = false;
+				}
+
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				showCCNumberCheckbox.width = isExternal ? 0 : 250;
@@ -702,7 +702,7 @@
 					numberSequencingLanesCol.editable = true;
 					this.qual260_230Col.visible = false;
 					
-					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState();
+					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState() && !isExternal;
 					
 					if (parentDocument.currentState == "SolexaLaneAmendState") {
 						numberSequencingLanesCol.editable = false;
