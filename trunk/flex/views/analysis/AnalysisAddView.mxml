@@ -561,7 +561,10 @@
 			</mx:HBox>
 		</mx:VBox>
 		<mx:ControlBar width="451" horizontalAlign="right">
-			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" 
+					   enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; 
+					   			visibilityCombo.selectedItem.@value != '' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedItem.@value != ''}" 
+					   disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 		</mx:ControlBar>				
 
