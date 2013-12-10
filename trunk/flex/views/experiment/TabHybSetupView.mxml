@@ -20,8 +20,21 @@
 				slideSourcesSorted = true;
 			}
 			
-			if(organismCombo.selectedIndex == -1)
-				organismCombo.selectedIndex = parentDocument.sampleSetupView.sampleOrganismCombo.selectedIndex;	
+			if(organismCombo.selectedIndex == -1) {
+				if (parentDocument.isEditState()) {
+					var theSlideProduct:Object = parentDocument.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == parentDocument.request.@idSlideProduct);
+					var idx:int = 0;
+					for each (var org:Object in organismCombo.dataProvider) {
+						if (org.@idOrganism == theSlideProduct.@idOrganism) {
+							organismCombo.selectedIndex = idx;
+							break;
+						}
+						idx++;
+					}
+				} else {
+					organismCombo.selectedIndex = parentDocument.sampleSetupView.sampleOrganismCombo.selectedIndex;
+				}
+			}
 		} 
 		
 		public function unselectSlideSources():void {
