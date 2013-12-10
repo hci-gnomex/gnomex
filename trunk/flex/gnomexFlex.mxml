@@ -350,20 +350,45 @@
 			import views.workflow.FlowCellView;
 			
 			
+			
 			override protected function focusOutHandler(event:FocusEvent):void 
 			{				
 				if(event.type == FocusEvent.FOCUS_OUT)
 				{
 					if(event.currentTarget.id == 'searchText')
 					{
-						searchText.text==''?searchText.text='Search':'';						
+						if (searchText.text == '') {
+							searchText.text = 'Search';
+							searchText.setStyle('fontStyle', 'italic');
+							searchText.setStyle('color', 0x666666);
+						}						
 					}
 					else if(event.currentTarget.id == 'requestNumber' ) {
-						requestNumber.text==''?requestNumber.text='Lookup by #':'';
+						if (requestNumber.text == '') {
+							requestNumber.text = 'Lookup by #';
+							requestNumber.setStyle('fontStyle', 'italic');
+							requestNumber.setStyle('color', 0x666666);
+
+						} 
 					}
 				}
 				super.focusOutHandler(event);
 				
+			}
+			
+			private function onSearchClick():void {
+				if (searchText.text=='Search') {
+					searchText.text='';
+					searchText.setStyle('fontStyle', 'normal');
+					searchText.setStyle('color', 0x000000);
+				} 
+			}
+			private function onLookupClick():void {
+				if (requestNumber.text=='Lookup by #') {
+					requestNumber.text='';
+					requestNumber.setStyle('fontStyle', 'normal');
+					requestNumber.setStyle('color', 0x000000);
+				} 
 			}
 			
 			[Bindable]
@@ -1459,26 +1484,19 @@
 				
 			}
 			
-			public function showPlate(plate:Object):void {
+			public function showPlate(idPlate:String):void {
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navPlateView;
 				
-				var idPlate:String = plate.@idPlate;
-				var idRun:String = plate.@idInstrumentRun;
+				callLater( function():void {
+					
+					navPlateView.loadPlateById(idPlate);
+					navPlateView.toggleBuildState( "PLATE" );
+					navPlateView.switchToViewState();
+					navPlateView.tabNav.selectedChild = navPlateView.plateTab;
+				});
 				
-				if ( idRun != "" ) {
-					this.showInstrumentRun(idRun);
-				} else {
-					callLater( function():void {
-						
-						navPlateView.loadPlateById(idPlate);
-						navPlateView.toggleBuildState( "PLATE" );
-						navPlateView.switchToViewState();
-						navPlateView.tabNav.selectedChild = navPlateView.plateTab;
-						
-					});
-				}
 			}
 			
 			public function showPlateEditor( buildState:String ):void {
@@ -4085,7 +4103,7 @@
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							<mx:TextInput id="requestNumber"
 										  text="Lookup by #" fontStyle="italic" color="0x666666"
-										  click="requestNumber.text=='Lookup by #'?requestNumber.text='':''"
+										  click="{onLookupClick()}"
 										  focusOut="focusOutHandler(event)"
 										  toolTip="Enter experiment, analysis, data track, or topic #. Example: 6145R, A210, DT45, T21" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="lookupButton" 
@@ -4096,7 +4114,7 @@
 					
 							<mx:TextInput id="searchText"
 										  text="Search"   fontStyle="italic" color="0x666666"
-										  click="{searchText.text=='Search'?searchText.text='':''}"
+										  click="{onSearchClick()}"
 										  focusOut="focusOutHandler(event)"	width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/> 					
 						</mx:HBox>
