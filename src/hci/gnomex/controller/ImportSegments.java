@@ -58,11 +58,10 @@ public class ImportSegments extends GNomExCommand implements Serializable {
         if (chromosomeInfo != null && !chromosomeInfo.equals("")) {
 
           //work around, need to test on PC with IE and Firefox!
-          Pattern pat = Pattern.compile("(\\w+)\\s+(\\d+)");
-          Pattern ret = Pattern.compile("\\r");
-          chromosomeInfo = ret.matcher(chromosomeInfo).replaceAll(""); //just to be safe
+          Pattern pat = Pattern.compile("^([A-Za-z0-9_.]*)\\s+(\\d+)", Pattern.MULTILINE);
           chromosomeInfo = chromosomeInfo.replaceAll(",", "");
           Matcher mat = pat.matcher(chromosomeInfo);
+         
           while (mat.find()){
             Segment s = new Segment();
             s.setName(mat.group(1));
