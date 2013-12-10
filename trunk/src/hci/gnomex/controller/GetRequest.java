@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -273,6 +274,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           requestNode.setAttribute("idOrganism","");
           requestNode.setAttribute("organismName", "");
           requestNode.setAttribute("otherOrganism","");
+          TreeSet<String> organismNameSet = new TreeSet<String>();
           if (request.getSamples().size() > 0) {
             String organismName = "";
             Integer idOrganism = null;
@@ -286,17 +288,22 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 otherOrganism = "";
               }
               if (idOrganism != null) {
-                organismName += dh.getOrganism(idOrganism) + ", ";
+                organismName = dh.getOrganism(idOrganism);
                 if (organismName.equals("Other")) {
                   organismName += " (" + otherOrganism + ")";
                 }
               }
+              organismNameSet.add(organismName);
             }
-            if(organismName.contains(",")) {
-              organismName = organismName.substring(0, organismName.lastIndexOf(","));
+            String organismNames = "";
+            for (String o : organismNameSet) {
+              if (organismNames.length() > 0) {
+                organismNames += ",";
+              }
+              organismNames += o;
             }
             requestNode.setAttribute("idOrganism", idOrganism != null ? idOrganism.toString() : "");
-            requestNode.setAttribute("organismName", organismName);
+            requestNode.setAttribute("organismName", organismNames);
             requestNode.setAttribute("otherOrganism", otherOrganism);
           }
         
