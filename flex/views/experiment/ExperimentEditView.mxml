@@ -2608,7 +2608,8 @@
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', theSlideProduct.@idOrganism);
+				// Organism combo not set up yet so can't initialize the Combo.  Done in init on TabHybSetupview
+				hybSetupView.organismCombo.selectedIndex = -1;
 
 				if (theSlideProduct.@isCustom == 'Y') {
 					hybSetupView.isCustomRadio.selected = true;				
