@@ -3,6 +3,13 @@ USE gnomex;
 
 delimiter $$
 
+DROP PROCEDURE IF EXISTS setAppUser$$
+CREATE PROCEDURE setAppUser( IN userName text)
+BEGIN
+  SET @userName=userName;
+END;
+$$
+
 
 DROP TRIGGER IF EXISTS TrAI_AlignmentPlatform_FER
 $$
@@ -934,9 +941,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
@@ -958,9 +965,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
@@ -982,9 +989,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentPlatform
   , OLD.alignmentPlatformName
@@ -1024,9 +1031,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
@@ -1044,9 +1051,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
@@ -1064,9 +1071,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentProfile
   , OLD.idGenomeIndex );
@@ -1114,9 +1121,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
@@ -1144,9 +1151,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
@@ -1174,9 +1181,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentProfile
   , OLD.alignmentProfileName
@@ -1223,9 +1230,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idAppUser
@@ -1247,9 +1254,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idAppUser
@@ -1271,9 +1278,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.idAppUser
@@ -1321,9 +1328,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
@@ -1349,9 +1356,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
@@ -1377,9 +1384,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisExperimentItem
   , OLD.idSequenceLane
@@ -1435,9 +1442,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisFile
   , NEW.fileName
@@ -1469,9 +1476,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisFile
   , NEW.fileName
@@ -1503,9 +1510,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisFile
   , OLD.fileName
@@ -1550,9 +1557,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
@@ -1570,9 +1577,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
@@ -1590,9 +1597,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.idGenomeBuild );
@@ -1630,9 +1637,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
@@ -1650,9 +1657,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
@@ -1670,9 +1677,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisGroup
   , OLD.idAnalysis );
@@ -1718,9 +1725,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.name
@@ -1746,9 +1753,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.name
@@ -1774,9 +1781,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisGroup
   , OLD.name
@@ -1828,9 +1835,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
@@ -1858,9 +1865,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
@@ -1888,9 +1895,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisProtocol
   , OLD.analysisProtocol
@@ -1933,9 +1940,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idAnalysis );
@@ -1953,9 +1960,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idAnalysis );
@@ -1973,9 +1980,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idAnalysis );
@@ -2017,9 +2024,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisType
   , NEW.analysisType
@@ -2041,9 +2048,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisType
   , NEW.analysisType
@@ -2065,9 +2072,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisType
   , OLD.analysisType
@@ -2133,9 +2140,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.number
@@ -2179,9 +2186,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.number
@@ -2225,9 +2232,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.number
@@ -2282,9 +2289,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idApplicationTheme
   , NEW.applicationTheme
@@ -2306,9 +2313,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idApplicationTheme
   , NEW.applicationTheme
@@ -2330,9 +2337,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idApplicationTheme
   , OLD.applicationTheme
@@ -2372,9 +2379,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplicationType
   , NEW.applicationType );
@@ -2392,9 +2399,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplicationType
   , NEW.applicationType );
@@ -2412,9 +2419,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeApplicationType
   , OLD.applicationType );
@@ -2474,9 +2481,9 @@ BEGIN
   , codeApplicationType
   , samplesPerBatch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplication
   , NEW.application
@@ -2516,9 +2523,9 @@ BEGIN
   , codeApplicationType
   , samplesPerBatch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplication
   , NEW.application
@@ -2558,9 +2565,9 @@ BEGIN
   , codeApplicationType
   , samplesPerBatch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeApplication
   , OLD.application
@@ -2633,9 +2640,9 @@ BEGIN
   , passwordExternal
   , ucscUrl )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAppUser
   , NEW.lastName
@@ -2677,9 +2684,9 @@ BEGIN
   , passwordExternal
   , ucscUrl )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAppUser
   , NEW.lastName
@@ -2721,9 +2728,9 @@ BEGIN
   , passwordExternal
   , ucscUrl )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAppUser
   , OLD.lastName
@@ -2779,9 +2786,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayCoordinate
   , NEW.name
@@ -2805,9 +2812,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayCoordinate
   , NEW.name
@@ -2831,9 +2838,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idArrayCoordinate
   , OLD.name
@@ -2878,9 +2885,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayDesign
   , NEW.name
@@ -2902,9 +2909,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayDesign
   , NEW.name
@@ -2926,9 +2933,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idArrayDesign
   , OLD.name
@@ -2972,9 +2979,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAssay
   , NEW.name
@@ -2996,9 +3003,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAssay
   , NEW.name
@@ -3020,9 +3027,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAssay
   , OLD.name
@@ -3062,9 +3069,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.idAppUser );
@@ -3082,9 +3089,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.idAppUser );
@@ -3102,9 +3109,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingAccount
   , OLD.idAppUser );
@@ -3204,9 +3211,9 @@ BEGIN
   , orderFormFileSize
   , zipCode )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.accountName
@@ -3286,9 +3293,9 @@ BEGIN
   , orderFormFileSize
   , zipCode )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.accountName
@@ -3368,9 +3375,9 @@ BEGIN
   , orderFormFileSize
   , zipCode )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingAccount
   , OLD.accountName
@@ -3441,9 +3448,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
@@ -3463,9 +3470,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
@@ -3485,9 +3492,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBillingChargeKind
   , OLD.billingChargeKind
@@ -3564,9 +3571,9 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
@@ -3622,9 +3629,9 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
@@ -3680,9 +3687,9 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingItem
   , OLD.codeBillingChargeKind
@@ -3745,9 +3752,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingPeriod
   , NEW.billingPeriod
@@ -3771,9 +3778,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingPeriod
   , NEW.billingPeriod
@@ -3797,9 +3804,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingPeriod
   , OLD.billingPeriod
@@ -3842,9 +3849,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
@@ -3864,9 +3871,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
@@ -3886,9 +3893,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingSlideProductClass
   , OLD.billingSlideProductClass
@@ -3929,9 +3936,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
@@ -3951,9 +3958,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
@@ -3973,9 +3980,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingSlideServiceClass
   , OLD.billingSlideServiceClass
@@ -4016,9 +4023,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingStatus
   , NEW.billingStatus
@@ -4038,9 +4045,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingStatus
   , NEW.billingStatus
@@ -4060,9 +4067,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBillingStatus
   , OLD.billingStatus
@@ -4113,9 +4120,9 @@ BEGIN
   , isActive
   , codeConcentrationUnit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
@@ -4145,9 +4152,9 @@ BEGIN
   , isActive
   , codeConcentrationUnit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
@@ -4177,9 +4184,9 @@ BEGIN
   , isActive
   , codeConcentrationUnit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBioanalyzerChipType
   , OLD.bioanalyzerChipType
@@ -4251,9 +4258,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idChromatogram
   , NEW.idPlateWell
@@ -4299,9 +4306,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idChromatogram
   , NEW.idPlateWell
@@ -4347,9 +4354,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idChromatogram
   , OLD.idPlateWell
@@ -4407,9 +4414,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
@@ -4433,9 +4440,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
@@ -4459,9 +4466,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeConcentrationUnit
   , OLD.concentrationUnit
@@ -4502,9 +4509,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idLab );
@@ -4522,9 +4529,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idLab );
@@ -4542,9 +4549,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.idLab );
@@ -4582,9 +4589,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -4602,9 +4609,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -4622,9 +4629,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.idAppUser );
@@ -4670,9 +4677,9 @@ BEGIN
   , description
   , acceptOnlineWorkAuth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.facilityName
@@ -4698,9 +4705,9 @@ BEGIN
   , description
   , acceptOnlineWorkAuth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.facilityName
@@ -4726,9 +4733,9 @@ BEGIN
   , description
   , acceptOnlineWorkAuth )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.facilityName
@@ -4774,9 +4781,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCreditCardCompany
   , NEW.name
@@ -4798,9 +4805,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCreditCardCompany
   , NEW.name
@@ -4822,9 +4829,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCreditCardCompany
   , OLD.name
@@ -4864,9 +4871,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idAppUser );
@@ -4884,9 +4891,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idAppUser );
@@ -4904,9 +4911,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.idAppUser );
@@ -4946,9 +4953,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
@@ -4968,9 +4975,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
@@ -4990,9 +4997,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrackFile
   , OLD.idAnalysisFile
@@ -5043,9 +5050,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFolder
   , NEW.name
@@ -5075,9 +5082,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFolder
   , NEW.name
@@ -5107,9 +5114,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrackFolder
   , OLD.name
@@ -5153,9 +5160,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
@@ -5173,9 +5180,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
@@ -5193,9 +5200,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.idDataTrackFolder );
@@ -5233,9 +5240,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idDataTrack );
@@ -5253,9 +5260,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idDataTrack );
@@ -5273,9 +5280,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idDataTrack );
@@ -5337,9 +5344,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.name
@@ -5381,9 +5388,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.name
@@ -5425,9 +5432,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.name
@@ -5495,9 +5502,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDiskUsageByMonth
   , NEW.idLab
@@ -5533,9 +5540,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDiskUsageByMonth
   , NEW.idLab
@@ -5571,9 +5578,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDiskUsageByMonth
   , OLD.idLab
@@ -5622,9 +5629,9 @@ BEGIN
   , dnaPrepType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeDNAPrepType
   , NEW.dnaPrepType
@@ -5644,9 +5651,9 @@ BEGIN
   , dnaPrepType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeDNAPrepType
   , NEW.dnaPrepType
@@ -5666,9 +5673,9 @@ BEGIN
   , dnaPrepType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeDNAPrepType
   , OLD.dnaPrepType
@@ -5713,9 +5720,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
@@ -5739,9 +5746,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
@@ -5765,9 +5772,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentDesignEntry
   , OLD.codeExperimentDesign
@@ -5816,9 +5823,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
@@ -5844,9 +5851,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
@@ -5872,9 +5879,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeExperimentDesign
   , OLD.experimentDesign
@@ -5922,9 +5929,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
@@ -5948,9 +5955,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
@@ -5974,9 +5981,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentFactorEntry
   , OLD.codeExperimentFactor
@@ -6025,9 +6032,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
@@ -6053,9 +6060,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
@@ -6081,9 +6088,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeExperimentFactor
   , OLD.experimentFactor
@@ -6131,9 +6138,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFile
   , NEW.fileName
@@ -6157,9 +6164,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFile
   , NEW.fileName
@@ -6183,9 +6190,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentFile
   , OLD.fileName
@@ -6234,9 +6241,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
@@ -6262,9 +6269,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
@@ -6290,9 +6297,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFeatureExtractionProtocol
   , OLD.featureExtractionProtocol
@@ -6378,9 +6385,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
@@ -6442,9 +6449,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
@@ -6506,9 +6513,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFlowCellChannel
   , OLD.idFlowCell
@@ -6586,9 +6593,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
@@ -6624,9 +6631,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
@@ -6662,9 +6669,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFlowCell
   , OLD.idNumberSequencingCycles
@@ -6715,9 +6722,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFundingAgency
   , NEW.fundingAgency
@@ -6739,9 +6746,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFundingAgency
   , NEW.fundingAgency
@@ -6763,9 +6770,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFundingAgency
   , OLD.fundingAgency
@@ -6807,9 +6814,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuildAlias
   , NEW.alias
@@ -6829,9 +6836,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuildAlias
   , NEW.alias
@@ -6851,9 +6858,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeBuildAlias
   , OLD.alias
@@ -6920,9 +6927,9 @@ BEGIN
   , dataPath
   , igvName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
@@ -6968,9 +6975,9 @@ BEGIN
   , dataPath
   , igvName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
@@ -7016,9 +7023,9 @@ BEGIN
   , dataPath
   , igvName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeBuild
   , OLD.genomeBuildName
@@ -7076,9 +7083,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
@@ -7102,9 +7109,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
@@ -7128,9 +7135,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeIndex
   , OLD.genomeIndexName
@@ -7179,9 +7186,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybProtocol
   , NEW.hybProtocol
@@ -7207,9 +7214,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybProtocol
   , NEW.hybProtocol
@@ -7235,9 +7242,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idHybProtocol
   , OLD.hybProtocol
@@ -7317,9 +7324,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybridization
   , NEW.number
@@ -7375,9 +7382,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybridization
   , NEW.number
@@ -7433,9 +7440,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idHybridization
   , OLD.number
@@ -7492,9 +7499,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.idLab );
@@ -7512,9 +7519,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.idLab );
@@ -7532,9 +7539,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstitution
   , OLD.idLab );
@@ -7578,9 +7585,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.institution
@@ -7604,9 +7611,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.institution
@@ -7630,9 +7637,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstitution
   , OLD.institution
@@ -7675,9 +7682,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
@@ -7697,9 +7704,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
@@ -7719,9 +7726,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeInstrumentRunStatus
   , OLD.instrumentRunStatus
@@ -7774,9 +7781,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrumentRun
   , NEW.runDate
@@ -7808,9 +7815,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrumentRun
   , NEW.runDate
@@ -7842,9 +7849,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstrumentRun
   , OLD.runDate
@@ -7891,9 +7898,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrument
   , NEW.instrument
@@ -7913,9 +7920,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrument
   , NEW.instrument
@@ -7935,9 +7942,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstrument
   , OLD.instrument
@@ -7990,9 +7997,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
@@ -8024,9 +8031,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
@@ -8058,9 +8065,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInternalAccountFieldsConfiguration
   , OLD.fieldName
@@ -8113,9 +8120,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInvoice
   , NEW.idCoreFacility
@@ -8141,9 +8148,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInvoice
   , NEW.idCoreFacility
@@ -8169,9 +8176,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInvoice
   , OLD.idCoreFacility
@@ -8225,9 +8232,9 @@ BEGIN
   , isActive
   , chipsPerKit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idIScanChip
   , NEW.name
@@ -8257,9 +8264,9 @@ BEGIN
   , isActive
   , chipsPerKit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idIScanChip
   , NEW.name
@@ -8289,9 +8296,9 @@ BEGIN
   , isActive
   , chipsPerKit )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idIScanChip
   , OLD.name
@@ -8337,9 +8344,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8359,9 +8366,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8381,9 +8388,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -8440,9 +8447,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabeledSample
   , NEW.labelingYield
@@ -8478,9 +8485,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabeledSample
   , NEW.labelingYield
@@ -8516,9 +8523,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabeledSample
   , OLD.labelingYield
@@ -8573,9 +8580,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
@@ -8601,9 +8608,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
@@ -8629,9 +8636,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabelingProtocol
   , OLD.labelingProtocol
@@ -8677,9 +8684,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
@@ -8701,9 +8708,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
@@ -8725,9 +8732,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeLabelingReactionSize
   , OLD.labelingReactionSize
@@ -8769,9 +8776,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabel
   , NEW.label
@@ -8791,9 +8798,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabel
   , NEW.label
@@ -8813,9 +8820,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabel
   , OLD.label
@@ -8856,9 +8863,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8878,9 +8885,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8900,9 +8907,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -8947,9 +8954,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8973,9 +8980,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -8999,9 +9006,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -9082,9 +9089,9 @@ BEGIN
   , contactAddress2
   , contactCountry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.name
@@ -9142,9 +9149,9 @@ BEGIN
   , contactAddress2
   , contactCountry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.name
@@ -9202,9 +9209,9 @@ BEGIN
   , contactAddress2
   , contactCountry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.name
@@ -9260,9 +9267,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeNucleotideType );
 END;
@@ -9278,9 +9285,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeNucleotideType );
 END;
@@ -9296,9 +9303,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeNucleotideType );
 END;
@@ -9343,9 +9350,9 @@ BEGIN
   , name
   , isCustom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
@@ -9371,9 +9378,9 @@ BEGIN
   , name
   , isCustom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
@@ -9399,9 +9406,9 @@ BEGIN
   , name
   , isCustom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNumberSequencingCyclesAllowed
   , OLD.idNumberSequencingCycles
@@ -9449,9 +9456,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
@@ -9475,9 +9482,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
@@ -9501,9 +9508,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNumberSequencingCycles
   , OLD.numberSequencingCycles
@@ -9548,9 +9555,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
@@ -9572,9 +9579,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
@@ -9596,9 +9603,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcodeSchemeAllowed
   , OLD.idOligoBarcodeScheme
@@ -9642,9 +9649,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
@@ -9666,9 +9673,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
@@ -9690,9 +9697,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcodeScheme
   , OLD.oligoBarcodeScheme
@@ -9740,9 +9747,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcode
   , NEW.name
@@ -9768,9 +9775,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcode
   , NEW.name
@@ -9796,9 +9803,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcode
   , OLD.name
@@ -9858,9 +9865,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOrganism
   , NEW.organism
@@ -9896,9 +9903,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOrganism
   , NEW.organism
@@ -9934,9 +9941,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOrganism
   , OLD.organism
@@ -9987,9 +9994,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
@@ -10011,9 +10018,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
@@ -10035,9 +10042,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOtherAccountFieldsConfiguration
   , OLD.fieldName
@@ -10079,9 +10086,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePlateType
   , NEW.plateTypeDescription
@@ -10101,9 +10108,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePlateType
   , NEW.plateTypeDescription
@@ -10123,9 +10130,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codePlateType
   , OLD.plateTypeDescription
@@ -10186,9 +10193,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlateWell
   , NEW.row
@@ -10228,9 +10235,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlateWell
   , NEW.row
@@ -10270,9 +10277,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlateWell
   , OLD.row
@@ -10337,9 +10344,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlate
   , NEW.idInstrumentRun
@@ -10373,9 +10380,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlate
   , NEW.idInstrumentRun
@@ -10409,9 +10416,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlate
   , OLD.idInstrumentRun
@@ -10457,9 +10464,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.codeStep );
@@ -10477,9 +10484,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.codeStep );
@@ -10497,9 +10504,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCategory
   , OLD.codeStep );
@@ -10549,9 +10556,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.name
@@ -10581,9 +10588,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.name
@@ -10613,9 +10620,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCategory
   , OLD.name
@@ -10663,9 +10670,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCriteria
   , NEW.filter1
@@ -10687,9 +10694,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCriteria
   , NEW.filter1
@@ -10711,9 +10718,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCriteria
   , OLD.filter1
@@ -10755,9 +10762,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.idPriceCategory
@@ -10777,9 +10784,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.idPriceCategory
@@ -10799,9 +10806,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.idPriceCategory
@@ -10840,9 +10847,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
@@ -10860,9 +10867,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
@@ -10880,9 +10887,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.codeRequestCategory );
@@ -10924,9 +10931,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.name
@@ -10948,9 +10955,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.name
@@ -10972,9 +10979,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.name
@@ -11026,9 +11033,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrice
   , NEW.name
@@ -11058,9 +11065,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrice
   , NEW.name
@@ -11090,9 +11097,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPrice
   , OLD.name
@@ -11142,9 +11149,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrimer
   , NEW.name
@@ -11168,9 +11175,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrimer
   , NEW.name
@@ -11194,9 +11201,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPrimer
   , OLD.name
@@ -11247,9 +11254,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProject
   , NEW.name
@@ -11277,9 +11284,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProject
   , NEW.name
@@ -11307,9 +11314,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProject
   , OLD.name
@@ -11352,9 +11359,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAnalysisType );
@@ -11372,9 +11379,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAnalysisType );
@@ -11392,9 +11399,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.idAnalysisType );
@@ -11442,9 +11449,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyDictionary
   , NEW.propertyName
@@ -11472,9 +11479,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyDictionary
   , NEW.propertyName
@@ -11502,9 +11509,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyDictionary
   , OLD.propertyName
@@ -11547,9 +11554,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
@@ -11567,9 +11574,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
@@ -11587,9 +11594,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntry
   , OLD.idPropertyOption );
@@ -11629,9 +11636,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntryValue
   , NEW.value
@@ -11651,9 +11658,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntryValue
   , NEW.value
@@ -11673,9 +11680,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntryValue
   , OLD.value
@@ -11724,9 +11731,9 @@ BEGIN
   , idDataTrack
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idProperty
@@ -11754,9 +11761,9 @@ BEGIN
   , idDataTrack
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idProperty
@@ -11784,9 +11791,9 @@ BEGIN
   , idDataTrack
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntry
   , OLD.idProperty
@@ -11835,9 +11842,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyOption
   , NEW.value
@@ -11861,9 +11868,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyOption
   , NEW.value
@@ -11887,9 +11894,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyOption
   , OLD.value
@@ -11930,9 +11937,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idOrganism );
@@ -11950,9 +11957,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idOrganism );
@@ -11970,9 +11977,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.idOrganism );
@@ -12014,9 +12021,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlatformApplication
   , NEW.idProperty
@@ -12038,9 +12045,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlatformApplication
   , NEW.idProperty
@@ -12062,9 +12069,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlatformApplication
   , OLD.idProperty
@@ -12072,6 +12079,7 @@ BEGIN
   , OLD.codeApplication );
 END;
 $$
+
 
 --
 -- Audit Table For PropertyType 
@@ -12105,9 +12113,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePropertyType
   , NEW.name
@@ -12127,9 +12135,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePropertyType
   , NEW.name
@@ -12149,9 +12157,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codePropertyType
   , OLD.name
@@ -12210,9 +12218,9 @@ BEGIN
   , forDataTrack
   , codePropertyType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.name
@@ -12250,9 +12258,9 @@ BEGIN
   , forDataTrack
   , codePropertyType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.name
@@ -12290,9 +12298,9 @@ BEGIN
   , forDataTrack
   , codePropertyType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.name
@@ -12342,9 +12350,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProtocolType
   , NEW.protocolType
@@ -12364,9 +12372,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProtocolType
   , NEW.protocolType
@@ -12386,9 +12394,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeProtocolType
   , OLD.protocolType
@@ -12433,9 +12441,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
@@ -12459,9 +12467,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
@@ -12485,9 +12493,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idQualityControlStepEntry
   , OLD.codeQualityControlStep
@@ -12534,9 +12542,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
@@ -12560,9 +12568,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
@@ -12586,9 +12594,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeQualityControlStep
   , OLD.qualityControlStep
@@ -12631,9 +12639,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeReactionType
   , NEW.reactionType
@@ -12653,9 +12661,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeReactionType
   , NEW.reactionType
@@ -12675,9 +12683,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeReactionType
   , OLD.reactionType
@@ -12724,9 +12732,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.codeApplication
@@ -12752,9 +12760,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.codeApplication
@@ -12780,9 +12788,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategory
   , OLD.codeApplication
@@ -12830,9 +12838,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategoryType
   , NEW.description
@@ -12856,9 +12864,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategoryType
   , NEW.description
@@ -12882,9 +12890,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategoryType
   , OLD.description
@@ -12953,9 +12961,9 @@ BEGIN
   , refrainFromAutoDelete
   , isClinicalResearch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.requestCategory
@@ -13001,9 +13009,9 @@ BEGIN
   , refrainFromAutoDelete
   , isClinicalResearch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.requestCategory
@@ -13049,9 +13057,9 @@ BEGIN
   , refrainFromAutoDelete
   , isClinicalResearch )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategory
   , OLD.requestCategory
@@ -13107,9 +13115,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idAppUser
@@ -13131,9 +13139,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idAppUser
@@ -13155,9 +13163,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idAppUser
@@ -13197,9 +13205,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idHybridization );
@@ -13217,9 +13225,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idHybridization );
@@ -13237,9 +13245,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idHybridization );
@@ -13277,9 +13285,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
@@ -13297,9 +13305,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
@@ -13317,9 +13325,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idSeqLibTreatment );
@@ -13359,9 +13367,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestStatus
   , NEW.requestStatus
@@ -13381,9 +13389,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestStatus
   , NEW.requestStatus
@@ -13403,9 +13411,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestStatus
   , OLD.requestStatus
@@ -13444,9 +13452,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idRequest );
@@ -13464,9 +13472,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idRequest );
@@ -13484,9 +13492,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idRequest );
@@ -13616,9 +13624,9 @@ BEGIN
   , hasPrePooledLibraries
   , numPrePooledTubes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.number
@@ -13728,9 +13736,9 @@ BEGIN
   , hasPrePooledLibraries
   , numPrePooledTubes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.number
@@ -13840,9 +13848,9 @@ BEGIN
   , hasPrePooledLibraries
   , numPrePooledTubes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.number
@@ -13928,9 +13936,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
@@ -13950,9 +13958,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
@@ -13972,9 +13980,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleDropOffLocation
   , OLD.sampleDropOffLocation
@@ -14017,9 +14025,9 @@ BEGIN
   , idExperimentFile
   , codeSampleFileType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
@@ -14041,9 +14049,9 @@ BEGIN
   , idExperimentFile
   , codeSampleFileType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
@@ -14065,9 +14073,9 @@ BEGIN
   , idExperimentFile
   , codeSampleFileType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleExperimentFile
   , OLD.idSample
@@ -14107,9 +14115,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSampleFileType
   , NEW.description );
@@ -14127,9 +14135,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSampleFileType
   , NEW.description );
@@ -14147,9 +14155,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSampleFileType
   , OLD.description );
@@ -14189,9 +14197,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
@@ -14211,9 +14219,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
@@ -14233,9 +14241,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSamplePrepMethod
   , OLD.samplePrepMethod
@@ -14276,9 +14284,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleSource
   , NEW.sampleSource
@@ -14298,9 +14306,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleSource
   , NEW.sampleSource
@@ -14320,9 +14328,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleSource
   , OLD.sampleSource
@@ -14363,9 +14371,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
@@ -14385,9 +14393,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
@@ -14407,9 +14415,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleTypeRequestCategory
   , OLD.idSampleType
@@ -14454,9 +14462,9 @@ BEGIN
   , isActive
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleType
   , NEW.sampleType
@@ -14480,9 +14488,9 @@ BEGIN
   , isActive
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleType
   , NEW.sampleType
@@ -14506,9 +14514,9 @@ BEGIN
   , isActive
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleType
   , OLD.sampleType
@@ -14573,7 +14581,6 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`ccNumber`  varchar(20)  NULL DEFAULT NULL
  ,`multiplexGroupNumber`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequence`  varchar(20)  NULL DEFAULT NULL
- ,`isControl`  char(1)  NULL DEFAULT NULL
  ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeB`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequenceB`  varchar(20)  NULL DEFAULT NULL
@@ -14642,9 +14649,9 @@ BEGIN
   , idOligoBarcodeB
   , barcodeSequenceB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSample
   , NEW.number
@@ -14754,9 +14761,9 @@ BEGIN
   , idOligoBarcodeB
   , barcodeSequenceB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSample
   , NEW.number
@@ -14866,9 +14873,9 @@ BEGIN
   , idOligoBarcodeB
   , barcodeSequenceB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSample
   , OLD.number
@@ -14960,9 +14967,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idScanProtocol
   , NEW.scanProtocol
@@ -14988,9 +14995,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idScanProtocol
   , NEW.scanProtocol
@@ -15016,9 +15023,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idScanProtocol
   , OLD.scanProtocol
@@ -15062,9 +15069,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSealType
   , NEW.sealType
@@ -15084,9 +15091,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSealType
   , NEW.sealType
@@ -15106,9 +15113,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSealType
   , OLD.sealType
@@ -15153,9 +15160,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSegment
   , NEW.length
@@ -15179,9 +15186,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSegment
   , NEW.length
@@ -15205,9 +15212,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSegment
   , OLD.length
@@ -15248,9 +15255,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
@@ -15268,9 +15275,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
@@ -15288,9 +15295,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibProtocol
   , OLD.codeApplication );
@@ -15342,9 +15349,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
@@ -15376,9 +15383,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
@@ -15410,9 +15417,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibProtocol
   , OLD.seqLibProtocol
@@ -15459,9 +15466,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
@@ -15481,9 +15488,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
@@ -15503,9 +15510,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibTreatment
   , OLD.seqLibTreatment
@@ -15548,9 +15555,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqRunType
   , NEW.seqRunType
@@ -15572,9 +15579,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqRunType
   , NEW.seqRunType
@@ -15596,9 +15603,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqRunType
   , OLD.seqRunType
@@ -15658,9 +15665,9 @@ BEGIN
   , readCount
   , pipelineVersion )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequenceLane
   , NEW.number
@@ -15698,9 +15705,9 @@ BEGIN
   , readCount
   , pipelineVersion )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequenceLane
   , NEW.number
@@ -15738,9 +15745,9 @@ BEGIN
   , readCount
   , pipelineVersion )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSequenceLane
   , OLD.number
@@ -15792,9 +15799,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequencingControl
   , NEW.sequencingControl
@@ -15816,9 +15823,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequencingControl
   , NEW.sequencingControl
@@ -15840,9 +15847,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSequencingControl
   , OLD.sequencingControl
@@ -15884,9 +15891,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
@@ -15906,9 +15913,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
@@ -15928,9 +15935,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSequencingPlatform
   , OLD.sequencingPlatform
@@ -15977,9 +15984,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideDesign
   , NEW.name
@@ -16005,9 +16012,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideDesign
   , NEW.name
@@ -16033,9 +16040,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideDesign
   , OLD.name
@@ -16077,9 +16084,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.codeApplication );
@@ -16097,9 +16104,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.codeApplication );
@@ -16117,9 +16124,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideProduct
   , OLD.codeApplication );
@@ -16181,9 +16188,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.name
@@ -16225,9 +16232,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.name
@@ -16269,9 +16276,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideProduct
   , OLD.name
@@ -16325,9 +16332,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSlideSource
   , NEW.slideSource
@@ -16349,9 +16356,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSlideSource
   , NEW.slideSource
@@ -16373,9 +16380,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSlideSource
   , OLD.slideSource
@@ -16419,9 +16426,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlide
   , NEW.barcode
@@ -16443,9 +16450,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlide
   , NEW.barcode
@@ -16467,9 +16474,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlide
   , OLD.barcode
@@ -16511,9 +16518,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeState
   , NEW.state
@@ -16533,9 +16540,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeState
   , NEW.state
@@ -16555,9 +16562,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeState
   , OLD.state
@@ -16600,9 +16607,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeStep
   , NEW.step
@@ -16624,9 +16631,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeStep
   , NEW.step
@@ -16648,9 +16655,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeStep
   , OLD.step
@@ -16700,9 +16707,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSubmissionInstruction
   , NEW.description
@@ -16730,9 +16737,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSubmissionInstruction
   , NEW.description
@@ -16760,9 +16767,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSubmissionInstruction
   , OLD.description
@@ -16821,9 +16828,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.name
@@ -16857,9 +16864,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.name
@@ -16893,9 +16900,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.name
@@ -16945,9 +16952,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTreatmentEntry
   , NEW.treatment
@@ -16969,9 +16976,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTreatmentEntry
   , NEW.treatment
@@ -16993,9 +17000,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTreatmentEntry
   , OLD.treatment
@@ -17039,9 +17046,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idUnloadDataTrack
   , NEW.typeName
@@ -17063,9 +17070,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idUnloadDataTrack
   , NEW.typeName
@@ -17087,9 +17094,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idUnloadDataTrack
   , OLD.typeName
@@ -17131,9 +17138,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
@@ -17153,9 +17160,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
@@ -17175,9 +17182,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeUserPermissionKind
   , OLD.userPermissionKind
@@ -17220,9 +17227,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idVendor
   , NEW.vendorName
@@ -17244,9 +17251,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idVendor
   , NEW.vendorName
@@ -17268,9 +17275,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idVendor
   , OLD.vendorName
@@ -17310,9 +17317,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeVisibility
   , NEW.visibility );
@@ -17330,9 +17337,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeVisibility
   , NEW.visibility );
@@ -17350,9 +17357,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeVisibility
   , OLD.visibility );
@@ -17408,9 +17415,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idWorkItem
   , NEW.codeStepNext
@@ -17446,9 +17453,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idWorkItem
   , NEW.codeStepNext
@@ -17484,9 +17491,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idWorkItem
   , OLD.codeStepNext

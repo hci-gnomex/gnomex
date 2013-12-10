@@ -124,6 +124,11 @@ public class HibernateSession {
         stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
         stmt.setString(1, username);
         stmt.executeUpdate();
+      } else {
+        CallableStatement stmt;
+        stmt = con.prepareCall("call setAppUser(?);");
+        stmt.setString(1, username);
+        stmt.executeUpdate();
       }
     }    
   }
