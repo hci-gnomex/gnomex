@@ -1592,7 +1592,7 @@
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" >
 						<mx:Spacer width="125"/>
 						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
-							<mx:HBox horizontalGap="2" id="hbox5" verticalAlign="middle">
+							<mx:Tile horizontalGap="2" id="hbox5" direction="horizontal" width="550">
 							<mx:RadioButtonGroup id = "requestCategoryRadioGroup" />     
 							<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
 								
@@ -1603,10 +1603,8 @@
 												click="radioClick(event)" />
 								
 							</mx:Repeater>
-							
-							<mx:RadioButton id="nullSelection" groupName="requestCategoryRadioGroup" visible="false" width="0" /> 
-							</mx:HBox>
-							
+							</mx:Tile>
+							<mx:RadioButton id="nullSelection" groupName="requestCategoryRadioGroup" visible="false" includeInLayout="false" width="0" /> 
 						</mx:HBox>
 					</mx:HBox>
 					
