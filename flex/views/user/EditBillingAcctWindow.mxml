@@ -122,6 +122,7 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
+		import views.util.GNomExStringUtil;
 		
 		[Bindable]
 		public var parentView:GroupDetailView; 
@@ -775,7 +776,7 @@
 
 		<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" id="accountNameHBox">
 			<mx:Text text="{ba.@isCreditCard == 'Y' ? 'Credit Card Last 4 digits' : 'Title of Account'}" styleName="formLabel" width="120"/>
-			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = accountName.text}"></mx:TextInput>
+			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = GNomExStringUtil.unicodeToAscii(accountName.text)}"></mx:TextInput>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="shortAcctHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
