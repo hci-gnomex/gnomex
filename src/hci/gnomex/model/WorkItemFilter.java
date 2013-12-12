@@ -71,7 +71,8 @@ public class WorkItemFilter extends DetailObject {
     addRequestCriteria();
     addWorkItemCriteria();
     addSecurityCriteria();
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) 
+        && !this.codeStepNext.equals(Step.HISEQ_DATA_PIPELINE) && !this.codeStepNext.equals(Step.MISEQ_DATA_PIPELINE)) {
       queryBuf.append(" AND ");
       secAdvisor.appendCoreFacilityCriteria(queryBuf, "req");
       queryBuf.append(" ");
