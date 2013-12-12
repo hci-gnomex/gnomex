@@ -510,7 +510,7 @@ public class RegisterFiles extends TimerTask {
             
 
           }
-          
+          i2.remove();
           sess.delete(af);
           
         } else {
@@ -793,16 +793,18 @@ public class RegisterFiles extends TimerTask {
     String dir = dirs.removeFirst();
     printDebugStatement("DIRECTORY WE ARE CURRENTLY LOOKING THROUGH:   " + dir);
     File f = new File(dir);
-    String [] contents = f.list();
     
-    for(int i = 0; i < contents.length; i++) {
-      File f1 = new File(dir + "/" + contents[i]);
-      if(f1.isFile() && f1.getName().equals(fileToLookFor) && (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
-        //we found the file so return its new path
-        printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath());
-        return f1.getAbsolutePath();
-      } else if(f1.isDirectory()) {
-        dirs.add(f1.getAbsolutePath());
+    if(f.exists()) {
+      String [] contents = f.list();
+      for(int i = 0; i < contents.length; i++) {
+        File f1 = new File(dir + "/" + contents[i]);
+        if(f1.isFile() && f1.getName().equals(fileToLookFor) && (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
+          //we found the file so return its new path
+          printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath());
+          return f1.getAbsolutePath();
+        } else if(f1.isDirectory()) {
+          dirs.add(f1.getAbsolutePath());
+        }
       }
     }
     
