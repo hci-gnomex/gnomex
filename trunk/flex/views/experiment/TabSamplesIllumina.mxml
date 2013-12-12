@@ -285,7 +285,7 @@
 				if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState" || parentDocument.sampleSetupView.currentState == 'SolexaSetupState') {
 					for each(var s2:Object in parentDocument.samples) {
 						if (isEntered(s2, "@numberSequencingLanes")) {
-							numberOfAdditionalLanes += s2.@numberSequencingLanes;
+							numberOfAdditionalLanes += int(s2.@numberSequencingLanes);
 						}
 					}
 				}
