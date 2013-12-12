@@ -2078,7 +2078,7 @@
 				if (!usesExperimentType("QC")) {
 					hideMenusByContext(navMenu, "QC");
 				}
-				if (!usesExperimentType("Microarray")) {
+				if (!usesExperimentType("MICROARRAY")) {
 					hideMenusByContext(navMenu, "microarray");
 				}
 				if(this.isGuestMode()){
@@ -2674,7 +2674,7 @@
 				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					var found:Boolean = false;
 					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (rc.@type == experimentType &&
+						if (rc.@type.toString().toLowerCase() == experimentType.toLowerCase() &&
 							rc.@isActive == 'Y') {
 							found = true;
 							break;
@@ -2686,7 +2686,7 @@
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@type == experimentType &&
+							requestCategory.@type.toLowerCase() == experimentType.toLowerCase() &&
 						    requestCategory.@isActive == 'Y') {
 							return true;
 							break;
