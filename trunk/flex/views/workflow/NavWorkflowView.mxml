@@ -91,7 +91,7 @@
 					}
 				}
 				
-				if (!parentApplication.usesExperimentType("Microarray")) {
+				if (!parentApplication.usesExperimentType("MICROARRAY")) {
 					if (navBar.contains(microarrayTab)) {
 						navBar.removeChild(microarrayTab);
 						removeFromQCTabItems("microarray");
