@@ -164,6 +164,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             // Create a flow cell
             flowCell = new FlowCell();
             flowCell.setBarcode(flowCellBarcode);
+            flowCell.setIdCoreFacility(parser.getIdCoreFacility());
             sess.save(flowCell);
             sess.flush();
             

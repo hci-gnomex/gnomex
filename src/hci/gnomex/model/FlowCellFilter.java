@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.util.Calendar;
 
@@ -23,31 +24,36 @@ public class FlowCellFilter extends DetailObject {
   
   
   
-  public StringBuffer getQuery() {
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT fc ");
+    queryBuf.append(" SELECT distinct fc ");
     
-    getQueryBody(queryBuf);
+    getQueryBody(queryBuf, secAdvisor);
     
     return queryBuf;
     
   }
   
-  public void getQueryBody(StringBuffer queryBuf) {
+  public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
     
     queryBuf.append(" FROM        FlowCell as fc ");
     if (this.hasRequestCriteria()) {
       queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
       queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
       queryBuf.append(" JOIN   lane.request as req ");      
-    }  
+    }
     
     addWhere = true;
     addFlowCellCriteria();
     addRequestCriteria();
-    
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      queryBuf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
+      queryBuf.append(" ");
+    }
+
     queryBuf.append(" order by fc.createDate desc, fc.number");
   }
   
