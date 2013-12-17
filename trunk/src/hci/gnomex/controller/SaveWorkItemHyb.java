@@ -91,6 +91,7 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
 
               WorkItem wi = new WorkItem();
               wi.setIdRequest(workItem.getIdRequest());
+              wi.setIdCoreFacility(workItem.getIdCoreFacility());
               wi.setCodeStepNext(Step.SCAN_EXTRACTION_STEP);
               wi.setHybridization(hyb);
               wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));

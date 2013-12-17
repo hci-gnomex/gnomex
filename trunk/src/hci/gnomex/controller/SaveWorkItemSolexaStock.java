@@ -113,6 +113,7 @@ public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializab
                 if (lane.getIdSample().equals(sample.getIdSample())) {
                   WorkItem wi = new WorkItem();
                   wi.setIdRequest(sample.getIdRequest());
+                  wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                   wi.setCodeStepNext(Step.SEQ_CLUSTER_GEN);
                   wi.setSequenceLane(lane);
                   wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));

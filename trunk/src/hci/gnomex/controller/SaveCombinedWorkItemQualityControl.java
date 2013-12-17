@@ -130,6 +130,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                   
                   WorkItem wi = new WorkItem();
                   wi.setIdRequest(sample.getIdRequest());
+                  wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                   wi.setCodeStepNext(Step.LABELING_STEP);
                   wi.setLabeledSample(ls);
                   wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -139,6 +140,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               } else {
                 WorkItem wi = new WorkItem();
                 wi.setIdRequest(sample.getIdRequest());
+                wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                 
                 String codeStepNext;
                 if(workItem.getCodeStepNext().equals(Step.SEQ_QC)) {
