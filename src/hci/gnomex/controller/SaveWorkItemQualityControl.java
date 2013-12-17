@@ -127,6 +127,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
                 
                 WorkItem wi = new WorkItem();
                 wi.setIdRequest(sample.getIdRequest());
+                wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                 wi.setCodeStepNext(Step.LABELING_STEP);
                 wi.setLabeledSample(ls);
                 wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));

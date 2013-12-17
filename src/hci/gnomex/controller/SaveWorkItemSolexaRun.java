@@ -122,6 +122,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
                 } else {
                   codeStepNext = Step.MISEQ_DATA_PIPELINE;
                 }
+                wi.setIdCoreFacility(workItem.getIdCoreFacility());
                 wi.setCodeStepNext(codeStepNext);                 
                 wi.setCreateDate(new  java.sql.Date(System.currentTimeMillis()));
                 wi.setFlowCellChannel(channel);
