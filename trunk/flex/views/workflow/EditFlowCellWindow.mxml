@@ -168,6 +168,7 @@
 				params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
 				params.channelsXMLString =  "<fcChannels>" + this.fcChannels.toXMLString() + "</fcChannels>";
 				params.lastCycleDate = this.lastCycleDateInput.text;
+				params.idCoreFacility = selectedFC.@idCoreFacility;
 				
 				saveFlowCell.send(params);
 				

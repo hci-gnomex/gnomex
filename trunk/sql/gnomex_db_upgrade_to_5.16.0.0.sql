@@ -1,3 +1,5 @@
+use gnomex;
+
 -- Procedure to modify columns in audit tables if they exist.
 drop procedure if exists ExecuteIfTableExists;
 delimiter '//'
