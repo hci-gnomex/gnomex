@@ -300,6 +300,8 @@
 			
 			private var requestCloneWindow:RequestCloneWindow; 
 			
+			private var saveCodeRequestCategory:Object = null;
+			
 			public function init():void {
 				checkSecurity();
 				setVisibility();
@@ -351,7 +353,23 @@
 			}
 			
 			private function refreshRequestCategories():void {
+				if (requestTypeGroup.selectedValue != null) {
+					this.saveCodeRequestCategory = requestTypeGroup.selectedValue;
+				}
 				requestCategories.refresh();
+				if (this.saveCodeRequestCategory != null) {
+					callLater(resetRequestTypeGroup);
+				}
+			}
+			
+			private function resetRequestTypeGroup():void {
+				if(saveCodeRequestCategory != null) {
+					requestTypeGroup.selectedValue = saveCodeRequestCategory;
+					saveCodeRequestCategory = null;
+					if (parentDocument != null) {
+						checkSetupCompleteness();
+					}
+				}
 			}
 			
 			private function setVisibility():void {
