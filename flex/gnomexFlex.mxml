@@ -1044,6 +1044,7 @@
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
 			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
 			public  var TYPE_ISCAN:String   	  = "ISCAN";
+			public  var TYPE_ISOLATION:String     = "ISOLATION";
 			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
 			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";

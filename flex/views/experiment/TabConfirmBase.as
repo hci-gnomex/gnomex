@@ -37,6 +37,12 @@ package views.experiment
 				} else {
 					return new TabConfirmIllumina();
 				}
+			}  else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
+				if (existingTab is TabConfirmIsolation) {
+					return existingTab;
+				} else {
+					return new TabConfirmIsolation();
+				}
 			} else {
 				if (existingTab is TabConfirmView) {
 					return existingTab;

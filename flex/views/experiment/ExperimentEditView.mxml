@@ -279,6 +279,8 @@
 		[Bindable]
 		public var filteredSampleTypeListDna:XMLListCollection;
 		[Bindable]
+		public var isolationTypeList:XMLListCollection;
+		[Bindable]
 		public var filteredSampleDropOffLocationList:XMLListCollection;
 		[Bindable]
 		public var filteredSeqRunTypeList:XMLListCollection;
@@ -491,6 +493,10 @@
         	filteredSampleTypeListRna.refresh();
 			filteredSampleTypeListDna.refresh();
 			
+			isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType'));
+			isolationTypeList.sort = dictionarySorter;
+			isolationTypeList.refresh();
+			
 			filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
 			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
 			filteredSampleDropOffLocationList.refresh();
@@ -648,6 +654,13 @@
 				return false;
 			}
 		}
+		public function isIsolationState():Boolean {
+			if (currentState == 'IsolationState' || currentState == 'IsolationEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 			
 		public function isClinicalSequenomState():Boolean {
 			if (currentState == 'ClinicalSequenomState' || currentState == 'ClinicalSequenomEditState') {
@@ -684,6 +697,7 @@
 				currentState == 'MitSeqEditState' ||
 				currentState == 'IScanEditState' ||
 				currentState == 'SequenomEditState' ||
+				currentState == 'IsolationEditState' ||
 				currentState == 'ClinicalSequenomEditState') {
 				return true;    	
 			} else {
@@ -1219,6 +1233,19 @@
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 								
+			} else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
+				this.currentState = "IsolationState";
+				this.sampleSetupView.currentState = 'IsolationState';		
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+								
+			
+				this.notesView.setCoreFacilityNoteVisibility(false);
+				samplesView.setCoreFacilityNoteVisibility(false);
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -1536,7 +1563,10 @@
 			}
 			
 			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
+			if (property.descendants("PropertyPlatformApplication").length() > 0 || 
+				this.isIScanState() || 
+				this.isSequenomState() || this.isClinicalSequenomState() ||
+				this.isIsolationState()) {
 				filterByPlatformApplication = true;	
 			}
 			
@@ -2271,7 +2301,11 @@
 			} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
 				this.experimentCategoryName = '';
 				this.currentState = "IScanEditState";
-			}  else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
+			}  else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
+				this.currentState = "IsolationEditState";
+				this.sampleSetupView.currentState = 'IsolationState';
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 				this.currentState = "SequenomEditState";
 				this.sampleSetupView.currentState = 'SequenomState';
 								
@@ -3287,7 +3321,7 @@
 					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
-				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState') {
+				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState' && !isIsolationState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3328,7 +3362,7 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ( (this.isSequencingState() || this.isSequenomState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( (this.isSequencingState() || this.isSequenomState() || this.isIsolationState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
@@ -5637,6 +5671,19 @@
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
+		</mx:State>
+		<mx:State name="IsolationState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
+		</mx:State>
+		<mx:State name="IsolationEditState" basedOn="SequenomEditState">
+			
 		</mx:State>
 		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
 			<mx:RemoveChild target="{notesView}"/>
