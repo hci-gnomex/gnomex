@@ -1,7 +1,7 @@
 use gnomex;
 
 // Make billing account nullable on DiskUsageByMonth
-alter table DiskUsageByMonth MODIFY idBillingAccount INT(10) NULL;
+alter table DiskUsageByMonth change idBillingAccount idBillingAccount INT(10) NULL;
 
 -- Procedure to modify columns in audit tables if they exist.
 drop procedure if exists ExecuteIfTableExists;
