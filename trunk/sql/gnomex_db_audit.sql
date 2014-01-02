@@ -925,6 +925,32 @@ $$
 
 
 --
+-- Initial audit table rows for AlignmentPlatform 
+--
+
+INSERT INTO AlignmentPlatform_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentPlatform
+  , alignmentPlatformName
+  , webServiceName
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentPlatform
+  , alignmentPlatformName
+  , webServiceName
+  , isActive
+  FROM AlignmentPlatform
+  WHERE NOT EXISTS(SELECT * FROM AlignmentPlatform_Audit)
+$$
+
+--
 -- Audit Triggers For AlignmentPlatform 
 --
 
@@ -1017,6 +1043,28 @@ $$
 
 
 --
+-- Initial audit table rows for AlignmentProfileGenomeIndex 
+--
+
+INSERT INTO AlignmentProfileGenomeIndex_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentProfile
+  , idGenomeIndex )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentProfile
+  , idGenomeIndex
+  FROM AlignmentProfileGenomeIndex
+  WHERE NOT EXISTS(SELECT * FROM AlignmentProfileGenomeIndex_Audit)
+$$
+
+--
 -- Audit Triggers For AlignmentProfileGenomeIndex 
 --
 
@@ -1100,6 +1148,38 @@ CREATE TABLE IF NOT EXISTS `AlignmentProfile_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AlignmentProfile 
+--
+
+INSERT INTO AlignmentProfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentProfile
+  , alignmentProfileName
+  , description
+  , parameters
+  , isActive
+  , idAlignmentPlatform
+  , idSeqRunType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentProfile
+  , alignmentProfileName
+  , description
+  , parameters
+  , isActive
+  , idAlignmentPlatform
+  , idSeqRunType
+  FROM AlignmentProfile
+  WHERE NOT EXISTS(SELECT * FROM AlignmentProfile_Audit)
+$$
 
 --
 -- Audit Triggers For AlignmentProfile 
@@ -1214,6 +1294,32 @@ $$
 
 
 --
+-- Initial audit table rows for AnalysisCollaborator 
+--
+
+INSERT INTO AnalysisCollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , idAppUser
+  , canUploadData
+  , canUpdate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , idAppUser
+  , canUploadData
+  , canUpdate
+  FROM AnalysisCollaborator
+  WHERE NOT EXISTS(SELECT * FROM AnalysisCollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For AnalysisCollaborator 
 --
 
@@ -1308,6 +1414,36 @@ CREATE TABLE IF NOT EXISTS `AnalysisExperimentItem_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisExperimentItem 
+--
+
+INSERT INTO AnalysisExperimentItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisExperimentItem
+  , idSequenceLane
+  , idHybridization
+  , comments
+  , idAnalysis
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisExperimentItem
+  , idSequenceLane
+  , idHybridization
+  , comments
+  , idAnalysis
+  , idRequest
+  FROM AnalysisExperimentItem
+  WHERE NOT EXISTS(SELECT * FROM AnalysisExperimentItem_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisExperimentItem 
@@ -1419,6 +1555,42 @@ CREATE TABLE IF NOT EXISTS `AnalysisFile_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisFile 
+--
+
+INSERT INTO AnalysisFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisFile
+  , fileName
+  , fileSize
+  , comments
+  , uploadDate
+  , idAnalysis
+  , qualifiedFilePath
+  , baseFilePath
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisFile
+  , fileName
+  , fileSize
+  , comments
+  , uploadDate
+  , idAnalysis
+  , qualifiedFilePath
+  , baseFilePath
+  , createDate
+  FROM AnalysisFile
+  WHERE NOT EXISTS(SELECT * FROM AnalysisFile_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisFile 
@@ -1543,6 +1715,28 @@ $$
 
 
 --
+-- Initial audit table rows for AnalysisGenomeBuild 
+--
+
+INSERT INTO AnalysisGenomeBuild_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , idGenomeBuild
+  FROM AnalysisGenomeBuild
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGenomeBuild_Audit)
+$$
+
+--
 -- Audit Triggers For AnalysisGenomeBuild 
 --
 
@@ -1621,6 +1815,28 @@ CREATE TABLE IF NOT EXISTS `AnalysisGroupItem_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisGroupItem 
+--
+
+INSERT INTO AnalysisGroupItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisGroup
+  , idAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisGroup
+  , idAnalysis
+  FROM AnalysisGroupItem
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGroupItem_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisGroupItem 
@@ -1705,6 +1921,36 @@ CREATE TABLE IF NOT EXISTS `AnalysisGroup_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisGroup 
+--
+
+INSERT INTO AnalysisGroup_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisGroup
+  , name
+  , description
+  , idLab
+  , codeVisibility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisGroup
+  , name
+  , description
+  , idLab
+  , codeVisibility
+  , idAppUser
+  FROM AnalysisGroup
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGroup_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisGroup 
@@ -1814,6 +2060,38 @@ CREATE TABLE IF NOT EXISTS `AnalysisProtocol_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisProtocol 
+--
+
+INSERT INTO AnalysisProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisProtocol
+  , analysisProtocol
+  , description
+  , url
+  , idAnalysisType
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisProtocol
+  , analysisProtocol
+  , description
+  , url
+  , idAnalysisType
+  , isActive
+  , idAppUser
+  FROM AnalysisProtocol
+  WHERE NOT EXISTS(SELECT * FROM AnalysisProtocol_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisProtocol 
@@ -1926,6 +2204,28 @@ $$
 
 
 --
+-- Initial audit table rows for AnalysisToTopic 
+--
+
+INSERT INTO AnalysisToTopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idAnalysis
+  FROM AnalysisToTopic
+  WHERE NOT EXISTS(SELECT * FROM AnalysisToTopic_Audit)
+$$
+
+--
 -- Audit Triggers For AnalysisToTopic 
 --
 
@@ -2006,6 +2306,32 @@ CREATE TABLE IF NOT EXISTS `AnalysisType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for AnalysisType 
+--
+
+INSERT INTO AnalysisType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisType
+  , analysisType
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisType
+  , analysisType
+  , isActive
+  , idAppUser
+  FROM AnalysisType
+  WHERE NOT EXISTS(SELECT * FROM AnalysisType_Audit)
+$$
 
 --
 -- Audit Triggers For AnalysisType 
@@ -2111,6 +2437,54 @@ CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Analysis 
+--
+
+INSERT INTO Analysis_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , number
+  , name
+  , description
+  , idLab
+  , idAnalysisType
+  , idAnalysisProtocol
+  , idOrganism
+  , codeVisibility
+  , createDate
+  , idAppUser
+  , idInstitution
+  , idCoreFacility
+  , privacyExpirationDate
+  , idSubmitter )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , number
+  , name
+  , description
+  , idLab
+  , idAnalysisType
+  , idAnalysisProtocol
+  , idOrganism
+  , codeVisibility
+  , createDate
+  , idAppUser
+  , idInstitution
+  , idCoreFacility
+  , privacyExpirationDate
+  , idSubmitter
+  FROM Analysis
+  WHERE NOT EXISTS(SELECT * FROM Analysis_Audit)
+$$
 
 --
 -- Audit Triggers For Analysis 
@@ -2273,6 +2647,32 @@ $$
 
 
 --
+-- Initial audit table rows for ApplicationTheme 
+--
+
+INSERT INTO ApplicationTheme_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idApplicationTheme
+  , applicationTheme
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idApplicationTheme
+  , applicationTheme
+  , isActive
+  , sortOrder
+  FROM ApplicationTheme
+  WHERE NOT EXISTS(SELECT * FROM ApplicationTheme_Audit)
+$$
+
+--
 -- Audit Triggers For ApplicationTheme 
 --
 
@@ -2365,6 +2765,28 @@ $$
 
 
 --
+-- Initial audit table rows for ApplicationType 
+--
+
+INSERT INTO ApplicationType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeApplicationType
+  , applicationType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeApplicationType
+  , applicationType
+  FROM ApplicationType
+  WHERE NOT EXISTS(SELECT * FROM ApplicationType_Audit)
+$$
+
+--
 -- Audit Triggers For ApplicationType 
 --
 
@@ -2454,6 +2876,50 @@ CREATE TABLE IF NOT EXISTS `Application_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Application 
+--
+
+INSERT INTO Application_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeApplication
+  , application
+  , isActive
+  , idApplicationTheme
+  , sortOrder
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , hasCaptureLibDesign
+  , coreSteps
+  , coreStepsNoLibPrep
+  , onlyForLabPrepped
+  , codeApplicationType
+  , samplesPerBatch )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeApplication
+  , application
+  , isActive
+  , idApplicationTheme
+  , sortOrder
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , hasCaptureLibDesign
+  , coreSteps
+  , coreStepsNoLibPrep
+  , onlyForLabPrepped
+  , codeApplicationType
+  , samplesPerBatch
+  FROM Application
+  WHERE NOT EXISTS(SELECT * FROM Application_Audit)
+$$
 
 --
 -- Audit Triggers For Application 
@@ -2614,6 +3080,52 @@ $$
 
 
 --
+-- Initial audit table rows for AppUser 
+--
+
+INSERT INTO AppUser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAppUser
+  , lastName
+  , firstName
+  , uNID
+  , email
+  , phone
+  , department
+  , institute
+  , jobTitle
+  , isActive
+  , codeUserPermissionKind
+  , userNameExternal
+  , passwordExternal
+  , ucscUrl )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAppUser
+  , lastName
+  , firstName
+  , uNID
+  , email
+  , phone
+  , department
+  , institute
+  , jobTitle
+  , isActive
+  , codeUserPermissionKind
+  , userNameExternal
+  , passwordExternal
+  , ucscUrl
+  FROM AppUser
+  WHERE NOT EXISTS(SELECT * FROM AppUser_Audit)
+$$
+
+--
 -- Audit Triggers For AppUser 
 --
 
@@ -2769,6 +3281,34 @@ $$
 
 
 --
+-- Initial audit table rows for ArrayCoordinate 
+--
+
+INSERT INTO ArrayCoordinate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idArrayCoordinate
+  , name
+  , x
+  , y
+  , idSlideDesign )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idArrayCoordinate
+  , name
+  , x
+  , y
+  , idSlideDesign
+  FROM ArrayCoordinate
+  WHERE NOT EXISTS(SELECT * FROM ArrayCoordinate_Audit)
+$$
+
+--
 -- Audit Triggers For ArrayCoordinate 
 --
 
@@ -2869,6 +3409,32 @@ $$
 
 
 --
+-- Initial audit table rows for ArrayDesign 
+--
+
+INSERT INTO ArrayDesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idArrayDesign
+  , name
+  , accessionNumberUArrayExpress
+  , idArrayCoordinate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idArrayDesign
+  , name
+  , accessionNumberUArrayExpress
+  , idArrayCoordinate
+  FROM ArrayDesign
+  WHERE NOT EXISTS(SELECT * FROM ArrayDesign_Audit)
+$$
+
+--
 -- Audit Triggers For ArrayDesign 
 --
 
@@ -2963,6 +3529,32 @@ $$
 
 
 --
+-- Initial audit table rows for Assay 
+--
+
+INSERT INTO Assay_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAssay
+  , name
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAssay
+  , name
+  , description
+  , isActive
+  FROM Assay
+  WHERE NOT EXISTS(SELECT * FROM Assay_Audit)
+$$
+
+--
 -- Audit Triggers For Assay 
 --
 
@@ -3053,6 +3645,28 @@ CREATE TABLE IF NOT EXISTS `BillingAccountUser_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for BillingAccountUser 
+--
+
+INSERT INTO BillingAccountUser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingAccount
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingAccount
+  , idAppUser
+  FROM BillingAccountUser
+  WHERE NOT EXISTS(SELECT * FROM BillingAccountUser_Audit)
+$$
 
 --
 -- Audit Triggers For BillingAccountUser 
@@ -3164,6 +3778,90 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for BillingAccount 
+--
+
+INSERT INTO BillingAccount_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingAccount
+  , accountName
+  , accountNumber
+  , expirationDate
+  , idLab
+  , accountNumberBus
+  , accountNumberOrg
+  , accountNumberFund
+  , accountNumberActivity
+  , accountNumberProject
+  , accountNumberAccount
+  , accountNumberAu
+  , accountNumberYear
+  , idFundingAgency
+  , isPO
+  , isApproved
+  , approvedDate
+  , createDate
+  , submitterEmail
+  , submitterUID
+  , totalDollarAmount
+  , purchaseOrderForm
+  , orderFormFileType
+  , shortAcct
+  , startDate
+  , idCoreFacility
+  , custom1
+  , custom2
+  , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , orderFormFileSize
+  , zipCode )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingAccount
+  , accountName
+  , accountNumber
+  , expirationDate
+  , idLab
+  , accountNumberBus
+  , accountNumberOrg
+  , accountNumberFund
+  , accountNumberActivity
+  , accountNumberProject
+  , accountNumberAccount
+  , accountNumberAu
+  , accountNumberYear
+  , idFundingAgency
+  , isPO
+  , isApproved
+  , approvedDate
+  , createDate
+  , submitterEmail
+  , submitterUID
+  , totalDollarAmount
+  , purchaseOrderForm
+  , orderFormFileType
+  , shortAcct
+  , startDate
+  , idCoreFacility
+  , custom1
+  , custom2
+  , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , orderFormFileSize
+  , zipCode
+  FROM BillingAccount
+  WHERE NOT EXISTS(SELECT * FROM BillingAccount_Audit)
+$$
 
 --
 -- Audit Triggers For BillingAccount 
@@ -3433,6 +4131,30 @@ $$
 
 
 --
+-- Initial audit table rows for BillingChargeKind 
+--
+
+INSERT INTO BillingChargeKind_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBillingChargeKind
+  , billingChargeKind
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBillingChargeKind
+  , billingChargeKind
+  , isActive
+  FROM BillingChargeKind
+  WHERE NOT EXISTS(SELECT * FROM BillingChargeKind_Audit)
+$$
+
+--
 -- Audit Triggers For BillingChargeKind 
 --
 
@@ -3536,6 +4258,66 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for BillingItem 
+--
+
+INSERT INTO BillingItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingItem
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , invoicePrice
+  , idBillingPeriod
+  , codeBillingStatus
+  , idPriceCategory
+  , idPrice
+  , idRequest
+  , idBillingAccount
+  , percentagePrice
+  , notes
+  , idLab
+  , completeDate
+  , splitType
+  , idCoreFacility
+  , idInvoice
+  , idDiskUsageByMonth )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingItem
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , invoicePrice
+  , idBillingPeriod
+  , codeBillingStatus
+  , idPriceCategory
+  , idPrice
+  , idRequest
+  , idBillingAccount
+  , percentagePrice
+  , notes
+  , idLab
+  , completeDate
+  , splitType
+  , idCoreFacility
+  , idInvoice
+  , idDiskUsageByMonth
+  FROM BillingItem
+  WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
+$$
 
 --
 -- Audit Triggers For BillingItem 
@@ -3735,6 +4517,34 @@ $$
 
 
 --
+-- Initial audit table rows for BillingPeriod 
+--
+
+INSERT INTO BillingPeriod_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingPeriod
+  , billingPeriod
+  , startDate
+  , endDate
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingPeriod
+  , billingPeriod
+  , startDate
+  , endDate
+  , isActive
+  FROM BillingPeriod
+  WHERE NOT EXISTS(SELECT * FROM BillingPeriod_Audit)
+$$
+
+--
 -- Audit Triggers For BillingPeriod 
 --
 
@@ -3834,6 +4644,30 @@ $$
 
 
 --
+-- Initial audit table rows for BillingSlideProductClass 
+--
+
+INSERT INTO BillingSlideProductClass_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingSlideProductClass
+  , billingSlideProductClass
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingSlideProductClass
+  , billingSlideProductClass
+  , isActive
+  FROM BillingSlideProductClass
+  WHERE NOT EXISTS(SELECT * FROM BillingSlideProductClass_Audit)
+$$
+
+--
 -- Audit Triggers For BillingSlideProductClass 
 --
 
@@ -3921,6 +4755,30 @@ $$
 
 
 --
+-- Initial audit table rows for BillingSlideServiceClass 
+--
+
+INSERT INTO BillingSlideServiceClass_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingSlideServiceClass
+  , billingSlideServiceClass
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingSlideServiceClass
+  , billingSlideServiceClass
+  , isActive
+  FROM BillingSlideServiceClass
+  WHERE NOT EXISTS(SELECT * FROM BillingSlideServiceClass_Audit)
+$$
+
+--
 -- Audit Triggers For BillingSlideServiceClass 
 --
 
@@ -4006,6 +4864,30 @@ CREATE TABLE IF NOT EXISTS `BillingStatus_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for BillingStatus 
+--
+
+INSERT INTO BillingStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBillingStatus
+  , billingStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBillingStatus
+  , billingStatus
+  , isActive
+  FROM BillingStatus
+  WHERE NOT EXISTS(SELECT * FROM BillingStatus_Audit)
+$$
 
 --
 -- Audit Triggers For BillingStatus 
@@ -4098,6 +4980,40 @@ CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for BioanalyzerChipType 
+--
+
+INSERT INTO BioanalyzerChipType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBioanalyzerChipType
+  , bioanalyzerChipType
+  , concentrationRange
+  , maxSampleBufferStrength
+  , costPerSample
+  , sampleWellsPerChip
+  , isActive
+  , codeConcentrationUnit )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBioanalyzerChipType
+  , bioanalyzerChipType
+  , concentrationRange
+  , maxSampleBufferStrength
+  , costPerSample
+  , sampleWellsPerChip
+  , isActive
+  , codeConcentrationUnit
+  FROM BioanalyzerChipType
+  WHERE NOT EXISTS(SELECT * FROM BioanalyzerChipType_Audit)
+$$
 
 --
 -- Audit Triggers For BioanalyzerChipType 
@@ -4228,6 +5144,56 @@ CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Chromatogram 
+--
+
+INSERT INTO Chromatogram_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idChromatogram
+  , idPlateWell
+  , idRequest
+  , displayName
+  , readLength
+  , trimmedLength
+  , q20
+  , q40
+  , aSignalStrength
+  , cSignalStrength
+  , gSignalStrength
+  , tSignalStrength
+  , releaseDate
+  , qualifiedFilePath
+  , idReleaser
+  , lane )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idChromatogram
+  , idPlateWell
+  , idRequest
+  , displayName
+  , readLength
+  , trimmedLength
+  , q20
+  , q40
+  , aSignalStrength
+  , cSignalStrength
+  , gSignalStrength
+  , tSignalStrength
+  , releaseDate
+  , qualifiedFilePath
+  , idReleaser
+  , lane
+  FROM Chromatogram
+  WHERE NOT EXISTS(SELECT * FROM Chromatogram_Audit)
+$$
 
 --
 -- Audit Triggers For Chromatogram 
@@ -4397,6 +5363,34 @@ $$
 
 
 --
+-- Initial audit table rows for ConcentrationUnit 
+--
+
+INSERT INTO ConcentrationUnit_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeConcentrationUnit
+  , concentrationUnit
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeConcentrationUnit
+  , concentrationUnit
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  FROM ConcentrationUnit
+  WHERE NOT EXISTS(SELECT * FROM ConcentrationUnit_Audit)
+$$
+
+--
 -- Audit Triggers For ConcentrationUnit 
 --
 
@@ -4495,6 +5489,28 @@ $$
 
 
 --
+-- Initial audit table rows for CoreFacilityLab 
+--
+
+INSERT INTO CoreFacilityLab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idLab )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idLab
+  FROM CoreFacilityLab
+  WHERE NOT EXISTS(SELECT * FROM CoreFacilityLab_Audit)
+$$
+
+--
 -- Audit Triggers For CoreFacilityLab 
 --
 
@@ -4573,6 +5589,28 @@ CREATE TABLE IF NOT EXISTS `CoreFacilityManager_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for CoreFacilityManager 
+--
+
+INSERT INTO CoreFacilityManager_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idAppUser
+  FROM CoreFacilityManager
+  WHERE NOT EXISTS(SELECT * FROM CoreFacilityManager_Audit)
+$$
 
 --
 -- Audit Triggers For CoreFacilityManager 
@@ -4657,6 +5695,36 @@ CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for CoreFacility 
+--
+
+INSERT INTO CoreFacility_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , facilityName
+  , isActive
+  , showProjectAnnotations
+  , description
+  , acceptOnlineWorkAuth )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , facilityName
+  , isActive
+  , showProjectAnnotations
+  , description
+  , acceptOnlineWorkAuth
+  FROM CoreFacility
+  WHERE NOT EXISTS(SELECT * FROM CoreFacility_Audit)
+$$
 
 --
 -- Audit Triggers For CoreFacility 
@@ -4765,6 +5833,32 @@ $$
 
 
 --
+-- Initial audit table rows for CreditCardCompany 
+--
+
+INSERT INTO CreditCardCompany_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCreditCardCompany
+  , name
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCreditCardCompany
+  , name
+  , isActive
+  , sortOrder
+  FROM CreditCardCompany
+  WHERE NOT EXISTS(SELECT * FROM CreditCardCompany_Audit)
+$$
+
+--
 -- Audit Triggers For CreditCardCompany 
 --
 
@@ -4857,6 +5951,28 @@ $$
 
 
 --
+-- Initial audit table rows for DataTrackCollaborator 
+--
+
+INSERT INTO DataTrackCollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , idAppUser
+  FROM DataTrackCollaborator
+  WHERE NOT EXISTS(SELECT * FROM DataTrackCollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For DataTrackCollaborator 
 --
 
@@ -4936,6 +6052,30 @@ CREATE TABLE IF NOT EXISTS `DataTrackFile_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for DataTrackFile 
+--
+
+INSERT INTO DataTrackFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrackFile
+  , idAnalysisFile
+  , idDataTrack )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrackFile
+  , idAnalysisFile
+  , idDataTrack
+  FROM DataTrackFile
+  WHERE NOT EXISTS(SELECT * FROM DataTrackFile_Audit)
+$$
 
 --
 -- Audit Triggers For DataTrackFile 
@@ -5028,6 +6168,40 @@ CREATE TABLE IF NOT EXISTS `DataTrackFolder_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for DataTrackFolder 
+--
+
+INSERT INTO DataTrackFolder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrackFolder
+  , name
+  , description
+  , idParentDataTrackFolder
+  , idGenomeBuild
+  , idLab
+  , createdBy
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrackFolder
+  , name
+  , description
+  , idParentDataTrackFolder
+  , idGenomeBuild
+  , idLab
+  , createdBy
+  , createDate
+  FROM DataTrackFolder
+  WHERE NOT EXISTS(SELECT * FROM DataTrackFolder_Audit)
+$$
 
 --
 -- Audit Triggers For DataTrackFolder 
@@ -5146,6 +6320,28 @@ $$
 
 
 --
+-- Initial audit table rows for DataTrackToFolder 
+--
+
+INSERT INTO DataTrackToFolder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , idDataTrackFolder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , idDataTrackFolder
+  FROM DataTrackToFolder
+  WHERE NOT EXISTS(SELECT * FROM DataTrackToFolder_Audit)
+$$
+
+--
 -- Audit Triggers For DataTrackToFolder 
 --
 
@@ -5224,6 +6420,28 @@ CREATE TABLE IF NOT EXISTS `DataTrackToTopic_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for DataTrackToTopic 
+--
+
+INSERT INTO DataTrackToTopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idDataTrack )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idDataTrack
+  FROM DataTrackToTopic
+  WHERE NOT EXISTS(SELECT * FROM DataTrackToTopic_Audit)
+$$
 
 --
 -- Audit Triggers For DataTrackToTopic 
@@ -5316,6 +6534,52 @@ CREATE TABLE IF NOT EXISTS `DataTrack_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for DataTrack 
+--
+
+INSERT INTO DataTrack_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , name
+  , description
+  , fileName
+  , idGenomeBuild
+  , codeVisibility
+  , idAppUser
+  , idLab
+  , summary
+  , createdBy
+  , createDate
+  , isLoaded
+  , idInstitution
+  , dataPath )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , name
+  , description
+  , fileName
+  , idGenomeBuild
+  , codeVisibility
+  , idAppUser
+  , idLab
+  , summary
+  , createdBy
+  , createDate
+  , isLoaded
+  , idInstitution
+  , dataPath
+  FROM DataTrack
+  WHERE NOT EXISTS(SELECT * FROM DataTrack_Audit)
+$$
 
 --
 -- Audit Triggers For DataTrack 
@@ -5479,6 +6743,46 @@ $$
 
 
 --
+-- Initial audit table rows for DiskUsageByMonth 
+--
+
+INSERT INTO DiskUsageByMonth_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDiskUsageByMonth
+  , idLab
+  , asOfDate
+  , lastCalcDate
+  , totalAnalysisDiskSpace
+  , assessedAnalysisDiskSpace
+  , totalExperimentDiskSpace
+  , assessedExperimentDiskSpace
+  , idBillingPeriod
+  , idBillingAccount
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDiskUsageByMonth
+  , idLab
+  , asOfDate
+  , lastCalcDate
+  , totalAnalysisDiskSpace
+  , assessedAnalysisDiskSpace
+  , totalExperimentDiskSpace
+  , assessedExperimentDiskSpace
+  , idBillingPeriod
+  , idBillingAccount
+  , idCoreFacility
+  FROM DiskUsageByMonth
+  WHERE NOT EXISTS(SELECT * FROM DiskUsageByMonth_Audit)
+$$
+
+--
 -- Audit Triggers For DiskUsageByMonth 
 --
 
@@ -5614,6 +6918,30 @@ $$
 
 
 --
+-- Initial audit table rows for DNAPrepType 
+--
+
+INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive
+  FROM DNAPrepType
+  WHERE NOT EXISTS(SELECT * FROM DNAPrepType_Audit)
+$$
+
+--
 -- Audit Triggers For DNAPrepType 
 --
 
@@ -5701,6 +7029,34 @@ CREATE TABLE IF NOT EXISTS `ExperimentDesignEntry_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for ExperimentDesignEntry 
+--
+
+INSERT INTO ExperimentDesignEntry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentDesignEntry
+  , codeExperimentDesign
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentDesignEntry
+  , codeExperimentDesign
+  , idProject
+  , valueString
+  , otherLabel
+  FROM ExperimentDesignEntry
+  WHERE NOT EXISTS(SELECT * FROM ExperimentDesignEntry_Audit)
+$$
 
 --
 -- Audit Triggers For ExperimentDesignEntry 
@@ -5803,6 +7159,36 @@ CREATE TABLE IF NOT EXISTS `ExperimentDesign_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for ExperimentDesign 
+--
+
+INSERT INTO ExperimentDesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeExperimentDesign
+  , experimentDesign
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeExperimentDesign
+  , experimentDesign
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  FROM ExperimentDesign
+  WHERE NOT EXISTS(SELECT * FROM ExperimentDesign_Audit)
+$$
 
 --
 -- Audit Triggers For ExperimentDesign 
@@ -5912,6 +7298,34 @@ $$
 
 
 --
+-- Initial audit table rows for ExperimentFactorEntry 
+--
+
+INSERT INTO ExperimentFactorEntry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentFactorEntry
+  , codeExperimentFactor
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentFactorEntry
+  , codeExperimentFactor
+  , idProject
+  , valueString
+  , otherLabel
+  FROM ExperimentFactorEntry
+  WHERE NOT EXISTS(SELECT * FROM ExperimentFactorEntry_Audit)
+$$
+
+--
 -- Audit Triggers For ExperimentFactorEntry 
 --
 
@@ -6012,6 +7426,36 @@ CREATE TABLE IF NOT EXISTS `ExperimentFactor_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for ExperimentFactor 
+--
+
+INSERT INTO ExperimentFactor_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeExperimentFactor
+  , experimentFactor
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeExperimentFactor
+  , experimentFactor
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  FROM ExperimentFactor
+  WHERE NOT EXISTS(SELECT * FROM ExperimentFactor_Audit)
+$$
 
 --
 -- Audit Triggers For ExperimentFactor 
@@ -6121,6 +7565,34 @@ $$
 
 
 --
+-- Initial audit table rows for ExperimentFile 
+--
+
+INSERT INTO ExperimentFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentFile
+  , fileName
+  , fileSize
+  , idRequest
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentFile
+  , fileName
+  , fileSize
+  , idRequest
+  , createDate
+  FROM ExperimentFile
+  WHERE NOT EXISTS(SELECT * FROM ExperimentFile_Audit)
+$$
+
+--
 -- Audit Triggers For ExperimentFile 
 --
 
@@ -6221,6 +7693,36 @@ CREATE TABLE IF NOT EXISTS `FeatureExtractionProtocol_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for FeatureExtractionProtocol 
+--
+
+INSERT INTO FeatureExtractionProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFeatureExtractionProtocol
+  , featureExtractionProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFeatureExtractionProtocol
+  , featureExtractionProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM FeatureExtractionProtocol
+  WHERE NOT EXISTS(SELECT * FROM FeatureExtractionProtocol_Audit)
+$$
 
 --
 -- Audit Triggers For FeatureExtractionProtocol 
@@ -6347,6 +7849,72 @@ CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for FlowCellChannel 
+--
+
+INSERT INTO FlowCellChannel_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFlowCellChannel
+  , idFlowCell
+  , number
+  , idSequenceLane
+  , idSequencingControl
+  , numberSequencingCyclesActual
+  , clustersPerTile
+  , fileName
+  , startDate
+  , firstCycleDate
+  , firstCycleCompleted
+  , firstCycleFailed
+  , lastCycleDate
+  , lastCycleCompleted
+  , lastCycleFailed
+  , sampleConcentrationpM
+  , pipelineDate
+  , pipelineFailed
+  , isControl
+  , phiXErrorRate
+  , read1ClustersPassedFilterM
+  , read2ClustersPassedFilterM
+  , q30Gb
+  , q30Percent )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFlowCellChannel
+  , idFlowCell
+  , number
+  , idSequenceLane
+  , idSequencingControl
+  , numberSequencingCyclesActual
+  , clustersPerTile
+  , fileName
+  , startDate
+  , firstCycleDate
+  , firstCycleCompleted
+  , firstCycleFailed
+  , lastCycleDate
+  , lastCycleCompleted
+  , lastCycleFailed
+  , sampleConcentrationpM
+  , pipelineDate
+  , pipelineFailed
+  , isControl
+  , phiXErrorRate
+  , read1ClustersPassedFilterM
+  , read2ClustersPassedFilterM
+  , q30Gb
+  , q30Percent
+  FROM FlowCellChannel
+  WHERE NOT EXISTS(SELECT * FROM FlowCellChannel_Audit)
+$$
 
 --
 -- Audit Triggers For FlowCellChannel 
@@ -6570,6 +8138,46 @@ $$
 
 
 --
+-- Initial audit table rows for FlowCell 
+--
+
+INSERT INTO FlowCell_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFlowCell
+  , idNumberSequencingCycles
+  , idSeqRunType
+  , number
+  , createDate
+  , notes
+  , barcode
+  , codeSequencingPlatform
+  , runNumber
+  , idInstrument
+  , side )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFlowCell
+  , idNumberSequencingCycles
+  , idSeqRunType
+  , number
+  , createDate
+  , notes
+  , barcode
+  , codeSequencingPlatform
+  , runNumber
+  , idInstrument
+  , side
+  FROM FlowCell
+  WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
+$$
+
+--
 -- Audit Triggers For FlowCell 
 --
 
@@ -6706,6 +8314,32 @@ $$
 
 
 --
+-- Initial audit table rows for FundingAgency 
+--
+
+INSERT INTO FundingAgency_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFundingAgency
+  , fundingAgency
+  , isPeerReviewedFunding
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFundingAgency
+  , fundingAgency
+  , isPeerReviewedFunding
+  , isActive
+  FROM FundingAgency
+  WHERE NOT EXISTS(SELECT * FROM FundingAgency_Audit)
+$$
+
+--
 -- Audit Triggers For FundingAgency 
 --
 
@@ -6797,6 +8431,30 @@ CREATE TABLE IF NOT EXISTS `GenomeBuildAlias_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for GenomeBuildAlias 
+--
+
+INSERT INTO GenomeBuildAlias_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeBuildAlias
+  , alias
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeBuildAlias
+  , alias
+  , idGenomeBuild
+  FROM GenomeBuildAlias
+  WHERE NOT EXISTS(SELECT * FROM GenomeBuildAlias_Audit)
+$$
 
 --
 -- Audit Triggers For GenomeBuildAlias 
@@ -6897,6 +8555,56 @@ CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for GenomeBuild 
+--
+
+INSERT INTO GenomeBuild_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeBuild
+  , genomeBuildName
+  , idOrganism
+  , isActive
+  , isLatestBuild
+  , idAppUser
+  , das2Name
+  , buildDate
+  , coordURI
+  , coordVersion
+  , coordSource
+  , coordTestRange
+  , coordAuthority
+  , ucscName
+  , dataPath
+  , igvName )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeBuild
+  , genomeBuildName
+  , idOrganism
+  , isActive
+  , isLatestBuild
+  , idAppUser
+  , das2Name
+  , buildDate
+  , coordURI
+  , coordVersion
+  , coordSource
+  , coordTestRange
+  , coordAuthority
+  , ucscName
+  , dataPath
+  , igvName
+  FROM GenomeBuild
+  WHERE NOT EXISTS(SELECT * FROM GenomeBuild_Audit)
+$$
 
 --
 -- Audit Triggers For GenomeBuild 
@@ -7066,6 +8774,34 @@ $$
 
 
 --
+-- Initial audit table rows for GenomeIndex 
+--
+
+INSERT INTO GenomeIndex_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeIndex
+  , genomeIndexName
+  , webServiceName
+  , isActive
+  , idOrganism )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeIndex
+  , genomeIndexName
+  , webServiceName
+  , isActive
+  , idOrganism
+  FROM GenomeIndex
+  WHERE NOT EXISTS(SELECT * FROM GenomeIndex_Audit)
+$$
+
+--
 -- Audit Triggers For GenomeIndex 
 --
 
@@ -7166,6 +8902,36 @@ CREATE TABLE IF NOT EXISTS `HybProtocol_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for HybProtocol 
+--
+
+INSERT INTO HybProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idHybProtocol
+  , hybProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idHybProtocol
+  , hybProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM HybProtocol
+  WHERE NOT EXISTS(SELECT * FROM HybProtocol_Audit)
+$$
 
 --
 -- Audit Triggers For HybProtocol 
@@ -7289,6 +9055,66 @@ CREATE TABLE IF NOT EXISTS `Hybridization_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Hybridization 
+--
+
+INSERT INTO Hybridization_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idHybridization
+  , number
+  , notes
+  , codeSlideSource
+  , idSlideDesign
+  , idHybProtocol
+  , idHybBuffer
+  , idLabeledSampleChannel1
+  , idLabeledSampleChannel2
+  , idSlide
+  , idArrayCoordinate
+  , idScanProtocol
+  , idFeatureExtractionProtocol
+  , hybDate
+  , hybFailed
+  , hybBypassed
+  , extractionDate
+  , extractionFailed
+  , extractionBypassed
+  , hasResults
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idHybridization
+  , number
+  , notes
+  , codeSlideSource
+  , idSlideDesign
+  , idHybProtocol
+  , idHybBuffer
+  , idLabeledSampleChannel1
+  , idLabeledSampleChannel2
+  , idSlide
+  , idArrayCoordinate
+  , idScanProtocol
+  , idFeatureExtractionProtocol
+  , hybDate
+  , hybFailed
+  , hybBypassed
+  , extractionDate
+  , extractionFailed
+  , extractionBypassed
+  , hasResults
+  , createDate
+  FROM Hybridization
+  WHERE NOT EXISTS(SELECT * FROM Hybridization_Audit)
+$$
 
 --
 -- Audit Triggers For Hybridization 
@@ -7485,6 +9311,28 @@ $$
 
 
 --
+-- Initial audit table rows for InstitutionLab 
+--
+
+INSERT INTO InstitutionLab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstitution
+  , idLab )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstitution
+  , idLab
+  FROM InstitutionLab
+  WHERE NOT EXISTS(SELECT * FROM InstitutionLab_Audit)
+$$
+
+--
 -- Audit Triggers For InstitutionLab 
 --
 
@@ -7566,6 +9414,34 @@ CREATE TABLE IF NOT EXISTS `Institution_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Institution 
+--
+
+INSERT INTO Institution_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstitution
+  , institution
+  , description
+  , isActive
+  , isDefault )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstitution
+  , institution
+  , description
+  , isActive
+  , isDefault
+  FROM Institution
+  WHERE NOT EXISTS(SELECT * FROM Institution_Audit)
+$$
 
 --
 -- Audit Triggers For Institution 
@@ -7667,6 +9543,30 @@ $$
 
 
 --
+-- Initial audit table rows for InstrumentRunStatus 
+--
+
+INSERT INTO InstrumentRunStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeInstrumentRunStatus
+  , instrumentRunStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeInstrumentRunStatus
+  , instrumentRunStatus
+  , isActive
+  FROM InstrumentRunStatus
+  WHERE NOT EXISTS(SELECT * FROM InstrumentRunStatus_Audit)
+$$
+
+--
 -- Audit Triggers For InstrumentRunStatus 
 --
 
@@ -7758,6 +9658,42 @@ CREATE TABLE IF NOT EXISTS `InstrumentRun_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for InstrumentRun 
+--
+
+INSERT INTO InstrumentRun_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstrumentRun
+  , runDate
+  , createDate
+  , codeInstrumentRunStatus
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstrumentRun
+  , runDate
+  , createDate
+  , codeInstrumentRunStatus
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType
+  FROM InstrumentRun
+  WHERE NOT EXISTS(SELECT * FROM InstrumentRun_Audit)
+$$
 
 --
 -- Audit Triggers For InstrumentRun 
@@ -7883,6 +9819,30 @@ $$
 
 
 --
+-- Initial audit table rows for Instrument 
+--
+
+INSERT INTO Instrument_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstrument
+  , instrument
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstrument
+  , instrument
+  , isActive
+  FROM Instrument
+  WHERE NOT EXISTS(SELECT * FROM Instrument_Audit)
+$$
+
+--
 -- Audit Triggers For Instrument 
 --
 
@@ -7974,6 +9934,42 @@ CREATE TABLE IF NOT EXISTS `InternalAccountFieldsConfiguration_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for InternalAccountFieldsConfiguration 
+--
+
+INSERT INTO InternalAccountFieldsConfiguration_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInternalAccountFieldsConfiguration
+  , fieldName
+  , include
+  , sortOrder
+  , displayName
+  , isRequired
+  , isNumber
+  , minLength
+  , maxLength )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInternalAccountFieldsConfiguration
+  , fieldName
+  , include
+  , sortOrder
+  , displayName
+  , isRequired
+  , isNumber
+  , minLength
+  , maxLength
+  FROM InternalAccountFieldsConfiguration
+  WHERE NOT EXISTS(SELECT * FROM InternalAccountFieldsConfiguration_Audit)
+$$
 
 --
 -- Audit Triggers For InternalAccountFieldsConfiguration 
@@ -8102,6 +10098,36 @@ $$
 
 
 --
+-- Initial audit table rows for Invoice 
+--
+
+INSERT INTO Invoice_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInvoice
+  , idCoreFacility
+  , idBillingPeriod
+  , idBillingAccount
+  , invoiceNumber
+  , lastEmailDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInvoice
+  , idCoreFacility
+  , idBillingPeriod
+  , idBillingAccount
+  , invoiceNumber
+  , lastEmailDate
+  FROM Invoice
+  WHERE NOT EXISTS(SELECT * FROM Invoice_Audit)
+$$
+
+--
 -- Audit Triggers For Invoice 
 --
 
@@ -8210,6 +10236,40 @@ CREATE TABLE IF NOT EXISTS `IScanChip_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for IScanChip 
+--
+
+INSERT INTO IScanChip_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idIScanChip
+  , name
+  , costPerSample
+  , samplesPerChip
+  , markersPerSample
+  , catalogNumber
+  , isActive
+  , chipsPerKit )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idIScanChip
+  , name
+  , costPerSample
+  , samplesPerChip
+  , markersPerSample
+  , catalogNumber
+  , isActive
+  , chipsPerKit
+  FROM IScanChip
+  WHERE NOT EXISTS(SELECT * FROM IScanChip_Audit)
+$$
 
 --
 -- Audit Triggers For IScanChip 
@@ -8329,6 +10389,30 @@ $$
 
 
 --
+-- Initial audit table rows for LabCollaborator 
+--
+
+INSERT INTO LabCollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sendUploadAlert
+  FROM LabCollaborator
+  WHERE NOT EXISTS(SELECT * FROM LabCollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For LabCollaborator 
 --
 
@@ -8422,6 +10506,46 @@ CREATE TABLE IF NOT EXISTS `LabeledSample_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for LabeledSample 
+--
+
+INSERT INTO LabeledSample_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabeledSample
+  , labelingYield
+  , idSample
+  , idLabel
+  , idLabelingProtocol
+  , codeLabelingReactionSize
+  , numberOfReactions
+  , labelingDate
+  , labelingFailed
+  , labelingBypassed
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabeledSample
+  , labelingYield
+  , idSample
+  , idLabel
+  , idLabelingProtocol
+  , codeLabelingReactionSize
+  , numberOfReactions
+  , labelingDate
+  , labelingFailed
+  , labelingBypassed
+  , idRequest
+  FROM LabeledSample
+  WHERE NOT EXISTS(SELECT * FROM LabeledSample_Audit)
+$$
 
 --
 -- Audit Triggers For LabeledSample 
@@ -8562,6 +10686,36 @@ $$
 
 
 --
+-- Initial audit table rows for LabelingProtocol 
+--
+
+INSERT INTO LabelingProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabelingProtocol
+  , labelingProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabelingProtocol
+  , labelingProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM LabelingProtocol
+  WHERE NOT EXISTS(SELECT * FROM LabelingProtocol_Audit)
+$$
+
+--
 -- Audit Triggers For LabelingProtocol 
 --
 
@@ -8668,6 +10822,32 @@ $$
 
 
 --
+-- Initial audit table rows for LabelingReactionSize 
+--
+
+INSERT INTO LabelingReactionSize_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeLabelingReactionSize
+  , labelingReactionSize
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeLabelingReactionSize
+  , labelingReactionSize
+  , isActive
+  , sortOrder
+  FROM LabelingReactionSize
+  WHERE NOT EXISTS(SELECT * FROM LabelingReactionSize_Audit)
+$$
+
+--
 -- Audit Triggers For LabelingReactionSize 
 --
 
@@ -8761,6 +10941,30 @@ $$
 
 
 --
+-- Initial audit table rows for Label 
+--
+
+INSERT INTO Label_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabel
+  , label
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabel
+  , label
+  , isActive
+  FROM Label
+  WHERE NOT EXISTS(SELECT * FROM Label_Audit)
+$$
+
+--
 -- Audit Triggers For Label 
 --
 
@@ -8846,6 +11050,30 @@ CREATE TABLE IF NOT EXISTS `LabManager_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for LabManager 
+--
+
+INSERT INTO LabManager_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sendUploadAlert
+  FROM LabManager
+  WHERE NOT EXISTS(SELECT * FROM LabManager_Audit)
+$$
 
 --
 -- Audit Triggers For LabManager 
@@ -8935,6 +11163,34 @@ CREATE TABLE IF NOT EXISTS `LabUser_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for LabUser 
+--
+
+INSERT INTO LabUser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sortOrder
+  , isActive
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sortOrder
+  , isActive
+  , sendUploadAlert
+  FROM LabUser
+  WHERE NOT EXISTS(SELECT * FROM LabUser_Audit)
+$$
 
 --
 -- Audit Triggers For LabUser 
@@ -9053,6 +11309,68 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Lab 
+--
+
+INSERT INTO Lab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , name
+  , department
+  , notes
+  , contactName
+  , contactAddress
+  , contactCodeState
+  , contactZip
+  , contactCity
+  , contactPhone
+  , contactEmail
+  , isCCSGMember
+  , firstName
+  , lastName
+  , isExternalPricing
+  , isExternalPricingCommercial
+  , isActive
+  , excludeUsage
+  , billingContactEmail
+  , version
+  , contactAddress2
+  , contactCountry )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , name
+  , department
+  , notes
+  , contactName
+  , contactAddress
+  , contactCodeState
+  , contactZip
+  , contactCity
+  , contactPhone
+  , contactEmail
+  , isCCSGMember
+  , firstName
+  , lastName
+  , isExternalPricing
+  , isExternalPricingCommercial
+  , isActive
+  , excludeUsage
+  , billingContactEmail
+  , version
+  , contactAddress2
+  , contactCountry
+  FROM Lab
+  WHERE NOT EXISTS(SELECT * FROM Lab_Audit)
+$$
 
 --
 -- Audit Triggers For Lab 
@@ -9254,6 +11572,26 @@ $$
 
 
 --
+-- Initial audit table rows for NucleotideType 
+--
+
+INSERT INTO NucleotideType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeNucleotideType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeNucleotideType
+  FROM NucleotideType
+  WHERE NOT EXISTS(SELECT * FROM NucleotideType_Audit)
+$$
+
+--
 -- Audit Triggers For NucleotideType 
 --
 
@@ -9330,6 +11668,36 @@ CREATE TABLE IF NOT EXISTS `NumberSequencingCyclesAllowed_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for NumberSequencingCyclesAllowed 
+--
+
+INSERT INTO NumberSequencingCyclesAllowed_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNumberSequencingCyclesAllowed
+  , idNumberSequencingCycles
+  , codeRequestCategory
+  , idSeqRunType
+  , name
+  , isCustom )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNumberSequencingCyclesAllowed
+  , idNumberSequencingCycles
+  , codeRequestCategory
+  , idSeqRunType
+  , name
+  , isCustom
+  FROM NumberSequencingCyclesAllowed
+  WHERE NOT EXISTS(SELECT * FROM NumberSequencingCyclesAllowed_Audit)
+$$
 
 --
 -- Audit Triggers For NumberSequencingCyclesAllowed 
@@ -9439,6 +11807,34 @@ $$
 
 
 --
+-- Initial audit table rows for NumberSequencingCycles 
+--
+
+INSERT INTO NumberSequencingCycles_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNumberSequencingCycles
+  , numberSequencingCycles
+  , isActive
+  , sortOrder
+  , notes )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNumberSequencingCycles
+  , numberSequencingCycles
+  , isActive
+  , sortOrder
+  , notes
+  FROM NumberSequencingCycles
+  WHERE NOT EXISTS(SELECT * FROM NumberSequencingCycles_Audit)
+$$
+
+--
 -- Audit Triggers For NumberSequencingCycles 
 --
 
@@ -9539,6 +11935,32 @@ $$
 
 
 --
+-- Initial audit table rows for OligoBarcodeSchemeAllowed 
+--
+
+INSERT INTO OligoBarcodeSchemeAllowed_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcodeSchemeAllowed
+  , idOligoBarcodeScheme
+  , idSeqLibProtocol
+  , isIndexGroupB )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcodeSchemeAllowed
+  , idOligoBarcodeScheme
+  , idSeqLibProtocol
+  , isIndexGroupB
+  FROM OligoBarcodeSchemeAllowed
+  WHERE NOT EXISTS(SELECT * FROM OligoBarcodeSchemeAllowed_Audit)
+$$
+
+--
 -- Audit Triggers For OligoBarcodeSchemeAllowed 
 --
 
@@ -9631,6 +12053,32 @@ CREATE TABLE IF NOT EXISTS `OligoBarcodeScheme_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for OligoBarcodeScheme 
+--
+
+INSERT INTO OligoBarcodeScheme_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcodeScheme
+  , oligoBarcodeScheme
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcodeScheme
+  , oligoBarcodeScheme
+  , description
+  , isActive
+  FROM OligoBarcodeScheme
+  WHERE NOT EXISTS(SELECT * FROM OligoBarcodeScheme_Audit)
+$$
 
 --
 -- Audit Triggers For OligoBarcodeScheme 
@@ -9727,6 +12175,36 @@ CREATE TABLE IF NOT EXISTS `OligoBarcode_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for OligoBarcode 
+--
+
+INSERT INTO OligoBarcode_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcode
+  , name
+  , barcodeSequence
+  , idOligoBarcodeScheme
+  , sortOrder
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcode
+  , name
+  , barcodeSequence
+  , idOligoBarcodeScheme
+  , sortOrder
+  , isActive
+  FROM OligoBarcode
+  WHERE NOT EXISTS(SELECT * FROM OligoBarcode_Audit)
+$$
 
 --
 -- Audit Triggers For OligoBarcode 
@@ -9840,6 +12318,46 @@ CREATE TABLE IF NOT EXISTS `Organism_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Organism 
+--
+
+INSERT INTO Organism_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOrganism
+  , organism
+  , abbreviation
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , das2Name
+  , sortOrder
+  , binomialName
+  , NCBITaxID )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOrganism
+  , organism
+  , abbreviation
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , das2Name
+  , sortOrder
+  , binomialName
+  , NCBITaxID
+  FROM Organism
+  WHERE NOT EXISTS(SELECT * FROM Organism_Audit)
+$$
 
 --
 -- Audit Triggers For Organism 
@@ -9978,6 +12496,32 @@ $$
 
 
 --
+-- Initial audit table rows for OtherAccountFieldsConfiguration 
+--
+
+INSERT INTO OtherAccountFieldsConfiguration_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOtherAccountFieldsConfiguration
+  , fieldName
+  , include
+  , isRequired )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOtherAccountFieldsConfiguration
+  , fieldName
+  , include
+  , isRequired
+  FROM OtherAccountFieldsConfiguration
+  WHERE NOT EXISTS(SELECT * FROM OtherAccountFieldsConfiguration_Audit)
+$$
+
+--
 -- Audit Triggers For OtherAccountFieldsConfiguration 
 --
 
@@ -10069,6 +12613,30 @@ CREATE TABLE IF NOT EXISTS `PlateType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PlateType 
+--
+
+INSERT INTO PlateType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codePlateType
+  , plateTypeDescription
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codePlateType
+  , plateTypeDescription
+  , isActive
+  FROM PlateType
+  WHERE NOT EXISTS(SELECT * FROM PlateType_Audit)
+$$
 
 --
 -- Audit Triggers For PlateType 
@@ -10166,6 +12734,50 @@ CREATE TABLE IF NOT EXISTS `PlateWell_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PlateWell 
+--
+
+INSERT INTO PlateWell_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlateWell
+  , row
+  , col
+  , ind
+  , idPlate
+  , idSample
+  , idRequest
+  , createDate
+  , codeReactionType
+  , redoFlag
+  , isControl
+  , idAssay
+  , idPrimer )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlateWell
+  , row
+  , col
+  , ind
+  , idPlate
+  , idSample
+  , idRequest
+  , createDate
+  , codeReactionType
+  , redoFlag
+  , isControl
+  , idAssay
+  , idPrimer
+  FROM PlateWell
+  WHERE NOT EXISTS(SELECT * FROM PlateWell_Audit)
+$$
 
 --
 -- Audit Triggers For PlateWell 
@@ -10322,6 +12934,44 @@ $$
 
 
 --
+-- Initial audit table rows for Plate 
+--
+
+INSERT INTO Plate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlate
+  , idInstrumentRun
+  , codePlateType
+  , quadrant
+  , createDate
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlate
+  , idInstrumentRun
+  , codePlateType
+  , quadrant
+  , createDate
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType
+  FROM Plate
+  WHERE NOT EXISTS(SELECT * FROM Plate_Audit)
+$$
+
+--
 -- Audit Triggers For Plate 
 --
 
@@ -10450,6 +13100,28 @@ $$
 
 
 --
+-- Initial audit table rows for PriceCategoryStep 
+--
+
+INSERT INTO PriceCategoryStep_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCategory
+  , codeStep )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCategory
+  , codeStep
+  FROM PriceCategoryStep
+  WHERE NOT EXISTS(SELECT * FROM PriceCategoryStep_Audit)
+$$
+
+--
 -- Audit Triggers For PriceCategoryStep 
 --
 
@@ -10534,6 +13206,40 @@ CREATE TABLE IF NOT EXISTS `PriceCategory_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PriceCategory 
+--
+
+INSERT INTO PriceCategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCategory
+  , name
+  , description
+  , codeBillingChargeKind
+  , pluginClassName
+  , dictionaryClassNameFilter1
+  , dictionaryClassNameFilter2
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCategory
+  , name
+  , description
+  , codeBillingChargeKind
+  , pluginClassName
+  , dictionaryClassNameFilter1
+  , dictionaryClassNameFilter2
+  , isActive
+  FROM PriceCategory
+  WHERE NOT EXISTS(SELECT * FROM PriceCategory_Audit)
+$$
 
 --
 -- Audit Triggers For PriceCategory 
@@ -10654,6 +13360,32 @@ $$
 
 
 --
+-- Initial audit table rows for PriceCriteria 
+--
+
+INSERT INTO PriceCriteria_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCriteria
+  , filter1
+  , filter2
+  , idPrice )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCriteria
+  , filter1
+  , filter2
+  , idPrice
+  FROM PriceCriteria
+  WHERE NOT EXISTS(SELECT * FROM PriceCriteria_Audit)
+$$
+
+--
 -- Audit Triggers For PriceCriteria 
 --
 
@@ -10747,6 +13479,30 @@ $$
 
 
 --
+-- Initial audit table rows for PriceSheetPriceCategory 
+--
+
+INSERT INTO PriceSheetPriceCategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , idPriceCategory
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , idPriceCategory
+  , sortOrder
+  FROM PriceSheetPriceCategory
+  WHERE NOT EXISTS(SELECT * FROM PriceSheetPriceCategory_Audit)
+$$
+
+--
 -- Audit Triggers For PriceSheetPriceCategory 
 --
 
@@ -10833,6 +13589,28 @@ $$
 
 
 --
+-- Initial audit table rows for PriceSheetRequestCategory 
+--
+
+INSERT INTO PriceSheetRequestCategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , codeRequestCategory
+  FROM PriceSheetRequestCategory
+  WHERE NOT EXISTS(SELECT * FROM PriceSheetRequestCategory_Audit)
+$$
+
+--
 -- Audit Triggers For PriceSheetRequestCategory 
 --
 
@@ -10913,6 +13691,32 @@ CREATE TABLE IF NOT EXISTS `PriceSheet_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PriceSheet 
+--
+
+INSERT INTO PriceSheet_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , name
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , name
+  , description
+  , isActive
+  FROM PriceSheet
+  WHERE NOT EXISTS(SELECT * FROM PriceSheet_Audit)
+$$
 
 --
 -- Audit Triggers For PriceSheet 
@@ -11011,6 +13815,40 @@ CREATE TABLE IF NOT EXISTS `Price_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Price 
+--
+
+INSERT INTO Price_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPrice
+  , name
+  , description
+  , unitPrice
+  , unitPriceExternalAcademic
+  , unitPriceExternalCommercial
+  , idPriceCategory
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPrice
+  , name
+  , description
+  , unitPrice
+  , unitPriceExternalAcademic
+  , unitPriceExternalCommercial
+  , idPriceCategory
+  , isActive
+  FROM Price
+  WHERE NOT EXISTS(SELECT * FROM Price_Audit)
+$$
 
 --
 -- Audit Triggers For Price 
@@ -11132,6 +13970,34 @@ $$
 
 
 --
+-- Initial audit table rows for Primer 
+--
+
+INSERT INTO Primer_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPrimer
+  , name
+  , description
+  , sequence
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPrimer
+  , name
+  , description
+  , sequence
+  , isActive
+  FROM Primer
+  WHERE NOT EXISTS(SELECT * FROM Primer_Audit)
+$$
+
+--
 -- Audit Triggers For Primer 
 --
 
@@ -11233,6 +14099,38 @@ CREATE TABLE IF NOT EXISTS `Project_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Project 
+--
+
+INSERT INTO Project_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProject
+  , name
+  , description
+  , publicDateForAppUsers
+  , idLab
+  , idAppUser
+  , codeVisibility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProject
+  , name
+  , description
+  , publicDateForAppUsers
+  , idLab
+  , idAppUser
+  , codeVisibility
+  FROM Project
+  WHERE NOT EXISTS(SELECT * FROM Project_Audit)
+$$
 
 --
 -- Audit Triggers For Project 
@@ -11345,6 +14243,28 @@ $$
 
 
 --
+-- Initial audit table rows for PropertyAnalysisType 
+--
+
+INSERT INTO PropertyAnalysisType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , idAnalysisType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , idAnalysisType
+  FROM PropertyAnalysisType
+  WHERE NOT EXISTS(SELECT * FROM PropertyAnalysisType_Audit)
+$$
+
+--
 -- Audit Triggers For PropertyAnalysisType 
 --
 
@@ -11428,6 +14348,38 @@ CREATE TABLE IF NOT EXISTS `PropertyDictionary_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PropertyDictionary 
+--
+
+INSERT INTO PropertyDictionary_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyDictionary
+  , propertyName
+  , propertyValue
+  , propertyDescription
+  , forServerOnly
+  , idCoreFacility
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyDictionary
+  , propertyName
+  , propertyValue
+  , propertyDescription
+  , forServerOnly
+  , idCoreFacility
+  , codeRequestCategory
+  FROM PropertyDictionary
+  WHERE NOT EXISTS(SELECT * FROM PropertyDictionary_Audit)
+$$
 
 --
 -- Audit Triggers For PropertyDictionary 
@@ -11540,6 +14492,28 @@ $$
 
 
 --
+-- Initial audit table rows for PropertyEntryOption 
+--
+
+INSERT INTO PropertyEntryOption_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntry
+  , idPropertyOption )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntry
+  , idPropertyOption
+  FROM PropertyEntryOption
+  WHERE NOT EXISTS(SELECT * FROM PropertyEntryOption_Audit)
+$$
+
+--
 -- Audit Triggers For PropertyEntryOption 
 --
 
@@ -11619,6 +14593,30 @@ CREATE TABLE IF NOT EXISTS `PropertyEntryValue_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PropertyEntryValue 
+--
+
+INSERT INTO PropertyEntryValue_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntryValue
+  , value
+  , idPropertyEntry )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntryValue
+  , value
+  , idPropertyEntry
+  FROM PropertyEntryValue
+  WHERE NOT EXISTS(SELECT * FROM PropertyEntryValue_Audit)
+$$
 
 --
 -- Audit Triggers For PropertyEntryValue 
@@ -11710,6 +14708,38 @@ CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PropertyEntry 
+--
+
+INSERT INTO PropertyEntry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntry
+  , idProperty
+  , idSample
+  , valueString
+  , otherLabel
+  , idDataTrack
+  , idAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntry
+  , idProperty
+  , idSample
+  , valueString
+  , otherLabel
+  , idDataTrack
+  , idAnalysis
+  FROM PropertyEntry
+  WHERE NOT EXISTS(SELECT * FROM PropertyEntry_Audit)
+$$
 
 --
 -- Audit Triggers For PropertyEntry 
@@ -11825,6 +14855,34 @@ $$
 
 
 --
+-- Initial audit table rows for PropertyOption 
+--
+
+INSERT INTO PropertyOption_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyOption
+  , value
+  , idProperty
+  , sortOrder
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyOption
+  , value
+  , idProperty
+  , sortOrder
+  , isActive
+  FROM PropertyOption
+  WHERE NOT EXISTS(SELECT * FROM PropertyOption_Audit)
+$$
+
+--
 -- Audit Triggers For PropertyOption 
 --
 
@@ -11923,6 +14981,28 @@ $$
 
 
 --
+-- Initial audit table rows for PropertyOrganism 
+--
+
+INSERT INTO PropertyOrganism_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , idOrganism )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , idOrganism
+  FROM PropertyOrganism
+  WHERE NOT EXISTS(SELECT * FROM PropertyOrganism_Audit)
+$$
+
+--
 -- Audit Triggers For PropertyOrganism 
 --
 
@@ -12003,6 +15083,32 @@ CREATE TABLE IF NOT EXISTS `PropertyPlatformApplication_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PropertyPlatformApplication 
+--
+
+INSERT INTO PropertyPlatformApplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlatformApplication
+  , idProperty
+  , codeRequestCategory
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlatformApplication
+  , idProperty
+  , codeRequestCategory
+  , codeApplication
+  FROM PropertyPlatformApplication
+  WHERE NOT EXISTS(SELECT * FROM PropertyPlatformApplication_Audit)
+$$
 
 --
 -- Audit Triggers For PropertyPlatformApplication 
@@ -12096,6 +15202,30 @@ CREATE TABLE IF NOT EXISTS `PropertyType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for PropertyType 
+--
+
+INSERT INTO PropertyType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codePropertyType
+  , name
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codePropertyType
+  , name
+  , isActive
+  FROM PropertyType
+  WHERE NOT EXISTS(SELECT * FROM PropertyType_Audit)
+$$
 
 --
 -- Audit Triggers For PropertyType 
@@ -12192,6 +15322,48 @@ CREATE TABLE IF NOT EXISTS `Property_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Property 
+--
+
+INSERT INTO Property_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , name
+  , description
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , isRequired
+  , forSample
+  , forAnalysis
+  , forDataTrack
+  , codePropertyType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , name
+  , description
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , isRequired
+  , forSample
+  , forAnalysis
+  , forDataTrack
+  , codePropertyType
+  FROM Property
+  WHERE NOT EXISTS(SELECT * FROM Property_Audit)
+$$
 
 --
 -- Audit Triggers For Property 
@@ -12335,6 +15507,30 @@ $$
 
 
 --
+-- Initial audit table rows for ProtocolType 
+--
+
+INSERT INTO ProtocolType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProtocolType
+  , protocolType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProtocolType
+  , protocolType
+  , isActive
+  FROM ProtocolType
+  WHERE NOT EXISTS(SELECT * FROM ProtocolType_Audit)
+$$
+
+--
 -- Audit Triggers For ProtocolType 
 --
 
@@ -12422,6 +15618,34 @@ CREATE TABLE IF NOT EXISTS `QualityControlStepEntry_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for QualityControlStepEntry 
+--
+
+INSERT INTO QualityControlStepEntry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idQualityControlStepEntry
+  , codeQualityControlStep
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idQualityControlStepEntry
+  , codeQualityControlStep
+  , idProject
+  , valueString
+  , otherLabel
+  FROM QualityControlStepEntry
+  WHERE NOT EXISTS(SELECT * FROM QualityControlStepEntry_Audit)
+$$
 
 --
 -- Audit Triggers For QualityControlStepEntry 
@@ -12525,6 +15749,34 @@ $$
 
 
 --
+-- Initial audit table rows for QualityControlStep 
+--
+
+INSERT INTO QualityControlStep_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeQualityControlStep
+  , qualityControlStep
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeQualityControlStep
+  , qualityControlStep
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  FROM QualityControlStep
+  WHERE NOT EXISTS(SELECT * FROM QualityControlStep_Audit)
+$$
+
+--
 -- Audit Triggers For QualityControlStep 
 --
 
@@ -12624,6 +15876,30 @@ $$
 
 
 --
+-- Initial audit table rows for ReactionType 
+--
+
+INSERT INTO ReactionType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeReactionType
+  , reactionType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeReactionType
+  , reactionType
+  , isActive
+  FROM ReactionType
+  WHERE NOT EXISTS(SELECT * FROM ReactionType_Audit)
+$$
+
+--
 -- Audit Triggers For ReactionType 
 --
 
@@ -12712,6 +15988,36 @@ CREATE TABLE IF NOT EXISTS `RequestCategoryApplication_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestCategoryApplication 
+--
+
+INSERT INTO RequestCategoryApplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategory
+  , codeApplication
+  , idLabelingProtocolDefault
+  , idHybProtocolDefault
+  , idScanProtocolDefault
+  , idFeatureExtractionProtocolDefault )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategory
+  , codeApplication
+  , idLabelingProtocolDefault
+  , idHybProtocolDefault
+  , idScanProtocolDefault
+  , idFeatureExtractionProtocolDefault
+  FROM RequestCategoryApplication
+  WHERE NOT EXISTS(SELECT * FROM RequestCategoryApplication_Audit)
+$$
 
 --
 -- Audit Triggers For RequestCategoryApplication 
@@ -12819,6 +16125,34 @@ CREATE TABLE IF NOT EXISTS `RequestCategoryType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestCategoryType 
+--
+
+INSERT INTO RequestCategoryType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategoryType
+  , description
+  , defaultIcon
+  , isIllumina
+  , hasChannels )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategoryType
+  , description
+  , defaultIcon
+  , isIllumina
+  , hasChannels
+  FROM RequestCategoryType
+  WHERE NOT EXISTS(SELECT * FROM RequestCategoryType_Audit)
+$$
 
 --
 -- Audit Triggers For RequestCategoryType 
@@ -12931,6 +16265,56 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestCategory 
+--
+
+INSERT INTO RequestCategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategory
+  , requestCategory
+  , idVendor
+  , isActive
+  , numberOfChannels
+  , notes
+  , icon
+  , type
+  , sortOrder
+  , idOrganism
+  , idCoreFacility
+  , isSampleBarcodingOptional
+  , isInternal
+  , isExternal
+  , refrainFromAutoDelete
+  , isClinicalResearch )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategory
+  , requestCategory
+  , idVendor
+  , isActive
+  , numberOfChannels
+  , notes
+  , icon
+  , type
+  , sortOrder
+  , idOrganism
+  , idCoreFacility
+  , isSampleBarcodingOptional
+  , isInternal
+  , isExternal
+  , refrainFromAutoDelete
+  , isClinicalResearch
+  FROM RequestCategory
+  WHERE NOT EXISTS(SELECT * FROM RequestCategory_Audit)
+$$
 
 --
 -- Audit Triggers For RequestCategory 
@@ -13099,6 +16483,32 @@ $$
 
 
 --
+-- Initial audit table rows for RequestCollaborator 
+--
+
+INSERT INTO RequestCollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idAppUser
+  , canUploadData
+  , canUpdate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idAppUser
+  , canUploadData
+  , canUpdate
+  FROM RequestCollaborator
+  WHERE NOT EXISTS(SELECT * FROM RequestCollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For RequestCollaborator 
 --
 
@@ -13191,6 +16601,28 @@ $$
 
 
 --
+-- Initial audit table rows for RequestHybridization 
+--
+
+INSERT INTO RequestHybridization_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idHybridization )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idHybridization
+  FROM RequestHybridization
+  WHERE NOT EXISTS(SELECT * FROM RequestHybridization_Audit)
+$$
+
+--
 -- Audit Triggers For RequestHybridization 
 --
 
@@ -13269,6 +16701,28 @@ CREATE TABLE IF NOT EXISTS `RequestSeqLibTreatment_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestSeqLibTreatment 
+--
+
+INSERT INTO RequestSeqLibTreatment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idSeqLibTreatment )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idSeqLibTreatment
+  FROM RequestSeqLibTreatment
+  WHERE NOT EXISTS(SELECT * FROM RequestSeqLibTreatment_Audit)
+$$
 
 --
 -- Audit Triggers For RequestSeqLibTreatment 
@@ -13350,6 +16804,30 @@ CREATE TABLE IF NOT EXISTS `RequestStatus_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestStatus 
+--
+
+INSERT INTO RequestStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestStatus
+  , requestStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestStatus
+  , requestStatus
+  , isActive
+  FROM RequestStatus
+  WHERE NOT EXISTS(SELECT * FROM RequestStatus_Audit)
+$$
 
 --
 -- Audit Triggers For RequestStatus 
@@ -13436,6 +16914,28 @@ CREATE TABLE IF NOT EXISTS `RequestToTopic_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for RequestToTopic 
+--
+
+INSERT INTO RequestToTopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idRequest
+  FROM RequestToTopic
+  WHERE NOT EXISTS(SELECT * FROM RequestToTopic_Audit)
+$$
 
 --
 -- Audit Triggers For RequestToTopic 
@@ -13562,6 +17062,120 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Request 
+--
+
+INSERT INTO Request_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , number
+  , createDate
+  , codeProtocolType
+  , protocolNumber
+  , idLab
+  , idAppUser
+  , idBillingAccount
+  , codeRequestCategory
+  , codeApplication
+  , idProject
+  , idSlideProduct
+  , idSampleTypeDefault
+  , idOrganismSampleDefault
+  , idSampleSourceDefault
+  , idSamplePrepMethodDefault
+  , codeBioanalyzerChipType
+  , notes
+  , completedDate
+  , isArrayINFORequest
+  , codeVisibility
+  , lastModifyDate
+  , isExternal
+  , idInstitution
+  , idCoreFacility
+  , name
+  , privacyExpirationDate
+  , description
+  , corePrepInstructions
+  , analysisInstructions
+  , captureLibDesignId
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , idSampleDropOffLocation
+  , codeRequestStatus
+  , idSubmitter
+  , numberIScanChips
+  , idIScanChip
+  , coreToExtractDNA
+  , applicationNotes
+  , processingDate
+  , materialQuoteNumber
+  , quoteReceivedDate
+  , uuid
+  , codeDNAPrepType
+  , bioinformaticsAssist
+  , hasPrePooledLibraries
+  , numPrePooledTubes )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , number
+  , createDate
+  , codeProtocolType
+  , protocolNumber
+  , idLab
+  , idAppUser
+  , idBillingAccount
+  , codeRequestCategory
+  , codeApplication
+  , idProject
+  , idSlideProduct
+  , idSampleTypeDefault
+  , idOrganismSampleDefault
+  , idSampleSourceDefault
+  , idSamplePrepMethodDefault
+  , codeBioanalyzerChipType
+  , notes
+  , completedDate
+  , isArrayINFORequest
+  , codeVisibility
+  , lastModifyDate
+  , isExternal
+  , idInstitution
+  , idCoreFacility
+  , name
+  , privacyExpirationDate
+  , description
+  , corePrepInstructions
+  , analysisInstructions
+  , captureLibDesignId
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , idSampleDropOffLocation
+  , codeRequestStatus
+  , idSubmitter
+  , numberIScanChips
+  , idIScanChip
+  , coreToExtractDNA
+  , applicationNotes
+  , processingDate
+  , materialQuoteNumber
+  , quoteReceivedDate
+  , uuid
+  , codeDNAPrepType
+  , bioinformaticsAssist
+  , hasPrePooledLibraries
+  , numPrePooledTubes
+  FROM Request
+  WHERE NOT EXISTS(SELECT * FROM Request_Audit)
+$$
 
 --
 -- Audit Triggers For Request 
@@ -13921,6 +17535,30 @@ $$
 
 
 --
+-- Initial audit table rows for SampleDropOffLocation 
+--
+
+INSERT INTO SampleDropOffLocation_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleDropOffLocation
+  , sampleDropOffLocation
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleDropOffLocation
+  , sampleDropOffLocation
+  , isActive
+  FROM SampleDropOffLocation
+  WHERE NOT EXISTS(SELECT * FROM SampleDropOffLocation_Audit)
+$$
+
+--
 -- Audit Triggers For SampleDropOffLocation 
 --
 
@@ -14007,6 +17645,32 @@ CREATE TABLE IF NOT EXISTS `SampleExperimentFile_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SampleExperimentFile 
+--
+
+INSERT INTO SampleExperimentFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleExperimentFile
+  , idSample
+  , idExperimentFile
+  , codeSampleFileType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleExperimentFile
+  , idSample
+  , idExperimentFile
+  , codeSampleFileType
+  FROM SampleExperimentFile
+  WHERE NOT EXISTS(SELECT * FROM SampleExperimentFile_Audit)
+$$
 
 --
 -- Audit Triggers For SampleExperimentFile 
@@ -14101,6 +17765,28 @@ $$
 
 
 --
+-- Initial audit table rows for SampleFileType 
+--
+
+INSERT INTO SampleFileType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSampleFileType
+  , description )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSampleFileType
+  , description
+  FROM SampleFileType
+  WHERE NOT EXISTS(SELECT * FROM SampleFileType_Audit)
+$$
+
+--
 -- Audit Triggers For SampleFileType 
 --
 
@@ -14180,6 +17866,30 @@ CREATE TABLE IF NOT EXISTS `SamplePrepMethod_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SamplePrepMethod 
+--
+
+INSERT INTO SamplePrepMethod_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSamplePrepMethod
+  , samplePrepMethod
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSamplePrepMethod
+  , samplePrepMethod
+  , isActive
+  FROM SamplePrepMethod
+  WHERE NOT EXISTS(SELECT * FROM SamplePrepMethod_Audit)
+$$
 
 --
 -- Audit Triggers For SamplePrepMethod 
@@ -14269,6 +17979,30 @@ $$
 
 
 --
+-- Initial audit table rows for SampleSource 
+--
+
+INSERT INTO SampleSource_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleSource
+  , sampleSource
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleSource
+  , sampleSource
+  , isActive
+  FROM SampleSource
+  WHERE NOT EXISTS(SELECT * FROM SampleSource_Audit)
+$$
+
+--
 -- Audit Triggers For SampleSource 
 --
 
@@ -14354,6 +18088,30 @@ CREATE TABLE IF NOT EXISTS `SampleTypeRequestCategory_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SampleTypeRequestCategory 
+--
+
+INSERT INTO SampleTypeRequestCategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleTypeRequestCategory
+  , idSampleType
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleTypeRequestCategory
+  , idSampleType
+  , codeRequestCategory
+  FROM SampleTypeRequestCategory
+  WHERE NOT EXISTS(SELECT * FROM SampleTypeRequestCategory_Audit)
+$$
 
 --
 -- Audit Triggers For SampleTypeRequestCategory 
@@ -14443,6 +18201,34 @@ CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SampleType 
+--
+
+INSERT INTO SampleType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleType
+  , sampleType
+  , sortOrder
+  , isActive
+  , codeNucleotideType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleType
+  , sampleType
+  , sortOrder
+  , isActive
+  , codeNucleotideType
+  FROM SampleType
+  WHERE NOT EXISTS(SELECT * FROM SampleType_Audit)
+$$
 
 --
 -- Audit Triggers For SampleType 
@@ -14587,6 +18373,120 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Sample 
+--
+
+INSERT INTO Sample_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSample
+  , number
+  , name
+  , description
+  , concentration
+  , codeConcentrationUnit
+  , idSampleType
+  , idOrganism
+  , otherOrganism
+  , idSampleSource
+  , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
+  , codeBioanalyzerChipType
+  , idOligoBarcode
+  , qualDate
+  , qualFailed
+  , qualBypassed
+  , qual260nmTo280nmRatio
+  , qual260nmTo230nmRatio
+  , qualCalcConcentration
+  , qual28sTo18sRibosomalRatio
+  , qualRINNumber
+  , idRequest
+  , fragmentSizeFrom
+  , fragmentSizeTo
+  , seqPrepByCore
+  , seqPrepDate
+  , seqPrepFailed
+  , seqPrepBypassed
+  , qualFragmentSizeFrom
+  , qualFragmentSizeTo
+  , seqPrepLibConcentration
+  , seqPrepQualCodeBioanalyzerChipType
+  , seqPrepGelFragmentSizeFrom
+  , seqPrepGelFragmentSizeTo
+  , seqPrepStockLibVol
+  , seqPrepStockEBVol
+  , seqPrepStockDate
+  , seqPrepStockFailed
+  , seqPrepStockBypassed
+  , prepInstructions
+  , ccNumber
+  , multiplexGroupNumber
+  , barcodeSequence
+  , meanLibSizeActual
+  , idOligoBarcodeB
+  , barcodeSequenceB )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSample
+  , number
+  , name
+  , description
+  , concentration
+  , codeConcentrationUnit
+  , idSampleType
+  , idOrganism
+  , otherOrganism
+  , idSampleSource
+  , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
+  , codeBioanalyzerChipType
+  , idOligoBarcode
+  , qualDate
+  , qualFailed
+  , qualBypassed
+  , qual260nmTo280nmRatio
+  , qual260nmTo230nmRatio
+  , qualCalcConcentration
+  , qual28sTo18sRibosomalRatio
+  , qualRINNumber
+  , idRequest
+  , fragmentSizeFrom
+  , fragmentSizeTo
+  , seqPrepByCore
+  , seqPrepDate
+  , seqPrepFailed
+  , seqPrepBypassed
+  , qualFragmentSizeFrom
+  , qualFragmentSizeTo
+  , seqPrepLibConcentration
+  , seqPrepQualCodeBioanalyzerChipType
+  , seqPrepGelFragmentSizeFrom
+  , seqPrepGelFragmentSizeTo
+  , seqPrepStockLibVol
+  , seqPrepStockEBVol
+  , seqPrepStockDate
+  , seqPrepStockFailed
+  , seqPrepStockBypassed
+  , prepInstructions
+  , ccNumber
+  , multiplexGroupNumber
+  , barcodeSequence
+  , meanLibSizeActual
+  , idOligoBarcodeB
+  , barcodeSequenceB
+  FROM Sample
+  WHERE NOT EXISTS(SELECT * FROM Sample_Audit)
+$$
 
 --
 -- Audit Triggers For Sample 
@@ -14949,6 +18849,36 @@ $$
 
 
 --
+-- Initial audit table rows for ScanProtocol 
+--
+
+INSERT INTO ScanProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idScanProtocol
+  , scanProtocol
+  , description
+  , codeRequestCategory
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idScanProtocol
+  , scanProtocol
+  , description
+  , codeRequestCategory
+  , url
+  , isActive
+  FROM ScanProtocol
+  WHERE NOT EXISTS(SELECT * FROM ScanProtocol_Audit)
+$$
+
+--
 -- Audit Triggers For ScanProtocol 
 --
 
@@ -15054,6 +18984,30 @@ $$
 
 
 --
+-- Initial audit table rows for SealType 
+--
+
+INSERT INTO SealType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSealType
+  , sealType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSealType
+  , sealType
+  , isActive
+  FROM SealType
+  WHERE NOT EXISTS(SELECT * FROM SealType_Audit)
+$$
+
+--
 -- Audit Triggers For SealType 
 --
 
@@ -15141,6 +19095,34 @@ CREATE TABLE IF NOT EXISTS `Segment_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Segment 
+--
+
+INSERT INTO Segment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSegment
+  , length
+  , name
+  , idGenomeBuild
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSegment
+  , length
+  , name
+  , idGenomeBuild
+  , sortOrder
+  FROM Segment
+  WHERE NOT EXISTS(SELECT * FROM Segment_Audit)
+$$
 
 --
 -- Audit Triggers For Segment 
@@ -15241,6 +19223,28 @@ $$
 
 
 --
+-- Initial audit table rows for SeqLibProtocolApplication 
+--
+
+INSERT INTO SeqLibProtocolApplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibProtocol
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibProtocol
+  , codeApplication
+  FROM SeqLibProtocolApplication
+  WHERE NOT EXISTS(SELECT * FROM SeqLibProtocolApplication_Audit)
+$$
+
+--
 -- Audit Triggers For SeqLibProtocolApplication 
 --
 
@@ -15326,6 +19330,42 @@ CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SeqLibProtocol 
+--
+
+INSERT INTO SeqLibProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibProtocol
+  , seqLibProtocol
+  , description
+  , url
+  , isActive
+  , adapterSequence5Prime
+  , adapterSequence3Prime
+  , adapterSequenceRead1
+  , adapterSequenceRead2 )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibProtocol
+  , seqLibProtocol
+  , description
+  , url
+  , isActive
+  , adapterSequence5Prime
+  , adapterSequence3Prime
+  , adapterSequenceRead1
+  , adapterSequenceRead2
+  FROM SeqLibProtocol
+  WHERE NOT EXISTS(SELECT * FROM SeqLibProtocol_Audit)
+$$
 
 --
 -- Audit Triggers For SeqLibProtocol 
@@ -15451,6 +19491,30 @@ $$
 
 
 --
+-- Initial audit table rows for SeqLibTreatment 
+--
+
+INSERT INTO SeqLibTreatment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibTreatment
+  , seqLibTreatment
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibTreatment
+  , seqLibTreatment
+  , isActive
+  FROM SeqLibTreatment
+  WHERE NOT EXISTS(SELECT * FROM SeqLibTreatment_Audit)
+$$
+
+--
 -- Audit Triggers For SeqLibTreatment 
 --
 
@@ -15537,6 +19601,32 @@ CREATE TABLE IF NOT EXISTS `SeqRunType_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SeqRunType 
+--
+
+INSERT INTO SeqRunType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqRunType
+  , seqRunType
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqRunType
+  , seqRunType
+  , isActive
+  , sortOrder
+  FROM SeqRunType
+  WHERE NOT EXISTS(SELECT * FROM SeqRunType_Audit)
+$$
 
 --
 -- Audit Triggers For SeqRunType 
@@ -15639,6 +19729,48 @@ CREATE TABLE IF NOT EXISTS `SequenceLane_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SequenceLane 
+--
+
+INSERT INTO SequenceLane_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSequenceLane
+  , number
+  , createDate
+  , idRequest
+  , idSample
+  , idSeqRunType
+  , idNumberSequencingCycles
+  , analysisInstructions
+  , idGenomeBuildAlignTo
+  , idFlowCellChannel
+  , readCount
+  , pipelineVersion )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSequenceLane
+  , number
+  , createDate
+  , idRequest
+  , idSample
+  , idSeqRunType
+  , idNumberSequencingCycles
+  , analysisInstructions
+  , idGenomeBuildAlignTo
+  , idFlowCellChannel
+  , readCount
+  , pipelineVersion
+  FROM SequenceLane
+  WHERE NOT EXISTS(SELECT * FROM SequenceLane_Audit)
+$$
 
 --
 -- Audit Triggers For SequenceLane 
@@ -15783,6 +19915,32 @@ $$
 
 
 --
+-- Initial audit table rows for SequencingControl 
+--
+
+INSERT INTO SequencingControl_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSequencingControl
+  , sequencingControl
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSequencingControl
+  , sequencingControl
+  , isActive
+  , idAppUser
+  FROM SequencingControl
+  WHERE NOT EXISTS(SELECT * FROM SequencingControl_Audit)
+$$
+
+--
 -- Audit Triggers For SequencingControl 
 --
 
@@ -15876,6 +20034,30 @@ $$
 
 
 --
+-- Initial audit table rows for SequencingPlatform 
+--
+
+INSERT INTO SequencingPlatform_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSequencingPlatform
+  , sequencingPlatform
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSequencingPlatform
+  , sequencingPlatform
+  , isActive
+  FROM SequencingPlatform
+  WHERE NOT EXISTS(SELECT * FROM SequencingPlatform_Audit)
+$$
+
+--
 -- Audit Triggers For SequencingPlatform 
 --
 
@@ -15964,6 +20146,36 @@ CREATE TABLE IF NOT EXISTS `SlideDesign_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SlideDesign 
+--
+
+INSERT INTO SlideDesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideDesign
+  , name
+  , slideDesignProtocolName
+  , idSlideProduct
+  , accessionNumberArrayExpress
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideDesign
+  , name
+  , slideDesignProtocolName
+  , idSlideProduct
+  , accessionNumberArrayExpress
+  , isActive
+  FROM SlideDesign
+  WHERE NOT EXISTS(SELECT * FROM SlideDesign_Audit)
+$$
 
 --
 -- Audit Triggers For SlideDesign 
@@ -16070,6 +20282,28 @@ $$
 
 
 --
+-- Initial audit table rows for SlideProductApplication 
+--
+
+INSERT INTO SlideProductApplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideProduct
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideProduct
+  , codeApplication
+  FROM SlideProductApplication
+  WHERE NOT EXISTS(SELECT * FROM SlideProductApplication_Audit)
+$$
+
+--
 -- Audit Triggers For SlideProductApplication 
 --
 
@@ -16160,6 +20394,52 @@ CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SlideProduct 
+--
+
+INSERT INTO SlideProduct_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideProduct
+  , name
+  , catalogNumber
+  , isCustom
+  , idLab
+  , codeApplication
+  , idVendor
+  , idOrganism
+  , arraysPerSlide
+  , slidesInSet
+  , isSlideSet
+  , isActive
+  , idBillingSlideProductClass
+  , idBillingSlideServiceClass )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideProduct
+  , name
+  , catalogNumber
+  , isCustom
+  , idLab
+  , codeApplication
+  , idVendor
+  , idOrganism
+  , arraysPerSlide
+  , slidesInSet
+  , isSlideSet
+  , isActive
+  , idBillingSlideProductClass
+  , idBillingSlideServiceClass
+  FROM SlideProduct
+  WHERE NOT EXISTS(SELECT * FROM SlideProduct_Audit)
+$$
 
 --
 -- Audit Triggers For SlideProduct 
@@ -16316,6 +20596,32 @@ $$
 
 
 --
+-- Initial audit table rows for SlideSource 
+--
+
+INSERT INTO SlideSource_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSlideSource
+  , slideSource
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSlideSource
+  , slideSource
+  , isActive
+  , sortOrder
+  FROM SlideSource
+  WHERE NOT EXISTS(SELECT * FROM SlideSource_Audit)
+$$
+
+--
 -- Audit Triggers For SlideSource 
 --
 
@@ -16408,6 +20714,32 @@ CREATE TABLE IF NOT EXISTS `Slide_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Slide 
+--
+
+INSERT INTO Slide_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlide
+  , barcode
+  , idSlideDesign
+  , slideName )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlide
+  , barcode
+  , idSlideDesign
+  , slideName
+  FROM Slide
+  WHERE NOT EXISTS(SELECT * FROM Slide_Audit)
+$$
 
 --
 -- Audit Triggers For Slide 
@@ -16503,6 +20835,30 @@ $$
 
 
 --
+-- Initial audit table rows for State 
+--
+
+INSERT INTO State_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeState
+  , state
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeState
+  , state
+  , isActive
+  FROM State
+  WHERE NOT EXISTS(SELECT * FROM State_Audit)
+$$
+
+--
 -- Audit Triggers For State 
 --
 
@@ -16589,6 +20945,32 @@ CREATE TABLE IF NOT EXISTS `Step_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Step 
+--
+
+INSERT INTO Step_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeStep
+  , step
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeStep
+  , step
+  , isActive
+  , sortOrder
+  FROM Step
+  WHERE NOT EXISTS(SELECT * FROM Step_Audit)
+$$
 
 --
 -- Audit Triggers For Step 
@@ -16686,6 +21068,38 @@ CREATE TABLE IF NOT EXISTS `SubmissionInstruction_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for SubmissionInstruction 
+--
+
+INSERT INTO SubmissionInstruction_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSubmissionInstruction
+  , description
+  , url
+  , codeRequestCategory
+  , codeApplication
+  , codeBioanalyzerChipType
+  , idBillingSlideServiceClass )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSubmissionInstruction
+  , description
+  , url
+  , codeRequestCategory
+  , codeApplication
+  , codeBioanalyzerChipType
+  , idBillingSlideServiceClass
+  FROM SubmissionInstruction
+  WHERE NOT EXISTS(SELECT * FROM SubmissionInstruction_Audit)
+$$
 
 --
 -- Audit Triggers For SubmissionInstruction 
@@ -16804,6 +21218,44 @@ CREATE TABLE IF NOT EXISTS `Topic_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Topic 
+--
+
+INSERT INTO Topic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , name
+  , description
+  , idParentTopic
+  , idLab
+  , createdBy
+  , createDate
+  , idAppUser
+  , codeVisibility
+  , idInstitution )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , name
+  , description
+  , idParentTopic
+  , idLab
+  , createdBy
+  , createDate
+  , idAppUser
+  , codeVisibility
+  , idInstitution
+  FROM Topic
+  WHERE NOT EXISTS(SELECT * FROM Topic_Audit)
+$$
 
 --
 -- Audit Triggers For Topic 
@@ -16936,6 +21388,32 @@ $$
 
 
 --
+-- Initial audit table rows for TreatmentEntry 
+--
+
+INSERT INTO TreatmentEntry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTreatmentEntry
+  , treatment
+  , idSample
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTreatmentEntry
+  , treatment
+  , idSample
+  , otherLabel
+  FROM TreatmentEntry
+  WHERE NOT EXISTS(SELECT * FROM TreatmentEntry_Audit)
+$$
+
+--
 -- Audit Triggers For TreatmentEntry 
 --
 
@@ -17028,6 +21506,32 @@ CREATE TABLE IF NOT EXISTS `UnloadDataTrack_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for UnloadDataTrack 
+--
+
+INSERT INTO UnloadDataTrack_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idUnloadDataTrack
+  , typeName
+  , idAppUser
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idUnloadDataTrack
+  , typeName
+  , idAppUser
+  , idGenomeBuild
+  FROM UnloadDataTrack
+  WHERE NOT EXISTS(SELECT * FROM UnloadDataTrack_Audit)
+$$
 
 --
 -- Audit Triggers For UnloadDataTrack 
@@ -17123,6 +21627,30 @@ $$
 
 
 --
+-- Initial audit table rows for UserPermissionKind 
+--
+
+INSERT INTO UserPermissionKind_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeUserPermissionKind
+  , userPermissionKind
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeUserPermissionKind
+  , userPermissionKind
+  , isActive
+  FROM UserPermissionKind
+  WHERE NOT EXISTS(SELECT * FROM UserPermissionKind_Audit)
+$$
+
+--
 -- Audit Triggers For UserPermissionKind 
 --
 
@@ -17209,6 +21737,32 @@ CREATE TABLE IF NOT EXISTS `Vendor_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for Vendor 
+--
+
+INSERT INTO Vendor_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idVendor
+  , vendorName
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idVendor
+  , vendorName
+  , description
+  , isActive
+  FROM Vendor
+  WHERE NOT EXISTS(SELECT * FROM Vendor_Audit)
+$$
 
 --
 -- Audit Triggers For Vendor 
@@ -17303,6 +21857,28 @@ $$
 
 
 --
+-- Initial audit table rows for Visibility 
+--
+
+INSERT INTO Visibility_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeVisibility
+  , visibility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeVisibility
+  , visibility
+  FROM Visibility
+  WHERE NOT EXISTS(SELECT * FROM Visibility_Audit)
+$$
+
+--
 -- Audit Triggers For Visibility 
 --
 
@@ -17390,6 +21966,46 @@ CREATE TABLE IF NOT EXISTS `WorkItem_Audit` (
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for WorkItem 
+--
+
+INSERT INTO WorkItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idWorkItem
+  , codeStepNext
+  , idSample
+  , idLabeledSample
+  , idHybridization
+  , idRequest
+  , createDate
+  , idSequenceLane
+  , idFlowCellChannel
+  , idCoreFacility
+  , status )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idWorkItem
+  , codeStepNext
+  , idSample
+  , idLabeledSample
+  , idHybridization
+  , idRequest
+  , createDate
+  , idSequenceLane
+  , idFlowCellChannel
+  , idCoreFacility
+  , status
+  FROM WorkItem
+  WHERE NOT EXISTS(SELECT * FROM WorkItem_Audit)
+$$
 
 --
 -- Audit Triggers For WorkItem 
