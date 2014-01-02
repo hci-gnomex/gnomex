@@ -621,7 +621,7 @@ package views.experiment
 					setTopBoxVisibility(true);
 				}
 			} else {
-				if (parentDocument.isSequencingState() || parentDocument.isEditState()) {
+				if (parentDocument.isEditState()) {
 					setCoreFacilityNoteVisibility(false);
 				} else {
 					setCoreFacilityNoteVisibility(true);
