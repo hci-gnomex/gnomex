@@ -200,6 +200,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
+              File sourceFile = new File(fileName);
+              // don't move it it doesn't exist.
+              if (!sourceFile.exists()) {
+                continue;
+              }
               int lastIndex = fileName.lastIndexOf("\\");
               if (lastIndex == -1) {
                 lastIndex = fileName.lastIndexOf("/");
@@ -266,7 +271,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
               sess.flush();
 
-              File sourceFile = new File(fileName);
               sourceFile = sourceFile.getCanonicalFile();
               String targetDirName = baseDir + File.separator + analysis.getNumber() + File.separator + qualifiedFilePath;
               File targetDir = new File(targetDirName);
