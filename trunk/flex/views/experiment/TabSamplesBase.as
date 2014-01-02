@@ -364,8 +364,10 @@ package views.experiment
 			names += "</NameList>";
 			uv.names = names;
 			//If this is a new request send back the lab id to create the file name for sample sheet.
+			// Also make sure the code request category is set.
 			if(parentDocument.request.@idRequest == "0" && parentDocument.setupView != null){
 				parentDocument.request.@idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+				parentDocument.request.@codeRequestCategory = parentDocument.getRequestCategory().@codeRequestCategory;
 			}
 			uv.requestXMLString = parentDocument.request.toXMLString();
 			showUrl.data = uv;

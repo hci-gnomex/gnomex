@@ -65,11 +65,18 @@ public class RequestParser implements Serializable {
   private Map<String, String> cherryPickSourcePlates = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   private Boolean hasPlates = false;
+  private Boolean forDownload = false;
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestDoc = requestDoc;
     this.secAdvisor = secAdvisor;
- 
+    this.forDownload = false;
+  }
+  
+  public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor, Boolean forDownload) {
+    this.requestDoc = requestDoc;
+    this.secAdvisor = secAdvisor;
+    this.forDownload = forDownload;
   }
   
   public void init() {
@@ -476,7 +483,10 @@ public class RequestParser implements Serializable {
       if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
         sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
       } else {
-        throw new Exception("MultiplexGroupNumber cannot be empty for HiSeq or MiSeq experiments");
+        // Allow to continue if just downloading a spread sheet.
+        if (!this.forDownload) {
+          throw new Exception("MultiplexGroupNumber cannot be empty for HiSeq or MiSeq experiments");
+        }
       }
     } else {
       if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
