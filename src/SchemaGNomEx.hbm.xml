@@ -1706,6 +1706,7 @@
 		<property name="isExternal" column="isExternal" type="string"/>
 	  <property name="refrainFromAutoDelete" column="refrainFromAutoDelete" type="string"/>
     <property name="isClinicalResearch" column="isClinicalResearch" type="string"/>
+    <property name="isOwnerOnly" column="isOwnerOnly" type="string"/>
     <many-to-one name="categoryType" column="type" class="hci.gnomex.model.RequestCategoryType" cascade="none" insert="false" update="false" lazy="false" />
 	</class>
 	

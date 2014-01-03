@@ -30,3 +30,8 @@ alter table gnomex.FlowCell add CONSTRAINT FK_FlowCell_CoreFacility
     REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+    use gnomex;
+
+-- Add owner only flag to request category
+alter table RequestCategory add isOwnerOnly CHAR(1) null;
