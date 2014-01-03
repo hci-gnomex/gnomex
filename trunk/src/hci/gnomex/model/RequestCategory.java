@@ -48,6 +48,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String                isExternal;
   private String                refrainFromAutoDelete;
   private String                isClinicalResearch;
+  private String                isOwnerOnly;
   private RequestCategoryType   categoryType;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
@@ -282,6 +283,14 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setIsClinicalResearch(String isClinicalResearch) {
     this.isClinicalResearch = isClinicalResearch;
+  }
+  
+  public String getIsOwnerOnly() {
+    return isOwnerOnly;
+  }
+
+  public void setIsOwnerOnly(String isOwnerOnly) {
+    this.isOwnerOnly = isOwnerOnly;
   }
   
   public RequestCategoryType getCategoryType() {

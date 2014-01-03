@@ -2671,7 +2671,7 @@
 				hybSetupView.selectDefaultSlideSource();
 				
 			}			
-			if (isEditState()) {
+			if (isEditState() && theTab.contains(visibilityView)) {
 				visibilityView.init(); // Set institution combo, etc.
 				if (request.@canUpdateVisibility != 'Y') {
 					this.visibilityView.enabled = false;
@@ -5664,6 +5664,7 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">

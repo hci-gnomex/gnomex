@@ -1666,6 +1666,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
   `isClinicalResearch` CHAR(1) NULL,
+  `isOwnerOnly` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
