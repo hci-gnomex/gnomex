@@ -121,6 +121,14 @@
 				}
 			}
 			
+			public function isIsolationState():Boolean {
+				if (currentState == 'IsolationState') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
 			public function checkSecurity():void {
 				
 				if (parentApplication.isGuestMode()) {
@@ -253,6 +261,9 @@
 					this.currentState = "ClinicalSeqState";
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
 					parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'ClinicalSequenomState';	
+				} else if (requestCategory.@type == 'ISOLATION') {
+					this.currentState = "IsolationState";
+					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
 				}
 				
 				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -343,7 +354,7 @@
 					if (s.@multiplexGroupNumber != '') {
 						showSampleMultiplexGroup = true;
 					}
-					if (((isCapSeqState() || isSequenomState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
+					if (((isCapSeqState() || isSequenomState() || isIsolationState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
 						showPlates = true;
 					}
 					if (s.@idOligoBarcode != '' ) {
@@ -701,7 +712,7 @@
 					parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				}
 				
-				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE") ) {
+				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE") || (this.isIsolationState()&& this.selectedExperiment.@containerType == "PLATE") ) {
 					parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 				}
 				
@@ -713,7 +724,7 @@
 				parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 				
 				if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()
-					&& !parentDocument.parentDocument.experimentEditView.isSequenomState()) {
+					&& !parentDocument.parentDocument.experimentEditView.isSequenomState() && !parentDocument.parentDocument.experimentEditView.isIsolationState()) {
 					parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				}
 				
@@ -992,7 +1003,24 @@
 						this.descriptionCol.visible = false;
 						this.sampleNameColumn.visible = false;
 						
-					} else {
+					} else if (isIsolationState()) {
+						concentrationCol.visible = true; 
+						sampleTypeCol.visible = false;
+						organismCol.visible = false;
+						preppedByLabCol.visible = false;
+						otherSamplePrepMethodCol.visible = false;
+						chipTypeCol.visible = false
+						concentrationUnitCol.visible = false;
+						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+						this.qc260Col.visible = false;
+						this.qc260280Col.visible = true;
+						this.qcConcCol.visible = false;
+						this.qcRINCol.visible = false;
+						this.qcStatusCol.visible = false;
+						this.descriptionCol.visible = false;
+						
+					}  else {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
@@ -1358,7 +1386,7 @@
 						<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="left" id="label4"/>
 						<mx:Text  text="{requestCategoryName}" width="280"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox6">
 						<mx:Label width="100"  id="label5"/>
 						<mx:Text   text="{experimentCategoryName}" width="280"/>
 					</mx:HBox>
@@ -2201,13 +2229,21 @@
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA=='Y'}">
-					<mx:Label text="DNA prep type"  width="100" styleName="formLabel" textAlign="left" />
+					<mx:Label text="DNA prep type"  width="100" styleName="formLabel" textAlign="left"  id="label10"/>
 					<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
 							 width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="ClinicalSeqState" basedOn="SequenomState"/>
+		<mx:State name="IsolationState" basedOn="SequenomState">
+			<mx:RemoveChild target="{hbox5}"/>
+			<mx:RemoveChild target="{prePoolBox}"/>
+			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{adaptersBox}"/>
+			<mx:RemoveChild target="{hbox6}"/>
+			<mx:SetProperty target="{label10}" name="text"/>
+		</mx:State>
 	</mx:states>
 	
 </mx:VBox>
