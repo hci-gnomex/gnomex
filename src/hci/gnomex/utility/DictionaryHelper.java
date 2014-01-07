@@ -267,6 +267,14 @@ public class DictionaryHelper implements Serializable {
     return propertyDictionaryMap;
   }
   
+  public String getDNAPrepType(String codeDNAPrepType) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeDNAPrepType != null && codeDNAPrepType.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.DNAPrepType", codeDNAPrepType);
+    }
+    return name;
+  }
   public String getPlateType(String codePlateType) {
     lazyLoadManagedDictionaries();
     String name = "";

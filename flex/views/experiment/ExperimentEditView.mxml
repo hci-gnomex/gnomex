@@ -2910,7 +2910,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -4805,7 +4805,7 @@
 			
 		public function showPlateGroup():Boolean {
 			var show:Boolean = false;
-			if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
+			if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState() || this.isIsolationState()) {
 				if (this.isEditState()) {
 					show = false;
 				} else if (this.request.@containerType == "PLATE") {
