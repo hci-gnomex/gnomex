@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.IScanChip;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PropertyDictionary;
@@ -124,9 +125,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             // For INTERNAL ISCAN Requests
             if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && !req.getLab().isExternalLab() ) {
               
-              // Bypass requisition form and illumina email for CUSTOM orders.
+              // Bypass requisition form and illumina email for CUSTOM orders and for internal HCI labs.
               IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
-              if ( chip != null && req.getNumberIScanChips()!=0 ) {
+              boolean isHCI = req.getLab().getContactEmail().indexOf( "@hci.utah.edu" ) > 0;
+              
+              if ( chip != null && req.getNumberIScanChips()!=0 && !isHCI ) {
 
                 // REQUISITION FORM
                 try {
@@ -306,10 +309,19 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
       ".  You will receive email notification when the experiment is complete.");   
     
-    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) &&  req.getNumberIScanChips()==0 ) {
+    // Special notes for iScan requests
+    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)){
+      if ( req.getNumberIScanChips()==0 ) {
         introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");   
+      } else {
+        Lab lab = dictionaryHelper.getLabObject( req.getIdLab() );
+        String email = lab.getContactEmail();
+        if ( email.indexOf( "@hci.utah.edu" ) > 0 ) {
+          introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");   
+        }
+      }
     }
-
+  
     introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
        
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, req, "", req.getSamples(), new HashSet(), new HashSet(), introNote.toString());
