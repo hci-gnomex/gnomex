@@ -1170,7 +1170,8 @@
 				<mx:Label text="(2) Which category best describes your samples?" width="334" id="label8"/>
 				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />       	
 				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
-					<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0}"/>
+					<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
+							  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
 					<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
 						<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
 										label="{sampleTypeDnaRepeater.currentItem.@display}" 
@@ -1182,7 +1183,8 @@
 									label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
 				</mx:VBox>
 				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
-					<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0}" />
+					<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
+							  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
 					<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
 						<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup" 
 										label="{sampleTypeRnaRepeater.currentItem.@display}" 
