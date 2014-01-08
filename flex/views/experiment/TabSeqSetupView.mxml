@@ -103,7 +103,7 @@
 				if (de.length() >= 1) {
 					themeMap[item.@idApplicationTheme.toString()] = de[0];
 				}
-				if (priceMap != null && priceMap[item.@codeApplication.toString()] != null) {
+				if (priceMap != null && priceMap[item.@codeApplication.toString()] != null && localPrepByCore == 'Y') {
 					item.@price = priceMap[item.@codeApplication.toString()];
 				} else {
 					item.@price = "";
