@@ -39,6 +39,7 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
     org.apache.tomcat.jdbc.pool.DataSource dataSource = null;
     try {
       String key = null;
+      ///  To read catalina.properties   new File(./conf/catalina.properties). -- use TomcatCatalinaProperties.
       try {
         File file = new File("/properties/gnomex_tomcat.properties");
         FileInputStream fis = new FileInputStream(file);
