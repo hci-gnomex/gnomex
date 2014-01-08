@@ -1372,6 +1372,7 @@
 		}
 
 		private function loadPriceLists(idLab:String):void {
+			requestCategory = this.getRequestCategory();
 			if (requestCategory != null && requestCategory.@codeRequestCategory != null && idLab != null) {
 				if (theTab.contains(seqSetup1View)) {
 					this.seqSetup1View.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
