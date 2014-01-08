@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	title="Create Cherry Picking File" 
+	width="196" height="110" defaultButton="{runButton}">
+  
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		
+		public var idRequest:Object;
+		
+		
+		private function run():void {
+			var url:URLRequest = new URLRequest('CreateCherryPickingFile.gx' +
+				'?idRequest=' + idRequest + 
+				'&transferVol=' + transferVol.text);
+			navigateToURL(url, '_blank');
+			mx.managers.PopUpManager.removePopUp(this);
+		}				
+		 
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%">
+		<mx:HBox height="45" styleName="form" verticalGap="0" width="100%" verticalAlign="middle">
+			<mx:Label text="Transfer volume:"/>
+			<mx:TextInput id="transferVol" width="52" text="1" textAlign="right"/>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="OK" id="runButton" click="run()" enabled="{transferVol.text != ''}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>
