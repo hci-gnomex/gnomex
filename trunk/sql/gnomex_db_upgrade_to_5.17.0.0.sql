@@ -35,3 +35,4 @@ alter table gnomex.FlowCell add CONSTRAINT FK_FlowCell_CoreFacility
 
 -- Add owner only flag to request category
 alter table RequestCategory add isOwnerOnly CHAR(1) null;
+call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table gnomex.RequestCategory_Audit add isOwnerOnly CHAR(1) null');
