@@ -111,6 +111,9 @@
 		
 		private var draggedItems:Array = null;
 		
+		// used to identify selected samples.
+		private var specialMultiplexNumber:Number = 999;
+
 		public function initializeData(maxFlowCells:int):void {
 			maxFlowCellCount = maxFlowCells;
 			if(codeStepNext == 'SEQASSEM') {
@@ -497,7 +500,7 @@
     		prevChannelCount = getChannelCount();
 			// Find a unique multiplex number that will guarantee that these samples get
 			// combined into same channel
-			var specialMultiplexNumber:Number = 999;
+			specialMultiplexNumber = 999;
 			for each(var wi:XML in this.assembleLanesGrid.dataProvider) {
 				if (wi.@multiplexGroupNumber > specialMultiplexNumber) {
 					specialMultiplexNumber = wi.@multiplexGroupNumber;
@@ -509,12 +512,8 @@
 				workItem.@allowMultiRequestMerge = 'Y';
     		}
 			if (this.areIndexTagsUnique(specialMultiplexNumber)) {
+				moveSelectedSamplesAdjacent(specialMultiplexNumber);
 				this.reassignChannelNumbers(true);
-				if (prevChannelCount > getChannelCount()) {
-					Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
-				} else {
-					Alert.show("Unable to combine samples into one channel.  Samples must have unique index tag sequences or unique index tag groups and be adjacent to each other on the flowcell grid.");
-				}
 			} else {
 				Alert.show("Some of the samples to be multiplexed in one flow cell channel have the same index tag.  This should only occur when samples (and their sequence reads) are meant to be pooled.  Proceed with duplicate index tags?",
 					"Warning",
@@ -526,12 +525,8 @@
 		
 		private function onPromptForMergeDuplicateIndexTags(event:CloseEvent):void {
 			if (event.detail == Alert.YES) {
+				moveSelectedSamplesAdjacent(specialMultiplexNumber);
 				this.reassignChannelNumbers(false);
-				if (prevChannelCount > getChannelCount()) {
-					Alert.show("Samples from different multiplex groups have been combined into one channel.  Please adjust billing to reflect the new number of lanes for the sequencing charges.");
-				} else {
-					Alert.show("Unable to combine samples into one channel.  Samples must be adjacent to each other on the flowcell grid and belong to the sample request.");
-				}
 			}
 		}
 		
@@ -741,6 +736,57 @@
 			return uniqueTagCount == workItemCount;
 		}
 		
+		private function moveSelectedSamplesAdjacent(multiplexGroupNumber:Object):void {
+			// Create new dirty channel list
+			var newList:XMLListCollection = new XMLListCollection();
+			
+			// Move all items up to first selected sample into new list
+			for each (var wi:Object in dirtyChannelWorkList) {
+				if (wi.@multiplexGroupNumber != multiplexGroupNumber) {
+					newList.addItem(wi);
+				} else {
+					break;
+				}
+			}
+			
+			// Move in all selected items
+			for each (var wi1:Object in dirtyChannelWorkList) {
+				if (wi1.@multiplexGroupNumber == multiplexGroupNumber) {
+					newList.addItem(wi1);
+				}
+			}
+			
+			// Move in all unselected items after the first selected item
+			var doMove:Boolean = false;
+			for each (var wi2:Object in dirtyChannelWorkList) {
+				if (wi2.@multiplexGroupNumber != multiplexGroupNumber) {
+					if (doMove) {
+						newList.addItem(wi2);
+					}
+				} else {
+					doMove = true;
+				}
+			}
+			
+			// rest dirty list
+			dirtyChannelWorkList.removeAll();
+			dirtyChannelWorkList.addAll(newList);
+			dirtyChannelWorkList.refresh();
+			
+			// reselect the items
+			var selected:Array = new Array();
+			var numSelected:int = 0;
+			var curPos:int = 0;
+			for each (var wi3:Object in dirtyChannelWorkList) {
+				if (wi3.@multiplexGroupNumber == multiplexGroupNumber) {
+					selected[numSelected] = curPos;
+					numSelected++;
+				}
+				curPos++;
+			}
+			this.assembleLanesGrid.selectedIndices = selected;
+		}
+		
 		private function reassignChannelNumbers(checkForDupIndexTagOnMerge:Boolean):void {
 			var channelNumber:int = 0;
 			var prevBarcodes:XMLListCollection = new XMLListCollection();
@@ -750,46 +796,45 @@
 			var prevAllowMultiRequestMerge:String = 'N';
 			for each(var wi:Object in dirtyChannelWorkList) {
 				var nextChannel:Boolean = true;
-				if (wi.hasOwnProperty("@allowMultiRequestMerge") && wi.@allowMultiRequestMerge == 'Y') {
-					nextChannel = checkForDupIndexTagOnMerge;
-				    if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
-						nextChannel = true;
-					} else if (checkForDupIndexTagOnMerge && 
-						       wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
-						if (prevBarcodes.length > 0) {
-							nextChannel = false;
-							for each(var bc:Object in prevBarcodes) {
-								var tag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
-								var prevTag:Object = bc.@barcodeSequence + "-" + bc.@barcodeSequenceB;
-								if (tag == prevTag) {
-									nextChannel = true;
-									break;
+				// Always leave nextChannel true if it's the first item in the list.
+				if (channelNumber > 0) {
+					if (wi.hasOwnProperty("@allowMultiRequestMerge") && wi.@allowMultiRequestMerge == 'Y') {
+						nextChannel = checkForDupIndexTagOnMerge;
+					    if (checkForDupIndexTagOnMerge && wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
+							if (prevBarcodes.length > 0) {
+								nextChannel = false;
+								for each(var bc:Object in prevBarcodes) {
+									var tag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
+									var prevTag:Object = bc.@barcodeSequence + "-" + bc.@barcodeSequenceB;
+									if (tag == prevTag) {
+										nextChannel = true;
+										break;
+									}
 								}
 							}
+							prevBarcodes.addItem(wi);
 						}
-						prevBarcodes.addItem(wi);
-					}
-					
-				} else {
-					if (wi.@requestNumber != prevRequestNumber) {
-						nextChannel = true;
-					} else if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
-						nextChannel = true;
-					} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
-						if (prevBarcodes.length > 0) {
-							nextChannel = false;
-							for each(var barcode:Object in prevBarcodes) {
-								var barcodeTag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
-								var prevBarcodeTag:Object = barcode.@barcodeSequence + "-" + barcode.@barcodeSequenceB;
-								if (barcodeTag == prevBarcodeTag) {
-									nextChannel = true;
-									break;
+					} else {
+						if (wi.@requestNumber != prevRequestNumber) {
+							nextChannel = true;
+						} else if (wi.@multiplexGroupNumber != prevMultiplexNumber) {
+							nextChannel = true;
+						} else if (wi.hasOwnProperty('@barcodeSequence') && wi.@barcodeSequence != null && wi.@barcodeSequence != '') {
+							if (prevBarcodes.length > 0) {
+								nextChannel = false;
+								for each(var barcode:Object in prevBarcodes) {
+									var barcodeTag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
+									var prevBarcodeTag:Object = barcode.@barcodeSequence + "-" + barcode.@barcodeSequenceB;
+									if (barcodeTag == prevBarcodeTag) {
+										nextChannel = true;
+										break;
+									}
 								}
 							}
+							prevBarcodes.addItem(wi);
 						}
-						prevBarcodes.addItem(wi);
+						
 					}
-					
 				}
 				if (nextChannel) {
 					channelNumber++;
@@ -1031,7 +1076,30 @@
 			}
 		}
 
-        
+		private function doDragOver(event:DragEvent):void
+		{
+			if (this.dirtyChannelWorkList.length > 0) {
+				var r:int = assembleLanesGrid.calculateDropIndex(event);
+				if (r > 0) { 
+					r--;
+				}
+				assembleLanesGrid.selectedIndex = r;
+				var dropNode:XML = assembleLanesGrid.selectedItem as XML;
+				var selected:Array = new Array();
+				var numSelected:int = 0;
+				var curPos:int = 0;
+				for each (var wi:Object in dirtyChannelWorkList) {
+					if (wi.@channelNumber == dropNode.@channelNumber) {
+						selected[numSelected] = curPos;
+						numSelected++;
+					}
+					curPos++;
+				}
+				
+				assembleLanesGrid.selectedIndices = selected;
+			}
+		}
+
 	]]>
 </mx:Script>    	
 	<mx:HDividedBox width="100%" height="100%"  paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" >
@@ -1206,7 +1274,8 @@
 				 dataProvider="{dirtyChannelWorkList}" width="100%" height="100%" 
 				 dropEnabled="true" 
 				 editable="true" 
-				 dragDrop="onDragDropLane(event)"	  
+				 dragDrop="onDragDropLane(event)" 
+				 dragOver="doDragOver(event)"
 				 selectionMode="multipleRows" fontSize="10" >	 
 				<mx:columns>
 			        <mx:AdvancedDataGridColumn headerText="Control" 
