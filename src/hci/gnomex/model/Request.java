@@ -1162,16 +1162,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return retVal;
   }
-  
-  public Boolean isIsolationPlate() {
-    Boolean retVal = false;
-    if (this.getCodeRequestCategory() != null && 
-        ( this.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY) || this.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY) ) &&
-        this.getSamples().size() > 0) {
-      retVal = isPlateRequest();
-    }
-    return retVal;
-  }
 
   private Boolean isPlateRequest() {
     Boolean retVal = false;

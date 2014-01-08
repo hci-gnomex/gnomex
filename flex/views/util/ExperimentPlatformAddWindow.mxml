@@ -44,7 +44,6 @@
 			params.isInternal = 'Y';
 			params.isExternal = 'Y';
 			params.isClinicalResearch = 'N';
-			params.isOwnerOnly = 'N';
 
 			params.requestCategory = this.platformName.text;
 			params.newCodeRequestCategory = this.codeRequestCategoryField.text.toUpperCase();

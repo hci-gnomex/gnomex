@@ -25,7 +25,7 @@ my $outFl = $ARGV[4];
 my $dbNm = 'information_schema';
 my $tLoopCnt = 0;
 my $cLoopCnt = 0;
-my ( $tabName, $colName, $trigName, $colDTyp, $colOrd, $tQry, $cQry, $tCur, $cCur, $lIbuf, $lIvalbuf, $tAIbuf, $tAUbuf, $tADbuf, $tAIvalBuf, $tAUvalBuf, $tADvalBuf );
+my ( $tabName, $colName, $trigName, $colDTyp, $colOrd, $tQry, $cQry, $tCur, $cCur, $tAIbuf, $tAUbuf, $tADbuf, $tAIvalBuf, $tAUvalBuf, $tADvalBuf );
 
 my $start = localtime time;
 my $endTm;
@@ -38,14 +38,7 @@ if (-e $outFl) { die ".\n. Output file $outFl already exists!\n.\n"; }
 open( MYOUTFILE, ">$outFl" ) || die ".\n. Unable to open output file $outFl for writing.\n.\n";
 
 print MYOUTFILE "\nUSE gnomex\;\n\n";
-print MYOUTFILE "delimiter \$\$\n\n";
-
-print MYOUTFILE "DROP PROCEDURE IF EXISTS setAppUser\$\$\n";
-print MYOUTFILE "CREATE PROCEDURE setAppUser( IN userName text)\n";
-print MYOUTFILE "BEGIN\n";
-print MYOUTFILE "  SET \@userName=userName;\n";
-print MYOUTFILE "END;\n";
-print MYOUTFILE "\$\$\n\n\n";
+print MYOUTFILE "delimiter \$\$\n\n\n";
 
 $tQry = "SELECT t.table_name ".
           "FROM information_schema.tables t ".
@@ -107,11 +100,6 @@ while ( $tCur->fetch() ) {
   #
   # Prepare string buffers for CREATE TRIGGER commands.
   #
-  $lIbuf = "INSERT INTO ".$tabName."_Audit".
-            "\n  ( AuditAppuser".
-            "\n  , AuditOperation".
-            "\n  , AuditSystemUser".
-            "\n  , AuditOperationDate";
   $tAIbuf = "CREATE TRIGGER TrAI_".$tabName."_FER AFTER INSERT ON $tabName FOR EACH ROW".
             "\nBEGIN".
             "\n  INSERT INTO ".$tabName."_Audit".
@@ -134,25 +122,20 @@ while ( $tCur->fetch() ) {
             "\n  , AuditSystemUser".
             "\n  , AuditOperationDate";
 
-  $lIvalbuf = "\n  SELECT".
-               "\n  'No Context'".
-               "\n  , 'L'".
-               "\n  , USER()".
-               "\n  , NOW()";
   $tAIvalBuf = "\n  VALUES".
-               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
+               "\n  ( USER()".
                "\n  , 'I'".
-               "\n  , USER()".
+               "\n  , CURRENT_USER()".
                "\n  , NOW()";
   $tAUvalBuf = "\n  VALUES".
-               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
+               "\n  ( USER()".
                "\n  , 'U'".
-               "\n  , USER()".
+               "\n  , CURRENT_USER()".
                "\n  , NOW()";
   $tADvalBuf = "\n  VALUES".
-               "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
+               "\n  ( USER()".
                "\n  , 'D'".
-               "\n  , USER()".
+               "\n  , CURRENT_USER()".
                "\n  , NOW()";
 
   #
@@ -180,12 +163,10 @@ while ( $tCur->fetch() ) {
     #
     # Add columns to CREATE TRIGGER commands.
     #
-    $lIbuf = $lIbuf."\n  , $colName";
     $tAIbuf = $tAIbuf."\n  , $colName";
     $tAUbuf = $tAUbuf."\n  , $colName";
     $tADbuf = $tADbuf."\n  , $colName";
 
-    $lIvalbuf = $lIvalbuf."\n  , $colName";
     $tAIvalBuf = $tAIvalBuf."\n  , NEW\.$colName";
     $tAUvalBuf = $tAUvalBuf."\n  , NEW\.$colName";
     $tADvalBuf = $tADvalBuf."\n  , OLD\.$colName";
@@ -198,15 +179,6 @@ while ( $tCur->fetch() ) {
   print MYOUTFILE "\n) ENGINE=InnoDB\n";
   print MYOUTFILE "\$\$\n";
 
-  #
-  # Append initial populate command
-  #
-  print MYOUTFILE "\n\n--\n";
-  print MYOUTFILE "-- Initial audit table rows for $tabName \n";
-  print MYOUTFILE "--\n";
-  print MYOUTFILE "\n$lIbuf \)$lIvalbuf\n  FROM $tabName\n  WHERE NOT EXISTS(SELECT * FROM ".$tabName."_Audit)\n";
-  print MYOUTFILE "\$\$";
-  
   #
   # Append CREATE TRIGGER commands.
   #

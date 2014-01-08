@@ -146,8 +146,7 @@
 				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
 				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
 				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
-				params.isClinicalResearch = requestCategory.@isClinicalResearch;
-				params.isOwnerOnly = requestCategory.@isOwnerOnly;
+				params.isClinicalResearch = this.isCRCheckbox.selected ? 'Y' : 'N';
 				
 				//params.icon = this.theIcon.text;
 				if(iconCombo.selectedIndex > 0) {
@@ -856,8 +855,7 @@
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 								<mx:Text text="Security" 
 										 width="80"  styleName="formLabel"/>
-								<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" enabled="false"/>
-								<mx:CheckBox id="isOwnerOnly" label="Force Owner Visibility" selected="{requestCategory.@isOwnerOnly == 'Y' ? true : false}" enabled="false"/>
+								<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" click="{dirty.setDirty()}" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" />
 							</mx:HBox>
 							<mx:HBox visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" includeInLayout="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
 								<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>

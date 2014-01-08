@@ -1519,6 +1519,7 @@
 			coreCommentsWindow.parentView = this;
 			coreCommentsWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
 			coreCommentsWindow.update();
+			coreCommentsWindow.positionWindow();
 		}
 		
 		public function showBillingGLInterface():void {

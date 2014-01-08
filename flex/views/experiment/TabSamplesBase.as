@@ -43,12 +43,6 @@ package views.experiment
 				} else {
 					return new TabSamplesSequenom();
 				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
-				if (existingTab is TabSamplesIsolation) {
-					return existingTab;
-				} else {
-					return new TabSamplesIsolation();
-				}
 			} else {
 				if (existingTab is TabSamplesView) {
 					return existingTab;
@@ -369,6 +363,7 @@ package views.experiment
 				parentDocument.request.@idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
 				parentDocument.request.@codeRequestCategory = parentDocument.getRequestCategory().@codeRequestCategory;
 			}
+
 			uv.requestXMLString = parentDocument.request.toXMLString();
 			showUrl.data = uv;
 			showUrl.method = URLRequestMethod.POST;

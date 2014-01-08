@@ -1,15 +1,15 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SubmissionInstruction;
@@ -52,8 +52,12 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
   private String           amendState = "";
 
+  private String           appURL = "";
+
   private AppUser          appUser;
   private BillingAccount   billingAccount;
+  private Project          project;
+  private Lab              lab;
 
   private DictionaryHelper dictionaryHelper;
 
@@ -72,6 +76,11 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("amendState") != null && !request.getParameter("amendState").equals("")) {
       amendState = request.getParameter("amendState");
+    }
+    try {
+      this.appURL = this.getAppURL(request);
+    } catch (Exception e) {
+      log.warn("Unable to obtain gnomex app url", e);
     }
   }
 
@@ -204,15 +213,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                   hApp.addContent( " - " + request.getApplicationNotes() );
                 }
                 maindiv.addContent(hApp);
-            } else if ( request.getCodeDNAPrepType() != null && !request.getCodeDNAPrepType().equals("")) {
-              RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
-              RequestCategoryType rct = rc.getCategoryType();
-              if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
-              Element hApp = new Element("H4");
-              hApp.addContent(dictionaryHelper.getDNAPrepType(request.getCodeDNAPrepType()));
-              maindiv.addContent(hApp);
-              }
-          }
+            }
             
             // Number of seq cycles and seq run type
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
@@ -235,9 +236,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
 	            boolean corePrepLib = true;
-             /* String steps = request.getApplication().getCoreSteps();
+              String steps = request.getApplication().getCoreSteps();
               String sampleType = "";
-              String samplePrepMethod = "";*/
+              String samplePrepMethod = "";
 	            if (request.getSamples().iterator().hasNext()) {
                 Sample smp = (Sample) request.getSamples().iterator().next(); 
                 if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
@@ -291,7 +292,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               }
               description.addContent(desc);
               maindiv.addContent(description);              
-            } else if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory())) {
+            } else if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
               // Show core facility notes for internal experiments
               Element sequenceNote = new Element("H5");
               sequenceNote.addContent("Notes for Core facility");
@@ -688,14 +689,14 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       if (maxMatchCount.intValue() > 0 && instructions != null && instructions.size() == 1) {
         SubmissionInstruction instruction = instructions.get(0);
         return instruction.getUrl();
-      } 
+      } else {
         log.warn("Cannot find exact matching Submission Instructions for request " + request.getNumber());
         return null;
-           
-    } 
+      }      
+    } else {
       log.warn("No matching Submission Instructions for request " + request.getNumber());
       return null;
-   
+    }
 
   }
 }

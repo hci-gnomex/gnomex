@@ -31,8 +31,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   
   public static final String   CLINICAL_SEQUENOM_REQUEST_CATEGORY = "CLINSEQ";
   public static final String   SEQUENOM_REQUEST_CATEGORY = "SEQUENOM";
-  public static final String   DNA_ISOLATION_REQUEST_CATEGORY = "DNAISOL";
-  public static final String   RNA_ISOLATION_REQUEST_CATEGORY = "RNAISOL";
   
   private String                codeRequestCategory;
   private String                requestCategory;
@@ -50,7 +48,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String                isExternal;
   private String                refrainFromAutoDelete;
   private String                isClinicalResearch;
-  private String                isOwnerOnly;
   private RequestCategoryType   categoryType;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
@@ -120,17 +117,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     }
   }
 
-  public static boolean isMolecularDiagnoticsRequestCategory(String codeRequestCategory) {
-    if (codeRequestCategory != null &&
-        (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
-          codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY) ||
-          codeRequestCategory.equals( DNA_ISOLATION_REQUEST_CATEGORY ) || 
-          codeRequestCategory.equals( RNA_ISOLATION_REQUEST_CATEGORY ))) {
-      return true;
-    } else {
-      return false;
-    }
-  }
   
   public String getDisplay() {
     String display = this.getNonNullString(getRequestCategory());
@@ -296,14 +282,6 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setIsClinicalResearch(String isClinicalResearch) {
     this.isClinicalResearch = isClinicalResearch;
-  }
-  
-  public String getIsOwnerOnly() {
-    return isOwnerOnly;
-  }
-
-  public void setIsOwnerOnly(String isOwnerOnly) {
-    this.isOwnerOnly = isOwnerOnly;
   }
   
   public RequestCategoryType getCategoryType() {

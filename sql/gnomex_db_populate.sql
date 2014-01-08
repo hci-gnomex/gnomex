@@ -1097,17 +1097,17 @@ INSERT INTO `gnomex`.`NucleotideType` values('RNA'), ('DNA');
 
 INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`)
 VALUES (1, 'DNA', 3, 'Y', 'DNA'),
-  (2, 'aRNA', 6, 'N', 'RNA'),
-  (3, 'miRNA', 8, 'Y', 'RNA'),
-  (4, 'mRNA', 7, 'Y', 'RNA'),
-  (5, 'Total RNA (eukaryote)', 1, 'Y', 'RNA'),
+  (2, 'aRNA', 6, 'N', `RNA`),
+  (3, 'miRNA', 8, 'Y', `RNA`),
+  (4, 'mRNA', 7, 'Y', `RNA`),
+  (5, 'Total RNA (eukaryote)', 1, 'Y', `RNA`),
   (6, 'FFPE DNA', 5, 'Y', 'DNA'),
   (7, 'chIP DNA', 4, 'Y', 'DNA'),
-  (8, 'polyA RNA', NULL, 'N', 'RNA'),
-  (9, 'Total RNA (prokaryote)', 2, 'Y', 'RNA'),
+  (8, 'polyA RNA', NULL, 'N', `RNA`),
+  (9, 'Total RNA (prokaryote)', 2, 'Y', `RNA`),
   (10, 'cDNA', 5, 'Y', 'DNA'),
-  (11, 'cap RNA', 6, 'Y', 'RNA'),
-  (12, 'small RNA', 10, 'Y', 'RNA');
+  (11, 'cap RNA', 6, 'Y', `RNA`),
+  (12, 'small RNA', 10, 'Y', `RNA`);
 
 INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `isActive`)
 VALUES (2, 5, 'EXP',  'Y'),

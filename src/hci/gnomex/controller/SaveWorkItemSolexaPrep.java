@@ -146,7 +146,6 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                     if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
-                      wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                       
                       String codeStepNext = "";
                       if(workItem.getCodeStepNext().equals(Step.SEQ_PREP)) {

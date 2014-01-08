@@ -128,6 +128,7 @@ CREATE TABLE `gnomex`.`AnalysisGroup` (
   `idLab` INT(10) NULL,
   `codeVisibility` VARCHAR(10) NULL,
   `idAppUser` INT(10) NULL,
+  ucscUrl varchar(250) null,
   PRIMARY KEY (`idAnalysisGroup`),
   CONSTRAINT `FK_AnalysisGroup_AppUser` FOREIGN KEY `FK_AnalysisGroup_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -1250,7 +1251,7 @@ CREATE TABLE `gnomex`.`Application` (
   `coreSteps` VARCHAR(5000) NULL,
   `coreStepsNoLibPrep` VARCHAR(5000) NULL,
   `codeApplicationType` varchar(10) NULL,
-  `onlyForLabPrepped` char(1) not null default 'N',
+  `onlyForLabPrepped` char(1) not null default 'Y',
   `samplesPerBatch` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
@@ -1666,7 +1667,6 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
   `isClinicalResearch` CHAR(1) NULL,
-  `isOwnerOnly` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
@@ -1820,6 +1820,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `ccNumber` VARCHAR(20) NULL,
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
+  `isControl` CHAR(1) NULL,
   `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 

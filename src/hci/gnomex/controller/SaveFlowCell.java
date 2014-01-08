@@ -234,7 +234,6 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setRunNumber(fc.getRunNumber());
     flowCell.setIdInstrument(fc.getIdInstrument());
     flowCell.setSide(fc.getSide());
-    flowCell.setIdCoreFacility(fc.getIdCoreFacility());
   }
 
   private class ChannelComparator implements Comparator, Serializable {

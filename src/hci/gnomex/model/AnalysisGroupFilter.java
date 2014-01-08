@@ -4,7 +4,6 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -98,57 +97,8 @@ public class AnalysisGroupFilter extends DetailObject {
     
   }
   
-//returns an ArrayList of all labs in user's query (not just those with >0 analyses)
- // ArrayList will be rows from query ordered by lastName, firstName, idLab
- public StringBuffer getAllLabsInQuery(SecurityAdvisor secAdvisor) {
-	 this.secAdvisor = secAdvisor;
-	 addWhere = true;
-	 boolean labSearch = false;
-	 boolean textSearch = false;
-	  ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
-	  StringBuffer queryBuf = new StringBuffer();
-	  queryBuf.append("SELECT idLab, lastName, firstName ");	  
-	  queryBuf.append("FROM Lab as lab");
-	  
-	  
-	  // if we have one or more labKeys then filter query by those ids
-	  if (labKeys != null && !labKeys.equals("")) {
-		  labSearch = true;		
-	      String[] tokens = labKeys.split(":");
-	      if (tokens.length > 0) {
-	    	  queryBuf.append(" WHERE ");
-	    	  queryBuf.append("idLab IN (");
-	    	  for(int x=0; x < tokens.length; x++){
-	    	  if(x > 0) { //not the first element
-	    		  queryBuf.append(", "); }
-	    	  queryBuf.append(tokens[x]);
-	    	  }
-	    	  queryBuf.append(")");	    	  
-	      }
-	  }
-	  if (searchText != null && !searchText.equals("")) {
-		  textSearch = true;
-		      if(labSearch){
-		    	  queryBuf.append(" AND ");
-		      }
-		      else {
-		      queryBuf.append("WHERE "); 
-		      }	      
-		      queryBuf.append("(");
-		      queryBuf.append(" lab.firstName like '%" + searchText + "%'");
-		      queryBuf.append(" OR ");
-		      queryBuf.append(" lab.lastName like '%" + searchText + "%'");
-		      queryBuf.append(")");
-		    }
-	  if(!labSearch && !textSearch){
-		  return new StringBuffer(); // no need to find labs without analyses as there is no applicable search criteria, should guarantee an error in caller if my logic doesn't cover all possibilities
-	  }	  
-	  
-	  queryBuf.append(" ORDER BY lastName, firstName, idLab");
-	  return queryBuf;
- }
- 
- public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
+  
+  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
     return getAnnotationQuery(secAdvisor, false);
   }
 

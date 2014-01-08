@@ -351,45 +351,7 @@
 			
 			
 			
-			override protected function focusOutHandler(event:FocusEvent):void 
-			{				
-				if(event.type == FocusEvent.FOCUS_OUT)
-				{
-					if(event.currentTarget.id == 'searchText')
-					{
-						if (searchText.text == '') {
-							searchText.text = 'Search';
-							searchText.setStyle('fontStyle', 'italic');
-							searchText.setStyle('color', 0x666666);
-						}						
-					}
-					else if(event.currentTarget.id == 'requestNumber' ) {
-						if (requestNumber.text == '') {
-							requestNumber.text = 'Lookup by #';
-							requestNumber.setStyle('fontStyle', 'italic');
-							requestNumber.setStyle('color', 0x666666);
 
-						} 
-					}
-				}
-				super.focusOutHandler(event);
-				
-			}
-			
-			private function onSearchClick():void {
-				if (searchText.text=='Search') {
-					searchText.text='';
-					searchText.setStyle('fontStyle', 'normal');
-					searchText.setStyle('color', 0x000000);
-				} 
-			}
-			private function onLookupClick():void {
-				if (requestNumber.text=='Lookup by #') {
-					requestNumber.text='';
-					requestNumber.setStyle('fontStyle', 'normal');
-					requestNumber.setStyle('color', 0x000000);
-				} 
-			}
 			
 			[Bindable]
 			public var dictionaryManager:DictionaryManager;
@@ -1044,7 +1006,6 @@
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
 			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
 			public  var TYPE_ISCAN:String   	  = "ISCAN";
-			public  var TYPE_ISOLATION:String     = "ISOLATION";
 			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
 			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";
@@ -1533,6 +1494,46 @@
 				var parms:Object = new Object();
 				parms.topicNumber = topicNumber;
 				checkTopicPermission.send(parms);									
+			}
+			
+			override protected function focusOutHandler(event:FocusEvent):void 
+			{				
+				if(event.type == FocusEvent.FOCUS_OUT)
+				{
+					if(event.currentTarget.id == 'searchText')
+					{
+						if (searchText.text == '') {
+							searchText.text = 'Search';
+							searchText.setStyle('fontStyle', 'italic');
+							searchText.setStyle('color', 0x666666);
+						}						
+					}
+					else if(event.currentTarget.id == 'requestNumber' ) {
+						if (requestNumber.text == '') {
+							requestNumber.text = 'Lookup by #';
+							requestNumber.setStyle('fontStyle', 'italic');
+							requestNumber.setStyle('color', 0x666666);
+							
+						} 
+					}
+				}
+				super.focusOutHandler(event);
+				
+			}
+			
+			private function onSearchClick():void {
+				if (searchText.text=='Search') {
+					searchText.text='';
+					searchText.setStyle('fontStyle', 'normal');
+					searchText.setStyle('color', 0x000000);
+				} 
+			}
+			private function onLookupClick():void {
+				if (requestNumber.text=='Lookup by #') {
+					requestNumber.text='';
+					requestNumber.setStyle('fontStyle', 'normal');
+					requestNumber.setStyle('color', 0x000000);
+				} 
 			}
 			
 			
@@ -2687,7 +2688,8 @@
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@type.toLowerCase() == experimentType.toLowerCase() &&
+							requestCategory.@type != null &&
+							requestCategory.@type.toString().toLowerCase() == experimentType.toLowerCase() &&
 						    requestCategory.@isActive == 'Y') {
 							return true;
 							break;

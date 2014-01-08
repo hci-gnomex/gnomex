@@ -9,7 +9,7 @@ insert into tempOrphanedAuditTable
 	select t1.TABLE_NAME, 'is orphaned audit table' Err
 		from INFORMATION_SCHEMA.TABLES t1
 		left join INFORMATION_SCHEMA.TABLES t2 on t2.TABLE_SCHEMA = t1.TABLE_SCHEMA and concat(t2.TABLE_NAME,'_Audit') = t1.TABLE_NAME
-		where t1.TABLE_NAME like '%_audit' and t2.TABLE_NAME is null AND t1.TABLE_SCHEMA = 'GNOMEX';
+		where t1.TABLE_NAME like '%_audit' and t2.TABLE_NAME is null AND T1.TABLE_SCHEMA = 'GNOMEX';
 select c1.TABLE_NAME, c1.COLUMN_NAME, 'not in audit table or diff type' Err
 	from INFORMATION_SCHEMA.COLUMNS c1
 	left join INFORMATION_SCHEMA.COLUMNS c2 on c1.TABLE_SCHEMA=c2.TABLE_SCHEMA and c2.TABLE_NAME=concat(c1.TABLE_NAME,'_Audit')

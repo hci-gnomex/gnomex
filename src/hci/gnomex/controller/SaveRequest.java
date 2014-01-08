@@ -408,7 +408,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
               WorkItem workItem = new WorkItem();
               workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-              workItem.setIdCoreFacility(requestCategory.getIdCoreFacility());
               if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
 
                 if (requestParser.isQCAmendRequest() && !isNewSample) {
@@ -565,7 +564,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
                 WorkItem wi = new WorkItem();
                 wi.setIdRequest(sample.getIdRequest());
-                wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                 wi.setCodeStepNext(Step.LABELING_STEP);
                 wi.setLabeledSample(ls);
                 wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -635,7 +633,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane)) {
                 WorkItem workItem = new WorkItem();
                 workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-                workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
                 workItem.setSequenceLane(lane);
                 String codeStepNext = "";
                 if(requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {

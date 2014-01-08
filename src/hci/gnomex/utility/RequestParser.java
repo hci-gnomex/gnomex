@@ -13,7 +13,6 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.TreatmentEntry;
-import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -176,14 +175,6 @@ public class RequestParser implements Serializable {
           if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("") && !n.getAttributeValue("idInstitution").equals("null")) {
             request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
           } 
-        }
-      }
-      
-      if ( n.getAttributeValue("codeRequestCategory") != null ) {
-        request.setCodeRequestCategory(n.getAttributeValue("codeRequestCategory"));
-        RequestCategory rc = DictionaryHelper.getInstance( sess ).getRequestCategoryObject( n.getAttributeValue("codeRequestCategory") );
-        if ( rc.getIsOwnerOnly() != null && rc.getIsOwnerOnly().equals("Y") ) {
-          request.setCodeVisibility( Visibility.VISIBLE_TO_OWNER );
         }
       }
       
@@ -391,7 +382,7 @@ public class RequestParser implements Serializable {
     }
     
     // On existing requests, save visibility and privacyExpirationDate
-    if (!isNewRequest && (request.getRequestCategory().getIsOwnerOnly() == null || request.getRequestCategory().getIsOwnerOnly().equals("N"))) {
+    if (!isNewRequest) {
       if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
         request.setCodeVisibility(n.getAttributeValue("codeVisibility")); 
         request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
@@ -491,8 +482,7 @@ public class RequestParser implements Serializable {
     if(isHiseqOrMiseq) {
       if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
         sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
-      } else {
-        // Allow to continue if just downloading a spread sheet.
+      } else {  // Allow to continue if just downloading a spread sheet.
         if (!this.forDownload) {
           throw new Exception("MultiplexGroupNumber cannot be empty for HiSeq or MiSeq experiments");
         }

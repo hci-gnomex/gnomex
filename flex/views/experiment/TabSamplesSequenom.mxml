@@ -163,7 +163,6 @@
 			}
 			
 			private function getSequenomPlateName(idx:int):String {
-				
 				var plateName:String = "";
 				
 				var y:int = idx / 96;

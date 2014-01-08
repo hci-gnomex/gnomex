@@ -76,7 +76,15 @@
 					this.deleteSampleButton.enabled = true;
 					this.copySampleButton.visible = false;
 					this.copySampleButton.enabled = false;				
-				} else if ( hasPlates() || parentDocument.isCherryPickState() ) {
+				} else if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+					this.addSampleButton.visible = false;
+					this.addSampleButton.enabled = false;
+					this.deleteSampleButton.visible = true;
+					this.deleteSampleButton.enabled = true;
+					this.copySampleButton.visible = false;
+					this.copySampleButton.enabled = false;				
+					
+				}  else if ( hasPlates() || parentDocument.isCherryPickState() ) {
 					this.addSampleButton.visible = false;
 					this.deleteSampleButton.visible = !parentDocument.isCherryPickState();
 					this.deleteSampleButton.enabled = !parentDocument.isCherryPickState();
@@ -101,7 +109,7 @@
 			override protected function getNumPlates():int {
 				var numPlates:int = 0;
 				if (hasPlates()) {
-					if ( parentDocument.isIScanState() ) {
+					if ( parentDocument.isIScanState() || parentDocument.isSequenomState() ) {
 						numPlates = parentDocument.numIScanPlates;
 					} else {
 						numPlates = parentDocument.numCapSeqPlates; 
@@ -156,7 +164,7 @@
 			
 			override protected function getAddAllAnnotations():Boolean {
 				var addAllAnnotations:Boolean = true;
-				if (parentDocument.isIScanState()) {
+				if (parentDocument.isIScanState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 					addAllAnnotations = false;
 				}
 				return addAllAnnotations;
@@ -266,6 +274,10 @@
 					
 					emptyNode = this.getEmptyIScanNode(parentDocument.samples.length);
 					
+				} else if (currentState != null && ((currentState.indexOf('Sequenom') >= 0) || (currentState.indexOf('ClinicalSeq') >= 0))) {
+					
+					emptyNode = this.getEmptySequenomNode(parentDocument.samples.length);
+					
 				} else {
 					var xmlString:String = "<Sample " +
 						" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -346,7 +358,23 @@
 				return emptyNode;
 			}
 			
-						
+			private function getEmptySequenomNode(idx:int):XML {
+				var plateName:String = getSequenomPlateName(idx);
+				var wellName:String = getWellName(idx);
+				var sampleId:String = "Sample" + idx;
+				var emptyNode:XML = new XML("<Sample " +
+					" idSample='" + sampleId + "'" +
+					" name='' description='' " +
+					" concentration=''" +
+					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +	
+					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
+					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
+					"/>");
+				return emptyNode;
+			}
+			
 			private function getEmptyCherryPickNode(cherryWellName:String):XML {
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -392,6 +420,15 @@
 				return plateName;
 			}
 			
+			private function getSequenomPlateName(idx:int):String {
+				var plateName:String = "";
+				
+				var y:int = idx / 96;
+				y = y + 1;
+				plateName = parentDocument.sampleSetupView.getSequenomPlateName(y);
+				
+				return plateName;
+			}
 			
 			private function getWellName(idx:int):String {
 				var wellName:String = "";
@@ -461,14 +498,17 @@
 				if ( parentDocument.isIScanState() ){
 					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
 					
-				}else {
+				} else if ( parentDocument.isSequenomState() ){
+					parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+					
+				} else {
 					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 				}
 				return true;
 			}
 			
 			override protected function postDeleteProcessing(deleteHappened:Boolean):void {
-				if (deleteHappened && hasPlates() && !parentDocument.isIScanState() ) {
+				if (deleteHappened && hasPlates() && !parentDocument.isIScanState() && !parentDocument.isSequenomState()) {
 					for (var psIdx:int = 0; psIdx < parentDocument.samples.length; psIdx++) {
 						var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
 						plateSample.@plateName = parentDocument.isCapSeqState() ? getPlateName(psIdx) : getIScanPlateName(psIdx);
@@ -495,7 +535,11 @@
 					emptyNodeString = emptyNodeString +
 						" plateName='" + getIScanPlateName(parentDocument.samples.length) + "'" +
 						" wellName=''";
-				}  else if (hasPlates()) {
+				} else if (parentDocument.isSequenomState()) {
+					emptyNodeString = emptyNodeString +
+						" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
+						" wellName=''";
+				} else if (hasPlates()) {
 					emptyNodeString = emptyNodeString +
 						" plateName='" + getPlateName(parentDocument.samples.length) + "'" +
 						" wellName=''";
@@ -537,7 +581,7 @@
 					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
 					if (parentDocument.isCherryPickState()) {
 						numberOfSamples = new Number(parentDocument.sampleSetupView.cherryNumDestinationWellsRadioGroup.selectedValue);
-					} else if ( parentDocument.isIScanState() ){ 
+					} else if ( parentDocument.isIScanState()  || (parentDocument.isSequenomState() && parentDocument.request.@containerType == 'PLATE')){ 
 						numberOfSamples = parentDocument.numIScanPlates*96;
 						populateSampleList();
 						
@@ -565,7 +609,8 @@
 			}
 			
 			override public function hasPlates():Boolean {
-				return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState();
+				return (parentDocument.isCapSeqState() && parentDocument.request.@containerType == 'PLATE') || parentDocument.isIScanState() ||
+					(parentDocument.isSequenomState() && parentDocument.request.@containerType == 'PLATE') ;
 			}
 			
 			override public function fillPlates():void {
@@ -587,7 +632,7 @@
 							}
 							startOfPlate += 96;
 						}
-					} else if ( parentDocument.isIScanState() ) {
+					} else if ( parentDocument.isIScanState() || parentDocument.isSequenomState() ) {
 						populateSampleList();
 					}
 				}
@@ -596,7 +641,7 @@
 			public function createEmptySampleList():void {
 				parentDocument.samples.removeAll();
 				for (var sampleIdx:int = 0; sampleIdx < parentDocument.numIScanPlates*96; sampleIdx++) {
-					var emptySample:Object =  this.getEmptyIScanNode(sampleIdx);
+					var emptySample:Object = parentDocument.isIScanState() ? this.getEmptyIScanNode(sampleIdx):this.getEmptySequenomNode(sampleIdx);
 					parentDocument.samples.addItem(emptySample);
 				}   
 			}
@@ -606,7 +651,7 @@
 				
 				for (var sampleIdx:int = 0; sampleIdx < numberOfSamples; sampleIdx++) {
 					
-					var emptySample:Object = this.getEmptyIScanNode(sampleIdx);
+					var emptySample:Object = parentDocument.isIScanState() ? this.getEmptyIScanNode(sampleIdx):this.getEmptySequenomNode(sampleIdx);
 					var existingSamples:XMLList = parentDocument.samples.source.(@plateName==emptySample.@plateName && @wellName==emptySample.@wellName);
 					
 					if ( existingSamples== null || existingSamples.length() == 0 ) {
@@ -741,6 +786,12 @@
 						}
 						completeCount++;
 						
+					} else if (currentState == 'SequenomState' || currentState == 'ClinicalSequenomState' ) {
+						if (isEntered(sample, "@name")) {
+							nameCompleteCount++;
+						}
+						completeCount++;
+						
 					} else {
 						if (isEntered(sample, "@name") &&	        		
 							(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
@@ -763,7 +814,7 @@
 				
 				var isComplete:Boolean = false;
 				if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
-					if (currentState == 'CapSeqState' || currentState == 'IScanState') {
+					if (currentState == 'CapSeqState' || currentState == 'IScanState' || currentState == 'SequenomState') {
 						if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
 							isComplete = true;
 						} else {
@@ -824,6 +875,8 @@
 					parentDocument.confirmView.enabled = isComplete;
 				} else if (parentDocument.isMitSeqState()) {
 					parentDocument.confirmView.enabled = isComplete;
+				} else if (parentDocument.isSequenomState()) {
+					parentDocument.confirmView.enabled = isComplete;
 				} else if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
 						parentDocument.visibilityView.enabled = isComplete;
@@ -878,7 +931,7 @@
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@containerType = containerType;
 					if (containerType == 'Plate') {
-						sample.@plateName = this.getPlateName(idx);
+						sample.@plateName = parentDocument.isSequenomState() ? this.getSequenomPlateName(idx) : this.getPlateName(idx);
 					} else {
 						sample.@plateName = '';
 					}
@@ -1113,7 +1166,7 @@
 
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
 
-				if (parentDocument.isSequencingState() ) {
+				if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState() ) {
 					this.concentrationCol.visible = false;
 					this.otherOrganismCol.visible = false;
 					this.sampleOrganismColumn.visible = false;
@@ -1138,7 +1191,21 @@
 							this.sampleTypeCol.visible = false;
 						} 
 						
-					} 
+					} else if (currentState == 'SequenomState') {
+						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
+						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
+						if ( parentDocument.isClinicalSequenomState() ) {
+							this.sampleNameCol.visible = false;
+						}
+						
+					} else if (currentState == 'ClinicalSequenomState') {
+						this.concentrationCol.visible = parentDocument.isEditState() ? true : false;
+						this.qc_260_280Column.visible = parentDocument.isEditState() ? true : false;
+						if ( parentDocument.isClinicalSequenomState() ) {
+							this.sampleNameCol.visible = false;
+						}
+						
+					}
 
 				} else if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 					numberSequencingLanesCol.visible = false;
@@ -1746,7 +1813,23 @@
 			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
 			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
 		</mx:State>
-		
+		<mx:State name="SequenomState">			
+			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
+			<mx:SetProperty target="{instructions}" name="toolTip">
+				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
+			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
+			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="label" value="Link to itBioPath samples using CC #"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="width" value="350"/>
+		</mx:State>
+		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="selected" value="true"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="enabled" value="false"/>
+		</mx:State>
+
 	</exp:states>
 
 </exp:TabSamplesBase>

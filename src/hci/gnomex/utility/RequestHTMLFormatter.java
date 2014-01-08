@@ -65,7 +65,7 @@ public class RequestHTMLFormatter {
      dnaSamples = true;
    }
 
-   if (RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory())) {
+   if (RequestCategory.isSequenom(request.getCodeRequestCategory())) {
      includeMicroarrayCoreNotes = false;
    }
    
@@ -276,7 +276,8 @@ public class RequestHTMLFormatter {
     	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
     	}
-    	if (  RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
+    	if ( (request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) || 
+    	      request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
     	     (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
         showCcNumber = true;
       }
@@ -297,11 +298,9 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Plate", rowSpan, 1);
       this.addHeaderCell(rowh, "Well",rowSpan, 1);
     }
-    if (request.getCodeRequestCategory() != null && 
-        RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
-        !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) {
+    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Container", rowSpan, 1);
-      if (request.isSequenomPlate() || request.isIsolationPlate()) {
+      if (request.isSequenomPlate()) {
         this.addHeaderCell(rowh, "Plate", rowSpan, 1);
         this.addHeaderCell(rowh, "Well",rowSpan, 1);
       }
@@ -318,18 +317,14 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     }
     if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
-      if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) || 
-          request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) ||
-          request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) {
-        this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
-      }
-      if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) || request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) {
+      this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
+      if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
         this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
         this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
       }
     } else {
       if (request.getCodeRequestCategory() != null && 
-          (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) )) {
+          (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || RequestCategory.isSequenom(request.getCodeRequestCategory()))) {
         this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
       }
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
@@ -394,6 +389,7 @@ public class RequestHTMLFormatter {
       table.addContent(row);
       
 
+      
       String concentration = "";
       if (sample.getConcentration() != null) {
         concentration = new Integer(sample.getConcentration().intValue()).toString();
@@ -455,16 +451,6 @@ public class RequestHTMLFormatter {
           this.addCell(row, "TUBE");
         }
       }
-      if (request.getCodeRequestCategory() != null && 
-          (request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY))) {
-        if (request.isIsolationPlate()) {
-          this.addCell(row, "PLATE");
-          this.addCell(row, sample.getASourceWell().getPlate().getLabel());
-          this.addCell(row, sample.getASourceWell().getWellName());
-        } else {
-          this.addCell(row, "TUBE");
-        }
-      }
       if (showCcNumber) {
         if ( sample.getCcNumber() != null && !sample.getCcNumber().toString().equals( "" ) ) {
           String ccLinkString = "<a href=\"" + 
@@ -483,34 +469,32 @@ public class RequestHTMLFormatter {
       if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
         this.addCell(row, sample.getName());
       }
-      if ( !request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY)&&!request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY)) {
-        if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+      if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+        this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
+        if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
+          this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
+          this.addCell(row, getSamplePrepMethod(sample));
+        }
+      } else {
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
           this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-          if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
-            this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
-            this.addCell(row, getSamplePrepMethod(sample));
-          }
-        } else {
-          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
-            this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-          }
-          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
-            // Add in values.
-            this.assays = request.getAssays();
-            for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
-              String assayFlag = "&nbsp;";
-              if (sample.getAssays().containsKey(i.next())) {
-                assayFlag = "Y";
-              }
-              this.addCell(row, assayFlag);
+        }
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+          // Add in values.
+          this.assays = request.getAssays();
+          for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
+            String assayFlag = "&nbsp;";
+            if (sample.getAssays().containsKey((String)i.next())) {
+              assayFlag = "Y";
             }
+            this.addCell(row, assayFlag);
           }
-          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
-            PlateWell sourceWell = sample.getASourceWell();
-            this.addCell(row, sourceWell.getPlate().getLabel());
-            this.addCell(row, sourceWell.getWellName());
-            this.addCell(row, sample.getADestinationWell().getWellName());
-          }
+        }
+        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+          PlateWell sourceWell = sample.getASourceWell();
+          this.addCell(row, sourceWell.getPlate().getLabel());
+          this.addCell(row, sourceWell.getWellName());
+          this.addCell(row, sample.getADestinationWell().getWellName());
         }
       }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
@@ -973,7 +957,7 @@ public class RequestHTMLFormatter {
     return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
 
-  /*private String getOrganism(Sample sample) {
+  private String getOrganism(Sample sample) {
     
     String org = null;
     if (dictionaryHelper.getOrganism(sample).equals("Other")) {
@@ -982,7 +966,7 @@ public class RequestHTMLFormatter {
       org = dictionaryHelper.getOrganism(sample); 
     }
     return org != null && !org.trim().equals("") ? org : "&nbsp;";
-  }*/
+  }
 
   public Element makeLabeledSampleTable(Element container, Set labeledSamples) {
 
@@ -1542,9 +1526,9 @@ public class RequestHTMLFormatter {
     String sampleType = this.dictionaryHelper.getSampleType(sample.getIdSampleType());
     if (sampleType != null && sampleType.matches(".*DNA.*")) {
       return true;
+    } else {
+      return false;
     }
-    return false;
-   
   }
 
   public static void makePageBreak(Element maindiv) {
