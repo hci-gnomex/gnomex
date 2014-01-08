@@ -1250,7 +1250,7 @@ CREATE TABLE `gnomex`.`Application` (
   `coreSteps` VARCHAR(5000) NULL,
   `coreStepsNoLibPrep` VARCHAR(5000) NULL,
   `codeApplicationType` varchar(10) NULL,
-  `onlyForLabPrepped` char(1) not null default 'Y',
+  `onlyForLabPrepped` char(1) not null default 'N',
   `samplesPerBatch` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
