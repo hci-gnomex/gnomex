@@ -69,7 +69,7 @@ public class BatchDataSource extends DetailObject {
   }
 
   public Session connectTomcat(File dataSourcesFile) throws Exception {
-    catalinaProperties = new TomcatCatalinaProperties(specifiedOrionPath);
+    catalinaProperties = new TomcatCatalinaProperties(TomcatCatalinaProperties.getCatalinaPropertiesPathFromScripts(specifiedOrionPath));
     this.registerTomcatDataSources(dataSourcesFile);
     String filePath = "../WEB-INF/classes/";
     if(specifiedSchemaPath.length() > 0) {
