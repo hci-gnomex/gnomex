@@ -3022,10 +3022,12 @@
 		}
 		
 		private function validateAndSubmitRequest():void {
+			this.submitButton.enabled = false;
 			
 			// Only submit request if it is valid
 			validateRequest();
 			if (errorMessage != '') {
+				this.submitButton.enabled = true;
 				Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
 				return;
 			}
@@ -3037,9 +3039,11 @@
 		}
 		
 		private function validateAndSaveRequest():void {
+			this.submitButton.enabled = false;
 			validateRequest();
 			
 			if (errorMessage != '') {
+				this.submitButton.enabled = true;
 				Alert.show(errorMessage);
 				return; 
 			} else if (warningMessage != '') {
@@ -3585,7 +3589,9 @@
             if (event.detail==Alert.YES) {
             	warningMessage = '';
             	submitRequest();
-            }
+            } else {
+				this.submitButton.enabled = true;
+			}
         }
 		
 		public function promptToSaveRequest():void {
@@ -3601,7 +3607,9 @@
             if (event.detail==Alert.YES) {
             	warningMessage = '';
             	saveRequest();
-            }
+            } else {
+				this.submitButton.enabled = true;
+			}
         }
 		
 		private function onSaveNewRequest(event:ResultEvent):void {
