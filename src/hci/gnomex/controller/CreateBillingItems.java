@@ -27,6 +27,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PlateWellComparator;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
@@ -223,7 +224,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
                 plate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
               }
               well.setPlate(plate);
-              Set<PlateWell> wells = new TreeSet<PlateWell>();
+              Set<PlateWell> wells = new TreeSet<PlateWell>(new PlateWellComparator());
               wells.add(well);
               sample.setWells(wells);
             }
