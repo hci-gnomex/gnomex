@@ -8,22 +8,30 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class TomcatCatalinaProperties {
-  private static final String         GNOMEX_AES_KEY = "gnomex.aes.key"; 
+  public static final String         GNOMEX_AES_KEY = "gnomex.aes.key"; 
+  private static final String         GNOMEX_PROPERTIES_PATH = "gnomex.properties_path";
 
-  private String specifiedOrionPath;
+  private String filePath;
   private Properties catalinaProperties;
   
-  public TomcatCatalinaProperties(String specifiedOrionPath) throws IOException {
-    this.specifiedOrionPath = specifiedOrionPath == null ? "" : specifiedOrionPath;
-    getCatalinaProperties();
+  public TomcatCatalinaProperties(String filePath) throws IOException {
+    getCatalinaProperties(filePath);
   }
   
-  private void getCatalinaProperties() throws IOException {
+  public static String getCatalinaPropertiesPathFromScripts(String specifiedOrionPath) {
+    specifiedOrionPath = specifiedOrionPath == null ? "" : specifiedOrionPath;
     String filePath = specifiedOrionPath + "../../../conf/catalina.properties";
+    return filePath;
+  }
+  
+  private void getCatalinaProperties(String filePath) throws IOException {
     catalinaProperties = new Properties();
     catalinaProperties.load(new FileInputStream(filePath));
     
     filePath = "/properties/gnomex_tomcat.properties";
+    if (catalinaProperties.getProperty(GNOMEX_PROPERTIES_PATH) != null) {
+      filePath = catalinaProperties.getProperty(GNOMEX_PROPERTIES_PATH);
+    }
     File f = new File(filePath);
     if (f.exists()) {
       Properties p1 = new Properties();

@@ -69,7 +69,7 @@ public class BatchMailer  {
       }
     } else {
       // Check for context.xml if we are running under apache tomcat
-      catalinaProperties = new TomcatCatalinaProperties(specifiedOrionPath);
+      catalinaProperties = new TomcatCatalinaProperties(TomcatCatalinaProperties.getCatalinaPropertiesPathFromScripts(specifiedOrionPath));
       String contextFilePath = "../";
       if (specifiedOrionPath.length() > 0) {
         contextFilePath = specifiedOrionPath; 
