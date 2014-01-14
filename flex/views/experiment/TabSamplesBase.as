@@ -306,13 +306,14 @@ package views.experiment
 			var nextPlate:int = getNextPlate();
 			
 			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView());
-			if (parentDocument.isEditState()) {
-				uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
-			}
+				
+			uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
 		}
 		
 		protected function uploadComplete(event:Event):void {
-			Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
+			if (parentDocument.isEditState()) {
+				Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
+			}
 		}
 		
 		protected function getSampleSheetSpecifiedFieldList():Dictionary {

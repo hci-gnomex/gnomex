@@ -227,6 +227,20 @@
 				return isValid;
 			}
 			
+			override protected function uploadComplete(event:Event):void {
+				propagateIndexTagSequence();
+				super.uploadComplete(event);
+			}
+			
+			private function propagateIndexTagSequence():void {
+				for each(var s:XML in samplesGrid.dataProvider) {
+					var bc:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcode);
+					s.@barcodeSequence = bc != null ? bc.@barcodeSequence : "";
+					bc = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcodeB);
+					s.@barcodeSequenceB = bc != null ? bc.@barcodeSequence : "";
+				}
+			}
+			
 			private function deleteTheSample():void {
 				var idx:int = samplesGrid.selectedIndex;
 				deleteSample();
