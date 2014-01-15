@@ -903,6 +903,10 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SequenceLane" />
 		</set>
+		<set name="sampleExperimentFiles" table="SampleExperimentFile" lazy="true" cascade="none" >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.SampleExperimentFile" />
+		</set>
 		
   </class>
   
@@ -912,8 +916,9 @@
 			<generator class="native"/>
 		</id>
 		<property name="idSample" column="idSample" type="integer"/>
-		<property name="idExperimentFile" column="idExperimentFile" type="integer"/>
-		<property name="codeSampleFileType" column="codeSampleFileType" type="string"/>
+		<property name="idExpFileRead1" column="idExpFileRead1" type="integer"/>
+		<property name="idExpFileRead2" column="idExpFileRead2" type="integer"/>
+		<property name="seqRunNumber" column="seqRunNumber" type="integer"/>
 	</class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
