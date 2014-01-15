@@ -62,6 +62,8 @@
 					}
 				}
 				
+				this.samplesGridConfirm.invalidateSize();
+				
 				// Edit buttons shown
 				this.parentDocument.submitButton.label = 'Submit';
 				this.parentDocument.agreeBox.visible = true;
@@ -213,6 +215,7 @@
 														  id="samplesGridConfirm"  
 														  editable="false" 
 														  dataProvider="{filteredSamples}" 
+														  rowCount = "{filteredSamples.length+2}"
 							 							borderStyle="solid"  
 														horizontalScrollPolicy="off" 
 														verticalScrollPolicy="off"
