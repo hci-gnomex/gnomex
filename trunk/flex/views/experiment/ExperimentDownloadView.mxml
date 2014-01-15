@@ -345,6 +345,15 @@
 				}
 			}
 			
+			private function showLinkSamplesWindow():void{
+				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+				var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+				if (idRequest != null && idRequest != "") {
+					ExperimentEditView.showLinkSamplesWindow(parentApplication.theBody, request, new ExperimentEditView, this);		 
+				}
+				
+			}
+			
 			public function showDownloadWindow():void {
 				if (this.browseParameters != null) {
 					var downloadTerms:String = parentApplication.getProperty(parentApplication.PROPERTY_GUEST_DOWNLOAD_TERMS);
@@ -422,6 +431,12 @@
 							   toolTip="Add, delete, rename files and folders."
 							   id="uploadOrganizeLink" 
 							   textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" 
+							   textAlign="left"/>
+				<mx:LinkButton label="Organize &amp; Link"  
+							   click="showLinkSamplesWindow()" 
+							   toolTip="Link Experiment Files to Samples"
+							   id="sampleExperimentFilesLink" 
+							   textDecoration="underline" icon="@Embed(source='../../assets/link.png')" 
 							   textAlign="left"/>
 			</mx:HBox>
 			<mx:LinkButton label="Download files"  
