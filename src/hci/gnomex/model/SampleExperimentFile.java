@@ -5,10 +5,10 @@ import hci.hibernate3utils.HibernateDetailObject;
 public class SampleExperimentFile extends HibernateDetailObject {
   private Integer idSampleExperimentFile;
   private Integer idSample;
-  private Integer idExperimentFile;
-  private String  codeSampleFileType;
-  
-  
+  private Integer idExpFileRead1;
+  private Integer idExpFileRead2;
+  private Integer seqRunNumber;
+    
   public Integer getIdSampleExperimentFile() {
     return idSampleExperimentFile;
   }
@@ -21,19 +21,23 @@ public class SampleExperimentFile extends HibernateDetailObject {
   public void setIdSample(Integer idSample) {
     this.idSample = idSample;
   }
-  public Integer getIdExperimentFile() {
-    return idExperimentFile;
+  public Integer getIdExpFileRead1() {
+    return idExpFileRead1;
   }
-  public void setIdExperimentFile(Integer idExperimentFile) {
-    this.idExperimentFile = idExperimentFile;
+  public void setIdExpFileRead1(Integer idExpFileRead1) {
+    this.idExpFileRead1 = idExpFileRead1;
   }
-  public String getCodeSampleFileType() {
-    return codeSampleFileType;
+  public Integer getIdExpFileRead2() {
+    return idExpFileRead2;
   }
-  public void setCodeSampleFileType(String codeSampleFileType) {
-    this.codeSampleFileType = codeSampleFileType;
+  public void setIdExpFileRead2(Integer idExpFileRead2) {
+    this.idExpFileRead2 = idExpFileRead2;
   }
-  
-  
+  public Integer getSeqRunNumber() {
+    return seqRunNumber;
+  }
+  public void setSeqRunNumber(Integer seqRunNumber) {
+    this.seqRunNumber = seqRunNumber;
+  }
 
 }
