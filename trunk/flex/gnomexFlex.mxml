@@ -477,6 +477,10 @@
 			public var iconFolder:Class;
 			
 			[Bindable]
+			[Embed(source="assets/test_tube.png")]
+			public var testTube:Class;
+			
+			[Bindable]
 			[Embed(source="assets/folder_disable.png")]
 			public var iconFolderDisabled:Class;
 			
@@ -817,6 +821,10 @@
 			[Bindable]
 			[Embed(source="assets/rectangle.png")]
 			public var iconFlowCell:Class;
+			
+			[Bindable]
+			[Embed(source="assets/note.png")]
+			public var iconNote:Class;
 
 			
 			
@@ -3151,9 +3159,7 @@
 					} else {
 						return this.iconSlide;
 					}
-				}
-					
-				else if (item.name() == "RequestDownload") {
+				} else if (item.name() == "RequestDownload") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
 					} else {
