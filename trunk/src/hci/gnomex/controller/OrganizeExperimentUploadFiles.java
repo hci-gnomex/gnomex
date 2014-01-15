@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
@@ -14,6 +15,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -40,9 +43,13 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
   private String                       filesXMLString;
   private Document                     filesDoc;
   private String                       filesToRemoveXMLString;
+  private String                       linkedSampleFileXMLString;
+  private Document                     linkedSampleFileDoc;
   private Document                     filesToRemoveDoc;
   private FileDescriptorUploadParser   parser;
   private FileDescriptorUploadParser   filesToRemoveParser;
+  private Document                     filesToUnlinkDoc;
+  private String                       filesToUnlinkXMLString;
 
   private String                       serverName;
 
@@ -87,9 +94,36 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       }
     }
 
+    if (request.getParameter("filesToUnlinkXMLString") != null && !request.getParameter("filesToUnlinkXMLString").equals("")) {
+      filesToUnlinkXMLString = "<FilesToUnlink>" + request.getParameter("filesToUnlinkXMLString") +  "</FilesToUnlink>";
+
+      StringReader reader = new StringReader(filesToUnlinkXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        filesToUnlinkDoc = sax.build(reader);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse filesToUnlinkXMLString", je );
+        this.addInvalidField( "FilesToUnlinkXMLString", "Invalid filesToUnlink xml");
+      }
+    }
+
+    if (request.getParameter("linkedSampleFileXMLString") != null && !request.getParameter("linkedSampleFileXMLString").equals("")) {
+      linkedSampleFileXMLString = "<linkedSampleFiles>" + request.getParameter("linkedSampleFileXMLString") +  "</linkedSampleFiles>";
+
+      StringReader reader = new StringReader(linkedSampleFileXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        linkedSampleFileDoc = sax.build(reader);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse linkedSampleFileXMLString", je );
+        this.addInvalidField( "FilesToRemoveXMLString", "Invalid linkedSampleFiles xml");
+      }
+    }
+
     serverName = request.getServerName();
 
   }
+
 
   public Command execute() throws RollBackCommandException {
 
@@ -121,7 +155,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
             }
           }
-          
+
           //Rename files
           for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();) {
             String file = (String)i.next();
@@ -158,7 +192,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
 
           }
-          
+
           //Rename Folders
           for(Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
             String folder = (String)i.next();
@@ -166,21 +200,21 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             File f1 = new File(baseDir + File.separator + folder);
             File f2 = new File(baseDir + File.separator + newFolder);
             f2.mkdir();
-              for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
-                String directory = (String)j.next();
-                if(directory.contains(folder + File.separator)){
-                  parser.getFileNameMap().remove(directory);
-                  j = parser.getFileNameMap().keySet().iterator();
-                }
-                if(directory.equals(folder)){
-                  List fileNames = (List)parser.getFileNameMap().get(directory);
-                  parser.getFileNameMap().remove(directory);
-                  parser.getFileNameMap().put(newFolder, fileNames);
-                  j = parser.getFileNameMap().keySet().iterator();
-                }
+            for(Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
+              String directory = (String)j.next();
+              if(directory.contains(folder + File.separator)){
+                parser.getFileNameMap().remove(directory);
+                j = parser.getFileNameMap().keySet().iterator();
               }
+              if(directory.equals(folder)){
+                List fileNames = (List)parser.getFileNameMap().get(directory);
+                parser.getFileNameMap().remove(directory);
+                parser.getFileNameMap().put(newFolder, fileNames);
+                j = parser.getFileNameMap().keySet().iterator();
+              }
+            }
           }
-          
+
           // Move files to designated folder
           tryLater = new ArrayList();
           File oldFileToDelete = null;
@@ -193,7 +227,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               String fileName = (String)i1.next();
 
               File sourceFile = new File(fileName);
-              
+
               if(baseDir.contains(directoryName) || baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))){
                 targetDirName = baseDir + File.separator;
               }
@@ -222,7 +256,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
               File destFile = new File(targetDir, sourceFile.getName());
               boolean success = sourceFile.renameTo(destFile);
-              
+
               //If we have renamed a file that is registered in the database under the ExperimentFile table, then update the ExperimentFile name
               //so that we don't do an unnecessary delete in the register files servlet.
               if(success) {
@@ -230,7 +264,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentExpFileName + "'").list();
                 if(expFiles.size() == 1) {
                   String newExpFileName = targetDirName.substring(targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
-                  newExpFileName += "/" + destFile.getName();
+                  newExpFileName += destFile.getName();
                   ExperimentFile ef = (ExperimentFile)expFiles.get(0);
                   ef.setFileName(newExpFileName);
                   ef.setFileSize(BigDecimal.valueOf(destFile.length()));
@@ -264,9 +298,9 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             } else {
               log.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
             }
-            
+
           }
-          
+
 
           // Remove files from file system
           if (filesToRemoveParser != null) {
@@ -285,7 +319,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 TransferLog transferLog = (TransferLog)transferLogs.get(0);
                 sess.delete(transferLog);
               }
-              
+
               //The "file" might be a directory so we have to delete all of the files underneath it first
               if(f.isDirectory()){
                 deleteDir(f, fileName);
@@ -296,13 +330,39 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 if (!success) { 
                   // File was not successfully deleted
                   throw new Exception("Unable to delete file " + fileName);
+                } else {
+                  //Delete ExperimentFile if one is registered in the db and unlink sample file if need be
+                  String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+                  List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
+                  if(expFiles.size() == 1) {
+                    ExperimentFile ef = (ExperimentFile)expFiles.get(0);
+                    List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
+
+                    if(l.size() == 1) {
+                      SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
+                      if(sef.getIdExpFileRead1() != null && sef.getIdExpFileRead1().equals(ef.getIdExperimentFile())) {
+                        sef.setIdExpFileRead1(null);
+                      } else if(sef.getIdExpFileRead2() != null && sef.getIdExpFileRead2().equals(ef.getIdExperimentFile())) {
+                        sef.setIdExpFileRead2(null);
+                      }
+
+                      if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                        sess.delete(sef);
+                      } else {
+                        sess.save(sef);
+                      }
+                    }
+                    request.getFiles().remove(ef);
+                    sess.delete(ef);
+                    sess.flush(); 
+                  }
                 }
               }
 
             }
             sess.flush();
           }
-          
+
           if(tryLater != null) {
             for (Iterator i = tryLater.iterator(); i.hasNext();) {
               String fileName = (String)i.next();
@@ -314,12 +374,89 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               }
             }
           }
-          
+
           sess.flush();
-          
-          
-          
-          
+
+          //Unlink experiment files from Samples
+          if(filesToUnlinkDoc != null) {
+            Element root = this.filesToUnlinkDoc.getRootElement();
+            for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
+              Element fileDescriptor = (Element)i.next();
+              Integer idExperimentFile = Integer.parseInt(fileDescriptor.getAttributeValue("idExperimentFile"));
+              List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list());
+
+              if(l.size() == 1) {
+                SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
+                if(sef.getIdExpFileRead1() != null && sef.getIdExpFileRead1().equals(idExperimentFile)) {
+                  sef.setIdExpFileRead1(null);
+                } else if(sef.getIdExpFileRead2() != null && sef.getIdExpFileRead2().equals(idExperimentFile)) {
+                  sef.setIdExpFileRead2(null);
+                }
+
+                if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                  sess.delete(sef);
+                } else {
+                  sess.update(sef);
+                }
+              }
+            }
+            sess.flush();
+          }
+
+          //Link experiment files to samples
+          if(linkedSampleFileDoc != null) {
+            Element root = this.linkedSampleFileDoc.getRootElement();
+            int fileCount = 1;
+
+
+            for(Iterator i = root.getChildren("Sample").iterator(); i.hasNext();) {
+              Element sampleNode = (Element)i.next();      
+              Integer idSample = Integer.parseInt(sampleNode.getAttributeValue("idSample"));
+              for(Iterator j = sampleNode.getChildren().iterator(); j.hasNext();) {
+                Element seqRunNode = (Element)j.next();
+                Integer seqRunNumber = Integer.parseInt(seqRunNode.getAttributeValue("seqRunNumber"));
+                SampleExperimentFile sef = new SampleExperimentFile();
+                fileCount = 1;
+                for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
+                  Element expFile = (Element)k.next();
+                  ExperimentFile ef = new ExperimentFile();
+                  if(expFile.getAttributeValue("idExperimentFile") == null) {
+                    java.util.Date d = new java.util.Date();
+                    ef.setIdRequest(this.idRequest);
+                    ef.setFileName(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
+                    ef.setFileSize(new BigDecimal(expFile.getAttributeValue("fileSize")));
+                    ef.setCreateDate(new Date(d.getTime()));
+                    sess.save(ef);                 
+                  } else {
+                    ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
+                    if(ef == null) {
+                      continue;
+                    }
+                    List sefList = sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+                    if(sefList.size() == 1) {
+                      sef = (SampleExperimentFile)sefList.get(0);
+                    }
+                  }
+
+                  if(fileCount == 1) {
+                    sef.setIdSample(idSample);
+                    sef.setSeqRunNumber(seqRunNumber);
+                    sef.setIdExpFileRead1(ef.getIdExperimentFile());
+                    if(!k.hasNext()) {
+                      sef.setIdExpFileRead2(null);
+                      sess.saveOrUpdate(sef);
+                    }
+                  } else if(fileCount == 2) {
+                    sef.setIdExpFileRead2(ef.getIdExperimentFile());
+                    sess.saveOrUpdate(sef);
+                  }
+                  fileCount++;
+                }
+              }
+            }
+            sess.flush();
+          }
+
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";
           setResponsePage(this.SUCCESS_JSP);          
@@ -363,19 +500,19 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       }
       else if (!(new File(fileName + File.separator + file).delete())) {
         throw new Exception("Unable to delete file " + fileName + File.separator + file);
-    }
+      }
       else{
         filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
       }
-    
-  }
+
+    }
     if(f.list().length == 0){
       if(!f.delete()){
         throw new Exception("Unable to delete file " + f.getCanonicalPath());
       }
       return;
     }
-    
+
   }
 
 }
