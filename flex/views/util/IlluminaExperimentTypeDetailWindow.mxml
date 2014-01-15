@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
 				implements="views.renderers.MultiselectRendererCommonInterface"
 				layout="vertical" 
-				title="Edit Experiment Type" width="650" height="400" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				title="Edit Experiment Type" width="650" height="430" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	
 	<mx:HTTPService
@@ -71,7 +71,7 @@
 				includeInSelectedPlatform.selected = selectedItem.hasOwnProperty("@isSelected") ? selectedItem.@isSelected == 'Y' : false;
 				includeInSelectedPlatformChanged();
 				
-				onlyWhenLabPrepsSamples.selected = selectedItem.hasOwnProperty("@onlyForLabPrepped") ? selectedItem.@onlyForLabPrepped == 'Y' : false;
+				this.radioGroupLabPreppedSamples.selectedValue = selectedItem.@onlyForLabPrepped == 'Y' ? 'Y' : 'N';
 				
 				captureLibDesign.selected = selectedItem.hasOwnProperty("@hasCaptureLibDesign") ? selectedItem.@hasCaptureLibDesign == 'Y' : false;
 				
@@ -249,7 +249,7 @@
 				selectedItem.@display = experimentTypeName.text;
 				selectedItem.@sortOrder = sortOrderCombo.selectedItem == null ? '0' : sortOrderCombo.selectedItem;
 				// isSelected is set in updateDP function
-				selectedItem.@onlyForLabPrepped = onlyWhenLabPrepsSamples.selected ? 'Y' : 'N';
+				selectedItem.@onlyForLabPrepped = this.radioGroupLabPreppedSamples.selectedValue == null ? 'N' : this.radioGroupLabPreppedSamples.selectedValue;
 				selectedItem.@hasCaptureLibDesign = captureLibDesign.selected ? 'Y' : 'N';
 				selectedItem.@idSeqLibProtocols = buildProtocolsString();
 				
@@ -329,10 +329,14 @@
 			<mx:Text text="Theme" styleName="formLabel" width="55"/>
 			<mx:ComboBox id="themeCombo" width="200" dataProvider="{parentApplication.dictionaryManager.getEntries('hci.gnomex.model.ApplicationTheme')}"
 						 labelField="@display" close="{this.dirty.setDirty();}" />
-			<mx:Spacer width="10" />
-			<mx:CheckBox id="onlyWhenLabPrepsSamples" label="Custom, When Lab Preps Samples" click="{dirty.setDirty()}" /> 
 			<mx:Spacer width="100%" />
 			<mx:CheckBox id="isActiveCheckBox" label="Active" enabled="true" click="{dirty.setDirty()}" toolTip="Cannot inactivate experiment type when it is associated with platforms"/> 
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:RadioButtonGroup id="radioGroupLabPreppedSamples" />
+			<mx:RadioButton label="Supported by core"  groupName="radioGroupLabPreppedSamples" value="N" click="{dirty.setDirty()}" /> 
+			<mx:RadioButton label="Other kit used by client"  groupName="radioGroupLabPreppedSamples" value="Y" click="{dirty.setDirty()}" /> 
 		</mx:HBox>
 
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
