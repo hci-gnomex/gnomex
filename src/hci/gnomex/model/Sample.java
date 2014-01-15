@@ -74,6 +74,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     meanLibSizeActual;
   private Integer     idOligoBarcodeB;
   private String      barcodeSequenceB;
+  private Set         sampleExperimentFiles;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -893,5 +894,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setBarcodeSequenceB(String barcodeSequenceB) {
     this.barcodeSequenceB = barcodeSequenceB;
+  }
+
+  public Set getSampleExperimentFiles() {
+    return sampleExperimentFiles;
+  }
+
+  public void setSampleExperimentFiles(Set sampleExperimentFiles) {
+    this.sampleExperimentFiles = sampleExperimentFiles;
   }
 }
