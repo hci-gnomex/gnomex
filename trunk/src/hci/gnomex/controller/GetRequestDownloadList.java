@@ -306,11 +306,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           // Show files under the root experiment directory
           String createDateString = this.formatDate((java.util.Date)row[0]);
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
-          addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, null);
+          addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, null, sess);
 
           // Show the files (and directories) under upload staging.  Show these under request node.
           if (includeUploadStagingDir.equals("Y")) {
-            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR);            
+            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR, sess);            
           }
         }
 
@@ -577,6 +577,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             fdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
+            if(fd.getIdExperimentFile(sess) != null) {
+              fdNode.setAttribute("idExperimentFile", fd.getIdExperimentFile(sess).toString());
+            }
             recurseAddChildren(fdNode, fd, isFlowCellDirectory);
             
             requestDownloadNode.addContent(fdNode);
@@ -653,7 +656,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate, String subDirectory) throws Exception {
+  private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate, String subDirectory, Session sess) throws Exception {
    
     String dirTokens[] = createDate.split("/");
     String createYear  = dirTokens[2];
@@ -689,6 +692,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("state", "unchecked");
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
+        if(fdesc.getIdExperimentFile(sess) != null) {
+          fdNode.setAttribute("idExperimentFile", fdesc.getIdExperimentFile(sess).toString());
+        }
 
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
