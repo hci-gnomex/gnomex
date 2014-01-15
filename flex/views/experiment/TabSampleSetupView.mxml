@@ -1161,7 +1161,7 @@
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
 		<mx:VBox height="100%"  paddingTop="2"  verticalGap="2" id="sampleSetupContainer" width="100%">
 			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
-				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
+				<mx:Text text="(1) How many unique samples are in this experiment order?" width="334" id="label5"/>
 				<mx:TextInput width="40" id="numberOfSamples" >
 					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
 				</mx:TextInput>							
@@ -1241,7 +1241,7 @@
 				</mx:VBox>
         		
         	</mx:AddChild>
-        	<mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
+        	<mx:SetProperty target="{label5}" name="text" value="(2) How many unique samples are in this experiment order?"/>
         	<mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
         	<mx:SetProperty target="{label2}" name="text">
         		<mx:value>(4) Specify the nucleic acid extraction method. (required)</mx:value>
@@ -1270,7 +1270,6 @@
         	
         </mx:State>
         <mx:State name="SolexaSetupState">
-         	
             <mx:AddChild relativeTo="{sampleOrganismContainer}" position="after">
             
 				<mx:VBox paddingBottom="0" paddingTop="0">
@@ -1374,6 +1373,7 @@
         <mx:State name="SolexaAmendPreppedState" basedOn="SolexaSetupPreppedState">
         </mx:State>
         <mx:State name="CapSeqState">
+			 <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
              <mx:RemoveChild target="{sampleOrganismContainer}"/>
              <mx:RemoveChild target="{samplePrepContainer}"/>
              <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
@@ -1411,6 +1411,7 @@
              </mx:AddChild>
         </mx:State>
 	   <mx:State name="FragAnalState">
+		   <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
@@ -1457,6 +1458,7 @@
 		  <mx:SetProperty target="{sequenomContainerTypeRadioGrp}" name="selectedValue" value="{null}"/>
 	   </mx:State>
 	   <mx:State name="MitSeqState">
+		   <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
