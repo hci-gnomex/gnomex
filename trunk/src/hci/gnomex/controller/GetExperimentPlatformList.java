@@ -6,6 +6,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.ApplicationTheme;
 import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
@@ -78,6 +79,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       List platforms = sess.createQuery("SELECT rc from RequestCategory rc order by rc.requestCategory").list();
 
+      List<ApplicationTheme> emptyThemes = this.getEmptyApplicationThemes(sess);
+      
       for(Iterator i = platforms.iterator(); i.hasNext();) {
         RequestCategory rc = (RequestCategory)i.next();
         this.getSecAdvisor().flagPermissions(rc);
@@ -152,6 +155,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             }
           }
         }
+        // add empty themes so we can add applications to them.
+        if (rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
+          for(ApplicationTheme t : emptyThemes) {
+            Element themeNode = new Element("ApplicationTheme");
+            themeNode.setAttribute("applicationTheme", t.getApplicationTheme());
+            themeNode.setAttribute("idApplicationTheme", t.getIdApplicationTheme().toString());
+            listNode.addContent(themeNode);
+          }
+        }
+        
         if (parentNode != listNode) {
           parentNode.setAttribute("isSelected", foundSelected ? "Y" : "N");
         }
@@ -317,6 +330,17 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
     
     return apps;
+  }
+  
+  private List<ApplicationTheme> getEmptyApplicationThemes(Session sess) {
+    String queryString = "select distinct idApplicationTheme from Application where idApplicationTheme is not null";
+    Query query = sess.createQuery(queryString);
+    List ids = query.list();
+    queryString = "select t from ApplicationTheme t where t.idApplicationTheme not in (:ids)";
+    query = sess.createQuery(queryString);
+    query.setParameterList("ids", ids);
+    List<ApplicationTheme> l = (List<ApplicationTheme>)query.list();
+    return l;
   }
   
   private Map<String, List<Element>> getApplicationRequestCategoryMap(Session sess, DictionaryHelper dh) throws XMLReflectException {
