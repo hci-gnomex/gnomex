@@ -268,6 +268,15 @@ public class FileDescriptor extends DetailObject implements Serializable {
     return viewURL;
   }
   
+  public Integer getIdExperimentFile(Session sess) {
+    Integer idExperimentFile = null;
+    List l = sess.createQuery("SELECT ef.idExperimentFile from ExperimentFile ef where fileName = '" + zipEntryName.replace("\\", "/") + "'" ).list();
+    if(l.size() == 1) {
+      idExperimentFile = (Integer)l.get(0);
+    }
+    return idExperimentFile;
+  }
+
   public void isFound(boolean isFound) {
     this.found = isFound;
   }
