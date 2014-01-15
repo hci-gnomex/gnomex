@@ -4742,6 +4742,15 @@
 			uploadWindow.init(request);
 			uploadWindow.theTab.selectedIndex = 1;
 		}
+			
+		public static function showLinkSamplesWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			experimentEditView.downloadView = experimentDownloadView;
+			uploadWindow.parentView = experimentEditView;
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(request);
+			uploadWindow.theTab.selectedIndex = 2;
+		}
 		
 
 		public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
