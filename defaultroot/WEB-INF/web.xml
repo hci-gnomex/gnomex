@@ -296,6 +296,13 @@
       hci.gnomex.controller.UploadQuoteInfoServlet
     </servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.CreateAnalysisServlet
+    </servlet-class>
+  </servlet>
   
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -489,6 +496,11 @@
   <servlet-mapping>
     <servlet-name>UploadQuoteInfoServlet</servlet-name>
     <url-pattern>UploadQuoteInfoServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <url-pattern>CreateAnalysisServlet.gx</url-pattern>
   </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->
