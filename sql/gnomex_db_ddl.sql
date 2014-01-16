@@ -3027,20 +3027,21 @@ DROP TABLE IF EXISTS `gnomex`.`SampleExperimentFile`;
 CREATE TABLE `gnomex`.`SampleExperimentFile` (
   `idSampleExperimentFile` INT(10) NOT NULL AUTO_INCREMENT,
   `idSample` INT(10),
-  `idExperimentFile` INT(10),
-  `codeSampleFileType` varchar(10),
+  `idExpFileRead1` INT(10),
+  `idExpFileRead2` INT(10),
+  `seqRunNumber` INT(10),
   PRIMARY KEY (`idSampleExperimentFile`),
-  UNIQUE KEY `UN_SampleExperimentFile` (idSample, idExperimentFile),
+  UNIQUE KEY `UN_SampleExperimentFile` (idSample, idExpFileRead1, idExpFileRead2),
   CONSTRAINT `FK_SampleExperimentFile_Sample` FOREIGN KEY `FK_SampleExperimentFile_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile` (`idExperimentFile`)
+  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile1` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile1` (`idExpFileRead1`)
     REFERENCES `gnomex`.`ExperimentFile` (`idExperimentFile`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleExperimentFile_SampleFileType` FOREIGN KEY `FK_SampleExperimentFile_SampleFileType` (`codeSampleFileType`)
-    REFERENCES `gnomex`.`SampleFileType` (`codeSampleFileType`)
+  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile2` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile2` (`idExpFileRead2`)
+    REFERENCES `gnomex`.`ExperimentFile` (`idExperimentFile`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
