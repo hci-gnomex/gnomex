@@ -4,12 +4,15 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
+import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateBSTXSession;
 import hci.gnomex.utility.HibernateSession;
 
+import java.io.File;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -22,6 +25,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
+
+import com.oreilly.servlet.multipart.FilePart;
+import com.oreilly.servlet.multipart.MultipartParser;
+import com.oreilly.servlet.multipart.Part;
 
 /**
  *
@@ -39,6 +46,12 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
   private Document            doc;
+  
+  private java.util.Date visitDateTime;
+  private Integer idAppUser;
+  private String ipAddress;
+  private String sessionID;
+  private hci.gnomex.model.VisitLog visitLog;
   
 
   /**
@@ -65,7 +78,14 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     launchAction  = (String) request.getParameter("launchAction");
     
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
+    	
+    	// VisitLog Info from request
+        sessionID = request.getSession().getId();
+        visitDateTime = new java.util.Date(System.currentTimeMillis());
+        ipAddress = GNomExCommand.getRemoteIP(request);
+
+      Session sess = HibernateSession.currentSession(this.getUsername());      
+
       
       //workaround until NullPointer exception is dealt with
       InternalAccountFieldsConfiguration.getConfiguration(sess);
@@ -87,6 +107,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
 
       // Output the security advisor information
       doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);
+
     }
     catch (InvalidSecurityAdvisorException e) {
       this.addInvalidField("invalid permission", e.getMessage());
@@ -137,6 +158,20 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     try {
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
+      
+      // VisitLog info from secAdvisor
+      idAppUser = secAdvisor.getIdAppUser();
+      // save VisitLog
+	  visitLog = new hci.gnomex.model.VisitLog();
+	  visitLog.setVisitDateTime(visitDateTime);
+	  visitLog.setIdAppUser(idAppUser);
+	  visitLog.setIpAddress(ipAddress);
+	  visitLog.setSessionID(sessionID);
+	  
+      Session sess = HibernateSession.currentSession(this.getUsername());
+	  sess.save(visitLog);
+	  sess.flush();
+	  
 
     }
     catch (Exception ex) {
@@ -170,6 +205,5 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     session.setAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, secAdvisor);
     return session;
   }
-
 }
 

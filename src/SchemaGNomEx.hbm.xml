@@ -1045,6 +1045,18 @@
         <property name="idAppUser"                 column="idAppUser"                 type="integer"/>
         <property name="idGenomeBuild"             column="idGenomeBuild"        type="integer"/>
     </class>
+    
+    <!-- hci.gnomex.model.VisitLog -->
+	<class name="hci.gnomex.model.VisitLog" table="VisitLog">
+		<id name="idVisitLog" column="idVisitLog" type="integer">
+			<generator class="native"/>
+		</id>	  
+	    <property name="idAppUser" column="idAppUser" type="integer"/>
+	    <property name="ipAddress" column="ipAddress" type="string"/>
+		<property name="visitDateTime" column="visitDateTime" type="timestamp"/>
+	    <property name="sessionID" column="sessionID" type="string"/>
+	    <property name="loginSuccess" column="loginSuccess" type="string"/>
+	</class>
         
 	
     

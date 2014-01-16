@@ -3047,6 +3047,20 @@ CREATE TABLE `gnomex`.`SampleExperimentFile` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`VisitLog`;
+CREATE TABLE `gnomex`.`VisitLog` (
+	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMEMNT
+	, `visitDateTime`		DATETIME		NOT NULL
+	, `idAppUser`			INT(10)			NOT NULL
+	, `ipAddress`			VARCHAR(50)		NOT NULL	DEFAULT 'Unknown'
+	, `sessionID`			VARCHAR(255)	NOT NULL	DEFAULT 'Unknown'
+	PRIMARY KEY (`idVisitLog`)
+)
+ENGINE = INNODB;
+	
+
+
+
 -- Procedure to modify columns in audit tables if they exist.
 drop procedure if exists ExecuteIfTableExists;
 delimiter '//'

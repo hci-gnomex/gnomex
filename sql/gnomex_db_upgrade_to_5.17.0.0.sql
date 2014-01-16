@@ -37,6 +37,18 @@ alter table gnomex.FlowCell add CONSTRAINT FK_FlowCell_CoreFacility
 alter table RequestCategory add isOwnerOnly CHAR(1) null;
 call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table gnomex.RequestCategory_Audit add isOwnerOnly CHAR(1) null');
 
+-- Add VisitLog Table
+DROP TABLE IF EXISTS `gnomex`.`VisitLog`;
+CREATE TABLE `gnomex`.`VisitLog` (
+	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMEMNT
+	, `visitDateTime`		DATETIME		NOT NULL
+	, `idAppUser`			INT(10)			NOT NULL
+	, `ipAddress`			VARCHAR(50)		NOT NULL	DEFAULT 'Unknown'
+	, `sessionID`			VARCHAR(255)	NOT NULL	DEFAULT 'Unknown'
+	PRIMARY KEY (`idVisitLog`)
+)
+ENGINE = INNODB;
+
 -- New property experiment_file_sample_linking_enabled
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 	VALUES('experiment_file_sample_linking_enabled', 'Y', 'Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N', null, null);
