@@ -167,6 +167,7 @@ public class CreateAnalysisMain {
       if (serverURL == null) {
         serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
       }
+      /*
       URL url = new URL(serverURL + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
       URLConnection conn = url.openConnection();
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -207,7 +208,7 @@ public class CreateAnalysisMain {
         System.err.print(outputXML.toString());
         throw new Exception("Unable to create security advisor");
       }
-      
+      */
 
       
       //
@@ -222,6 +223,7 @@ public class CreateAnalysisMain {
       parms += "&" + URLEncoder.encode("genomeBuild", "UTF-8") + "=" + URLEncoder.encode(genomeBuild, "UTF-8");
       parms += "&" + URLEncoder.encode("analysisType", "UTF-8") + "=" + URLEncoder.encode(analysisType, "UTF-8");
       parms += "&" + URLEncoder.encode("isBatchMode", "UTF-8") + "=" + URLEncoder.encode("Y", "UTF-8");
+      parms += "&" + URLEncoder.encode("userName", "UTF-8") + "=" + URLEncoder.encode(userName, "UTF-8");
       if (description != null) {
         parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
       }
@@ -234,12 +236,13 @@ public class CreateAnalysisMain {
 
       success = false;
       outputXML = new StringBuffer();
-      url = new URL(serverURL + "/gnomex/SaveAnalysis.gx");
-      conn = url.openConnection();
+      URL url = new URL(serverURL + "/gnomex/CreateAnalysisServlet.gx");
+      URLConnection conn = url.openConnection();
       conn.setDoOutput(true);
+      /*
       for (String cookie : cookies) {
         conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
-      }
+      }*/
       OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
       wr.write(parms);
       wr.flush();
