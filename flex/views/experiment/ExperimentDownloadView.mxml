@@ -434,6 +434,8 @@
 							   textAlign="left"/>
 				<mx:LinkButton label="Organize &amp; Link"  
 							   click="showLinkSamplesWindow()" 
+							   includeInLayout="{parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'Y'}"
+							   visible="{parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'Y'}"
 							   toolTip="Link Experiment Files to Samples"
 							   id="sampleExperimentFilesLink" 
 							   textDecoration="underline" icon="@Embed(source='../../assets/link.png')" 
