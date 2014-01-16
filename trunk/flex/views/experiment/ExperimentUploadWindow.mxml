@@ -128,6 +128,10 @@
 				this.idRequest = request.@idRequest;
 				this.requestNumber = request.@requestNumber;
 				this.request = request;
+				
+				if(parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'N'){
+					theTab.removeChildAt(2);
+				}
 			
 				fdtStartButton.enabled = true;
 				saveUUID.text = "";
@@ -936,7 +940,7 @@
 					</mx:VBox>
 				</mx:HDividedBox>
 			</mx:VBox>
-			<mx:VBox width="100%" id="linkSamplesTab" toolTip="{linkSamplesTab.enabled == false ? 'Please save current changes to enable this tab' : ''}" height="100%" label="Link Samples"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+			<mx:VBox width="100%" id="linkSamplesTab" toolTip="{linkSamplesTab.enabled == false ? 'Please save current changes to enable this tab' : ''}" height="100%" label="Link Samples"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2" >
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
 					<mx:LinkButton id="newSeqRunFolder" label="New Seq Run Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == 'Sample'}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a seq run folder"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
 					<mx:LinkButton id="swapFileOrderButton" label="Swap File Order"  enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
