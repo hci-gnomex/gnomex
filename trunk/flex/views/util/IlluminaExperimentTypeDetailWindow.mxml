@@ -335,8 +335,8 @@
 		
 		<mx:HBox width="100%">
 			<mx:RadioButtonGroup id="radioGroupLabPreppedSamples" />
-			<mx:RadioButton label="Supported by core"  groupName="radioGroupLabPreppedSamples" value="N" click="{dirty.setDirty()}" /> 
-			<mx:RadioButton label="Other kit used by client"  groupName="radioGroupLabPreppedSamples" value="Y" click="{dirty.setDirty()}" /> 
+			<mx:RadioButton label="Available when Core Facility preps library"  groupName="radioGroupLabPreppedSamples" value="N" click="{dirty.setDirty()}" /> 
+			<mx:RadioButton label="Available when Client preps library"  groupName="radioGroupLabPreppedSamples" value="Y" click="{dirty.setDirty()}" /> 
 		</mx:HBox>
 
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
