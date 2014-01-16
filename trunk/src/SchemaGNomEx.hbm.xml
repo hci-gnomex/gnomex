@@ -1055,7 +1055,6 @@
 	    <property name="ipAddress" column="ipAddress" type="string"/>
 		<property name="visitDateTime" column="visitDateTime" type="timestamp"/>
 	    <property name="sessionID" column="sessionID" type="string"/>
-	    <property name="loginSuccess" column="loginSuccess" type="string"/>
 	</class>
         
 	
