@@ -1,6 +1,6 @@
 use gnomex;
 
-// Make billing account nullable on DiskUsageByMonth
+-- Make billing account nullable on DiskUsageByMonth
 alter table DiskUsageByMonth change idBillingAccount idBillingAccount INT(10) NULL;
 
 -- Procedure to modify columns in audit tables if they exist.
@@ -19,6 +19,13 @@ begin
     execute stmt;
   END IF;
 end;
+//
+
+DROP PROCEDURE IF EXISTS setAppUser//
+CREATE PROCEDURE setAppUser( IN userName text)
+BEGIN
+  SET @userName=userName;
+END;
 //
 
 delimiter ';'
