@@ -303,6 +303,13 @@
       hci.gnomex.controller.CreateAnalysisServlet
     </servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveTransferLogServlet
+    </servlet-class>
+  </servlet>
   
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
@@ -501,6 +508,11 @@
   <servlet-mapping>
     <servlet-name>CreateAnalysisServlet</servlet-name>
     <url-pattern>CreateAnalysisServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <url-pattern>SaveTransferLogServlet.gx</url-pattern>
   </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->
