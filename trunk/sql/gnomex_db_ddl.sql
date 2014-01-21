@@ -3079,6 +3079,14 @@ begin
 end;
 //
 
+-- Procuedure to save current application user for connection
+drop procedure if exists SetAppUser//
+CREATE PROCEDURE setAppUser( IN userName text)
+BEGIN
+  SET @userName=userName;
+END;
+//
+
 delimiter ';'
 
 -- ----------------------------------------------------------------------

@@ -3,13 +3,6 @@ USE gnomex;
 
 delimiter $$
 
-DROP PROCEDURE IF EXISTS setAppUser$$
-CREATE PROCEDURE setAppUser( IN userName text)
-BEGIN
-  SET @userName=userName;
-END;
-$$
-
 
 DROP TRIGGER IF EXISTS TrAI_AlignmentPlatform_FER
 $$

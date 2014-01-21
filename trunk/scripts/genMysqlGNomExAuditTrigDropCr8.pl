@@ -40,13 +40,6 @@ open( MYOUTFILE, ">$outFl" ) || die ".\n. Unable to open output file $outFl for 
 print MYOUTFILE "\nUSE gnomex\;\n\n";
 print MYOUTFILE "delimiter \$\$\n\n";
 
-print MYOUTFILE "DROP PROCEDURE IF EXISTS setAppUser\$\$\n";
-print MYOUTFILE "CREATE PROCEDURE setAppUser( IN userName text)\n";
-print MYOUTFILE "BEGIN\n";
-print MYOUTFILE "  SET \@userName=userName;\n";
-print MYOUTFILE "END;\n";
-print MYOUTFILE "\$\$\n\n\n";
-
 $tQry = "SELECT t.table_name ".
           "FROM information_schema.tables t ".
          "WHERE t.table_schema = '$tgtDb' ".
