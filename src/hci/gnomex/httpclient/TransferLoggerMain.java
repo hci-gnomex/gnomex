@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.Authenticator;
 import java.net.InetAddress;
@@ -34,25 +35,14 @@ import javax.net.ssl.X509TrustManager;
  * log info about a file upload or download.
  *
  */
-public class TransferLoggerMain {
+public class TransferLoggerMain extends HttpClientBase {
   
-  private String      server;
-  private String      serverURL;
   private String      type;
   private String      method;
   private String      fileName;
   private String      startDateTimeStr;
   private String      endDateTimeStr;
   private BigDecimal  fileSize;
-
-  
-  private String userName;
-  private String password;
-  
-  private String propertiesFileName = "/properties/gnomex_httpclient.properties";
-
-  
-  
 
   /**
    * @param args
@@ -95,8 +85,7 @@ public class TransferLoggerMain {
     }
   }
     
-  
-  private void printUsage() {
+  protected void printUsage() {
     System.out.println("java hci.gnomex.utility.TransferLogger " + "\n" +
         "-server | -serverURL server name or server url (e.g. http://server.somewhere.edu:8008)" + "\n" +
         "-method http|fdt" + "\n" +
@@ -106,15 +95,36 @@ public class TransferLoggerMain {
         "[-startDateTime yyyy-MM-dd hh:mm:ss.SSS]" + "\n" +
         "[-endDateTime yyyy-MM-dd hh:mm:ss.SSS]" + "\n" +
         "[-properties properties]");
-  }
+   }
+ 
+   protected boolean checkParms() {
+     if (fileName == null || fileName.equals("") || type == null || type.equals("") || method == null || method.equals("")) {
+       return false;
+     } else {
+       return true;
+     }
+   }
   
-  
-  private String getCurrentTime() {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-    return dateFormat.format(new java.util.Date(System.currentTimeMillis()));
-  }
-  
-
+   protected String getServletName() {
+     return "SaveTransferLogServlet";
+   }
+   
+   protected String getParms() throws UnsupportedEncodingException {
+     String parms = URLEncoder.encode("fileName", "UTF-8") + "=" + URLEncoder.encode(fileName, "UTF-8");
+     parms += "&" + URLEncoder.encode("transferType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8");
+     parms += "&" + URLEncoder.encode("transferMethod", "UTF-8") + "=" + URLEncoder.encode(method.toString(), "UTF-8");
+     if (startDateTimeStr != null) {
+       parms += "&" + URLEncoder.encode("startDateTime", "UTF-8") + "=" + URLEncoder.encode(startDateTimeStr.toString(), "UTF-8");        
+     }
+     if (endDateTimeStr != null) {
+       parms += "&" + URLEncoder.encode("endDateTime", "UTF-8") + "=" + URLEncoder.encode(endDateTimeStr.toString(), "UTF-8");
+     }
+     if (fileSize != null) {
+       parms += "&" + URLEncoder.encode("fileSize", "UTF-8") + "=" + URLEncoder.encode(fileSize.toString(), "UTF-8");
+     }
+     return parms;
+   }
+   /*
   private void callServlet() {
     BufferedReader in = null;
     String inputLine;    
@@ -320,5 +330,5 @@ public class TransferLoggerMain {
       return new PasswordAuthentication(userName, password.toCharArray());
     }
   }
-
+*/
 }
