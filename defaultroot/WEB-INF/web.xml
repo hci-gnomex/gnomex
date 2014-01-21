@@ -305,6 +305,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveChromatogramFromFileServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>SaveTransferLogServlet</servlet-name>
     <servlet-class>
       hci.gnomex.controller.SaveTransferLogServlet
@@ -513,6 +520,11 @@
   <servlet-mapping>
     <servlet-name>SaveTransferLogServlet</servlet-name>
     <url-pattern>SaveTransferLogServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <url-pattern>SaveChromatogramFromFileServlet.gx</url-pattern>
   </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->

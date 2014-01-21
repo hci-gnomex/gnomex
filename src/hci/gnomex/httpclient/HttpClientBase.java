@@ -78,79 +78,61 @@ public abstract class HttpClientBase {
   protected abstract String getParms() throws UnsupportedEncodingException;
   protected abstract String getServletName();
   
-  protected void callServlet() {
+  protected void init() throws IOException, Exception {
+    loadProperties();
+    
+    // Make sure mandatory arguments were passed in
+    if (!checkParms()) {
+      this.printUsage();
+      throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+    }
+    
+    if (server == null && serverURL == null) {
+      this.printUsage();
+      throw new Exception("Please specify all mandatory arguments.  See command line usage.");
+    }
+    
+    trustCerts(); 
+    
+    if (serverURL == null) {
+      serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
+    }
+  }
+
+  protected void callServletImpl() throws UnsupportedEncodingException, MalformedURLException, IOException, Exception {
     BufferedReader in = null;
     String inputLine;    
     StringBuffer outputXML = new StringBuffer();
     boolean success = false;
 
     try {
-      loadProperties();
-      
-      // Make sure mandatory arguments were passed in
-      if (!checkParms()) {
-        this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
-      }
-      
-      if (server == null && serverURL == null) {
-        this.printUsage();
-        throw new Exception("Please specify all mandatory arguments.  See command line usage.");
-      }
-      
-      trustCerts(); 
-      
-      //
-      // Login using forms based authentication
-      //
-      if (serverURL == null) {
-        serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
-      }
-      
-      //
-      // Call servlet
-      //
-      
       // Construct request parameters
       String parms = getParms();
       if (parms.length() > 0) {
         parms += "&";
       }
       parms += URLEncoder.encode("userName", "UTF-8") + "=" + URLEncoder.encode(userName, "UTF-8");
+      // set action parameter to allow loading of dictionaries if necessary
+      parms += "&action=load";
       
-
-
+  
+  
       success = false;
       outputXML = new StringBuffer();
       URL url = new URL(serverURL + "/gnomex/" + getServletName() + ".gx");
       URLConnection conn = url.openConnection();
       conn.setDoOutput(true);
-
+  
       OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
       wr.write(parms);
       wr.flush();
-
+  
       in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      while ((inputLine = in.readLine()) != null) {
-        System.out.print(inputLine);
-        if (inputLine.indexOf("<SUCCESS") >= 0) {
-          success = true;
-        } 
-      }
+      success = checkSuccess(in);
       System.out.println();
       if (!success) {
         throw new Exception("Error calling servlet");
       }
-
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println(e.toString());
     } finally {
       if (in != null) {
         try {
@@ -162,4 +144,33 @@ public abstract class HttpClientBase {
     }
   }
 
+  protected Boolean checkSuccess(BufferedReader in) throws Exception {
+    Boolean success = false;
+    String inputLine;
+    while ((inputLine = in.readLine()) != null) {
+      System.out.print(inputLine);
+      if (inputLine.indexOf("<SUCCESS") >= 0) {
+        success = true;
+      } 
+    }
+    return success;
+  }
+  
+  protected void callServlet() {
+    try {
+      init();
+      
+      callServletImpl();
+
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+      System.err.println(e.toString());
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.err.println(e.toString());
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.err.println(e.toString());
+    }
+  }
 }

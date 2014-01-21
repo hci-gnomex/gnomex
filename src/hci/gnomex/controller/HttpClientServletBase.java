@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.framework.control.Command;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 
@@ -41,10 +42,20 @@ public abstract class HttpClientServletBase extends HttpServlet {
         System.out.println(getNameOfServlet() + ":  Warning - unable to find existing session. Creating security advisor.");
         secAdvisor = SecurityAdvisor.create(sess, username);
       }
+
+      HttpSession session = req.getSession(true);
   
+      // Load dictionaries if necessary
+      if (!ManageDictionaries.isLoaded) {
+        Command loadCmd = new ManageDictionaries();
+        loadCmd.setSecurityAdvisor(secAdvisor);
+        loadCmd.loadCommand(req,  session);
+        loadCmd.execute();
+      }
+      
+      // Execute the command
       GNomExCommand cmd = getCommand();
       cmd.setSecurityAdvisor(secAdvisor);
-      HttpSession session = req.getSession(true);
       cmd.loadCommand(req, session);
       cmd.execute();
       cmd.setRequestState(req);
