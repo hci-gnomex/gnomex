@@ -34,7 +34,8 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
       if (catalinaProperties == null) {
         synchronized(this) {
           if (catalinaProperties == null) {
-            catalinaProperties = new TomcatCatalinaProperties("./conf/catalina.properties");
+            String catalinaPath = System.getProperty("catalina.base") + "/conf/catalina.properties";
+            catalinaProperties = new TomcatCatalinaProperties(catalinaPath);
           }
         }
       }
