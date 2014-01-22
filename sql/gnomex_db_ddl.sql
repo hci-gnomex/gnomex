@@ -1580,6 +1580,7 @@ CREATE TABLE `gnomex`.`Request` (
   `bioinformaticsAssist` CHAR(1) NULL,
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
+  `trimAdapter` CHAR(1) null,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
