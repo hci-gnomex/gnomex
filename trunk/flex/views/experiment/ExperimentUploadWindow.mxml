@@ -129,7 +129,9 @@
 				this.requestNumber = request.@requestNumber;
 				this.request = request;
 				
-				if(parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'N'){
+				//remove linkSamplesTab if property not enabled and if the experiment isn't hiseq or miseq
+				if(parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'N' ||
+					(request.@codeRequestCategory != parentApplication.TYPE_MISEQ &&  request.@codeRequestCategory != parentApplication.TYPE_HISEQ)){
 					theTab.removeChildAt(2);
 				}
 			
@@ -258,15 +260,24 @@
 					mx.controls.Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return;
 				} else {
-					for each(var fd:XML in downloadList.children()){
-						if(fd.name() == 'FileDescriptor'){
-							expFileDict[String(fd.@displayName)] = fd.copy();
-						}
-						
-					}
+					recurseGetFileDescriptors(downloadList.children());
 					constructExperimentFileList();
 					callLater(expandDownloadTree);
 				}  	 
+			}
+			
+			private function recurseGetFileDescriptors(list:XMLList):void{
+				if(list.length() == 0){
+					return;
+				}
+				for each(var fd:XML in list){
+					if(fd.name() == 'FileDescriptor'){
+						expFileDict[String(fd.@displayName)] = fd.copy();
+					} else if(fd.name() == 'RequestDownload'){
+						recurseGetFileDescriptors(fd.children());
+					}
+					
+				}
 			}
 			
 			private function constructExperimentFileList():void{
