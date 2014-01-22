@@ -963,7 +963,25 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           message.append(msg + "\n");
         }              
       }
-    }        
+    }
+    if(requestParser.getRequest().getBioinformaticsAssist() != null && requestParser.getRequest().getBioinformaticsAssist().equals("Y")) {
+      try {
+        sendBioinformaticsEmail(sess);
+      } catch (Exception e) {
+        String msg = "Unable to send bioinformatics email "
+            + requestParser.getRequest().getNumber()
+            + "  " + e.toString();
+        log.error(msg);
+        message.append(msg + "\n");
+      }
+    } else {
+      String msg = "Unable to send estimated charges notification for request "
+          + requestParser.getRequest().getNumber()
+          + " has been submitted.  Contact or lab manager(s) email is blank.";
+      log.error(msg);
+      message.append(msg + "\n");
+    }                 
+    
     return message.toString();
     
   }
@@ -2258,6 +2276,41 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
     }    
+  }
+  
+  private void sendBioinformaticsEmail(Session sess) throws NamingException, MessagingException {
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    String subject = "Analysis Assistance requested for " + requestParser.getRequest().getNumber();
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
+    
+    StringBuffer body = new StringBuffer();
+    
+    boolean send = false;
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      send = true;
+    } else {
+      send = true;
+      subject = subject + "  (TEST)";
+      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>");
+      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      
+    }
+    
+    body.append("Analysis assistance has been requested for " + requestParser.getRequest().getNumber());
+    if(requestParser.getRequest().getAnalysisInstructions() != null && !requestParser.getRequest().getAnalysisInstructions().equals("")) {
+      body.append("<br><br> The following instructions were included for the analysis: <br> " + requestParser.getRequest().getAnalysisInstructions());
+    }
+    
+    if (send) {
+      MailUtil.send(toAddress, 
+          null,
+          fromAddress, 
+          subject, 
+          body.toString(),
+          true);      
+    }
+    
   }
   
   
