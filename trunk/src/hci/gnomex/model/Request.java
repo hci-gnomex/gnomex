@@ -94,6 +94,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          bioinformaticsAssist;
   private String          hasPrePooledLibraries;
   private Integer         numPrePooledTubes;
+  private String          trimAdapter;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1394,5 +1395,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     } else {
       return "";
     }
+  }
+  public String getTrimAdapter() {
+    return trimAdapter;
+  }
+  public void setTrimAdapter(String trimAdapter) {
+    this.trimAdapter = trimAdapter;
   }
 }
