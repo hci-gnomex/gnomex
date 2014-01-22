@@ -50,6 +50,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
   private FileDescriptorUploadParser   filesToRemoveParser;
   private Document                     filesToUnlinkDoc;
   private String                       filesToUnlinkXMLString;
+  private List                         directoryFilesToUnlink = new ArrayList();
 
   private String                       serverName;
 
@@ -376,6 +377,37 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           }
 
           sess.flush();
+          
+          if(directoryFilesToUnlink.size() > 0) {
+            for(Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
+              String fileName = (String)i.next();
+              String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
+              if(expFiles.size() == 1) {
+                ExperimentFile ef = (ExperimentFile)expFiles.get(0);
+                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
+
+                if(l.size() == 1) {
+                  SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
+                  if(sef.getIdExpFileRead1() != null && sef.getIdExpFileRead1().equals(ef.getIdExperimentFile())) {
+                    sef.setIdExpFileRead1(null);
+                  } else if(sef.getIdExpFileRead2() != null && sef.getIdExpFileRead2().equals(ef.getIdExperimentFile())) {
+                    sef.setIdExpFileRead2(null);
+                  }
+
+                  if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                    sess.delete(sef);
+                  } else {
+                    sess.save(sef);
+                  }
+                }
+                request.getFiles().remove(ef);
+                sess.delete(ef);
+                sess.flush(); 
+              }
+            }
+            
+          }
 
           //Unlink experiment files from Samples
           if(filesToUnlinkDoc != null) {
@@ -503,6 +535,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       }
       else{
         filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+        directoryFilesToUnlink.add(fileName + "/" + file);
       }
 
     }
