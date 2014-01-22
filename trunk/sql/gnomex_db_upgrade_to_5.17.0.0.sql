@@ -56,21 +56,28 @@ CREATE TABLE `gnomex`.`VisitLog` (
 )
 ENGINE = INNODB;
 
+-- New trimAdapter column for Request table
+alter table gnomex.Request add trimAdapter char(1) NULL;
+
 -- New property experiment_file_sample_linking_enabled
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 	VALUES('experiment_file_sample_linking_enabled', 'Y', 'Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N', null, null);
+	
+-- New property for bio informatics tab on request submission to notify the conditions in which the alignment of sequences is offered 	
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+	VALUES('request_bio_alignment_note', 'This service is only offered to University of Utah investigators and is performed with no additional charge.', 'Text for note on request submission bioinformatics tab explaining details required when requesting sequences to be aligned', 'N', null, null);	
 
 
 -- *********CONVERSION SCRIPT for sample experiment file table****************
 
-RENAME TABLE `sampleexperimentfile` TO `oldsampleexperimentfile`;
-ALTER TABLE	`oldsampleexperimentfile` Drop Foreign key `FK_SampleExperimentFile_Sample`,
+RENAME TABLE `SampleExperimentFile` TO `oldSampleExperimentFile`;
+ALTER TABLE	`oldSampleExperimentFile` Drop Foreign key `FK_SampleExperimentFile_Sample`,
 Add constraint `FK_SampleExperimentFile_Sample1` Foreign key `FK_SampleExperimentFile_Sample1` (`idSample`)
 	References `gnomex`.`Sample` (`idSample`)
 	ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 
-CREATE TABLE `gnomex`.`sampleexperimentfile` (
+CREATE TABLE `gnomex`.`SampleExperimentFile` (
   `idSampleExperimentFile` INT(10) NOT NULL AUTO_INCREMENT,
   `idSample` INT(10),
   `idExpFileRead1` INT(10),
@@ -92,13 +99,13 @@ CREATE TABLE `gnomex`.`sampleexperimentfile` (
     ON UPDATE NO ACTION
 );
 
-INSERT INTO `gnomex`.`sampleexperimentfile` (idSample, idExpFileRead1)
-SELECT idSample, idExperimentFile FROM `gnomex`.`oldsampleexperimentfile`
-WHERE `gnomex`.`oldsampleexperimentfile`.codeSampleFileType = 'fastqRead1';
+INSERT INTO `gnomex`.`SampleExperimentFile` (idSample, idExpFileRead1)
+SELECT idSample, idExperimentFile FROM `gnomex`.`oldSampleExperimentFile`
+WHERE `gnomex`.`oldSampleExperimentFile`.codeSampleFileType = 'fastqRead1';
 
-UPDATE `gnomex`.`sampleexperimentfile`
-JOIN `gnomex`.`oldsampleexperimentfile`
-SET `gnomex`.`sampleexperimentfile`.idExpFileRead2 = `gnomex`.`oldsampleexperimentfile`.idExperimentFile
-WHERE `gnomex`.`sampleexperimentfile`.idSample = `gnomex`.`oldsampleexperimentfile`.idSample AND `gnomex`.`oldsampleexperimentfile`.codeSampleFileType = 'fastqRead2';
+UPDATE `gnomex`.`SampleExperimentFile`
+JOIN `gnomex`.`oldSampleExperimentFile`
+SET `gnomex`.`SampleExperimentFile`.idExpFileRead2 = `gnomex`.`oldSampleExperimentFile`.idExperimentFile
+WHERE `gnomex`.`SampleExperimentFile`.idSample = `gnomex`.`oldSampleExperimentFile`.idSample AND `gnomex`.`oldSampleExperimentFile`.codeSampleFileType = 'fastqRead2';
 
-UPDATE `gnomex`.`sampleexperimentfile` SET seqRunNumber = 1;
+UPDATE `gnomex`.`SampleExperimentFile` SET seqRunNumber = 1;
