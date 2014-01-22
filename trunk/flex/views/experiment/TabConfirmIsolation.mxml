@@ -102,7 +102,7 @@
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" />
+					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" width="100%" />
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
