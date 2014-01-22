@@ -3050,12 +3050,12 @@ ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`VisitLog`;
 CREATE TABLE `gnomex`.`VisitLog` (
-	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMEMNT
+	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMENT
 	, `visitDateTime`		DATETIME		NOT NULL
 	, `idAppUser`			INT(10)			NOT NULL
 	, `ipAddress`			VARCHAR(50)		NOT NULL	DEFAULT 'Unknown'
 	, `sessionID`			VARCHAR(255)	NOT NULL	DEFAULT 'Unknown'
-	PRIMARY KEY (`idVisitLog`)
+	,PRIMARY KEY (`idVisitLog`)
 )
 ENGINE = INNODB;
 	
