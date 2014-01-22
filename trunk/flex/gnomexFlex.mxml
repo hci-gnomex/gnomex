@@ -1503,7 +1503,7 @@
 				var idPlate:String = plate.@idPlate;
 				var idRun:String = plate.@idInstrumentRun;
 				
-				if ( idRun != "" ) {
+				if ( idRun != "" && idRun != "0" ) {
 					this.showInstrumentRun(idRun);
 				} else {
 					callLater( function():void {
