@@ -312,6 +312,13 @@ public class RequestParser implements Serializable {
       request.setBioinformaticsAssist("N");
     }
     
+    if (n.getAttributeValue("trimAdapter") != null && !n.getAttributeValue("trimAdapter").equals("")) {
+      request.setTrimAdapter(n.getAttributeValue("trimAdapter"));
+    }
+    if (request.getTrimAdapter() == null || (!request.getTrimAdapter().equals("Y") && !request.getTrimAdapter().equals("N"))) {
+      request.setTrimAdapter("Y");
+    }
+    
     if (n.getAttributeValue("hasPrePooledLibraries") != null && !n.getAttributeValue("hasPrePooledLibraries").equals("")) {
       request.setHasPrePooledLibraries(n.getAttributeValue("hasPrePooledLibraries"));
     }
