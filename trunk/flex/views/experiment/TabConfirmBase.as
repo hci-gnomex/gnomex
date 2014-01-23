@@ -24,8 +24,8 @@ package views.experiment
 	public class TabConfirmBase extends Canvas
 	{
 		
-		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategory:Object, requestCategoryType:Object):TabConfirmBase {
-			if (requestCategory.@codeRequestCategory == 'ISCAN') {
+		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
+			if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
 				if (existingTab is TabConfirmIScan) {
 					return existingTab;
 				} else {
