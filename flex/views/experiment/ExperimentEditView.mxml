@@ -436,7 +436,7 @@
 
 			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
 				if (theTab.getChildAt(tabIdx) == this.samplesView) {
-					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
+					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategoryType, isEditState, isAmendState);
 					if (newSamplesView != this.samplesView) {
 						this.samplesView = newSamplesView;
 						theTab.removeChildAt(tabIdx);
@@ -444,7 +444,7 @@
 					}
 				}
 				if (theTab.getChildAt(tabIdx) == this.confirmView) {
-					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory, requestCategoryType);
+					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategoryType);
 					if (newConfirmView != this.confirmView) {
 						this.confirmView = newConfirmView;
 						theTab.removeChildAt(tabIdx);
