@@ -4,7 +4,9 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -82,6 +84,10 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           }
         }
         
+        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+        	filter.setIsForExternalDataSharingSite(true);
+        }        	
+        
         boolean labsWithAnalysesIsASubsetOfAllLabsInQuery = false;
         if( (filter.getLabKeys() != null && filter.getLabKeys() != "") || (filter.getSearchText() != null && filter.getSearchText() != "") ){
         	labsWithAnalysesIsASubsetOfAllLabsInQuery = true;
@@ -97,8 +103,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
             Object[] row = (Object[])i.next();          
             allLabsInQuery.add(row);
         }       
-        		
-        		
+	
         HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();      
         StringBuffer buf = filter.getQuery(this.getSecAdvisor());
         log.info("Query for GetAnalysisGroupList: " + buf.toString());
