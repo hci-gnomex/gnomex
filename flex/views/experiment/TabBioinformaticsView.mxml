@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Bioinformatics" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:util="views.util.*" show="{init();}">
-	<mx:states>
-		<mx:State name="EditState">
-			<mx:RemoveChild target="{genomeBuildBox}" />
-		</mx:State>
-	</mx:states>
-
+<mx:Canvas label="Bioinformatics" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:util="views.util.*" show="{init();}" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
 			[Bindable]
@@ -107,7 +101,14 @@
 		]]>
 	</mx:Script>
 	<mx:VBox id="bioNoteHBox" width="100%" verticalGap="0" height="100%" >
-		<mx:Label text="The following optional services are made available through the Bioinformatics Shared Resource." fontWeight="bold"/>
+		<mx:HBox  horizontalAlign="center" id="vbox4" width="100%">
+			<mx:Label text="The following optional services are made available through the Bioinformatics Shared Resource." fontWeight="bold"/>
+			<mx:Spacer width="100%"/>
+			<mx:HBox backgroundColor="#FFFEC3">
+				<mx:TextArea editable="false" borderColor="#FFFEC3" backgroundColor="#FFFEC3" text="Questions?  Please Contact the Bioinformatics Shared Resource at: " wordWrap="true" height="20" id="textarea1" width="388"/>
+				<mx:LinkButton label="{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
+			</mx:HBox>
+		</mx:HBox>
 		<mx:Spacer height="5" id="bioNoteSpacer" />
 		<mx:Label text="(1) Would you like adapter trimming to be performed on Illumina sequence reads?"/>
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
@@ -117,7 +118,7 @@
 		</mx:HBox>
 		<mx:Spacer height="10" />
 		<mx:VBox id="genomeBuildBox" width="100%" verticalGap="0">
-			<mx:Label text="{'(2) Do you want the sequence data to be aligned? (' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE) + ')'}"  id="label11"/>
+			<mx:Label text="{'(2) Do you want the sequence data to be aligned? ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE)}"  id="label11"/>
 			<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 				<mx:Spacer width="12"/>
 				<mx:Label text="{organismString}"/>
@@ -138,14 +139,6 @@
 		</mx:HBox>
 		<mx:Label text="Enter a note regarding analysis. (optional)" id="label3"/>
 		<util:TextAreaWorkaround id="noteToBio" text="{parentDocument.request.@analysisInstructions}" 
-								 focusOut="setAnalysisInstructions()" width ="100%" height="25%"/>
-		<mx:Spacer height="100%"/>
-		<mx:HBox  horizontalAlign="center" id="vbox4" width="100%">
-			<mx:Spacer width="100%"/>
-			<mx:HBox backgroundColor="#FFFEC3">
-				<mx:TextArea editable="false" borderColor="#FFFEC3" backgroundColor="#FFFEC3" text="Questions?  Please Contact the Bioinformatics Shared Resource at: " wordWrap="true" height="20" id="textarea1" width="388"/>
-				<mx:LinkButton label="{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
-			</mx:HBox>
-		</mx:HBox> 
+								 focusOut="setAnalysisInstructions()" width ="100%" height="25%"/> 
 	</mx:VBox>
 </mx:Canvas>
