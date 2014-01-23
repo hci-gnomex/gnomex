@@ -1052,9 +1052,9 @@
 		<id name="idVisitLog" column="idVisitLog" type="integer">
 			<generator class="native"/>
 		</id>	  
+	    <property name="visitDateTime" column="visitDateTime" type="timestamp"/>
 	    <property name="idAppUser" column="idAppUser" type="integer"/>
-	    <property name="ipAddress" column="ipAddress" type="string"/>
-		<property name="visitDateTime" column="visitDateTime" type="timestamp"/>
+	    <property name="ipAddress" column="ipAddress" type="string"/>		
 	    <property name="sessionID" column="sessionID" type="string"/>
 	</class>
         
