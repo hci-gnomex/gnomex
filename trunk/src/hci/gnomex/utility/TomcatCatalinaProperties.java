@@ -19,7 +19,7 @@ public class TomcatCatalinaProperties {
   }
   
   public static String getCatalinaPropertiesPathFromScripts(String specifiedOrionPath) {
-    specifiedOrionPath = specifiedOrionPath == null ? "" : specifiedOrionPath;
+    specifiedOrionPath = specifiedOrionPath == null ? "" : specifiedOrionPath + "/scripts";
     String filePath = specifiedOrionPath + "../../../conf/catalina.properties";
     return filePath;
   }
