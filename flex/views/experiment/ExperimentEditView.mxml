@@ -2206,7 +2206,6 @@
 			samplesView.enabled = request.@canUpdateSamples == "Y";
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
-			bioinformaticsView.currentState = "EditState";
 
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
