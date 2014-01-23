@@ -30,14 +30,14 @@ package views.experiment
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference; 
 
-		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategory:Object, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
+		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
 			if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
 				} else {
 					return new TabSamplesIllumina();
 				}
-			} else if (requestCategory.@codeRequestCategory == 'SEQUENOM') {
+			} else if (requestCategoryType.@codeRequestCategoryType == 'SEQUENOM' || requestCategoryType.@codeRequestCategoryType == 'CLINSEQ') {
 				if (existingTab is TabSamplesSequenom) {
 					return existingTab;
 				} else {
