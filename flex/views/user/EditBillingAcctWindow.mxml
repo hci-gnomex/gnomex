@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:renderers="views.renderers.*"
 				layout="vertical" 
-				title="Edit Billing Account" 
+				title="Edit Campus Billing Account" 
 				width="675" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
@@ -208,7 +208,7 @@
 		}
 		
 		private function initWorkAuthState():void {
-			this.title = "Enter Work Authorization";
+			this.title = "Submit Campus billing account";
 			if (!parentApplication.useConfigurableBillingAccounts) {
 				
 				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
