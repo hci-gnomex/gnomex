@@ -1016,7 +1016,7 @@
 			
 			<mx:Spacer width="0"/>
             <mx:VRule height="20"/>
-			<mx:Spacer width="3"/>
+			<mx:Spacer width="4"/>
 
 			
 			<mx:CheckBox id= "showCCNumberCheckbox"
