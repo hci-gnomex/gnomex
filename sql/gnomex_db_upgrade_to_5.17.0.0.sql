@@ -65,7 +65,11 @@ INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription
 	
 -- New property for bio informatics tab on request submission to notify the conditions in which the alignment of sequences is offered 	
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
-	VALUES('request_bio_alignment_note', 'This service is only offered to University of Utah investigators and is performed with no additional charge.', 'Text for note on request submission bioinformatics tab explaining details required when requesting sequences to be aligned', 'N', null, null);	
+	VALUES('request_bio_alignment_note', '(This service is only offered to University of Utah investigators and is performed with no additional charge.)', 'Text for note on request submission bioinformatics tab explaining details required when requesting sequences to be aligned', 'N', null, null);	
+
+-- Property that indicates who should be contacted when analysis assistance has been requested for experiments.	
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+	VALUES ('contact_email_bioinformatics_analysis_requests', 'bioinformaticshelp@bio.hci.utah.edu', 'Who should be contacted when Analysis assistance is requested on experiments', 'N', null, null);	
 
 
 -- *********CONVERSION SCRIPT for sample experiment file table****************
