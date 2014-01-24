@@ -2280,9 +2280,50 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   
   private void sendBioinformaticsEmail(Session sess) throws NamingException, MessagingException {
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    String subject = "Analysis Assistance requested for " + requestParser.getRequest().getNumber();
+    Request r = requestParser.getRequest();
+    AppUser user = r.getAppUser();
+    String organismName = "";
+    String genomeBuild = "";
+    String seqRunType = "";
+    String seqLibProtocol = "";
+    String application = "";
+    String subject = "Bioinformatics analysis for " + user.getFirstLastDisplayName() + ", sequencing request number " + r.getNumber();
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
+    String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS);
+    String ccAddress = "";
+    
+    if(r.getIdOrganismSampleDefault() != null) {
+      organismName = dictionaryHelper.getOrganism(r.getIdOrganismSampleDefault());
+    }
+    if(r.getApplication() != null && r.getApplication().getApplication() != null) {
+      application = r.getApplication().getApplication();
+    }
+    
+    for(Iterator i = r.getSamples().iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      if(s.getIdSeqLibProtocol() != null) {
+        seqLibProtocol = dictionaryHelper.getSeqLibProtocol(s.getIdSeqLibProtocol());
+      }
+      for(Iterator j = s.getSequenceLanes().iterator(); j.hasNext();) {
+        SequenceLane sl = (SequenceLane)j.next();
+        
+        if(sl.getIdSeqRunType() != null && seqRunType.equals("")) {
+          seqRunType = dictionaryHelper.getSeqRunType(sl.getIdSeqRunType());
+        }
+        
+        if(sl.getIdGenomeBuildAlignTo() != null && genomeBuild.equals("")) {
+          genomeBuild = dictionaryHelper.getGenomeBuildName(sl.getIdGenomeBuildAlignTo());
+        }
+        
+        if(!genomeBuild.equals("") && !seqRunType.equals("")) {
+          break;
+        }
+      }
+      
+      if(!genomeBuild.equals("") && !seqRunType.equals("") && !seqLibProtocol.equals("")) {
+        break;
+      }
+    }
     
     StringBuffer body = new StringBuffer();
     
@@ -2292,19 +2333,35 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     } else {
       send = true;
       subject = subject + "  (TEST)";
-      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>");
+      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + ", cc: " + ccAddress +  "]<br><br>");
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      
+      ccAddress = "";
     }
     
-    body.append("Analysis assistance has been requested for " + requestParser.getRequest().getNumber());
-    if(requestParser.getRequest().getAnalysisInstructions() != null && !requestParser.getRequest().getAnalysisInstructions().equals("")) {
-      body.append("<br><br> The following instructions were included for the analysis: <br> " + requestParser.getRequest().getAnalysisInstructions());
+    body.append(user.getFirstLastDisplayName() + " of the " + r.getLabName() + " has requested bioinformatic analysis assistance for sequencing request number " + r.getNumber() + ". <br>");
+    body.append("The data is now available in GNomEx.<br><br>");
+    body.append("<b>Contact Information:</b><br> " + user.getFirstLastDisplayName() + "<br>");
+    if(user.getEmail() != null) {
+      body.append(user.getEmail() + "<br>");
+      ccAddress = user.getEmail();
     }
+    if(user.getPhone() != null) {
+      body.append(user.getPhone() + "<br> <br>");
+    } else {
+      body.append("<br>");
+    }
+    body.append("<b>Analysis Notes:</b><br> " + r.getAnalysisInstructions() + "<br> <br>");
+    
+    body.append("<b>Experiment Information:</b><br>" + r.getNumberOfSamples() + " sample(s). <br>");
+    body.append("<u>Sequencing Application:</u> " + application + ". <br>");
+    body.append("<u>Organism:</u> " + organismName + ". <br>");
+    body.append("<u>Genome Build:</u> " + genomeBuild + ". <br>");
+    body.append("<u>Run Type:</u> " + seqRunType + ". <br>");
+    body.append("<u>Library Protocol:</u> " + seqLibProtocol);
     
     if (send) {
       MailUtil.send(toAddress, 
-          null,
+          ccAddress,
           fromAddress, 
           subject, 
           body.toString(),
