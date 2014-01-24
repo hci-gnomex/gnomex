@@ -426,12 +426,8 @@ public class UsageReportd extends TimerTask {
       // Now fill in the fields of the LabStats objects in the hashmap
       
       // Add Requests to Lab's LabStats's expAnalysisList (Treemap<requestNumber+" "+requestCategroy, expName+" "+expDescription>)
-      getActivityExperimentDetail();      //B
-      
+      getActivityExperimentDetail();      //B      
       getCumulativeActivityExperimentDetail(); //C
-      //////////////////////////////////////////////
-      //////////////////////////////////////////////////////////////////////////////////////
-      //////////////////////////////////////////
       getActivityAnalysisDetail(); //D
       getCumulativeActivityAnalysisDetail(); //E
       getActivityTransferDetail("upload"); //F
@@ -439,14 +435,8 @@ public class UsageReportd extends TimerTask {
       getActivityTransferDetail("download"); //H
       getCumulativeActivityTransferDetail("download"); //I
       getDaysSinceLastUpload(); //J
-     
-      //////////////////////////////////
-      ////////////////////////////////////////////////////////////////////////////////////////
-      ///////////////////////////////////
-      ///jfk
       getGuestUsageDetail();
-      
-      ///
+
       ValueComparator bvc =  new ValueComparator(labInfo);
       sorted_map = new TreeMap(bvc);
       
@@ -735,12 +725,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" AND tl.idLab = l.idLab ");
 		queryBuf.append(" AND l.excludeUsage = 'N' AND l.isActive = 'Y' ");
 		queryBuf.append(" AND tl.idRequest IS NOT NULL AND tl.idAppUser = -999999 AND tl.transferType = 'download' ");
-		queryBuf.append(" AND startDateTime > '" + /*
-													 * fFormat.formatDate(startDate
-													 * .getTime(),
-													 * FieldFormatter
-													 * .DATE_OUTPUT_SQL)
-													 */"2013-11-01" + "' ");
+		queryBuf.append(" AND startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		queryBuf.append(" AND startDateTime < '"
 				+ fFormat.formatDate(endDate.getTime(),
 						FieldFormatter.DATE_OUTPUT_SQL) + "' ");
@@ -776,12 +761,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" AND tl.idLab = l.idLab ");
 		queryBuf.append(" AND l.excludeUsage = 'N' AND l.isActive = 'Y' ");
 		queryBuf.append(" AND tl.idAnalysis IS NOT NULL AND tl.idAppUser = -999999  AND tl.transferType = 'download' ");
-		queryBuf.append(" AND startDateTime > '" + /*
-													 * fFormat.formatDate(startDate
-													 * .getTime(),
-													 * FieldFormatter
-													 * .DATE_OUTPUT_SQL)
-													 */"2013-11-01" + "' ");
+		queryBuf.append(" AND startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		queryBuf.append(" AND startDateTime < '"
 				+ fFormat.formatDate(endDate.getTime(),
 						FieldFormatter.DATE_OUTPUT_SQL) + "' ");
@@ -924,12 +904,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf = new StringBuffer();
 		//-- Get TOTAL (all GNomEx visitors) WEEKLY COUNT for visits (every visit is counted, not just visits by unique users)
 		queryBuf.append(" SELECT COUNT(idAppUser) FROM VisitLog AS vl ");
-		queryBuf.append(" WHERE visitDateTime > '" + /*
-				 * fFormat.formatDate(startDate
-				 * .getTime(),
-				 * FieldFormatter
-				 * .DATE_OUTPUT_SQL)
-				 */"2013-11-01" + "' ");
+		queryBuf.append(" WHERE visitDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		queryBuf.append(" AND visitDateTime < '" + fFormat.formatDate(endDate.getTime(),
 				FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		rows = sess.createQuery(queryBuf.toString()).list();
