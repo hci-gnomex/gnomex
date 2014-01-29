@@ -726,9 +726,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" AND l.excludeUsage = 'N' AND l.isActive = 'Y' ");
 		queryBuf.append(" AND tl.idRequest IS NOT NULL AND tl.idAppUser = -999999 AND tl.transferType = 'download' ");
 		queryBuf.append(" AND startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
-		queryBuf.append(" AND startDateTime < '"
-				+ fFormat.formatDate(endDate.getTime(),
-						FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND startDateTime < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		queryBuf.append("	GROUP BY tl.idLab, r.idRequest, r.number, r.name ORDER BY tl.idLab, r.idRequest ");
 
 		List rows = sess.createQuery(queryBuf.toString()).list();
@@ -762,9 +760,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" AND l.excludeUsage = 'N' AND l.isActive = 'Y' ");
 		queryBuf.append(" AND tl.idAnalysis IS NOT NULL AND tl.idAppUser = -999999  AND tl.transferType = 'download' ");
 		queryBuf.append(" AND startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
-		queryBuf.append(" AND startDateTime < '"
-				+ fFormat.formatDate(endDate.getTime(),
-						FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND startDateTime < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		queryBuf.append(" GROUP BY tl.idLab, a.idAnalysis, a.number, a.name ORDER BY tl.idLab, a.idAnalysis ");
 
 		rows = sess.createQuery(queryBuf.toString()).list();
@@ -869,14 +865,8 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" FROM TransferLog AS tl, Lab as l ");
 		queryBuf.append(" WHERE tl.idLab = l.idLab AND tl.idAppUser = -999999 AND l.excludeUsage = 'N' ");
 		queryBuf.append(" AND l.isActive = 'Y' AND tl.transferType = 'download' ");
-		queryBuf.append(" AND startDateTime > '" + /*
-				 * fFormat.formatDate(startDate
-				 * .getTime(),
-				 * FieldFormatter
-				 * .DATE_OUTPUT_SQL)
-				 */"2013-11-01" + "' ");
-		queryBuf.append(" AND startDateTime < '"+ fFormat.formatDate(endDate.getTime(),
-				FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND startDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND startDateTime < '"+ fFormat.formatDate(endDate.getTime(),	FieldFormatter.DATE_OUTPUT_SQL) + "' ");
 		
 		rows = sess.createQuery(queryBuf.toString()).list();
 		for (Iterator i = rows.iterator(); i.hasNext();) {
