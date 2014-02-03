@@ -29,6 +29,8 @@
 				}
 				
 				organismString = 'Organism: ' + parentDocument.getOrganism() != null ? parentDocument.getOrganism().@organism : "N/A";
+				parentDocument.confirmView.enabled = true;
+				parentDocument.enableNextButtons();
 			}
 			
 			private function setAnalysisInstructions():void {
