@@ -277,6 +277,12 @@
 		<mx:HBox paddingTop="4" verticalAlign="middle" >
 			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
 		</mx:HBox>
+		<mx:Spacer height="40" id="spacer2a"/>
+		<mx:HBox id="bugContact" horizontalGap="2" verticalAlign="middle">
+			<mx:Text text="Technical Support"/>
+			<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" />
+		</mx:HBox>
+
 		<mx:Spacer height="40" id="spacer2"/>
 		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
 			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
