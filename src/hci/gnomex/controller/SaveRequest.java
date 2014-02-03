@@ -972,6 +972,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             + requestParser.getRequest().getNumber()
             + "  " + e.toString();
         log.error(msg);
+        e.printStackTrace();
         message.append(msg + "\n");
       }
     } else {
