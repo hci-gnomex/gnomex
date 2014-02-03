@@ -920,7 +920,9 @@ Test City, UT 12345',
  (106,'request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N'),
  (107,'contact_email_manage_sample_file_link','','Email address of who should be notified when a sample experiment file is deleted from the database', 'Y'),
  (108,'experiment_file_sample_linking_enabled','Y','Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N'),
- (109, 'contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N');
+ (109, 'contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N'),
+ (110, 'analysis_assistance_group', '', 'Name of the group that oversees analysis assistance on new requests', 'N'),
+ (111, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'N'); 
  
  
  
