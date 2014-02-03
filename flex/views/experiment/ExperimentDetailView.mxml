@@ -65,6 +65,9 @@
 			[Bindable]
 			public var selectedExperiment:Object;
 			
+			[Bindable]
+			private var genomeBuild:String = "";
+			
 			public function isCapSeqState():Boolean {
 				if (currentState == 'CapSeqState') {
 					return true;
@@ -150,6 +153,7 @@
 				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
+				genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane.@idGenomeBuildAlignTo);
 				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
@@ -2009,10 +2013,16 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
 							 visible="true"  
 							 includeInLayout="true">
-						<mx:Label text="{this.selectedExperiment.@bioinformaticsAssist == 'Y' ? 'Bioinformatics Core Assistance Requested' : 'No Bioinformatics Core Assistance Desired'}" 
+						<mx:Label text="{this.selectedExperiment.@trimAdapter == 'Y' ? 'Adapter Trimming on Illumina Sequence Reads Requested' : 'No Adapter Trimming on Illumina Sequence Reads Desired'}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
-						<mx:Label text="{this.selectedExperiment.@trimAdapter == 'Y' ? 'Adapter Trimming on Illumina Sequence Reads Requested' : 'No Adapter Trimming on Illumina Sequence Reads Desired'}" 
+						<mx:Label text="{'Organism: ' + this.selectedExperiment.@organismName}" 
+								  styleName="formLabel"/>
+						<mx:Spacer height="10"/>
+						<mx:Label text="{'Genome Build: ' + genomeBuild}" 
+								  styleName="formLabel"/>
+						<mx:Spacer height="10"/>
+						<mx:Label text="{this.selectedExperiment.@bioinformaticsAssist == 'Y' ? 'Bioinformatics Core Assistance Requested' : 'No Bioinformatics Core Assistance Desired'}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
 						<mx:Label text="Notes for Bioinformatics Group"   styleName="formLabel"/>
