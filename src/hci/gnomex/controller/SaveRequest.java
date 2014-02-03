@@ -2304,27 +2304,25 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       Sample s = (Sample)i.next();
       if(s.getIdSeqLibProtocol() != null) {
         seqLibProtocol = dictionaryHelper.getSeqLibProtocol(s.getIdSeqLibProtocol());
-      }
-      for(Iterator j = s.getSequenceLanes().iterator(); j.hasNext();) {
-        SequenceLane sl = (SequenceLane)j.next();
-        
-        if(sl.getIdSeqRunType() != null && seqRunType.equals("")) {
-          seqRunType = dictionaryHelper.getSeqRunType(sl.getIdSeqRunType());
-        }
-        
-        if(sl.getIdGenomeBuildAlignTo() != null && genomeBuild.equals("")) {
-          genomeBuild = dictionaryHelper.getGenomeBuildName(sl.getIdGenomeBuildAlignTo());
-        }
-        
-        if(!genomeBuild.equals("") && !seqRunType.equals("")) {
-          break;
-        }
-      }
-      
-      if(!genomeBuild.equals("") && !seqRunType.equals("") && !seqLibProtocol.equals("")) {
         break;
       }
     }
+    for(Iterator j = r.getSequenceLanes().iterator(); j.hasNext();) {
+      SequenceLane sl = (SequenceLane)j.next();
+
+      if(sl.getIdSeqRunType() != null && seqRunType.equals("")) {
+        seqRunType = dictionaryHelper.getSeqRunType(sl.getIdSeqRunType());
+      }
+
+      if(sl.getIdGenomeBuildAlignTo() != null && genomeBuild.equals("")) {
+        genomeBuild = dictionaryHelper.getGenomeBuildName(sl.getIdGenomeBuildAlignTo());
+      }
+
+      if(!genomeBuild.equals("") && !seqRunType.equals("")) {
+        break;
+      }
+    }
+
     
     StringBuffer body = new StringBuffer();
     
