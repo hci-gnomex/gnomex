@@ -1115,6 +1115,8 @@
 			public var PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT:String        = "request_work_auth_link_text";
 			public var PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED:String = "experiment_file_sample_linking_enabled";
 			public var PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE:String		  = "request_bio_alignment_note";
+			public var PROPERTY_ANALYSIS_ASSISTANCE_GROUP:String		  = "analysis_assistance_group";
+			public var PROPERTY_ANALYSIS_ASSISTANCE_HEADER:String		  = "analysis_assistance_header";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
