@@ -69,7 +69,13 @@ INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription
 
 -- Property that indicates who should be contacted when analysis assistance has been requested for experiments.	
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
-	VALUES ('contact_email_bioinformatics_analysis_requests', 'bioinformaticshelp@bio.hci.utah.edu', 'Who should be contacted when Analysis assistance is requested on experiments', 'N', null, null);	
+	VALUES ('contact_email_bioinformatics_analysis_requests', 'bioinformaticshelp@bio.hci.utah.edu', 'Who should be contacted when Analysis assistance is requested on experiments', 'N', null, null);
+
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+	values('analysis_assistance_group', 'Bioinformatics Shared Resource', 'Name of the group who handles analysis assistance', 'N', null, null);
+	
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+	values('analysis_assistance_header', 'The following optional services are made available through the Bioinformatics Shared Resource.', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N', null, null);	
 
 
 -- *********CONVERSION SCRIPT for sample experiment file table****************
