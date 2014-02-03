@@ -837,6 +837,7 @@ CREATE TABLE `gnomex`.`FlowCell` (
   `notes` VARCHAR(200) NULL,
   `barcode` VARCHAR(100) NULL,
   `codeSequencingPlatform` VARCHAR(10) NULL,
+ `idCoreFacility` INT(10) null,
   PRIMARY KEY (`idFlowCell`),
   CONSTRAINT `FK_FlowCell_NumberSequencingCycles` FOREIGN KEY `FK_FlowCell_NumberSequencingCycles` (`idNumberSequencingCycles`)
     REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
@@ -848,6 +849,10 @@ CREATE TABLE `gnomex`.`FlowCell` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_FlowCell_SequencingPlatform` FOREIGN KEY `FK_FlowCell_SequencingPlatform` (`codeSequencingPlatform`)
     REFERENCES `gnomex`.`SequencingPlatform` (`codeSequencingPlatform`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_FlowCell_CoreFacility` FOREIGN KEY `FK_FlowCell_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
