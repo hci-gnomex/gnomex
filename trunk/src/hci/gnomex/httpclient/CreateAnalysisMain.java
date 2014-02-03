@@ -47,7 +47,11 @@ public class CreateAnalysisMain extends HttpClientBase {
   private String folderName;
   private String folderDescription;
   private List<String> seqLaneNumbers = new ArrayList<String>();
+  private List<String> sampleNumbers = new ArrayList<String>();
+  private List<String> experimentNumbers = new ArrayList<String>();
   private String lanesXMLString = null;
+  private String samplesXMLString = null;
+  private String experimentsXMLString = null;
 
   /**
    * @param args
@@ -90,6 +94,12 @@ public class CreateAnalysisMain extends HttpClientBase {
       } else if (args[i].equals("-seqLane")) {
         String seqLaneNumber = args[++i];
         seqLaneNumbers.add(seqLaneNumber);
+      } else if (args[i].equals("-experiment")) {
+        String experimentNumber = args[++i];
+        experimentNumbers.add(experimentNumber);
+      } else if (args[i].equals("-sample")) {
+        String sampleNumber = args[++i];
+        sampleNumbers.add(sampleNumber);
       } 
     }
     
@@ -100,6 +110,24 @@ public class CreateAnalysisMain extends HttpClientBase {
           lanesXMLString += "<SequenceLane number=\"" + seqLaneNumber + "\"/>";                  
         }
         lanesXMLString += "</lanes>";
+    }  
+    
+    if (!sampleNumbers.isEmpty()) {
+      samplesXMLString = "<samples>";
+      for (Iterator iter = sampleNumbers.iterator(); iter.hasNext();) {
+        String sampleNumber = (String)iter.next();
+        samplesXMLString += "<Sample number=\"" + sampleNumber + "\"/>";                  
+      }
+      samplesXMLString += "</samples>";
+    }  
+    
+    if (!experimentNumbers.isEmpty()) {
+      experimentsXMLString = "<experiments>";
+      for (Iterator iter = experimentNumbers.iterator(); iter.hasNext();) {
+        String experimentNumber = (String)iter.next();
+        experimentsXMLString += "<Experiment number=\"" + experimentNumber + "\"/>";                  
+      }
+      experimentsXMLString += "</experiments>";
     }  
   }
   
@@ -116,7 +144,10 @@ public class CreateAnalysisMain extends HttpClientBase {
         "-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>" +  "\n" +
         "[-description <analysisDescription>]" + "\n" +
         "[-folderDescription <description of folder>]" + "\n" +
-        "[-seqLane <sequence lane number example: 8432F1_1> [...]]");
+        "[-seqLane <sequence lane number example: 8432F1_1> [...]]" +
+        "[-sample <sample number example: 8432X1> [...]]" +
+        "[-experiment <experiment number example: 8432R> [...]]"
+        );
   }
   
   protected boolean checkParms() {
@@ -143,6 +174,10 @@ public class CreateAnalysisMain extends HttpClientBase {
     }
     if (lanesXMLString != null) {
       parms += "&" + "lanesXMLString" + "=" + lanesXMLString;        
+    } else if (samplesXMLString != null) {
+      parms += "&" + "samplesXMLString" + "=" + samplesXMLString;        
+    } else if (experimentsXMLString != null) {
+      parms += "&" + "experimentsXMLString" + "=" + experimentsXMLString;        
     } 
 
     return parms;

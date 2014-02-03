@@ -84,6 +84,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                lanesXMLString;
   private Document              lanesDoc;
   private AnalysisLaneParser    laneParser;
+  
+  private String                samplesXMLString;
+  private String                experimentsXMLString;
+
 
   private String                     collaboratorsXMLString;
   private Document                   collaboratorsDoc;
@@ -173,9 +177,17 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
     }
     
-
     if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
       lanesXMLString = request.getParameter("lanesXMLString");
+    }
+    else if (request.getParameter("samplesXMLString") != null && !request.getParameter("samplesXMLString").equals("")) {
+      lanesXMLString = request.getParameter("samplesXMLString") ;
+    }
+    else if (request.getParameter("experimentsXMLString") != null && !request.getParameter("experimentsXMLString").equals("")) {
+      lanesXMLString = request.getParameter("experimentsXMLString") ;
+    }
+    
+    if (lanesXMLString != null) {
       reader = new StringReader(lanesXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
