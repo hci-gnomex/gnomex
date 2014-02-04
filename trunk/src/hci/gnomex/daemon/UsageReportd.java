@@ -158,7 +158,10 @@ public class UsageReportd extends TimerTask {
       app.connect();
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-
+      String toList = propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_REPORT_EMAILS, serverName);
+      if(toList == null) {} // property not set, use system.out for output
+      else if(toList.equals("")) {toList=null;} // use system.out for output
+      else if(toList.toLowerCase().equals("all")) {
       // Get a list of all active users with email accounts
       List appUsers = sess.createQuery("SELECT a from AppUser a where a.isActive = 'Y' and a.email is not NULL and a.email != '' ORDER BY a.lastName, a.firstName ").list();
 
@@ -174,7 +177,9 @@ public class UsageReportd extends TimerTask {
         distributionList.append(addComma + appUser.getEmail());
       }
       
-      String toList = distributionList.toString();
+      toList = distributionList.toString();
+      }
+      // if not "all" nor "" then toList must be comma separated list of valid emails
       
       String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL, serverName);
       if(replyEmail == null || replyEmail.length() == 0) {
@@ -270,7 +275,7 @@ public class UsageReportd extends TimerTask {
 
       
       String currentLab = "";
-      isFirst = false;
+      boolean isFirst = false;
 
       for (Object key : sorted_map.keySet()) {
           LabStats value = (LabStats) sorted_map.get(key);
@@ -311,7 +316,7 @@ public class UsageReportd extends TimerTask {
       body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
       body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
       if(isTestMode) {
-        body.append("Distribution List: " + toList + "<br><br>");        
+        body.append("Distribution List: " + (toList==null?"empty":toList) + "<br><br>");        
       }
 
       body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
@@ -321,77 +326,83 @@ public class UsageReportd extends TimerTask {
       body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
       body.append(tableRows.toString());
       body.append("</table></td></tr></table>"); //</body></html>");
-      // jfk
-      // Guest Usage Table
-      body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
-      body.append("<tr>");
-      body.append("<td width='20'>&nbsp;</td>");
-      body.append("<td width='800' valign='top' align='left'>");
-      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
-      body.append("<tr>");
-      body.append("<td width='1000' colspan='8' align='center'><span class='fontClassLgeBold'>Guest Usage</span></td>");
-      body.append("</tr>");
       
-      // 	Summary Data
-      //body.append("<tr><td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
-      body.append("<tr><td width='1000' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-      
-      body.append("<tr><td width='200' align='center' colspan='8'><span class='fontClassBold'>" + "Summary Data" + "</span></td></tr>");
-      
-      body.append("<tr>");
-      body.append("<td width='800' align='center' colspan='4'><span class='fontClassBold'>" + "Number of Visits" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Downloads" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Guests Who Downloaded" + "</span></td>");
-      body.append("</tr>");   
-      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-      
-      body.append("<tr>");//<td width='200' align='center' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
-      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-      body.append("</tr>");      
-      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-      
-      body.append("<tr>"); //<td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
-      body.append("<td width='200' align='right' colspan='2'><span class='fontClass'>" + weeklyTotalVisits + "</span></td>");
-      body.append("<td width='200' align='right' colspan='2'><span class='fontClass'>" + cumTotalVisits + "</span></td>");
-      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuestDownloads + "</span></td>");
-      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuestDownloads + "</span></td>");   
-      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuests + "</span></td>");
-      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuests + "</span></td>");
-      body.append("</tr>"); 
-      
-      body.append("<tr><td width='1000' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-      
-      //body.append("<tr><td width='200' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-      
-      // 		Lab Detail Data
-      body.append("<tr>");
-      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Lab" 									+ "</span></td>");
-      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Analysis/ Experiment ID" 				+ "</span></td>");
-      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Files Downloaded"				+ "</span></td>");
-      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Guest Users Who Downloaded" 	+ "</span></td>");
-      body.append("</tr>");
-      body.append("<tr>");
-      //body.append("<td width='200' colspan='4'><span class='fontClassBold'>&nbsp;</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
-      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
-      body.append("</tr>");
-      
-      body.append(usageRows.toString());
-      
-      body.append("</table></td>&nbsp;</tr></table>");
-      //
+      if(propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName) != null &&
+    		  propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName).equals("Y")){
+	      // jfk
+	      // Guest Usage Table
+	      body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
+	      body.append("<tr>");
+	      body.append("<td width='20'>&nbsp;</td>");
+	      body.append("<td width='800' valign='top' align='left'>");
+	      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
+	      body.append("<tr>");
+	      body.append("<td width='1000' colspan='8' align='center'><span class='fontClassLgeBold'>External Visits and Downloads</span></td>");
+	      body.append("</tr>");
+	      
+	      // 	Summary Data
+	      //body.append("<tr><td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
+	      body.append("<tr><td width='1000' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
+	      
+	      body.append("<tr><td width='200' align='center' colspan='8'><span class='fontClassBold'>" + "Summary Data" + "</span></td></tr>");
+	      
+	      body.append("<tr>");
+	      body.append("<td width='800' align='center' colspan='4'><span class='fontClassBold'>" + "Number of Visits (Users and Guests)" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Downloads By Guests" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Guests Who Downloaded" + "</span></td>");
+	      body.append("</tr>");   
+	      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
+	      
+	      body.append("<tr>");//<td width='200' align='center' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
+	      body.append("</tr>");      
+	      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
+	      
+	      body.append("<tr>"); //<td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
+	      body.append("<td width='200' align='right' colspan='2'><span class='fontClass'>" + weeklyTotalVisits + "</span></td>");
+	      body.append("<td width='200' align='right' colspan='2'><span class='fontClass'>" + cumTotalVisits + "</span></td>");
+	      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuestDownloads + "</span></td>");
+	      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuestDownloads + "</span></td>");   
+	      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuests + "</span></td>");
+	      body.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuests + "</span></td>");
+	      body.append("</tr>"); 
+	      
+	      body.append("<tr><td width='1000' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
+	      
+	      //body.append("<tr><td width='200' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
+	      
+	      // 		Lab Detail Data
+	      body.append("<tr>");
+	      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Lab" 									+ "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Analysis/ Experiment ID" 				+ "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Files Downloaded"				+ "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Guest Users Who Downloaded" 	+ "</span></td>");
+	      body.append("</tr>");
+	      body.append("<tr>");
+	      //body.append("<td width='200' colspan='4'><span class='fontClassBold'>&nbsp;</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
+	      body.append("<td width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
+	      body.append("</tr>");
+	      
+	      body.append(usageRows.toString());
+	      body.append("</table></td>&nbsp;</tr></table>");
+      }
+      body.append("</body></html>");
       
       if(isTestMode) {
         MailUtil.send_bcc(mailProps, bccTo, "", "", replyEmail, subject, body.toString(), true);                
       } else {
-        MailUtil.send_bcc(mailProps, toList, "", bccTo, replyEmail, subject, body.toString(), true);               
+    	  if(toList.equals(null)) {
+    		  System.out.print(body.toString()); }
+    	  	else {
+    	  		MailUtil.send_bcc(mailProps, toList, "", bccTo, replyEmail, subject, body.toString(), true); }               
       }
       app.disconnect();      
          
