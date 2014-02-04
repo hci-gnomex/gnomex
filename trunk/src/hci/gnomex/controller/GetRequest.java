@@ -266,6 +266,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Show sequence lanes, organized by multiplex group or flow cell channel
           if (request.getSequenceLanes().size() > 0) {
             Element multiplexLanesNode = new Element("multiplexSequenceLanes");
+            for(Iterator i = request.getSequenceLanes().iterator(); i.hasNext();) {
+              SequenceLane sl = (SequenceLane) i.next();
+              if(sl.getIdGenomeBuildAlignTo() != null) {
+                multiplexLanesNode.setAttribute("idGenomeBuildAlignTo", sl.getIdGenomeBuildAlignTo().toString());
+                break;
+              }
+            }
             requestNode.addContent(multiplexLanesNode);
             SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
           }
