@@ -115,21 +115,31 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
         (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
           codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY))) {
       return true;
-    } else {
-      return false;
-    }
+    } 
+    return false;
+    
   }
 
+  public static boolean isSequenomType(String codeRequestCategory) {
+    DictionaryHelper dh = DictionaryHelper.getInstance(null);
+    RequestCategory cat = dh.getRequestCategoryObject(codeRequestCategory);
+    RequestCategoryType type = dh.getRequestCategoryType(cat.getType());
+    if (type != null && type.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_SEQUENOM )) {
+      return true;
+    }
+    return false;
+  }
+  
   public static boolean isMolecularDiagnoticsRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory != null &&
-        (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
-          codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY) ||
+        ( RequestCategory.isSequenom( codeRequestCategory ) || 
+          RequestCategory.isSequenomType( codeRequestCategory ) ||
           codeRequestCategory.equals( DNA_ISOLATION_REQUEST_CATEGORY ) || 
           codeRequestCategory.equals( RNA_ISOLATION_REQUEST_CATEGORY ))) {
       return true;
-    } else {
-      return false;
-    }
+    } 
+    return false;
+    
   }
   
   public String getDisplay() {
