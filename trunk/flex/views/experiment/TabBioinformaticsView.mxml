@@ -7,18 +7,21 @@
 			
 			private function init():void {
 				if (parentDocument != null && parentDocument.request != null
-					&& parentDocument.request.hasOwnProperty("@idGenomeBuildAlignTo")
-					&& parentDocument.request.@idGenomeBuildAlignTo != null
-					&& parentDocument.request.@idGenomeBuildAlignTo != '') {
+					&& parentDocument.request.multiplexSequenceLanes.hasOwnProperty("@idGenomeBuildAlignTo")
+					&& parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo != null
+					&& parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo != '') {
 					alignCheckBox.selected = true;
 					for each(var obj:Object in parentDocument.filteredGenomeBuildList) {
-						if (obj.@idGenomeBuild == parentDocument.request.@idGenomeBuildAlignTo) {
+						if (obj.@idGenomeBuild == parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo) {
 							genomeBuildCombo.selectedItem = obj;
+							genomeBuildCombo.enabled = true;
 							break;
 						}
 					}
 				} else {
 					alignCheckBox.selected = false;
+					genomeBuildCombo.selectedIndex = -1;
+					genomeBuildCombo.enabled = false;
 				}
 				
 				this.bioAssistCheckBox.selected = false;
