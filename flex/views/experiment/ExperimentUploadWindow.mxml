@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="824" 
-				xmlns:util="views.util.*"
-				height="408" creationPolicy="all"
-				showCloseButton="true"
-				close="{closeMe()}" 
-				title="{'Upload Files for Experiment ' + requestNumber}"  xmlns:controls="hci.flex.controls.*">
+<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+						   layout="vertical" width="1000" 
+						   xmlns:util="views.util.*"
+						   height="408" creationPolicy="all"
+						   showCloseButton="true" creationComplete="centerMe()"
+						   close="{closeMe()}" 
+						   title="{'Upload Files for Experiment ' + requestNumber}"  xmlns:controls="hci.flex.controls.*">
 	
 	<mx:HTTPService  
 		id="getExperimentUploadURL" 
@@ -83,6 +83,8 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.HierarchicalData;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.controls.Alert;
 			import mx.controls.List;
 			import mx.controls.listClasses.ListBase;
@@ -134,7 +136,7 @@
 					(request.@codeRequestCategory != parentApplication.TYPE_MISEQ &&  request.@codeRequestCategory != parentApplication.TYPE_HISEQ)){
 					theTab.removeChildAt(2);
 				}
-			
+				
 				fdtStartButton.enabled = true;
 				saveUUID.text = "";
 				
@@ -149,12 +151,17 @@
 				getLinkedSampleFiles.send();
 			}
 			
+			public function centerMe():void{
+				PopUpManager.centerPopUp(this);
+			}
+			
 			private function refreshFiles():void {
+				expFileDict = new Dictionary();
 				filesToRemove.removeAll();
 				filesToUnlink.removeAll();
 				linkSamplesTab.enabled = true;
 				this.dirty.resetDirty();
-
+				
 				refreshUploadFiles();
 				
 				var params:Object = new Object();
@@ -296,6 +303,15 @@
 						experimentFileList.addItem(fd);
 					}
 				}
+				
+				sortExperimentFileList();
+			}
+			
+			private function sortExperimentFileList():void{
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@displayName", true)];
+				experimentFileList.sort = sort;
+				experimentFileList.refresh();
 			}
 			
 			private function expandDownloadTree():void {
@@ -411,42 +427,45 @@
 						this.deleteNode(downloadFile);
 						
 					}
-
+					
 					linkSamplesTab.enabled = false;
 					this.dirty.setDirty();
 				}
 			}
-
+			
 			private function onTabChange():void {
 				if (theTab.selectedIndex == 1) {
 					if (this.uploadedFiles == null || this.uploadedFiles.length == 0) {
 						refreshFiles();
 					}
 				} else if (theTab.selectedIndex == 2){
-					expFileDict = new Dictionary();
 					refreshFiles();
 					refreshUploadFiles();
 					getLinkedSampleFiles.send();
 				}
 			}
 			
+			
 			private function onDragDropExpFile(event:DragEvent):void{
 				event.preventDefault();
-				event.target.hideDropFeedback(event);
-				DragManager.showFeedback(DragManager.NONE);
+				//event.target.hideDropFeedback(event);
+				//DragManager.showFeedback(DragManager.NONE);
 				var dropNode:XML = null;
 				
 				if(samplesTree.selectedItem != null) {
 					dropNode = samplesTree.selectedItem as XML;
-					
 					// Don't allow drag operation if nothing no drop node
 					// found or we aren't dropping on a sample folder
-					if (dropNode == null || dropNode.name() != 'SeqRunNumber') {
+					if (dropNode == null) {
 						event.preventDefault();
 						event.target.hideDropFeedback(event);
 						DragManager.showFeedback(DragManager.NONE);
-						Alert.show("You must drop files into a Seq Run Folder");
+						Alert.show("You must drop files into a Seq Run Folder or onto a Sample");
 						return;
+					}
+					
+					if (dropNode.name() == "FileDescriptor") {
+						dropNode = dropNode.parent();
 					}
 					var draggedItems:Array = null;		    
 					if (event.dragInitiator.name == "samplesTree") {
@@ -460,9 +479,68 @@
 						draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
 					}
 					
-					if(draggedItems.length > 2){
-						Alert.show("A seq run folder can contain a max of two experiment files.");
-						return;
+										
+					if(dropNode.name() == 'Sample'){
+						var seqRunNumberNode:XML = <SeqRunNumber />;
+						if(dropNode.children().length() == 0){
+							for each(var fd:XML in draggedItems){
+								if(fd.name() == 'SeqRunNumber'){
+									dropNode.appendChild(fd.copy());
+								} else{
+									seqRunNumberNode.appendChild(fd.copy());
+								}
+								if (event.dragInitiator.name == "samplesTree") {
+									deleteNode(fd);
+									samplesTree.selectedItem = null;
+								} else{
+									experimentFileList.removeItemAt(experimentFileList.getItemIndex(fd));
+								}
+							}
+							dropNode.appendChild(seqRunNumberNode);
+							samplesTree.expandItem(dropNode, true);
+							samplesTree.expandItem(seqRunNumberNode, true);
+						} else{
+							for each(var fileDescript:XML in draggedItems){
+								if(fileDescript.name() == 'SeqRunNumber'){
+									dropNode.appendChild(fileDescript.copy());
+									continue;
+								}
+								var droppedFileName:String = fileDescript.@displayName.replace(/_/gi, "");
+								droppedFileName = droppedFileName.replace(/-/gi, "");
+								droppedFileName = droppedFileName.substring(0, droppedFileName.indexOf(".") - 1);
+								var isMatch:Boolean = false;
+								
+								for each(var file:XML in dropNode.children().children()){
+									var currentFileName:String = file.@displayName.replace(/_/gi, "");
+									currentFileName = currentFileName.replace(/-/gi, "");
+									currentFileName = currentFileName.substring(0, currentFileName.indexOf(".") - 1);
+								
+									if(droppedFileName == currentFileName){
+										file.parent().appendChild(fileDescript.copy());
+										samplesTree.expandItem(dropNode, true);
+										samplesTree.expandItem(file.parent(), true);
+										isMatch = true;
+										break;
+									}
+								}
+								
+								if(!isMatch){
+									seqRunNumberNode.appendChild(fileDescript.copy());
+									dropNode.appendChild(seqRunNumberNode);
+									samplesTree.expandItem(dropNode, true);
+									samplesTree.expandItem(seqRunNumberNode, true);
+								}
+								
+								if (event.dragInitiator.name == "samplesTree") {
+									deleteNode(fileDescript);
+									samplesTree.selectedItem = null;
+								} else{
+									experimentFileList.removeItemAt(experimentFileList.getItemIndex(fileDescript));
+								}
+							}
+						}
+						event.target.hideDropFeedback(event);
+						
 					}
 					
 					if(dropNode.name() == 'SeqRunNumber'){
@@ -472,7 +550,6 @@
 						}
 						for(var i:int = 0; i< draggedItems.length; i++){
 							var dragItem:XML = XML(draggedItems[i]);
-							dragItem.@seqRunNumber = dropNode.@seqRunNumber;
 							dropNode.appendChild(dragItem.copy());
 							if (event.dragInitiator.name == "samplesTree") {
 								deleteNode(dragItem);
@@ -482,10 +559,17 @@
 							}
 							
 						}
-						samplesTree.expandItem(dropNode, true);
-						callLater(samplesTree.invalidateDisplayList);
-						this.dirty.setDirty();
 					}
+					
+					for each(var emptyfolder:XML in sampleList.children()){
+						if(emptyfolder.children().length() == 0){
+							deleteNode(emptyfolder);
+						}
+					}
+					samplesTree.expandItem(dropNode, true);
+					callLater(samplesTree.invalidateDisplayList);
+					this.dirty.setDirty();
+					event.target.hideDropFeedback(event);
 				}
 			}
 			
@@ -680,11 +764,11 @@
 				
 				// Cancel default behaviour
 				event.preventDefault();
-
+				
 				DragManager.acceptDragDrop(AdvancedDataGrid(event.target));
 				// hide the "drop line" that is shown in Tree control
 				// when dropping in a Tree
-				//downloadTree.showDropFeedback(event);
+				samplesTree.showDropFeedback(event);
 			}
 			
 			private function doDragEnterFiles(event:DragEvent):void{
@@ -700,7 +784,7 @@
 			
 			private function doDragOverSamples(event:DragEvent):void {
 				// Show the default "drop line" in the Tree control
-				//downloadTree.showDropFeedback(event);
+				samplesTree.showDropFeedback(event);
 				// Cancel default behaviors
 				
 				var r:int = samplesTree.calculateDropIndex(event);
@@ -710,6 +794,9 @@
 				samplesTree.selectedIndex = r;
 				var dropNode:XML = samplesTree.selectedItem as XML;
 				
+				if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+					dropNode = dropNode.parent();
+				}
 				if (dropNode != null) {
 					samplesTree.selectedItem = dropNode;
 				}
@@ -781,18 +868,18 @@
 			}
 			
 			private function getDisplayName(item:Object, column:Object):String {
-				if (item.name() == "Sample" || item.name() == "SeqRunNumber") {
+				if (item.name() == "Sample") {
 					return item.@name;
-				} else if(item.name() == "FileDescriptor"){
-					return item.@displayName
 				} else{
 					return '';
 				} 
 			}
 			
-			private function getSampleNumber(item:Object, column:Object):String {
+			private function getSampleNumberOrFileName(item:Object, column:Object):String {
 				if (item.name() == "Sample") {
 					return item.@number;
+				} else if(item.name() == "FileDescriptor"){
+					return item.@displayName;
 				} else{
 					return '';
 				} 
@@ -813,7 +900,7 @@
 			
 			private function createSeqRunFolder():void{
 				var s:String = "Seq Run #";
-				var seqRunNumberNode:XML = <SeqRunNumber name={s + (samplesTree.selectedItem.children().length() + 1)} seqRunNumber={samplesTree.selectedItem.children().length() + 1}/>;
+				var seqRunNumberNode:XML = <SeqRunNumber />;
 				samplesTree.selectedItem.appendChild(seqRunNumberNode);
 				var x:int = 5;
 			}
@@ -859,21 +946,37 @@
 					
 					deleteNode(item);
 				}
-
+				
+				for each(var folder:XML in sampleList.children()){
+					if(folder.children().length() == 0){
+						deleteNode(folder);
+					}
+				}
+				
 				dirty.setDirty();
+			}
+			
+			private function showFileNameToolTip(item:Object):String {
+				if(item != null && item.hasOwnProperty("@displayName")){
+					return item.@displayName;
+				} else{
+					return "";
+				}
+				
 			}
 			
 		]]>
 	</mx:Script>	
 	
 	<mx:XMLListCollection id="files"/>
+	<mx:XMLListCollection id="filesToMove"/>
 	<mx:XMLListCollection id="uploadedFiles" source="{getRequest.lastResult..RequestUpload.FileDescriptor}"/>
 	<mx:XMLListCollection id="downloadList" source="{getRequestDownloadList.lastResult..Request}"/>
 	<mx:XMLListCollection id="filesToRemove"/>
 	<mx:XMLListCollection id="filesToUnlink"/>
 	<mx:Canvas width="100%" height="100%">
 		<mx:TextArea width="504" height="20" 
-					 styleName="instructionBox" editable="false" wordWrap="true" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
+					 styleName="instructionBox" editable="false" wordWrap="true" visible="{theTab.selectedIndex == 1 || theTab.selectedIndex == 2}" text="Drag uploaded file into one of the folders on the right.To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
 		<mx:TabNavigator id="theTab" change="onTabChange()"   width="100%" paddingTop="0" height="100%" styleName="form">
 			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
@@ -952,50 +1055,51 @@
 				</mx:HDividedBox>
 			</mx:VBox>
 			<mx:VBox width="100%" id="linkSamplesTab" toolTip="{linkSamplesTab.enabled == false ? 'Please save current changes to enable this tab' : ''}" height="100%" label="Link Samples"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2" >
-				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
-					<mx:LinkButton id="newSeqRunFolder" label="New Seq Run Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == 'Sample'}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a seq run folder"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
-					<mx:LinkButton id="swapFileOrderButton" label="Swap File Order"  enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
-					<mx:LinkButton id="resetFileButton" label="Reset File(s)" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree()}" textDecoration="underline" paddingLeft="0" />
+				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0" horizontalAlign="right"> 
+					<mx:LinkButton id="newSeqRunFolder" label="New Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == 'Sample'}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing experiment files"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
+					<mx:LinkButton id="swapFileOrderButton" label="Swap File Order" enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
+					<mx:LinkButton id="resetFileButton" label="Unlink" toolTip="Unlink selected files from samples and move them back to the left" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree(); sortExperimentFileList();}" textDecoration="underline" paddingLeft="0" />
+					<mx:LinkButton id="refreshLinkage" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles(); getLinkedSampleFiles.send();"/>
 				</mx:HBox>
 				<mx:HDividedBox width="100%" height="100%">
 					<mx:VBox width="300" height="100%" verticalGap="0" styleName="form" >
 						<mx:AdvancedDataGrid id="experimentFilesTree"  
-									 dragEnabled="true"
-									 allowMultipleSelection="true"
-									 sortExpertMode="true"
-									 sortableColumns="false"
-									 width="100%" height="100%"
-									 dragMoveEnabled="true" itemClick="{this.samplesTree.selectedItem = null;}">
+											 dragEnabled="true"
+											 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
+											 sortExpertMode="true"
+											 sortableColumns="false"
+											 width="100%" height="100%"
+											 dragMoveEnabled="true" dropEnabled="false" itemClick="{this.samplesTree.selectedItem = null;}">
 							<mx:dataProvider>
 								<mx:HierarchicalData source="{experimentFileList}"/>
 							</mx:dataProvider>	
 							<mx:columns>
-								<mx:AdvancedDataGridColumn headerText="Experiment Files" dataField="@displayName"/>
+								<mx:AdvancedDataGridColumn headerText="Experiment Files" dataField="@displayName" showDataTips="true"/>
 							</mx:columns>
 						</mx:AdvancedDataGrid>
 					</mx:VBox>
 					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
 						<mx:AdvancedDataGrid id="samplesTree" displayItemsExpanded="true"
-								 width="100%" height="100%" 
-								 dragDrop="onDragDropExpFile(event)"
-								 dragOver="doDragOverSamples(event)"
-								 dragExit="doDragExitSamples(event)"
-								 dragEnter="doDragEnterSamples(event)"
-								 iconFunction="getTreeIcon"
-								 sortExpertMode="true"
-								 sortableColumns="false"
-								 borderStyle="solid" 
-								 dropEnabled="true"  		                
-								 dragEnabled="true" 
-								 dragMoveEnabled="true"
-								 allowMultipleSelection="true"
-								 itemClick="{this.experimentFilesTree.selectedItem = null; areSelectionsValid();}">
+											 width="100%" height="100%" 
+											 dragDrop="onDragDropExpFile(event)"
+											 dragOver="doDragOverSamples(event)"
+											 dragExit="doDragExitSamples(event)"
+											 dragEnter="doDragEnterSamples(event)"
+											 iconFunction="getTreeIcon"
+											 sortExpertMode="true"
+											 sortableColumns="false"
+											 borderStyle="solid" 
+											 dropEnabled="true"  		                
+											 dragEnabled="true" 
+											 dragMoveEnabled="true"
+											 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
+											 itemClick="{this.experimentFilesTree.selectedItem = null; areSelectionsValid();}">
 							<mx:dataProvider>
 								<mx:HierarchicalData source="{sampleList}"/>
 							</mx:dataProvider>	
 							<mx:columns>
-								<mx:AdvancedDataGridColumn headerText="Name" labelFunction="{getDisplayName}" />
-								<mx:AdvancedDataGridColumn headerText="Sample ID" labelFunction="{getSampleNumber}"/>
+								<mx:AdvancedDataGridColumn headerText="Sample ID" labelFunction="{getSampleNumberOrFileName}" width="300"/>
+								<mx:AdvancedDataGridColumn headerText="Name" labelFunction="{getDisplayName}" showDataTips="true" />
 								<mx:AdvancedDataGridColumn headerText="Date" dataField="@lastModifyDateDisplay"/>
 								<mx:AdvancedDataGridColumn headerText="Size" dataField="@fileSizeText"/>
 							</mx:columns>
@@ -1029,4 +1133,4 @@
 		</mx:ViewStack>
 	</mx:ControlBar>
 	
-</mx:TitleWindow>
+</util:ResizableTitleWindow>
