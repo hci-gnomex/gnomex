@@ -440,13 +440,13 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             Element root = this.linkedSampleFileDoc.getRootElement();
             int fileCount = 1;
 
-
             for(Iterator i = root.getChildren("Sample").iterator(); i.hasNext();) {
               Element sampleNode = (Element)i.next();      
               Integer idSample = Integer.parseInt(sampleNode.getAttributeValue("idSample"));
+              int seqRunNumber = 0;
               for(Iterator j = sampleNode.getChildren().iterator(); j.hasNext();) {
                 Element seqRunNode = (Element)j.next();
-                Integer seqRunNumber = Integer.parseInt(seqRunNode.getAttributeValue("seqRunNumber"));
+                seqRunNumber = seqRunNumber + 1;
                 SampleExperimentFile sef = new SampleExperimentFile();
                 fileCount = 1;
                 for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
