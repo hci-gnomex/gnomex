@@ -47,12 +47,12 @@ call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table gnomex.R
 -- Add VisitLog Table
 DROP TABLE IF EXISTS `gnomex`.`VisitLog`;
 CREATE TABLE `gnomex`.`VisitLog` (
-	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMENT
-	, `visitDateTime`		DATETIME		NOT NULL
-	, `idAppUser`			INT(10)			NOT NULL
-	, `ipAddress`			VARCHAR(50)		NOT NULL	DEFAULT 'Unknown'
-	, `sessionID`			VARCHAR(255)	NOT NULL	DEFAULT 'Unknown'
-	, PRIMARY KEY (`idVisitLog`)
+    `idVisitLog`      INT(10) NOT NULL AUTO_INCREMENT
+  , `visitDateTime`   DATETIME NOT NULL
+  , `idAppUser`       INT(10) NOT NULL
+  , `ipAddress`       VARCHAR(50) NOT NULL DEFAULT 'Unknown'
+  , `sessionID`       VARCHAR(255) NOT NULL DEFAULT 'Unknown'
+  , PRIMARY KEY (`idVisitLog`)
 )
 ENGINE = INNODB;
 
