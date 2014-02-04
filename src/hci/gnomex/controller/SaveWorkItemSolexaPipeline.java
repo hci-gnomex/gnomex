@@ -327,10 +327,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
   }
 
-  
-  
-
-  
   private void sendConfirmationEmail(Session sess, Request request, Collection lanes) throws NamingException, MessagingException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -419,78 +415,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     // Send email to bioinformatics core
     if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {
-      sendBioinformaticsEmail(sess, request, laneText, finishedLaneText, haveText, genomeAlignTo, analysisInstruction, downloadRequestURL);
       sendBioinformaticsAssistanceEmail(sess, request);
-    }
-  }
-  
-  private void sendBioinformaticsEmail(Session sess, Request request, String laneText, String finishedLaneText, String haveText, 
-      String genomeAlignTo, String analysisInstruction, String downloadRequestURL) throws NamingException, MessagingException {
-    
-    StringBuffer bioIntroNote = new StringBuffer();
-    
-    bioIntroNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    bioIntroNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
-    bioIntroNote.append("<br>");
-    
-    String emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
-    //As of 08/14/2013 the Bioinformatics contact email property is currently removed from gnomex.  So this email address is currently being set null.
-    //I've decided to just silently return out of this function for now if this email is null.  Otherwise we get an invalid email error in the server log.
-    if(emailRecipients == null){
-      return;
-    }
-    
-    if(emailRecipients != null && emailRecipients.contains(",")){
-      for(String e : emailRecipients.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
-          log.error("Invalid email address: " + e);
-        }
-      }
-    } else if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address: " + emailRecipients);
-    }
-    
-    if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email: " + emailRecipients);
-    }
-    
-    if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
-      bioIntroNote.append("<br><br><b>Genome Align To:   </b>" + genomeAlignTo);
-    }
-    if (analysisInstruction != null && !analysisInstruction.equals("")) {
-      bioIntroNote.append("<br><br><b>Analysis Instructions:   </b>" + analysisInstruction);
-    }
-    
-    bioIntroNote.append("<br><br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
-
-    RequestEmailBodyFormatter bioEmailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), bioIntroNote.toString());
-    bioEmailFormatter.setIncludeMicroarrayCoreNotes(false);
-     
-    String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
-    boolean bioSend = false;
-    String fromAddress = PropertyDictionary.GENERIC_NO_REPLY_EMAIL;
-    String emailInfo = "";
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      if (analysisInstruction != null && !analysisInstruction.equals("")) {
-        bioSend = true;
-      }
-      if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
-        bioSend = true;
-      }
-    } else {
-      bioSend = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    
-    if (bioSend) {      
-      MailUtil.send(emailRecipients, 
-          null,
-          fromAddress, 
-          subject, 
-          emailInfo + bioEmailFormatter.format(),
-          true);
     }
   }
 }
