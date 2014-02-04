@@ -100,14 +100,6 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
         sampleNode.setAttribute("idSample", row[2] != null ? String.valueOf((Integer)row[2]) : "");
         previousSampleID = (Integer)row[2];
         
-        if(row[5] == null) {
-          seqRunNumberNode.setAttribute("name", "Seq Run #1");
-          seqRunNumberNode.setAttribute("seqRunNumber", "1");
-        } else {
-          seqRunNumberNode.setAttribute("name", "Seq Run #" + String.valueOf((Integer)row[5]));
-          seqRunNumberNode.setAttribute("seqRunNumber", String.valueOf((Integer)row[5]));
-        }
-        
         if(row[3] != null) {
           ef = (ExperimentFile)sess.load(ExperimentFile.class, (Integer)row[3]);
           Element sefNode = new Element("FileDescriptor");
@@ -118,7 +110,6 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[3]));
           sefNode.setAttribute("readID", "1");
-          sefNode.setAttribute("seqRunNumber", row[5] != null ? String.valueOf((Integer)row[5]) : "");
           seqRunNumberNode.addContent(sefNode);
         }
       
@@ -132,10 +123,11 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[4]));
           sefNode.setAttribute("readID", "2");
-          sefNode.setAttribute("seqRunNumber", row[5] != null ? String.valueOf((Integer)row[5]) : "");
           seqRunNumberNode.addContent(sefNode);
         }
-        sampleNode.addContent(seqRunNumberNode);
+        if(seqRunNumberNode.hasChildren()) {
+          sampleNode.addContent(seqRunNumberNode);
+        }
         
         if(i.hasNext()) {
           Object [] nextRow = (Object [])samples.get(i.nextIndex());
