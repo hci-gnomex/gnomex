@@ -963,25 +963,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           message.append(msg + "\n");
         }              
       }
-    }
-    if(requestParser.getRequest().getBioinformaticsAssist() != null && requestParser.getRequest().getBioinformaticsAssist().equals("Y")) {
-      try {
-        sendBioinformaticsEmail(sess);
-      } catch (Exception e) {
-        String msg = "Unable to send bioinformatics email "
-            + requestParser.getRequest().getNumber()
-            + "  " + e.toString();
-        log.error(msg);
-        e.printStackTrace();
-        message.append(msg + "\n");
-      }
-    } else {
-      String msg = "Unable to send estimated charges notification for request "
-          + requestParser.getRequest().getNumber()
-          + " has been submitted.  Contact or lab manager(s) email is blank.";
-      log.error(msg);
-      message.append(msg + "\n");
-    }                 
+    }                
     
     return message.toString();
     
@@ -2277,98 +2259,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
     }    
-  }
-  
-  private void sendBioinformaticsEmail(Session sess) throws NamingException, MessagingException {
-    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    Request r = requestParser.getRequest();
-    AppUser user = r.getAppUser();
-    String organismName = "";
-    String genomeBuild = "";
-    String seqRunType = "";
-    String seqLibProtocol = "";
-    String application = "";
-    String subject = "Bioinformatics analysis for " + user.getFirstLastDisplayName() + ", sequencing request number " + r.getNumber();
-    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS);
-    String ccAddress = "";
-    
-    if(r.getIdOrganismSampleDefault() != null) {
-      organismName = dictionaryHelper.getOrganism(r.getIdOrganismSampleDefault());
-    }
-    if(r.getApplication() != null && r.getApplication().getApplication() != null) {
-      application = r.getApplication().getApplication();
-    }
-    
-    for(Iterator i = r.getSamples().iterator(); i.hasNext();) {
-      Sample s = (Sample)i.next();
-      if(s.getIdSeqLibProtocol() != null) {
-        seqLibProtocol = dictionaryHelper.getSeqLibProtocol(s.getIdSeqLibProtocol());
-        break;
-      }
-    }
-    for(Iterator j = r.getSequenceLanes().iterator(); j.hasNext();) {
-      SequenceLane sl = (SequenceLane)j.next();
-
-      if(sl.getIdSeqRunType() != null && seqRunType.equals("")) {
-        seqRunType = dictionaryHelper.getSeqRunType(sl.getIdSeqRunType());
-      }
-
-      if(sl.getIdGenomeBuildAlignTo() != null && genomeBuild.equals("")) {
-        genomeBuild = dictionaryHelper.getGenomeBuildName(sl.getIdGenomeBuildAlignTo());
-      }
-
-      if(!genomeBuild.equals("") && !seqRunType.equals("")) {
-        break;
-      }
-    }
-
-    
-    StringBuffer body = new StringBuffer();
-    
-    boolean send = false;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + ", cc: " + ccAddress +  "]<br><br>");
-      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccAddress = "";
-    }
-    
-    body.append(user.getFirstLastDisplayName() + " of the " + r.getLabName() + " has requested bioinformatic analysis assistance for sequencing request number " + r.getNumber() + ". <br>");
-    body.append("The data is now available in GNomEx.<br><br>");
-    body.append("<b>Contact Information:</b><br> " + user.getFirstLastDisplayName() + "<br>");
-    if(user.getEmail() != null) {
-      body.append(user.getEmail() + "<br>");
-      ccAddress = user.getEmail();
-    }
-    if(user.getPhone() != null) {
-      body.append(user.getPhone() + "<br> <br>");
-    } else {
-      body.append("<br>");
-    }
-    body.append("<b>Analysis Notes:</b><br> " + r.getAnalysisInstructions() + "<br> <br>");
-    
-    body.append("<b>Experiment Information:</b><br>" + r.getNumberOfSamples() + " sample(s). <br>");
-    body.append("<u>Sequencing Application:</u> " + application + ". <br>");
-    body.append("<u>Organism:</u> " + organismName + ". <br>");
-    body.append("<u>Genome Build:</u> " + genomeBuild + ". <br>");
-    body.append("<u>Run Type:</u> " + seqRunType + ". <br>");
-    body.append("<u>Library Protocol:</u> " + seqLibProtocol);
-    
-    if (send) {
-      MailUtil.send(toAddress, 
-          ccAddress,
-          fromAddress, 
-          subject, 
-          body.toString(),
-          true);      
-    }
-    
-  }
-  
+  }  
   
   private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException {
     
