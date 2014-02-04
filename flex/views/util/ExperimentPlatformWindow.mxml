@@ -862,7 +862,7 @@
 							</mx:HBox>
 							<mx:HBox visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" includeInLayout="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
 								<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>
-								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
+								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="8" value="{requestCategory.@numberOfChannels}"/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
 								<mx:Label text="Show for" width="80" styleName="formLabel"/>
