@@ -15,6 +15,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -642,6 +643,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     String directoryName = baseDir + createYear + File.separator + requestNumber;
     File fd = new File(directoryName);
 
+    // Ignore soft links
+    if (Util.isSymlink(fd)) {
+      return folders;
+    }
+    
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
       for (int x = 0; x < fileList.length; x++) {
@@ -675,8 +681,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           continue;
         } 
         
-        // bypass directories
-        if (f1.isDirectory()) {
+        // bypass directories and soft links.
+        if (f1.isDirectory() || Util.isSymlink(f1)) {
           continue;
         }
         
