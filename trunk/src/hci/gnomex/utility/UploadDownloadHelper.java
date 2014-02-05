@@ -113,6 +113,9 @@ public class UploadDownloadHelper {
       
   private static void getFileNames(String theBaseDir, String fullBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {
     File fd = new File(directoryName);
+    if (Util.isSymlink(fd)) {
+      return;
+    }
     
 
     if (fd.isDirectory()) {
@@ -126,6 +129,9 @@ public class UploadDownloadHelper {
       
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
+        if (Util.isSymlink(f1)) {
+          continue;
+        }
         
         String fileName = directoryName + "/" + f1.getName();
 

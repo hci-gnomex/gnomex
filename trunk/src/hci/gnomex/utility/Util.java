@@ -1,9 +1,13 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.controller.GetOrganismList;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 public class Util {
-
+  
   // Parses a comma delimited string where commas are ignored if between quotes.
   public static String[] parseCommaDelimited(String s) {
     if (s == null) {
@@ -84,5 +88,25 @@ public class Util {
     return keys;
   }
 
+  /*
+   * Indicates if file is a link file on unix.
+   */
+  public static boolean isSymlink(File file) {
+    try {
+      if (file == null) {
+        return false;
+      }
+      File canon;
+      if (file.getParent() == null) { 
+        canon = file; 
+      } else { 
+        File canonDir = file.getParentFile().getCanonicalFile(); 
+        canon = new File(canonDir, file.getName());
+      }
   
+      return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+    } catch(IOException ex) {
+      return false;
+    }
+  }
 }
