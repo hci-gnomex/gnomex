@@ -279,7 +279,7 @@
 		</mx:HBox>
 		<mx:Spacer height="40" id="spacer2a"/>
 		<mx:HBox id="bugContact" horizontalGap="2" verticalAlign="middle">
-			<mx:Text text="Technical Support"/>
+			<mx:Text text="GNomEx support"/>
 			<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" />
 		</mx:HBox>
 
