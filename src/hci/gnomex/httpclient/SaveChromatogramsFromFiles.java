@@ -229,7 +229,7 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
       if (childFile.isDirectory()) {
         if (childFile.listFiles().length == 0) {
           System.out.println("encounted empty directory " + childFile.getName());
-          //childFile.delete();
+          childFile.delete();
         } else {
           hashFiles(childFile, theFiles);
         }
