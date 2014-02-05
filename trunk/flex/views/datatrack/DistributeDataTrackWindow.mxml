@@ -990,17 +990,6 @@
 			}
 		}
 		
-		// Disallow operation if matching .bam, .bai are not selected
-		var isBamOrBai:Boolean = false;
-		for each(var dragItem1:Object in ds.dataForFormat("treeDataGridItems") as Array) {
-			if (dragItem1.name() == "AnalysisFileDescriptor") {
-				if (dragItem1.@type == 'BAM' || dragItem1.@type == 'bam' || dragItem1.@type == 'BAI' || dragItem1.@type == 'bai') {
-					isBamOrBai = true;
-					break;
-				}
-			}
-		}
-		
 		// retrieve the data associated with the "items" format. This will be the data that
 		// the dragInitiator has copied into the DragSource.
 		dragParams = new ArrayCollection();
@@ -1017,6 +1006,8 @@
 					
 					// Don't include .bai if .bam is already selected
 					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
+						continue;
+					} else if(this.hasMatchingUSEQFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")){
 						continue;
 					}
 					
@@ -1074,6 +1065,38 @@
 		return hasBAMFilePair;
 	}
 	
+	private function hasMatchingUSEQFilePair(dragItem:Object, dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		
+		
+		var hasUSEQFilePair:Boolean = false;
+		
+		var idx:int = dragItem[fileNameAttribute].lastIndexOf(".");
+		var dragItemBaseFileName:String = dragItem[fileNameAttribute].substr(0, idx);
+		var dragItemExt:String = dragItem[typeAttribute];
+		
+		if (dragItemExt.toString().toUpperCase() != "BW") {
+			return false;
+		}
+		
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
+			var ext:String = di[typeAttribute];
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			
+			if (baseFileName.toString().toUpperCase() == dragItemBaseFileName.toUpperCase()) {
+				if (dragItemExt.toUpperCase() != ext.toUpperCase()) {
+					if (ext.toUpperCase() == "USEQ" ) {
+						hasUSEQFilePair = true;
+						break;
+					}
+				}
+			}
+			
+		}
+		return hasUSEQFilePair;
+	}
+	
 	
 	// Need separate function to look at drag items before
 	// they are stuffed into dragParams
@@ -1115,6 +1138,44 @@
 		return baseFileNameCount == 1 && isBAI && isBAM;
 	}
 	
+	private function isUSEQFilePair(dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		if (dragItems.length != 2) {
+			return false;
+		}
+		var fileNameMap:Object = new Object();
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			var extensions:Array = fileNameMap[baseFileName];
+			if (extensions == null) {
+				extensions = new Array();
+			}
+			extensions.push(di[typeAttribute]);
+			fileNameMap[baseFileName] = extensions;
+		}
+		var baseFileNameCount:int = 0;
+		var isUSEQ:Boolean = false;
+		var isBW:Boolean = false;
+		// Check the extensions to make sure we have both  a .bai and .bam for
+		// the same file name
+		for (var key:Object in fileNameMap) {
+			baseFileNameCount++;
+			var theExtensions:Array = fileNameMap[key];
+			if (theExtensions.length == 2) {
+				for each (var ext:Object in theExtensions) {
+					if  (ext.toUpperCase() == 'USEQ') {
+						isUSEQ = true;
+					} else if  (ext.toUpperCase() == 'BW') {
+						isBW = true;
+					} 
+				}
+				
+			}
+		}
+		return baseFileNameCount == 1 && isUSEQ && isBW;
+	}
+	
 	private function promptToAssociateFiles():void {
 		var dragItemCount:int = 0;
 		for each(var di:Object in dragParams) {
@@ -1128,7 +1189,7 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} //  File pairs are dragged onto a data track
-		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && isBAMFilePair(dragParams, "fileName", "type")) {
+		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type"))) {
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
@@ -1152,7 +1213,7 @@
 			
 		} 
 		// File pairs dragged onto a folder
-		else if (dragItemCount == 2 && isBAMFilePair(dragParams, "fileName", "type") && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+		else if (dragItemCount == 2 && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type")) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create a Data track for pair of analysis files under  " + dropNode.@label + "?",
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
