@@ -4080,15 +4080,11 @@
 	<mx:XMLList id="topMenu">
 		<menuitem label="Home"/>
 		<menuitem label="My Account"  />
-		<menuitem label="Report Issue" />
 		<menuitem label="Help..."  >
-		
 			<menuitem label="User Guide"  />
-			
-			<menuitem label="Contact Us"   />
-			
 			<menuitem label="About" />
 		</menuitem>
+		<menuitem label="Contact Us"   />
 		<menuitem label="Sign out"  />
 	</mx:XMLList>
 	
@@ -4138,7 +4134,8 @@
 						</mx:HBox>
 						
 						<mx:Spacer width="100%"/>
-						<mx:HBox paddingTop="0" verticalAlign="top">
+						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
+							<mx:LinkButton label="Report Problem"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000"/>
 							<mx:MenuBar  id="topMenuBar"  styleName="topMenuBar"   dataProvider="{topMenu}" 
 									  itemClick="{onTopMenuSelect(event)}"  
 									  click="{onTopMenuClick(event)}"
