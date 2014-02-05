@@ -955,6 +955,7 @@ MenuBar.topMenuBar {
 	errorColor: #000000;
 	selectionColor: #000000;
 	borderColor: #FFFFFF;
+	menuStyleName: topMenuItem;
 }
 
 
@@ -964,7 +965,7 @@ MenuBar.topMenuBar {
 	fillAlphas: 1, 1;
 	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
 	color: #2E2D2C;
-	fontSize: 10;
+	fontSize: 13;
 	disabledColor: #ACE2F2;
 	errorColor: #ACE2F2;
 	rollOverColor: #ACE788;
