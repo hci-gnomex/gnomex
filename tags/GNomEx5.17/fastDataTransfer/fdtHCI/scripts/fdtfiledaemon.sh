@@ -1,0 +1,1 @@
+java -cp /path/to/fdtfilemonitor/fdtFileDaemon.jar hci.fdt.daemon.FDTFileDaemon -softlinksDirPath /path/to/fdt_staging_dir -taskFilePath /path/to/fdtfiledaemon/tasks >> /path/to/fdtfilemonitor/fdtfiledaemon.log $* &
