@@ -175,8 +175,7 @@ public class UsageReportd extends TimerTask {
           isFirst = false;
         }
         distributionList.append(addComma + appUser.getEmail());
-      }
-      
+      }      
       toList = distributionList.toString();
       }
       // if not "all" nor "" then toList must be comma separated list of valid emails
@@ -269,7 +268,7 @@ public class UsageReportd extends TimerTask {
         }
       }
       
-      // Guest usage stats for each lab   JFK 	JFK	JFK	JFK
+      // Guest usage stats for each lab
       StringBuffer usageRows = new StringBuffer("");
       
 
@@ -316,7 +315,7 @@ public class UsageReportd extends TimerTask {
       body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}");
       body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
       if(isTestMode) {
-        body.append("Distribution List: " + (toList==null?"empty":toList) + "<br><br>");        
+        body.append("Distribution List: " + (toList==null?" ":toList) + "<br><br>");        
       }
 
       body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
@@ -329,7 +328,6 @@ public class UsageReportd extends TimerTask {
       
       if(propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName) != null &&
     		  propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName).equals("Y")){
-	      // jfk
 	      // Guest Usage Table
 	      body.append("<table width='1120' cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
 	      body.append("<tr>");
@@ -347,9 +345,9 @@ public class UsageReportd extends TimerTask {
 	      body.append("<tr><td width='200' align='center' colspan='8'><span class='fontClassBold'>" + "Summary Data" + "</span></td></tr>");
 	      
 	      body.append("<tr>");
-	      body.append("<td width='800' align='center' colspan='4'><span class='fontClassBold'>" + "Number of Visits (Users and Guests)" + "</span></td>");
-	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Downloads By Guests" + "</span></td>");
-	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Total Guests Who Downloaded" + "</span></td>");
+	      body.append("<td width='800' align='center' colspan='4'><span class='fontClassBold'>" + "Visits by Guests" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Downloads by Guests" + "</span></td>");
+	      body.append("<td width='200' align='center' colspan='2'><span class='fontClassBold'>" + "Guests Who Downloaded" + "</span></td>");
 	      body.append("</tr>");   
 	      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
 	      
@@ -380,8 +378,8 @@ public class UsageReportd extends TimerTask {
 	      body.append("<tr>");
 	      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Lab" 									+ "</span></td>");
 	      body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Analysis/ Experiment ID" 				+ "</span></td>");
-	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Files Downloaded"				+ "</span></td>");
-	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Number of Guest Users Who Downloaded" 	+ "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Files Downloaded"				+ "</span></td>");
+	      body.append("<td width='400' align='center' colspan='2'><span class='fontClassBold'>" 			+ "Guest Users Who Downloaded" 	+ "</span></td>");
 	      body.append("</tr>");
 	      body.append("<tr>");
 	      //body.append("<td width='200' colspan='4'><span class='fontClassBold'>&nbsp;</span></td>");
@@ -903,18 +901,19 @@ public class UsageReportd extends TimerTask {
 		}
 		
 		queryBuf = new StringBuffer();
-		//-- Get TOTAL (all GNomEx visitors) WEEKLY COUNT for visits (every visit is counted, not just visits by unique users)
-		queryBuf.append(" SELECT COUNT(idAppUser) FROM VisitLog AS vl ");
+		//-- Get TOTAL (all GNomEx guests) WEEKLY COUNT for visits (every visit is counted, not just visits by unique guests)
+		queryBuf.append(" SELECT COUNT(idVisitLog) FROM VisitLog AS vl ");
 		queryBuf.append(" WHERE visitDateTime > '" + fFormat.formatDate(startDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
-		queryBuf.append(" AND visitDateTime < '" + fFormat.formatDate(endDate.getTime(),
-				FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND visitDateTime < '" + fFormat.formatDate(endDate.getTime(), FieldFormatter.DATE_OUTPUT_SQL) + "' ");
+		queryBuf.append(" AND idAppUser = -999999 ");
 		rows = sess.createQuery(queryBuf.toString()).list();
 		Iterator i = rows.iterator();
 			weeklyTotalVisits = (Integer)i.next();
 		
 		queryBuf = new StringBuffer();
-		//-- Get TOTAL (all GNomEx visitors) CUMULATIVE COUNT for visits (every visit is counted, not just visits by unique users)
-		queryBuf.append(" SELECT COUNT(idAppUser) FROM VisitLog AS vl ");
+		//-- Get TOTAL (all GNomEx guests) CUMULATIVE COUNT for visits (every visit is counted, not just visits by unique guests)
+		queryBuf.append(" SELECT COUNT(idVisitLog) FROM VisitLog AS vl ");
+		queryBuf.append(" WHERE idAppUser = -999999 ");
 		rows = sess.createQuery(queryBuf.toString()).list();
 			i = rows.iterator();			
 			cumTotalVisits = (Integer)i.next();
