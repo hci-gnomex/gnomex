@@ -19,7 +19,6 @@ import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
-import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -696,7 +695,7 @@ public class RegisterFiles extends TimerTask {
       for (int x = 0; x < fileList.length; x++) {
         String fileName = directoryName + "/" + fileList[x];
         File f1 = new File(fileName);
-        if(f1.isFile() && !Util.isSymlink(f1)) {
+        if(f1.isFile()) {
           FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + "/" + fileList[x]);
           fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
         }

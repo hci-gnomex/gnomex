@@ -668,28 +668,39 @@
 		
 		private function onActivityChanged():void {
 			ba.@accountNumberActivity = activity.text;
-			if (ba.@accountNumberActivity.toString().length > 0) {
-				ba.@accountNumberAu = "1";
+			if (currentState == "internalWorkAuthState") {
+				if (ba.@accountNumberActivity.toString().length > 0) {
+					this.au.text = "1";
+					this.auBox.visible = true;
+					this.auBox.includeInLayout = true;
+					this.project.text = "";
+					this.project.enabled = false;
+				} else {
+					this.au.text = "";
+					this.auBox.visible = false;
+					this.auBox.includeInLayout = false;
+					this.project.enabled = true;
+				}
+				ba.@accountNumberAu = this.au.text;
+				ba.@accountNumberProject = this.project.text;
+			} else {
 				this.auBox.visible = true;
 				this.auBox.includeInLayout = true;
-				ba.@accountNumberProject = "";
-			} else {
-				ba.@accountNumberAu = "";
-				this.auBox.visible = false;
-				this.auBox.includeInLayout = false;
 			}
 		}
 		
 		private function onProjectChanged():void {
 			ba.@accountNumberProject = project.text;
-			if (ba.@accountNumberProject.toString().length > 0) {
-				ba.@accountNumberActivity = "";
-				ba.@accountNumberAu = "";
-				this.auBox.visible = false;
-				this.auBox.includeInLayout = false;					
+			if (currentState == "internalWorkAuthState") {
+				if (ba.@accountNumberProject.toString().length > 0) {
+					this.activity.text = "";
+					this.activity.enabled = false;
+				} else {
+					this.activity.enabled = true;
 				}
+				ba.@accountNumberActivity = this.activity.text;
+			}
 		}
-		
 		private function toggleType(type:int):void {
 			if (type == 0) {
 				if (this.internalCheckbox.selected) {
