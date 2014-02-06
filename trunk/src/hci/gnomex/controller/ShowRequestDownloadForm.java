@@ -70,7 +70,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     
     serverName = request.getServerName();
     
-    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + request.getContextPath();
+    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + ":" + request.getServerPort() + request.getContextPath();
     
   }
 

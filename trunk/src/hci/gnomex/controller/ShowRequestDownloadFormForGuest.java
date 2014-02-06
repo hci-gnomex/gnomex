@@ -57,7 +57,7 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
     
     serverName = request.getServerName();
     
-    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + request.getContextPath();
+    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + ":" + request.getServerPort() + request.getContextPath();
     
   }
 
