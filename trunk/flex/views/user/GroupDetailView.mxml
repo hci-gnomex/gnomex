@@ -1046,6 +1046,10 @@
 			* PO document functions
 			*/
 			public function prepareToUploadPDF(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove/view a purchase order form.");
+					return;
+				}
 				if(this.poBillingAccounts[this.billingAccountPOGrid.selectedIndex].@orderFormFileType != ''){
 					Alert.show("By uploading a new purchase form you will overwrite the existing purchase form.\n\nContinue anyway?",
 						null, (Alert.YES | Alert.NO), this, continueToUpload);
@@ -1097,6 +1101,10 @@
 			}
 			
 			public function removeOrder(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove a purchase order form.");
+					return;
+				}
 				deletePurchaseForm.send();
 			}
 			
@@ -1191,6 +1199,14 @@
 					}
 				}
 				
+			}
+			
+			private function poGridChange(event:DataGridEvent):void {
+				// this is primarily so we don't set diry on the Purchase order form column, 
+				// but basically will not set it for any column with editable false. 
+				if (this.billingAccountPOGrid.columns[event.columnIndex].editable) {
+					dirty.setDirty();
+				}
 			}
 
 		]]>
@@ -1581,7 +1597,7 @@
 									<mx:Spacer width="100%"/>
 								</mx:HBox>
 								<mx:DataGrid width="100%"   height="100%" id="billingAccountPOGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10" itemEditBeginning="{poGridChange(event)}">
 									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
 									<mx:columns>
 										<mx:DataGridColumn headerText="PO" dataField="@accountName" width="160" 
@@ -1615,7 +1631,7 @@
 														   editorDataField="selectedDate"/>
 										
 										
-										<mx:DataGridColumn headerText="Purchase Order Form"  width="120">
+										<mx:DataGridColumn headerText="Purchase Order Form"  width="120" editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:HBox horizontalGap="3" horizontalScrollPolicy="off">
@@ -1670,7 +1686,7 @@
 								</mx:HBox>
 								
 								<mx:DataGrid width="100%" height="100%" id="billingAccountCreditCardGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10" change="{dirty.setDirty()}">
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
 										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="75" 

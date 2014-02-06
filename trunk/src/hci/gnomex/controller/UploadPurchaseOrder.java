@@ -29,6 +29,7 @@ public class UploadPurchaseOrder extends HttpServlet {
   
   private static final int                        ERROR_MISSING_TEMP_DIRECTORY_PROPERTY  = 900;
   private static final int                        ERROR_INVALID_TEMP_DIRECTORY           = 901;
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadPurchaseOrder.class);
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
 
@@ -107,14 +108,15 @@ public class UploadPurchaseOrder extends HttpServlet {
     } 
     catch (Exception e) {
       HibernateSession.rollback();
-      e.printStackTrace();
+      log.error("Unexpected error in UploadPurchaseOrder", e);
+      throw new ServletException("Unable to upload purchase order file.  Please contact gnomex support.");
     }
     finally{
       try {
         HibernateSession.closeSession();
         HibernateSession.closeTomcatSession();
       } catch (Exception e) {
-        e.printStackTrace();
+        log.error("Unable to close hibernate session in UploadPurcahseOrder", e);
       }
       }
     }
