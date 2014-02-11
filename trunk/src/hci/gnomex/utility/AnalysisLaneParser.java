@@ -75,6 +75,9 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
       if (isBatchMode) {
         String experimentNumber = node.getAttributeValue("number");
         List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.id, l.id from Request r join r.sequenceLanes l where r.number = '" + experimentNumber + "'").list();
+        if (rows == null || rows.size() == 0) {
+          throw new RuntimeException("Cannot find experiment  " + experimentNumber);
+        }
         for (Object[] row : rows) {
           Integer idRequest = (Integer)row[0];
           Integer idSequenceLane = (Integer)row[1];
@@ -89,7 +92,10 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
       
       if (isBatchMode) {
         String sampleNumber = node.getAttributeValue("number");
-        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.id, l.id from Request r join r.sequenceLanes l where l.idSample = '" + sampleNumber + "'").list();
+        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.idRequest, l.idSequenceLane from Request r join r.sequenceLanes l join l.sample s where s.number = '" + sampleNumber + "'").list();
+        if (rows == null || rows.size() == 0) {
+          throw new RuntimeException("Cannot find sample  " + sampleNumber);
+        }
         for (Object[] row : rows) {
           Integer idRequest = (Integer)row[0];
           Integer idSequenceLane = (Integer)row[1];
