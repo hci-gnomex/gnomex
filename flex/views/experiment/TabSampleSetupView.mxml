@@ -105,7 +105,17 @@
 				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' ? 'Y' : 'N');
 			}
 		}
-		
+		private function propagateSampleSource():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.sampleSourceCombo.selectedItem != null && 
+					this.sampleSourceCombo.selectedItem.@idSampleSource != null && 
+					this.sampleSourceCombo.selectedItem.@idSampleSource != '') {
+					sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@idSampleSource;
+				} else {
+					sample.@idSampleSource = "";
+				}
+			}
+		}
        	private function propagateSampleType():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (this.sampleTypeRadioGroup.selectedValue != null) {
@@ -439,8 +449,7 @@
 				}
 			} else if (parentDocument.isIsolationState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.isolationTypeRadioGroup.selectedValue && this.sequenomContainerTypeRadioGrp.selectedValue) {
-					parentDocument.request.@coreToExtractDNA = 'Y';
+					this.isolationTypeRadioGroup.selectedValue) {
 					isComplete = true;	        	    	
 				}
 				
@@ -1066,6 +1075,13 @@
 			}
 		}
 		
+		private function onSampleSourceChanged():void {
+			propagateSampleSource();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
 		private function onAppDescChanged():void{
 			if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 				parentDocument.request.@applicationDescription = this.sequenomApplicationDesc != null ? this.sequenomApplicationDesc.text : "";
@@ -1095,6 +1111,24 @@
 			}
 			
 			this.onNumberOfSamplesChanged();
+		}
+		
+		private function pickIsolationType():void {
+			if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'DNAISOL'){
+				parentDocument.request.@coreToExtractDNA = 'Y';
+				parentDocument.request.@codeDNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				parentDocument.request.@codeRNAPrepType = "";
+			} else if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'RNAISOL') {
+				parentDocument.request.@codeRNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				parentDocument.request.@codeDNAPrepType = "";
+			}
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+				parentDocument.samplesView.showHideColumns();
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.showHideColumns();
+				}
+			}
 		}
 		
 		private function addOrganism(oName:String):void {
@@ -1433,7 +1467,7 @@
 		   <mx:RemoveChild target="{hbox7}"/>
 		   <mx:RemoveChild target="{hbox0}"/>
 		   <mx:RemoveChild target="{hbox9}"/>
-		   <mx:AddChild relativeTo="{hbox8}" position="before">
+		   <mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
 		   	<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="middle" width="100%">
 		   		<mx:Label text="(2) Select the isolation method." width="334"  id="label3"/>
 		   	
@@ -1443,7 +1477,7 @@
 		   	  <mx:RadioButton id="isolationTypeBtn" groupName="isolationTypeRadioGroup" 
 		   	  	   label="{isolationTypeRepeater.currentItem.@display}" 
 		   	  	   value="{isolationTypeRepeater.currentItem.@value}" 
-		   	  	   click="{parentDocument.request.@codeDNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';checkSampleSetupCompleteness()}" fontSize="11" paddingTop="0" paddingBottom="0"
+		   	  	   click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"
 		   	  	   width="250" />							
 		   	 </mx:Repeater>
 		   	 <mx:RadioButton id="isolationTypeNull" groupName="isolationTypeRadioGroup" 
@@ -1452,10 +1486,26 @@
 		   	</mx:HBox>
 		   </mx:AddChild>
 		   <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>
-		   <mx:SetProperty target="{seqContLabel}" name="text" value="(3) The samples will be delivered in what container?"/>
-		   <mx:SetProperty target="{sequenomNumSourcePlatesLabel}" name="text" value="(4) How many source plates will you be submitting?"/>
-		   <mx:SetProperty target="{label12}" name="text" value="(5) Name your plates."/>
-		  <mx:SetProperty target="{sequenomContainerTypeRadioGrp}" name="selectedValue" value="{null}"/>
+		  <mx:RemoveChild target="{sequenomContainerTypePlate}"/>
+		  <mx:RemoveChild target="{sequenomPlateNamesBox}"/>
+		  <mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
+		  <mx:RemoveChild target="{hbox8}"/>
+		  <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+		  	<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle" width="100%">
+		  		<mx:Label text="(3) Select the sample source." width="334"  id="label4"/>
+		  	
+		  	<mx:RadioButtonGroup id = "isolationTypeRadioGroup0" />       	
+		  	<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox0">
+		  	 <mx:Repeater id="isolationTypeRepeater0" dataProvider="{parentDocument.isolationTypeList}">
+		  	 </mx:Repeater>
+		  	 <mx:RadioButton id="isolationTypeNull0" groupName="isolationTypeRadioGroup" 
+		  	 	   label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
+		  	</mx:VBox>
+		  	<mx:ComboBox labelField="@display" width="245" id="sampleSourceCombo"
+		  				 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry}"
+		  				 change="{onSampleSourceChanged()}"/>
+		  	</mx:HBox>
+		  </mx:AddChild>
 	   </mx:State>
 	   <mx:State name="MitSeqState">
 		   <mx:SetProperty target="{label5}" name="text" value="(1) How many samples will you be submitting?"/>

@@ -7006,6 +7006,117 @@ $$
 
 
 --
+-- Audit Table For DNAPrepType 
+--
+
+CREATE TABLE IF NOT EXISTS `DNAPrepType_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
+ ,`dnaPrepType`  varchar(100)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for DNAPrepType 
+--
+
+INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive
+  FROM DNAPrepType
+  WHERE NOT EXISTS(SELECT * FROM DNAPrepType_Audit)
+$$
+
+--
+-- Audit Triggers For RNAPrepType 
+--
+
+
+CREATE TRIGGER TrAI_RNAPrepType_FER AFTER INSERT ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeRNAPrepType
+  , NEW.rnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_RNAPrepType_FER AFTER UPDATE ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeRNAPrepType
+  , NEW.rnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_RNAPrepType_FER AFTER DELETE ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeRNAPrepType
+  , OLD.rnaPrepType
+  , OLD.isActive );
+END;
+$$
+
+
+--
 -- Audit Table For ExperimentDesignEntry 
 --
 

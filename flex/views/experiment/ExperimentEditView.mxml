@@ -492,11 +492,7 @@
 			filteredSampleTypeListDna.sort = sampleTypeSorter;     	
         	filteredSampleTypeListRna.refresh();
 			filteredSampleTypeListDna.refresh();
-			
-			isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType'));
-			isolationTypeList.sort = dictionarySorter;
-			isolationTypeList.refresh();
-			
+									
 			filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
 			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
 			filteredSampleDropOffLocationList.refresh();
@@ -1068,6 +1064,9 @@
 			codeApplication = '';
 			request.@applicationNotes = '';
 			request.@codeApplication = '';
+			request.@codeDNAPrepType = '';
+			request.@codeRNAPrepType = '';
+			request.@coreToExtractDNA = 'N';
 			
 			if (theTab.contains(confirmView)) {
 				this.confirmView.setBarcodeColVisibility(false);        					
@@ -1234,17 +1233,25 @@
 				filteredAppList.refresh();
 								
 			} else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
+				
 				this.currentState = "IsolationState";
 				this.sampleSetupView.currentState = 'IsolationState';		
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
-								
-			
+				
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				samplesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
+				
+				if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'DNAISOL') {
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType'));
+				} else if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'RNAISOL') {
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.RNAPrepType'));
+				}
+				isolationTypeList.sort = dictionarySorter;
+				isolationTypeList.refresh();
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomState";
@@ -4846,7 +4853,7 @@
 			
 		public function showPlateGroup():Boolean {
 			var show:Boolean = false;
-			if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState() || this.isIsolationState()) {
+			if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
 				if (this.isEditState()) {
 					show = false;
 				} else if (this.request.@containerType == "PLATE") {
