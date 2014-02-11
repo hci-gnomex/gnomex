@@ -733,6 +733,8 @@
 		<many-to-one name="application" column="codeApplication" class="hci.gnomex.model.Application" cascade="none" insert="false" update="false" />
     	<property name="codeDNAPrepType" column="codeDNAPrepType" type="string"/>
    		<many-to-one name="dnaPrepType" column="codeDNAPrepType" class="hci.gnomex.model.DNAPrepType" cascade="none" insert="false" update="false" />
+      <property name="codeRNAPrepType" column="codeRNAPrepType" type="string"/>
+      <many-to-one name="rnaPrepType" column="codeRNAPrepType" class="hci.gnomex.model.RNAPrepType" cascade="none" insert="false" update="false" />
 		<property name="idSlideProduct" column="idSlideProduct" type="integer"/>
     	<many-to-one name="slideProduct" column="idSlideProduct" class="hci.gnomex.model.SlideProduct" cascade="none" insert="false" update="false" />
 		<property name="idSampleTypeDefault" column="idSampleTypeDefault" type="integer"/>
@@ -1255,6 +1257,15 @@
       <generator class="assigned"/>
     </id>
     <property name="dnaPrepType" column="dnaPrepType" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
+  
+  <!-- hci.gnomex.model.RNAPrepType -->
+  <class name="hci.gnomex.model.RNAPrepType" table="RNAPrepType">
+      <id name="codeRNAPrepType" column="codeRNAPrepType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="rnaPrepType" column="rnaPrepType" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
   </class>
   

@@ -358,7 +358,7 @@
 					if (s.@multiplexGroupNumber != '') {
 						showSampleMultiplexGroup = true;
 					}
-					if (((isCapSeqState() || isSequenomState() || isIsolationState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
+					if (((isCapSeqState() || isSequenomState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
 						showPlates = true;
 					}
 					if (s.@idOligoBarcode != '' ) {
@@ -716,7 +716,7 @@
 					parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				}
 				
-				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE") || (this.isIsolationState()&& this.selectedExperiment.@containerType == "PLATE") ) {
+				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE")  ) {
 					parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 				}
 				
@@ -728,7 +728,7 @@
 				parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 				
 				if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()
-					&& !parentDocument.parentDocument.experimentEditView.isSequenomState() && !parentDocument.parentDocument.experimentEditView.isIsolationState()) {
+					&& !parentDocument.parentDocument.experimentEditView.isSequenomState() ) {
 					parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				}
 				
@@ -768,6 +768,7 @@
 				this.cherryDestinationWellCol.visible = false;
 				this.cherrySourcePlateCol.visible = false;
 				this.cherrySourceWellCol.visible = false;
+				this.sampleSourceCol.visible = false;
 				reactionPlateCol.visible = false;
 				redoFlagCol.visible = false;
 				this.sampleNameColumn.visible = true;
@@ -1015,14 +1016,15 @@
 						otherSamplePrepMethodCol.visible = false;
 						chipTypeCol.visible = false
 						concentrationUnitCol.visible = false;
-						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+						plateNameCol.visible = false;
+						wellNameCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
 						this.qcRINCol.visible = false;
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
+						this.sampleSourceCol.visible = true;
 						
 					}  else {
 						concentrationCol.visible = true; 
@@ -1137,8 +1139,11 @@
 						}
 						
 						var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
+						if ( property == null ) {
+							continue;
+						}
 						var headerName:String = "";
-						if (property != null && property.@name == "Other" && annotation.@otherLabel != "" ) {
+						if (property.@name == "Other" && annotation.@otherLabel != "" ) {
 							headerName = annotation.@otherLabel;
 							annotation.@isSelected = "true";
 						} else {
@@ -1717,6 +1722,8 @@
 												itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
+					<mx:AdvancedDataGridColumn id="sampleSourceCol" headerText="Sample Source"  width="100" visible="{false}" 
+											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
 					
 				</mx:columns>
 			</mx:AdvancedDataGrid>
@@ -2256,6 +2263,15 @@
 			<mx:RemoveChild target="{adaptersBox}"/>
 			<mx:RemoveChild target="{hbox6}"/>
 			<mx:SetProperty target="{label10}" name="text"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
+						 includeInLayout="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}" 
+						 visible="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}">
+					<mx:Label text="RNA prep type"  width="100" styleName="formLabel" textAlign="left"  id="rnaLabel"/>
+					<mx:Text text="{this.selectedExperiment.@codeRNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeRNAPrepType).@display : ''}" 
+							 width="280"/>
+				</mx:HBox>
+			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	
