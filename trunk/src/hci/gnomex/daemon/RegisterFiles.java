@@ -814,7 +814,7 @@ public class RegisterFiles extends TimerTask {
   }
   
   private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
-    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExperimentFile = " + ef.getIdExperimentFile() ).list();
+    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile() ).list();
     ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
     String listOfSampleNames = "";
     String listOfSampleIdsString = "";
