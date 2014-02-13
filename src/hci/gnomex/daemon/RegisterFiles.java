@@ -814,7 +814,7 @@ public class RegisterFiles extends TimerTask {
   }
   
   private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
-    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile() ).list();
+    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile()).list();
     ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
     String listOfSampleNames = "";
     String listOfSampleIdsString = "";
@@ -822,11 +822,20 @@ public class RegisterFiles extends TimerTask {
     String subject = "Experiment File " + ef.getFileName() + " has been deleted";
     
     printDebugStatement("SIZE OF SAMPLE_EXPERIMENT_FILES_LIST::::::::: " + sampleExperimentFiles.size());
+    
     for(Iterator i = sampleExperimentFiles.iterator(); i.hasNext();) {
       SampleExperimentFile sef = (SampleExperimentFile) i.next();
-      listOfSampleIds.add(sef.getIdSample());
-      sess.delete(sef);
-      printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
+      if(sef.getIdExpFileRead1() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead1())) {
+        sef.setIdExpFileRead1(null);
+      } else if(sef.getIdExpFileRead2() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead2())) {
+        sef.setIdExpFileRead2(null);
+      }
+      
+      if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+        listOfSampleIds.add(sef.getIdSample());
+        sess.delete(sef);
+        printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
+      }
     }
     
     if(listOfSampleIds.size() > 0) {
