@@ -922,7 +922,7 @@ Test City, UT 12345',
  (108,'experiment_file_sample_linking_enabled','Y','Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N'),
  (109, 'contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N'),
  (110, 'analysis_assistance_group', '', 'Name of the group that oversees analysis assistance on new requests', 'N'),
- (111, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'N'); 
+ (111, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N'); 
  
  
  
