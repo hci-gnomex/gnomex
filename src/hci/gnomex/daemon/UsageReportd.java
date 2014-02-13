@@ -397,7 +397,7 @@ public class UsageReportd extends TimerTask {
       if(isTestMode) {
         MailUtil.send_bcc(mailProps, bccTo, "", "", replyEmail, subject, body.toString(), true);                
       } else {
-    	  if(toList.equals(null)) {
+    	  if(toList==null) {
     		  System.out.print(body.toString()); }
     	  	else {
     	  		MailUtil.send_bcc(mailProps, toList, "", bccTo, replyEmail, subject, body.toString(), true); }               
