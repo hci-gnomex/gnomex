@@ -932,7 +932,6 @@
 				hybSetupView.organismCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
-				hybSetupView.isCatalogRadio.selected = true;
 			 	hybSetupView.unselectSlideSources();
 
 				hybSetupView.organismCombo.enabled = true;
@@ -2651,12 +2650,6 @@
 				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
 				// Organism combo not set up yet so can't initialize the Combo.  Done in init on TabHybSetupview
 				hybSetupView.organismCombo.selectedIndex = -1;
-
-				if (theSlideProduct.@isCustom == 'Y') {
-					hybSetupView.isCustomRadio.selected = true;				
-				} else {
-					hybSetupView.isCatalogRadio.selected = true;
-				}
 				
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 				if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
@@ -4670,7 +4663,6 @@
 				hybSetupView.organismCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
-				hybSetupView.isCatalogRadio.selected = true;
 				hybSetupView.unselectSlideSources();
 
 
