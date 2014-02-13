@@ -1602,8 +1602,8 @@
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox horizontalScrollPolicy="off" verticalGap="0">
-									<mx:Label text="Index Tag"/>
-									<mx:Label text="Group"/>
+									<mx:Label text="Multiplex"/>
+									<mx:Label text="Group #"/>
 								</mx:VBox> 
 							</mx:Component> 
 						</mx:headerRenderer> 

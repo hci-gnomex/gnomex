@@ -662,7 +662,7 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "RIN #");
     }
 
-    this.addHeaderCell(rowh, "Index Group");
+    this.addHeaderCell(rowh, "Multiplex Group #");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     this.addHeaderCell(rowh, "Lib Conc.");
