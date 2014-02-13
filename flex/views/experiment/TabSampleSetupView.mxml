@@ -231,7 +231,7 @@
         	if (parentDocument.isEditState()) {
         		isComplete = true;
         	} else if (currentState == 'MicroarrayAmendState') {
-	        	if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism()) {
+	        	if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
 		        	isComplete = true;
 	        	 }
 			} else if (parentDocument.isSolexaAmendState()) {
