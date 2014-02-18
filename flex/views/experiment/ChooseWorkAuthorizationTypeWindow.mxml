@@ -13,12 +13,18 @@
 		<![CDATA[
 			import mx.collections.XMLListCollection;
 			import mx.managers.PopUpManager;
+			
 			import views.user.EditBillingAcctWindow;
 
 			[Bindable]
 			private var urlList:XMLListCollection = new XMLListCollection();
 			
-			public function init():void {
+			private var lab:Object;
+			private var coreFacility:Object;
+			
+			public function init(lab:Object = null, coreFacility:Object = null):void {
+				this.lab = lab;
+				this.coreFacility = coreFacility;
 				urlList = new XMLListCollection();
 				for each (var c:Object in parentApplication.myCoreFacilities) {
 					var label:String = parentApplication.getCoreFacilityProperty(c.@idCoreFacility, parentApplication.PROPERTY_WORKAUTH2_NAME);
@@ -42,36 +48,7 @@
 				// show window that allows user to enter work auth form directly; otherwise,
 				// show URL that is a printable work auth form.
 				if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == "Y") {
-					parentApplication.showWorkAuthWindow();
-					/*
-					var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(parentApplication.theBody, EditBillingAcctWindow, true));
-					wa.isEdit = false;
-					wa.ba = new XML("<BillingAccount " +
-						" idBillingAccount='BillingAccount0'" +
-						" accountName=''" +
-						" idCoreFacility=''" +
-						" expirationDateOther=''" + 
-						" startDateOther=''" +
-						" accountNumberBus=''" + 
-						" accountNumberOrg=''" + 
-						" accountNumberFund=''" + 
-						" accountNumberActivity=''" + 
-						" accountNumberProject=''" +  
-						" accountNumberAccount=''" + 
-						" accountNumberAu=''" + 
-						" accountNumberYear=''" +
-						" totalDollarAmountDisplay=''" +
-						" shortAcct=''" +
-						" custom1=''" +
-						" custom2=''" +
-						" custom3=''" +
-						" isDirty='Y'" +
-						" isPO='N'" +
-						" submitterEmail='" + parentApplication.getUserEmail() + "'" +
-						" isApproved='N'" +
-						" isSelectedPeerReviewedFunding='false'" + 
-						"/>");
-					PopUpManager.centerPopUp(wa);*/
+					parentApplication.showWorkAuthWindow(lab == null ? null : lab.@idLab, coreFacility == null ? null : coreFacility.@idCoreFacility);
 				}else {
 					navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');			
 				}

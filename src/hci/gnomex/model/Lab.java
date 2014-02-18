@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class Lab extends HibernateDetailObject {
+public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   private Integer idLab;
   private String  firstName;
   private String  lastName;
@@ -28,8 +28,7 @@ public class Lab extends HibernateDetailObject {
   private String  isCcsgMember;
   private String  isActive;
   private String  excludeUsage;
-  private String  billingContactEmail;
-  private Long    version;
+  private String  billingContactEmail;  private Long    version;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -492,5 +491,23 @@ public class Lab extends HibernateDetailObject {
     }
     
     return defaultInst;
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof Lab) {
+      Lab ol = (Lab)o;
+      if (ol.getIdLab() == null && this.getIdLab() == null) {
+        return 0;
+      } else if (ol.getIdLab() == null) {
+        return 1;
+      } else if (this.getIdLab() == null) {
+        return -1;
+      } else {
+        return this.getIdLab().compareTo(ol.getIdLab());
+      }
+    } else {
+      return 1;
+    }
   }
 }

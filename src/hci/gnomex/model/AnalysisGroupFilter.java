@@ -430,7 +430,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private void addSecurityCriteria() {
     
     if (publicAnalysisOtherGroups != null && publicAnalysisOtherGroups.equals("Y")) {
-      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "a", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "a", addWhere, false);
     } else {
       boolean scopeToGroup = true;
       // Don't limit to user's lab if "show all analysis" checked.
@@ -443,7 +443,7 @@ public class AnalysisGroupFilter extends DetailObject {
       
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       }  else {
-        addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis", null);
+        addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis", null, false);
       }
       
     }

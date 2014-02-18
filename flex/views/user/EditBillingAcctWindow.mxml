@@ -205,6 +205,14 @@
 					// ba.@startDateOther is set in update function since startDatePicker doesn't set text until display
 				}
 			}
+			
+			if (parentApplication.myCoreFacilities.length() == 1) {
+				coreCombo.visible = false;
+				coreCombo.includeInLayout = false;
+				coreComboHBox.visible = false;
+				coreComboHBox.includeInLayout = false;
+				ba.@idCoreFacility = parentApplication.myCoreFacilities[0].@idCoreFacility;
+			}
 		}
 		
 		private function initWorkAuthState():void {
@@ -625,34 +633,36 @@
 				return;
 			}
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-			coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
-			coreCombo.dropdown.dataProvider = coreFacilities;
-			
-			if (coreFacilities.length > 1) {
-				var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
-				coreFacilities.addItemAt(blankNode, 0);
-				if (ba.@idCoreFacility != '') {
-					var found:Boolean = false;
-					for(var i:int = 1; i < coreFacilities.length; i++) {
-						if (coreFacilities[i].@idCoreFacility == ba.@idCoreFacility) {
-							coreCombo.selectedIndex = i;
-							found = true;
-							break;
+			if (coreCombo.visible) {
+				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+				coreCombo.dropdown.dataProvider = coreFacilities;
+				
+				if (coreFacilities.length > 1) {
+					var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
+					coreFacilities.addItemAt(blankNode, 0);
+					if (ba.@idCoreFacility != '') {
+						var found:Boolean = false;
+						for(var i:int = 1; i < coreFacilities.length; i++) {
+							if (coreFacilities[i].@idCoreFacility == ba.@idCoreFacility) {
+								coreCombo.selectedIndex = i;
+								found = true;
+								break;
+							}
 						}
-					}
-					if (!found) {
-						ba.@idCoreFacility = '';
+						if (!found) {
+							ba.@idCoreFacility = '';
+							coreCombo.selectedIndex = 0;
+						}
+					} else {
 						coreCombo.selectedIndex = 0;
 					}
-				} else {
+				} else if (coreFacilities.length > 0) {
+					ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
 					coreCombo.selectedIndex = 0;
+				} else {
+					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+					PopUpManager.removePopUp(this);
 				}
-			} else if (coreFacilities.length > 0) {
-				ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
-				coreCombo.selectedIndex = 0;
-			} else {
-				Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
-				PopUpManager.removePopUp(this);
 			}
 		}
 		
@@ -773,7 +783,7 @@
 			<mx:TextInput width="120" id="shortAcct" text="{ba.@shortAcct}" focusOut="{ba.@shortAcct = shortAcct.text}"></mx:TextInput>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4">
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox">
 			<mx:Label text="Core Facility" width="120" styleName="formLabel"/>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
