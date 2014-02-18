@@ -69,7 +69,7 @@ public class ProjectFilter extends DetailObject {
   }
   
   private void addSecurityCriteria() {
-    secAdvisor.buildSpannedSecurityCriteria(queryBuf, "proj", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest", "labFacilities");
+    secAdvisor.buildSpannedSecurityCriteria(queryBuf, "proj", "req", "collab", addWhere, "req.codeVisibility", true, "req.idRequest", "labFacilities", true);
   }
     
   

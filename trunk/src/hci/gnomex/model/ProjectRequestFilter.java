@@ -590,12 +590,12 @@ public class ProjectRequestFilter extends DetailObject {
 
     if (this.allExperiments != null && this.allExperiments.equals("Y")) {
       boolean scopeToGroup = false;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities", true);
     } else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere, true);
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities", true);
 
     }
     
@@ -607,7 +607,7 @@ public class ProjectRequestFilter extends DetailObject {
   private void addAnalysisExperimentSecurityCriteria() {
     
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere, true);
     } else {
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
         

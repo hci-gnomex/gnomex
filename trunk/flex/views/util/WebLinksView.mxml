@@ -29,6 +29,7 @@
 			}
 			public function setUserLink(link:String):void {
 				this.userLink.text = parentApplication.baseURL + parentApplication.GNOMEX_USER_JSP + link;
+				this.userLink.text = parentApplication.appendSpecifiedIdCoreFacilityToUrl(this.userLink.text);
 			}
 
 

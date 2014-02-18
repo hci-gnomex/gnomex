@@ -110,6 +110,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   private boolean                     isLabManager = false;
   private boolean                     isReadOnlySession = false;
   private boolean                     canAccessBSTX = false;
+  private Integer                     specifiedIdCoreFacility = null;
   
   // version info
   private String                       version;
@@ -127,7 +128,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName, Integer idCoreFacility) throws InvalidSecurityAdvisorException {
     
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
@@ -137,12 +138,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.isLabManager = isLabManager;
     this.canAccessBSTX = canAccessBSTX;
     this.ntUserName = ntUserName;
+    this.specifiedIdCoreFacility = idCoreFacility;
 
     setGlobalPermissions();    
     validate();
   }
   
-  private SecurityAdvisor() throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(Integer idCoreFacility) throws InvalidSecurityAdvisorException {
     isGuest = true;
     isGNomExUniversityUser = false;
     isGNomExExternalUser = false;
@@ -150,6 +152,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     isLabManager = false;
     canAccessBSTX = false;
     this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
+    this.specifiedIdCoreFacility = idCoreFacility;
     setGlobalPermissions();
   }
   /*
@@ -191,14 +194,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return "N";
   }
 
+  public Integer getSpecifiedIdCoreFacility() {
+    return this.specifiedIdCoreFacility;
+  }
+  
   public static SecurityAdvisor create(Session   sess, 
                                        String    uid) throws InvalidSecurityAdvisorException {
+    return create(sess, uid, null);
+  }
+  
+  public static SecurityAdvisor create(Session   sess, 
+                                       String    uid,
+                                       Integer   idCoreFacility) throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;
     
     // If the login is "guest" just instantiate a security advisor
     // as 'guest'.
     if (uid.equalsIgnoreCase("guest")) {
-      return new SecurityAdvisor();
+      return new SecurityAdvisor(idCoreFacility);
     }
     
     boolean isGNomExUniversityUser = false;
@@ -228,8 +241,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       isUniversityOnlyUser = false;
     }
     
-    // Is this a GNomEx external user?  -- uncomment the && ... in order to simulate non-GNomEx University user using UNID
-    if (appUser == null /*&& !uid.equals("UNID")*/) {
+    // Is this a GNomEx external user?
+    if (appUser == null) {
       queryBuf = new StringBuffer();
       queryBuf.append(" SELECT user from AppUser as user ");
       queryBuf.append(" WHERE  user.userNameExternal =  '" + uid + "' ");
@@ -292,7 +305,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName, idCoreFacility);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
@@ -331,7 +344,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;
 
-    securityAdvisor = new SecurityAdvisor();
+    securityAdvisor = new SecurityAdvisor(null);
     
 
     return securityAdvisor;
@@ -350,18 +363,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Request
     //
     if (object instanceof Request) {
+      Request req = (Request)object;
+
       // Super Admins
       if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         canRead = true;
       } // Admins - restrict to core facility
       else if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
-        Request req = (Request)object;
         canRead = isCoreFacilityIManage(req.getIdCoreFacility());
       }
       // Normal gnomex users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        Request req = (Request)object;
-        
         // First, check to see if the user is a specified as a collaborator
         // on this request.
         for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
@@ -409,8 +421,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       // Guest users
       else {
-        Request req = (Request)object;
-        
         // Request has public visibility
         if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
           canRead = true;
@@ -1205,19 +1215,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Request
       //
       if (object instanceof Request) {
+        Request req = (Request)object;
         
-     // Super Admins
+        // Super Admins
         if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
           canUpdate = true;
         }
         // Admins - Can only update requests from core facility user manages
         else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
-            Request req = (Request)object;
             canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
         }
         // University GNomEx users
         else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-          Request req = (Request)object;
           // Lab manager
           if (isGroupIManage(req.getIdLab())) {
             canUpdate = true;
@@ -1277,6 +1286,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     } else if (dataProfile == SAMPLES_UPDATE) {
       if (object instanceof Request) {
         Request req = (Request)object;
+        
         if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
           canUpdate = canUpdate(req);
         }
@@ -1657,8 +1667,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (appUser.getManagingCoreFacilities() != null) {
           for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
             CoreFacility coreFacility = (CoreFacility)i.next();
-            if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
-              globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
+            if (specifiedIdCoreFacility == null || coreFacility.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
+              if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
+                globalPermissionMap.put(new Permission(this.CAN_MANAGE_DNA_SEQ_CORE), null);
+              }
             }
           }
         }
@@ -1672,8 +1684,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (appUser.getManagingCoreFacilities() != null) {
           for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
             CoreFacility coreFacility = (CoreFacility)i.next();
-            if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
-              globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+            if (specifiedIdCoreFacility == null || coreFacility.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
+              if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
+                globalPermissionMap.put(new Permission(this.CAN_MANAGE_GENOMICS_CORE), null);
+              }
             }
           }
         }
@@ -1852,10 +1866,25 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return labs;
   }
 
-  
+  private Set filterLabSetByCoreFacility(Set<Lab> inLabs) {
+    if (specifiedIdCoreFacility == null) {
+      return inLabs;
+    } else {
+      TreeSet outLabs = new TreeSet();
+      for (Lab l:inLabs) {
+        for(CoreFacility c:(Set<CoreFacility>)l.getCoreFacilities()) {
+          if (c.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
+            outLabs.add(l);
+            break;
+          }
+        }
+      }
+      return outLabs;
+    }
+  }
   public Set getGroupsIAmMemberOf() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      return this.getAppUser().getLabs();
+      return filterLabSetByCoreFacility(this.getAppUser().getLabs());
     }
     return new TreeSet();
   }
@@ -1874,14 +1903,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   public Set getGroupsICollaborateWith() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      return this.getAppUser().getCollaboratingLabs();
+      return filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs());
     }
     return new TreeSet();
   }
   
   public Set getGroupsIManage() {
     if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-      return this.getAppUser().getManagingLabs();
+      return filterLabSetByCoreFacility(this.getAppUser().getManagingLabs());
     }
     return new TreeSet();
   }
@@ -1979,7 +2008,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       
       if (idLab != null) {
-        for(Iterator i = this.getAppUser().getLabs().iterator(); i.hasNext();) {
+        for(Iterator i = filterLabSetByCoreFacility(this.getAppUser().getLabs()).iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
           if (lab.getIdLab().equals(idLab)) {
             isMyLab = true;
@@ -2006,7 +2035,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
       
       if (idLab != null) {
-        for(Iterator i = this.getAppUser().getCollaboratingLabs().iterator(); i.hasNext();) {
+        for(Iterator i = filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs()).iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
           if (lab.getIdLab().equals(idLab)) {
             isMyLab = true;
@@ -2029,7 +2058,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
       isMyLab = true;
     } else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        for(Iterator i = this.getAppUser().getManagingLabs().iterator(); i.hasNext();) {
+        for(Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext();) {
           Lab lab = (Lab)i.next();
           if (lab.getIdLab().equals(idLab)) {
             isMyLab = true;
@@ -2083,7 +2112,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
  
       // Filter to show only labs associated with core facilities this admin manages
       if (this.getCoreFacilitiesIManage().isEmpty()) {
-        throw new InvalidSecurityAdvisorException("Admin is not assigned to any core facilities.");
+        if (specifiedIdCoreFacility == null) {
+          throw new InvalidSecurityAdvisorException("Admin is not assigned to any core facilities.");
+        } else {
+          throw new InvalidSecurityAdvisorException("Admin is not assigned to core facility specified on login.");
+        }
       }
     } 
   }
@@ -2114,11 +2147,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.appUser = appUser;
   }
   
-  public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria, String labCoreFacilitiesName) {
+  public boolean buildSpannedSecurityCriteria(StringBuffer queryBuf, String inheritedClassShortName, String classShortName, String collabClassShortName, boolean isFirstCriteria, String visibilityField, boolean scopeToGroup, String leftJoinExclusionCriteria, String labCoreFacilitiesName, Boolean hasCoreFacility) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      
       // GNomex is not restricted
-      
     } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       
       // GNomex admin is restricted to objects for their core facility
@@ -2188,6 +2219,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
 
       queryBuf.append(" ) ");
+      
+      if (hasCoreFacility) {
+        this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, isFirstCriteria);
+      }
     } else {
       // Guest or University only user can access public objects
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
@@ -2197,6 +2232,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appendPublicCriteria(queryBuf, classShortName, false);        
 
       queryBuf.append(" ) ");
+
+      if (hasCoreFacility) {
+        this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, isFirstCriteria);
+      }
     }
     return isFirstCriteria;
   }
@@ -2258,6 +2297,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
          
       
       queryBuf.append(" ) ");
+
+      if (hasCoreFacility) {
+        this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, isFirstCriteria);
+      }
     } else {
       
       // Guest or University only user cab access public objects
@@ -2268,6 +2311,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       appendPublicCriteria(queryBuf, classShortName, false);        
 
       queryBuf.append(" ) ");
+
+      if (hasCoreFacility) {
+        this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, isFirstCriteria);
+      }
     }
     
     return isFirstCriteria;
@@ -2298,7 +2345,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
 
 
-  public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd) {
+  public boolean addPublicOnlySecurityCriteria(StringBuffer queryBuf, String classShortName, boolean addWhereOrAnd, boolean hasCoreFacility) {
 
     addWhereOrAnd = this.addWhereOrAnd(queryBuf, addWhereOrAnd);
     queryBuf.append("(");
@@ -2324,6 +2371,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     
     queryBuf.append(")");
     
+    if (hasCoreFacility) {
+      this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, false);
+    }
     return addWhereOrAnd;
   }
   
@@ -2405,13 +2455,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   
   public boolean appendCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
-    if (this.getCoreFacilitiesIManage().isEmpty()) {
+    if (this.getCoreFacilitiesIManage().isEmpty() && this.getSpecifiedIdCoreFacility() == null) {
       throw new RuntimeException("Unable to filter admin by core facilties -- no core facilities have been assiged to this user");
     }
     
     queryBuf.append(" ( ");
 
-    // req.idLab in (....)
+    // req.idCoreFacility in (....)
     queryBuf.append(classShortName);
     queryBuf.append(".idCoreFacility in ( ");
     for(Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
@@ -2428,7 +2478,21 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return true;
   }
   
+  private boolean appendSpecifiedCoreFacilityCriteria(StringBuffer queryBuf, String classShortName, Boolean isFirstCriteria ) {
+    if (this.getSpecifiedIdCoreFacility() != null) {
+      queryBuf.append(isFirstCriteria ? " WHERE " : " AND ");
+      isFirstCriteria = false;
 
+      // req.idCoreFacility = x
+      queryBuf.append(classShortName);
+      queryBuf.append(".idCoreFacility = ");
+      queryBuf.append(this.getSpecifiedIdCoreFacility());
+      
+      return true;
+    } else {
+      return false;
+    }
+  }
   
   private boolean appendInstitutionCriteria(StringBuffer queryBuf, String classShortName ) {
     Set institutions = getInstitutionsIAmMemberOf();
@@ -3006,9 +3070,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.version = version;
   }
 
+  private Set<CoreFacility> filterCoreFacilities(Set<CoreFacility> inCores) {
+    if (specifiedIdCoreFacility == null) {
+      return inCores;
+    } else {
+      Set<CoreFacility> outCores = new TreeSet();
+      for(CoreFacility f : inCores) {
+        if (f.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
+          outCores.add(f);
+        }
+      }
+      return outCores;
+    }
+  }
+  
   public Set getCoreFacilitiesIManage() {
     if (appUser != null && appUser.getManagingCoreFacilities() != null) {
-      return appUser.getManagingCoreFacilities();
+      return filterCoreFacilities(appUser.getManagingCoreFacilities());
     }
     return new TreeSet();
   }
@@ -3022,7 +3100,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         coreFacilities.addAll(l.getCoreFacilities());
       }
     } 
-    return coreFacilities;
+    return filterCoreFacilities(coreFacilities);
 
   } 
   
@@ -3060,5 +3138,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       return true;
     }
     return false;
+  }
+  
+  public String appendIdCoreForUrl(String Url) {
+    // if not super user and core facility specified when logging in, pass the core facility along on the url.
+    if (!hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES) && this.specifiedIdCoreFacility != null) {
+      if (Url.contains("?")) {
+        Url += "&";
+      } else {
+        Url += "?";
+      }
+      Url += "idCore=" + this.specifiedIdCoreFacility.toString();
+    }
+    return Url;
   }
 }

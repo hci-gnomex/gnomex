@@ -31,6 +31,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
   private String contextPath;
   private boolean isSecure = false;
   private int serverPort;
+  private Integer idCoreFacility;
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
   	try {	
@@ -40,6 +41,16 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       serverName = request.getServerName();
       contextPath = request.getContextPath();  
       isSecure = request.isSecure();
+      String coreAsString = request.getParameter("idCoreFacility");
+      if (coreAsString != null && coreAsString.length() > 0) {
+        try {
+          idCoreFacility = Integer.valueOf(coreAsString);
+        } catch(NumberFormatException ex) {
+          idCoreFacility = null;
+        }
+      } else {
+        idCoreFacility = null;
+      }
   	} catch (Exception e) {
   		log.error(e.getClass().toString() + ": " + e);
   		e.printStackTrace();
@@ -51,7 +62,8 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-      PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+      String siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
+      String siteSplash = PropertyDictionaryHelper.getSiteSplash(sess, idCoreFacility);
 
       String baseURL = "";
       if(serverPort == 80 || (serverPort == 443 && isSecure)){
@@ -73,10 +85,14 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       node.setAttribute( "value", baseURL );
       doc.getRootElement().addContent( node );
 
-      
       node = new Element("Property");
       node.setAttribute( "name", "site_logo" );
-      node.setAttribute( "value", (propSiteLogo != null && propSiteLogo.getPropertyValue() != null ? propSiteLogo.getPropertyValue() : "") );
+      node.setAttribute( "value", siteLogo );
+      doc.getRootElement().addContent( node );
+
+      node = new Element("Property");
+      node.setAttribute( "name", "site_splash" );
+      node.setAttribute( "value", siteSplash );
       doc.getRootElement().addContent( node );
 
       getCoreFacilities( sess, doc );

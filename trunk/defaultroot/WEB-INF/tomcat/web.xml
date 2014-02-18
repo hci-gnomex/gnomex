@@ -675,7 +675,7 @@
 		<auth-method>FORM</auth-method>		
     <form-login-config>
 				<form-login-page>/login_tomcat.jsp</form-login-page>
-				<form-error-page>/login_tomcat_failed.jsp</form-error-page>
+				<form-error-page>/login_tomcat.jsp?err=Y</form-error-page>
 		</form-login-config>
 	</login-config>
  
