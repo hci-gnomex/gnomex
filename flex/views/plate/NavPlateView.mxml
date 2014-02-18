@@ -1672,7 +1672,7 @@
 				for each ( var item:Object in getSelectedRedoItems() ) {
 					item.@redoFlag = "N";
 					wellXMLString += "<PlateWell " + 
-						" idPlateWell ='" + item.@idPlateWell + "'" +
+						" idPlateWell ='" + item.@idSourcePlateWell + "'" +
 						" idRequest ='" + item.@idRequest + "'" +
 						" redoFlag='N'" +  "/>";
 				}
