@@ -413,7 +413,7 @@ public class RequestParser implements Serializable {
     Sample sample = null;
     
     String idSampleString = n.getAttributeValue("idSample");
-    if (isNewRequest || idSampleString == null || idSampleString.startsWith("Sample")) {
+    if (isNewRequest || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample")) {
       sample = new Sample();
       isNewSample = true;
     } else {
@@ -459,7 +459,7 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idSampleSource") != null && !n.getAttributeValue("idSampleSource").equals("")) {
       sample.setIdSampleSource(new Integer(n.getAttributeValue("idSampleSource")));
     } else {
-      sample.setIdSampleType(null);
+      sample.setIdSampleSource(null);
     }
     if (n.getAttributeValue("otherSamplePrepMethod") != null && !n.getAttributeValue("otherSamplePrepMethod").equals("")) {
       sample.setOtherSamplePrepMethod(n.getAttributeValue("otherSamplePrepMethod"));
