@@ -306,13 +306,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>CreateRequestServlet</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.CreateRequestServlet
-    </servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>SaveTransferLogServlet</servlet-name>
     <servlet-class>
       hci.gnomex.controller.SaveTransferLogServlet
@@ -530,11 +523,6 @@
   <servlet-mapping>
     <servlet-name>CreateAnalysisServlet</servlet-name>
     <url-pattern>/CreateAnalysisServlet.gx</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>CreateRequestServlet</servlet-name>
-    <url-pattern>/CreateRequestServelt.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
