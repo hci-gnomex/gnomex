@@ -37,7 +37,7 @@ import org.jdom.Element;
 public class RequestParser implements Serializable {
   
   private SecurityAdvisor secAdvisor;
-  private Document        requestDoc;
+  private Element        requestNode;
   private Request         request;
   private boolean        isNewRequest = false;
   private boolean        reassignBillingAccount = false;
@@ -69,13 +69,19 @@ public class RequestParser implements Serializable {
   private Boolean forDownload = false;
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
-    this.requestDoc = requestDoc;
+    this.requestNode = requestDoc.getRootElement();
+    this.secAdvisor = secAdvisor;
+    this.forDownload = false;
+  }
+  
+  public RequestParser(Element requestNode, SecurityAdvisor secAdvisor) {
+    this.requestNode = requestNode;
     this.secAdvisor = secAdvisor;
     this.forDownload = false;
   }
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor, Boolean forDownload) {
-    this.requestDoc = requestDoc;
+    this.requestNode = requestDoc.getRootElement();
     this.secAdvisor = secAdvisor;
     this.forDownload = forDownload;
   }
@@ -111,7 +117,6 @@ public class RequestParser implements Serializable {
   
   public void parse(Session sess) throws Exception{
     
-    Element requestNode = this.requestDoc.getRootElement();
     this.initializeRequest(requestNode, sess);
     
     for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
