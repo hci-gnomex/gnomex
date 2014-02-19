@@ -112,8 +112,6 @@ public class ActiveDirectory {
       
       String filter = this.baseFilter;     
       filter += "(samaccountname=" + searchValue + "))";
-      
-      System.out.println("\n\nsearchUser=" + searchValue);
     	
     	return this.dirContext.search(searchBase, filter, searchCtls);
     }
