@@ -147,7 +147,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
     
     String launchBillingAccountDetail = this.launchAppURL + "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab();  
-    launchBillingAccountDetail = this.getSecAdvisor().appendIdCoreForUrl(launchBillingAccountDetail);
+    
     
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer coreNote= new StringBuffer();

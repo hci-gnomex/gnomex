@@ -91,8 +91,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          uuid;
   private String          codeDNAPrepType;
   private DNAPrepType     dnaPrepType;
-  private String          codeRNAPrepType;
-  private RNAPrepType     rnaPrepType;
   private String          bioinformaticsAssist;
   private String          hasPrePooledLibraries;
   private Integer         numPrePooledTubes;
@@ -1166,6 +1164,16 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     return retVal;
   }
   
+  public Boolean isIsolationPlate() {
+    Boolean retVal = false;
+    if (this.getCodeRequestCategory() != null && 
+        ( this.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY) || this.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY) ) &&
+        this.getSamples().size() > 0) {
+      retVal = isPlateRequest();
+    }
+    return retVal;
+  }
+
   private Boolean isPlateRequest() {
     Boolean retVal = false;
     if (this.getSamples().size() > 0) {
@@ -1359,22 +1367,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.dnaPrepType = dnaPrepType;
   }
 
-  public String getCodeRNAPrepType() {
-    return codeRNAPrepType;
-  }
-  
-  public void setCodeRNAPrepType( String codeRNAPrepType ) {
-    this.codeRNAPrepType = codeRNAPrepType;
-  }
-  
-  public RNAPrepType getRnaPrepType() {
-    return rnaPrepType;
-  }
-  
-  public void setRnaPrepType( RNAPrepType rnaPrepType ) {
-    this.rnaPrepType = rnaPrepType;
-  }
-  
   public String getHasPrePooledLibraries() {
     return this.hasPrePooledLibraries;
   }

@@ -238,7 +238,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText="Sample ID"  width="40" resizable="false" labelFunction="getSamplesConfirmGridRowNumber">
+						<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText="Sample #"  width="40" resizable="false" labelFunction="getSamplesConfirmGridRowNumber">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox  horizontalScrollPolicy="off" verticalGap="0">

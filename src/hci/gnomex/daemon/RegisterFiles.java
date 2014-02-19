@@ -19,7 +19,6 @@ import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
-import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -696,7 +695,7 @@ public class RegisterFiles extends TimerTask {
       for (int x = 0; x < fileList.length; x++) {
         String fileName = directoryName + "/" + fileList[x];
         File f1 = new File(fileName);
-        if(f1.isFile() && !Util.isSymlink(f1)) {
+        if(f1.isFile()) {
           FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + "/" + fileList[x]);
           fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
         }
@@ -814,7 +813,7 @@ public class RegisterFiles extends TimerTask {
   }
   
   private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
-    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExperimentFile = " + ef.getIdExperimentFile() ).list();
     ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
     String listOfSampleNames = "";
     String listOfSampleIdsString = "";
@@ -822,20 +821,11 @@ public class RegisterFiles extends TimerTask {
     String subject = "Experiment File " + ef.getFileName() + " has been deleted";
     
     printDebugStatement("SIZE OF SAMPLE_EXPERIMENT_FILES_LIST::::::::: " + sampleExperimentFiles.size());
-    
     for(Iterator i = sampleExperimentFiles.iterator(); i.hasNext();) {
       SampleExperimentFile sef = (SampleExperimentFile) i.next();
-      if(sef.getIdExpFileRead1() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead1())) {
-        sef.setIdExpFileRead1(null);
-      } else if(sef.getIdExpFileRead2() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead2())) {
-        sef.setIdExpFileRead2(null);
-      }
-      
-      if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
-        listOfSampleIds.add(sef.getIdSample());
-        sess.delete(sef);
-        printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
-      }
+      listOfSampleIds.add(sef.getIdSample());
+      sess.delete(sef);
+      printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
     }
     
     if(listOfSampleIds.size() > 0) {

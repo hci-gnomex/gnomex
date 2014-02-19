@@ -58,7 +58,6 @@ ENGINE = INNODB;
 
 -- New trimAdapter column for Request table
 alter table gnomex.Request add trimAdapter char(1) NULL;
-call ExecuteIfTableExists('gnomex','Request_Audit','alter table gnomex.Request_Audit add trimAdapter char(1) NULL');
 
 -- New property experiment_file_sample_linking_enabled
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)

@@ -79,7 +79,6 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        GET_REQUEST_NUMBER_PROCEDURE        = "get_request_number_procedure";
   public static final String        ID_DEFAULT_INSTITUTION              = "id_default_institution";
   public static final String        SITE_LOGO                           = "site_logo";
-  public static final String        SITE_SPLASH                         = "site_splash";
   public static final String        CONFIGURABLE_BILLING_ACCOUNTS       = "configurable_billing_accounts";
   public static final String        INVOICE_NOTE_1                      = "invoice_note_1";
   public static final String        INVOICE_NOTE_2                      = "invoice_note_2";

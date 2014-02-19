@@ -5,8 +5,6 @@
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
-<%@ page import="hci.gnomex.utility.JspHelper" %>
-<%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <html>
 
 <head>
@@ -67,8 +65,6 @@
 <%
 
 String idFacility = (String) ((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
-Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
-String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
 
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 if (message == null) {
@@ -145,7 +141,12 @@ try {
   }
     
   // Get site specific log
-  siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
+  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+  if (propSiteLogo != null && propSiteLogo.getPropertyValue()!=null && !propSiteLogo.getPropertyValue().equals("")) {
+    siteLogo = "./" + propSiteLogo.getPropertyValue();
+  }  else {
+    siteLogo = "./assets/gnomex_logo.png";
+  }
   
   //Get note informing users about not needing an account for public data
   PropertyDictionary dataNote = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.PUBLIC_DATA_NOTICE + "'").uniqueResult();
@@ -181,9 +182,9 @@ try {
             <img src="<%=siteLogo%>"/>
       </div>
       <div class="rightMenu" >
-          <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> | 
-          <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |    
-          <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a> 
+          <a href="gnomexFlex.jsp">Sign in</a> | 
+          <a href="change_password.jsp">Change password</a> |    
+          <a href="reset_password.jsp">Reset password</a> 
       </div>
     </div>
     
@@ -281,7 +282,7 @@ try {
 
 </div>
     <input type="hidden" name="idFacility" value="<%=idFacility%>" />
-    <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp<%=idCoreParm%>"/>
+    <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp"/>
     <input type="hidden" name="responsePageError" value="/register_user.jsp"/>
 
 <script  type="text/javascript" language="JavaScript">

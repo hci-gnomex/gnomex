@@ -298,7 +298,7 @@ package views.experiment
 			return 0;
 		}
 		
-		public function uploadSampleSheet():void {
+		protected function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
 			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
@@ -330,8 +330,19 @@ package views.experiment
 			return true;
 		}
 		
+		protected function downloadSampleSheetExample(fileName:String):void {
+			try {
+				downloadRequest = new URLRequest("doc/" + fileName);
+				downloadFileRef = new FileReference();
+				downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
+				downloadFileRef.download(downloadRequest, fileName);
+				
+			} catch (error:Error) {
+				Alert.show("Unable to download example sample sheet due to error. " + error.message);
+			}
+		}
 		
-		public function downloadSampleSheet():void{
+		protected function downloadSampleSheet():void{
 			var fieldList:XMLListCollection = getSampleSheetFieldList();
 			var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
 			var uv:URLVariables = new URLVariables();
@@ -409,7 +420,7 @@ package views.experiment
 			return true;
 		}
 		
-		public function deleteSample():void {
+		protected function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
 			var deleteHappened:Boolean = false;

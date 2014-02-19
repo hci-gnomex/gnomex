@@ -44,7 +44,6 @@
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
-			private var saveInstructionToolTipText:String;
 			
 			public var sampleGroupingCollection:GroupingCollection = null;
 			
@@ -69,24 +68,60 @@
 				this.addSampleButton.visible = false;
 				this.addSampleButton.includeInLayout = false;
 				this.addSampleButton.enabled = false;
-//				this.copySampleButton.visible = false;
-//				this.copySampleButton.includeInLayout = false;
-//				this.copySampleButton.enabled = false;				
+				this.deleteSampleButton.visible = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.visible = false;
+				this.copySampleButton.includeInLayout = false;
+				this.copySampleButton.enabled = false;				
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
 				return this.samplesGrid;
 			}
 			
+			
+			override protected function getNumPlates():int {
+				var numPlates:int = 0;
+				if (hasPlates()) {
+					numPlates = parentDocument.numIScanPlates;
+				}
+				return numPlates;
+			}
+			
+			override protected function getNextPlate():int {
+				var nextPlate:int = 0;
+				if (hasPlates()) {
+					for each (var sample:Object in parentDocument.samples) {
+						var thisPlate:int = 0;
+						if (sample.@name != '') {
+							if (sample.@plateName == "Plate 1") thisPlate = 1;
+							if (sample.@plateName == "Plate 2") thisPlate = 2;
+							if (sample.@plateName == "Plate 3") thisPlate = 3;
+							if (sample.@plateName == "Plate 4") thisPlate = 4;
+						}
+						if (thisPlate > nextPlate) {
+							nextPlate = thisPlate;
+						}
+					}
+					if (nextPlate < 4) {
+						nextPlate = nextPlate + 1;
+					} else {
+						nextPlate = 0;
+					}
+				}
+				return nextPlate;
+			}
+			
 			override protected function getAddAllAnnotations():Boolean {
 				return false;
 			}
 
+			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
 				var isValid:Boolean = true;
 				
-				emptyNode = this.getEmptyIsolationNote(parentDocument.samples.length);
+				emptyNode = this.getEmptySequenomNode(parentDocument.samples.length);
 				
 				if (emptyNode != null) {
 					parentDocument.samples.addItem(emptyNode);
@@ -96,25 +131,64 @@
 			}
 			
 			
-			private function getEmptyIsolationNote(idx:int):XML {
+			private function getEmptySequenomNode(idx:int):XML {
+				var plateName:String = getSequenomPlateName(idx);
+				var wellName:String = getWellName(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
 					" name='' description='' " +
 					" concentration=''" +
-					" canChangeSampleName='Y'" +
-					" canChangeSampleSource='Y'" +
+					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +	
+					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
+					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
 					"/>");
 				return emptyNode;
 			}
-						
+			
+			private function getWellName(idx:int):String {
+				var wellName:String = "";
+				if (parentDocument.isFragAnalState()) {
+					wellName = "ABCDEFGH".substr(idx / 12, 1);
+					var fragColNumber:int = idx % 12 + 1;
+					wellName += fragColNumber.toString();
+				} else {
+					var y:int = idx % 96;
+					wellName = parentApplication.wellNamesByColumn[y];
+				}
+				return wellName;
+			}
+			
+			private function getSequenomPlateName(idx:int):String {
+				var plateName:String = "";
+				
+				var y:int = idx / 96;
+				y = y + 1;
+				plateName = parentDocument.sampleSetupView.getSequenomPlateName(y);
+				
+				return plateName;
+			}
+			
+			
 			override protected function deleteSingleSample(sample:Object):Boolean {
 				var ind:int = parentDocument.samples.getItemIndex(sample);
-				parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+				
+				parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+				
 				return true;
 			}
-						
+			
+			
+			override protected function addSpecialCopyColumns(emptyNodeString:String):void {
+				
+				emptyNodeString = emptyNodeString +
+					" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
+					" wellName=''";
+				
+			}
+			
 			private function deleteTheSample():void {
 				var idx:int = samplesGrid.selectedIndex;
 				deleteSample();
@@ -149,6 +223,11 @@
 					
 					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
 					
+					if ( hasPlates() ) {
+						numberOfSamples = parentDocument.numIScanPlates*96;
+						populateSampleList();
+						return;
+					}
 					
 				} else {
 					numberOfSamples = 1;
@@ -163,6 +242,45 @@
 					while (parentDocument.samples.length > numberOfSamples) {
 						parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
 					}
+				}
+			}
+			
+									
+			override public function hasPlates():Boolean {
+				return parentDocument.request.@containerType == 'PLATE' ;
+			}
+			
+			
+			public function createEmptySampleList():void {
+				parentDocument.samples.removeAll();
+				for (var sampleIdx:int = 0; sampleIdx < parentDocument.numIScanPlates*96; sampleIdx++) {
+					var emptySample:Object = this.getEmptySequenomNode(sampleIdx);
+					parentDocument.samples.addItem(emptySample);
+				}   
+			}
+			
+			public function populateSampleList():void {
+				var numberOfSamples:int = parentDocument.numIScanPlates*96;
+				
+				for (var sampleIdx:int = 0; sampleIdx < numberOfSamples; sampleIdx++) {
+					
+					var emptySample:Object = this.getEmptySequenomNode(sampleIdx);
+					var existingSamples:XMLList = parentDocument.samples.source.(@plateName==emptySample.@plateName && @wellName==emptySample.@wellName);
+					
+					if ( existingSamples== null || existingSamples.length() == 0 ) {
+						// If no sample in that plate and well, add empty one
+						parentDocument.samples.addItemAt(emptySample, sampleIdx);
+					} else if ( existingSamples.length > 1 ) {
+						// If somehow we have more than one sample in the same well, we remove the extras
+						for ( var ind:int = 1; ind < existingSamples.length; ind ++ ) {
+							parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(existingSamples[ind]));
+						}
+					}
+				} 
+				
+				// Remove extra samples
+				while (parentDocument.samples.length > numberOfSamples) {
+					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
 				}
 			}
 			
@@ -202,7 +320,9 @@
 				}
 								
 				parentDocument.confirmView.enabled = isComplete;
+					
 				parentDocument.enableNextButtons();
+								
 				callLater(postSamplesCompleteness, [isComplete]);
 			
 			}
@@ -221,25 +341,22 @@
 			
 			}
 			
-			override protected function copySample():void {
-				parentDocument.dirty.setDirty();
-				if (getSamplesGrid().selectedIndex != -1) {
-					for each(var sampleToCopy:XML in getSamplesGrid().selectedItems) {	
-						
-						var emptyNode:XML = new XML("<Sample/>");
-						emptyNode.@idSample ="Sample" + getNextSampleId() + "'";
-						
-						// Now copy the sample annotations
-						for each (var attribute:Object in sampleToCopy.attributes()) {
-							if (attribute.name()!= 'idSample') {
-								emptyNode["@" + attribute.name()] = sampleToCopy["@" + attribute.name()];
-							}
-						}
-						parentDocument.samples.addItem(emptyNode);
-						
+			override public function propagateContainerType(containerType:String):void {
+				samplesGrid.dataProvider = null;
+				var idx:int = 0;
+				parentDocument.samples.disableAutoUpdate();
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@containerType = containerType;
+					if (containerType == 'Plate') {
+						this.getSequenomPlateName(idx) ;
+					} else {
+						sample.@plateName = '';
 					}
+					idx++;
 				}
+				parentDocument.samples.enableAutoUpdate();
 			}
+	
 			
 			override public function initializeBarcoding():void {
 				setSamplesGridDataProvider();
@@ -266,18 +383,82 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				
-				this.samplesGrid.sortableColumns = false;
-				sampleGroupingCollection = null;
-				this.samplesGrid.dataProvider = parentDocument.samples;
-				
-				this.samplesGrid.dragMoveEnabled = false;
-				this.samplesGrid.dropEnabled = false;
-				this.samplesGrid.dragEnabled = false;
-				
+				if (hasPlates()) {
+					this.samplesGrid.dataProvider = null;
+					sampleGroupingCollection = new GroupingCollection();
+					sampleGroupingCollection.source = parentDocument.samples;
+					var groupCapSeq:Grouping = new Grouping();
+					var gfCapSeq:GroupingField = new GroupingField();
+					gfCapSeq.name = "@plateName";
+					groupCapSeq.fields = [gfCapSeq];
+					gfCapSeq.compareFunction = plateSampleCompareFunction;
+					sampleGroupingCollection.grouping  = groupCapSeq;
+					sampleGroupingCollection.refresh(); 
+					this.samplesGrid.dataProvider = sampleGroupingCollection;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.sampleRowNumberCol.visible = false;
+					this.plateNameCol.visible = true;
+				} else {
+					this.samplesGrid.sortableColumns = false;
+					sampleGroupingCollection = null;
+					this.samplesGrid.dataProvider = parentDocument.samples;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.sampleRowNumberCol.visible = true;
+					this.plateNameCol.visible = false;
+					
+				}
 			}
 			
-						
+			
+			
+			private function plateSampleCompareFunction(a:XML, b:XML):int
+			{
+				if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
+					var compVal:int = 0;
+					if (a.@plateName == b.@plateName) {
+						compVal = compVal = ObjectUtil.numericCompare(a.@wellName.toString().substr(1), b.@wellName.toString().substr(1));
+						if (compVal == 0) {
+							compVal = ObjectUtil.stringCompare(a.@wellName.toString(), b.@wellName.toString());
+						}
+					} else {
+						compVal = ObjectUtil.stringCompare(a.@plateName.toString(), b.@plateName.toString());
+					}
+					return compVal;
+				} else {
+					var aPersistFlag:Number = 0;
+					var aPosition:Number = 0;
+					if (a.@idSample.toString().indexOf("Sample") > -1) {
+						aPosition = a.@idSample.toString().substr(6);
+						aPersistFlag = 1;
+					} else {
+						aPosition = a.@idSample;
+					}
+					
+					var bPersistFlag:Number = 0;
+					var bPosition:Number = 0;
+					if (b.@idSample.toString().indexOf("Sample") > -1) {
+						bPosition = b.@idSample.toString().substr(6);
+						bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+					} else {
+						bPosition = b.@idSample;
+					}
+					
+					if (aPersistFlag == bPersistFlag) {
+						return ObjectUtil.numericCompare(aPosition, bPosition);				
+					} else {
+						return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+					}
+				}
+			}
+			
 			private function setButtonsVisibility(vis:Boolean):void {
 				buttonsContainer1.visible = vis;
 				buttonsContainer1.includeInLayout = vis;
@@ -296,12 +477,16 @@
 				setButtonsVisibility(true);
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
-				if (isEditState && !parentApplication.isAdminState && !isExternal ) {
+				if (isEditState && !parentApplication.isAdminState && !isExternal && !parentDocument.isSequencingState()) {
 					setButtonsVisibility(false);
 				}
 				
 				// Edit columns shown
-				
+								
+				wellNameCol.visible = hasPlates() ? true : false;
+				plateNameCol.editable = false;
+				wellNameCol.editable = false;
+												
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
 				if (!parentDocument.isEditState()) {
@@ -338,7 +523,15 @@
 					}
 				}
 			}
-			
+						
+			public function plateNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+			{
+				if (item is XML) {
+					return "";
+				} else {
+					return item.groupLabel;
+				}
+			}
 			
 			public function textChange(item:String):void {
 				var txt:String = item;
@@ -347,82 +540,50 @@
 				}
 			}
 			
-			private function showHideInstructions():void {
-				if (parentApplication.isInternalExperimentSubmission) {
-					if (textarea1.visible) {
-						textarea1.visible = false;
-						textarea1.includeInLayout = false;
-						instructions.label = "Click for instructions";
-						if (saveInstructionToolTipText != null && (instructions.toolTip == '' || instructions.toolTip == null)) {
-							instructions.toolTip = this.saveInstructionToolTipText;
-						}
-					} else {
-						textarea1.visible = true;
-						textarea1.includeInLayout = true;
-						instructions.label = "Click to hide instructions";
-						this.saveInstructionToolTipText = instructions.toolTip;
-						instructions.toolTip = "";
-					}
-				}
-			}
 
 		]]>
 	</mx:Script>	
 	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
-			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0" id="buttonAndNoteBox">
-				<mx:VBox height="100%" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="0">
-					<mx:Label text="Enter a note for the Core Facility. (optional)"  id="coreFacilityNoteLabel" fontSize="10"/>
-					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
-											 width ="100%" height="100%"/>
-				</mx:VBox>
-			</mx:VBox>
-			<mx:VBox horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" id="instructionVBox">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
-							   toolTip=""/>
-				<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="88" id="textarea1" 
-							 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-				</mx:TextArea>
-			</mx:VBox>
-			
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+			<mx:HBox id="buttonsContainer2" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+							   label="Upload help" 
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			</mx:HBox>
+			<mx:TextArea styleName="instructionBox" 
+						 width="500" 
+						 wordWrap="true" 
+						 height="54" 
+						 visible="{parentDocument.request.@idRequest == 0}" 
+						 includeInLayout="{parentDocument.request.@idRequest == 0}"
+						 id="textarea1" 
+						 verticalScrollPolicy="off" 
+						 horizontalScrollPolicy="off">
+				<mx:htmlText>Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:htmlText>
+			</mx:TextArea>
+
 		</mx:HBox>
 		<mx:Spacer width="8"/>
-		<mx:HBox width="100%" horizontalGap="0">
-			<mx:HBox id="buttonsContainer1" horizontalGap="0">
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
-				<mx:LinkButton horizontalGap="0" textDecoration="underline" label="Duplicate " click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" label="Delete" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
-				<mx:LinkButton horizontalGap="0" textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+		<mx:HBox width="100%">
+			<mx:HBox id="buttonsContainer1" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Delete sample" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 			</mx:HBox>
-			
-			<mx:Spacer width="1"/>
-			<mx:VRule height="20"/>
-			<mx:Spacer width="0"/>
-			
-			<mx:HBox id="buttonsContainer2" horizontalGap="0">
-				<mx:LinkButton horizontalGap="0" textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
-								label="Sample sheet help" 
-								click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
-								toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
-			</mx:HBox>
-			
-			<mx:Spacer width="1"/>
-			<mx:VRule height="20"/>
-			<mx:Spacer width="4"/>
-			
-			<mx:CheckBox id="showCCNumberCheckbox"
+			<mx:CheckBox id="showCCNumberCheckbox" 
+						 width="350"
 						 selected="false"
-						 click="toggleShowCCNumber()"  
-						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
-						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
-						 toolTip="Link samples to itBioPath using CC Number"
-						 label="Enter CC Numbers" />
+						 click="toggleShowCCNumber()" 
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+						 label="Link to itBioPath samples using CC #" />		  	
 		</mx:HBox>
-		
+
 		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
 							 editable="true"
 							 allowMultipleSelection="false" 
@@ -436,6 +597,9 @@
 							 displayItemsExpanded="true"  
 							 selectionColor="#DDF3FB">
 			<mx:columns>
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
+				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
@@ -465,10 +629,6 @@
 										   width="76"
 										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceColumn" visible="true" width="170" headerText="Sample Source"  dataField="@idSampleSource" 
-													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource', true, true)}"              
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource', true).newInstance(), '')}"/>
 				
 				
 			</mx:columns>

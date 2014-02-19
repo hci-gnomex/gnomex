@@ -407,7 +407,8 @@
 			
 			
 			[Bindable]
-			public var welcomeSplash:String = "";
+			[Embed(source="assets/gnomex_splash_logo.png")]
+			public var welcomeSplash:Class;
 			
 			[Bindable]  
 			public var siteLogo:String = "";
@@ -1161,10 +1162,7 @@
 			public var guestEmailAddress:String = "";	
 			
 			private function init():void {
-				var idCoreFacility:String = Application.application.parameters.idCore;
-				var parms:Object = new Object();
-				parms.idCoreFacility = idCoreFacility;
-				getLaunchProperties.send(parms);
+				getLaunchProperties.send();
 			} 
 			
 			public function resetAlertButtons():void {
@@ -1189,11 +1187,6 @@
 						siteLogo = getLaunchProperties.lastResult.Property.(@name == "site_logo").@value;
 					} else {
 						siteLogo = "assets/gnomex_logo.png";
-					}
-					if (getLaunchProperties.lastResult.Property.(@name == "site_splash").@value != "") {
-						welcomeSplash = getLaunchProperties.lastResult.Property.(@name == "site_splash").@value;
-					} else {
-						welcomeSplash = "assets/gnomex_splash_logo.png";
 					}
 					topMenuBar.visible = true;
 					loggedInInit();	
@@ -1231,33 +1224,9 @@
 				}
 			}			
 			
-			// returns core facility specified at logon.  Null if none
-			public function getSpecifiedIdCoreFacility():String {
-				var id:String = null;
-				if (createSecurityAdvisor.lastResult != null && createSecurityAdvisor.lastResult.@specifiedIdCoreFacility != null) {
-					id = createSecurityAdvisor.lastResult.@specifiedIdCoreFacility.toString();
-				} else if (getSecurityAdvisorForGuest.lastResult != null && getSecurityAdvisorForGuest.lastResult.@specifiedIdCoreFacility != null) {
-					id = getSecurityAdvisorForGuest.lastResult.@specifiedIdCoreFacility.toString();
-				} 
-				return id;
-			}
-			
-			public function appendSpecifiedIdCoreFacilityToUrl(url:String):String {
-				var id:String = getSpecifiedIdCoreFacility();
-				if (id != null && id != '') {
-					if (url.indexOf("?") >= 0) {
-						url += "&";
-					} else {
-						url += "?";
-					}
-					url += "idCore=" + id;
-				}
-				return url;
-			}
 			
 			public function loggedOut():void {
-				var urlString:String = appendSpecifiedIdCoreFacilityToUrl("gnomexFlex.jsp");
-				var urlRequest:URLRequest = new URLRequest(urlString);
+				var urlRequest:URLRequest = new URLRequest("gnomexFlex.jsp");
 				navigateToURL(urlRequest,"_self");
 				
 			}			
@@ -1660,21 +1629,18 @@
 				
 			}
 			
-			public function showWorkAuthWindow(idLab:String = null, idCoreFacility:String = null):void {
+			public function showWorkAuthWindow():void {
 				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				wa.isEdit = false;
 				var labLine:String = "";
 				if (this.workAuthLabList.length == 1) {
 					labLine = " idLab='" + this.workAuthLabList[0].@idLab.toString() + "'";
 				}
-				if (labLine.length == 0 && idLab != null) {
-					labLine = " idLab='" + idLab.toString() + "'";
-				}
 				wa.ba = new XML("<BillingAccount " +
 					" idBillingAccount='BillingAccount0'" +
 					labLine +
 					" accountName=''" +
-					" idCoreFacility='" + (idCoreFacility == null ? '' : idCoreFacility.toString()) + "'" +
+					" idCoreFacility=''" +
 					" expirationDateOther=''" + 
 					" startDateOther=''" +
 					" accountNumberBus=''" + 
@@ -1954,9 +1920,7 @@
 				
 				// This is for handler to enable Mac MouseWheel
 				this.addEventListener(Event.ADDED_TO_STAGE, stage_init);
-				var idCoreFacility:String = Application.application.parameters.idCore;
-				var parms:Object = new Object();
-				parms.idCoreFacility = idCoreFacility;
+				
 				if (isGuestMode() ) { 
 					/*
 					Captcha feature removed 7.6.12. Guests can now login directly
@@ -1966,10 +1930,10 @@
 					captchaWindow.init();
 					captchaWindow.phrase.setFocus();
 					*/
-					getSecurityAdvisorForGuest.send(parms);
+					getSecurityAdvisorForGuest.send();
 					
 				} else {
-					createSecurityAdvisor.send(parms);
+					createSecurityAdvisor.send();
 				}
 			} 
 			
@@ -2394,12 +2358,7 @@
 			private function onCreateSecurityAdvisor(event:ResultEvent):void {
 				if (!(createSecurityAdvisor.lastResult is XML) ||
 					createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
-					var msgString:String = createSecurityAdvisor.lastResult..ERROR.@message;
-					if (msgString == null || msgString == '') {
-						Alert.show("Authentication failed.");  
-					} else {
-						Alert.show("Authentication failed:" + msgString);
-					}
+					Alert.show("Authentication failed.");  
 					return;	
 				}
 				
@@ -2930,9 +2889,8 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
+				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label=''/>;
 				das2OrganismList.addItem(emptyNode);
-				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());

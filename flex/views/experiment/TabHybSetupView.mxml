@@ -146,7 +146,7 @@
         	
         	// For submit requests, just show a blank slide product if the
         	// user hasn't narrowed it down to a particular microarray app
-    		if (this.microarrayAppRadioGroup.selectedValue == null || this.microarrayAppRadioGroup.selectedValue == '' || customVsCatalogRadioGroup.selectedValue == null || customVsCatalogRadioGroup.selectedValue == '') {
+    		if (this.microarrayAppRadioGroup.selectedValue == null || this.microarrayAppRadioGroup.selectedValue == '') {
         		this.slideProductCombo.selectedIndex = 0;
         		slideProductStack.selectedIndex = 2;
         		return;
@@ -328,7 +328,7 @@
 		<mx:HBox width="100%" horizontalGap="0">
 			<mx:Label text="(3) Select one of the following." width="250" />
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
-			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">
+			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" selected="true" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
 			</mx:RadioButton>
 			<mx:RadioButton label="Custom microarray" groupName="customVsCatalogRadioGroup" id="isCustomRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()" paddingLeft="12">

@@ -44,7 +44,6 @@
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
-			private var saveInstructionToolTipText:String;
 			
 			public var sampleGroupingCollection:GroupingCollection = null;
 			
@@ -492,7 +491,8 @@
 												
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
-				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
+				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+						
 				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
 				this.qc_260_280Column.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
 				
@@ -551,81 +551,48 @@
 				}
 			}
 			
-			private function showHideInstructions():void {
-				if (parentApplication.isInternalExperimentSubmission) {
-					if (textarea1.visible) {
-						textarea1.visible = false;
-						textarea1.includeInLayout = false;
-						instructions.label = "Click for instructions";
-						if (saveInstructionToolTipText != null && (instructions.toolTip == '' || instructions.toolTip == null)) {
-							instructions.toolTip = this.saveInstructionToolTipText;
-						}
-					} else {
-						textarea1.visible = true;
-						textarea1.includeInLayout = true;
-						instructions.label = "Click to hide instructions";
-						this.saveInstructionToolTipText = instructions.toolTip;
-						instructions.toolTip = "";
-					}
-				}
-			}
-			
 
 		]]>
 	</mx:Script>	
 	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
-			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0" id="buttonAndNoteBox">
-				<mx:VBox height="100%" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="0">
-					<mx:Label text="Enter a note for the Core Facility. (optional)"  id="coreFacilityNoteLabel" fontSize="10"/>
-					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
-											 width ="100%" height="100%"/>
-				</mx:VBox>
-			</mx:VBox>
-			<mx:VBox horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" id="instructionVBox">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
-							   toolTip=""/>
-				<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="88" id="textarea1" 
-							 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-				</mx:TextArea>
-			</mx:VBox>
-			
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+			<mx:HBox id="buttonsContainer2" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+							   label="Upload help" 
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			</mx:HBox>
+			<mx:TextArea styleName="instructionBox" 
+						 width="500" 
+						 wordWrap="true" 
+						 height="54" 
+						 visible="{parentDocument.request.@idRequest == 0}" 
+						 includeInLayout="{parentDocument.request.@idRequest == 0}"
+						 id="textarea1" 
+						 verticalScrollPolicy="off" 
+						 horizontalScrollPolicy="off">
+				<mx:htmlText>Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:htmlText>
+			</mx:TextArea>
+
 		</mx:HBox>
 		<mx:Spacer width="8"/>
-		<mx:HBox width="100%" horizontalGap="0">
-			<mx:HBox id="buttonsContainer1" horizontalGap="0">
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
-				<mx:LinkButton horizontalGap="0" textDecoration="underline" label="Duplicate " click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" label="Delete" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
-				<mx:LinkButton horizontalGap="0" textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+		<mx:HBox width="100%">
+			<mx:HBox id="buttonsContainer1" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Delete sample" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
 			</mx:HBox>
-			
-			<mx:Spacer width="1"/>
-			<mx:VRule height="20"/>
-			<mx:Spacer width="0"/>
-			
-			<mx:HBox id="buttonsContainer2" horizontalGap="0">
-				<mx:LinkButton horizontalGap="0" textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
-								label="Sample sheet help" 
-								click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
-								toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
-			</mx:HBox>
-			
-			<mx:Spacer width="1"/>
-			<mx:VRule height="20"/>
-			<mx:Spacer width="4"/>
-			
-			<mx:CheckBox id="showCCNumberCheckbox"
+			<mx:CheckBox id="showCCNumberCheckbox" 
+						 width="350"
 						 selected="false"
-						 click="toggleShowCCNumber()"  
-						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
-						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
-						 toolTip="Link samples to itBioPath using CC Number"
-						 label="Enter CC Numbers" />
+						 click="toggleShowCCNumber()" 
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+						 label="Link to itBioPath samples using CC #" />		  	
 		</mx:HBox>
 
 		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  

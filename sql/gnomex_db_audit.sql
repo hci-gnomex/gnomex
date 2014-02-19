@@ -3,6 +3,7 @@ USE gnomex;
 
 delimiter $$
 
+
 DROP TRIGGER IF EXISTS TrAI_AlignmentPlatform_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_AlignmentPlatform_FER
@@ -890,12 +891,6 @@ $$
 DROP TRIGGER IF EXISTS TrAU_Visibility_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Visibility_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_VisitLog_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_VisitLog_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_VisitLog_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_WorkItem_FER
 $$
@@ -8131,7 +8126,6 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`runNumber`  int(10)  NULL DEFAULT NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -8155,8 +8149,7 @@ INSERT INTO FlowCell_Audit
   , codeSequencingPlatform
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility )
+  , side )
   SELECT
   'No Context'
   , 'L'
@@ -8173,7 +8166,6 @@ INSERT INTO FlowCell_Audit
   , runNumber
   , idInstrument
   , side
-  , idCoreFacility
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
 $$
@@ -8200,8 +8192,7 @@ BEGIN
   , codeSequencingPlatform
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -8217,8 +8208,7 @@ BEGIN
   , NEW.codeSequencingPlatform
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.idCoreFacility );
+  , NEW.side );
 END;
 $$
 
@@ -8240,8 +8230,7 @@ BEGIN
   , codeSequencingPlatform
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -8257,8 +8246,7 @@ BEGIN
   , NEW.codeSequencingPlatform
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.idCoreFacility );
+  , NEW.side );
 END;
 $$
 
@@ -8280,8 +8268,7 @@ BEGIN
   , codeSequencingPlatform
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -8297,8 +8284,7 @@ BEGIN
   , OLD.codeSequencingPlatform
   , OLD.runNumber
   , OLD.idInstrument
-  , OLD.side
-  , OLD.idCoreFacility );
+  , OLD.side );
 END;
 $$
 
@@ -16269,7 +16255,6 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`isExternal`  char(1)  NULL DEFAULT NULL
  ,`refrainFromAutoDelete`  char(1)  NULL DEFAULT NULL
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
- ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16298,8 +16283,7 @@ INSERT INTO RequestCategory_Audit
   , isInternal
   , isExternal
   , refrainFromAutoDelete
-  , isClinicalResearch
-  , isOwnerOnly )
+  , isClinicalResearch )
   SELECT
   'No Context'
   , 'L'
@@ -16321,7 +16305,6 @@ INSERT INTO RequestCategory_Audit
   , isExternal
   , refrainFromAutoDelete
   , isClinicalResearch
-  , isOwnerOnly
   FROM RequestCategory
   WHERE NOT EXISTS(SELECT * FROM RequestCategory_Audit)
 $$
@@ -16353,8 +16336,7 @@ BEGIN
   , isInternal
   , isExternal
   , refrainFromAutoDelete
-  , isClinicalResearch
-  , isOwnerOnly )
+  , isClinicalResearch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -16375,8 +16357,7 @@ BEGIN
   , NEW.isInternal
   , NEW.isExternal
   , NEW.refrainFromAutoDelete
-  , NEW.isClinicalResearch
-  , NEW.isOwnerOnly );
+  , NEW.isClinicalResearch );
 END;
 $$
 
@@ -16403,8 +16384,7 @@ BEGIN
   , isInternal
   , isExternal
   , refrainFromAutoDelete
-  , isClinicalResearch
-  , isOwnerOnly )
+  , isClinicalResearch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -16425,8 +16405,7 @@ BEGIN
   , NEW.isInternal
   , NEW.isExternal
   , NEW.refrainFromAutoDelete
-  , NEW.isClinicalResearch
-  , NEW.isOwnerOnly );
+  , NEW.isClinicalResearch );
 END;
 $$
 
@@ -16453,8 +16432,7 @@ BEGIN
   , isInternal
   , isExternal
   , refrainFromAutoDelete
-  , isClinicalResearch
-  , isOwnerOnly )
+  , isClinicalResearch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -16475,8 +16453,7 @@ BEGIN
   , OLD.isInternal
   , OLD.isExternal
   , OLD.refrainFromAutoDelete
-  , OLD.isClinicalResearch
-  , OLD.isOwnerOnly );
+  , OLD.isClinicalResearch );
 END;
 $$
 
@@ -17075,7 +17052,6 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
- ,`trimAdapter`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -17136,8 +17112,7 @@ INSERT INTO Request_Audit
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
-  , numPrePooledTubes
-  , trimAdapter )
+  , numPrePooledTubes )
   SELECT
   'No Context'
   , 'L'
@@ -17191,7 +17166,6 @@ INSERT INTO Request_Audit
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
-  , trimAdapter
   FROM Request
   WHERE NOT EXISTS(SELECT * FROM Request_Audit)
 $$
@@ -17255,8 +17229,7 @@ BEGIN
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
-  , numPrePooledTubes
-  , trimAdapter )
+  , numPrePooledTubes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -17309,8 +17282,7 @@ BEGIN
   , NEW.codeDNAPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
-  , NEW.numPrePooledTubes
-  , NEW.trimAdapter );
+  , NEW.numPrePooledTubes );
 END;
 $$
 
@@ -17369,8 +17341,7 @@ BEGIN
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
-  , numPrePooledTubes
-  , trimAdapter )
+  , numPrePooledTubes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -17423,8 +17394,7 @@ BEGIN
   , NEW.codeDNAPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
-  , NEW.numPrePooledTubes
-  , NEW.trimAdapter );
+  , NEW.numPrePooledTubes );
 END;
 $$
 
@@ -17483,8 +17453,7 @@ BEGIN
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
-  , numPrePooledTubes
-  , trimAdapter )
+  , numPrePooledTubes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -17537,8 +17506,7 @@ BEGIN
   , OLD.codeDNAPrepType
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries
-  , OLD.numPrePooledTubes
-  , OLD.trimAdapter );
+  , OLD.numPrePooledTubes );
 END;
 $$
 
@@ -17665,9 +17633,8 @@ CREATE TABLE IF NOT EXISTS `SampleExperimentFile_Audit` (
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idSampleExperimentFile`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
- ,`idExpFileRead1`  int(10)  NULL DEFAULT NULL
- ,`idExpFileRead2`  int(10)  NULL DEFAULT NULL
- ,`seqRunNumber`  int(10)  NULL DEFAULT NULL
+ ,`idExperimentFile`  int(10)  NULL DEFAULT NULL
+ ,`codeSampleFileType`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -17683,9 +17650,8 @@ INSERT INTO SampleExperimentFile_Audit
   , AuditOperationDate
   , idSampleExperimentFile
   , idSample
-  , idExpFileRead1
-  , idExpFileRead2
-  , seqRunNumber )
+  , idExperimentFile
+  , codeSampleFileType )
   SELECT
   'No Context'
   , 'L'
@@ -17693,9 +17659,8 @@ INSERT INTO SampleExperimentFile_Audit
   , NOW()
   , idSampleExperimentFile
   , idSample
-  , idExpFileRead1
-  , idExpFileRead2
-  , seqRunNumber
+  , idExperimentFile
+  , codeSampleFileType
   FROM SampleExperimentFile
   WHERE NOT EXISTS(SELECT * FROM SampleExperimentFile_Audit)
 $$
@@ -17714,9 +17679,8 @@ BEGIN
   , AuditOperationDate
   , idSampleExperimentFile
   , idSample
-  , idExpFileRead1
-  , idExpFileRead2
-  , seqRunNumber )
+  , idExperimentFile
+  , codeSampleFileType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -17724,9 +17688,8 @@ BEGIN
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
-  , NEW.idExpFileRead1
-  , NEW.idExpFileRead2
-  , NEW.seqRunNumber );
+  , NEW.idExperimentFile
+  , NEW.codeSampleFileType );
 END;
 $$
 
@@ -17740,9 +17703,8 @@ BEGIN
   , AuditOperationDate
   , idSampleExperimentFile
   , idSample
-  , idExpFileRead1
-  , idExpFileRead2
-  , seqRunNumber )
+  , idExperimentFile
+  , codeSampleFileType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -17750,9 +17712,8 @@ BEGIN
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
-  , NEW.idExpFileRead1
-  , NEW.idExpFileRead2
-  , NEW.seqRunNumber );
+  , NEW.idExperimentFile
+  , NEW.codeSampleFileType );
 END;
 $$
 
@@ -17766,9 +17727,8 @@ BEGIN
   , AuditOperationDate
   , idSampleExperimentFile
   , idSample
-  , idExpFileRead1
-  , idExpFileRead2
-  , seqRunNumber )
+  , idExperimentFile
+  , codeSampleFileType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -17776,9 +17736,8 @@ BEGIN
   , NOW()
   , OLD.idSampleExperimentFile
   , OLD.idSample
-  , OLD.idExpFileRead1
-  , OLD.idExpFileRead2
-  , OLD.seqRunNumber );
+  , OLD.idExperimentFile
+  , OLD.codeSampleFileType );
 END;
 $$
 

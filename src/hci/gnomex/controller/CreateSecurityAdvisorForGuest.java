@@ -74,8 +74,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     String captchaPhrase = (String) request.getParameter("captchafield");
     launchAction  = (String) request.getParameter("launchAction");
     errorAction   = (String) request.getParameter("errorAction");
-    // Guest login ignores core facility id.
-
+    
     // VisitLog info from request
     sessionID = request.getSession().getId();
     visitDateTime = new java.util.Date(System.currentTimeMillis());

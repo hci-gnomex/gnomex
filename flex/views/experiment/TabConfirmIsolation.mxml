@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <exp:TabConfirmBase xmlns:mx="http://www.adobe.com/2006/mxml" 
 					label="Confirm" width="100%"  
-					height="100%" horizontalScrollPolicy="off"
+					height="100%"    horizontalScrollPolicy="off"
 					enabled="false"
 					show="init()" xmlns:exp="views.experiment.*" xmlns:util="views.util.*"> 
 	
@@ -15,7 +15,6 @@
 			import mx.collections.GroupingCollection;
 			import mx.collections.GroupingField;
 			import mx.controls.AdvancedDataGrid;
-			import mx.core.mx_internal;
 			
 			import views.util.AnnotationDataGridColumn;
 			
@@ -26,7 +25,6 @@
 			private var iScanChip:Object;
 			
 			override public function setupView():void {
-				this.parentDocument.samplesView.initializeBarcoding();
 				parentDocument.getEstimatedBilling();
 				
 				submitterName.text = parentDocument.getSubmitterName();
@@ -41,20 +39,23 @@
 					}
 				}
 				
-				this.experimentName.text = parentDocument.request.@name;
 				this.expDescriptArea.htmlText = parentDocument.saveDescription;
-				this.expDescriptArea.validateNow();
-				this.expDescriptArea.height = this.expDescriptArea.textHeight + this.expDescriptArea..mx_internal::getTextField().getLineMetrics(0).height;  
-				this.seqNotes.text = parentDocument.request.@corePrepInstructions != null ? parentDocument.request.@corePrepInstructions : '';
-				this.seqNotes.validateNow();
-				this.seqNotes.height = this.seqNotes.textHeight + this.seqNotes..mx_internal::getTextField().getLineMetrics(0).height; 
+				this.experimentName.text = parentDocument.request.@name;
+				
+				if (parentDocument.samplesView.hasPlates()) {
+					wellNameCol.visible = true;
+					plateNameCol.visible = true;
+				} else {
+					wellNameCol.visible = false;
+					plateNameCol.visible = false;
+				}
 				
 				// Edit buttons shown
-				this.parentDocument.submitButton.label = 'Submit';
-				this.parentDocument.submitButton.enabled = false;
-				this.parentDocument.agreeCheckbox.selected = false;
-				this.parentDocument.agreeBox.includeInLayout = true;
-				this.parentDocument.agreeBox.visible = true;
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeCheckbox.selected = true;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeBox.visible = false;
 				
 				this.confirmContainer.validateNow();
 			} 
@@ -102,7 +103,6 @@
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
 					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" width="100%" />
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" width="100%" />
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
@@ -197,16 +197,11 @@
 					<mx:Label text="Experiment Name" styleName="formLabel" height="16"/>
 					<mx:Label id="experimentName" width="200" alpha="0.8"  text="{parentDocument.request.@name}"/>
 				</mx:VBox>
-				
+					
 				<mx:Label text="Experiment Description" styleName="formLabel" paddingTop="5"/>
-				<mx:TextArea  width="100%" editable="false" id="expDescriptArea" 
-							  verticalScrollPolicy="off" backgroundColor="#FFFFFF"
-							  htmlText="{parentDocument.request.@description}" borderColor="#E3E6E8"/>
-				
-				<mx:Label text ="Note for Core Facility" styleName="formLabel"/>
-				<mx:TextArea width="100%" editable="false" id="seqNotes" 
-							 backgroundColor="#FFFFFF" verticalScrollPolicy="off"
-							 text="{parentDocument.isAmendState() ? parentDocument.request.@corePrepInstructions : ''}" borderColor="#E3E6E8"/>
+				<util:TextAreaWorkaround  width="100%" editable="false" id="expDescriptArea" 
+										  verticalScrollPolicy="auto" backgroundColor="#FFFFFF"
+										  htmlText="{parentDocument.request.@description}" borderColor="#E3E6E8"/>
 				
 			</mx:VBox>
 			
@@ -218,12 +213,13 @@
 							 sortableColumns="false" alpha="0.8" fontSize="11" variableRowHeight="true" selectable="false" >
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="45" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
+						<mx:DataGridColumn id="plateNameCol" headerText="Plate" width="100" dataField="@plateName" />
+						<mx:DataGridColumn id="wellNameCol" editable="false" headerText="Well"  width="42" resizable="false" dataField="@wellName" />
 						<mx:DataGridColumn headerText="Sample Name" id="sampleNameColumn" dataField="@name" width="150"/>				    
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
 						<mx:DataGridColumn id="qc_260_280Column" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio" />
 						<mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" />
-						<mx:DataGridColumn id="sampleSourceColumn" headerText="Sample Source" width="80" dataField="@idSampleSource"
-										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
+
 					</mx:columns>
 				</mx:DataGrid>
 				

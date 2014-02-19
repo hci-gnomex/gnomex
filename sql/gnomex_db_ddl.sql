@@ -547,15 +547,6 @@ CREATE TABLE `gnomex`.`DNAPrepType` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`RNAPrepType`;
-CREATE TABLE `gnomex`.`RNAPrepType` (
-  `codeRNAPrepType` VARCHAR(10) NOT NULL,
-  `rnaPrepType` VARCHAR(100) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeRNAPrepType`)
-)
-ENGINE = INNODB;
-
 DROP TABLE IF EXISTS `gnomex`.`PriceSheet`;
 CREATE TABLE `gnomex`.`PriceSheet` (
   `idPriceSheet` INT(10) NOT NULL AUTO_INCREMENT,

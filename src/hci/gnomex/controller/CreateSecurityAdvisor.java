@@ -52,7 +52,6 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
   private String ipAddress;
   private String sessionID;
   private hci.gnomex.model.VisitLog visitLog;
-  private Integer idCoreFacility;
   
 
   /**
@@ -77,15 +76,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     this.validate();
 
     launchAction  = (String) request.getParameter("launchAction");
-    String coreAsString = (String) request.getParameter("idCoreFacility");
-    idCoreFacility = null;
-    if (coreAsString != null) {
-      try {
-        idCoreFacility = Integer.parseInt(coreAsString);
-      } catch(NumberFormatException ex) {
-        idCoreFacility = null;
-      }
-    }
+    
     try {
     	
     	// VisitLog Info from request
@@ -99,7 +90,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       //workaround until NullPointer exception is dealt with
       InternalAccountFieldsConfiguration.getConfiguration(sess);
       
-      secAdvisor = SecurityAdvisor.create(sess, this.getUsername(), idCoreFacility);
+      secAdvisor = SecurityAdvisor.create(sess, this.getUsername());
       
       if (secAdvisor.canAccessBSTX()) {
         // Initialize the BSTX Security 

@@ -5,8 +5,6 @@
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
-<%@ page import="hci.gnomex.utility.JspHelper" %>
-<%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <html>
 
 <head>
@@ -18,11 +16,6 @@
 
 
 <%
-
-Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
-String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toString());
-String href = "";
-CoreFacility facility = null;
 
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 List facilities = null;
@@ -39,26 +32,20 @@ try {
    
   
   // Get site specific log
-  siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
+  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
+  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+    siteLogo = "./" + propSiteLogo.getPropertyValue();
+  }  else {
+    siteLogo = "./assets/gnomex_logo.png";
+  } 
  
   facilities = CoreFacility.getActiveCoreFacilities(sess);
   if ( facilities.size() == 1 ){
-    facility = (CoreFacility) facilities.get(0);
-  } else if (idCoreFacility != null) {
-    for (CoreFacility f : (List<CoreFacility>)facilities) {
-      if (f.getIdCoreFacility().equals(idCoreFacility)) {
-        facility = f;
-        break;
-      }
-    }
-  }
-  
-  if (facility != null) {
+    CoreFacility facility = (CoreFacility) facilities.get(0);
     int idFacility = facility.getIdCoreFacility();
     %>
     <script>
-      href = "register_user.jsp?idFacility=<%=idFacility%><%=idCoreParm.replace("?","&")%>";
-      window.location.href = href;
+      window.location.href = "register_user.jsp?idFacility=" + <%=idFacility%>;
     </script>
     <%
   }
@@ -80,14 +67,15 @@ try {
 
 
 <div id="content" align="center" bgcolor="white">
+
   <div class="header-bar" >
     <div class="leftMenu">
         <img src="<%=siteLogo%>"/>
     </div>
     <div class="rightMenu" >
-        <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |    
-        <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |       
-        <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
+        <a href="gnomexFlex.jsp">Sign in</a> |    
+        <a href="change_password.jsp">Change password</a> |       
+        <a href="reset_password.jsp">Reset password</a>
     </div>
   </div>
 
@@ -101,17 +89,17 @@ try {
         <%
           Iterator facilityIter = facilities.iterator();
           while (facilityIter.hasNext()) {
-            CoreFacility f = (CoreFacility) facilityIter.next();
+            CoreFacility facility = (CoreFacility) facilityIter.next();
         %>
         <tr height="35">
           <td width="250">
-            <a class="button" href="register_user.jsp?idFacility=<%=f.getIdCoreFacility()%><%=idCoreParm.replace("?","&")%>"><%=f.getDisplay()%></a>
+            <a class="button" href="register_user.jsp?idFacility=<%=facility.getIdCoreFacility()%>"><%=facility.getDisplay()%></a>
           </td>
           
           <td >
             <%
-              if (f.getDescription() != null) {%>
-                  <%=f.getDescription()%>
+              if (facility.getDescription() != null) {%>
+                  <%=facility.getDescription()%>
             <%}%>
           </td>
         </tr> 

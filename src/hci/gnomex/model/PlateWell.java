@@ -226,8 +226,8 @@ public class PlateWell extends HibernateDetailObject {
   public String getWellName() {
     if(this.row == null || this.col == null)
       return "";
-    
-    return this.row + this.col.toString();
+    else
+      return this.row + this.col.toString();
 
   }
 }

@@ -212,15 +212,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               hApp.addContent(dictionaryHelper.getDNAPrepType(request.getCodeDNAPrepType()));
               maindiv.addContent(hApp);
               }
-          } else if ( request.getCodeRNAPrepType() != null && !request.getCodeRNAPrepType().equals("")) {
-            RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
-            RequestCategoryType rct = rc.getCategoryType();
-            if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
-            Element hApp = new Element("H4");
-            hApp.addContent(dictionaryHelper.getRNAPrepType(request.getCodeRNAPrepType()));
-            maindiv.addContent(hApp);
-            }
-        }
+          }
             
             // Number of seq cycles and seq run type
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {

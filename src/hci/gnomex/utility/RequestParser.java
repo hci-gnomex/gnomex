@@ -304,9 +304,7 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeDNAPrepType") != null && !n.getAttributeValue("codeDNAPrepType").equals("")) {
       request.setCodeDNAPrepType(n.getAttributeValue("codeDNAPrepType"));      
     }
-    if (n.getAttributeValue("codeRNAPrepType") != null && !n.getAttributeValue("codeRNAPrepType").equals("")) {
-      request.setCodeRNAPrepType(n.getAttributeValue("codeRNAPrepType"));      
-    }
+    
     if (n.getAttributeValue("bioinformaticsAssist") != null && !n.getAttributeValue("bioinformaticsAssist").equals("")) {
       request.setBioinformaticsAssist(n.getAttributeValue("bioinformaticsAssist"));
     }
@@ -413,7 +411,7 @@ public class RequestParser implements Serializable {
     Sample sample = null;
     
     String idSampleString = n.getAttributeValue("idSample");
-    if (isNewRequest || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample")) {
+    if (isNewRequest || idSampleString == null || idSampleString.startsWith("Sample")) {
       sample = new Sample();
       isNewSample = true;
     } else {
@@ -455,11 +453,6 @@ public class RequestParser implements Serializable {
       sample.setIdSampleType(new Integer(n.getAttributeValue("idSampleType")));
     } else {
       sample.setIdSampleType(null);
-    }
-    if (n.getAttributeValue("idSampleSource") != null && !n.getAttributeValue("idSampleSource").equals("")) {
-      sample.setIdSampleSource(new Integer(n.getAttributeValue("idSampleSource")));
-    } else {
-      sample.setIdSampleSource(null);
     }
     if (n.getAttributeValue("otherSamplePrepMethod") != null && !n.getAttributeValue("otherSamplePrepMethod").equals("")) {
       sample.setOtherSamplePrepMethod(n.getAttributeValue("otherSamplePrepMethod"));

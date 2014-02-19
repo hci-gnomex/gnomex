@@ -275,14 +275,6 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  public String getRNAPrepType(String codeRNAPrepType) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (codeRNAPrepType != null && codeRNAPrepType.length() > 0) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.RNAPrepType", codeRNAPrepType);
-    }
-    return name;
-  }
   public String getPlateType(String codePlateType) {
     lazyLoadManagedDictionaries();
     String name = "";
