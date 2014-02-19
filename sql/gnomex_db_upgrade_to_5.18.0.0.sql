@@ -18,3 +18,12 @@ alter table Request add
     REFERENCES `gnomex`.`RNAPrepType` (`codeRNAPrepType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+    
+
+-- add foreign key constraint from Request to Lab
+alter table Request add 
+  CONSTRAINT `FK_Request_Lab` FOREIGN KEY `FK_Request_Lab` (`idLab`)
+    REFERENCES `gnomex`.`Lab` (`idLab`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+ 
