@@ -109,4 +109,17 @@ public class Util {
       return false;
     }
   }
+
+  public static String addURLParameter(String url, String parameter) {
+    if (parameter.startsWith("&") || parameter.startsWith("?")) {
+      parameter = parameter.substring(1);
+    }
+    if (url.contains("?")) {
+      url += "&";
+    } else {
+      url += "?";
+    }
+    url += parameter;
+    return url;
+  }
 }

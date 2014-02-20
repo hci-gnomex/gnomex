@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
@@ -371,9 +372,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       return;
     }
     
+    url = url + Constants.LAUNCH_APP_JSP + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail&idCore=" + facility.getIdCoreFacility().toString();
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
-    introForAdmin.append("<a href='" + url + "gnomexFlex.jsp?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail'>Click here</a> to review and activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
+    introForAdmin.append("<a href='" + url + "'>Click here</a> to review and activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     MailUtil.send(
         toAddress,
         "",

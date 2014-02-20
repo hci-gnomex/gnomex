@@ -97,6 +97,7 @@ If you have registered using your uNID (u00000000), your password is tied to the
 <div class="message"><strong><%= message %></strong></div>
     <input type="hidden" name="responsePageSuccess" value="/reset_password_success.jsp<%=idCoreParm%>"/>
     <input type="hidden" name="responsePageError" value="/reset_password.jsp<%=idCoreParm%>"/>
+    <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
   </form>
 
 </div>
