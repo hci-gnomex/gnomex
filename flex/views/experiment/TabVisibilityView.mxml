@@ -252,7 +252,7 @@
 									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
 				</mx:HBox>
 		   	</mx:VBox>
-			   <mx:VBox verticalGap="2" width="100%">
+			   <mx:VBox verticalGap="2" width="100%" visible="{parentApplication.isPrivacyExpirationSupported}">
 				   <mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.visibilityRadioGroup.selectedValue!='PUBLIC'}">
 					   <mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
 					   <mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>

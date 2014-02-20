@@ -1257,8 +1257,9 @@
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
       <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-	
-		<mx:VBox  width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		  <mx:HBox width="1092">
+		<mx:VBox  width="509" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+						
 			<mx:HBox horizontalGap="0" id="hbox1">
 				<mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
@@ -1269,26 +1270,32 @@
 					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="0" width="140">
-							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visbile to the submitter and the lab PI"/>
-							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to all members of the lab group"/>
+							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
+											click="dirty.setDirty();privacyExpirationPicker.selectedDate = null" toolTip="Visbile to the submitter and the lab PI"/>
+							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
+											click="dirty.setDirty();privacyExpirationPicker.selectedDate = null" toolTip="Visible to all members of the lab group"/>
 						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
-						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
+						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
+										click="dirty.setDirty();privacyExpirationPicker.selectedDate = null" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
-					<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
-						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-							<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="250" height="30"/>
-						</mx:HBox>
-					</mx:VBox>		   		
-				</mx:VBox>
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
+									click="dirty.setDirty();privacyExpirationPicker.selectedDate = new Date();" toolTip="Visible to everyone"/>					   		
+				</mx:VBox>				
 			</mx:HBox>
+		</mx:VBox>
+			<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}" >
+				<mx:HBox width="100%" verticalAlign="middle" visible="{this.visibilityRadioGroup.selectedValue!='PUBLIC'}">
+					<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
+					<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="427" height="30"/>
+				</mx:HBox>
+			</mx:VBox>
+			</mx:HBox>		
 			
-		</mx:VBox>		
+		
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			
 			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>
