@@ -34,6 +34,9 @@
 		private var priceMap:Dictionary = new Dictionary();
 
 		private function init():void {
+			var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
+			if(sampleTypeRadioGroup.selectedValue == null) {
+				sampleTypeDNARNAHBox.styleName = 'requiredBox';}
 			sampleSetupCanvas.verticalScrollPosition = 0;
 			if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
 				initIllumina();
@@ -41,7 +44,7 @@
 			if ( qcInstructions != null ) {
 				qcInstructions.text = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS);
 			}
-			
+
 		}
 		
 		private function initIllumina():void {
@@ -593,6 +596,9 @@
 		}
 		
 		private function pickSampleType():void {
+			if(sampleTypeRadioGroup.selectedValue != null) {
+				sampleTypeDNARNAHBox.styleName = '';
+			}
 			if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				
 				propagateSampleType();
@@ -1167,10 +1173,11 @@
 				        property="selectedIndex"
 				        minValue="0" />
 	<mx:NumberValidator id="sampleTypeValidator"
-						source="{this.sampleTypeRadioGroup}"
-						lowerThanMinError="This field is required."
-						property="selectedValue"
-						minValue="0" />
+						source="{this.sampleTypeRadioGroup}"						
+						property="selectedValue"						
+						minValue = "0"
+						required="true"						
+						/>
 	<mx:NumberValidator id="dnaPrepTypeValidator"
 						source="{this.dnaPrepTypeCombo}"
 						lowerThanMinError="This field is required."
@@ -1186,7 +1193,11 @@
 						lowerThanMinError="You must submit your samples on at least 1 plate."
 						requiredFieldError="Please enter the number of plates you are submitting your samples on."
 						exceedsMaxError="You can only submit up to 12 plates per order."/>
-	<mx:Validator id="samplePrepValidator" source="{this.otherSamplePrepMethod}" required="true" property="text" requiredFieldError="This field is required" />
+	<mx:StringValidator	id="samplePrepValidator" 
+						source="{this.otherSamplePrepMethod}" 
+						property="text"
+						required ="true"
+						/>
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
@@ -1202,31 +1213,33 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
 				<mx:Label text="(2) Which category best describes your samples?" width="334" id="label8"/>
-				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />       	
-				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
-					<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
-							  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
-					<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
-						<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
-										label="{sampleTypeDnaRepeater.currentItem.@display}" 
-										value="{sampleTypeDnaRepeater.currentItem.@value}" 
-										click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
-										width="250" />							
-					</mx:Repeater>
-					<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup" 
-									label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
-				</mx:VBox>
-				<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
-					<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
-							  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
-					<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
-						<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup" 
-										label="{sampleTypeRnaRepeater.currentItem.@display}" 
-										value="{sampleTypeRnaRepeater.currentItem.@value}" 
-										click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
-										width="250" />							
-					</mx:Repeater>
-				</mx:VBox>
+				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />
+				<mx:HBox verticalGap="0" paddingTop="0" paddingBottom="0" styleName="requiredBox" id="sampleTypeDNARNAHBox">				
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
+						<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
+						<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
+							<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
+											label="{sampleTypeDnaRepeater.currentItem.@display}" 
+											value="{sampleTypeDnaRepeater.currentItem.@value}" 
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />							
+						</mx:Repeater>
+						<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup" 
+										label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />
+					</mx:VBox>
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
+						<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
+						<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
+							<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup" 
+											label="{sampleTypeRnaRepeater.currentItem.@display}" 
+											value="{sampleTypeRnaRepeater.currentItem.@value}" 
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />							
+						</mx:Repeater>
+					</mx:VBox>
+				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
@@ -1246,7 +1259,9 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
 				<mx:Text text="(4) Specify the nucleic acid extraction method. (required)." width="334" id="label2"/>
-				<mx:TextInput width="300" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}" maxChars="50"/>
+				<mx:TextInput width="300" id="otherSamplePrepMethod" 
+							  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}" 
+							  maxChars="50"/>
 			</mx:HBox>
 			
 		</mx:VBox>
