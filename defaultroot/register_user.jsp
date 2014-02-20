@@ -282,7 +282,7 @@ try {
 </div>
     <input type="hidden" name="idFacility" value="<%=idFacility%>" />
     <input type="hidden" name="responsePageSuccess" value="/register_user_success.jsp<%=idCoreParm%>"/>
-    <input type="hidden" name="responsePageError" value="/register_user.jsp"/>
+    <input type="hidden" name="responsePageError" value="/register_user.jsp<%=idCoreParm%>"/>
 
 <script  type="text/javascript" language="JavaScript">
 

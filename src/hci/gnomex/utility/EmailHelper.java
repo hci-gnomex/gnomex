@@ -20,7 +20,7 @@ public class EmailHelper {
 
     
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
     introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + ".");
     introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
@@ -69,7 +69,7 @@ public class EmailHelper {
     String coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
     
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
     introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by " + coreFacilityName + ": ");
     introNote.append("<br>");
     introNote.append(request.getRedoSampleNames());

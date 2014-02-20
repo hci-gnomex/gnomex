@@ -17,6 +17,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemQualityControlParser;
 
 import java.io.Serializable;
@@ -277,7 +278,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
     
     if (isStepQualityControl && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";

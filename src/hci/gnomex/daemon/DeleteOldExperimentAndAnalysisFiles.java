@@ -562,7 +562,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       TreeMap<String, Object> files = null;
       files = deletionMap.get(idLab);
       if (files != null && !files.isEmpty()) {
-        sendEmail(lab, files, forWarning);
+        sendEmail(facility, lab, files, forWarning);
         numLabs++;
       }
     }
@@ -570,7 +570,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
     System.out.println("   Sent emails to " + numLabs.toString() + " labs.");
   }
   
-  private void sendEmail(Lab lab, TreeMap<String, Object> filesToDelete, boolean forWarning) {
+  private void sendEmail(CoreFacility facility, Lab lab, TreeMap<String, Object> filesToDelete, boolean forWarning) {
     String emailAddress = lab.getContactEmail();
     if (testEmailAddress.length() > 0) {
       emailAddress = testEmailAddress;
@@ -590,7 +590,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
     }
     
-    DeleteOldExperimentAndAnalysisFilesEmailFormatter formatter = new DeleteOldExperimentAndAnalysisFilesEmailFormatter(lab, analysisMap, analysisFiles, 
+    DeleteOldExperimentAndAnalysisFilesEmailFormatter formatter = new DeleteOldExperimentAndAnalysisFilesEmailFormatter(facility, lab, analysisMap, analysisFiles, 
       requestMap, experimentFiles, billingPeriod, this.coreFacilityContactName, this.coreFacilityContactPhone, baseURL, forWarning);
     String subject = formatter.getSubject();
     String body = formatter.format();

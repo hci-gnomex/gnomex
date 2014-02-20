@@ -33,13 +33,14 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   private String                 baseURL;
   private boolean                forWarning;
 
-  CoreFacility           facility;
+  private CoreFacility           facility;
   
-  public DeleteOldExperimentAndAnalysisFilesEmailFormatter(Lab lab, Map<Integer, 
-      Analysis> analysisMap, List<AnalysisFile> analysisFiles, 
+  public DeleteOldExperimentAndAnalysisFilesEmailFormatter(CoreFacility facility, Lab lab, 
+      Map<Integer, Analysis> analysisMap, List<AnalysisFile> analysisFiles, 
       Map<Integer, Request> requestMap, List<ExperimentFile> experimentFiles, 
       BillingPeriod billingPeriod, String contactNameCoreFacility, String contactPhoneCoreFacility, String baseURL,
       boolean forWarning) {
+    this.facility                   = facility;
     this.lab                        = lab;
     this.analysisMap                = analysisMap;
     this.analysisFiles              = analysisFiles;
@@ -150,7 +151,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
 
   private String getWorkAuthLink() {
     StringBuffer buf = new StringBuffer();
-    buf.append("<a href=\"").append(baseURL).append("gnomexFlex.jsp?launchWindow=WorkAuthForm").append("\">Work Authorization</a>");
+    buf.append("<a href=\"").append(baseURL).append(Constants.LAUNCH_APP_JSP).append("?launchWindow=WorkAuthForm&idCore=").append(facility.getIdCoreFacility()).append("\">Work Authorization</a>");
     return buf.toString();
   }
   

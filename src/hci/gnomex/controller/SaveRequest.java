@@ -57,6 +57,7 @@ import hci.gnomex.utility.SampleAssaysParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemHybParser;
 
 import java.io.File;
@@ -2267,7 +2268,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     
     StringBuffer introNote = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
     if (requestParser.isExternalExperiment()) {
       if (requestParser.isNewRequest()) {
         introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been registered in the GNomEx repository.");   
@@ -2381,7 +2382,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     requestCategoryMsg = requestCategoryMsg + " for request " + requestNumber;    
     
     StringBuffer emailBody = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 

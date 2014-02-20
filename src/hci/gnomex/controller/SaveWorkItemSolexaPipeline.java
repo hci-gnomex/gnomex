@@ -20,6 +20,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
 import java.io.Serializable;
@@ -331,7 +332,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
 
     String analysisInstruction = null;
     String genomeAlignTo = null;
