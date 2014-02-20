@@ -110,7 +110,7 @@ public class AnalysisGroupFilter extends DetailObject {
 	  ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
 	  StringBuffer queryBuf = new StringBuffer();
 	  queryBuf.append("SELECT idLab, lastName, firstName ");	  
-	  queryBuf.append("FROM Lab as lab");
+	  queryBuf.append("FROM Lab as lab ");
 	  
 	  
 	  // if we have one or more labKeys then filter query by those ids
@@ -119,7 +119,7 @@ public class AnalysisGroupFilter extends DetailObject {
 	      String[] tokens = labKeys.split(":");
 	      if (tokens.length > 0) {
 	    	  queryBuf.append(" WHERE ");
-	    	  queryBuf.append("idLab IN (");
+	    	  queryBuf.append(" idLab IN (");
 	    	  for(int x=0; x < tokens.length; x++){
 	    	  if(x > 0) { //not the first element
 	    		  queryBuf.append(", "); }
@@ -134,7 +134,7 @@ public class AnalysisGroupFilter extends DetailObject {
 		    	  queryBuf.append(" AND ");
 		      }
 		      else {
-		      queryBuf.append("WHERE "); 
+		      queryBuf.append(" WHERE "); 
 		      }	      
 		      queryBuf.append("(");
 		      queryBuf.append(" lab.firstName like '%" + searchText + "%'");
