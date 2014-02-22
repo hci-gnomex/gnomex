@@ -1051,6 +1051,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     
     root.setAttribute("idRequest",              this.getNonNullString(this.getIdRequest()));
     root.setAttribute("requestNumber",          this.getNonNullString(this.getNumber()));
+    root.setAttribute("number",          		this.getNonNullString(this.getNumber())); // analysis and datatrack have this "requestNumber" named "number". Now all three are congruent.
     root.setAttribute("requestCreateDate",      this.createDate == null ? ""  : this.formatDate(this.createDate, this.DATE_OUTPUT_ALTIO));
     root.setAttribute("requestCreateDateDisplay", this.getCreateDate() == null ? ""  : this.formatDate(this.getCreateDate(), this.DATE_OUTPUT_SQL));
     root.setAttribute("requestCreateDateDisplayMedium", this.getCreateDate() == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format(this.getCreateDate()));
@@ -1137,6 +1138,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("idRequest", this.getNonNullString(this.getIdRequest()));
     root.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
     root.setAttribute("label", this.getNumber() + " (Restricted Visibility)");
+    root.setAttribute("name",                   this.getNonNullString(this.getName()));
+    root.setAttribute("number",          this.getNonNullString(this.getNumber())); // analysis and datatrack have "number". Now all three are congruent.
     return doc;
   }  
  
