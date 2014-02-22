@@ -1164,7 +1164,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     updateIScanPlates(sess, sample, idSampleString);
     
     // handle plates and plate wells for Sequeonom
-//    updateSequenomPlates(sess, sample, idSampleString);
+    updateSequenomPlates(sess, sample, idSampleString);
     
   }
   
@@ -1258,9 +1258,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   private void updateCapSeqPlates(Session sess, Sample sample, String idSampleString) {
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
-        requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ||
-        requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ) {
       Plate plate = requestParser.getPlate(idSampleString);
       PlateWell well = requestParser.getWell(idSampleString);
       if (plate != null && well != null) {
@@ -1630,7 +1628,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
   private void updateSequenomPlates(Session sess, Sample sample, String idSampleString) {
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+    if (requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ) {
       Plate plate = requestParser.getPlate(idSampleString);
       PlateWell well = requestParser.getWell(idSampleString);
       if (plate != null && well != null) {
