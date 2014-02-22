@@ -89,43 +89,46 @@ public class TopicQuery implements Serializable {
 	@SuppressWarnings("unchecked")
 	public Document getTopicDocument(Session sess, SecurityAdvisor secAdvisor) throws Exception {
 
-	  // Run query to get topics
+	  //A. Run query to get topics
 	  StringBuffer queryBuf = this.getTopicsQuery(secAdvisor);    	
 	  Logger.getLogger(this.getClass().getName()).fine("Topics query: " + queryBuf.toString());
 	  Query query = sess.createQuery(queryBuf.toString());
 	  List<Object[]> topicRows = (List<Object[]>)query.list();
 
-    // Run query to get requests, organized under topics
+    //B. Run query to get RESTRICTED requests, organized under topics
+	  // RESTRICT BY: request(codeVisibility, codeRequestCategory, idAppUser, idLab, idInstitution), collaborator(idAppUser)
     queryBuf = this.getRequestQuery(secAdvisor, DictionaryHelper.getInstance(sess), true);
     Logger.getLogger(this.getClass().getName()).fine("Request query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> returnedRequestRows = (List<Object[]>)query.list();
+    List<Object[]> restrictedRequestRows = (List<Object[]>)query.list();
     
-    // Run query to get requests with now visibility restrictions, organized under topics
+    //C. Run query to get requests with no visibility restrictions, organized under topics
     queryBuf = this.getRequestQuery(secAdvisor,  DictionaryHelper.getInstance(sess), false);
     Logger.getLogger(this.getClass().getName()).fine("Request query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
     List<Object[]> unrestrictedRequestRows = (List<Object[]>)query.list();
     
-    // Run query to get analyses, organized under topics
+    //D. Run query to get RESTRICTED analyses, organized under topics
+    // RESTRICT BY: analysis(codeVisibility, idAppUser, idLab, idInstitution), collaborator(idAppUser)
     queryBuf = this.getAnalysisQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("Analysis query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> returnedAnalysisRows = (List<Object[]>)query.list();
+    List<Object[]> restrictedAnalysisRows = (List<Object[]>)query.list();
 
-    // Run query to get analyses with no visibility restrictions, organized under topics
+    //E. Run query to get analyses with no visibility restrictions, organized under topics
     queryBuf = this.getAnalysisQuery(null);
     Logger.getLogger(this.getClass().getName()).fine("Analysis query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
     List<Object[]> unrestrictedAnalysisRows = (List<Object[]>)query.list();
 
-    // Run query to get dataTracks, organized under topics
+    //F. Run query to get RESTRICTED dataTracks, organized under topics
+    // RESTRICT BY: dataTrack(codeVisibility, idAppUser, idLab, idInstitution), collaborator(idAppUser)
     queryBuf = this.getDataTrackQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> returnedDataTrackRows = (List<Object[]>)query.list();
+    List<Object[]> restrictedDataTrackRows = (List<Object[]>)query.list();
 
-    // Run query to get dataTracks with no visibility restrictions, organized under topics
+    //G. Run query to get dataTracks with no visibility restrictions, organized under topics
     queryBuf = this.getDataTrackQuery(null);
     Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
     query = sess.createQuery(queryBuf.toString());
@@ -133,7 +136,7 @@ public class TopicQuery implements Serializable {
 
     
 	  // Create an XML document
-	  Document doc = this.getTopicDocument(topicRows, returnedRequestRows, unrestrictedRequestRows, returnedAnalysisRows, unrestrictedAnalysisRows, returnedDataTrackRows, unrestrictedDataTrackRows, DictionaryHelper.getInstance(sess), secAdvisor);
+	  Document doc = this.getTopicDocument(topicRows, restrictedRequestRows, unrestrictedRequestRows, restrictedAnalysisRows, unrestrictedAnalysisRows, restrictedDataTrackRows, unrestrictedDataTrackRows, DictionaryHelper.getInstance(sess), secAdvisor);
 	  return doc;
 		
 	}
@@ -267,17 +270,19 @@ public class TopicQuery implements Serializable {
 
 	
 	private Document getTopicDocument(List<Object[]> topicRows, 
-	    List<Object[]> returnedRequestRows, List<Object[]> unrestrictedRequestRows, 
-	    List<Object[]> returnedAnalysisRows, List<Object[]> unrestrictedAnalysisRows, 
-	    List<Object[]> returnedDataTrackRows, List<Object[]> unrestrictedDataTrackRows, 
+	    List<Object[]> restrictedRequestRows, List<Object[]> unrestrictedRequestRows, 
+	    List<Object[]> restrictedAnalysisRows, List<Object[]> unrestrictedAnalysisRows, 
+	    List<Object[]> restrictedDataTrackRows, List<Object[]> unrestrictedDataTrackRows, 
 	    DictionaryHelper dictionaryHelper, SecurityAdvisor secAdvisor) throws Exception {
 	  
     // Build a list of requests that are not be visible to this user.
     // This list will be used later mark tag requests as restricted. 
 	  restrictedRequestList = new ArrayList<Integer>();
+	  					//unrestrictedRequestRows is an array of triples (topic, parentTopic, request)
     for (Object[] row : unrestrictedRequestRows) {
-      Request thisUnrestrictedRequest = (Request) row[2];
-      if(thisUnrestrictedRequest != null && checkForRestrictedRequest(thisUnrestrictedRequest, returnedRequestRows) && !restrictedRequestList.contains(thisUnrestrictedRequest.getIdRequest())) {
+      Request thisUnrestrictedRequest = (Request) row[2]; 
+      // this topic might not have any requests && is this row also in the restricted set? 						&& did we already record this one (it could exist under multiple topics) 
+      if(thisUnrestrictedRequest != null && checkForRestrictedRequest(thisUnrestrictedRequest, restrictedRequestRows) && !restrictedRequestList.contains(thisUnrestrictedRequest.getIdRequest())) {
         restrictedRequestList.add(thisUnrestrictedRequest.getIdRequest());
       }
     } 
@@ -285,7 +290,7 @@ public class TopicQuery implements Serializable {
     restrictedAnalysisList = new ArrayList<Integer>();
     for (Object[] row : unrestrictedAnalysisRows) {
       Analysis thisUnrestrictedAnalysis = (Analysis) row[2];
-      if(thisUnrestrictedAnalysis != null && checkForRestrictedAnalysis(thisUnrestrictedAnalysis, returnedAnalysisRows) && !restrictedAnalysisList.contains(thisUnrestrictedAnalysis.getIdAnalysis())) {
+      if(thisUnrestrictedAnalysis != null && checkForRestrictedAnalysis(thisUnrestrictedAnalysis, restrictedAnalysisRows) && !restrictedAnalysisList.contains(thisUnrestrictedAnalysis.getIdAnalysis())) {
         restrictedAnalysisList.add(thisUnrestrictedAnalysis.getIdAnalysis());
       }
     } 
@@ -293,7 +298,7 @@ public class TopicQuery implements Serializable {
     restrictedDataTrackList = new ArrayList<Integer>();
     for (Object[] row : unrestrictedDataTrackRows) {
       DataTrack thisUnrestrictedDataTrack = (DataTrack) row[2];
-      if(thisUnrestrictedDataTrack != null && checkForRestrictedDataTrack(thisUnrestrictedDataTrack, returnedDataTrackRows) && !restrictedDataTrackList.contains(thisUnrestrictedDataTrack.getIdDataTrack())) {
+      if(thisUnrestrictedDataTrack != null && checkForRestrictedDataTrack(thisUnrestrictedDataTrack, restrictedDataTrackRows) && !restrictedDataTrackList.contains(thisUnrestrictedDataTrack.getIdDataTrack())) {
         restrictedDataTrackList.add(thisUnrestrictedDataTrack.getIdDataTrack());
       }
     }   
@@ -322,10 +327,13 @@ public class TopicQuery implements Serializable {
 		
 	}	
 
-  private boolean checkForRestrictedRequest(Request thisUnrestrictedRequest, List<Object[]> returnedRequestRows) {
-    for (Object[] row : returnedRequestRows) {
-      Request thisReturnedReq = (Request) row[2];
-      if(thisReturnedReq != null && thisReturnedReq.getIdRequest().intValue() == thisUnrestrictedRequest.getIdRequest().intValue()) {
+  private boolean checkForRestrictedRequest(Request thisUnrestrictedRequest, List<Object[]> restrictedRequestRows) {
+    // we check if thisUnrestrictedRequest also belongs to the set of restrictedRequests, if so it should be flagged as restricted
+	  // we will check thisUnrestrictedRequest against all requests in the set of restrictedRequests
+	  for (Object[] row : restrictedRequestRows) {
+      Request thisRestrictedReq = (Request) row[2];
+      // is this restricted request is not null  && this restricted request is the same as the unrestricted request -->
+      if(thisRestrictedReq != null && thisRestrictedReq.getIdRequest().intValue() == thisUnrestrictedRequest.getIdRequest().intValue()) {
         return false;
       }
     }
