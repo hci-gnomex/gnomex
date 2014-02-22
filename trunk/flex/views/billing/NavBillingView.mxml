@@ -1507,7 +1507,7 @@
 		public function showNotesToCoreWindow():void {
 			
 			if (lastSelectedBillingPeriod == null ||
-				lastSelectedBillingPeriod .@value == "") {
+				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	
 			} 
