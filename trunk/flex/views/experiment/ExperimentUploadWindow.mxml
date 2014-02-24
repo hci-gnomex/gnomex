@@ -91,6 +91,7 @@
 			import mx.core.DragSource;
 			import mx.events.CloseEvent;
 			import mx.events.DragEvent;
+			import mx.events.ItemClickEvent;
 			import mx.events.ListEvent;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
@@ -117,14 +118,15 @@
 			private var experimentFileList:XMLListCollection = new XMLListCollection();
 			
 			[Bindable]
-			private var selectedSampTreeItem:Object = new Object();
+			private var masterFileList:XMLListCollection = new XMLListCollection();
 			
 			private var multiFileUpload:MultiFileUpload;
+			
 			private var expFileDict:Dictionary = new Dictionary();
 			
 			private var downloadDraggedItems:Array = null;
 			
-			private var sampleTreeDraggedItems:Array = null;
+			private var clickedItems:XMLListCollection = new XMLListCollection();
 			
 			public function init(request:Object):void {
 				this.idRequest = request.@idRequest;
@@ -288,24 +290,80 @@
 				}
 			}
 			
-			private function constructExperimentFileList():void{
-				experimentFileList = new XMLListCollection();
-				for (var key:Object in expFileDict){
-					var found:Boolean = false;
-					var fd:XML = expFileDict[key];
-					for each(var s:XML in sampleList.children()){
-						for each(var fdChild:XML in s.children()){
-							if(fdChild.@displayName == fd.@displayName){
-								found = true;
+			private function recurseFindFileToDelete(expFileList:XMLList, fileToFind:XML):void{
+				for each(var file:XML in expFileList){
+					if(file.name() == 'RequestDownload' && file.children().length() > 0){
+						recurseFindFileToDelete(file.children(), fileToFind);
+					}
+					else if(file.name() == 'FileDescriptor'){
+						if(file.@type == 'dir'){
+							recurseFindFileToDelete(file.children(), fileToFind);
+						} else{
+							if(file.@displayName == fileToFind.@displayName){
+								deleteNode(file);
+								return;
 							}
 						}
 					}
-					if(!found){
-						experimentFileList.addItem(fd);
+				}
+			}
+			
+			private function deleteEmptyFolders(expFile:XML):void{
+				if((expFile.@type == 'dir' || expFile.name() == 'RequestDownload') && expFile.children().length() == 0){
+					var parent:XML = expFile.parent(); 
+					deleteNode(expFile);
+					if(parent != null){
+						deleteEmptyFolders(parent);
+					}
+				} else if(expFile.@type == 'dir'){
+					for each(var child:XML in expFile.children()){
+						deleteEmptyFolders(child);
+					}
+				}
+			}
+			
+			private function constructExperimentFileList():void{
+				var list:XMLList = new XMLList(downloadList.copy());
+				var uploadNode:XML = <RequestDownload itemNumber="upload_staging" />;
+				for each(var uf:XML in uploadedFiles){
+					uploadNode.appendChild(uf.copy());
+				}
+				if(uploadNode.children().length() > 0){
+					list.appendChild(uploadNode);
+				}
+				experimentFileList = new XMLListCollection(list.copy());
+				masterFileList = new XMLListCollection(list.copy());
+				for each(var s:XML in sampleList.children().children()){
+					recurseFindFileToDelete(experimentFileList.children(), s);
+				}
+				
+				for each(var node:XML in experimentFileList.children()){
+					if((node.children().length() == 0 && node.name() != 'FileDescriptor') || (node.children().length() == 0 && node.name() == 'FileDescriptor' && node.@type == 'dir')){
+						deleteNode(node);
 					}
 				}
 				
-				sortExperimentFileList();
+				for each(var fd:XML in experimentFileList.children().children()){
+					deleteEmptyFolders(fd);	
+				}
+				
+				callLater(experimentFilesTree.expandItem, [experimentFileList.getItemAt(0), true]);
+				
+				//sortExperimentFileList();
+				//				for (var key:Object in expFileDict){
+				//					var found:Boolean = false;
+				//					var fd:XML = expFileDict[key];
+				//					for each(var s:XML in sampleList.children()){
+				//						if(fdChild.@displayName == fd.@displayName){
+				//							found = true;
+				//						}
+				//						
+				//					}
+				//					if(!found){
+				//						experimentFileList.addItem(fd);
+				//					}
+				//				}
+				//				sortExperimentFileList();
 			}
 			
 			private function sortExperimentFileList():void{
@@ -313,6 +371,13 @@
 				sort.fields = [new SortField("@displayName", true)];
 				experimentFileList.sort = sort;
 				experimentFileList.refresh();
+			}
+			
+			private function sortClickedItems():void{
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@displayName", true)];
+				clickedItems.sort = sort;
+				clickedItems.refresh();
 			}
 			
 			private function expandDownloadTree():void {
@@ -464,101 +529,689 @@
 						Alert.show("You must drop files into a Seq Run Folder or onto a Sample");
 						return;
 					}
-					
-					if (dropNode.name() == "FileDescriptor") {
-						dropNode = dropNode.parent();
+				}
+				
+				if (dropNode.name() == "FileDescriptor") {
+					dropNode = dropNode.parent();
+				}
+				
+				sortClickedItems();
+				
+				var draggedItems:Array = null;
+				
+				if (event.dragInitiator.name == "samplesTree") {
+					// For some reason, if we are dragging within the tree, the dragged
+					// items has to be detected on the dragEnter event.  By the time
+					// with get to the dragDrop event, the event.draggedItems contains
+					// the drop target, not the dragged items.
+					draggedItems = this.downloadDraggedItems;	    
+				} else {
+					//var draggedFormat:String = event.dragSource.formats[0];
+					//draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
+					draggedItems = clickedItems.toArray();
+				}
+				
+				for each(var di:XML in draggedItems){
+					trace(di.name());
+					if(di.name() != 'FileDescriptor'){
+						Alert.show("You can only drag and drop files.");
+						clickedItems = new XMLListCollection();
+						return;
 					}
-					var draggedItems:Array = null;		    
-					if (event.dragInitiator.name == "samplesTree") {
-						// For some reason, if we are dragging within the tree, the dragged
-						// items has to be detected on the dragEnter event.  By the time
-						// with get to the dragDrop event, the event.draggedItems contains
-						// the drop target, not the dragged items.
-						draggedItems = this.downloadDraggedItems;	    
-					} else {
-						var draggedFormat:String = event.dragSource.formats[0];
-						draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
-					}
-					
-										
-					if(dropNode.name() == 'Sample'){
-						var seqRunNumberNode:XML = <SeqRunNumber />;
-						if(dropNode.children().length() == 0){
-							for each(var fd:XML in draggedItems){
-								if(fd.name() == 'SeqRunNumber'){
-									dropNode.appendChild(fd.copy());
-								} else{
-									seqRunNumberNode.appendChild(fd.copy());
-								}
-								if (event.dragInitiator.name == "samplesTree") {
-									deleteNode(fd);
-									samplesTree.selectedItem = null;
-								} else{
-									experimentFileList.removeItemAt(experimentFileList.getItemIndex(fd));
-								}
+				}
+				
+				if(dropNode.name() == 'Sample'){
+					var seqRunNumberNode:XML = <SeqRunNumber />;
+					if(dropNode.children().length() == 0){
+						for each(var fd:XML in draggedItems){
+							if(seqRunNumberNode.children().length() == 2){
+								dropNode.appendChild(seqRunNumberNode);
+								seqRunNumberNode = <SeqRunNumber />;
 							}
-							dropNode.appendChild(seqRunNumberNode);
-							samplesTree.expandItem(dropNode, true);
-							samplesTree.expandItem(seqRunNumberNode, true);
-						} else{
-							for each(var fileDescript:XML in draggedItems){
-								if(fileDescript.name() == 'SeqRunNumber'){
-									dropNode.appendChild(fileDescript.copy());
-									continue;
+							seqRunNumberNode.appendChild(fd.copy());
+							if (event.dragInitiator.name == "samplesTree") {
+								deleteNode(fd);
+								samplesTree.selectedItem = null;
+							} else{
+								experimentFilesTree.selectedItem = null;
+								for each(var ef:XML in experimentFileList.children()){
+									if(ef.@displayName == fd.@displayName){
+										deleteNode(ef);
+										break;
+									}
+									for each(var efChild:XML in ef.children()){
+										if(efChild.@displayName == fd.@displayName){
+											deleteNode(efChild);
+											break;
+										}
+									}
 								}
-								var droppedFileName:String = fileDescript.@displayName.replace(/_/gi, "");
-								droppedFileName = droppedFileName.replace(/-/gi, "");
-								droppedFileName = droppedFileName.substring(0, droppedFileName.indexOf(".") - 1);
-								var isMatch:Boolean = false;
+								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(fd));
+							}
+						}
+						dropNode.appendChild(seqRunNumberNode);
+						samplesTree.expandItem(dropNode, true);
+						samplesTree.expandItem(seqRunNumberNode, true);
+					} else{
+						var seqRunNumberNode_two:XML = <SeqRunNumber />;
+						for(var i:int = 0; i < draggedItems.length; i++){
+							var fileDescript:XML = draggedItems[i];
+							var droppedFileName:String = fileDescript.@displayName.replace(/_/gi, "");
+							droppedFileName = droppedFileName.replace(/-/gi, "");
+							droppedFileName = droppedFileName.substring(0, droppedFileName.indexOf(".") - 1);
+							var isMatch:Boolean = false;
+							
+							for each(var file:XML in dropNode.children().children()){
+								var currentFileName:String = file.@displayName.replace(/_/gi, "");
+								currentFileName = currentFileName.replace(/-/gi, "");
+								currentFileName = currentFileName.substring(0, currentFileName.indexOf(".") - 1);
 								
-								for each(var file:XML in dropNode.children().children()){
-									var currentFileName:String = file.@displayName.replace(/_/gi, "");
-									currentFileName = currentFileName.replace(/-/gi, "");
-									currentFileName = currentFileName.substring(0, currentFileName.indexOf(".") - 1);
-								
-									if(droppedFileName == currentFileName){
+								if(droppedFileName == currentFileName){
+									if(file.parent().children().length() < 2){
 										file.parent().appendChild(fileDescript.copy());
 										samplesTree.expandItem(dropNode, true);
 										samplesTree.expandItem(file.parent(), true);
 										isMatch = true;
 										break;
+									} else{
+										break;
 									}
 								}
-								
-								if(!isMatch){
-									seqRunNumberNode.appendChild(fileDescript.copy());
-									dropNode.appendChild(seqRunNumberNode);
-									samplesTree.expandItem(dropNode, true);
-									samplesTree.expandItem(seqRunNumberNode, true);
-								}
-								
-								if (event.dragInitiator.name == "samplesTree") {
-									deleteNode(fileDescript);
-									samplesTree.selectedItem = null;
-								} else{
-									experimentFileList.removeItemAt(experimentFileList.getItemIndex(fileDescript));
-								}
+							}
+							
+							if(!isMatch){
+								seqRunNumberNode_two.appendChild(fileDescript.copy());
+								samplesTree.expandItem(dropNode, true);
+							}
+							
+							if(seqRunNumberNode_two.children().length() == 2 || (i + 1 >= draggedItems.length)){
+								dropNode.appendChild(seqRunNumberNode_two);
+								seqRunNumberNode_two = <SeqRunNumber />;
+							}
+							
+							if (event.dragInitiator.name == "samplesTree") {
+								deleteNode(fileDescript);
+								samplesTree.selectedItem = null;
+							} else{
+								deleteNodeFromExperimentFileList(fileDescript);
+								experimentFilesTree.selectedItem = null;
+								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(fileDescript));
 							}
 						}
-						event.target.hideDropFeedback(event);
-						
 					}
+					event.target.hideDropFeedback(event);
 					
-					if(dropNode.name() == 'SeqRunNumber'){
-						if(dropNode.children().length() == 2){//Each seq run folder can have a max of 2 exp files
-							Alert.show("A Seq Run Folder can only contain two Experiment Files.  Please remove one Experiment File from this folder and try again.");
-							return;
-						}
-						for(var i:int = 0; i< draggedItems.length; i++){
-							var dragItem:XML = XML(draggedItems[i]);
+				}
+				
+				if(dropNode.name() == 'SeqRunNumber'){
+					if(draggedItems.length == 1 && dropNode.children().length() == 2 && dropNode.children().contains(draggedItems[0])){
+						var fileOne:XML = dropNode.children()[0].copy();
+						var fileTwo:XML = dropNode.children()[1].copy();;
+						
+						deleteNode(dropNode.children()[0]);
+						deleteNode(dropNode.children()[0]);
+						
+						dropNode.appendChild(fileTwo);
+						dropNode.appendChild(fileOne);
+						
+					} else if(dropNode.children().length() == 2){//Each seq run folder can have a max of 2 exp files
+						event.target.hideDropFeedback(event);
+						Alert.show("A Seq Run Folder can only contain two Experiment Files.  Please remove one Experiment File from this folder and try again.");
+						return;
+					} else{
+						for(var j:int = 0; j < draggedItems.length; j++){
+							var dragItem:XML = XML(draggedItems[j]);
 							dropNode.appendChild(dragItem.copy());
 							if (event.dragInitiator.name == "samplesTree") {
 								deleteNode(dragItem);
 								samplesTree.selectedItem = null;
 							} else{
-								experimentFileList.removeItemAt(experimentFileList.getItemIndex(dragItem));
+								deleteNodeFromExperimentFileList(dragItem);
+								experimentFilesTree.selectedItem = null;
+								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(dragItem));
+							}
+						}
+					}
+				}
+					
+					for each(var emptyfolder:XML in sampleList.children()){
+						if(emptyfolder.children().length() == 0){
+							deleteNode(emptyfolder);
+						}
+					}
+					
+					for each(var fdChild:XML in experimentFileList.children()){
+						deleteEmptyFolders(fdChild);	
+					}
+					
+					clickedItems = new XMLListCollection();
+					samplesTree.expandItem(dropNode, true);
+					callLater(samplesTree.invalidateDisplayList);
+					this.dirty.setDirty();
+					event.target.hideDropFeedback(event);
+				}
+				
+				private function deleteNodeFromExperimentFileList(fd:XML):void{
+					for each(var ef:XML in experimentFileList.children()){
+						if(ef.@displayName == fd.@displayName){
+							deleteNode(ef);
+							break;
+						}
+						for each(var efChild:XML in ef.children()){
+							if(efChild.@displayName == fd.@displayName){
+								deleteNode(efChild);
+								break;
+							}
+						}
+					}
+				}
+				
+				private function onDragDropFile(event:DragEvent) : void
+				{
+					
+					// For some reason, preventDefault on AdvancedDataGrid
+					// isn't enough to stop the defaut drop operation from
+					// occurring. So I added hidDropFeedback and showFeedback
+					// and that seemed to do the trick.	
+					//this.downloadTree.hideDropFeedback(event);
+					//event.preventDefault();
+					//DragManager.showFeedback(DragManager.NONE);
+					
+					// determine where in the grid the drop occurs and select that node by the index; 
+					// followed by retrieving the node itself. 
+					var dropNode:XML = null;
+					var dropFolderNode:XML = null;
+					var siblingDropNode:XML = null;
+					//var r:int = downloadTree.calculateDropIndex(event);
+					//if (r > 0) { 
+					//  r--;
+					//}
+					//downloadTree.selectedIndex = r;
+					if(downloadTree.selectedItem != null) {
+						dropNode = downloadTree.selectedItem as XML;
+						
+						// Don't allow drag operation if nothing no drop node
+						// found
+						if (dropNode == null) {
+							event.preventDefault();
+							event.target.hideDropFeedback(event);
+							DragManager.showFeedback(DragManager.NONE);
+							return;
+						}
+						
+						dropFolderNode = dropNode;
+						if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+							dropFolderNode = dropNode.parent();
+							siblingDropNode = dropNode;
+						}
+						// Don't allow drag operation if nothing no drop folder node
+						// found
+						if (dropFolderNode == null) {
+							event.preventDefault();
+							event.target.hideDropFeedback(event);
+							DragManager.showFeedback(DragManager.NONE);
+							return;
+						}
+						
+						// get the drag format (its always items in our case
+						// Get the dragged items
+						var draggedItems:Array = null;		    
+						if (event.dragInitiator.name == "downloadTree") {
+							// For some reason, if we are dragging within the tree, the dragged
+							// items has to be detected on the dragEnter event.  By the time
+							// with get to the dragDrop event, the event.draggedItems contains
+							// the drop target, not the dragged items.
+							draggedItems = this.downloadDraggedItems;	    
+						} else {
+							var draggedFormat:String = event.dragSource.formats[0];
+							draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
+						}
+						for(var i:int = 0; i < draggedItems.length; i++) {
+							var dragItem:XML = XML(draggedItems[i]);
+							if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
+								var fileNode:XML;
+								if (dragItem.name() == "FileDescriptor" ){
+									fileNode = new XML("<FileDescriptor " +
+										" displayName='" +  dragItem.@displayName + "'" + 
+										" fileName='" +  dragItem.@fileName + "'" + 
+										" type='" + dragItem.@type + "'" +
+										" directoryName='" + dragItem.@directoryName + "'/>");
+								}
+								if (dragItem.name() == "RequestDownload" ){
+									fileNode = new XML("<FileDescriptor " +
+										" displayName='" +  dragItem.@itemNumber + "'" + 
+										" fileName='" +  dragItem.@fileName + "'" + 
+										" type='dir'" +
+										" directoryName='" + dragItem.@directoryName + "'/>");
+								}
+								
+								
+								for each ( var child:Object in dragItem.children() ) {
+									fileNode.appendChild(child);	
+								}
+								
+								// Don't allow dropping on yourself (causes a cyclical error)
+								if ( fileNode.@fileName == dropFolderNode.@fileName ){
+									return;
+								}
+								
+								if (siblingDropNode != null) {
+									dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
+								} else {
+									dropFolderNode.appendChild(fileNode);
+								}
+								downloadTree.expandItem(dropFolderNode, true);
+								
+								// We have to manually remove the file when we are
+								// dragging within the download tree.
+								if (event.dragInitiator.name == "downloadTree") {
+									deleteNode(dragItem);
+									downloadTree.selectedItem = null;
+								}
+								linkSamplesTab.enabled = false;
+								this.dirty.setDirty();
+							} 
+						}
+					}
+				}
+				
+				private function deleteNode(xmlToDelete:XML):Boolean {
+					var cn:XMLList = XMLList(xmlToDelete.parent()).children();
+					for ( var i:Number = 0 ; i < cn.length() ; i++ )
+					{
+						if ( cn[i] == xmlToDelete ) {
+							delete cn[i];       
+							return true;
+						}
+					}    
+					return false;
+				}
+				
+				private function doDragEnter(event:DragEvent):void
+				{
+					// Keep track of what was dragged.
+					var draggedFormat:String = event.dragSource.formats[0];
+					downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
+					
+					// Cancel default behaviour
+					event.preventDefault();
+					// Tell the DragManager that the Tree will accent the DragDrop
+					DragManager.acceptDragDrop(Tree(event.target));
+					// hide the "drop line" that is shown in Tree control
+					// when dropping in a Tree
+					//downloadTree.showDropFeedback(event);
+				}
+				
+				private function doDragOver(event:DragEvent):void
+				{
+					// Show the default "drop line" in the Tree control
+					//downloadTree.showDropFeedback(event);
+					// Cancel default behaviors
+					
+					var r:int = downloadTree.calculateDropIndex(event);
+					if (r > 0) { 
+						r--;
+					}
+					downloadTree.selectedIndex = r;
+					var dropNode:XML = downloadTree.selectedItem as XML;
+					
+					var dropFolderNode:XML = dropNode;
+					if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
+						dropFolderNode = dropNode.parent();
+					}  else if (dropNode.name() == "Request" && r != 0) {
+						if (dropNode.children().length() > 0) {
+							dropFolderNode = dropNode.children()[0];
+						} else {
+							dropFolderNode = null;
+						}
+					} 
+					
+					if (dropFolderNode != null) {
+						downloadTree.selectedItem = dropFolderNode;
+					}
+					
+					event.preventDefault();
+				}
+				
+				private function doDragExit(event:DragEvent):void
+				{
+					// hide the "drop line" that is shown in Tree control
+					// when dropping in a Tree
+					downloadTree.hideDropFeedback(event);
+				}
+				
+				private function doDragComplete(event:DragEvent):void
+				{
+					// hide the "drop line" that is shown in Tree control
+					// when dropping in a Tree
+					downloadTree.hideDropFeedback(event);
+				}
+				
+				//FUNCTIONS FOR SAMPLES TREE*********************************************************
+				
+				private function doDragEnterSamples(event:DragEvent):void
+				{
+					event.preventDefault();
+					// Keep track of what was dragged.
+					var draggedFormat:String = event.dragSource.formats[0];
+					downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
+					
+					DragManager.acceptDragDrop(AdvancedDataGrid(event.target));
+					// hide the "drop line" that is shown in Tree control
+					// when dropping in a Tree
+					//samplesTree.showDropFeedback(event);
+					samplesTree.hideDropFeedback(event);
+				}
+				
+				private function doDragEnterFiles(event:DragEvent):void{
+					event.preventDefault();
+					samplesTree.selectedItem = event.draggedItem;
+					
+				}
+				
+				private function doDragExitSamples(event:DragEvent):void {
+					// hide the "drop line" that is shown in Tree control
+					// when dropping in a Tree
+					event.preventDefault();
+					samplesTree.hideDropFeedback(event);
+				}
+				
+				private function doDragOverSamples(event:DragEvent):void {
+					// Show the default "drop line" in the Tree control
+					event.preventDefault();
+					//samplesTree.showDropFeedback(event);
+					samplesTree.hideDropFeedback(event);
+					// Cancel default behaviors
+					
+					var r:int = samplesTree.calculateDropIndex(event);
+					if (r > 0) { 
+						r--;
+					}
+					samplesTree.selectedIndex = r;
+					var dropNode:XML = samplesTree.selectedItem as XML;
+					
+					if (dropNode.name() == "FileDescriptor") {
+						dropNode = dropNode.parent();
+					}
+					
+					if (dropNode != null) {
+						samplesTree.selectedItem = dropNode;
+					}
+					
+				}
+				
+				private function doDragCompleteSamples(event:DragEvent):void{
+					event.preventDefault();
+				}
+				
+				public function showHTMLUploadForm():void {
+					var url:URLRequest = new URLRequest('uploadExperimentFile.jsp?requestNumber=' + this.requestNumber);
+					navigateToURL(url, '_blank');			
+					this.theTab.selectedIndex = 1;
+				}
+				
+				private function renameFile(event:MouseEvent):void{
+					if((filesGrid.selectedItem == null && downloadTree.selectedItem == null) || downloadTree.selectedIndex == 0){
+						return;
+					}
+						
+					else{
+						var renameWindow:RenameExperimentWindow = RenameExperimentWindow(mx.managers.PopUpManager.createPopUp(this, RenameExperimentWindow, true));
+					}
+					
+					if(downloadTree.selectedItem != null){
+						var selectedNode:XML = XML(downloadTree.selectedItem);
+						if(selectedNode.name() == "RequestDownload"){
+							renameWindow.oldExperimentName = selectedNode.@key;
+						}
+						else{
+							renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;
+						}
+					}
+					else{
+						var filesGridNode:XML = XML(filesGrid.selectedItem);
+						if(filesGridNode.name() == "RequestDownload"){
+							renameWindow.oldExperimentName = filesGridNode.@key;
+						}
+						else{
+							renameWindow.oldExperimentName = filesGrid.selectedItem.@displayName;
+						}
+					}
+					var oldName:String = downloadTree.selectedItem.name() == "RequestDownload" ? downloadTree.selectedItem.@itemNumber : downloadTree.selectedItem.@displayName;
+					renameWindow.oldName = oldName;
+					renameWindow.fileList = this.downloadList;
+					renameWindow.idRequest = this.idRequest;
+					renameWindow.addEventListener("refreshUploadFiles", onUploadFinished);
+					mx.managers.PopUpManager.centerPopUp(renameWindow);
+					renameWindow.nameExperiment.setFocus();
+				}
+				
+				private function closeMe():void{
+					var params:Object = new Object();
+					params.idRequest = request.@idRequest;
+					params.idLab = request.@idLab;
+					params.lastYear = 'Y';
+					params.isMicroarray  = "N";
+					params.isNextGenSeq  = "N";
+					params.isBioanalyzer = "N";
+					if(parentView.downloadView != null){
+						parentView.downloadView.getRequestDownloadList.send(params);
+					}
+					PopUpManager.removePopUp(this);
+				}
+				
+				public function startFDTUpload():void {			
+					var params:Object = new Object();		
+					params.idRequest = idRequest;
+					
+					fdtUploadStart.send(params);
+				}
+				
+				private function getDisplayName(item:Object, column:Object):String {
+					if (item.name() == "Sample") {
+						return item.@name;
+					} else{
+						return '';
+					} 
+				}
+				
+				private function getSampleNumberOrFileName(item:Object, column:Object):String {
+					if (item.name() == "Sample") {
+						return item.@number;
+					} else if(item.name() == "FileDescriptor"){
+						return item.@displayName;
+					} else{
+						return '';
+					} 
+				}
+				
+				private function getTreeIcon(item:Object):Class{
+					if(item.name() == "Sample"){
+						return parentApplication.testTube;
+					} else if(item.name() == "SeqRunNumber"  && item.children().length() > 0){
+						return parentApplication.iconFolder;
+					} else if(item.name() == "SeqRunNumber"){
+						return parentApplication.iconFolderDisabled;
+					} else{
+						return null;
+					}
+					
+				}
+				
+				private function createSeqRunFolder():void{
+					var s:String = "Seq Run #";
+					var seqRunNumberNode:XML = <SeqRunNumber />;
+					samplesTree.selectedItem.appendChild(seqRunNumberNode);
+					var x:int = 5;
+				}
+				
+				private function swapFileOrder():void{
+					var list:XMLList = samplesTree.selectedItem.children();
+					list[0].@readID = "2";
+					list[1].@readID = "1";
+					var fileDescriptOne:XML = list[0];
+					list[0] = list[1];
+					list[1] = fileDescriptOne;
+					samplesTree.selectedItem.setChildren(list);
+					samplesTree.dataProvider.refresh();
+					callLater(samplesTree.invalidateDisplayList);
+					callLater(samplesTree.validateDisplayList);
+					callLater(samplesTree.validateNow);
+					this.dirty.setDirty();
+				}
+				
+				private function areSelectionsValid():void{
+					if(samplesTree.selectedItems.length == 0){
+						this.resetFileButton.enabled = false;
+						//this.swapFileOrderButton.enabled = false;
+						
+					} else if(samplesTree.selectedItems.length == 1 && samplesTree.selectedItem.name() == 'SeqRunNumber' && samplesTree.selectedItem.children().length() == 2){
+						//this.swapFileOrderButton.enabled = true;
+						this.resetFileButton.enabled = false;
+					} else{
+						for each(var item:XML in samplesTree.selectedItems){
+							if(item.name() != 'FileDescriptor'){
+								this.resetFileButton.enabled = false;
+								break;
+							} else{
+								this.resetFileButton.enabled = true;
+								//this.swapFileOrderButton.enabled = false;
+							}
+						}
+					}
+				}
+				
+				private function resetExpFileTree():void{
+					for each(var item:XML in samplesTree.selectedItems){
+						experimentFileList.addItem(item.copy());
+						if(item.hasOwnProperty("@idExperimentFile")){
+							filesToUnlink.addItem(item.copy());
+						}
+						
+						deleteNode(item);
+					}
+					
+					for each(var folder:XML in sampleList.children()){
+						if(folder.children().length() == 0){
+							deleteNode(folder);
+						}
+					}
+					
+					dirty.setDirty();
+				}
+				
+				private function showFileNameToolTip(item:Object):String {
+					if(item != null && item.hasOwnProperty("@displayName")){
+						return item.@displayName;
+					} else{
+						return "";
+					}
+					
+				}
+				
+				private function getClickedItem(event:MouseEvent):void{
+					if(event.currentTarget.selectedItem == null || event.currentTarget.selectedItem.name() == 'RequestDownload' 
+						|| event.currentTarget.selectedItem.name() == 'SeqRunNumber'
+						|| (event.currentTarget.selectedItem.name() == 'FileDescriptor' && event.currentTarget.selectedItem.@type == 'dir')){
+						return;
+					} 
+					for each(var item:XML in clickedItems){
+						if(item.@displayName == event.currentTarget.selectedItem.@displayName){
+							return;
+						}
+					}
+					clickedItems.addItem(event.currentTarget.selectedItem.copy());
+					var isFound:Boolean = false;
+					
+					for each(var si:XML in event.currentTarget.selectedItems){
+						for each(var ci:XML in clickedItems){
+							if(ci.@displayName == si.@displayName){
+								isFound = true;
+								break;
+							}
+						}
+						
+						if(!isFound){
+							clickedItems.addItem(si.copy());
+						}
+						isFound = false;
+						
+					}
+					//				var isFound:Boolean = false;
+					//				for each(var ci:XML in clickedItems){
+					//					for each(var si:XML in event.currentTarget.selectedItems){
+					//						if(ci.@displayName == si.@displayName){
+					//							isFound = true;
+					//						}
+					//					}
+					//					if(!isFound){
+					//						clickedItems.addItem(event.currentTarget.selectedItem.copy());
+					//					}
+					//				}
+				}
+				
+				private function onDragDropReturn(event:DragEvent):void{
+					event.preventDefault();
+					event.target.hideDropFeedback(event);
+					
+					if(event.dragInitiator.name == 'experimentFilesTree'){
+						clickedItems = new XMLListCollection();
+						return;
+					}
+					
+					//				var dropNode:XML = null;
+					//				if(experimentFilesTree.selectedItem != null){
+					//					dropNode = XML(experimentFilesTree.selectedItem);
+					//					if(dropNode.name() == 'FileDescriptor'){
+					//						dropNode = dropNode.parent();
+					//						experimentFilesTree.selectedItem = dropNode;
+					//					}
+					//				}
+					
+					for each(var file:XML in clickedItems){
+						if(file.name() == 'Sample' || file.name() == 'SeqRunNumber'){
+							continue;
+						} else{
+							if(file.hasOwnProperty("@idExperimentFile")){
+								filesToUnlink.addItem(file.copy());
+							}
+							var fileName:String = file.@fileName; 
+							fileName = fileName.substring(fileName.indexOf(request.@number));
+							var filePart:String = fileName.split("/")[1];
+							var node:XML = null;
+							for each(var dl:XML in masterFileList.children()){
+								if(filePart == dl.@itemNumber || filePart == dl.@displayName){
+									node = dl.copy();
+									break;
+								}
+							}
+							for each(var expFile:XML in experimentFileList.children()){
+								if(expFile.@itemNumber == filePart){
+									deleteNode(expFile);
+									break;
+								}
+							}
+							if(node != null){
+								experimentFileList.source.appendChild(node);
 							}
 							
+							for each(var f:XML in sampleList.children().children()){
+								if(f.@displayName == file.@displayName){
+									deleteNode(f);
+									break;
+								}
+							}
+							for each(var ef:XML in experimentFileList.children().children()){
+								for each(var sf:XML in sampleList.children().children()){
+									if(sf.@displayName == ef.@displayName){
+										deleteNode(ef);
+										break;
+									}
+								}
+							}
+							for each(var fd:XML in experimentFileList.children().children()){
+								deleteEmptyFolders(fd);	
+							}
 						}
 					}
 					
@@ -567,405 +1220,35 @@
 							deleteNode(emptyfolder);
 						}
 					}
-					samplesTree.expandItem(dropNode, true);
+					clickedItems = new XMLListCollection();
 					callLater(samplesTree.invalidateDisplayList);
 					this.dirty.setDirty();
 					event.target.hideDropFeedback(event);
 				}
-			}
-			
-			private function onDragDropFile(event:DragEvent) : void
-			{
 				
-				// For some reason, preventDefault on AdvancedDataGrid
-				// isn't enough to stop the defaut drop operation from
-				// occurring. So I added hidDropFeedback and showFeedback
-				// and that seemed to do the trick.	
-				//this.downloadTree.hideDropFeedback(event);
-				//event.preventDefault();
-				//DragManager.showFeedback(DragManager.NONE);
-				
-				// determine where in the grid the drop occurs and select that node by the index; 
-				// followed by retrieving the node itself. 
-				var dropNode:XML = null;
-				var dropFolderNode:XML = null;
-				var siblingDropNode:XML = null;
-				//var r:int = downloadTree.calculateDropIndex(event);
-				//if (r > 0) { 
-				//  r--;
-				//}
-				//downloadTree.selectedIndex = r;
-				if(downloadTree.selectedItem != null) {
-					dropNode = downloadTree.selectedItem as XML;
+				private function doDragEnterReturn(event:DragEvent):void{
+					event.preventDefault();
+					DragManager.acceptDragDrop(Tree(event.target));
+					experimentFilesTree.hideDropFeedback(event);
+				}
+				private function doDragOverReturn(event:DragEvent):void{
+					event.preventDefault();
+					experimentFilesTree.hideDropFeedback(event);
 					
-					// Don't allow drag operation if nothing no drop node
-					// found
-					if (dropNode == null) {
-						event.preventDefault();
-						event.target.hideDropFeedback(event);
-						DragManager.showFeedback(DragManager.NONE);
-						return;
-					}
+					experimentFilesTree.selectedIndex = 0;
+					var dropNode:XML = experimentFilesTree.selectedItem as XML;
 					
-					dropFolderNode = dropNode;
-					if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
-						dropFolderNode = dropNode.parent();
-						siblingDropNode = dropNode;
-					}
-					// Don't allow drag operation if nothing no drop folder node
-					// found
-					if (dropFolderNode == null) {
-						event.preventDefault();
-						event.target.hideDropFeedback(event);
-						DragManager.showFeedback(DragManager.NONE);
-						return;
-					}
-					
-					// get the drag format (its always items in our case
-					// Get the dragged items
-					var draggedItems:Array = null;		    
-					if (event.dragInitiator.name == "downloadTree") {
-						// For some reason, if we are dragging within the tree, the dragged
-						// items has to be detected on the dragEnter event.  By the time
-						// with get to the dragDrop event, the event.draggedItems contains
-						// the drop target, not the dragged items.
-						draggedItems = this.downloadDraggedItems;	    
-					} else {
-						var draggedFormat:String = event.dragSource.formats[0];
-						draggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;	
-					}
-					for(var i:int = 0; i < draggedItems.length; i++) {
-						var dragItem:XML = XML(draggedItems[i]);
-						if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
-							var fileNode:XML;
-							if (dragItem.name() == "FileDescriptor" ){
-								fileNode = new XML("<FileDescriptor " +
-									" displayName='" +  dragItem.@displayName + "'" + 
-									" fileName='" +  dragItem.@fileName + "'" + 
-									" type='" + dragItem.@type + "'" +
-									" directoryName='" + dragItem.@directoryName + "'/>");
-							}
-							if (dragItem.name() == "RequestDownload" ){
-								fileNode = new XML("<FileDescriptor " +
-									" displayName='" +  dragItem.@itemNumber + "'" + 
-									" fileName='" +  dragItem.@fileName + "'" + 
-									" type='dir'" +
-									" directoryName='" + dragItem.@directoryName + "'/>");
-							}
-							
-							
-							for each ( var child:Object in dragItem.children() ) {
-								fileNode.appendChild(child);	
-							}
-							
-							// Don't allow dropping on yourself (causes a cyclical error)
-							if ( fileNode.@fileName == dropFolderNode.@fileName ){
-								return;
-							}
-							
-							if (siblingDropNode != null) {
-								dropFolderNode.insertChildAfter(siblingDropNode, fileNode);	       				
-							} else {
-								dropFolderNode.appendChild(fileNode);
-							}
-							downloadTree.expandItem(dropFolderNode, true);
-							
-							// We have to manually remove the file when we are
-							// dragging within the download tree.
-							if (event.dragInitiator.name == "downloadTree") {
-								deleteNode(dragItem);
-								downloadTree.selectedItem = null;
-							}
-							linkSamplesTab.enabled = false;
-							this.dirty.setDirty();
-						} 
-					}
+					experimentFilesTree.hideDropFeedback(event);
 				}
-			}
-			
-			private function deleteNode(xmlToDelete:XML):Boolean {
-				var cn:XMLList = XMLList(xmlToDelete.parent()).children();
-				for ( var i:Number = 0 ; i < cn.length() ; i++ )
-				{
-					if ( cn[i] == xmlToDelete ) {
-						delete cn[i];       
-						return true;
-					}
-				}    
-				return false;
-			}
-			
-			private function doDragEnter(event:DragEvent):void
-			{
-				// Keep track of what was dragged.
-				var draggedFormat:String = event.dragSource.formats[0];
-				downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
-				
-				// Cancel default behaviour
-				event.preventDefault();
-				// Tell the DragManager that the Tree will accent the DragDrop
-				DragManager.acceptDragDrop(Tree(event.target));
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				//downloadTree.showDropFeedback(event);
-			}
-			
-			private function doDragOver(event:DragEvent):void
-			{
-				// Show the default "drop line" in the Tree control
-				//downloadTree.showDropFeedback(event);
-				// Cancel default behaviors
-				
-				var r:int = downloadTree.calculateDropIndex(event);
-				if (r > 0) { 
-					r--;
-				}
-				downloadTree.selectedIndex = r;
-				var dropNode:XML = downloadTree.selectedItem as XML;
-				
-				var dropFolderNode:XML = dropNode;
-				if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
-					dropFolderNode = dropNode.parent();
-				}  else if (dropNode.name() == "Request" && r != 0) {
-					if (dropNode.children().length() > 0) {
-						dropFolderNode = dropNode.children()[0];
-					} else {
-						dropFolderNode = null;
-					}
-				} 
-				
-				if (dropFolderNode != null) {
-					downloadTree.selectedItem = dropFolderNode;
+				private function doDragExitReturn(event:DragEvent):void{
+					event.preventDefault();
+					experimentFilesTree.hideDropFeedback(event);
 				}
 				
-				event.preventDefault();
-			}
-			
-			private function doDragExit(event:DragEvent):void
-			{
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				downloadTree.hideDropFeedback(event);
-			}
-			
-			private function doDragComplete(event:DragEvent):void
-			{
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				downloadTree.hideDropFeedback(event);
-			}
-			
-			//FUNCTIONS FOR SAMPLES TREE*********************************************************
-			
-			private function doDragEnterSamples(event:DragEvent):void
-			{
-				// Keep track of what was dragged.
-				var draggedFormat:String = event.dragSource.formats[0];
-				downloadDraggedItems = event.dragSource.dataForFormat(draggedFormat) as Array;
-				
-				// Cancel default behaviour
-				event.preventDefault();
-				
-				DragManager.acceptDragDrop(AdvancedDataGrid(event.target));
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				samplesTree.showDropFeedback(event);
-			}
-			
-			private function doDragEnterFiles(event:DragEvent):void{
-				samplesTree.selectedItem = event.draggedItem;
-				
-			}
-			
-			private function doDragExitSamples(event:DragEvent):void {
-				// hide the "drop line" that is shown in Tree control
-				// when dropping in a Tree
-				samplesTree.hideDropFeedback(event);
-			}
-			
-			private function doDragOverSamples(event:DragEvent):void {
-				// Show the default "drop line" in the Tree control
-				samplesTree.showDropFeedback(event);
-				// Cancel default behaviors
-				
-				var r:int = samplesTree.calculateDropIndex(event);
-				if (r > 0) { 
-					r--;
-				}
-				samplesTree.selectedIndex = r;
-				var dropNode:XML = samplesTree.selectedItem as XML;
-				
-				if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir") {
-					dropNode = dropNode.parent();
-				}
-				if (dropNode != null) {
-					samplesTree.selectedItem = dropNode;
+				private function doDragCompleteReturn(event:DragEvent):void{
+					event.preventDefault();
 				}
 				
-				event.preventDefault();
-			}
-			
-			public function showHTMLUploadForm():void {
-				var url:URLRequest = new URLRequest('uploadExperimentFile.jsp?requestNumber=' + this.requestNumber);
-				navigateToURL(url, '_blank');			
-				this.theTab.selectedIndex = 1;
-			}
-			
-			private function renameFile(event:MouseEvent):void{
-				if((filesGrid.selectedItem == null && downloadTree.selectedItem == null) || downloadTree.selectedIndex == 0){
-					return;
-				}
-					
-				else{
-					var renameWindow:RenameExperimentWindow = RenameExperimentWindow(mx.managers.PopUpManager.createPopUp(this, RenameExperimentWindow, true));
-				}
-				
-				if(downloadTree.selectedItem != null){
-					var selectedNode:XML = XML(downloadTree.selectedItem);
-					if(selectedNode.name() == "RequestDownload"){
-						renameWindow.oldExperimentName = selectedNode.@key;
-					}
-					else{
-						renameWindow.oldExperimentName = downloadTree.selectedItem.@displayName;
-					}
-				}
-				else{
-					var filesGridNode:XML = XML(filesGrid.selectedItem);
-					if(filesGridNode.name() == "RequestDownload"){
-						renameWindow.oldExperimentName = filesGridNode.@key;
-					}
-					else{
-						renameWindow.oldExperimentName = filesGrid.selectedItem.@displayName;
-					}
-				}
-				var oldName:String = downloadTree.selectedItem.name() == "RequestDownload" ? downloadTree.selectedItem.@itemNumber : downloadTree.selectedItem.@displayName;
-				renameWindow.oldName = oldName;
-				renameWindow.fileList = this.downloadList;
-				renameWindow.idRequest = this.idRequest;
-				renameWindow.addEventListener("refreshUploadFiles", onUploadFinished);
-				mx.managers.PopUpManager.centerPopUp(renameWindow);
-				renameWindow.nameExperiment.setFocus();
-			}
-			
-			private function closeMe():void{
-				var params:Object = new Object();
-				params.idRequest = request.@idRequest;
-				params.idLab = request.@idLab;
-				params.lastYear = 'Y';
-				params.isMicroarray  = "N";
-				params.isNextGenSeq  = "N";
-				params.isBioanalyzer = "N";
-				if(parentView.downloadView != null){
-					parentView.downloadView.getRequestDownloadList.send(params);
-				}
-				PopUpManager.removePopUp(this);
-			}
-			
-			public function startFDTUpload():void {			
-				var params:Object = new Object();		
-				params.idRequest = idRequest;
-				
-				fdtUploadStart.send(params);
-			}
-			
-			private function getDisplayName(item:Object, column:Object):String {
-				if (item.name() == "Sample") {
-					return item.@name;
-				} else{
-					return '';
-				} 
-			}
-			
-			private function getSampleNumberOrFileName(item:Object, column:Object):String {
-				if (item.name() == "Sample") {
-					return item.@number;
-				} else if(item.name() == "FileDescriptor"){
-					return item.@displayName;
-				} else{
-					return '';
-				} 
-			}
-			
-			private function getTreeIcon(item:Object):Class{
-				if(item.name() == "Sample"){
-					return parentApplication.testTube;
-				} else if(item.name() == "SeqRunNumber"  && item.children().length() > 0){
-					return parentApplication.iconFolder;
-				} else if(item.name() == "SeqRunNumber"){
-					return parentApplication.iconFolderDisabled;
-				} else{
-					return null;
-				}
-				
-			}
-			
-			private function createSeqRunFolder():void{
-				var s:String = "Seq Run #";
-				var seqRunNumberNode:XML = <SeqRunNumber />;
-				samplesTree.selectedItem.appendChild(seqRunNumberNode);
-				var x:int = 5;
-			}
-			
-			private function swapFileOrder():void{
-				var list:XMLList = samplesTree.selectedItem.children();
-				list[0].@readID = "2";
-				list[1].@readID = "1";
-				var fileDescriptOne:XML = list[0];
-				list[0] = list[1];
-				list[1] = fileDescriptOne;
-				samplesTree.selectedItem.setChildren(list);
-				this.dirty.setDirty();
-			}
-			
-			private function areSelectionsValid():void{
-				if(samplesTree.selectedItems.length == 0){
-					this.resetFileButton.enabled = false;
-					this.swapFileOrderButton.enabled = false;
-					
-				} else if(samplesTree.selectedItems.length == 1 && samplesTree.selectedItem.name() == 'SeqRunNumber' && samplesTree.selectedItem.children().length() == 2){
-					this.swapFileOrderButton.enabled = true;
-					this.resetFileButton.enabled = false;
-				} else{
-					for each(var item:XML in samplesTree.selectedItems){
-						if(item.name() != 'FileDescriptor'){
-							this.resetFileButton.enabled = false;
-							break;
-						} else{
-							this.resetFileButton.enabled = true;
-							this.swapFileOrderButton.enabled = false;
-						}
-					}
-				}
-			}
-			
-			private function resetExpFileTree():void{
-				for each(var item:XML in samplesTree.selectedItems){
-					experimentFileList.addItem(item.copy());
-					if(item.hasOwnProperty("@idExperimentFile")){
-						filesToUnlink.addItem(item.copy());
-					}
-					
-					deleteNode(item);
-				}
-				
-				for each(var folder:XML in sampleList.children()){
-					if(folder.children().length() == 0){
-						deleteNode(folder);
-					}
-				}
-				
-				dirty.setDirty();
-			}
-			
-			private function showFileNameToolTip(item:Object):String {
-				if(item != null && item.hasOwnProperty("@displayName")){
-					return item.@displayName;
-				} else{
-					return "";
-				}
-				
-			}
-			
 		]]>
 	</mx:Script>	
 	
@@ -977,8 +1260,8 @@
 	<mx:XMLListCollection id="filesToUnlink"/>
 	<mx:Canvas width="100%" height="100%">
 		<mx:TextArea width="504" height="20" 
-					 styleName="instructionBox" editable="false" wordWrap="true" visible="{theTab.selectedIndex == 1 || theTab.selectedIndex == 2}" text="Drag uploaded file into one of the folders on the right.To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
-		<mx:TabNavigator id="theTab" change="onTabChange()"   width="100%" paddingTop="0" height="100%" styleName="form">
+					 styleName="instructionBox" id="instructionBox" editable="false" wordWrap="true" visible="{theTab.selectedIndex == 1 || theTab.selectedIndex == 2}" text="Drag uploaded file into one of the folders on the right.To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
+		<mx:TabNavigator id="theTab" change="onTabChange();"   width="100%" paddingTop="0" height="100%" styleName="form">
 			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
 					<mx:VBox width="100%" height="100%">
@@ -1058,26 +1341,28 @@
 			<mx:VBox width="100%" id="linkSamplesTab" toolTip="{linkSamplesTab.enabled == false ? 'Please save current changes to enable this tab' : ''}" height="100%" label="Link Samples"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2" >
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0" horizontalAlign="right"> 
 					<mx:LinkButton id="newSeqRunFolder" label="New Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == 'Sample'}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing experiment files"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
-					<mx:LinkButton id="swapFileOrderButton" label="Swap File Order" enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
-					<mx:LinkButton id="resetFileButton" label="Unlink" toolTip="Unlink selected files from samples and move them back to the left" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree(); sortExperimentFileList();}" textDecoration="underline" paddingLeft="0" />
+					<mx:LinkButton id="swapFileOrderButton" visible="false" label="Swap File Order" enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
+					<mx:LinkButton id="resetFileButton" label="Unlink" visible="false" includeInLayout="false" toolTip="Unlink selected files from samples and move them back to the left" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree(); sortExperimentFileList();}" textDecoration="underline" paddingLeft="0" />
 					<mx:LinkButton id="refreshLinkage" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles(); getLinkedSampleFiles.send();"/>
 				</mx:HBox>
 				<mx:HDividedBox width="100%" height="100%">
 					<mx:VBox width="300" height="100%" verticalGap="0" styleName="form" >
-						<mx:AdvancedDataGrid id="experimentFilesTree"  
-											 dragEnabled="true"
-											 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
-											 sortExpertMode="true"
-											 sortableColumns="false"
-											 width="100%" height="100%"
-											 dragMoveEnabled="true" dropEnabled="false" itemClick="{this.samplesTree.selectedItem = null;}">
-							<mx:dataProvider>
-								<mx:HierarchicalData source="{experimentFileList}"/>
-							</mx:dataProvider>	
-							<mx:columns>
-								<mx:AdvancedDataGridColumn headerText="Experiment Files" dataField="@displayName" showDataTips="true"/>
-							</mx:columns>
-						</mx:AdvancedDataGrid>
+						<mx:Tree id="experimentFilesTree"   
+								 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
+								 iconFunction="parentApplication.getTreeIcon"
+								 dataProvider="{experimentFileList}"
+								 labelFunction="{getDownloadName}"
+								 mouseDown="getClickedItem(event)"
+								 showDataTips="true"
+								 showRoot="true"
+								 dragDrop="onDragDropReturn(event)"
+								 dragOver="doDragOverReturn(event)"
+								 dragExit="doDragExitReturn(event)"
+								 dragEnter="doDragEnterReturn(event)"
+								 dragComplete="doDragCompleteReturn(event)"
+								 width="100%" height="100%"
+								 dragMoveEnabled="true" dropEnabled="true" dragEnabled="true" itemClick="{this.samplesTree.selectedItem = null;}">
+						</mx:Tree>
 					</mx:VBox>
 					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
 						<mx:AdvancedDataGrid id="samplesTree" displayItemsExpanded="true"
@@ -1085,7 +1370,7 @@
 											 dragDrop="onDragDropExpFile(event)"
 											 dragOver="doDragOverSamples(event)"
 											 dragExit="doDragExitSamples(event)"
-											 dragEnter="doDragEnterSamples(event)"
+											 dragEnter="doDragEnterSamples(event)" dragComplete="doDragCompleteSamples(event)"
 											 iconFunction="getTreeIcon"
 											 sortExpertMode="true"
 											 sortableColumns="false"
@@ -1094,12 +1379,12 @@
 											 dragEnabled="true" 
 											 dragMoveEnabled="true"
 											 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
-											 itemClick="{this.experimentFilesTree.selectedItem = null; areSelectionsValid();}">
+											 itemClick="{this.experimentFilesTree.selectedItem = null; areSelectionsValid();}" mouseDown="getClickedItem(event)">
 							<mx:dataProvider>
 								<mx:HierarchicalData source="{sampleList}"/>
 							</mx:dataProvider>	
 							<mx:columns>
-								<mx:AdvancedDataGridColumn headerText="Sample ID" labelFunction="{getSampleNumberOrFileName}" width="300"/>
+								<mx:AdvancedDataGridColumn headerText="Sample ID" labelFunction="{getSampleNumberOrFileName}" width="330"/>
 								<mx:AdvancedDataGridColumn headerText="Name" labelFunction="{getDisplayName}" showDataTips="true" />
 								<mx:AdvancedDataGridColumn headerText="Date" dataField="@lastModifyDateDisplay"/>
 								<mx:AdvancedDataGridColumn headerText="Size" dataField="@fileSizeText"/>
