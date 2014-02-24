@@ -922,6 +922,7 @@
 		<property name="idExpFileRead1" column="idExpFileRead1" type="integer"/>
 		<property name="idExpFileRead2" column="idExpFileRead2" type="integer"/>
 		<property name="seqRunNumber" column="seqRunNumber" type="integer"/>
+		<many-to-one name="sample" class="hci.gnomex.model.Sample" column="idSample" cascade="none" insert="false" update="false" />
 	</class>
 	
 	<!-- hci.gnomex.model.PropertyEntry -->
