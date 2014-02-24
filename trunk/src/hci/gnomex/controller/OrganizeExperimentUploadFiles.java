@@ -117,7 +117,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         linkedSampleFileDoc = sax.build(reader);
       } catch (JDOMException je ) {
         log.error( "Cannot parse linkedSampleFileXMLString", je );
-        this.addInvalidField( "FilesToRemoveXMLString", "Invalid linkedSampleFiles xml");
+        this.addInvalidField( "linkedSampleFileXMLString", "Invalid linkedSampleFiles xml");
       }
     }
 
@@ -179,8 +179,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 }
               }
               //Update experiment file name if registered in the db
-              String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
-              String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
+              String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/"); 
+              String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace("\\", "/");
               List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + oldExpFileName + "'").list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
@@ -265,7 +265,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentExpFileName + "'").list();
                 if(expFiles.size() == 1) {
                   String newExpFileName = targetDirName.substring(targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
-                  newExpFileName += destFile.getName();
+                  newExpFileName += "/" + destFile.getName();
+                  newExpFileName = newExpFileName.replace("//", "/");
                   ExperimentFile ef = (ExperimentFile)expFiles.get(0);
                   ef.setFileName(newExpFileName);
                   ef.setFileSize(BigDecimal.valueOf(destFile.length()));
@@ -448,6 +449,14 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 Element seqRunNode = (Element)j.next();
                 seqRunNumber = seqRunNumber + 1;
                 SampleExperimentFile sef = new SampleExperimentFile();
+                Integer idExperimentFile = null;
+                for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
+                  Element expFile = (Element)k.next();
+                  if(expFile.getAttributeValue("idExperimentFile") != null) {
+                    idExperimentFile = Integer.valueOf(expFile.getAttributeValue("idExperimentFile"));
+                    break;
+                  }
+                }
                 fileCount = 1;
                 for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
                   Element expFile = (Element)k.next();
@@ -463,8 +472,13 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
                     if(ef == null) {
                       continue;
+                    } else {
+                      idExperimentFile = ef.getIdExperimentFile();
                     }
-                    List sefList = sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+                  }
+                  
+                  if(idExperimentFile != null) {
+                    List sefList = sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list();
                     if(sefList.size() == 1) {
                       sef = (SampleExperimentFile)sefList.get(0);
                     }
