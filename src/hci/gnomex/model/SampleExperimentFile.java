@@ -8,7 +8,7 @@ public class SampleExperimentFile extends HibernateDetailObject {
   private Integer idExpFileRead1;
   private Integer idExpFileRead2;
   private Integer seqRunNumber;
-    
+  private Sample sample;  
   public Integer getIdSampleExperimentFile() {
     return idSampleExperimentFile;
   }
@@ -38,6 +38,12 @@ public class SampleExperimentFile extends HibernateDetailObject {
   }
   public void setSeqRunNumber(Integer seqRunNumber) {
     this.seqRunNumber = seqRunNumber;
+  }
+  public Sample getSample() {
+    return sample;
+  }
+  public void setSample(Sample sample) {
+    this.sample = sample;
   }
 
 }
