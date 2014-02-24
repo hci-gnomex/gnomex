@@ -58,7 +58,6 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
-      System.out.println(request.getParameter("idRequest"));//DEBUGGING LINE
       idRequest = Integer.parseInt(request.getParameter("idRequest"));
     }
     
@@ -109,6 +108,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[3]));
+          sefNode.setAttribute("fileName", ef.getFileName());
           sefNode.setAttribute("readID", "1");
           seqRunNumberNode.addContent(sefNode);
         }
@@ -122,6 +122,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[4]));
+          sefNode.setAttribute("fileName", ef.getFileName());
           sefNode.setAttribute("readID", "2");
           seqRunNumberNode.addContent(sefNode);
         }
