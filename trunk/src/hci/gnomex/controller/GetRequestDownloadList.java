@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -578,10 +579,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             fdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
-            if(fd.getIdExperimentFile(sess) != null) {
-              fdNode.setAttribute("idExperimentFile", fd.getIdExperimentFile(sess).toString());
-            }
-            recurseAddChildren(fdNode, fd, isFlowCellDirectory);
+            fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fd.getZipEntryName()));
+            recurseAddChildren(fdNode, fd, isFlowCellDirectory, sess);
             
             requestDownloadNode.addContent(fdNode);
             requestDownloadNode.setAttribute("isEmpty", "N");
@@ -599,7 +598,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory) throws XMLReflectException {
+  private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory, Session sess) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
       if ( fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "Y");
@@ -621,18 +620,33 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
       childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
+      childFdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, childFd.getZipEntryName()));
 
       fdNode.addContent(childFdNode);
       
       
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
-        recurseAddChildren(childFdNode, childFd, isFlowCellDirectory);
+        recurseAddChildren(childFdNode, childFd, isFlowCellDirectory, sess);
       }else {
         if ( childFd.getType().equals("dir")) {
           childFdNode.setAttribute("isEmpty", "Y");
         }
       }
     }
+    
+  }
+  
+  private static String getLinkedSampleNumber(Session sess, String fileName) {
+    List expFile = sess.createQuery("Select ef from ExperimentFile ef WHERE ef.fileName = '" + fileName.replace("\\", "/") + "'" ).list();
+    if(expFile.size() > 0) {
+      ExperimentFile ef = (ExperimentFile) expFile.get(0);
+      List sampleNumber = sess.createQuery("Select samp.number from SampleExperimentFile sef JOIN sef.sample as samp where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " or sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+      if(sampleNumber.size() > 0) {
+        return (String)sampleNumber.get(0);
+      }
+    }
+    
+    return "";
     
   }
   
@@ -698,10 +712,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("state", "unchecked");
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
-        if(fdesc.getIdExperimentFile(sess) != null) {
-          fdNode.setAttribute("idExperimentFile", fdesc.getIdExperimentFile(sess).toString());
-        }
-
+        fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(requestNumber))));
+        
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
 
