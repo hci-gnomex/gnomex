@@ -167,7 +167,7 @@ try {
         <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a> 
       </div>
     </div>
-    <form id="theform" method="POST" action="j_security_check"  >
+    <form id="theform" method="POST" action="j_security_check<%=idCoreParm%>"  >
 
   <div class="box">
   
