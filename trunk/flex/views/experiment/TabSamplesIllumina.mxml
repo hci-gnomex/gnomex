@@ -1133,7 +1133,10 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="# Seq"/> 
+								<mx:HBox horizontalGap="0">
+									<util:ContextHelp context1="numberSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}"/>
+									<mx:Label text="# Seq"/> 
+								</mx:HBox>
 								<mx:Label text="Lanes"/>
 							</mx:VBox> 
 						</mx:Component>

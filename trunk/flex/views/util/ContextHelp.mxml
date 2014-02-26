@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:LinkButton horizontalGap="0" paddingLeft="0" paddingRight="0" icon="@Embed(source='../../assets/information.png')" label="" xmlns:mx="http://www.adobe.com/2006/mxml" click="helpClick()">
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			import views.util.ContextSensitiveHelpView;
+
+			public var context1:String = "";
+			public var context2:String = null;
+			public var showEdit:Boolean = false;
+			
+			private function helpClick():void {
+				if (showEdit) {
+					var w:ContextSensitiveHelpEdit = ContextSensitiveHelpEdit(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpEdit, true));
+					w.init(context1, context2, this);
+					PopUpManager.centerPopUp(w);
+				} else {
+					if (context2 == null) {
+						context2 = '';
+					}
+					var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
+					var helpText:String = "No Help Available";
+					if (helpList.length() > 0) {
+						helpText = helpList[0].@helpText.toString();
+					}
+					showHelpView(helpText);
+				}
+			}
+			
+			public function showHelpView(helpText:String):void {
+
+				var w:ContextSensitiveHelpView = ContextSensitiveHelpView(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpView, true));
+				w.init(helpText, this);
+			}
+		]]>
+	</mx:Script>
+</mx:LinkButton>
