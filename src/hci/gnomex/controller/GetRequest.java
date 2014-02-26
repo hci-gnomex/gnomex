@@ -557,7 +557,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           
           if (request.getCodeRequestCategory() != null && 
-              (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY))
+              (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM))
               && request.getSamples().size() > 0) {
             String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
             Query plateQuery = sess.createQuery(plateQueryString);
