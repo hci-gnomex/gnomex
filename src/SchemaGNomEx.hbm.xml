@@ -2242,5 +2242,15 @@
     <property name="isIllumina" column="isIllumina" type="string"/>
     <property name="hasChannels" column="hasChannels" type="string"/>
   </class>
+  
+  <!-- hci.gnomex.model.ContextSensitiveHelp -->
+  <class name="hci.gnomex.model.ContextSensitiveHelp" table="ContextSensitiveHelp">
+    <id name="idContextSensitiveHelp" column="idContextSensitiveHelp" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="context1" column="context1" type="string"/>
+    <property name="context2" column="context2" type="string"/>
+    <property name="helpText" column="helpText" type="string"/>
+  </class>
 	
 </hibernate-mapping>
