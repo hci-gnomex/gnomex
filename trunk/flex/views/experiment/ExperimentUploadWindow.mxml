@@ -128,6 +128,10 @@
 			
 			private var clickedItems:XMLListCollection = new XMLListCollection();
 			
+			private var treeItemToSelect:Object = null;
+			
+			private var selectedExpFileTreeIndex:int = 0; 
+			
 			public function init(request:Object):void {
 				this.idRequest = request.@idRequest;
 				this.requestNumber = request.@requestNumber;
@@ -151,7 +155,10 @@
 				getRequestDownloadList.send(params);
 				refreshUploadFiles();
 				this.addEventListener("refreshUploadFiles", onUploadFinished);
-				getLinkedSampleFiles.send();
+				
+				if(theTab.selectedIndex == 2){
+					getLinkedSampleFiles.send();
+				}
 			}
 			
 			public function centerMe():void{
@@ -349,21 +356,9 @@
 				
 				callLater(experimentFilesTree.expandItem, [experimentFileList.getItemAt(0), true]);
 				
-				//sortExperimentFileList();
-				//				for (var key:Object in expFileDict){
-				//					var found:Boolean = false;
-				//					var fd:XML = expFileDict[key];
-				//					for each(var s:XML in sampleList.children()){
-				//						if(fdChild.@displayName == fd.@displayName){
-				//							found = true;
-				//						}
-				//						
-				//					}
-				//					if(!found){
-				//						experimentFileList.addItem(fd);
-				//					}
-				//				}
-				//				sortExperimentFileList();
+				if(treeItemToSelect != null){
+					callLater(selectTreeItem);
+				}
 			}
 			
 			private function sortExperimentFileList():void{
@@ -413,15 +408,62 @@
 				if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
 					mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
 				} else {
+					if(theTab.selectedIndex == 2){
+						getLinkedSampleFiles.send();
+					}
 					refreshFiles();
-					getLinkedSampleFiles.send();
 				} 	 
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
 			{
 				var x:int = filesGrid.dataProvider.getItemIndex(item) + 1;
 				return String(x);
-			} 		
+			}
+			
+			private function selectTreeItem():void {
+				if (treeItemToSelect != null && recurseFindFile(treeItemToSelect as XML)) {
+					recurseExpandParent(treeItemToSelect);
+					experimentFilesTree.validateNow();
+					callLater(autoScrollTree);
+				} else {
+					experimentFilesTree.selectedItem = null;
+				}
+			}
+			
+			private function autoScrollTree():void{
+				experimentFilesTree.scrollToIndex(selectedExpFileTreeIndex);
+			}
+			
+			private function recurseExpandParent(item:Object):void {
+				if (item.name() == 'RequestDownload') {
+					experimentFilesTree.expandItem(XML(experimentFilesTree.dataProvider.source.RequestDownload.(@itemNumber == item.@itemNumber)), true);				
+				} else if(item.name() == 'FileDescriptor' && item.@type == 'dir'){
+					experimentFilesTree.expandItem(XML(experimentFilesTree.dataProvider.source..FileDescriptor.(@displayName == item.@displayName)), true);
+				}
+				if (item.parent() != null) {
+					recurseExpandParent(item.parent());									
+				}
+				
+			}
+			
+			private function recurseFindFile(fileToFind:XML):Boolean{
+				
+				for each(var file:XML in experimentFileList.children()){
+					if(file.name() == 'RequestDownload' && file.@itemNumber == fileToFind.@itemNumber){
+						return true;
+					} else if (file.name() == 'RequestDownload' && file.children().length() > 0){
+						recurseFindFileToDelete(file.children(), fileToFind);
+					} else if(file.name() == 'FileDescriptor' && file.@displayName == fileToFind.@displayName ){
+						return true;
+					} else if(file.name() == 'FileDescriptor' && file.@type == 'dir' && file.children().length() > 0){
+						recurseFindFileToDelete(file.children(), fileToFind);
+					} else{
+						return false;
+					}
+				}
+				return false;
+			}
+			
 			
 			private function getDownloadName(item:Object):String {
 				var info:String = item.name() == "RequestDownload" && item.hasOwnProperty("@info") && item.@info != "" ? " - " + item.@info : "";
@@ -633,9 +675,8 @@
 								deleteNode(fileDescript);
 								samplesTree.selectedItem = null;
 							} else{
-								deleteNodeFromExperimentFileList(fileDescript);
+								recurseFindFileToDelete(experimentFileList.children(), fileDescript);
 								experimentFilesTree.selectedItem = null;
-								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(fileDescript));
 							}
 						}
 					}
@@ -666,9 +707,8 @@
 								deleteNode(dragItem);
 								samplesTree.selectedItem = null;
 							} else{
-								deleteNodeFromExperimentFileList(dragItem);
+								recurseFindFileToDelete(experimentFileList.children(), dragItem);
 								experimentFilesTree.selectedItem = null;
-								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(dragItem));
 							}
 						}
 					}
@@ -689,21 +729,6 @@
 					callLater(samplesTree.invalidateDisplayList);
 					this.dirty.setDirty();
 					event.target.hideDropFeedback(event);
-				}
-				
-				private function deleteNodeFromExperimentFileList(fd:XML):void{
-					for each(var ef:XML in experimentFileList.children()){
-						if(ef.@displayName == fd.@displayName){
-							deleteNode(ef);
-							break;
-						}
-						for each(var efChild:XML in ef.children()){
-							if(efChild.@displayName == fd.@displayName){
-								deleteNode(efChild);
-								break;
-							}
-						}
-					}
 				}
 				
 				private function onDragDropFile(event:DragEvent) : void
@@ -1110,11 +1135,20 @@
 				}
 				
 				private function getClickedItem(event:MouseEvent):void{
+					if(event.currentTarget.name == 'experimentFilesTree' && experimentFilesTree.selectedItem != null){
+						treeItemToSelect = this.experimentFilesTree.selectedItem.parent(); 
+						selectedExpFileTreeIndex = this.experimentFilesTree.selectedIndex;
+					}
 					if(event.currentTarget.selectedItem == null || event.currentTarget.selectedItem.name() == 'RequestDownload' 
 						|| event.currentTarget.selectedItem.name() == 'SeqRunNumber'
 						|| (event.currentTarget.selectedItem.name() == 'FileDescriptor' && event.currentTarget.selectedItem.@type == 'dir')){
 						return;
-					} 
+					}
+					
+					if(event.currentTarget.selectedItems.length == 1){
+						clickedItems = new XMLListCollection();
+					}
+					
 					for each(var item:XML in clickedItems){
 						if(item.@displayName == event.currentTarget.selectedItem.@displayName){
 							return;
@@ -1137,17 +1171,6 @@
 						isFound = false;
 						
 					}
-					//				var isFound:Boolean = false;
-					//				for each(var ci:XML in clickedItems){
-					//					for each(var si:XML in event.currentTarget.selectedItems){
-					//						if(ci.@displayName == si.@displayName){
-					//							isFound = true;
-					//						}
-					//					}
-					//					if(!isFound){
-					//						clickedItems.addItem(event.currentTarget.selectedItem.copy());
-					//					}
-					//				}
 				}
 				
 				private function onDragDropReturn(event:DragEvent):void{
@@ -1158,15 +1181,6 @@
 						clickedItems = new XMLListCollection();
 						return;
 					}
-					
-					//				var dropNode:XML = null;
-					//				if(experimentFilesTree.selectedItem != null){
-					//					dropNode = XML(experimentFilesTree.selectedItem);
-					//					if(dropNode.name() == 'FileDescriptor'){
-					//						dropNode = dropNode.parent();
-					//						experimentFilesTree.selectedItem = dropNode;
-					//					}
-					//				}
 					
 					for each(var file:XML in clickedItems){
 						if(file.name() == 'Sample' || file.name() == 'SeqRunNumber'){
@@ -1352,7 +1366,7 @@
 								 iconFunction="parentApplication.getTreeIcon"
 								 dataProvider="{experimentFileList}"
 								 labelFunction="{getDownloadName}"
-								 mouseDown="getClickedItem(event)"
+								 mouseDown="{getClickedItem(event);}"
 								 showDataTips="true"
 								 showRoot="true"
 								 dragDrop="onDragDropReturn(event)"
