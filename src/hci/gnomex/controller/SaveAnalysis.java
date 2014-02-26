@@ -674,7 +674,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         String idAnalysisFile = (String)i1.next();
         // Analysis files that are on the file system but not yet saved should
         // be ignored.
-        if (idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
+        if (idAnalysisFile == null || idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
           continue;
         }
         inCount++;
