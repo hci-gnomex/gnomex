@@ -1,37 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:LinkButton horizontalGap="0" paddingLeft="0" paddingRight="0" icon="@Embed(source='../../assets/information.png')" label="" xmlns:mx="http://www.adobe.com/2006/mxml" click="helpClick()">
+<mx:LinkButton horizontalGap="0" paddingLeft="0" paddingRight="0" label="" xmlns:mx="http://www.adobe.com/2006/mxml" click="helpClick()"  creationComplete="init()" styleName="contextHelpIcon">
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
+			import mx.managers.ToolTipManager;
 			
 			import views.util.ContextSensitiveHelpView;
+			import views.util.HTMLToolTip;
 
 			public var context1:String = "";
 			public var context2:String = null;
 			public var showEdit:Boolean = false;
+			public var title:String="";
+			
+			private static var NO_HELP_TEXT:String = "No Help Available";
+			
+			public function init():void {
+				var hasText:Boolean = true;
+				if (getHelpText(true).length == 0) {
+					hasText = false;
+				}
+				this.enabled = true;
+				var ttt:String = getToolTipText();
+				if (hasText || ttt.length > 0) {
+					this.styleName = "contextHelpIcon";
+				} else if (showEdit) {
+					this.styleName = "contextHelpEditNoContentIcon";
+				} else {
+					this.styleName = "contextHelpNoContentIcon";
+					this.enabled = false;
+				}
+				this.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
+				if (ttt.length > 0) {
+					this.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
+					this.toolTip = ttt;
+
+				} else {
+					this.toolTip = null;
+				}
+			}
+
+			private function createToolTip(event:ToolTipEvent):void {
+				var tt:HTMLToolTip = new HTMLToolTip();
+				event.toolTip = tt;
+			}
 			
 			private function helpClick():void {
 				if (showEdit) {
 					var w:ContextSensitiveHelpEdit = ContextSensitiveHelpEdit(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpEdit, true));
-					w.init(context1, context2, this);
+					w.init(context1, context2, title, this);
 					PopUpManager.centerPopUp(w);
 				} else {
-					if (context2 == null) {
-						context2 = '';
-					}
-					var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
-					var helpText:String = "No Help Available";
-					if (helpList.length() > 0) {
-						helpText = helpList[0].@helpText.toString();
-					}
+					var helpText:String = getHelpText();
 					showHelpView(helpText);
 				}
 			}
+
+			private function getHelpObject():XML {
+				if (context2 == null) {
+					context2 = '';
+				}
+				// Note parentApplication.dictionaryManager probably ties this to GNomEx.  Need change if used elsewhere.
+				var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
+				if (helpList.length() > 0) {
+					return helpList[0];
+				} else {
+					return null;
+				}
+			}
+			
+			public function getHelpText(allowBlank:Boolean = false):String {
+				var help:XML = getHelpObject();
+				var helpText:String = "";
+				if (!allowBlank) {
+					helpText = NO_HELP_TEXT;
+				}
+				if (help != null && help.@helpText != null && help.@helpText.toString().length > 0) {
+					helpText = help.@helpText.toString();
+				}
+				
+				return helpText;
+			}
+			
+			public function getToolTipText():String {
+				var help:XML = getHelpObject();
+				var toolTipText:String = "";
+				if (help != null && help.@toolTipText != null && help.@toolTipText.toString().length > 0) {
+					toolTipText = help.@toolTipText.toString();
+				}
+				
+				return toolTipText;
+			}
 			
 			public function showHelpView(helpText:String):void {
-
 				var w:ContextSensitiveHelpView = ContextSensitiveHelpView(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpView, true));
-				w.init(helpText, this);
+				w.init(helpText, title, this);
 			}
 		]]>
 	</mx:Script>

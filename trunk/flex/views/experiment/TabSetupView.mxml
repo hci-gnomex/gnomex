@@ -1332,7 +1332,7 @@
 			
 		</mx:VBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="projectHBox" paddingTop="0" paddingBottom="0">
-			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}"/>
+			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Project Folder Help"/>
 			<mx:Text width="200" id="text2" toolTip="Project folders allow you to group your experiments in projects for organization purposes.">
 				<mx:htmlText>(4) Select a project folder.</mx:htmlText>
 			</mx:Text>

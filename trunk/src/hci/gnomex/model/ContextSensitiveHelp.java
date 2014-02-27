@@ -10,6 +10,7 @@ public class ContextSensitiveHelp extends DictionaryEntry implements Serializabl
   private String context1;
   private String context2;
   private String helpText;
+  private String toolTipText;
   
   @Override
   public String getDisplay() {
@@ -47,5 +48,12 @@ public class ContextSensitiveHelp extends DictionaryEntry implements Serializabl
   }
   public void setHelpText(String helpText) {
     this.helpText = helpText;
+  }
+  
+  public String getToolTipText() {
+    return toolTipText;
+  }
+  public void setToolTipText(String toolTipText) {
+    this.toolTipText = toolTipText;
   }
 }

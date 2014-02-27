@@ -1134,7 +1134,7 @@
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
 								<mx:HBox horizontalGap="0">
-									<util:ContextHelp context1="numberSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}"/>
+									<util:ContextHelp context1="numberSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" title="# Seq Help" showEdit="{parentApplication.isAdminState}"/>
 									<mx:Label text="# Seq"/> 
 								</mx:HBox>
 								<mx:Label text="Lanes"/>
