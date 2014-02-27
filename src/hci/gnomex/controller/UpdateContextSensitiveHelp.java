@@ -22,6 +22,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
+// will need to change this to extend hci framework command if need to use in other projects.
 public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
@@ -31,6 +32,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
   private String context1;
   private String context2;
   private String helpText;
+  private String toolTipText;
   
   public void validate() {
     if(idContextSensitiveHelpString != null && idContextSensitiveHelpString.length() > 0) {
@@ -50,6 +52,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
     context1 = request.getParameter("context1");
     context2 = request.getParameter("context2");
     helpText = request.getParameter("helpText");
+    toolTipText = request.getParameter("toolTipText");
     validate();
   }
 
@@ -65,8 +68,8 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
           Integer idContextSensitiveHelp = Integer.parseInt(idContextSensitiveHelpString);
           helpModel = (ContextSensitiveHelp)sess.load(ContextSensitiveHelp.class, idContextSensitiveHelp);
         }
-        if (helpText.trim().length() == 0) {
-          // If no help text and no id, then this is attempt to add empty help text and can be ignored
+        if (helpText.trim().length() == 0 && toolTipText.trim().length() == 0) {
+          // If no help text and no tool tip text and no id, then this is attempt to add empty help text and can be ignored
           // Otherwise delete the existing one.
           if (helpModel != null ) {
             sess.delete(helpModel);
@@ -79,6 +82,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
           helpModel.setContext1(context1);
           helpModel.setContext2(context2);
           helpModel.setHelpText(helpText);
+          helpModel.setToolTipText(toolTipText);
           
           sess.save(helpModel);
           sess.flush();

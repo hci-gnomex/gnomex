@@ -5,8 +5,7 @@
 				xmlns:util="views.util.*" 
 				showCloseButton="true" 
 				close="{closeWindow()}"
-				title="Help Edit" 
-				backgroundColor="#ffffff"  alpha="1.0" >
+				title="Help Edit" >
 	
 	<mx:HTTPService  
 		id="updateContextSensitiveHelp" 
@@ -20,19 +19,36 @@
 	</mx:HTTPService>
 
 	<mx:VBox width="100%" height="100%">
-		<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
-							id="helpText" width="100%" height="100%"
-							showControlBar="true" change="{dirty.setDirty()}"
-							creationComplete="removeRichTextButtons();"
-							paddingLeft="0" paddingRight="0" paddingTop="0" 
-							roundedBottomCorners="false" paddingBottom="0" 
-							borderThicknessRight="0" borderThicknessLeft="0" 
-							borderThicknessBottom="0" borderThickness="0" 
-							borderThicknessTop="0">
-		</mx:RichTextEditor>
+		<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2">
+			<mx:VBox width="100%" height="100%" label="Help Text">
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="helpText" width="100%" height="100%"
+									showControlBar="true" change="{dirty.setDirty()}"
+									creationComplete="removeHelpRichTextButtons();"
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" textAreaStyleName="contextHelpView" htmlText="{helpXML.@helpText}">
+				</mx:RichTextEditor>
+			</mx:VBox>
+			<mx:VBox width="100%" height="100%" label="Tool Tip Text">
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="toolTipText" width="100%" height="100%"
+									showControlBar="true" change="{dirty.setDirty();previewToolTipButton.toolTip=toolTipText.htmlText;}"
+									creationComplete="removeToolTipRichTextButtons();"
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" textAreaStyleName="contextHelpView" htmlText="{helpXML.@toolTipText}">
+				</mx:RichTextEditor>
+			</mx:VBox>
+		</mx:TabNavigator>
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 			<util:DirtyNote id="dirty" />
-			<mx:Button label="Preview" enabled="true" visible="true" id="previewButton" click="preview()" fontWeight="normal"/>
+			<mx:Button label="Preview Tool Tip" enabled="true" visible="true" id="previewToolTipButton" fontWeight="normal"/>
+			<mx:Button label="Preview Help" enabled="true" visible="true" id="previewHelpButton" click="previewHelp()" fontWeight="normal"/>
 			<mx:Button label="Save" enabled="true" visible="true" id="saveButton" click="save()" fontWeight="normal"/>
 			<mx:Button label="Cancel" enabled="true" visible="true" id="cancelButton" click="closeWindow()" fontWeight="normal"/>
 		</mx:ControlBar>
@@ -41,14 +57,16 @@
 		<![CDATA[
 			import hci.flex.dictionary.DictionaryEvent;
 			import hci.flex.util.DictionaryManager;
+			
 			import mx.containers.HBox;
 			import mx.controls.Alert;
 			import mx.controls.richTextEditorClasses.ToolBar;
 			import mx.core.UIComponent;
 			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
+			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
-
+			
 			import views.util.ContextHelp;
 			import views.util.DirtyNote;
 
@@ -63,13 +81,22 @@
 			private static var CLASS_NAME:String ='hci.gnomex.model.ContextSensitiveHelp';
 			
 			private var isNew:Boolean;
-			private var helpId:String;
 			
-			public function init(context1:String, context2:String, helpButton:ContextHelp) : void {
+			[Bindable]
+			private var helpXML:XML;
+			
+			public function init(context1:String, context2:String, title:String, helpButton:ContextHelp) : void {
 				this.helpButton = helpButton;
 				this.context1 = context1;
 				this.context2 = context2;
 				
+				if (title != null && title.length > 0) {
+					this.title = title + " Edit";
+				} else {
+					this.title = "Help Edit";
+				}
+				
+				// This is a GNomEx dependency
 				dictionaryManager = parentApplication.dictionaryManager;
 
 				if (context1 == null || context1 == '') {
@@ -79,14 +106,19 @@
 				if (context2 == null) {
 					context2 = '';
 				}
-				var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className==CLASS_NAME).DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
+				var helpList:XMLList = dictionaryManager.xml.Dictionary.(@className==CLASS_NAME).DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
+				previewToolTipButton.toolTip = " ";
 				if (helpList.length() > 0) {
-					helpText.htmlText = helpList[0].@helpText.toString();
-					helpId = helpList[0].@idContextSensitiveHelp.toString();
+					helpXML = helpList[0];
+					previewToolTipButton.toolTip = helpXML.@toolTipText.toString();
 					isNew = false;
 				} else {
 					isNew = true;
+					helpXML = new XML();
 				}
+				
+				previewToolTipButton.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
+				previewToolTipButton.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
 			}
 			
 			private function closeWindow():void {
@@ -108,28 +140,33 @@
 			}
 
 			private function closeImpl():void {
+				previewToolTipButton.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
 				PopUpManager.removePopUp(this);
 			}
 			
-			private function removeRichTextButtons():void {
-				this.helpText.toolbar.removeChild(helpText.fontFamilyCombo);
-				/*
-				this.helpText.toolbar.removeChild(helpText.colorPicker);
-				this.helpText.toolbar.removeChild(helpText.fontSizeCombo);
-				this.helpText.toolbar.removeChild(helpText.linkTextInput);
-				*/
-				// move controls to top
-				var displayObj:ToolBar = this.helpText.toolbar;
-				this.helpText.toolbar.parent.removeChild(displayObj);
-				var hbox:HBox = new HBox();
-				hbox.width=helpText.width;
-
-				this.helpText.textArea.maxChars = 5000;
-				hbox.addChild(displayObj);
-				this.helpText.addChildAt(hbox, 0);
+			private function removeHelpRichTextButtons():void {
+				removeRichTextButtons(helpText, 5000);
 			}
 			
-			private function preview():void {
+			private function removeToolTipRichTextButtons():void {
+				removeRichTextButtons(toolTipText, 1000);
+			}
+
+			private function removeRichTextButtons(editor:RichTextEditor, maxChars:int):void {
+				editor.toolbar.removeChild(editor.fontFamilyCombo);
+
+				// move controls to top
+				var displayObj:ToolBar = editor.toolbar;
+				editor.toolbar.parent.removeChild(displayObj);
+				var hbox:HBox = new HBox();
+				hbox.width=editor.width;
+				
+				editor.textArea.maxChars = maxChars;
+				hbox.addChild(displayObj);
+				editor.addChildAt(hbox, 0);
+			}
+
+			private function previewHelp():void {
 				helpButton.showHelpView(helpText.htmlText);
 			}
 			
@@ -137,22 +174,51 @@
 				var currentDictAction:String = '';
 				var formData:Object = new Object();
 				
-				formData["idContextSensitiveHelp"] = helpId;
+				formData["idContextSensitiveHelp"] = "";
+				if (helpXML.hasOwnProperty("idContextSensitiveHelp")) {
+					formData["idContextSensitiveHelp"] = helpXML.@idContextSensitiveHelp;
+				}
 				formData["context1"] = context1;
 				formData["context2"] = context2;
-				formData["helpText"] = helpText.htmlText;
+				if (helpText != null) {
+					formData["helpText"] = helpText.htmlText;
+				} else if (helpXML.hasOwnProperty("@helpText")) {
+					formData["helpText"] = helpXML.@helpText;
+				} else {
+					formData["helpText"] = "";
+				}
+				if (toolTipText != null) {
+					formData["toolTipText"] = toolTipText.htmlText;
+				} else if (helpXML.hasOwnProperty("@toolTipText")) {
+					formData["toolTipText"] = helpXML.@toolTipText;
+				} else {
+					formData["toolTipText"] = "";
+				}
 				this.updateContextSensitiveHelp.send(formData);
 			}
 
 			public function onUpdateContextSensitiveHelp(event:Event):void {
 				if (updateContextSensitiveHelp.lastResult.name() == "SUCCESS") {
+					this.enabled = false;
 					dictionaryManager.call("reload", CLASS_NAME);
 					dirty.resetDirty();
-					closeWindow();
+					dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryLoaded);
 				} else {
 					mx.controls.Alert.show(updateContextSensitiveHelp.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
+			
+			public function onDictionaryLoaded(event:Event):void {
+				helpButton.init();
+				this.enabled = true;
+				closeWindow();
+			}
+			
+			private function createToolTip(event:ToolTipEvent):void {
+				var tt:HTMLToolTip = new HTMLToolTip();
+				event.toolTip = tt;
+			}
+
 		]]>
 	</mx:Script>
 </mx:TitleWindow>

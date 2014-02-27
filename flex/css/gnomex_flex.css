@@ -1036,3 +1036,18 @@ HRule
 	fontStyle: underline;
 	fontWeight: bold;
 }
+.contextHelpEditNoContentIcon {
+	icon: Embed(source='../assets/white_information.png');
+	iconPath: "../../assets/information.png";
+}
+.contextHelpNoContentIcon {
+	icon: Embed(source='../assets/empty.png');
+	iconPath: "../../assets/information.png";
+}
+.contextHelpIcon {
+	icon: Embed(source='../assets/information.png');
+	iconPath: "../../assets/information.png";
+}
+.contextHelpView {
+	backgroundColor: #FFFEC3;
+}
