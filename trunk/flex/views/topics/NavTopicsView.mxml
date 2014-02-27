@@ -711,6 +711,13 @@
 		var itemType:String = "data track";
 		var itemNumber:String = itemToRemove.@number;
 		
+		if(itemToRemove.@label.toString().indexOf("(Restricted Visibility)") > -1 ||
+			itemToRemove.@number.toString().indexOf("(Restricted Visibility)") > -1) {
+			Alert.show("This item is restricted.\n You are not authorized to delete it.",
+				"Restricted Visibility", Alert.OK, this);
+			return;
+		}
+		
 		if(itemToRemove.name() == "Request") {
 			itemType = "request";
 			itemNumber = itemToRemove.@requestNumber;
@@ -1070,7 +1077,8 @@
 		if (item.name() == "Analysis") { 
 			retValue = item.@number; // "(Restricted Visibility)" is added to @number for Analysis by TopicQuery.java
 			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
-				retValue = item.@number + addToLabel(item.@name) + " (Restricted Visbility)";
+				var number:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
+				retValue = number + addToLabel(item.@name) + " (Restricted Visbility)";
 			} else {
 				retValue = item.@number + addToLabel(item.@name);
 			}				
@@ -1079,7 +1087,8 @@
 			retValue = item.@number; // "(Restricted Visiblity)" is added to @number for DataTrack by TopicQuery.java
 			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
 				//retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
-				retValue = item.@number + addToLabel(item.@name) + " (Restricted Visbility)";
+				var number:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
+				retValue = number + addToLabel(item.@name) + " (Restricted Visbility)";				
 			} else {
 				retValue = item.@number + addToLabel(item.@name);
 			}
@@ -1092,11 +1101,9 @@
 				retValue = item.@number + addToLabel(item.@name);
 			}
 			return retValue;
-		}
-		else { // it is a Folder, Topic or Category
+		} else { // it is a Folder, Topic or Category
 			return item.@label;
-		}
-		
+		}		
 	}
 	
 	public function addToLabel(label:String): String {
