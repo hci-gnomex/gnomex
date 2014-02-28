@@ -253,6 +253,7 @@
 			private function onGetRequest(event:ResultEvent): void {
 				if (getRequest.lastResult.name() == "OpenRequestList") {
 					newFolderButton.enabled = true;
+					sortFileList(uploadedFiles);
 					for each(var fd:XML in uploadedFiles){
 						expFileDict[String(fd.@displayName)] = fd;
 					}
@@ -339,6 +340,7 @@
 					list.appendChild(uploadNode);
 				}
 				experimentFileList = new XMLListCollection(list.copy());
+				sortFileList(experimentFileList);
 				masterFileList = new XMLListCollection(list.copy());
 				for each(var s:XML in sampleList.children().children()){
 					recurseFindFileToDelete(experimentFileList.children(), s);
@@ -361,11 +363,18 @@
 				}
 			}
 			
-			private function sortExperimentFileList():void{
+			private function sortFileList(theList:XMLListCollection):void{
 				var sort:Sort = new Sort();
 				sort.fields = [new SortField("@displayName", true)];
-				experimentFileList.sort = sort;
-				experimentFileList.refresh();
+				theList.sort = sort;
+				theList.refresh();
+				for each(var child:XML in theList){
+					var childList:XMLListCollection = new XMLListCollection(child.children());
+					childList.sort = sort;
+					childList.refresh();
+					child.setChildren(childList.copy());
+				}
+				theList.refresh();
 			}
 			
 			private function sortClickedItems():void{
@@ -1356,7 +1365,7 @@
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0" horizontalAlign="right"> 
 					<mx:LinkButton id="newSeqRunFolder" label="New Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == 'Sample'}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing experiment files"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
 					<mx:LinkButton id="swapFileOrderButton" visible="false" label="Swap File Order" enabled="{false}" disabledIcon="@Embed(source='../../assets/refresh_disable.png')" icon="@Embed(source='../../assets/refresh.png')" toolTip="Swap Read 1 and Read 2 file order"  textDecoration="underline" click="swapFileOrder()" paddingLeft="0"/>
-					<mx:LinkButton id="resetFileButton" label="Unlink" visible="false" includeInLayout="false" toolTip="Unlink selected files from samples and move them back to the left" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree(); sortExperimentFileList();}" textDecoration="underline" paddingLeft="0" />
+					<mx:LinkButton id="resetFileButton" label="Unlink" visible="false" includeInLayout="false" toolTip="Unlink selected files from samples and move them back to the left" enabled="{false}" icon="@Embed(source='../../assets/double_arrow_left.png')" disabledIcon="@Embed(source='../../assets/double_arrow_left_disabled.png')"  click="{resetExpFileTree(); sortFileList(experimentFileList);}" textDecoration="underline" paddingLeft="0" />
 					<mx:LinkButton id="refreshLinkage" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles(); getLinkedSampleFiles.send();"/>
 				</mx:HBox>
 				<mx:HDividedBox width="100%" height="100%">
