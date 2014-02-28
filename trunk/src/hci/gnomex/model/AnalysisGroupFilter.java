@@ -27,6 +27,9 @@ public class AnalysisGroupFilter extends DetailObject {
   private String                lastYear = "N";
   private String                allAnalysis = "N";
   private String                publicAnalysisOtherGroups = "N";
+  
+  private String				idGenomeBuild;
+  private String				idOrganism;
 
 
   private StringBuffer          queryBuf;
@@ -221,6 +224,7 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           a.lab as alab ");
     queryBuf.append(" LEFT JOIN           a.appUser as owner ");
     queryBuf.append(" LEFT JOIN           a.collaborators as collab ");
+    queryBuf.append(" LEFT JOIN			  a.genomeBuilds as genBuild ");
     
 
     // Only add selection criteria when "all analysis" is not turned on
@@ -412,6 +416,14 @@ public class AnalysisGroupFilter extends DetailObject {
     if (publicProjects != null && publicProjects.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append(" a.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+    }
+    
+    if( this.idGenomeBuild != null && !this.idOrganism.equals("") ) { // user selected a specific Genome Build for an Organism
+    	this.addWhereOrAnd();
+    	queryBuf.append(" genBuild.idGenomeBuild = '" + this.idGenomeBuild + "' ");
+    }else if(this.idOrganism != null && !this.idOrganism.equals("") ){ // user only selected an Organism, not a specific Genome Build for that Organism
+    	this.addWhereOrAnd();
+    	queryBuf.append(" a.idOrganism = '" + this.idOrganism + "' ");
     }
       
 
@@ -608,6 +620,22 @@ public class AnalysisGroupFilter extends DetailObject {
   public void setPublicAnalysisOtherGroups(String publicAnalysisOtherGroups) {
     this.publicAnalysisOtherGroups = publicAnalysisOtherGroups;
   }
+  
+  public void setIdOrganism(String idOrganism) {
+	  this.idOrganism = idOrganism;
+  }
+  public String getIdOrganism(String idOrganism) {
+	  return this.idOrganism;
+  }
+  
+  public void setIdGenomeBuild(String idGenomeBuild) {
+	  this.idGenomeBuild = idGenomeBuild;
+  }
+  public String getIdGenomeBuild(String idGenomeBuild) {
+	  return this.idGenomeBuild;
+  }
+  
+  
   
 //  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
 //	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
