@@ -123,9 +123,24 @@
 				}    	 
 				this.downloadTree.visible = true;
 				setFileCount();
+				sortDownloadList();
 				callLater(expandNodes);
 				parentDocument.filterList();
 							
+			}
+			
+			private function sortDownloadList():void{
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@displayName", true)];
+				downloadList.sort = sort;
+				downloadList.refresh();
+				for each(var child:XML in downloadList){
+					var childList:XMLListCollection = new XMLListCollection(child.children());
+					childList.sort = sort;
+					childList.refresh();
+					child.setChildren(childList.copy());
+				}
+				downloadList.refresh();
 			}
 			 
 			private function expandNodes():void {
