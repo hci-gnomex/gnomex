@@ -369,10 +369,12 @@
 				theList.sort = sort;
 				theList.refresh();
 				for each(var child:XML in theList){
-					var childList:XMLListCollection = new XMLListCollection(child.children());
-					childList.sort = sort;
-					childList.refresh();
-					child.setChildren(childList.copy());
+					if(child.children().length() > 0){
+						var childList:XMLListCollection = new XMLListCollection(child.children());
+						sortFileList(childList);
+						child.setChildren(childList.copy());
+					}
+					
 				}
 				theList.refresh();
 			}
