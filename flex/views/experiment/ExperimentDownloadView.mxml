@@ -123,24 +123,26 @@
 				}    	 
 				this.downloadTree.visible = true;
 				setFileCount();
-				sortDownloadList();
+				sortDownloadList(this.downloadList);
 				callLater(expandNodes);
 				parentDocument.filterList();
 							
 			}
 			
-			private function sortDownloadList():void{
+			private function sortDownloadList(theList:XMLListCollection):void{
 				var sort:Sort = new Sort();
 				sort.fields = [new SortField("@displayName", true)];
-				downloadList.sort = sort;
-				downloadList.refresh();
-				for each(var child:XML in downloadList){
-					var childList:XMLListCollection = new XMLListCollection(child.children());
-					childList.sort = sort;
-					childList.refresh();
-					child.setChildren(childList.copy());
+				theList.sort = sort;
+				theList.refresh();
+				for each(var child:XML in theList){
+					if(child.children().length() > 0){
+						var childList:XMLListCollection = new XMLListCollection(child.children());
+						sortDownloadList(childList);
+						child.setChildren(childList.copy());
+					}
+					
 				}
-				downloadList.refresh();
+				theList.refresh();
 			}
 			 
 			private function expandNodes():void {
