@@ -1413,17 +1413,7 @@
 
 
 		}
-		
-		public function getSamplesGridRowNumber(item:Object,col:int):String
-        {
-        	if (samples!= null) {
-	           var x:int = samples.getItemIndex(item) + 1;
-	           return String(x);     		
-        	} else {
-        		return "";
-        	}
-        }
-			
+					
 		public function getWellNameByColumn(item:Object,col:int):String
 		{
 			var wellName:String = "";

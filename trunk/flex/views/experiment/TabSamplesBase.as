@@ -220,9 +220,9 @@ package views.experiment
 				propertyNode.@isSelected = 'true';
 			}
 			
-			if ( parentDocument.isSequenomState() && propertyNode.@isRequired == "true") {
+			/*if ( parentDocument.isSequenomState() && propertyNode.@isRequired == "true") {
 				propertyNode.@isSelected = parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null && parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'true' : 'false';
-			}
+			}*/
 			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
@@ -409,6 +409,15 @@ package views.experiment
 			return true;
 		}
 		
+		public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				return "";
+			} else {
+				return item.groupLabel;
+			}
+		}
+		
 		public function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
@@ -417,7 +426,7 @@ package views.experiment
 				for each(var sample:Object in getSamplesGrid().selectedItems) {
 					var isValid:Boolean = true;
 					// Only administrators can delete samples
-					if (sample.@idSample.indexOf("Sample") < 0 && parentDocument.request.@canDeleteSample != 'Y') {
+					if (sample.@idSample!=null && sample.@idSample!='' && sample.@idSample.toString().indexOf("Sample") < 0 && (parentDocument.request.@canDeleteSample != null && parentDocument.request.@canDeleteSample != 'Y')) {
 						Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
 						isValid = false;
 						continue;
@@ -457,68 +466,6 @@ package views.experiment
 
 		}
 		
-		protected function copyTheSample():void {
-			var idx:int = getSamplesGrid().selectedIndex;
-			copySample();
-			this.initializeBarcoding();
-			checkSamplesCompleteness();
-			getSamplesGrid().selectedIndex = idx;
-			
-		}
-		
-		protected function copySample():void {
-			parentDocument.dirty.setDirty();
-			if (getSamplesGrid().selectedIndex != -1) {
-				for each(var sampleToCopy:Object in getSamplesGrid().selectedItems) {	
-					
-					var emptyNodeString:String = "<Sample " +
-						" idSample='" + "Sample" + getNextSampleId() + "'" +
-						" name='" + sampleToCopy.@name + "'" + 
-						" canChangeSampleName='Y'" +
-						" canChangeSampleType='Y'" +
-						" canChangeSampleDropOffLocation='Y'" +
-						" canChangeSampleConcentration='Y'" +
-						" canChangeSampleSource='Y'" +
-						" canChangeNumberSequencingLanes='Y'" + 
-						" description='" + sampleToCopy.@description + "'" + 
-						" idSampleType='" + sampleToCopy.@idSampleType + "'" +
-						" otherSamplePrepMethod=\"" + sampleToCopy.@otherSamplePrepMethod + "\"" +				
-						" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
-						" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
-						" concentration='" + sampleToCopy.@concentration + "'" +				
-						" treatment='" + sampleToCopy.@treatment + "'" +		
-						" idOligoBarcode='" + sampleToCopy.@idOligoBarcode + "'" +		
-						" barcodeSequence='" + sampleToCopy.@barcodeSequence + "'" +		
-						" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-						" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
-						" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-						" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
-						" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
-						" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
-						" ccNumber='" + sampleToCopy.@ccNumber + "'";
-
-					addSpecialCopyColumns(emptyNodeString);
-					
-					emptyNodeString = emptyNodeString + "/>";
-					var emptyNode:XML = new XML(emptyNodeString); 
-					
-					// Now copy the sample annotations
-					for each (var attribute:Object in sampleToCopy.attributes()) {
-						if (attribute.name().toString().indexOf("ANNOT") == 0) {
-							emptyNode["@" + attribute.name()] = sampleToCopy["@" + attribute.name()];
-						}
-					}
-					
-					parentDocument.samples.addItem(emptyNode);
-					
-					
-				}
-			}
-		}
-
-		protected function addSpecialCopyColumns(emptyNodeString:String):void {
-			
-		}
 		
 		public function promptToClearAllSamples():void {
 			Alert.show("Remove all samples currently showing in list?",
@@ -576,14 +523,6 @@ package views.experiment
 				return true;
 			}
 		}
-
-		public function getSampleTreeIcon(item:Object):Class {
-			if (item == null) {
-				return parentApplication.iconGroup;
-			} else {
-				return null; 
-			}  
-		}  
 		
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
@@ -621,5 +560,29 @@ package views.experiment
 				setTopBoxVisibility(true);
 			}
 		}
+		
+		public function getPlateName(idx:int):String {
+			return "";
+		}
+		
+		protected function getWellName(idx:int):String {
+			var wellName:String = "";
+			if (parentDocument.isFragAnalState()) {
+				wellName = "ABCDEFGH".substr(idx / 12, 1);
+				var fragColNumber:int = idx % 12 + 1;
+				wellName += fragColNumber.toString();
+			} else {
+				var y:int = idx % 96;
+				wellName = parentApplication.wellNamesByColumn[y];
+			}
+			return wellName;
+		}
+		
+		protected function updateWellNames():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@wellName = getWellName(parentDocument.samples.getItemIndex(sample));
+			}
+		}
+		
 	}
 }

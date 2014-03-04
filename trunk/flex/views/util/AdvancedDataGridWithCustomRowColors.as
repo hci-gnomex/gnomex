@@ -5,7 +5,9 @@ package views.util
 	import mx.collections.ArrayCollection;
 	import mx.controls.AdvancedDataGrid;
 	
-	public class AdvancedDataGridWithCustomRowColors extends AdvancedDataGrid
+	import views.util.grid.CopyPasteSampleGrid;
+	
+	public class AdvancedDataGridWithCustomRowColors extends CopyPasteSampleGrid
 	{
 		override protected function drawRowBackground(s:Sprite, rowIndex:int, 
 													  y:Number, height:Number, color:uint, dataIndex:int):void {
