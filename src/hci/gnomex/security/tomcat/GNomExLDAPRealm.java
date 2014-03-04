@@ -294,7 +294,6 @@ public class GNomExLDAPRealm extends RealmBase {
       
       
     } catch (Exception e) {
-      System.err.println("hci.gnomex.security.GNomExLDAPRealm ERROR - Cannot connect to UofU LDAP server " + e.toString());
       isAuthenticated = false;
     } 
     return isAuthenticated;
