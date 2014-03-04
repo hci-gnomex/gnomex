@@ -850,6 +850,7 @@
 					<item label="" icon="assets/iscan.png" />
 					<item label="" icon="assets/sequenom_clinical.png" />
 					<item label="" icon="assets/sequenom_plate.png" />
+					<item label="" icon="assets/DNA_test_tube.png" />
 					<item label="" icon="assets/data-accept.png" />
 				</items>    
 			);
