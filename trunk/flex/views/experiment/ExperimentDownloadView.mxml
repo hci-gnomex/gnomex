@@ -410,7 +410,7 @@
 			}
 			
 			[Bindable(event="requestChanged")]
-			private function isClinicalResearchRequest():Boolean {
+			public function isClinicalResearchRequest():Boolean {
 				if (this.request != null) {
 					var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.request.@codeRequestCategory);
 					if (requestCategory.hasOwnProperty("@isClinicalResearch") && requestCategory.@isClinicalResearch == "Y") {
