@@ -730,7 +730,7 @@ public class RequestParser implements Serializable {
       Plate plate = new Plate();
       String plateIdAsString = "";
       if (n.getAttributeValue("idPlate") != null && n.getAttributeValue("idPlate").length() > 0) {
-        plateIdAsString = n.getAttributeValue("plateName");
+        plateIdAsString = n.getAttributeValue("idPlate");
         plate.setIdPlate(Integer.parseInt(n.getAttributeValue("idPlate")));
       } else {
         plateIdAsString = n.getAttributeValue("plateName");

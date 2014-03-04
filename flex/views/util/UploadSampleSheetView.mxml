@@ -765,18 +765,6 @@
 			}			
 
 
-			private function downloadSampleSheetExample(fileName:String):void {
-				try {
-					downloadRequest = new URLRequest("doc/" + fileName);
-					downloadFileRef = new FileReference();
-					downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
-					downloadFileRef.download(downloadRequest, fileName);
-					
-				} catch (error:Error) {
-					Alert.show("Unable to download example sample sheet due to error. " + error.message);
-				}
-			}
-
 			private function downloadCompleteHandler(event:Event):void
 			{
 				mx.controls.Alert.show("Example sample sheet downloaded.");

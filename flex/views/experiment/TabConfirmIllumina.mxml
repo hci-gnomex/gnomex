@@ -216,15 +216,12 @@
 														  editable="false" 
 														  dataProvider="{filteredSamples}" 
 														  rowCount = "{filteredSamples.length+2}"
-							 							borderStyle="solid"  
-														horizontalScrollPolicy="off" 
-														verticalScrollPolicy="off"
-							 							sortableColumns="false" 
-														sortExpertMode="true"
-														alpha="0.8" 
-														fontSize="11" 
-														variableRowHeight="true" 
-														selectable="false" >
+														  borderStyle="solid"  
+														  horizontalScrollPolicy="off" 
+														  verticalScrollPolicy="off"
+														  alpha="0.8" 
+														  fontSize="11"  
+														  selectable="false" >
 					<util:columns>
 						
 						<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" editable="false"
