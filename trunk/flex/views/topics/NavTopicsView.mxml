@@ -1087,8 +1087,8 @@
 			retValue = item.@number; // "(Restricted Visiblity)" is added to @number for DataTrack by TopicQuery.java
 			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
 				//retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
-				var number:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
-				retValue = number + addToLabel(item.@name) + " (Restricted Visbility)";				
+				var number1:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
+				retValue = number1 + addToLabel(item.@name) + " (Restricted Visbility)";				
 			} else {
 				retValue = item.@number + addToLabel(item.@name);
 			}
