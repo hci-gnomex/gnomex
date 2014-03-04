@@ -31,6 +31,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
   private String idContextSensitiveHelpString;
   private String context1;
   private String context2;
+  private String context3;
   private String helpText;
   private String toolTipText;
   
@@ -51,6 +52,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
     idContextSensitiveHelpString = request.getParameter("idContextSensitiveHelp");
     context1 = request.getParameter("context1");
     context2 = request.getParameter("context2");
+    context3 = request.getParameter("context3");
     helpText = request.getParameter("helpText");
     toolTipText = request.getParameter("toolTipText");
     validate();
@@ -81,6 +83,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
           }
           helpModel.setContext1(context1);
           helpModel.setContext2(context2);
+          helpModel.setContext3(context3);
           helpModel.setHelpText(helpText);
           helpModel.setToolTipText(toolTipText);
           

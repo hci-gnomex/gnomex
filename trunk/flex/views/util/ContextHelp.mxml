@@ -10,7 +10,8 @@
 			import views.util.HTMLToolTip;
 
 			public var context1:String = "";
-			public var context2:String = null;
+			public var context2:String = "";
+			public var context3:String = "";
 			public var showEdit:Boolean = false;
 			public var title:String="";
 			
@@ -29,6 +30,7 @@
 					this.styleName = "contextHelpEditNoContentIcon";
 				} else {
 					this.styleName = "contextHelpNoContentIcon";
+					this.visible = false;
 					this.enabled = false;
 				}
 				this.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
@@ -49,7 +51,7 @@
 			private function helpClick():void {
 				if (showEdit) {
 					var w:ContextSensitiveHelpEdit = ContextSensitiveHelpEdit(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpEdit, true));
-					w.init(context1, context2, title, this);
+					w.init(context1, context2, context3, title, this);
 					PopUpManager.centerPopUp(w);
 				} else {
 					var helpText:String = getHelpText();
@@ -61,8 +63,11 @@
 				if (context2 == null) {
 					context2 = '';
 				}
+				if (context3 == null) {
+					context3 = '';
+				}
 				// Note parentApplication.dictionaryManager probably ties this to GNomEx.  Need change if used elsewhere.
-				var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2);
+				var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2 && @context3==context3);
 				if (helpList.length() > 0) {
 					return helpList[0];
 				} else {

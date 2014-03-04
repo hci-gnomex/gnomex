@@ -2250,6 +2250,7 @@
     </id>
     <property name="context1" column="context1" type="string"/>
     <property name="context2" column="context2" type="string"/>
+    <property name="context3" column="context3" type="string"/>
     <property name="helpText" column="helpText" type="string"/>
     <property name="toolTipText" column="toolTipText" type="string"/>
   </class>
