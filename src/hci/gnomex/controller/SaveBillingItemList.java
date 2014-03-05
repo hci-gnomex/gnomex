@@ -258,22 +258,27 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   }
   
   private void checkToSendInvoiceEmail(Session sess, Lab lab, Integer idBillingPeriod, BillingAccount billingAccount, Integer idCoreFacility) {
-    if (lab != null && lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
+    if ((lab != null && lab.getContactEmail() != null && !lab.getContactEmail().equals("")) ||(lab != null && lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")) ) {
       if (this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
         try {
-          sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility);        
+          sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, true);        
         } catch (Exception e) {
           log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
         }
         
       }
     } else {
+      try {
+        sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, false);        
+      } catch (Exception e) {
+        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
+      }
       log.error("Unable to send invoice email to billing contact for lab " + lab.getName()
-          + ".Billing contact email is blank.");      
+          + ". Billing contact and P.I. email are blank.  Notified Core Facility Manager of this.");      
     }
   }
   
-  private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility) throws Exception {
+  private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility, Boolean labEmailPresent) throws Exception {
     LogItem li = this.executionLogger.startLogItem("Format Email");
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
@@ -295,8 +300,28 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String subject = emailFormatter.getSubject();
     
     boolean send = false;
+    boolean notifyCoreFacilityOfEmptyBillingEmail = false;
     String emailInfo = "";
-    String emailRecipients = lab.getBillingNotificationEmail();
+    String missingBillingEmailNote = "";
+    String emailRecipients = "";
+    
+    if(labEmailPresent) {
+      if(lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")) {
+        emailRecipients = lab.getBillingContactEmail();
+      } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
+        emailRecipients = lab.getContactEmail();
+        notifyCoreFacilityOfEmptyBillingEmail = true;
+        missingBillingEmailNote = "Please note that the invoice for the account " + billingAccount.getAccountNameDisplay() + 
+        ", assigned to the " + lab.getName() + ", under the billing period " + 
+        billingPeriod.getDisplay() + 
+        " has been sent to the P.I. because no billing contact email was on file for the lab.  Please update the lab's billing contact information for the future.<br><br>";
+      }
+    } else {
+      emailRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      emailInfo += "Please note that we could not send the following invoice to the lab specified because the lab has no email address on file.  Please update the lab's information.<br><br>";
+
+    }
+    
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     if(emailRecipients.contains(",")){
@@ -313,7 +338,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     } else {
       send = true;
       subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
+      emailInfo += "<br><br>[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
       emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       ccList = null;
     }
@@ -323,6 +348,13 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     if (send) {
       if(!MailUtil.isValidEmail(fromAddress)){
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
+      
+      if(notifyCoreFacilityOfEmptyBillingEmail && dictionaryHelper.isProductionServer(serverName)) {
+        MailUtil.send(PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Billing Invoice sent to P.I.", missingBillingEmailNote + emailInfo, true);
+      } else if(notifyCoreFacilityOfEmptyBillingEmail && !dictionaryHelper.isProductionServer(serverName)) {
+        String testingNote = "<br><br>[If this were a production environment then this email would have been sent to: " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY) + "]<br><br>";
+        MailUtil.send(PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER), "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Billing Invoice sent to P.I.", missingBillingEmailNote + testingNote, true);
       }
       MailUtil.send(emailRecipients, 
           ccList,
