@@ -114,6 +114,7 @@ public class Constants {
     ".bai",
     ".vcf.gz",
     ".vcf.gz.tbi",
+    ".useq",
   };
   
 
