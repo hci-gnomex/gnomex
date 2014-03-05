@@ -93,6 +93,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.SampleSheetColumnFormats;
+			import mx.utils.StringUtil;
 
 			
 			private var uploadFR:FileReference;
@@ -364,6 +365,7 @@
 							if(node.@fieldType == "OPTION") {
 								if(ssColItemValue.length > 0) {
 									var optionFound:Boolean = false;
+									ssColItemValue = StringUtil.trim(ssColItemValue);
 									// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
 									for each(var col:AdvancedDataGridColumn in grid.columns) {
 										if (col.dataField == node.@dataField) {
@@ -410,7 +412,7 @@
 									var notFoundCnt:int = 0;
 									for each (var thisParam:String in params) {
 										// Loops through one or multiple labels stored in the spreadsheet
-										thisParam = trimSpaces(thisParam);
+										thisParam = StringUtil.trim(thisParam);
 										var mOptionFound:Boolean = false;
 										for each (var optionItem:XML in options) {
 											// Compares against Multi Select options and matches up with corresponding values
@@ -532,21 +534,6 @@
 					}
 				}
 				return output;
-			}
-
-			
-			public static function trimSpaces( original:String ):String {
-				var characters:Array = original.split("");
-				
-				for ( var i:int = 0; i < characters.length; i++ ) {
-					if (characters[i] == ' ') {
-						characters.splice( i, 1 );
-						i--;
-					} else {
-						break;
-					}
-				}
-				return characters.join("");
 			}
 			
 			private function uploadSampleSheetSelectHandler(event:Event):void { 
