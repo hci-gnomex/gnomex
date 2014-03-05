@@ -1238,6 +1238,9 @@
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+								
 				this.notesView.setCoreFacilityNoteVisibility(false);
 				samplesView.setCoreFacilityNoteVisibility(false);
 				
@@ -2624,6 +2627,13 @@
 				this.annotationView.checkSecurity();
 				this.samplesView.showHideColumns();		
 				this.samplesView.initializeSamplesGrid(); 
+			}
+			
+			if (this.isIsolationState() ) {
+				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
 			}
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
@@ -4894,11 +4904,11 @@
 						params.createDateFrom = dateFormatter.format( parentDocument.pickDateRangeButton.fromDate );
 						params.createDateTo = dateFormatter.format( parentDocument.pickDateRangeButton.toDate );
 					}
-					
-					if ( parentDocument.requestCategoryRadioGroup != null && parentDocument.requestCategoryRadioGroup.selectedValue != null && parentDocument.requestCategoryRadioGroup.selectedValue != ''){
-						params.codeRequestCategory = parentDocument.requestCategoryRadioGroup.selectedValue;
-					}
-					
+					if ( !this.isEditState() ) {
+						if ( parentDocument.requestCategoryRadioGroup != null && parentDocument.requestCategoryRadioGroup.selectedValue != null && parentDocument.requestCategoryRadioGroup.selectedValue != ''){
+							params.codeRequestCategory = parentDocument.requestCategoryRadioGroup.selectedValue;
+						}
+					}					
 					
 				}
 				
@@ -5703,15 +5713,8 @@
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="IsolationState">
-			<mx:RemoveChild target="{hybSetupView}"/>
-			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{annotationView}"/>
-			<mx:RemoveChild target="{seqSetupView}"/>
-			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{bioinformaticsView}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
-			<mx:RemoveChild target="{notesView}"/>
+		<mx:State name="IsolationState" basedOn="SequenomState">
+			
 		</mx:State>
 		<mx:State name="IsolationEditState" basedOn="SequenomEditState">
 			

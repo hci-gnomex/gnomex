@@ -70,12 +70,16 @@
 				var numberOfSamplesToAdd:Number = 0;
 				
 				if (parentApplication.submitInternalExperiment()) {
-					if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
-						return;
+					
+					if (parentDocument.isEditState()) {
+						numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
+					} else {
+						if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+							return;
+						}
+						
+						numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
 					}
-					
-					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
-					
 					
 				} else {
 					numberOfSamples = 1;
@@ -84,7 +88,7 @@
 				if (parentDocument.samples.length <= numberOfSamples) {
 					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
 					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
-						this.samplesGrid.addRow();
+						addSample();
 					}
 				} else {
 					while (parentDocument.samples.length > numberOfSamples) {
@@ -92,7 +96,32 @@
 					}
 				}
 			}
-					
+			
+			override public function addSample():Boolean {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				
+				emptyNode = this.getEmptyIsolationNode(parentDocument.samples.length);
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItem(emptyNode);
+				}
+				
+				return isValid;
+			}
+			
+			
+			private function getEmptyIsolationNode(idx:int):XML {
+				var sampleId:String = "Sample" + idx;
+				var emptyNode:XML = new XML("<Sample " +
+					" idSample='" + sampleId + "'" +
+					" name='' description='' " +
+					" concentration=''" +
+					" canChangeSampleName='Y'" +	
+					" idSampleSource='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@idSampleSource  : '')  + "'" +
+					"/>");
+				return emptyNode;
+			}
 			
 			override public function checkSamplesCompleteness():void {
 				parentDocument.userWarningsSamples = "";

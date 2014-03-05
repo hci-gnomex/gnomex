@@ -4,6 +4,7 @@ package views.util.grid
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.core.ClassFactory;
+	import mx.utils.StringUtil;
 	
 	import views.util.AdvancedDataGridColumnWithType;
 	import views.util.AnnotationAdvancedDataGridColumn;
@@ -136,7 +137,7 @@ package views.util.grid
 					value = "";
 					for each (var thisParam:String in params) {
 						// Loops through one or multiple labels stored in the spreadsheet
-						thisParam = trimSpaces(thisParam);
+						thisParam = StringUtil.trim(thisParam);
 						var mOptionFound:Boolean = false;
 						for each (var optionItem:XML in options) {
 							// Compares against Multi Select options and matches up with corresponding values
