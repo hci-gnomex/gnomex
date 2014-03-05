@@ -229,7 +229,6 @@
 			
 			if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				
-				concentrationUnitConfirmColumn.visible = false;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
@@ -254,7 +253,6 @@
 				}
 				
 			} else if (parentDocument.isSolexaState()) {
-				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				
@@ -279,7 +277,6 @@
 					seqLibProtocolConfirmCol.visible = true;
 				}
 			} else if (parentDocument.currentState == 'QCState') {
-				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = true; 
@@ -291,7 +288,6 @@
 				this.sampleRowNumberCol.visible = false;
 
 			} else {
-				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
@@ -347,6 +343,9 @@
 			return this.samplesGridConfirm;
 		}
 		
+		override public function getBillingGrid():Object {
+			return this.billingConfirmGrid;
+		}
 		override public function setBillingGridRowCount(rowCount:int):void{
 			this.billingConfirmGrid.rowCount = rowCount;
 			this.billingConfirmGrid.validateNow();
@@ -536,9 +535,7 @@
 						</mx:DataGridColumn>
 
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
-		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
-	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-	                    <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
+		                 <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 
 		                <mx:DataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multipexGroupNumber" editable="false" visible="false"
 							width="58">

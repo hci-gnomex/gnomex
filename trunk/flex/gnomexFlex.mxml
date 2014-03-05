@@ -1117,6 +1117,7 @@
 			public var PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE:String		  = "request_bio_alignment_note";
 			public var PROPERTY_ANALYSIS_ASSISTANCE_GROUP:String		  = "analysis_assistance_group";
 			public var PROPERTY_ANALYSIS_ASSISTANCE_HEADER:String		  = "analysis_assistance_header";
+			public var PROPERTY_CUSTOM_BILLING_MESSAGE:String		  	  = "custom_billing_message";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			

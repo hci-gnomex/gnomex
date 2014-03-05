@@ -43,6 +43,12 @@ package views.experiment
 				} else {
 					return new TabConfirmIsolation();
 				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'SEQUENOM') {
+				if (existingTab is TabConfirmSequenom) {
+					return existingTab;
+				} else {
+					return new TabConfirmSequenom();
+				}
 			} else {
 				if (existingTab is TabConfirmView) {
 					return existingTab;
@@ -289,8 +295,20 @@ package views.experiment
 			
 		}
 		
+		public function getBillingGrid():Object {
+			return null;
+		}
+		
 		public function setBillingGridRowCount(rowCount:int):void{
-			
+			if ( rowCount == 0 ) {
+				this.getBillingGrid().visible = false;
+				this.getBillingGrid().includeInLayout = false;
+			} else {
+				this.getBillingGrid().visible = true;
+				this.getBillingGrid().includeInLayout = true;
+				this.getBillingGrid().rowCount = rowCount;
+				this.getBillingGrid().validateNow();
+			}
 		}
 		
 		public function getEmptyTreeIcon(item:Object):Class {
