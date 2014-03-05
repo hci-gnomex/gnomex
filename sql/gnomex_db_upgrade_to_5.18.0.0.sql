@@ -27,3 +27,15 @@ alter table Request add
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
  
+DROP TABLE IF EXISTS `gnomex`.`ContextSensitiveHelp`;
+CREATE TABLE `gnomex`.`ContextSensitiveHelp` (
+  `idContextSensitiveHelp` INT(10) NOT NULL AUTO_INCREMENT, 
+  `context1` VARCHAR(100) NOT NULL,
+  `context2` VARCHAR(100),
+  `context3` VARCHAR(100),
+  `helpText` VARCHAR(10000) NULL,
+  `toolTipText` VARCHAR(10000) NULL,
+  PRIMARY KEY (`idContextSensitiveHelp`)
+)
+ENGINE = INNODB;
+ 
