@@ -7,9 +7,8 @@
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{labAndInstructionBox}" position="after">
 				<mx:HBox id="appUserContainer" width="100%" horizontalGap="0">
-					<mx:Text width="200" id="text7">
-						<mx:htmlText>(3) Verify your name.</mx:htmlText>
-					</mx:Text>
+					<util:ContextHelp context1="experimentOwnerName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Name"
+									  label="(3) Verify your name." labelPlacement="left" id="experimentOwnerName" width="200"/>
 					<mx:ComboBox dataProvider="{appUsers}" 
 								 selectedIndex="-1" labelField="@displayName" 
 								 id="appUserCombo" width="380">
@@ -17,40 +16,35 @@
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{text1}" name="htmlText" value="(4) Pick the account to be &lt;br&gt; billed."/>
-			<mx:SetProperty target="{label11}" name="text" value="(1) Select a service."/>
-			<mx:SetProperty target="{text2}" name="htmlText">
+			<mx:SetProperty target="{text1}" name="label" value="(4) Pick the account to be billed."/>
+			<mx:SetProperty target="{label11}" name="label" value="(1) Select a service."/>
+			<mx:SetProperty target="{projectLabel}" name="label"> 
 				<mx:value>(5) Select a project folder for organizing experiments.</mx:value>
 			</mx:SetProperty>
 			<mx:SetStyle target="{label1}" name="paddingTop"/>
-			<mx:SetProperty target="{nameLabel}" name="text" value="{nameLabel.text.replace('(5)','(6)')}"/>
-			<mx:SetProperty target="{descriptionLabel}" name="text" value="{descriptionLabel.text.replace('(6)','(7)')}"/>
+			<mx:SetProperty target="{nameLabel}" name="label" value="{nameLabel.label.replace('(5)','(6)')}"/>
+			<mx:SetProperty target="{descriptionLabel}" name="label" value="{descriptionLabel.label.replace('(6)','(7)')}"/>
 		</mx:State>
 		<mx:State name="ExternalExperimentState">
 			<mx:RemoveChild target="{this.nameDescriptionHBox}" />
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Select the appropriate dropdown or radio<br>       button options for each line.<br>  2.  After completing all line items, click the 'Next'<br>       button at the bottom of the page to proceed.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="80"/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Select the appropriate dropdown or radio&#13;       button options for each line.&#13;  2.  After completing all line items, click the 'Next'&#13;       button at the bottom of the page to proceed.></mx:value>
-			</mx:SetProperty>
+			<mx:SetProperty target="{experimentHelp}" name="context1" value="experimentExternalSetupHelp" />
 			<mx:RemoveChild target="{hbox5}"/>
 			<mx:RemoveChild target="{accountBox}"/>
-			<mx:SetProperty target="{label11}" name="text" value="Experiment platform"/>
+			<mx:SetProperty target="{label11}" name="label" value="Experiment platform"/>
 			<mx:SetProperty target="{label12}" name="width" value="200"/>
 			<mx:SetProperty target="{label11}" name="width" value="200"/>
-			<mx:SetProperty target="{text2}" name="width" value="200"/>
+			<mx:SetProperty target="{projectLabel}" name="width" value="200"/>
 			<mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
-			<mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
+			<mx:SetProperty target="{projectLabel}" name="label" value="Project folder for organizing experiments"/>
 			<mx:RemoveChild target="{label1}"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
-			<mx:SetProperty target="{label12}" name="text" value="Lab group"/>
+			<mx:SetProperty target="{label12}" name="label" value="Lab group"/>
 			<mx:SetStyle target="{label1}" name="paddingTop"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
-						<mx:Text text="Experiment type" width="200" id="labelApplication"/>
+						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+										  label="Experiment type" labelPlacement="left" id="labelApplication" width="200"/>
 						<mx:RadioButtonGroup id = "radioGroupApp">       	
 						</mx:RadioButtonGroup>
 						<mx:Tile  verticalGap="0"  width="100%">
@@ -71,7 +65,8 @@
 			<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
 			<mx:AddChild relativeTo="{label1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
-					<mx:Text text="Organism" width="200" id="labelOrg"/>
+					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
+								      label="Organism" labelPlacement="left" id="labelOrg" width="200"/>
 					<mx:ComboBox labelField="@display" selectedIndex="-1"  id="sampleOrganismCombo" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -86,22 +81,24 @@
 			</mx:AddChild>		  
 		</mx:State>
 		<mx:State name="AdminExternalExperimentState" basedOn="AdminState">
+			<mx:SetProperty target="{experimentHelp}" name="context1" value="experimentExternalSetupHelp" />
 			<mx:RemoveChild target="{this.nameDescriptionHBox}" />
 			<mx:RemoveChild target="{hbox5}"/>
 			<mx:RemoveChild target="{accountBox}"/>
 			<mx:SetStyle target="{vbox1}" name="verticalGap" value="8"/>
-			<mx:SetProperty target="{label11}" name="text" value="Experiment Platform"/>
-			<mx:SetProperty target="{text2}" name="htmlText" value="Project folder for organizing experiments"/>
+			<mx:SetProperty target="{label11}" name="label" value="Experiment Platform"/>
+			<mx:SetProperty target="{projectLabel}" name="label" value="Project folder for organizing experiments"/>
 			<mx:RemoveChild target="{label1}"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild" target="{label1}"/>
-			<mx:SetProperty target="{label12}" name="text" value="Lab group"/>
-			<mx:SetProperty target="{text7}" name="htmlText" value="Submitter"/>
+			<mx:SetProperty target="{label12}" name="label" value="Lab group"/>
+			<mx:SetProperty target="{experimentOwnerName}" name="label" value="Submitter"/>
 			<mx:SetStyle target="{label1}" name="verticalAlign" value="middle"/>
 			<mx:SetStyle target="{appUserContainer}" name="verticalAlign" value="middle"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
-						<mx:Text text="Experiment type" width="160" id="labelApplication0"/>
+						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+										  label="Experiment type" labelPlacement="left" id="labelApplication0" width="200"/>
 						<mx:RadioButtonGroup id = "radioGroupAppAdmin">       	
 						</mx:RadioButtonGroup>
 						<mx:Tile height="100%" direction="vertical" verticalGap="0" width="100%"  >
@@ -122,12 +119,13 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
 			<mx:SetProperty target="{label12}" name="width" value="160"/>
-			<mx:SetProperty target="{text7}" name="width" value="160"/>
-			<mx:SetProperty target="{text2}" name="width" value="160"/>
+			<mx:SetProperty target="{experimentOwnerName}" name="width" value="160"/>
+			<mx:SetProperty target="{projectLabel}" name="width" value="160"/>
 			<mx:SetProperty target="{label11}" name="width" value="160"/>	  
 			<mx:AddChild relativeTo="{label1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
-					<mx:Text text="Organism" width="160" id="labelOrg1"/>
+					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
+									  label="Organism" labelPlacement="left" id="labelOrg1" width="200"/>
 					<mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" selectedIndex="-1" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -145,9 +143,8 @@
 		<mx:State name="AdminExternalMicroarrayState" basedOn="AdminExternalExperimentState">
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Text width="160">
-						<mx:htmlText>Microarray slide</mx:htmlText>
-					</mx:Text>
+					<util:ContextHelp context1="experimentMicroarraySlide" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Microarray Slide Help"
+									  label="Microarray slide" labelPlacement="left" id="labelMicroarraySlide" width="160"/>
 					<mx:ComboBox labelField="@display" width="420" id="slideProductComboAdmin" change="{pickSlideProduct(slideProductComboAdmin)}"  close="{pickSlideProduct(slideProductComboAdmin)}"   >							
 						<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 					</mx:ComboBox>
@@ -161,9 +158,8 @@
 		<mx:State name="ExternalMicroarrayState" basedOn="ExternalExperimentState">
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0">
-					<mx:Text width="160">
-						<mx:htmlText>Microaray slide</mx:htmlText>
-					</mx:Text>
+					<util:ContextHelp context1="experimentMicroarraySlide" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Microarray Slide Help"
+									  label="Microarray slide" labelPlacement="left" id="labelMicroarraySlide1" width="160"/>
 					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"    change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}"    >							
 						<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
 					</mx:ComboBox>
@@ -171,7 +167,7 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetProperty target="{label12}" name="width" value="160"/>
-			<mx:SetProperty target="{text2}" name="width" value="160"/>
+			<mx:SetProperty target="{projectLabel}" name="width" value="160"/>
 			<mx:SetProperty target="{label11}" name="width" value="160"/>
 			<mx:SetProperty target="{labelApplication}" name="width" value="160"/>
 			<mx:SetProperty target="{projectCombo}" name="width" value="380"/>
@@ -1125,18 +1121,6 @@
 				
 			}
 			
-			private function showHideInstructions():void {
-				if (textarea1.visible) {
-					textarea1.visible = false;
-					textarea1.includeInLayout = false;
-					instructions.label = "Click for instructions";
-				} else {
-					textarea1.visible = true;
-					textarea1.includeInLayout = true;
-					instructions.label = "Click to hide instructions";
-				}
-			}
-			
 			private function userSelected():void {
 				if (appUserCombo.selectedItem != null) {
 					idAppUser = appUserCombo.selectedItem.@idAppUser;
@@ -1264,7 +1248,8 @@
 	
 	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="0" id="vbox1" enabled="true" verticalScrollPolicy="auto">
 		<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="2">
-			<mx:Text text="(1) Select a service category." width="200" id="label11"/> 
+			<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Service Category Help"
+							  labelPlacement="left" id="label11" width="200" label="(1) Select a service category."/>
 			<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="610" verticalAlign="bottom">
 				<mx:RadioButtonGroup id="requestTypeGroup" change="{refreshBillingAccounts()}" />
 				<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
@@ -1284,17 +1269,16 @@
 				<mx:Label id="noServicesText" text="No experiment platforms are associated with this lab. Please contact customer support." includeInLayout="false" visible="false" />
 				<mx:Label id="selectLabText" text="Please select a laboratory." includeInLayout="false" visible="false" />
 			</mx:VBox>
-			<mx:VBox  horizontalAlign="center" id="vbox4" backgroundColor="#FFFEC3">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}" toolTip="1.  Select the dropdown or radio button options for&#13;      each line.&#13; 2. After completing all line items, click the 'Next' button&#13;      at the bottom of the page to proceed.&#13; 3.  The account selected from this work request will be&#13;      electronically billed following completion of the work."/>
-				<mx:TextArea styleName="instructionBox" width="350" wordWrap="true" height="90" id="textarea1" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br> 1.  Select the dropdown or radio button options for each line.<br> 2. After completing all line items, click the 'Next' button at the<br>      bottom of the page to proceed.<br> 3.  The account selected from this work request will be<br>      electronically billed following completion of the work.]]></mx:htmlText>
-				</mx:TextArea>
+			<mx:VBox  horizontalAlign="center" id="vbox4">
+				<util:ContextHelp context1="experimentInternalSetupHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Help" label="Click for Instructions" id="experimentHelp"
+								  hideLabelIfNoHelp="true"/>
 			</mx:VBox>  
 		</mx:HBox>
 		<mx:HBox width="100%" id="labAndInstructionBox">
 			<mx:VBox verticalGap="4" id="vBox5">
 				<mx:HBox horizontalGap="0" verticalAlign="top" id="selectLabBox">
-					<mx:Label text="(2) Verify your lab group." width="200" id="label12"/>
+					<util:ContextHelp context1="experimentLab" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Lab Help"
+									  labelPlacement="left" id="label12" width="200" label="(2) Verify your lab group."/>
 					<renderers:FilterComboBox dataProvider="{parentDocument.filteredLabList}" 
 											  labelField="@name" 
 											  prompt="Select a lab..."
@@ -1309,9 +1293,8 @@
 		</mx:HBox>	
 		<mx:VBox id="accountBox" width="100%" verticalGap="0" paddingTop="0" paddingBottom="0"> 
 			<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5" paddingBottom="0" paddingTop="0">
-				<mx:Text  width="200"  id="text1">
-					<mx:htmlText>(3) Select a billing account.</mx:htmlText>
-				</mx:Text>
+					<util:ContextHelp context1="experimentBillingAccount" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
+									  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
 				<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
 					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness(); setVisibility();" selectedIndex="-1" close="checkSetupCompleteness(); setVisibility();">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
@@ -1329,13 +1312,11 @@
 				</mx:HBox>
 				
 			</mx:HBox>
-			
+
 		</mx:VBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="projectHBox" paddingTop="0" paddingBottom="0">
-			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Project Folder Help"/>
-			<mx:Text width="200" id="text2" toolTip="Project folders allow you to group your experiments in projects for organization purposes.">
-				<mx:htmlText>(4) Select a project folder.</mx:htmlText>
-			</mx:Text>
+			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Project Folder Help"
+							  label="(4) Select a project folder" labelPlacement="left" id="projectLabel" width="200"/>
 			<mx:HBox verticalGap="2" horizontalGap="4">
 				<mx:HBox  height="100%" width="100%" horizontalAlign="right" verticalAlign="middle" horizontalGap="2" id="hbox2">
 					<mx:ComboBox dataProvider="{parentDocument.filteredProjectList}" labelField="@name" width="380" id="projectCombo" change="{checkSetupCompleteness()}" close="{checkSetupCompleteness()}">
@@ -1350,15 +1331,15 @@
 		</mx:HBox>
 		<mx:VBox id="nameDescriptionHBox" width="100%" paddingBottom="0" paddingLeft="0" paddingTop="0" paddingRight="0">
 			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0">
-				<mx:Text width='200' id="nameLabel">
-					<mx:htmlText>(5) Experment Name. (optional)</mx:htmlText>
-				</mx:Text>
+				<util:ContextHelp context1="experimentName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
+								  labelPlacement="left" id="nameLabel" width="200" label="(5) Experment Name. (optional)"/>
 				<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
 							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0"/>
 				<mx:Spacer width="10"/>
 			</mx:HBox>	
 			<mx:VBox id="descriptionVBox" width="100%" paddingRight="20" paddingTop="0">
-				<mx:Label text="(6) Experiment Description. (optional)" id="descriptionLabel"/>
+				<util:ContextHelp context1="experimentDescription" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
+								  labelPlacement="left" id="descriptionLabel" width="500" label="(6) Experiment Description. (optional)"/>
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 									id="overallDescript" width="900" minWidth="900"
 									htmlText="{parentDocument.request == null ? '' : parentDocument.request.@description}" 
