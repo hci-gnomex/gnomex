@@ -693,8 +693,10 @@
 			
 			public function showEditExperimentWindow():void {
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
+				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
 				
 				parentDocument.parentDocument.experimentEditView.request = this.selectedExperiment;
+				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
 				parentDocument.parentDocument.experimentEditView.samplesView.setShowCCNumber(this.selectedExperiment.@hasCCNumber == 'Y');
 				parentDocument.parentDocument.experimentEditView.selectedAssaysCollection = this.assays;
 				

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas  label="Seq Options" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}">
+<mx:Canvas  label="Seq Options" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}"
+			xmlns:util="views.util.*">
 	<mx:HTTPService  
 		id="getHiSeqRunTypePriceList" 
 		url="GetHiSeqRunTypePriceList.gx"
@@ -314,7 +315,8 @@
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<mx:Label text="(1)  Select a Sequencing Option." width="314"  id="label10"/>
+				<util:ContextHelp context1="seqOptionsSequencingOption" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequencing Option Help"
+								  label="(1)  Select a Sequencing Option." labelPlacement="left" id="label10" width="314"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
