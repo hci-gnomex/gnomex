@@ -754,18 +754,21 @@
 			}
 		}
 		private function getBillingAccountName():void {
-			var billingAccount:Object = null;
-			for each(var lab:Object in parentApplication.labList) {
-				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
-					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
-						billingAccount = ba;
-						break;
-					}
-						
-				}
-			}
-			if (billingAccount != null) {
-				billingAccountName = billingAccount.@accountName;
+//			var billingAccount:Object = null;
+//			for each(var lab:Object in parentApplication.labList) {
+//				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
+//					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
+//						billingAccount = ba;
+//						break;
+//					}
+//						
+//				}
+//			}
+//			if (billingAccount != null) {
+//				billingAccountName = billingAccount.@accountName;
+//			}
+			if(this.request.@billingAccountName != null) {
+				billingAccountName = this.request.@billingAccountName;
 			}
 		}
 		
@@ -4101,9 +4104,9 @@
 				
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 				if (requestEditBillingAccountCombo.dropdown != null) {
-					requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;
+					//requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;  // already has dynamic binding
 				}
-		        for each(var ba:Object in billingAccounts) {
+		        for each(var ba:Object in filteredBillingAccounts) {
 		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
 		        		requestEditBillingAccountCombo.selectedItem = ba;
 		        		break;
@@ -5025,6 +5028,13 @@
 				return keep;
 			}
 			
+			private function filterBillingAccounts(item:Object):Boolean {
+				var keep:Boolean = false;
+				if(item.@idCoreFacility == parentDocument.selectedExperiment.@idCoreFacility)
+					return true;
+				return false;
+			}
+			
 			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
 				this.defaultCodeRequestCategory = codeDefaultRequestCategory;
 				this.ccNumberList = ccNumberList;
@@ -5100,6 +5110,8 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
+	<mx:XMLListCollection id="filteredBillingAccounts" source="{billingAccounts.source}" filterFunction="filterBillingAccounts" />
+
   	<mx:XMLListCollection id="projects" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
@@ -5345,7 +5357,7 @@
 					    	styleName="formLabel"/>
 					    <mx:ComboBox id="requestEditBillingAccountCombo"
 					       	  labelField="@accountName" 
-					       	  dataProvider="{billingAccounts}" 
+					       	  dataProvider="{filteredBillingAccounts}"							  
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
 							  width="400"
