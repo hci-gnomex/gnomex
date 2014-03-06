@@ -807,7 +807,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
           }
         }
-        if (createBillingItems) {
+        if (createBillingItems || requestParser.isReassignBillingAccount()) {
           sess.refresh(requestParser.getRequest());
 
           // Create the billing items
