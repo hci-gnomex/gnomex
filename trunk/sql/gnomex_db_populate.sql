@@ -1522,7 +1522,7 @@ values (1,1);
 insert into gnomex.BillingAccount (accountName, accountNumber, startDate, idCoreFacility, idLab, isApproved)
 values ('Test Account', 'B1235', '2013-01-01', 1, 1, 'Y');
 
-insert into gnomex.AppUser(idAppUser, lastName, firstName, isActive, codePermissionKind)
+insert into gnomex.AppUser(idAppUser, lastName, firstName, isActive, codeUserPermissionKind)
 values (2, 'Test', 'User', 'Y', 'LAB');
 
 insert into gnomex.LabUser(idLab, idAppUser)
