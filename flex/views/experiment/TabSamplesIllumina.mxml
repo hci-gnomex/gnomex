@@ -90,7 +90,7 @@
 				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
 				parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
 				setGridColors();
-
+				
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
@@ -475,9 +475,7 @@
 					}
 				}
 				
-				if (parentDocument.isSolexaEditState()) {
-					parentDocument.lanesView.enabled = isComplete;
-				} else if (!parentDocument.isEditState()) {
+				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
 						parentDocument.visibilityView.enabled = isComplete;
 					} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
@@ -507,7 +505,7 @@
 					}
 				}
 			}
-
+			
 			private function setGridColors():void {
 				var numsUsed:Object = new Object();
 				var prevSample:Object = null;
@@ -532,7 +530,7 @@
 				}
 			}
 			
-			private function areLaneNumbersSequential():Boolean {
+			override public function areLaneNumbersSequential():Boolean {
 				var numsUsed:Object = new Object();
 				var prevSample:Object = null;
 				for each (var theSample:Object in parentDocument.samples) {
@@ -555,11 +553,7 @@
 			
 			private function postSamplesCompleteness(isComplete:Boolean):void {
 				
-				if (!isComplete) {
-					if (parentDocument.isSolexaEditState()) {
-						parentDocument.lanesView.enabled = false;
-						parentDocument.bioinformaticsView.enabled = false;
-					}
+				if (!isComplete && !parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
 						parentDocument.visibilityView.enabled = false;					
 					}
@@ -585,7 +579,7 @@
 				
 				parentDocument.lanes.addItem(emptyNode);
 			}
-
+			
 			override public function propagateNumberSequencingCycles(theSample:Object):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
@@ -677,7 +671,7 @@
 				} else {
 					multiplexGroupNumberEditColumn.editable = false;
 				}
-
+				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				
@@ -698,7 +692,7 @@
 				this.sampleTypeCol.visible = true;
 				
 				seqPrepStatus.visible = isEditState && !isExternal;
-								
+				
 				this.qc_260_280Column.visible = false;
 				this.sampleNameCol.visible = true;
 				
@@ -734,7 +728,7 @@
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
 				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
-
+				
 				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 						parentDocument.confirmView.showHideColumns();									
@@ -887,7 +881,7 @@
 					
 				}			
 			}
-
+			
 			public function getIndexTagName(item:Object):String
 			{
 				if (item.@idOligoBarcode != '') {
@@ -904,7 +898,7 @@
 					return '';
 				}
 			}
-
+			
 			public function textChange(item:String):void {
 				var txt:String = item;
 				if(txt.length == 30) {
@@ -924,7 +918,7 @@
 					+ "\n2\tC"
 					+ "\n3\tD"
 					+ "\n\nA and B are in group 1, C is in group 2 and D is in group 3";
-					
+				
 				return tip;
 			}
 			
@@ -985,12 +979,12 @@
 										 width="100%" height="50"/>
 			</mx:VBox>
 			<mx:VBox width="10%" horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" backgroundColor="#FFFEC3" id="instructionVBox">
-					<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
-								   toolTip=""/>
-					<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="120" id="textarea1" link="instructionLink(event);"
-								 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
-						<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.<br><u><font color="#0000FF"><a href='event:uploadInstructions'>Upload Instructions</a></font></u><br>  Note: You may <u><font color="#0000FF"><a href='event:downloadSampleSheet'>Download a Sample Sheet</a></font></u> as a template for future submissions.]]></mx:htmlText>
-					</mx:TextArea>
+				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
+							   toolTip=""/>
+				<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="120" id="textarea1" link="instructionLink(event);"
+							 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
+					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.<br><u><font color="#0000FF"><a href='event:uploadInstructions'>Upload Instructions</a></font></u><br>  Note: You may <u><font color="#0000FF"><a href='event:downloadSampleSheet'>Download a Sample Sheet</a></font></u> as a template for future submissions.]]></mx:htmlText>
+				</mx:TextArea>
 			</mx:VBox>
 			
 		</mx:HBox>
@@ -1004,9 +998,9 @@
 						   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetInstructionsView, true));"
 						   toolTip=" 1.  Download the sample sheet (see instructions) or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 			
-            <mx:VRule height="20" />
+			<mx:VRule height="20" />
 			<mx:Spacer width="4"/>
-
+			
 			
 			<mx:CheckBox id= "showCCNumberCheckbox"
 						 selected="false"  horizontalGap="0" 
@@ -1308,7 +1302,7 @@
 		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
-						
+			
 		</mx:State>
 		
 	</exp:states>
