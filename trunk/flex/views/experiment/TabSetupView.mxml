@@ -43,7 +43,8 @@
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
-						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" context3="{parentDocument.requestType}" 
+										  showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
 										  label="Experiment type" labelPlacement="left" id="labelApplication" width="200"/>
 						<mx:RadioButtonGroup id = "radioGroupApp">       	
 						</mx:RadioButtonGroup>
@@ -97,8 +98,9 @@
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
-						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-										  label="Experiment type" labelPlacement="left" id="labelApplication0" width="200"/>
+						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" context3="{parentDocument.requestType}" 
+										  showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+										  label="Experiment type" labelPlacement="left" id="labelApplication0" width="160"/>
 						<mx:RadioButtonGroup id = "radioGroupAppAdmin">       	
 						</mx:RadioButtonGroup>
 						<mx:Tile height="100%" direction="vertical" verticalGap="0" width="100%"  >
@@ -125,7 +127,7 @@
 			<mx:AddChild relativeTo="{label1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
 					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
-									  label="Organism" labelPlacement="left" id="labelOrg1" width="200"/>
+									  label="Organism" labelPlacement="left" id="labelOrg1" width="160"/>
 					<mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" selectedIndex="-1" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
