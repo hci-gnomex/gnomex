@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:LinkButton horizontalGap="0" paddingLeft="0" paddingRight="0" label="" xmlns:mx="http://www.adobe.com/2006/mxml" click="helpClick()"  creationComplete="init()" styleName="contextHelpIcon">
+<mx:LinkButton horizontalGap="0" paddingLeft="0" paddingRight="0" textAlign="left" label="" xmlns:mx="http://www.adobe.com/2006/mxml" click="helpClick()"  creationComplete="created()" styleName="contextHelpIcon">
 	<mx:Script>
 		<![CDATA[
+			import flash.text.TextFieldAutoSize;
+			
 			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
@@ -9,15 +11,73 @@
 			import views.util.ContextSensitiveHelpView;
 			import views.util.HTMLToolTip;
 
-			public var context1:String = "";
-			public var context2:String = "";
-			public var context3:String = "";
-			public var showEdit:Boolean = false;
-			public var title:String="";
+			private var _context1:String = "";
+			private var _context2:String = "";
+			private var _context3:String = "";
+			private var _showEdit:Boolean = false;
+			private var _title:String="";
+			private var _hideLabelIfNoHelp:Boolean = false;
 			
+			private var _created:Boolean = false;
+			
+			public function get context1():String {
+				return _context1;
+			}
+			public function set context1(value:String):void {
+				_context1 = value;
+				init();
+			}
+			
+			public function get context2():String {
+				return _context2;
+			}
+			public function set context2(value:String):void {
+				_context2 = value;
+				init();
+			}
+			
+			public function get context3():String {
+				return _context3;
+			}
+			public function set context3(value:String):void {
+				_context3 = value;
+				init();
+			}
+			
+			public function get showEdit():Boolean {
+				return _showEdit;
+			}
+			public function set showEdit(value:Boolean):void {
+				_showEdit = value;
+			}
+			
+			public function get title():String {
+				return _title;
+			}
+			public function set title(value:String):void {
+				_title = value;
+			}
+			
+			
+			public function get hideLabelIfNoHelp():Boolean {
+				return _hideLabelIfNoHelp;
+			}
+			public function set hideLabelIfNoHelp(value:Boolean):void {
+				_hideLabelIfNoHelp = value;
+				init();
+			}
+
 			private static var NO_HELP_TEXT:String = "No Help Available";
 			
+			private function created():void {
+				_created = true;
+				init();
+			}
+			
 			public function init():void {
+				if (!_created) {
+					return;
+				}
 				var hasText:Boolean = true;
 				if (getHelpText(true).length == 0) {
 					hasText = false;
@@ -29,9 +89,11 @@
 				} else if (showEdit) {
 					this.styleName = "contextHelpEditNoContentIcon";
 				} else {
-					this.styleName = "contextHelpNoContentIcon";
-					this.visible = false;
 					this.enabled = false;
+					this.styleName = "contextHelpNoContentIcon";
+					if (hideLabelIfNoHelp) {
+						this.visible = false;
+					}
 				}
 				this.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
 				if (ttt.length > 0) {
@@ -67,7 +129,10 @@
 					context3 = '';
 				}
 				// Note parentApplication.dictionaryManager probably ties this to GNomEx.  Need change if used elsewhere.
-				var helpList:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2 && @context3==context3);
+				var helpList:XMLList = new XMLList();
+				if (parentApplication != null) {
+				    helpList = parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ContextSensitiveHelp').DictionaryEntry.(@value != '' && @context1==context1 && @context2==context2 && @context3==context3);
+				}
 				if (helpList.length() > 0) {
 					return helpList[0];
 				} else {
@@ -102,6 +167,44 @@
 				var w:ContextSensitiveHelpView = ContextSensitiveHelpView(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpView, true));
 				w.init(helpText, title, this);
 			}
+			
+			override protected function createChildren():void 
+			{ 
+				super.createChildren(); 
+				if (!textField)
+				{
+					textField = new NoTruncationUITextField();
+					textField.styleName = this;
+					addChild(DisplayObject(textField));
+				}
+				textField.wordWrap = true; 
+				textField.multiline = true; 
+				textField.autoSize = TextFieldAutoSize.LEFT;
+				var tf:TextFormat = textField.getTextFormat();
+				tf.align = TextFormatAlign.LEFT;
+				textField.setTextFormat(tf);
+				textField.defaultTextFormat = tf;
+			}  
+			
+			
+			override public function measureText(s:String):TextLineMetrics
+			{
+				
+				textField.text = s;
+				// We only want to make the width the standard narrow size if we have a space or dash to wrap the text on
+				if (parent == null  || (textField.text.length > 10 && textField.text.indexOf(" ") < 0 && textField.text.indexOf("-") < 0)) {			
+				} else {
+					textField.width = this.width;
+				}
+				
+				var lineMetrics:TextLineMetrics = textField.getLineMetrics(0);
+				lineMetrics.width = textField.textWidth;
+				lineMetrics.height = textField.textHeight;
+				
+				return lineMetrics;
+				
+			}
+
 		]]>
 	</mx:Script>
 </mx:LinkButton>
