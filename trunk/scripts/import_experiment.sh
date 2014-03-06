@@ -20,5 +20,5 @@ done
 
 export CLASSPATH
 
-java hci.gnomex.httpclient.ImportExperiment $*
+java hci.gnomex.daemon.ImportExperiment $*
 

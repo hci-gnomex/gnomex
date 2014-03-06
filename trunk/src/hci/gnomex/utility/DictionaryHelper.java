@@ -710,6 +710,10 @@ public class DictionaryHelper implements Serializable {
   public Property getPropertyObject(Integer idProperty) {
     return propertyMap.get(idProperty);
   }
+  
+  public Map<Integer, Property> getPropertyMap() {
+    return propertyMap;
+  }
 
   
   public String getPropertyDictionary(String name) {

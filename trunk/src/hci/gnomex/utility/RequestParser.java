@@ -113,15 +113,30 @@ public class RequestParser implements Serializable {
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
   }
+
+  /* 
+   * Call this parse method from controller classes.  In this case, DictionaryHelper can
+   * be used because the servlet ManageDictionaries has already been called during initialization.
+   */
+  public void parse(Session sess) throws Exception {
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
+    parse(sess, requestCategory);
+  }
   
   
-  public void parse(Session sess) throws Exception{
+  /*
+   * Call this version of parse when coming from a batch java app instead of the web (servlet) interface.
+   * In this case, we can't rely on DictionaryHelper since ManageDictionaries only works as a command, not
+   * in a stand-alone java app.
+   */
+  public void parse(Session sess, RequestCategory requestCategory) throws Exception{
     
-    this.initializeRequest(requestNode, sess);
+    this.initializeRequest(requestNode, sess, requestCategory);
     
     for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
       Element sampleNode = (Element)i.next();
-      this.initializeSample(requestNode, sampleNode, sess);      
+      this.initializeSample(requestNode, sampleNode, sess, requestCategory);      
     }
     
     
@@ -144,7 +159,7 @@ public class RequestParser implements Serializable {
     
   }
   
-  private void initializeRequest(Element n, Session sess) throws Exception {
+  private void initializeRequest(Element n, Session sess, RequestCategory requestCategory) throws Exception {
       
       Integer idRequest = new Integer(n.getAttributeValue("idRequest"));
       if (idRequest.intValue() == 0) {
@@ -186,8 +201,7 @@ public class RequestParser implements Serializable {
       
       if ( n.getAttributeValue("codeRequestCategory") != null ) {
         request.setCodeRequestCategory(n.getAttributeValue("codeRequestCategory"));
-        RequestCategory rc = DictionaryHelper.getInstance( sess ).getRequestCategoryObject( n.getAttributeValue("codeRequestCategory") );
-        if ( rc.getIsOwnerOnly() != null && rc.getIsOwnerOnly().equals("Y") ) {
+        if ( requestCategory.getIsOwnerOnly() != null && requestCategory.getIsOwnerOnly().equals("Y") ) {
           request.setCodeVisibility( Visibility.VISIBLE_TO_OWNER );
         }
       }
@@ -413,7 +427,7 @@ public class RequestParser implements Serializable {
     }
   }
   
-  private void initializeSample(Element requestNode, Element n, Session sess) throws Exception {
+  private void initializeSample(Element requestNode, Element n, Session sess, RequestCategory requestCategory) throws Exception {
     boolean isNewSample = false;
     Sample sample = null;
     
@@ -430,7 +444,7 @@ public class RequestParser implements Serializable {
 
     Boolean isExternal = (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y"));
     
-    if(RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory")) && !isExternal) {
+    if (requestCategory.getCategoryType() != null && requestCategory.getCategoryType().getIsIllumina().equals("Y") && !isExternal)  {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
     } else {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, false);

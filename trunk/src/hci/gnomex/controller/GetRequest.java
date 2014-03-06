@@ -828,6 +828,47 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
 
+          // Augment sample with sample type name so that imports can lookup idSampeType based
+          // on the name.  Do the same for organism.
+          for (Iterator i1 = requestNode.getChild("samples").getChildren("Sample").iterator(); i1.hasNext();) {
+            Element sampleNode = (Element)i1.next();
+            String idSampleTypeString = sampleNode.getAttributeValue("idSampleType");
+            if (idSampleTypeString != null && !idSampleTypeString.equals("")) {
+              Integer idSampleType = Integer.parseInt(idSampleTypeString);
+              String sampleTypeName = dh.getSampleType(idSampleType);
+              if (sampleTypeName != null) {
+                sampleNode.setAttribute("sampleType", sampleTypeName);
+              }
+            }
+            String idOrganismString = sampleNode.getAttributeValue("idOrganism");
+            if (idOrganismString != null && !idOrganismString.equals("")) {
+              Integer idOrganism = Integer.parseInt(idOrganismString);
+              String organismName = dh.getOrganism(idOrganism);
+              if (organismName != null) {
+                sampleNode.setAttribute("organism", organismName);
+              }
+            }
+          }
+          
+          // Augment sequence lane node with organism and genome build names.
+          if (requestNode.getChild("sequenceLanes") != null) {
+            for (Iterator i1 = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i1.hasNext();) {
+              Element sequenceLaneNode = (Element)i1.next();
+              
+              String idOrganismString = sequenceLaneNode.getAttributeValue("idOrganism");
+              if (idOrganismString != null && !idOrganismString.equals("")) {
+                Integer idOrganism = Integer.parseInt(idOrganismString);
+                String organismName = dh.getOrganism(idOrganism);
+                sequenceLaneNode.setAttribute("organism", organismName);
+              }
+              String idGenomeBuildString = sequenceLaneNode.getAttributeValue("idGenomeBuildAlignTo");
+              if (idGenomeBuildString != null && !idGenomeBuildString.equals("")) {
+                Integer idGenomeBuild = Integer.parseInt(idGenomeBuildString);
+                String genomeBuildName = dh.getGenomeBuild(idGenomeBuild);
+                sequenceLaneNode.setAttribute("genomeBuild", genomeBuildName);
+              }
+            }
+          }
           
           // Append related analysis and data tracks and topics
           if (!newRequest) {
