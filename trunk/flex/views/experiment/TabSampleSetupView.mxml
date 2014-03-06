@@ -1343,7 +1343,7 @@
 						<mx:Text text="(6) How are the samples pooled?" width="305" />
 						<mx:VBox width="100%" verticalGap="0" paddingLeft="0">
 							<mx:RadioButtonGroup id="prePooledSamplesRadioGroup"/>
-							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be sumitted in a separate microfuge tube."
+							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be submitted in a separate microfuge tube."
 											click="{parentDocument.request.@hasPrePooledLibraries='N';prePooledNumTubes.text='';parentDocument.request.@numPrePooledTubes='';this.checkSampleSetupCompleteness()}"/>
 							<mx:HBox paddingLeft="0">
 								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be submitted in"
