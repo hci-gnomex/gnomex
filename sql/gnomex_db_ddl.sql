@@ -1595,6 +1595,7 @@ CREATE TABLE `gnomex`.`Request` (
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
   `trimAdapter` CHAR(1) null,
+  `codeRNAPrepType` varchar(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
