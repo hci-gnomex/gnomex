@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:util="views.util.*" 
 		   width="100%" height="100%" enabled="false">
 	
 	<mx:HTTPService  
@@ -17,7 +18,7 @@
 		<mx:State name="EditState">
 		</mx:State>
 		<mx:State name="ExternalState">
-			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
+			<mx:SetProperty target="{text1}" name="label" value="Check the sample annotations that apply"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -331,10 +332,8 @@
 		<mx:HBox width="100%" height="100%" horizontalGap="0">
 			<mx:VBox height="100%" verticalGap="1">
 				<mx:HBox>
-					<mx:Text width="300" height="100%" id="text1">
-						<mx:text>(1) Check sample characteristics</mx:text>
-					</mx:Text>
-					
+					<util:ContextHelp context1="annotationTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Annotation Help"
+									  label="(1) Check sample characteristics" labelPlacement="left" id="text1" width="300"/>
 				</mx:HBox>
 				<mx:HBox width="100%" height="100%">
 					<mx:VBox width="100%" height="100%" verticalGap="0">
@@ -378,11 +377,6 @@
 					</mx:VBox>
 				</mx:HBox>
 			</mx:VBox>
-			<mx:Spacer width="100%"/>	
-			<mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="120" visible="true" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			</mx:TextArea>
-			
 		</mx:HBox>
 		
 		<mx:HBox width="100%">
@@ -390,6 +384,8 @@
 					 focusIn="{newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT ? newAnnotationName.text = '' : newAnnotationName.text = newAnnotationName.text}"
 					 focusOut="{newAnnotationName.text == '' ? newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT : newAnnotationName.text = newAnnotationName.text}"/>
 			<mx:Button id="newAnnotationNameButton" click="addNewAnnotation()" label="Add Annotation"/>
+			<util:ContextHelp context1="annotationTabAddHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Add Annotation Help"
+							  label="" labelPlacement="left" id="annotationTabAddHelp"/>
 			<mx:Spacer width="40"/>
 			<mx:LinkButton label="Edit annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
 			</mx:LinkButton>						
