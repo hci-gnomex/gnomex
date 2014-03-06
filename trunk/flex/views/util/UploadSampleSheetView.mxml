@@ -500,7 +500,7 @@
 				if(sampleGroupingCollection != null) {
 					sampleGroupingCollection.refresh(false);
 				}
-				tabSamplesView.checkSamplesCompleteness();
+				callLater(tabSamplesView.checkSamplesCompleteness);
 				if (allSuccess) {
 					uploadComplete();
 				} else {
