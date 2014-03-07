@@ -54,7 +54,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 	private File outputfile = null;
 	private String Filename = null; //not needed
 	private SimpleDateFormat sdf = new SimpleDateFormat();
-	private Date currentDate = new Date(System.currentTimeMillis());
+	private Date currentDate;
 
 	private static final int STATUS_ERROR = 999;
 
@@ -75,6 +75,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 		try {
+			currentDate = new Date(System.currentTimeMillis());
 			Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 			
 
