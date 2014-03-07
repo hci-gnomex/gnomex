@@ -658,16 +658,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (createBillingItems || requestParser.isReassignBillingAccount()) {
           sess.refresh(requestParser.getRequest());
           
-          Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
-          BillingItem bill = (BillingItem)ibill.next();
-          hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-          while(ibill.hasNext()) {
-        	  bill = (BillingItem)ibill.next();
-        	  if(firstBillingAccount != bill.getBillingAccount()) {
-        		  billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-        		  break billing_items_if;
-        	  }
-        		  
+          if(!requestParser.getRequest().getBillingItems().isEmpty()) {
+	          Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
+	          BillingItem bill = (BillingItem)ibill.next();
+	          hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
+	          while(ibill.hasNext()) {
+	        	  bill = (BillingItem)ibill.next();
+	        	  if(firstBillingAccount != bill.getBillingAccount()) {
+	        		  billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
+	        		  break billing_items_if;
+	        	  }	        		  
+	          }
           }
 
           // Create the billing items
