@@ -734,8 +734,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
              "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
              "\" deleteHybCount=\"" + this.hybsDeleted.size() +
              "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
-             "\" billingAccountMessage = \"" + billingAccountMessage +
-             "\" attributesChangedMessage = \"" + requestParser.getAttributesChangedMessage() +
+             "\" billingAccountMessage = \"" + billingAccountMessage +             
              "\" emailErrorMessage = \"" + emailErrorMessage +
              "\"/>";
       
