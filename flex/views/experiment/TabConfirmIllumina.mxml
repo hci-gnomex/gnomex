@@ -239,7 +239,7 @@
 								<mx:Component>
 									<mx:VBox  horizontalScrollPolicy="off" verticalGap="0">
 										<mx:Label text="Sample"/>
-										<mx:Label text="#"/>
+										<mx:Label text="ID"/>
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>
