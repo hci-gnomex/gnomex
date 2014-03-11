@@ -79,6 +79,16 @@ package views.util.grid
 			}
 		}
 		
+		// Duplicates selected rows and adds them to the dataprovider
+		override public function duplicateSelectedRows():void
+		{
+			saveDataProvider();
+			var selectedItems:XMLListCollection = SampleDataGridUtil.getSelectedRows( this,  _dataType, _ignoredColumns );
+			for each ( var item:XML in selectedItems ) {
+				addItemToDataProvider(item);
+			}
+		}
+		
 		override protected function addItemToDataProvider(newItem:XML):void {
 			if ( this._hasPlates ) {
 				// find next blank sample (no properties or annotations filled out

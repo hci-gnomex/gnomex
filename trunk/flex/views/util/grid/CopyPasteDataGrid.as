@@ -293,7 +293,7 @@ package views.util.grid
 			else
 			{
 				var item:XML = DataGridUtil.getEmptyRow(this, _dataType);
-				addItemToDataProvider( item );
+				this.getUnderlyingDataProvider().addItem( item );
 			}
 		}
 		
@@ -368,7 +368,22 @@ package views.util.grid
 		}
 		
 		protected function addItemToDataProvider(newItem:XML):void {
-			this.getUnderlyingDataProvider().addItem( newItem );
+			this.addRow();
+			var emptyNode:Object = this.getUnderlyingDataProvider().getItemAt(this.getUnderlyingDataProvider().length-1);
+				
+				// Now copy the sample annotations
+				for each (var attribute:Object in newItem.attributes()) {
+					if ( this._ignoredColumns != null ) {
+						var aName:String = attribute.name();
+						if (this._ignoredColumns.indexOf(aName) == -1) {
+							emptyNode["@" + attribute.name()] = String(attribute);
+						}
+					} else {
+						emptyNode["@" + attribute.name()] = String(attribute);
+					}
+				}
+				
+//			this.getUnderlyingDataProvider().addItem( newItem );
 		}
 		
 		// Setters
