@@ -500,7 +500,7 @@
 						}
 					}
 					
-					if (groupNumberChanged) {
+					if (groupNumberChanged && !parentDocument.isEditState()) {
 						setGridColors();
 					}
 				}
@@ -530,7 +530,7 @@
 				}
 			}
 			
-			override public function areLaneNumbersSequential():Boolean {
+			private function areLaneNumbersSequential():Boolean {
 				var numsUsed:Object = new Object();
 				var prevSample:Object = null;
 				for each (var theSample:Object in parentDocument.samples) {
