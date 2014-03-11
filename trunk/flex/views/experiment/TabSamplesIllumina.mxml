@@ -701,7 +701,9 @@
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
-				
+				ccNumberCheckBoxHelp.visible = !isExternal;
+				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
+
 				setButtonsVisibility(!parentDocument.isAmendState());
 				samplesGrid.rowOperationsAllowed = true;
 				
@@ -755,7 +757,8 @@
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
 				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
-				
+				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
+				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
 				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 						parentDocument.confirmView.showHideColumns();									
@@ -937,18 +940,6 @@
 				return "This is the number of times (1 or greater) that you want to sequence this sample.";
 			}
 			
-			private function multiplexGroupNumberColTip(item:Object):String{
-				var tip:String = "Group together those samples that will be grouped together in one lane."
-					+ "\nExample:"
-					+ "\n1\tA"
-					+ "\n1\tB"
-					+ "\n2\tC"
-					+ "\n3\tD"
-					+ "\n\nA and B are in group 1, C is in group 2 and D is in group 3";
-				
-				return tip;
-			}
-			
 			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
 				coreFacilityNoteVBox.visible = vis;
 				coreFacilityNoteVBox.includeInLayout = vis;
@@ -957,22 +948,6 @@
 			override public function setTopBoxVisibility(vis:Boolean):void {
 				topBox.visible = vis;
 				topBox.includeInLayout = vis;
-			}
-			
-			private function showHideInstructions():void {
-				if (parentApplication.isInternalExperimentSubmission) {
-					if (textarea1.visible) {
-						textarea1.visible = false;
-						textarea1.includeInLayout = false;
-						instructions.label = "Click for instructions";
-						instructions.toolTip = instructionsToolTipText;
-					} else {
-						textarea1.visible = true;
-						textarea1.includeInLayout = true;
-						instructions.label = "Click to hide instructions";
-						instructions.toolTip = "";
-					}
-				}
 			}
 			
 			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
@@ -1001,18 +976,14 @@
 	<mx:VBox width="100%" height="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="2">
 		<mx:HBox width="100%" id="topBox" paddingTop="0">
 			<mx:VBox  width="90%" id="coreFacilityNoteVBox"  verticalGap="0" paddingBottom="0" paddingTop="0">
-				<mx:Label text="Enter a note for the Core Facility (optional)."  id="coreFacilityNoteLabel"/>
+				<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+								  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
 				<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
 										 width="100%" height="50"/>
 			</mx:VBox>
-			<mx:VBox width="10%" horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" backgroundColor="#FFFEC3" id="instructionVBox">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
-							   toolTip=""/>
-				<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="120" id="textarea1" link="instructionLink(event);"
-							 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.<br><u><font color="#0000FF"><a href='event:uploadInstructions'>Upload Instructions</a></font></u><br>  Note: You may <u><font color="#0000FF"><a href='event:downloadSampleSheet'>Download a Sample Sheet</a></font></u> as a template for future submissions.]]></mx:htmlText>
-				</mx:TextArea>
-			</mx:VBox>
+			<util:ContextHelp context1="samplesTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" 
+							  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+							  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
 			
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
@@ -1036,10 +1007,14 @@
 						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
 						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
 						 toolTip="Link to itBioPath samples by entering the CC Number on each sample" />
+			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
+							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
 			
 			<mx:Spacer width="4"/>
 			<mx:VRule height="20"/>
 			<mx:LinkButton label="New Organism..." toolTip="If organism is not in dropdown, add here." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
+			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
+							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
 			
 		</mx:HBox>
 		
@@ -1055,17 +1030,26 @@
 				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex Group #" dataField="@multiplexGroupNumber" editable="true" visible="true"
 										   width="69" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@multiplexGroupNumber', true, '0-9').newInstance(), '')}" editorDataField="value"
-										   showDataTips="true" dataTipFunction="multiplexGroupNumberColTip">
+										   showDataTips="true">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Multiplex"/> 
-								<mx:Label text="Group #"/>
+								<util:ContextHelp context1="multiplexGroupNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Multiplex Group Number Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Multiplex&#13;Group #" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>					
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
 										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
@@ -1076,37 +1060,71 @@
 							</mx:TextInput>
 						</mx:Component>
 					</mx:itemEditor> 
-					
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleConcentration" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="qc_260_280Column"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 
 										   dataField="@qual260nmTo280nmRatio" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQc260280" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
-										   width="76"
+										   width="80"
 										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleCCNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				
 				
 				<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 				
 				
 				<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
-										   headerText="# Lanes to Sequence" width="72" 
+										   headerText="# Lanes to Sequence" width="88" 
 										   dataField="@sequenceLaneCount" 
 										   editable="false">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Existing #"/> 
-								<mx:Label text="Seq Lanes"/> 
+								<util:ContextHelp context1="sampleExistingSeqLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Existing Seq Lanes Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Existing #&#13;Seq Lanes" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
@@ -1121,11 +1139,8 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:HBox horizontalGap="0">
-									<util:ContextHelp context1="numberSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" title="# Seq Help" showEdit="{parentApplication.isAdminState}"/>
-									<mx:Label text="# Seq"/> 
-								</mx:HBox>
-								<mx:Label text="Lanes"/>
+								<util:ContextHelp context1="sampleNumberSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" title="# Seq Help" showEdit="{parentApplication.isAdminState}"
+												  label="# Seq&#13;Lanes" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
@@ -1133,7 +1148,7 @@
 				
 				
 				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
-										   headerText="# Lanes to Sequence" width="72" 
+										   headerText="# Lanes to Sequence" width="88" 
 										   dataField="@numberSequencingLanes" 
 										   editable="true" labelFunction="defaultToZero"
 										   rendererIsEditor="false"
@@ -1142,8 +1157,8 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Addtl #"/> 
-								<mx:Label text="Seq Lanes"/> 
+								<util:ContextHelp context1="sampleAdditionalSequencingLanes" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Addtl # Seq Help" showEdit="{parentApplication.isAdminState}"
+												  label="Addtl #&#13;Seq Lanes" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
@@ -1152,11 +1167,29 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
-													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
+													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Sample Type" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>					
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true, true)}"              
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
+												  label="Organism" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
 				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 										   width="140" dataField="@otherOrganism"
 										   visible="false"
@@ -1190,6 +1223,14 @@
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleIndexTagA" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Index Tag A Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag A" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumnB" 
@@ -1218,43 +1259,69 @@
 							</renderers:FilterComboBoxOligoBarcode>
 						</mx:Component>
 					</util:itemEditor> 					
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleIndexTagB" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Index Tag B Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag B" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
 				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="false" visible="true"
-										   width="80"
+										   width="85"
 										   itemRenderer="mx.controls.Label"               
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Index Tag"/> 
-								<mx:Label text="Sequence"/>
+									<util:ContextHelp context1="sampleIndexTagSequenceA" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence A Help" showEdit="{parentApplication.isAdminState}"
+													  label="Index Tag&#13;Sequence A" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				
 				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="false" visible="true"
-										   width="80"
+										   width="85"
 										   itemRenderer="mx.controls.Label"               
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<mx:Label text="Index Tag"/> 
-								<mx:Label text="Sequence B"/>
+								<util:ContextHelp context1="sampleIndexTagSequenceB" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence B Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag&#13;Sequence B" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
+												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				
 				
 				<mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleChipType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Conc. ng/uL" 
@@ -1262,8 +1329,26 @@
 										   dataField="@qualCalcConcentration" 
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQCConc" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleMeanLibSizeActual" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Actual Ave Lib Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="Actual Ave.&#13;Lib. Size" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
@@ -1271,7 +1356,16 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC 260/230" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC RIN" 
@@ -1279,7 +1373,16 @@
 										   dataField="@qualRINNumber" 
 										   id="qualRINCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualRINCol" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (from)" 
@@ -1287,7 +1390,16 @@
 										   dataField="@qualFragmentSizeFrom" 
 										   id="qualFragSizeFromCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Frag size&#13;(from)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (to)" 
@@ -1295,14 +1407,41 @@
 										   dataField="@qualFragmentSizeTo" 
 										   id="qualFragSizeToCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Frag size&#13;(to)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Status Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				
 				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
+											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
+												  label="Seq Prep Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				
 			</util:columns>
 		</util:AdvancedDataGridWithCustomRowColors>
@@ -1313,7 +1452,6 @@
 	
 	<exp:states>
 		<mx:State name="SamplesEditBaseState" >
-			<mx:RemoveChild target="{instructionVBox}"/>
 		</mx:State>
 		
 		<mx:State name="SamplesEditState" basedOn="SamplesEditBaseState">

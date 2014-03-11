@@ -1013,7 +1013,11 @@
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
-		
+				ccNumberCheckBoxHelp.visible = !isExternal;
+				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
+				ccNumberVRule.visible = !isExternal;
+				ccNumberVRule.includeInLayout = !isExternal;
+
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				
@@ -1106,6 +1110,8 @@
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
 				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
+				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
+				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
 				
 				// If this is a QC request, hide the annotation columns 
 				if (currentState != null 
@@ -1215,25 +1221,6 @@
 				topBox.includeInLayout = vis;
 			}
 			
-			private function showHideInstructions():void {
-				if (parentApplication.isInternalExperimentSubmission) {
-					if (textarea1.visible) {
-						textarea1.visible = false;
-						textarea1.includeInLayout = false;
-						instructions.label = "Click for instructions";
-						if (saveInstructionToolTipText != null && (instructions.toolTip == '' || instructions.toolTip == null)) {
-							instructions.toolTip = this.saveInstructionToolTipText;
-						}
-					} else {
-						textarea1.visible = true;
-						textarea1.includeInLayout = true;
-						instructions.label = "Click to hide instructions";
-						this.saveInstructionToolTipText = instructions.toolTip;
-						instructions.toolTip = "";
-					}
-				}
-			}
-			
 			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
 				if(item.@numberSequencingLanes == ''){
 					item.@numberSequencingLanes = '0';
@@ -1253,18 +1240,16 @@
 		<mx:HBox width="100%" id="topBox">
 			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0" id="buttonAndNoteBox">
 				<mx:VBox height="100%" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="0">
-					<mx:Label text="Enter a note for the Core Facility. (optional)"  id="coreFacilityNoteLabel" fontSize="10"/>
+					<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+									  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
 					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
 											 width ="100%" height="100%"/>
 				</mx:VBox>
 			</mx:VBox>
 			<mx:VBox horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" id="instructionVBox">
-				<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Click for Instructions" click="{showHideInstructions()}"
-							   toolTip=""/>
-				<mx:TextArea styleName="instructionBox" width="500" wordWrap="true" height="88" id="textarea1" 
-							 verticalScrollPolicy="off" horizontalScrollPolicy="off" visible="false" includeInLayout="false">
-					<mx:htmlText><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-				</mx:TextArea>
+				<util:ContextHelp context1="samplesTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" 
+								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+								  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
 			</mx:VBox>
 
 		</mx:HBox>
@@ -1291,7 +1276,13 @@
 						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
 						 toolTip="Link samples to itBioPath using CC Number"
 						 label="Enter CC Numbers" />
+			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
+							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
+			<mx:Spacer width="4" />
+			<mx:VRule height="20" id="ccNumberVRule" />
 			<mx:LinkButton  horizontalGap="0" label="Add Organism ..." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
+			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
+							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
 		</mx:HBox>
 
 		<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGrid"  
@@ -1303,9 +1294,36 @@
 							 showRowNumberCol="{!this.hasPlates()}"
 							 hasPlates="{this.hasPlates()}">
 			<grid:columns>
-				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction" />
-				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
-				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="samplePlateName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Plate Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Plate" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="50" resizable="false" dataField="@wellName">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleWellName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Well Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Well" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
 										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
@@ -1316,11 +1334,18 @@
 							</mx:TextInput>
 						</mx:Component>
 					</mx:itemEditor> 
-					
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
 
 				<mx:AdvancedDataGridColumn id="labelColumn" dataField="@label"  
-										   width="90" headerText="Label" editable="false">
+										   width="100" headerText="Label" editable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:HBox paddingLeft="4" horizontalGap="0" horizontalScrollPolicy="off">
@@ -1389,23 +1414,58 @@
 						</mx:Component>
 					</mx:itemRenderer>
 
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleMicroarrayLabel" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Microarray Label Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Label" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
 
 				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleConcentration" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="qc_260_280Column"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 
 										   dataField="@qual260nmTo280nmRatio" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQc260280" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="76"
 										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleCCNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourcePlateCol" visible="false" editable="true" headerText="Source Plate" width="150" resizable="false"
 													 dataField="@sourcePlate" rendererIsEditor="false" editorDataField="value" sortable="false"
@@ -1472,11 +1532,29 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
-													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
+													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Sample Type" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"                
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}"/>
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
+												  label="Organism" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
 				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
 										   width="140" dataField="@otherOrganism"
 										   visible="false"
@@ -1484,13 +1562,31 @@
 										   editorDataField="value"/> 
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/> 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
+												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn> 
 
 
 				<mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleChipType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Conc. ng/uL" 
@@ -1498,7 +1594,16 @@
 										   dataField="@qualCalcConcentration" 
 										   id="qualCalcConcCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQCConc" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
@@ -1506,7 +1611,16 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC 260/230" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC RIN" 
@@ -1514,7 +1628,16 @@
 										   dataField="@qualRINNumber" 
 										   id="qualRINCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualRINCol" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (from)" 
@@ -1522,7 +1645,16 @@
 										   dataField="@qualFragmentSizeFrom" 
 										   id="qualFragSizeFromCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Frag size&#13;(from)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (to)" 
@@ -1530,14 +1662,41 @@
 										   dataField="@qualFragmentSizeTo" 
 										   id="qualFragSizeToCol" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/>
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Frag size&#13;(to)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}"/>
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Status Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
 										   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value"  />
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
+												  label="Seq Prep Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:CopyPasteSampleGrid>
 
@@ -1556,13 +1715,6 @@
 
 
 		<mx:State name="SolexaSamplesState" >
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  Optional: Provide a short description of your sample in the non-highlighted description field.<br>  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="editable" value="false"/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration&#13;  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen &#13;       as a highlighted column. Please type desired information under the highlighted field with the annotation header.&#13;  3.  Optional: Provide a short description of your sample in the non-highlighted description field.&#13;  4.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.></mx:value>
-			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
@@ -1570,12 +1722,6 @@
 		</mx:State>
 
 		<mx:State name="QCSamplesState" >
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.<br>  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="QCSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
@@ -1591,67 +1737,31 @@
 		</mx:State>
 		<mx:State name="MicroarrayOneColorSamplesState" basedOn="MicroarraySamplesState">
 			<mx:SetProperty target="{labelColumn}" name="visible" value="false" />
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[Instructions<br>  1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.<br>  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen <br>       as a highlighted column. Please type desired information under the highlighted field with the annotation header.<br>  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the following highlighted fields:  sample name and concentration.&#13;  2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen &#13;       as a highlighted column. Please type desired information under the highlighted field with the annotation header.&#13;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
 		</mx:State>
 		<mx:State name="CapSeqState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
-			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:RemoveChild target="{ccNumberCheckBoxHelp}"/>
+			<mx:RemoveChild target="{ccNumberVRule}"/>
 		</mx:State>
 		<mx:State name="FragAnalState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
-			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:RemoveChild target="{ccNumberCheckBoxHelp}"/>
+			<mx:RemoveChild target="{ccNumberVRule}"/>
 		</mx:State>
 		<mx:State name="MitSeqState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
-			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:RemoveChild target="{ccNumberCheckBoxHelp}"/>
+			<mx:RemoveChild target="{ccNumberVRule}"/>
 		</mx:State>
 		<mx:State name="CherryPickState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Provide a short description of your sample in the non-highlighted description field.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
-			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:RemoveChild target="{ccNumberCheckBoxHelp}"/>
+			<mx:RemoveChild target="{ccNumberVRule}"/>
 		</mx:State>
 		<mx:State name="IScanState">
 			<mx:RemoveChild target="{showCCNumberCheckbox}"/>
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="Instructions&lt;br&gt;  1.  Mandatory: Fill in the highlighted sample name.&lt;br&gt;  2.  Optional: Fill in other details about the samples.&lt;br&gt;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed."/>
-			<mx:SetProperty target="{instructions}" name="toolTip">
-				<mx:value>1.  Mandatory: Fill in the highlighted sample name.&#13;  2.  Optional: Fill in other details about the samples.&#13;  3.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:value>
-			</mx:SetProperty>
-			<mx:SetProperty target="{textarea1}" name="height" value="64"/>
-			<mx:SetProperty target="{textarea1}" name="width" value="500"/>
-			<mx:SetProperty target="{instructionVBox}" name="visible" value="{parentDocument.request.@idRequest == 0}"/>
-			<mx:SetProperty target="{instructionVBox}" name="includeInLayout" value="{parentDocument.request.@idRequest == 0}"/>
+			<mx:RemoveChild target="{ccNumberCheckBoxHelp}"/>
+			<mx:RemoveChild target="{ccNumberVRule}"/>
 		</mx:State>
 		
 	</exp:states>
