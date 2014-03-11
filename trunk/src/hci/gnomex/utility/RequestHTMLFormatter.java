@@ -448,7 +448,7 @@ public class RequestHTMLFormatter {
         this.addCell(row, sample.getASourceWell().getPlate().getLabel());
         this.addCell(row, sample.getASourceWell().getWellName());
       }
-      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+      if (request.getCodeRequestCategory() != null && RequestCategory.isSequenomType( request.getCodeRequestCategory() )) {
         if (request.isSequenomPlate()) {
           this.addCell(row, "PLATE");
           this.addCell(row, sample.getASourceWell().getPlate().getLabel());
