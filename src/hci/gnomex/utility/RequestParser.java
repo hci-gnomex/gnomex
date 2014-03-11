@@ -290,6 +290,8 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("applicationNotes") != null && !n.getAttributeValue("applicationNotes").equals(""))
       request.setApplicationNotes(n.getAttributeValue("applicationNotes"));
     
+    if (n.getAttributeValue("includeBisulfideConversion") != null && !n.getAttributeValue("includeBisulfideConversion").equals(""))
+      request.setIncludeBisulfideConversion(n.getAttributeValue("includeBisulfideConversion"));
     
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.

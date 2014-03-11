@@ -763,6 +763,7 @@
     <property name="numberIScanChips" column="numberIScanChips" type="integer"/>    
     <property name="idIScanChip" column="idIScanChip" type="integer"/>
     <property name="coreToExtractDNA" column="coreToExtractDNA" type="string"/>
+    <property name="includeBisulfideConversion" column="includeBisulfideConversion" type="string"/>
     <property name="applicationNotes" column="applicationNotes" type="string"/>
     <property name="processingDate" column="processingDate" type="date"/>
     <property name="materialQuoteNumber" column="materialQuoteNumber" type="string"/>

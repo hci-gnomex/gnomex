@@ -261,6 +261,10 @@
 				} else if (requestCategory.@type == 'SEQUENOM') {
 					this.currentState = "SequenomState";
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
+					if ( this.bisulfideConversionBox != null ) {
+						this.bisulfideConversionBox.visible=requestCategory!=null && requestCategory.@codeRequestCategory=='SEQEPI';
+						this.bisulfideConversionBox.includeInLayout=requestCategory!=null && requestCategory.@codeRequestCategory=='SEQEPI';
+					}
 				} else if (requestCategory.@type == 'CLINSEQ') {
 					this.currentState = "ClinicalSeqState";
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -2244,6 +2248,12 @@
 					<mx:Label text="DNA prep type"  width="100" styleName="formLabel" textAlign="left"  id="label10"/>
 					<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
 							 width="280"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="bisulfideConversionBox">
+					<mx:Label text="Bisulfide conversion"  width="100" styleName="formLabel" textAlign="left" />
+					<mx:Text  text="{this.selectedExperiment.@includeBisulfideConversion=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{adaptersBox}"/>

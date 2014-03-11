@@ -44,7 +44,8 @@
 			if ( qcInstructions != null ) {
 				qcInstructions.text = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS);
 			}
-
+			
+			this.pickSequenomType();
 		}
 		
 		private function initIllumina():void {
@@ -1074,6 +1075,14 @@
 			}
 		}
 		
+		private function onIncludeBisulfideConversionCheckBoxChanged():void {
+			parentDocument.request.@includeBisulfideConversion = bisulfideConversionCheckBox.selected ? 'Y' : 'N';
+			
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
 		private function onDNAPrepTypeChanged():void {
 			parentDocument.request.@codeDNAPrepType = dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '';
 			if ( this.checkSampleSetupCompleteness() ) {
@@ -1134,6 +1143,21 @@
 				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 					parentDocument.confirmView.showHideColumns();
 				}
+			}
+		}
+		
+		public function pickSequenomType():void {
+			if ( this.bisulfideConversionBox != null ) {
+				if (parentDocument.getRequestCategory()!=null && parentDocument.getRequestCategory().@codeRequestCategory=='SEQEPI') {
+					this.bisulfideConversionBox.visible = true;
+					this.bisulfideConversionBox.includeInLayout = true;
+				} else {
+					this.bisulfideConversionBox.visible = false;
+					this.bisulfideConversionBox.includeInLayout = false;
+					parentDocument.request.@includeBisulfideConversion = 'N';
+				}
+			} else {
+				parentDocument.request.@includeBisulfideConversion = 'N';
 			}
 		}
 		
@@ -1982,6 +2006,13 @@
 							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>		
 			</mx:HBox>
 		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox3}" position="before">
+			   <mx:HBox horizontalGap="0"  verticalAlign="middle" id="bisulfideConversionBox">
+				   <util:ContextHelp context1="SampleDetailsSequenomBisulfideConversion" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bisulfide Conversion Help"
+									 label="     Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="334"/>
+				   <mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
+			   </mx:HBox>
+		   </mx:AddChild>
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
 		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
 		   <mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
@@ -1990,6 +2021,7 @@
 				<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 		   	</mx:HBox>
 		   </mx:AddChild>
+		   <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="5"/>
 		   
 	   </mx:State>
 	   <mx:State name="ClinicalSequenomState" basedOn="SequenomState">

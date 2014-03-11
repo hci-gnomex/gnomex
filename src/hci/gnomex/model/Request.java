@@ -97,6 +97,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          hasPrePooledLibraries;
   private Integer         numPrePooledTubes;
   private String          trimAdapter;
+  private String          includeBisulfideConversion;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1412,5 +1413,13 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
   public void setTrimAdapter(String trimAdapter) {
     this.trimAdapter = trimAdapter;
+  }
+  
+  public String getIncludeBisulfideConversion() {
+    return includeBisulfideConversion;
+  }
+  
+  public void setIncludeBisulfideConversion( String includeBisulfideConversion ) {
+    this.includeBisulfideConversion = includeBisulfideConversion;
   }
 }
