@@ -2516,7 +2516,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         } catch(Exception ex) {}
       }
     }
-    return nextSampleNumber++;
+    return ++nextSampleNumber;
   }
   
   public class LabeledSampleComparator implements Comparator, Serializable {
