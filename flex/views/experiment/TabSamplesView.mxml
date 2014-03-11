@@ -63,13 +63,7 @@
 			private var saveInstructionToolTipText:String;
 
 			override protected function initButtons():void {
-				if (parentDocument.isEditState()) {
-					this.samplesGrid.addRowFunction = null;
-				} else {
-					if (parentApplication.submitInternalExperiment()) {
-						this.samplesGrid.addRowFunction = addSample;
-					} 
-				}
+				
 			}
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
@@ -1304,7 +1298,7 @@
 							 editable="true"
 							 itemFocusOut="checkSamplesCompleteness()"
 							 addRowEnabled="{!this.hasPlates()}"
-							 addRowFunction="{parentDocument.isEditState()?null:addSample}"
+							 addRowFunction="{addSample}"
 							 clearAllFunction="promptToClearAllSamples"
 							 showRowNumberCol="{!this.hasPlates()}"
 							 hasPlates="{this.hasPlates()}">

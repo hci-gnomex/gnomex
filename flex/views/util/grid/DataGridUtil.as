@@ -314,7 +314,7 @@ package views.util.grid
 		
 		// Returns an array of the selected items in the order they appear in the grid (instead of
 		// in the order they were selected)
-		private static function getSelectedItemsInOrder( dataGrid:AdvancedDataGrid ):Array {
+		public static function getSelectedItemsInOrder( dataGrid:AdvancedDataGrid ):Array {
 			
 			var sortedItemList:Array = new Array();
 			if ( dataGrid.dataProvider is HierarchicalCollectionView ) {

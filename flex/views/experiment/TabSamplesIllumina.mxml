@@ -70,7 +70,6 @@
 					this.downloadButton.includeInLayout = true;
 					this.uploadHintLink.visible = true;
 					this.uploadHintLink.includeInLayout = true;
-					this.samplesGrid.addRowFunction = null;
 					
 				} else {
 					if (parentApplication.submitInternalExperiment()) {
@@ -78,7 +77,6 @@
 						this.downloadButton.includeInLayout = true;
 						this.uploadHintLink.visible = true;
 						this.uploadHintLink.includeInLayout = true;
-						this.samplesGrid.addRowFunction = addSample;
 					} else {
 						this.downloadButton.visible = true;
 						this.downloadButton.includeInLayout = true;
@@ -99,19 +97,50 @@
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
-				var idOrganism:String = parentDocument.setupView.getIdOrganism();
 				var isValid:Boolean = true;
-				var prepInstructions:String = parentApplication.submitInternalExperiment() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
+				
+				emptyNode = this.getEmptyNode();
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItem(emptyNode);
+				}
+				
+				return isValid;
+			}
+			
+			private function getEmptyNode():XML {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				var prepInstructions:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
 				prepInstructions = prepInstructions.replace("'", "&apos;");
 				prepInstructions = prepInstructions.replace("<", "&lt;");
 				prepInstructions = prepInstructions.replace(">", "&gt;");
 				prepInstructions = prepInstructions.replace("&", "&amp;");
 				
+				var idSampleType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? 
+					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : 
+					(parentDocument.request.@idSampleTypeDefault != null ?parentDocument.request.@idSampleTypeDefault : '');
+				var otherSamplePrepMethod:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';				
+				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
+					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');;				
+				var otherOrganism:String =  parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '';
+				var idNumberSequencingCycles:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '';
+				var idSeqRunType:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '';				
+				
+				var numberSequencingLanes:String	= parentDocument.request.@isRapidMode == 'Y' ? '2' : '1';
+					
+				var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.request.@codeApplication);
+				var idSeqLibProtocol:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+				
 				if (parentDocument.isSolexaState()) {
 					if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
 						parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
-						var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
-						var idSeqLibProtocol:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+						
 						emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
 							" name='' description='' " +
@@ -124,21 +153,21 @@
 							" canChangeNumberSequencingCycles='Y'" +
 							" concentration=''" + 
 							" label=''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +				
-							" idSeqRunType='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
-							" numberSequencingLanes='" + (parentDocument.request.@isRapidMode == 'Y' ? '2' : '1') + "'" +
+							" idNumberSequencingCycles='" + idNumberSequencingCycles + "'" +				
+							" idSeqRunType='" + idSeqRunType + "'" +				
+							" numberSequencingLanes='" + numberSequencingLanes + "'" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
+							" idSampleType='" + idSampleType + "'" +
 							" seqPrepByCore = 'N'" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
 							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +				
 							" prepInstructions=\"" + (prepInstructions) + "\"" +				
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + idOrganism + "'" +				
+							" otherOrganism=\"" + otherOrganism + "\"" +				
 							" treatment=''"   +				
 							"/>");
 						
@@ -158,16 +187,16 @@
 							" barcodeSequence = ''" +
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
-							" idNumberSequencingCycles='" + (parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '') + "'" +
-							" idSeqRunType='" +	(parentApplication.submitInternalExperiment() ? parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '') + "'" +				
+							" idNumberSequencingCycles='" + idNumberSequencingCycles + "'" +
+							" idSeqRunType='" +	idSeqRunType + "'" +				
 							" numberSequencingLanes='1'" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idSeqLibProtocol = ''" +
+							" idSampleType='" + idSampleType + "'" +
+							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
+							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
 							" seqPrepByCore = 'Y'" +
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + idOrganism + "'" +				
+							" otherOrganism=\"" + otherOrganism + "\"" +				
 							" treatment=''"  +				
 							"/>");
 						
@@ -190,19 +219,17 @@
 						" idOligoBarcodeB = ''" +
 						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
-						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-						" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-						" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
+						" idSampleType='" + idSampleType + "'" +
+						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
+						" idOrganism='"  + idOrganism + "'" +				
+						" otherOrganism='" + otherOrganism + "'" 	+
+						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
 						"/>"
 					emptyNode = new XML(xmlString);
 				}
 				
-				if (emptyNode != null) {
-					parentDocument.samples.addItem(emptyNode);
-				}
 				
-				return isValid;
+				return emptyNode;
 			}
 			
 			override protected function checkDeleteValidity(sample:Object):Boolean {
@@ -1021,7 +1048,7 @@
 												  itemFocusOut="checkSamplesCompleteness()"  
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
-												  addRowFunction="{parentDocument.isEditState()?null:addSample}"
+												  addRowFunction="{addSample}"
 												  clearAllFunction="promptToClearAllSamples"
 												  showRowNumberCol="true">
 			<util:columns>

@@ -1,5 +1,6 @@
 package views.util.grid
 {
+	import mx.collections.HierarchicalCollectionView;
 	import mx.collections.XMLListCollection;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
@@ -31,6 +32,7 @@ package views.util.grid
 				var fields:Array = row.split(tabDelimiter);
 				var itemxml:XML = new XML("<Sample/>");
 				itemxml.@idSample = "Sample" + rows.indexOf(row);
+				
 				var col:AdvancedDataGridColumn;
 				var colName:String = "";
 				var colIndex:int = 0;
@@ -85,13 +87,37 @@ package views.util.grid
 					}
 					
 				}
-				
 				itemsFromTextXML.addItem(itemxml);
 			}
 			
 			return itemsFromTextXML;
 		}
-				
+		
+		public static function getSelectedRows( dataGrid:AdvancedDataGrid, dataType:String,  ignoredAttributes:Array = null):XMLListCollection {
+			var copiedItems:XMLListCollection = new XMLListCollection();
+			
+			var selectedData:Array =  DataGridUtil.getSelectedItemsInOrder(dataGrid);
+			for each(var itemToCopy:XML in selectedData) {	
+				var emptyNode:XML = new XML("<Sample/>");
+				// Now copy the sample annotations
+				for each (var attribute:Object in itemToCopy.attributes()) {
+					if ( ignoredAttributes != null ) {
+						var aName:String = attribute.name();
+						if (ignoredAttributes.indexOf(aName) != -1) {
+							emptyNode["@" + attribute.name()] = '';
+						} else {
+							emptyNode["@" + attribute.name()] = String(attribute);
+						}
+					} else {
+						emptyNode["@" + attribute.name()] = String(attribute);
+					}
+				}
+				copiedItems.addItem(emptyNode);
+			}
+			
+			return copiedItems;
+		}
+		
 		private static function getValueForType(inputString:String, fieldType:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
 			var value:String = inputString;
 			
