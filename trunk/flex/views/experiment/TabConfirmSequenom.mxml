@@ -37,7 +37,10 @@
 						this.customBillingMessageLabel.text = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_CUSTOM_BILLING_MESSAGE);
 					}
 				}
-				
+				if ( this.bisulfideConversionBox != null ) {
+					this.bisulfideConversionBox.visible=parentDocument.getRequestCategory()!=null && parentDocument.getRequestCategory().@codeRequestCategory=='SEQEPI';
+					this.bisulfideConversionBox.includeInLayout=parentDocument.getRequestCategory()!=null && parentDocument.getRequestCategory().@codeRequestCategory=='SEQEPI';
+				}				
 				longDescriptionRowCount = 0;
 				for each (var s:Object in parentDocument.samples) {
 					if (s.@description.toString().length > 30) {
@@ -151,6 +154,12 @@
 							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
 						<mx:Label text="Prep type:" textAlign="left" />
 						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedIndex > 0 ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
+					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="bisulfideConversionBox" >
+						<mx:Label text="Bisulfide Conversion:" textAlign="left" 
+								  visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.bisulfideConversionCheckBox!=null}"/>
+						<mx:Text  text="{parentDocument.sampleSetupView.bisulfideConversionCheckBox.selected ? 'Yes' : 'No'}" id="bisulfideText"
+								  visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.bisulfideConversionCheckBox!=null}" />
 					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
