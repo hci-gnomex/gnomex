@@ -1047,6 +1047,13 @@ HRule
 	textSelectedColor: #2E2D2C;
 	color: #2E2D2C;
 }
+.contextHelpNoIcon {
+	disabledColor: #2E2D2C; 
+	selectionColor: #2E2D2C;
+	textRollOverColor: #2E2D2C;
+	textSelectedColor: #2E2D2C;
+	color: #2E2D2C;
+}
 .contextHelpIcon {
 	icon: Embed(source='../assets/information.png');
 }

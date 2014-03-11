@@ -17,6 +17,7 @@
 			private var _showEdit:Boolean = false;
 			private var _title:String="";
 			private var _hideLabelIfNoHelp:Boolean = false;
+			private var _noIconSpaceIfNoHelp:Boolean = false;
 			
 			private var _created:Boolean = false;
 			
@@ -58,12 +59,19 @@
 				_title = value;
 			}
 			
-			
 			public function get hideLabelIfNoHelp():Boolean {
 				return _hideLabelIfNoHelp;
 			}
 			public function set hideLabelIfNoHelp(value:Boolean):void {
 				_hideLabelIfNoHelp = value;
+				init();
+			}
+			
+			public function get noIconSpaceIfNoHelp():Boolean {
+				return _noIconSpaceIfNoHelp;
+			}
+			public function set noIconSpaceIfNoHelp(value:Boolean):void {
+				_noIconSpaceIfNoHelp = value;
 				init();
 			}
 
@@ -83,6 +91,8 @@
 					hasText = false;
 				}
 				this.enabled = true;
+				this.visible = true;
+				this.includeInLayout = true;
 				var ttt:String = getToolTipText();
 				if (hasText || ttt.length > 0) {
 					this.styleName = "contextHelpIcon";
@@ -93,6 +103,9 @@
 					this.styleName = "contextHelpNoContentIcon";
 					if (hideLabelIfNoHelp) {
 						this.visible = false;
+					}
+					if (noIconSpaceIfNoHelp) {
+						this.styleName = "contextHelpNoIcon";
 					}
 				}
 				this.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
