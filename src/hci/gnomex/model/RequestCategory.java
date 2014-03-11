@@ -111,9 +111,11 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   }
   
   public static boolean isSequenom(String codeRequestCategory) {
-    if (codeRequestCategory != null &&
-        (codeRequestCategory.equals(SEQUENOM_REQUEST_CATEGORY) ||
-          codeRequestCategory.equals(CLINICAL_SEQUENOM_REQUEST_CATEGORY))) {
+    DictionaryHelper dh = DictionaryHelper.getInstance(null);
+    RequestCategory cat = dh.getRequestCategoryObject(codeRequestCategory);
+    RequestCategoryType type = dh.getRequestCategoryType(cat.getType());
+    if (type != null && type.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_SEQUENOM ) ||
+        type.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM) ) {
       return true;
     } 
     return false;

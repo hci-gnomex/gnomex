@@ -1163,7 +1163,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
   public Boolean isSequenomPlate() {
     Boolean retVal = false;
-    if (this.getCodeRequestCategory() != null && this.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+    if (this.getCodeRequestCategory() != null && RequestCategory.isSequenomType( this.getCodeRequestCategory() ) && this.getSamples().size() > 0) {
       retVal = isPlateRequest();
     }
     return retVal;
