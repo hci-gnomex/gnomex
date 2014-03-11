@@ -129,10 +129,6 @@ package views.experiment
 			
 		}
 		
-		public function areLaneNumbersSequential():Boolean{
-			return false;
-		}
-		
 		protected function rebuildSamplesGrid():void {
 			var grid:AdvancedDataGrid = getSamplesGrid();
 			var columns:Array = grid.columns;
