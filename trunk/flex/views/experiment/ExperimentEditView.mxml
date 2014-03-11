@@ -2979,18 +2979,11 @@
 				for each(var samp:Object in this.samples) {
 					if(samp[barcodeField] != "" && samp[barcodeFieldB] != ""){
 						if(samp[barcodeField] == samp[barcodeFieldB]){
-							warningMessage += "Some samples are using the same index tag for both index tag A and index tag B.\n\n";
+							warningMessage += "Some samples are using the same index tag for both index tag A and index tag B.";
 							break;
 						}
 					}
 				}
-			}
-			
-			if(isSolexaState()){
-				if(!samplesView.areLaneNumbersSequential()){
-					errorMessage += "Please make sure that samples are grouped by multiplex number sequentially.\n";
-				}
-				
 			}
 		}
 		
