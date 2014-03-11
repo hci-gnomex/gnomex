@@ -967,7 +967,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     nextSampleNumber = getStartingNextSampleNumber(requestParser);
 
     // save samples
-    int sampleCountOnPlate = 1;
+    sampleCountOnPlate = 1;
     hasNewSample = false;
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
