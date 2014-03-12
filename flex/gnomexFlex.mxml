@@ -334,6 +334,8 @@
 			import views.util.BroadcastEmailWindow;
 			import views.util.CaptchaView;
 			import views.util.ContactView;
+			import views.util.ContextHelp;
+			import views.util.ContextHelpEditEnableDisableEvent;
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
@@ -433,6 +435,10 @@
 			[Embed(source="assets/tick_black.png")]
 			public var iconBlackCheck:Class;
 			
+			[Bindable]
+			[Embed(source="assets/white_information.png")]
+			public var iconEmptyInformation:Class;
+
 			[Bindable]
 			[Embed(source="assets/information.png")]
 			public var iconInformation:Class;
@@ -686,9 +692,6 @@
 			[Bindable]
 			[Embed(source="assets/images_disable.png")]
 			public var iconSlideSetInActive:Class;
-			
-			
-			
 			
 			[Bindable]
 			[Embed(source="assets/genome_build.png")]
@@ -3582,6 +3585,16 @@
 					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, ContactView, true));					
 				} else if (label == "User Guide") {
 					navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');
+				} else if (label == "Enable Help Edit") {
+					ContextHelp.editEnabled = true;
+					dispatchEvent(new ContextHelpEditEnableDisableEvent(ContextHelpEditEnableDisableEvent.DATA_REFRESHED));
+					menuItem.@label = 'Disable Help Edit';
+					menuItem.@icon = "iconInformation";
+				} else if (label == "Disable Help Edit") {
+					ContextHelp.editEnabled = false;
+					dispatchEvent(new ContextHelpEditEnableDisableEvent(ContextHelpEditEnableDisableEvent.DATA_REFRESHED));
+					menuItem.@label = 'Enable Help Edit';
+					menuItem.@icon = "iconEmptyInformation";
 				} else if (label == "Home") {
 					theViews.selectedChild = homeView;
 				} else if (label == "My Account") {
@@ -3707,7 +3720,6 @@
 					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
 				}
 			}				
-			
 		]]>
 	</mx:Script>
 	
@@ -4125,6 +4137,7 @@
 		<menuitem label="Home"/>
 		<menuitem label="My Account"  />
 		<menuitem label="Help..."  >
+			<menuitem label="Enable Help Edit" icon="iconEmptyInformation"/>
 			<menuitem label="User Guide"  />
 			<menuitem label="About" />
 		</menuitem>

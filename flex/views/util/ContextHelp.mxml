@@ -8,6 +8,7 @@
 			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
 			
+			import views.util.ContextHelpEditEnableDisableEvent;
 			import views.util.ContextSensitiveHelpView;
 			import views.util.HTMLToolTip;
 
@@ -18,6 +19,8 @@
 			private var _title:String="";
 			private var _hideLabelIfNoHelp:Boolean = false;
 			private var _noIconSpaceIfNoHelp:Boolean = false;
+			
+			private static var _editEnabled:Boolean = false;
 			
 			private var _created:Boolean = false;
 			
@@ -75,6 +78,13 @@
 				init();
 			}
 
+			public static function get editEnabled():Boolean {
+				return _editEnabled;
+			}
+			public static function set editEnabled(value:Boolean):void {
+				_editEnabled = value;
+			}
+			
 			private static var NO_HELP_TEXT:String = "No Help Available";
 			
 			private function created():void {
@@ -82,10 +92,18 @@
 				init();
 			}
 			
+			private function onContextHelpEditEnableDisable(event:Event):void {
+				init();
+			}
+			
 			public function init():void {
 				if (!_created) {
 					return;
 				}
+				
+				parentApplication.removeEventListener(ContextHelpEditEnableDisableEvent.DATA_REFRESHED, onContextHelpEditEnableDisable);
+				parentApplication.addEventListener(ContextHelpEditEnableDisableEvent.DATA_REFRESHED, onContextHelpEditEnableDisable);
+				
 				var hasText:Boolean = true;
 				if (getHelpText(true).length == 0) {
 					hasText = false;
@@ -96,7 +114,7 @@
 				var ttt:String = getToolTipText();
 				if (hasText || ttt.length > 0) {
 					this.styleName = "contextHelpIcon";
-				} else if (showEdit) {
+				} else if (showEdit && _editEnabled) {
 					this.styleName = "contextHelpEditNoContentIcon";
 				} else {
 					this.enabled = false;
@@ -124,7 +142,7 @@
 			}
 			
 			private function helpClick():void {
-				if (showEdit) {
+				if (showEdit && _editEnabled) {
 					var w:ContextSensitiveHelpEdit = ContextSensitiveHelpEdit(PopUpManager.createPopUp(parentApplication.theBody, ContextSensitiveHelpEdit, true));
 					w.init(context1, context2, context3, title, this);
 					PopUpManager.centerPopUp(w);
