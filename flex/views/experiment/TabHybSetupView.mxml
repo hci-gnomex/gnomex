@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  show="init()"
+    xmlns:util="views.util.*" 
 	label="Hyb setup" width="100%" height="100%" enabled="false">
 	<mx:states>
 		<mx:State name="SetupState">
@@ -306,14 +307,16 @@
 
 	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="2">
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(1) Select an organism." width="250" />
+			<util:ContextHelp context1="hybSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Application Help"
+							  label="(1) Select an organism." labelPlacement="left" id="hybSetupApplicationLabel" width="250"/>
 			<mx:ComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
 				<mx:dataProvider>{parentApplication.activeOrganismList}</mx:dataProvider>
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(2) Select the microarray application." width="250" />
+			<util:ContextHelp context1="hybSetupMicroApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Microarray Application Help"
+							  label="(2) Select the microarray application." labelPlacement="left" id="hybSetupMicroApplicationLabel" width="250"/>
 			<mx:VBox  verticalGap="0" id="microarrayAppBox" styleName="{currentState == 'EditState' ? 'normalBox' : 'requiredBox'}">
 	            <mx:RadioButtonGroup id="microarrayAppRadioGroup"/>
 				<mx:Repeater id="microarrayAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 
@@ -326,7 +329,8 @@
   			</mx:VBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Label text="(3) Select one of the following." width="250" />
+			<util:ContextHelp context1="hybSetupMicroCustomVsCatalog" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Microarray Custom vs. Catalog Help"
+							  label="(3) Select one of the following." labelPlacement="left" id="hybSetupMicroCustomVsCatalogLabel" width="250"/>
 			<mx:RadioButtonGroup id="customVsCatalogRadioGroup"/>
 			<mx:RadioButton label="Catalog microarray" groupName="customVsCatalogRadioGroup" id="isCatalogRadio" click="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;checkHybSetupCompleteness()</mx:change>
@@ -336,9 +340,8 @@
 			</mx:RadioButton>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<mx:Text width="250">
-				<mx:htmlText><![CDATA[(4) Select the microarray slide or slide set <br>to be used  for these hybridizations.]]></mx:htmlText>
-			</mx:Text>
+			<util:ContextHelp context1="hybSetupMicroSlide" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Slide Help"
+							  label="(4) Select the microarray slide or slide set&#13;to be used  for these hybridizations." labelPlacement="left" id="hybSetupMicroSlideLabel" width="250"/>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
 					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}">				
@@ -357,9 +360,8 @@
 			</mx:ViewStack>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="numberOfHybsContainer">
-			<mx:Text width="250" >
-				<mx:htmlText><![CDATA[(5) How many microarrays will be used for this experiment request?]]></mx:htmlText>
-			</mx:Text>
+			<util:ContextHelp context1="hybSetupNumSlides" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Number of Slides Help"
+							  label="(5) How many microarrays will be used for this experiment request?" labelPlacement="left" id="hybSetupNumSlidesLabel" width="250"/>
 			<mx:TextInput width="40" id="numberOfHybs"  
 				valid="handleValidNumberOfHybs(event)" invalid="handleInvalidNumberOfHybs(event)">
 				<mx:focusOut>clearHybSlideDesigns();parentDocument.initializeSlideDesigns(slideProductCombo);checkHybSetupCompleteness();parentDocument.hybsView.initializeHybsGrid();</mx:focusOut>
@@ -367,7 +369,8 @@
 			</mx:TextInput>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" id="slideSourceContainer">
-			<mx:Label text="(6) Where will the microarrays come from?" width="250" />
+			<util:ContextHelp context1="hybSetupSlideSource" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Slide SourceHelp"
+							  label="(6) Where will the microarrays come from?" labelPlacement="left" id="hybSetupSlideSourceLabel" width="250"/>
 			<mx:VBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="slideUseBox" styleName="requiredBox">
 				<mx:Repeater id="slideSourceRepeater" dataProvider="{slideSources}">
 					<mx:CheckBox label="{slideSourceRepeater.currentItem.@slideSource}"  id="slideSourceCheckbox"   change="{validateSlideUse()}" click="{pickSlideSource(event.currentTarget.getRepeaterItem().@codeSlideSource)}" paddingTop="0" paddingBottom="1"/>
