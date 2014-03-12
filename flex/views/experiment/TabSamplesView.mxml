@@ -495,7 +495,7 @@
 					} else if (hasPlates()) {
 						numberOfSamples = parentDocument.numCapSeqPlates * 96;
 					} else {
-						if (this.isEditState) {
+						if (this.isEditState || parentDocument.isAmendState()) {
 							numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
 						} 
 					}
