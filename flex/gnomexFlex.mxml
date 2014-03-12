@@ -2277,7 +2277,6 @@
 					}
 				}
 			}
-			
 
 			private function hideMenusByProperties(navMenu:XMLList):void {
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
@@ -2386,7 +2385,12 @@
 				} else {
 					currentState = "UserNonSubmitterState";
 				}
-				
+
+				// Hide help edit unless admin
+				if (!isAdminState) {
+					hideMenusByContext(topMenu, 'helpEdit');
+				}
+
 				// Let's remove Orders from admin menu for Microarray core
 				// since it uses the workflow
 				callLater(this.resizeMenuItems);
@@ -4137,7 +4141,7 @@
 		<menuitem label="Home"/>
 		<menuitem label="My Account"  />
 		<menuitem label="Help..."  >
-			<menuitem label="Enable Help Edit" icon="iconEmptyInformation"/>
+			<menuitem label="Enable Help Edit" icon="iconEmptyInformation" context="helpEdit"/>
 			<menuitem label="User Guide"  />
 			<menuitem label="About" />
 		</menuitem>
