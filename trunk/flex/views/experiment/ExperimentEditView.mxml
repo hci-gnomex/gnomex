@@ -1231,8 +1231,6 @@
 				
 				this.sampleSetupView.sequenomPanelContainer.visible = false;
 				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				samplesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1246,9 +1244,6 @@
 				
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-								
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				samplesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -1273,9 +1268,6 @@
 				
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).includeInLayout = false;
-
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				samplesView.setCoreFacilityNoteVisibility(false);
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
@@ -2626,8 +2618,6 @@
 				if (this.isSequenomState() ){
 					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
 				} 
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				samplesView.setCoreFacilityNoteVisibility(false);
 
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 				this.propertyEntries.refresh();

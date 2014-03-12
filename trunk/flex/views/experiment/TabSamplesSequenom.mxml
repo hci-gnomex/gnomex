@@ -331,6 +331,16 @@
 				}
 			}
 			
+			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+				coreFacilityNoteVBox.visible = vis;
+				coreFacilityNoteVBox.includeInLayout = vis;
+				if (vis) {
+					this.buttonAndNoteBox.height=88;
+				} else {
+					this.buttonAndNoteBox.height=20;
+				}
+			}
+			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
 				if (hasPlates()) {

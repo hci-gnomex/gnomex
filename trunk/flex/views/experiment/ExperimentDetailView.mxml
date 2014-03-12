@@ -2238,7 +2238,6 @@
 			<mx:RemoveChild target="{prePoolBox}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
-			<mx:RemoveChild target="{bioAndCoreNoteVBox}"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
 					<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
