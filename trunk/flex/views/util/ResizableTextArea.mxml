@@ -58,6 +58,9 @@
 			{
 				// Max width and height so no of lines is correct.
 				this.width=1024;
+				if (this.width > this.maxWidth) {
+					this.width = this.maxWidth;
+				}
 				this.height=768;
 
 				// initial height value
@@ -92,6 +95,10 @@
 				this.height = totalHeight;
 				
 				this.width = maxWidth + 10;
+				
+				if (this.width > this.maxWidth) {
+					this.width = this.maxWidth;
+				}
 			}
 		]]>
 	</mx:Script>
