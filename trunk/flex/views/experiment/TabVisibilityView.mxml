@@ -217,7 +217,8 @@
 	<mx:VBox width="100%" height="100%" verticalGap="20" horizontalScrollPolicy="off" verticalScrollPolicy="off">
    		<mx:VBox width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
-		       <mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
+			   <util:ContextHelp context1="visibilityLevel" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Level Help"
+								 label="(1) Select the level of visibility." labelPlacement="left" id="visibilityLevelLabel"/>
 			   <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 		       </mx:RadioButtonGroup>
 		   </mx:HBox>
@@ -264,7 +265,8 @@
 
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-			<mx:Text text="(2) Select other individual collaborators allowed access to this experiment&#xa;"   width="500"/>
+			<util:ContextHelp context1="visibilityCollaborators" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Collaborator Help"
+							  label="(2) Select other individual collaborators allowed access to this experiment&#xa;" labelPlacement="left" id="visibilityCollaboratorsLabel" width="500"/>
 			<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%"	itemClick="toggleCheck(event)">
 				<mx:columns>
 					<mx:DataGridColumn headerText=""  
