@@ -1132,7 +1132,7 @@
 					}    				
 				}
 				
-				if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState() && !isSequenomState()) {
+				if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
 					for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 						if(annotation.@idProperty == "-1") {
 							continue;
