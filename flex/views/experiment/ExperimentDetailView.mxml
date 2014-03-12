@@ -1380,19 +1380,19 @@
 				<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Label text="Lab group"  width="100"  styleName="formLabel" textAlign="left" id="label2"/>
+						<mx:Label text="Lab group"  width="105"  styleName="formLabel" textAlign="left" id="label2"/>
 						<mx:Text   text="{this.selectedExperiment.@labName}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
-						<mx:Label text="Name" width="100" styleName="formLabel" textAlign="left" id="label3"/>
+						<mx:Label text="Name" width="105" styleName="formLabel" textAlign="left" id="label3"/>
 						<mx:Text text="{this.selectedExperiment.@name}"   width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Label text="Experiment"  width="100" styleName="formLabel" textAlign="left" id="label4"/>
+						<mx:Label text="Experiment"  width="105" styleName="formLabel" textAlign="left" id="label4"/>
 						<mx:Text  text="{requestCategoryName}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox6">
-						<mx:Label width="100"  id="label5"/>
+						<mx:Label width="105"  id="label5"/>
 						<mx:Text   text="{experimentCategoryName}" width="280"/>
 					</mx:HBox>
 					<mx:HBox id="prePoolBox"
@@ -1400,32 +1400,32 @@
 							 includeInLayout="{this.selectedExperiment.@seqPrepByCore == 'N'}"
 							 width="100%" horizontalAlign="left" horizontalGap="0"
 							 verticalAlign="top">
-						<mx:Label width="100"/>
+						<mx:Label width="105"/>
 						<mx:Text width="280"
 								 text="{'Library Prep. By Client' + (this.selectedExperiment.@hasPrePooledLibraries == 'Y' ? ', ' + this.selectedExperiment.@numPrePooledTubes.toString() + ' Pre-Pooled Tubes' : '')}" />
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName != ''}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName  != ''}" id="hbox3">
-						<mx:Label text="Organism"  width="100"  styleName="formLabel" textAlign="left" id="label6"/>
+						<mx:Label text="Organism"  width="105"  styleName="formLabel" textAlign="left" id="label6"/>
 						<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingTop="10" id="hbox7">
-						<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="100"  styleName="formLabel" textAlign="left" id="label7"/>
+						<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered on' : 'Submitted on'}"  width="105"  styleName="formLabel" textAlign="left" id="label7"/>
 						<mx:Text  text="{this.selectedExperiment.@createDate}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Label text="Last modified" width="100" styleName="formLabel" textAlign="left" id="label8"/>
+						<mx:Label text="Last modified" width="105" styleName="formLabel" textAlign="left" id="label8"/>
 						<mx:Text  text="{this.selectedExperiment.@lastModifyDate}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" id="hbox2" verticalAlign="middle" 
 							 visible="{selectedExperiment.@isExternal == 'Y' ? false : true}"
 							 
 							 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
-						<mx:Label width="100" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
+						<mx:Label width="105" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 						<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
 					</mx:HBox>
 					<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Text id="designAndInsertLabel" width="100" styleName="formLabel" />
+							<mx:Text id="designAndInsertLabel" width="105" styleName="formLabel" />
 							<mx:Text  id="designAndInsertText" width="280" />
 						</mx:HBox>
 					</mx:HBox>
@@ -1434,33 +1434,33 @@
 				
 				<mx:VBox borderStyle="none" verticalGap="4" width="100%">
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="{'Owned by'}" width="100" styleName="formLabel" textAlign="left"/>
+						<mx:Label text="{'Owned by'}" width="105" styleName="formLabel" textAlign="left"/>
 						<mx:Text   text="{this.selectedExperiment.@ownerName}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="100"  styleName="formLabel" textAlign="left"/>
+						<mx:Label text="{this.selectedExperiment.@isExternal == 'Y' ? 'Registered by' : 'Submitted by'}" width="105"  styleName="formLabel" textAlign="left"/>
 						<mx:Text  text="{this.selectedExperiment.@submitterName}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" includeInLayout="{this.selectedExperiment.@email != ''}" visible="{this.selectedExperiment.@email != ''}" verticalAlign="middle">
-						<mx:Label text="Email" width="100"  styleName="formLabel" textAlign="left"/>
+						<mx:Label text="Email" width="105"  styleName="formLabel" textAlign="left"/>
 						<mx:Text    text="{this.selectedExperiment.@email}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0">
-						<mx:Label text="Phone" width="100" styleName="formLabel" textAlign="left"/>
+						<mx:Label text="Phone" width="105" styleName="formLabel" textAlign="left"/>
 						<mx:Text  text="{this.selectedExperiment.@phone}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Text  width="100" text="Visibility"  styleName="formLabel" textAlign="left"/>
+						<mx:Text  width="105" text="Visibility"  styleName="formLabel" textAlign="left"/>
 						<mx:Text  text="{visibilityName}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-						<mx:Text  width="100" text="Institution"  styleName="formLabel" textAlign="left"/>
+						<mx:Text  width="105" text="Institution"  styleName="formLabel" textAlign="left"/>
 						<mx:Text  text="{institutionName}" width="200"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top"
 							 visible="{this.selectedExperiment.@canUpdate == 'Y'}"
 							 includeInLayout="{this.selectedExperiment.@canUpdate == 'Y'}">
-						<mx:LinkButton  width="100" label="Collaborators" textDecoration="underline"
+						<mx:LinkButton  width="105" label="Collaborators" textDecoration="underline"
 										enabled="{this.selectedExperiment.@canUpdateVisibility == 'Y'}"
 										styleName="formLabel" textAlign="left" click="showCollaboratorWindow()" paddingLeft="0" />
 						<mx:VBox verticalGap="0">
@@ -1478,7 +1478,7 @@
 						 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}"
 						 width="100%" horizontalAlign="left" horizontalGap="0"
 						 verticalAlign="top">
-					<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="100" textAlign="left"/>
+					<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="105" textAlign="left"/>
 					<mx:Tile id="tile1" width="100%" height="100%" direction="horizontal"
 							 fontSize="9" horizontalGap="0" paddingBottom="0"
 							 paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
@@ -1536,7 +1536,7 @@
 					</mx:HBox>
 					<mx:HBox  verticalGap="0">
 						<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
-							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="100" fontSize="9" id="text1"/>
+							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="105" fontSize="9" id="text1"/>
 						</mx:Repeater>
 					</mx:HBox>
 					<mx:VBox >
@@ -1624,7 +1624,7 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					
-					<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="100" dataField="@description"/>
+					<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="105" dataField="@description"/>
 					<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 						<mx:itemRenderer>
 							<mx:Component>
@@ -1633,7 +1633,7 @@
 						</mx:itemRenderer>
 					</mx:AdvancedDataGridColumn>
 					
-					<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="100" dataField="@ccNumber">
+					<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="105" dataField="@ccNumber">
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:LinkButton includeInLayout="{data.hasOwnProperty('@ccNumber')}" 
@@ -1687,13 +1687,13 @@
 							</mx:Component>
 						</mx:headerRenderer> 
 					</mx:AdvancedDataGridColumn>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol" headerText="Sample Type"  width="100" visible="{true}" dataField="@idSampleType"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol" headerText="Sample Type"  width="105" visible="{true}" dataField="@idSampleType"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="organismCol" headerText="Organism" visible="{true}"  width="80" dataField="@@idOrganism'"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
-					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="100" dataField="@otherOrganism" visible="false"/>
+					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
 					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="100" dataField="@otherSamplePrepMethod"/>
+					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="105" dataField="@otherSamplePrepMethod"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" dataField="@codeBioanalyzerChipType"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					
@@ -1709,7 +1709,7 @@
 												itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceCol" headerText="Sample Source"  width="100" visible="{false}" dataField="@idSampleSource"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceCol" headerText="Sample Source"  width="105" visible="{false}" dataField="@idSampleSource"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
 					
 				</grid:columns>
@@ -1730,7 +1730,7 @@
 					</mx:dataProvider> 
 					<mx:columns> 
 						<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="70" wordWrap="false"/>
-						<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="100" wordWrap="false" />
+						<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="105" wordWrap="false" />
 						<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
 												   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
 						<mx:AdvancedDataGridColumn  headerText="Price Category" wordWrap="true" dataField="@category" editable="false" width="200">
@@ -1747,7 +1747,7 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="100" wordWrap="true">
+						<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="105" wordWrap="true">
 							<mx:itemRenderer>
 								<mx:Component>
 									<mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
@@ -1992,7 +1992,7 @@
 							<mx:DataGridColumn headerText="Slide" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  width="320" dataField="@slideDesignName" />
 							<mx:DataGridColumn headerText="Slide Source"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   width="82"   
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource')}"/>                 											
-							<mx:DataGridColumn headerText="Notes" width="100"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
+							<mx:DataGridColumn headerText="Notes" width="105"  visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"   dataField="@notes"/>
 						</mx:columns>
 					</mx:DataGrid>
 				</mx:VBox>
@@ -2149,13 +2149,13 @@
 			<mx:RemoveChild target="{controlbar1}"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox0">
-					<mx:Label text="Container Type"  width="100"  styleName="formLabel" textAlign="left" id="label11"/>
+					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label11"/>
 					<mx:Text  text="{this.selectedExperiment.@containerType}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Drop Off Loc." styleName="formLabel"/>
+					<mx:Text  width="105" text="Drop Off Loc." styleName="formLabel"/>
 					<mx:Text id="sampleDropOffLocationText" 
 							 text="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleDropOffLocation').DictionaryEntry.(@value == this.selectedExperiment.@idSampleDropOffLocation).@display}" 
 							 width="280" />
@@ -2163,7 +2163,7 @@
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
-					<mx:Text  width="100" text="Status" styleName="formLabel" />
+					<mx:Text  width="105" text="Status" styleName="formLabel" />
 					<mx:Text  text="{this.selectedExperiment.@requestStatus}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -2190,7 +2190,7 @@
 		<mx:State name="MitSeqState" basedOn="BaseSeqChromoState">
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Primers" styleName="formLabel" />
+					<mx:Text  width="105" text="Primers" styleName="formLabel" />
 					<mx:Text  text="{this.selectedExperiment.@primerList}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -2198,7 +2198,7 @@
 		<mx:State name="FragAnalState" basedOn="BaseSeqState">
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Assays" styleName="formLabel" />
+					<mx:Text  width="105" text="Assays" styleName="formLabel" />
 					<mx:Text  text="{this.selectedExperiment.@assayList}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -2210,25 +2210,25 @@
 		<mx:State name="IScanState">
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label  width="100" text="iScan Chip"  styleName="formLabel" textAlign="left"/>
+					<mx:Label  width="105" text="iScan Chip"  styleName="formLabel" textAlign="left"/>
 					<mx:Text  width="280" text="{this.selectedExperiment.@iScanChipName}"  />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label text="Number of Chips" width="100" styleName="formLabel"/>
+					<mx:Label text="Number of Chips" width="105" styleName="formLabel"/>
 					<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label text="Quote Number" width="100" styleName="formLabel"/>
+					<mx:Label text="Quote Number" width="105" styleName="formLabel"/>
 					<mx:Text text="{this.selectedExperiment.@materialQuoteNumber}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label text="Quote Received" width="100" styleName="formLabel"/>
+					<mx:Label text="Quote Received" width="105" styleName="formLabel"/>
 					<mx:Text text="{this.selectedExperiment.@quoteReceivedDate}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
@@ -2241,20 +2241,20 @@
 			<mx:RemoveChild target="{bioAndCoreNoteVBox}"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
-					<mx:Label text="Core to extract DNA"  width="100" styleName="formLabel" textAlign="left" id="label0"/>
+					<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
 					<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA=='Y'}">
-					<mx:Label text="DNA prep type"  width="100" styleName="formLabel" textAlign="left"  id="label10"/>
+					<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
 					<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
 							 width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="bisulfideConversionBox">
-					<mx:Label text="Bisulfide conversion"  width="100" styleName="formLabel" textAlign="left" />
+					<mx:Label text="Bisulfide conversion"  width="105" styleName="formLabel" textAlign="left" />
 					<mx:Text  text="{this.selectedExperiment.@includeBisulfideConversion=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
@@ -2264,7 +2264,7 @@
 			<mx:RemoveChild target="{prePoolBox}"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox1">
-					<mx:Label text="Container Type"  width="100"  styleName="formLabel" textAlign="left" id="label12"/>
+					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label12"/>
 					<mx:Text  text="{this.selectedExperiment.@containerType}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
@@ -2279,7 +2279,7 @@
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
 						 includeInLayout="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}" 
 						 visible="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}">
-					<mx:Label text="RNA prep type"  width="100" styleName="formLabel" textAlign="left"  id="rnaLabel"/>
+					<mx:Label text="RNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="rnaLabel"/>
 					<mx:Text text="{this.selectedExperiment.@codeRNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeRNAPrepType).@display : ''}" 
 							 width="280"/>
 				</mx:HBox>
