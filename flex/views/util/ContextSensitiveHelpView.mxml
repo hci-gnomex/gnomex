@@ -7,7 +7,7 @@
 				creationComplete="movePopup(event)"
 				title="Help" 
 				xmlns:util="views.util.*" >
-		<util:ResizableTextArea id="helpText" autoResize="true" styleName="contextHelpView" maxWidth="800" wordWrap="true" verticalScrollPolicy="auto"/>
+		<util:ResizableTextArea id="helpText" autoResize="true" styleName="contextHelpView" maxWidth="800" wordWrap="true" verticalScrollPolicy="auto" editable="false"/>
 	<mx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
