@@ -41,6 +41,7 @@
 			import views.renderers.URLRenderer;
 			import views.util.CollaboratorWindow;
 			import views.util.RunAlignmentWindow;
+			import views.util.GNomExStringUtil;
 			
 			public var sampleGroupingCollection:GroupingCollection = null;		
 			
@@ -703,6 +704,7 @@
 				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
 				parentDocument.parentDocument.experimentEditView.samplesView.setShowCCNumber(this.selectedExperiment.@hasCCNumber == 'Y');
 				parentDocument.parentDocument.experimentEditView.selectedAssaysCollection = this.assays;
+				parentDocument.parentDocument.experimentEditView.saveDescription = GNomExStringUtil.cleanRichTextHTML(this.overallDescript.htmlText);
 				
 				parentDocument.parentDocument.experimentViews.selectedChild = parentDocument.parentDocument.experimentEditView;
 				if (parentDocument.parentDocument.experimentEditView.theTab.contains(parentDocument.parentDocument.experimentEditView.annotationView)) {
