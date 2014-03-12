@@ -1015,9 +1015,7 @@
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
 				ccNumberCheckBoxHelp.visible = !isExternal;
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
-				ccNumberVRule.visible = !isExternal;
-				ccNumberVRule.includeInLayout = !isExternal;
-
+				
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				
@@ -1264,7 +1262,7 @@
 								   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
 								   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 					<mx:Spacer width="1"/>
-					<mx:VRule height="20"/>
+					<mx:VRule height="20" id="ccNumberVRule" visible="{showCCNumberCheckbox.visible}"/>
 				</mx:HBox>
 			
 			<mx:Spacer width="4"/>
@@ -1279,7 +1277,7 @@
 			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
 							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
 			<mx:Spacer width="4" />
-			<mx:VRule height="20" id="ccNumberVRule" />
+			<mx:VRule height="20" id="addOrgVRule" visible="{addOrganismButton.visible}" />
 			<mx:LinkButton  horizontalGap="0" label="Add Organism ..." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
 			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
 							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
