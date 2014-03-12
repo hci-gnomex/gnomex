@@ -115,7 +115,8 @@
 			</mx:HBox>
 		</mx:HBox>
 		<mx:Spacer height="5" id="bioNoteSpacer" />
-		<mx:Label text="(1) Would you like adapter trimming to be performed on Illumina sequence reads?"/>
+		<util:ContextHelp context1="bioAdapterTrimming" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Adapter Trimming Help"
+						  label="(1) Would you like adapter trimming to be performed on Illumina sequence reads?" labelPlacement="left" id="bioAdapterTrimmingLabel"/>
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 			<mx:Spacer width="12"/>
 			<mx:CheckBox label="Yes"
@@ -123,7 +124,9 @@
 		</mx:HBox>
 		<mx:Spacer height="10" />
 		<mx:VBox id="genomeBuildBox" width="100%" verticalGap="0">
-			<mx:Label text="{'(2) Do you want the sequence data to be aligned? ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE)}"  id="label11"/>
+			<util:ContextHelp context1="bioSequenceAligned" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequence Alignment Help"
+							  label="{'(2) Do you want the sequence data to be aligned? ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE)}" 
+							  labelPlacement="left" id="bioSequenceAlignedLabel"/>
 			<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 				<mx:Spacer width="12"/>
 				<mx:Label text="{organismString}"/>
@@ -136,13 +139,16 @@
 			</mx:HBox>
 		</mx:VBox>
 		<mx:Spacer height="10" />
-		<mx:Label text="{'(3) Would you like the ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_GROUP) + ' to assist you with analysis?'}"/>
+		<util:ContextHelp context1="bioAnalysisAssistance" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Analysis Assistance Help"
+						  label="{'(3) Would you like the ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_GROUP) + ' to assist you with analysis?'}" 
+						  labelPlacement="left" id="bioAnalysisAssistanceLabel"/>
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 			<mx:Spacer width="12"/>
 			<mx:CheckBox label="{'Yes   ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ANALYSIS_NOTE)}"
 						 id="bioAssistCheckBox" click="{onBioAssistCheckBoxClick()}" selected="false" />
 		</mx:HBox>
-		<mx:Label text="Enter a note regarding analysis. (optional)" id="label3"/>
+		<util:ContextHelp context1="bioNote" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Analysis Note Help"
+						  label="Enter a note regarding analysis. (optional)" labelPlacement="left" id="bioNoteLabel"/>
 		<util:TextAreaWorkaround id="noteToBio" enabled="{bioAssistCheckBox.selected}" text="{parentDocument.request.@analysisInstructions}" 
 								 focusOut="setAnalysisInstructions()" width ="100%" height="25%"/> 
 	</mx:VBox>
