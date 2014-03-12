@@ -1074,7 +1074,7 @@
 		var dragItemBaseFileName:String = dragItem[fileNameAttribute].substr(0, idx);
 		var dragItemExt:String = dragItem[typeAttribute];
 		
-		if (dragItemExt.toString().toUpperCase() != "BW") {
+		if (dragItemExt.toString().toUpperCase() != "BW" && dragItemExt.toString().toUpperCase() != "BB") {
 			return false;
 		}
 		
@@ -1157,6 +1157,7 @@
 		var baseFileNameCount:int = 0;
 		var isUSEQ:Boolean = false;
 		var isBW:Boolean = false;
+		var isBB:Boolean = false;
 		// Check the extensions to make sure we have both  a .bai and .bam for
 		// the same file name
 		for (var key:Object in fileNameMap) {
@@ -1168,12 +1169,59 @@
 						isUSEQ = true;
 					} else if  (ext.toUpperCase() == 'BW') {
 						isBW = true;
-					} 
+					} else if (ext.toUpperCase() == 'BB'){
+						isBB = true;
+					}
 				}
 				
 			}
 		}
-		return baseFileNameCount == 1 && isUSEQ && isBW;
+		return baseFileNameCount == 1 && isUSEQ && (isBW || isBB);
+	}
+	
+	private function isUSEQOrphanTrioOrQuad(dragItems:Object):Boolean {
+		if (dragItems.length != 2 && dragItems.length != 3) {
+			return false;
+		}
+		var baseFileName:String = dragItems[0].fileName;
+		if(baseFileName.toUpperCase().indexOf("_PLUS") > 0){
+			baseFileName = baseFileName.substr(0, baseFileName.toUpperCase().indexOf("_PLUS"));
+		} else if(baseFileName.toUpperCase().indexOf("_MINUS") > 0){
+			baseFileName = baseFileName.substr(0, baseFileName.toUpperCase().indexOf("_MINUS"));
+		} else{
+			baseFileName = baseFileName.substr(0, baseFileName.indexOf("."));
+		}
+		
+		var baseFileNameCount:int = 0;
+		var isUSEQ:Boolean = false;
+		var isBW:Boolean = false;
+		var hasOrphanPlus:Boolean = false;
+		var hasOrphanMinus:Boolean = false;
+		var isBB:Boolean = false;
+		
+		for each(var di:Object in dragItems) {
+			baseFileNameCount++;
+			var fileName:String = di.fileName;
+			if(fileName.toUpperCase().indexOf("_PLUS") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf("_PLUS")) == baseFileName ){
+				hasOrphanPlus = true;
+			} else if(fileName.toUpperCase().indexOf("_MINUS") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf("_MINUS")) == baseFileName ){
+				hasOrphanMinus = true;
+			} else if(fileName.toUpperCase().indexOf(".USEQ") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".USEQ")) == baseFileName) {
+				isUSEQ = true;
+			} else if(fileName.toUpperCase().indexOf(".BW") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".BW")) == baseFileName) {
+				isBW = true;
+			} else if(fileName.toUpperCase().indexOf(".BB") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".BB")) == baseFileName) {
+				isBB = true;
+			}
+		}
+		
+		if(dragItems.length == 2 && baseFileNameCount == 2){
+			return (isUSEQ && (hasOrphanPlus || hasOrphanMinus)) || ((isBW || isBB) && (hasOrphanPlus || hasOrphanMinus));
+		} else if(dragItems.length == 3 && baseFileNameCount == 3){
+			return (isUSEQ && hasOrphanPlus && hasOrphanMinus) || ((isBB || isBW) && hasOrphanPlus && hasOrphanMinus);
+		} else {
+			return false;
+		}
 	}
 	
 	private function promptToAssociateFiles():void {
@@ -1193,7 +1241,13 @@
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
-		} 
+		}
+		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isUSEQOrphanTrioOrQuad(dragParams)){
+			var params2:Object = new Object();
+			params2.idDataTrack = dropNode.@idDataTrack;
+			getDataTrackForFilePair.send(params2);
+			
+		}
 		// If more than one file is dragged onto a data track, duplicate the data track to create a 
 		// new one for each dragged file.
 		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack') {
@@ -1219,6 +1273,14 @@
 				(Alert.YES | Alert.NO),
 				this,
 				onPromptToAddAndLinkFilePair);
+			
+		}
+		else if ((dragItemCount > 1 && isUSEQOrphanTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+			Alert.show("Create a Data track for these analysis files under  " + dropNode.@label + "?",
+				"Confirm Add",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToAddAndLink);
 			
 		}
 		// Multiple files dragged onto a folder
