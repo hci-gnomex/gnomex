@@ -987,7 +987,9 @@
 			
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
-			
+			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
+							  showEdit="{parentApplication.isAdminState}" 
+							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
 			<mx:LinkButton textDecoration="underline"  horizontalGap="0" label="Upload tab delimited sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
 			<mx:LinkButton textDecoration="underline"  horizontalGap="0" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			<mx:LinkButton textDecoration="underline" horizontalGap="0" id="uploadHintLink" 
