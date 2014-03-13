@@ -168,6 +168,10 @@ package views.renderers
 				this.setSelectedIndex();
 			}  else if (indexTagLetter == 'A'){
 				data.@barcodeSequence = '';
+				data.@idOligoBarcode = '';
+			} else {
+				data.@barcodeSequenceB = '';
+				data.@idOligoBarcodeB = '';
 			}
 		}
 		override protected function focusInHandler(event:FocusEvent):void
