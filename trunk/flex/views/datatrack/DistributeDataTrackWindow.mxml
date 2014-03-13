@@ -1005,11 +1005,11 @@
 					params.idLab = dragItem.@idLab;
 					
 					// Don't include .bai if .bam is already selected
-					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
-						continue;
-					} else if(this.hasMatchingUSEQFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")){
-						continue;
-					}
+//					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
+//						continue;
+//					} else if(this.hasMatchingUSEQFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")){
+//						continue;
+//					}
 					
 					dragParams.addItem(params);
 				} 
@@ -1158,7 +1158,7 @@
 		var isUSEQ:Boolean = false;
 		var isBW:Boolean = false;
 		var isBB:Boolean = false;
-		// Check the extensions to make sure we have both  a .bai and .bam for
+		// Check the extensions to make sure we have both  a .useq and .bw or .bb for
 		// the same file name
 		for (var key:Object in fileNameMap) {
 			baseFileNameCount++;
@@ -1179,8 +1179,8 @@
 		return baseFileNameCount == 1 && isUSEQ && (isBW || isBB);
 	}
 	
-	private function isUSEQOrphanTrioOrQuad(dragItems:Object):Boolean {
-		if (dragItems.length != 2 && dragItems.length != 3) {
+	private function isUSEQOrphanDuoTrioOrQuad(dragItems:Object):Boolean {
+		if (dragItems.length != 2 && dragItems.length != 3 && dragItems.length != 4) {
 			return false;
 		}
 		var baseFileName:String = dragItems[0].fileName;
@@ -1216,9 +1216,11 @@
 		}
 		
 		if(dragItems.length == 2 && baseFileNameCount == 2){
-			return (isUSEQ && (hasOrphanPlus || hasOrphanMinus)) || ((isBW || isBB) && (hasOrphanPlus || hasOrphanMinus));
+			return (isUSEQ && (hasOrphanPlus || hasOrphanMinus)) || ((isBW || isBB) && (hasOrphanPlus || hasOrphanMinus))
 		} else if(dragItems.length == 3 && baseFileNameCount == 3){
-			return (isUSEQ && hasOrphanPlus && hasOrphanMinus) || ((isBB || isBW) && hasOrphanPlus && hasOrphanMinus);
+			return ((isUSEQ && (hasOrphanPlus || hasOrphanMinus) && (isBW || isBB)) || ((isBW || isBB) && hasOrphanPlus && hasOrphanMinus) || (isUSEQ && hasOrphanPlus && hasOrphanMinus)) ;
+		} else if(dragItems.length == 4 && baseFileNameCount == 4){
+			return (isUSEQ && hasOrphanPlus && hasOrphanMinus && (isBB || isBW));
 		} else {
 			return false;
 		}
@@ -1237,12 +1239,12 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} //  File pairs are dragged onto a data track
-		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type"))) {
+		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type") || isUSEQOrphanDuoTrioOrQuad(dragParams))) {
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
 		}
-		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack' && isUSEQOrphanTrioOrQuad(dragParams)){
+		else if (dragItemCount >= 2 && dropNode.name() == 'DataTrack' && isUSEQOrphanDuoTrioOrQuad(dragParams)){
 			var params2:Object = new Object();
 			params2.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params2);
@@ -1259,7 +1261,15 @@
 		}
 		// One file dragged onto a folder
 		else if (dragItemCount == 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
-			Alert.show("Create Data track and link to " + dragParams[0].fileName + " under " + dropNode.@label + "?",
+			var dtName:String = dropNode.@label;
+			if(dtName.toUpperCase().indexOf("_PLUS") > 0){
+				var plusIndex:int = dtName.toUpperCase().indexOf("_PLUS");
+				dtName = dtName.substr(0, plusIndex);
+			} else if(dtName.toUpperCase().indexOf("_MINUS") > 0){
+				var minusIndex:int = dtName.toUpperCase().indexOf("_MINUS");
+				dtName = dtName.substr(0, minusIndex);
+			}
+			Alert.show("Create Data track and link to " + dtName + " under " + dropNode.@label + "?",
 				"Confirm Link",
 				(Alert.YES | Alert.NO),
 				this,
@@ -1267,15 +1277,15 @@
 			
 		} 
 		// File pairs dragged onto a folder
-		else if (dragItemCount == 2 && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type")) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+		else if (dragItemCount == 2 && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type") || isUSEQOrphanDuoTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create a Data track for pair of analysis files under  " + dropNode.@label + "?",
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
 				this,
-				onPromptToAddAndLinkFilePair);
+				onPromptToAddAndLink);
 			
 		}
-		else if ((dragItemCount > 1 && isUSEQOrphanTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+		else if ((dragItemCount > 1 && isUSEQOrphanDuoTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create a Data track for these analysis files under  " + dropNode.@label + "?",
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
@@ -1349,7 +1359,7 @@
 					"Confirm",
 					(Alert.YES | Alert.NO),
 					this,
-					onPromptToLinkFilePair);				
+					onPromptToLink);				
 				
 			}
 			
