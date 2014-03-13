@@ -342,7 +342,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+								<util:ContextHelp context1="sampleNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
 												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -360,7 +360,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+								<util:ContextHelp context1="sampleName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -374,7 +374,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleConcentration" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -389,7 +389,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQc260280" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
 												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -403,7 +403,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleCCNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+								<util:ContextHelp context1="sampleCCNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
 												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -416,7 +416,7 @@
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleSourceHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample Source Help" 
+								<util:ContextHelp context1="sampleSourceHelp" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Source Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Sample Source" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>

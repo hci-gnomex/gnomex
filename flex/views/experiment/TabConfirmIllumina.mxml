@@ -56,9 +56,9 @@
 			
 			override public function showHideColumns():void {
 				this.filteredSamples.removeAll();
-				for each(var sample:Object in parentDocument.samples) {
+				for each(var sample:XML in parentDocument.samples) {
 					if (sample.@name != null && sample.@name != '') {
-						this.filteredSamples.addItem(sample);
+						this.filteredSamples.addItem(sample.copy());
 					}
 				}
 				
