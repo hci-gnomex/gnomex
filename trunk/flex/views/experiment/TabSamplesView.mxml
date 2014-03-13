@@ -1298,7 +1298,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="samplePlateName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Plate Help" 
+								<util:ContextHelp context1="samplePlateName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Plate Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Plate" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1308,7 +1308,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleWellName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Well Help" 
+								<util:ContextHelp context1="sampleWellName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Well Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Well" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1318,7 +1318,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+								<util:ContextHelp context1="sampleNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
 												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1337,7 +1337,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleName" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+								<util:ContextHelp context1="sampleName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1417,7 +1417,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleMicroarrayLabel" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Microarray Label Help" 
+								<util:ContextHelp context1="sampleMicroarrayLabel" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Microarray Label Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Label" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1431,7 +1431,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleConcentration" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
 												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1446,7 +1446,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQc260280" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
 												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1460,7 +1460,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleCCNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+								<util:ContextHelp context1="sampleCCNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
 												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1536,7 +1536,7 @@
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
 												  label="Sample Type" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1549,7 +1549,7 @@
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleOrganism" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
 												  label="Organism" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1566,7 +1566,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
 												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1581,7 +1581,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleChipType" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
 												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1598,7 +1598,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQCConc" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1615,7 +1615,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC 260/230" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1632,7 +1632,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQualRINCol" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQualRINCol" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1649,7 +1649,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC Frag size&#13;(from)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1666,7 +1666,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQualFragmentSize" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQualFragmentSize" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Frag Size Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC Frag size&#13;(to)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1678,7 +1678,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQualStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="QC Status Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleQualStatus" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Status Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC Status" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
@@ -1691,7 +1691,7 @@
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
+								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
 												  label="Seq Prep Status" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>

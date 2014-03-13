@@ -656,7 +656,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb ID Help" 
+										<util:ContextHelp context1="hybNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb ID Help" 
 														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -676,7 +676,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybSlideNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Number Help" 
+										<util:ContextHelp context1="hybSlideNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Number Help" 
 														  showEdit="{parentApplication.isAdminState}" label="Silde Nbr" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -686,7 +686,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybCoord" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Coord Help" 
+										<util:ContextHelp context1="hybCoord" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Coord Help" 
 														  showEdit="{parentApplication.isAdminState}" label="Coord" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -700,7 +700,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybGridCy3Sample" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 Sample Help" 
+										<util:ContextHelp context1="hybGridCy3Sample" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 Sample Help" 
 														  showEdit="{parentApplication.isAdminState}" label="Cy3 Sample&#13;(green)" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -711,7 +711,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybGridCy3ID" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 ID Help" 
+										<util:ContextHelp context1="hybGridCy3ID" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 ID Help" 
 														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -725,7 +725,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybGridCy5Sample" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 Sample Help" 
+										<util:ContextHelp context1="hybGridCy5Sample" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 Sample Help" 
 														  showEdit="{parentApplication.isAdminState}" label="Cy5 Sample&#13;(red)" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -735,7 +735,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybGridCy5ID" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 ID Help" 
+										<util:ContextHelp context1="hybGridCy5ID" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 ID Help" 
 														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -749,7 +749,7 @@
 							<mx:headerRenderer > 
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										<util:ContextHelp context1="hybSlideDesign" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Help" 
+										<util:ContextHelp context1="hybSlideDesign" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Help" 
 														  showEdit="{parentApplication.isAdminState}" label="Slide" noIconSpaceIfNoHelp="true"/>
 									</mx:VBox> 
 								</mx:Component>
@@ -762,7 +762,7 @@
 							 <mx:headerRenderer > 
 								 <mx:Component>
 									 <mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-										 <util:ContextHelp context1="hybSlideSource" context2="{parentDocument.coreFacility.@idCoreFacility}" title="Slide Source Help" 
+										 <util:ContextHelp context1="hybSlideSource" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Slide Source Help" 
 														   showEdit="{parentApplication.isAdminState}" label="Slide Source" noIconSpaceIfNoHelp="true"/>
 									 </mx:VBox> 
 								 </mx:Component>
