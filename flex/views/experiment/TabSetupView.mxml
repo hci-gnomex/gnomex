@@ -1053,6 +1053,8 @@
 					parentDocument.samplesView.propagateOtherOrganism("");
 				}			
 
+				parentDocument.request.@idOrganismSampleDefault = getIdOrganism();
+				
 				parentDocument.samplesView.initializeSamplesGrid();
 				parentDocument.samplesView.propagateOrganism(this.getIdOrganism());
 				if (this.getDisplayOrganism() == 'Other') {

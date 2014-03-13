@@ -1040,6 +1040,7 @@
 
 		public function applicationSelected(experimentApplication:String):void {
 			codeApplication = experimentApplication;
+			request.@codeApplication = experimentApplication;
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
 			}			
