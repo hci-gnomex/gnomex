@@ -59,21 +59,18 @@
 
 		public function init():void {
 			checkSecurity();
-			setDefaultPrivacyExpirationDate();
-			if (this.currentState == "EditState") {
-				//this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
-				this.privacyExpirationPicker.text = parentDocument.request.@privacyExpirationDate;
-			} else {
+			if(this.currentState == "EditState") {
+				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+			}else {
 				if(parentDocument.request.@codeVisibility != null && parentDocument.request.@codeVisibility != '') {
 					this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
 				} else {
 					this.visibilityRadioGroup.selectedValue = 'MEM';
 				}				
-				if(parentApplication.isPrivacyExpirationSupported) {
-					//var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
-					//privacyExpirationPicker.text = parentApplication.formatDate(expireDate);					
-				}
 			}
+			setDefaultPrivacyExpirationDate();
+			setPrivacyExpirationPickerEditable();
+			
 			this.institutionCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
 			
@@ -213,13 +210,15 @@
 		
 		private function setDefaultPrivacyExpirationDate():void {
 			if(parentApplication.isPrivacyExpirationSupported){
-				if (this.currentState == "EditState") {
+				if(visibilityRadioGroup.selectedValue == "PUBLIC") {
+					this.privacyExpirationPicker.selectedDate = new Date(); // this request will become public today
+				} else { // if the request has a default set use it
 					if(parentDocument.request.@privacyExpirationDate != null && parentDocument.request.@privacyExpirationDate != "") {
 						var tempDate:Array = (parentDocument.request.@privacyExpirationDate).split("-");					
 						this.privacyExpirationPicker.selectedDate = new Date(tempDate[1] + "/" + tempDate[0] + "/" + tempDate[2]);
+					} else { // otherwise don't modify it by setting a default
+						this.privacyExpirationPicker.selectedDate = null;
 					}
-				} else {				
-						this.privacyExpirationPicker.selectedDate = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());											
 				}
 			}
 		}
@@ -252,10 +251,10 @@
 				<mx:HBox horizontalGap="0">
 					<mx:VBox verticalGap="2" width="140" paddingBottom="1">
 						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
-										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setPrivacyExpirationPickerEditable();setDefaultPrivacyExpirationDate();" 
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 										toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
 						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
-										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setPrivacyExpirationPickerEditable();setDefaultPrivacyExpirationDate();" 
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 										toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">						
@@ -263,7 +262,7 @@
 				</mx:HBox>				
 				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
-									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setPrivacyExpirationPickerEditable();setDefaultPrivacyExpirationDate();" 
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 									id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
 					</mx:ComboBox>	
@@ -273,12 +272,12 @@
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
-									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();privacyExpirationPicker.selectedDate= new Date();setPrivacyExpirationPickerEditable();" 
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
 				</mx:HBox>
 		   	</mx:VBox>
 			   <mx:VBox verticalGap="2" width="100%" visible="{parentApplication.isPrivacyExpirationSupported}">
-				   <mx:HBox horizontalGap="0" verticalAlign="middle" visible="true">
+				   <mx:HBox horizontalGap="0" verticalAlign="middle" >
 					   <mx:DateField id="privacyExpirationPicker" width="100" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
 					   <mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
 				   </mx:HBox>
