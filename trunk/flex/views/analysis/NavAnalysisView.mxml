@@ -1171,12 +1171,12 @@
 							<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
 						</mx:CheckBox>
 					</mx:HBox>
-					<mx:HBox>
-						<mx:VBox>
-							<mx:Label text="Organism:" />
-							<mx:Label text="Genome Build:" />
+					<mx:HBox verticalAlign="middle">
+						<mx:VBox verticalAlign="middle">
+							<mx:Label text="Organism:" styleName="labelSmall" />
+							<mx:Label text="Genome Build:" styleName="labelSmall" />
 						</mx:VBox>
-						<mx:VBox>						
+						<mx:VBox verticalAlign="middle" paddingBottom="5">						
 						<renderers:FilterComboBox labelField="@display"
 												  prompt="Organism..."
 												  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
@@ -1300,11 +1300,12 @@
 			<mx:AddChild relativeTo="{filterBox}" position="lastChild">
 				<mx:HBox width="100%" verticalAlign="middle" paddingLeft="90">
 					<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
-						<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+						<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
+						<mx:Spacer width="45"/>
 						<renderers:FilterComboBox dataProvider="{labList}" 
 												  labelField="@name" 
 												  prompt="Select a lab..."
-												  width="170" 
+												  width="281" 
 												  close="{selectLab();refreshAnalysis()}"  
 												  id="browseLabCombo">
 						</renderers:FilterComboBox>
