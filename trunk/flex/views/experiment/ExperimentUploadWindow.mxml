@@ -130,7 +130,9 @@
 			
 			private var treeItemToSelect:Object = null;
 			
-			private var selectedExpFileTreeIndex:int = 0; 
+			private var selectedExpFileTreeIndex:int = 0;
+			
+			private var linkedSampleFiles:XMLListCollection = new XMLListCollection();
 			
 			public function init(request:Object):void {
 				this.idRequest = request.@idRequest;
@@ -169,6 +171,7 @@
 				expFileDict = new Dictionary();
 				filesToRemove.removeAll();
 				filesToUnlink.removeAll();
+				this.linkedSampleFiles.removeAll();
 				linkSamplesTab.enabled = true;
 				this.dirty.resetDirty();
 				
@@ -356,7 +359,9 @@
 					deleteEmptyFolders(fd);	
 				}
 				
-				callLater(experimentFilesTree.expandItem, [experimentFileList.getItemAt(0), true]);
+				if(experimentFileList.length > 0){
+					callLater(experimentFilesTree.expandItem, [experimentFileList.getItemAt(0), true]);
+				}
 				
 				if(treeItemToSelect != null){
 					callLater(selectTreeItem);
@@ -406,6 +411,7 @@
 				params.idRequest = idRequest;
 				params.filesXMLString = downloadList.toXMLString();
 				params.linkedSampleFileXMLString = sampleList.toXMLString();
+				params.experimentFileXMLString = this.linkedSampleFiles.toXMLString();
 				if (filesToRemove.length > 0) {
 					params.filesToRemoveXMLString = filesToRemove.toXMLString();			
 				}
@@ -605,7 +611,6 @@
 				}
 				
 				for each(var di:XML in draggedItems){
-					trace(di.name());
 					if(di.name() != 'FileDescriptor'){
 						Alert.show("You can only drag and drop files.");
 						clickedItems = new XMLListCollection();
@@ -622,7 +627,9 @@
 								seqRunNumberNode = <SeqRunNumber />;
 							}
 							seqRunNumberNode.appendChild(fd.copy());
+							this.linkedSampleFiles.addItem(fd.copy());
 							if (event.dragInitiator.name == "samplesTree") {
+								filesToUnlink.addItem(fd.copy());
 								deleteNode(fd);
 								samplesTree.selectedItem = null;
 							} else{
@@ -662,6 +669,7 @@
 								if(droppedFileName == currentFileName){
 									if(file.parent().children().length() < 2){
 										file.parent().appendChild(fileDescript.copy());
+										this.linkedSampleFiles.addItem(fileDescript.copy());
 										samplesTree.expandItem(dropNode, true);
 										samplesTree.expandItem(file.parent(), true);
 										isMatch = true;
@@ -674,6 +682,7 @@
 							
 							if(!isMatch){
 								seqRunNumberNode_two.appendChild(fileDescript.copy());
+								this.linkedSampleFiles.addItem(fileDescript.copy());
 								samplesTree.expandItem(dropNode, true);
 							}
 							
@@ -683,6 +692,9 @@
 							}
 							
 							if (event.dragInitiator.name == "samplesTree") {
+								if(fileDescript.@idExperimentFile != null && fileDescript.@idExperimentFile != ""){
+									filesToUnlink.addItem(fileDescript.copy());
+								}
 								deleteNode(fileDescript);
 								samplesTree.selectedItem = null;
 							} else{
@@ -705,6 +717,8 @@
 						
 						dropNode.appendChild(fileTwo);
 						dropNode.appendChild(fileOne);
+						this.linkedSampleFiles.addItem(fileOne.copy());
+						this.linkedSampleFiles.addItem(fileTwo.copy());
 						
 					} else if(dropNode.children().length() == 2){//Each seq run folder can have a max of 2 exp files
 						event.target.hideDropFeedback(event);
@@ -714,7 +728,11 @@
 						for(var j:int = 0; j < draggedItems.length; j++){
 							var dragItem:XML = XML(draggedItems[j]);
 							dropNode.appendChild(dragItem.copy());
+							this.linkedSampleFiles.addItem(dragItem.copy());
 							if (event.dragInitiator.name == "samplesTree") {
+								if(dragItem.@idExperimentFile != null && dragItem.@idExperimentFile != ""){
+									filesToUnlink.addItem(dragItem.copy());
+								}
 								deleteNode(dragItem);
 								samplesTree.selectedItem = null;
 							} else{
@@ -1200,7 +1218,7 @@
 							if(file.hasOwnProperty("@idExperimentFile")){
 								filesToUnlink.addItem(file.copy());
 							}
-							var fileName:String = file.@fileName; 
+							var fileName:String = file.@zipEntryName; 
 							fileName = fileName.substring(fileName.indexOf(request.@number));
 							var filePart:String = fileName.split("/")[1];
 							var node:XML = null;

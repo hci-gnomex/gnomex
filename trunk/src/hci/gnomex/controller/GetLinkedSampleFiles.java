@@ -75,7 +75,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/";
       directoryName.replace("\\", "/");
       
-      queryBuf.append("SELECT s.name, s.number, s.idSample, sef.idExpFileRead1, sef.idExpFileRead2, sef.seqRunNumber ");
+      queryBuf.append("SELECT s.name, s.number, s.idSample, sef.idExpFileRead1, sef.idExpFileRead2, sef.seqRunNumber, sef.idSampleExperimentFile ");
       queryBuf.append("FROM Sample s LEFT JOIN s.sampleExperimentFiles as sef ");
       queryBuf.append("WHERE s.idRequest =  " + this.idRequest);
       
@@ -91,6 +91,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sampleNode = new Element("Sample");
         }
         Element seqRunNumberNode = new Element("SeqRunNumber");
+        seqRunNumberNode.setAttribute("idSampleExperimentFile", row[6] != null ? String.valueOf((Integer)row[6]) : "");
         ExperimentFile ef = null;
         File f = null;
         FileDescriptor fd = null;
@@ -108,7 +109,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[3]));
-          sefNode.setAttribute("fileName", ef.getFileName());
+          sefNode.setAttribute("zipEntryName", ef.getFileName());
           sefNode.setAttribute("readID", "1");
           seqRunNumberNode.addContent(sefNode);
         }
@@ -122,7 +123,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
           sefNode.setAttribute("idExperimentFile", String.valueOf((Integer)row[4]));
-          sefNode.setAttribute("fileName", ef.getFileName());
+          sefNode.setAttribute("zipEntryName", ef.getFileName());
           sefNode.setAttribute("readID", "2");
           seqRunNumberNode.addContent(sefNode);
         }
