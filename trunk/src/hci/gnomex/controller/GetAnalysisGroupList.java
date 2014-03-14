@@ -4,8 +4,10 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 //import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 //import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
@@ -84,9 +86,9 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           }
         }
         
-//        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
-//        	filter.setIsForExternalDataSharingSite(true);
-//        }        	
+        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+        	filter.setIsForExternalDataSharingSite(true);
+        }        	
         
         boolean labsWithAnalysesIsASubsetOfAllLabsInQuery = false;
         if( (filter.getLabKeys() != null && filter.getLabKeys() != "") || (filter.getSearchText() != null && filter.getSearchText() != "") ){
