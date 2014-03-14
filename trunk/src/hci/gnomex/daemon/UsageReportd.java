@@ -199,15 +199,6 @@ public class UsageReportd extends TimerTask {
       
       // Populate the LabStats in labInfo HashMap
       getUsageByLab(sess);
-
-      
-      
-      // Guest usage stats for each lab
-
-      
-
-      
-
       
       // Build message body in html
       StringBuffer body = new StringBuffer("");
@@ -235,7 +226,6 @@ public class UsageReportd extends TimerTask {
       body.append("<tr>");
       body.append("<td width='20'>&nbsp;</td>"); //left padding
       body.append("<td width='800' valign='top' align='left'>");
-//      body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
       body.append(buildUserUsageTable(todaysDate).toString());
       body.append("</td>");
       body.append("<td width='20'>&nbsp;</td></tr>"); // right padding
@@ -277,25 +267,22 @@ public class UsageReportd extends TimerTask {
   }
   
   
-  private StringBuffer buildUserUsageTable(String todaysDate) {
-      
-	  
-	  
+  private StringBuffer buildUserUsageTable(String todaysDate) {	  
 	  StringBuffer userUsageTable = new StringBuffer("");
       // Table Title      
-      //body.append(subject + " for " + todaysDate + "<br>");
 	  userUsageTable.append("<table class='table700'  cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
-      userUsageTable.append("<tr><td class='tableHeadTop'  colspan='6'><span class='fontClassLgeBold'>" + "GNomEx Usage Table for " + todaysDate + "</span></td></tr>");
-      
-      
+      userUsageTable.append("<tr><td class='tableHeadTop'  colspan='6'><span class='fontClassLgeBold'>" + "GNomEx Weekly Usage Table for " + todaysDate + "</span></td></tr>");
+            
       // Table Header
-      userUsageTable.append("<tr><td class='tableHeadMiddle' align='left' ><span class='fontClassBold'>Lab<br>&nbsp;</span></td>");
-      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Experiments</span></td>");
-      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Analyses</span></td>");
-      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>File Uploads</span></td>");
-      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>File Downloads</span></td>");
-      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Days Since<br>Last Upload</span></td></tr>");
-
+      userUsageTable.append("<tr>");
+      userUsageTable.append("<td class='tableHeadMiddle' align='left' ><span class='fontClassBold'>Lab<br>&nbsp;</span></td>");
+      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Days Since<br>Last Upload</span></td>");
+      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Experiments<br>Created</span></td>");
+      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Analyses<br>Conducted</span></td>");
+      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Files<br>Uploaded</span></td>");
+      userUsageTable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Number of<br>Files<br>Downloaded</span></td>");
+      userUsageTable.append("</tr>");
+      
       // Stats for each lab
       for (Object key : sorted_map.keySet()) {
         LabStats value = (LabStats) sorted_map.get(key);
@@ -309,12 +296,15 @@ public class UsageReportd extends TimerTask {
         if(expAnalysisCount > 0) {
           labRowSpan++;
         }
-        userUsageTable.append("<tr><td ><span class='fontClass'>" + value.getLabName() + "</span></td>");
-        userUsageTable.append("<td align='right'><span class='fontClass'>" + value.getExperimentCountOutput() + "</span></td>");
+        userUsageTable.append("<tr>");        
+        userUsageTable.append("<td ><span class='fontClass'>" + value.getLabName() + "</span></td>");
+        userUsageTable.append("<td  align='right'><span class='fontClass'>" + daysSinceLastUpload + "</span></td>");
+        userUsageTable.append("<td  align='right'><span class='fontClass'>" + value.getExperimentCountOutput() + "</span></td>");
         userUsageTable.append("<td  align='right'><span class='fontClass'>" + value.getAnalysisCountOutput() + "</span></td>");
         userUsageTable.append("<td  align='right'><span class='fontClass'>" + value.getUploadCountOutput() + "</span></td>");
         userUsageTable.append("<td  align='right'><span class='fontClass'>" + value.getDownloadCountOutput() + "</span></td>");
-        userUsageTable.append("<td  align='right'><span class='fontClass'>" + daysSinceLastUpload + "</span></td></tr>");        
+        userUsageTable.append("</tr>");
+                
       }
       userUsageTable.append("</table>");
       
@@ -324,14 +314,13 @@ public class UsageReportd extends TimerTask {
   private StringBuffer buildNewAETable(String todaysDate) {
 	  StringBuffer newAETable = new StringBuffer("");
       // Table Title      
-      //body.append(subject + " for " + todaysDate + "<br>");
 	  newAETable.append("<table class='table700' cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
-      newAETable.append("<tr><td class='tableHeadTop' colspan='2' ><span class='fontClassLgeBold'>" + "New Experiments/Analyses Links for " + todaysDate + "</span></td></tr>");
-      
+      newAETable.append("<tr><td class='tableHeadTop' colspan='3' ><span class='fontClassLgeBold'>" + "New Experiments/Analyses for " + todaysDate + "</span></td></tr>");
       
       // Table Header
-      newAETable.append("<tr><td class='tableHeadMiddle' align='left' ><span class='fontClassMedBold'>Lab<br>&nbsp;</span></td>");
-      newAETable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Experiment/Analysis</span></td>");
+      newAETable.append("<tr><td class='tableHeadMiddle' align='left' width='20%' ><span class='fontClassMedBold'>Lab</span></td>");
+      newAETable.append("<td class='tableHeadMiddle' width='20%' ><span class='fontClassMedBold'>Link</span></td>");
+      newAETable.append("<td class='tableHeadMiddle' ><span class='fontClassMedBold'>Name and Description</span></td></tr>");
 
       // Stats for each lab
       for (Object key : sorted_map.keySet()) {
@@ -367,8 +356,9 @@ public class UsageReportd extends TimerTask {
               // Link to experiment
               href = href + "requestNumber=" + thisExpAnalysisNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
             }
-            newAETable.append("<a href='" + href + "'>" + thisExpAnalysisNumber  + "</a> " + " " + nameAndDescr);
+            newAETable.append("<a href='" + href + "'>" + thisExpAnalysisNumber  + "</a> ");
             newAETable.append("</span></td>");
+            newAETable.append("<td><span class='fontClass'>" + nameAndDescr + "</span></td>");
             	if(!isFirst){
             		newAETable.append("</tr>");            		
             	} else {
@@ -386,7 +376,6 @@ public class UsageReportd extends TimerTask {
 	  StringBuilder guestUsageTable = new StringBuilder();
       if(propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName) != null &&
     		  propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_GUEST_STATS, serverName).equals("Y")){
-    	  
     	  StringBuffer usageRows = new StringBuffer("");
     	  String currentLab = "";
           boolean isFirst = false;
@@ -411,9 +400,7 @@ public class UsageReportd extends TimerTask {
             		  String guestCumUserCountSum = value.getGuestCumUserCountSum()==0?"-":Integer.toString(value.getGuestCumUserCountSum());
             		  
         			usageRows.append("<td  colspan='1' align='right'><span class='fontClass'>" + guestDownloadCountSum + "</span></td>");
-        			//usageRows.append("<td width='100' colspan='1' align='right'><span class='fontClass'>" + guestCumDownloadCountSum + "</span></td>");
-        			usageRows.append("<td  colspan='1' align='right'><span class='fontClass'>" + guestUserCountSum + "</span></td>");
-        			//usageRows.append("<td width='100' colspan='1' align='right'><span class='fontClass'>" + guestCumUserCountSum + "</span></td></tr>");     			       
+        			usageRows.append("<td  colspan='1' align='right'><span class='fontClass'>" + guestUserCountSum + "</span></td>");    			       
         			if(value.getGuestDownloadCountSum() > 0) { // add details for downloads for this week
         				usageRows.append("<tr><td colspan='2'  align='left'><span class='fontClass'><b>Experiment/Analysis Links: </b><br>");   
     	    			for(String ae : value.getGuestAnalysisAndExperimentDownloadNamesForThisWeek().keySet()) {
@@ -432,73 +419,40 @@ public class UsageReportd extends TimerTask {
     	    		          usageRows.append("</span></td></tr>");                				
     	    			}        	  
               }
-          }
-    	  
+          }    	  
 
 	      // Guest Usage Table
-//	      guestUsageTable.append("<table cellpadding='10' cellspacing='0' bgcolor='#FFFFFF'>");
-//	      guestUsageTable.append("<tr>");
-//	      guestUsageTable.append("<td width='20'>&nbsp;</td>");
-//	      guestUsageTable.append("<td width='800' valign='top' align='left'>");
 	      guestUsageTable.append("<table class='table700'  cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
 	      guestUsageTable.append("<tr>");
 	      guestUsageTable.append("<td class='tableHeadTop' colspan='3'><span class='fontClassLgeBold'>External Visits and Downloads for " + todaysDate + "</span></td>");
 	      guestUsageTable.append("</tr>");
 	      
-	      // 	Summary Data
-	      //body.append("<tr><td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
-	      //body.append("<tr><td width='1000' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-	      
+	      // Summary - Header
 	      guestUsageTable.append("<tr><td class='tableHeadMiddle' colspan='3'><span class='fontClassMedBold'>" + "Summary Data" + "</span></td></tr>");
-	      
 	      guestUsageTable.append("<tr>");
 	      guestUsageTable.append("<td class='tableHeadBottom' colspan='1'><span class='fontClassBold'>" + "Visits by Guests*" + "</span></td>");
 	      guestUsageTable.append("<td class='tableHeadBottom' colspan='1'><span class='fontClassBold'>" + "Files Downloaded by Guests" + "</span></td>");
 	      guestUsageTable.append("<td class='tableHeadBottom' colspan='1'><span class='fontClassBold'>" + "Guests Who Downloaded" + "</span></td>");
-	      guestUsageTable.append("</tr>");   
-	      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-	      
-//	      guestUsageTable.append("<tr>");//<td width='200' align='center' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='400' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='400' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Weekly" + "</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>" + "Cumulative" + "</span></td>");
-//	      guestUsageTable.append("</tr>");      
-	      //body.append("<td width='200' colspan='2'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-	      
-	      guestUsageTable.append("<tr>"); //<td width='200' colspan='4'><span class='fontClassBold'>" + "&nbsp;" + "</span></td>");
+	      guestUsageTable.append("</tr>");  
+	      // Summary - Data
+	      guestUsageTable.append("<tr>");
 	      guestUsageTable.append("<td  align='right' colspan='1'><span class='fontClass'>" + weeklyTotalVisits + "</span></td>");
-//	      guestUsageTable.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalVisits + "</span></td>");
-	      guestUsageTable.append("<td  align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuestDownloads + "</span></td>");
-//	      guestUsageTable.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuestDownloads + "</span></td>");   
+	      guestUsageTable.append("<td  align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuestDownloads + "</span></td>");  
 	      guestUsageTable.append("<td  align='right' colspan='1'><span class='fontClass'>" + weeklyTotalGuests + "</span></td>");
-//	      guestUsageTable.append("<td width='200' align='right' colspan='1'><span class='fontClass'>" + cumTotalGuests + "</span></td>");
 	      guestUsageTable.append("</tr>"); 
-	      
+
+	      // Lab Detail - Header
 	      guestUsageTable.append("<tr><td bgcolor='#c7e3f9' align='center' colspan='3'><span class='fontClassMedBold'>" + "Guest Usage By Lab" + "</span></td></tr>");
-	      
-	      //body.append("<tr><td width='200' colspan='8'><span class='fontClassBold'>" + "&nbsp;" + "</span></td></tr>");
-	      
-	      // 		Lab Detail Data
 	      guestUsageTable.append("<tr>");
 	      guestUsageTable.append("<td bgcolor='#deeefc'  align='center' colspan='1' rowspan='1'><span class='fontClassBold'>" + "Lab" 									+ "</span></td>");
-	      //body.append("<td width='400' align='center' colspan='2' rowspan='2'><span class='fontClassBold'>" + "Analysis/ Experiment ID" 				+ "</span></td>");
 	      guestUsageTable.append("<td bgcolor='#deeefc'  align='center' colspan='1'><span class='fontClassBold'>" 			+ "Files Downloaded by Guests"				+ "</span></td>");
 	      guestUsageTable.append("<td bgcolor='#deeefc'  align='center' colspan='1'><span class='fontClassBold'>" 			+ "Guests Who Downloaded" 	+ "</span></td>");
 	      guestUsageTable.append("</tr>");
-//	      guestUsageTable.append("<tr>");
-	      //body.append("<td width='200' colspan='4'><span class='fontClassBold'>&nbsp;</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>Weekly</span></td>");
-//	      guestUsageTable.append("<td bgcolor='#deeefc' width='200' align='center' colspan='1'><span class='fontClassBold'>Cumulative</span></td>");
-//	      guestUsageTable.append("</tr>");
 	      
+	      // Lab Detail - Data
 	      guestUsageTable.append(usageRows.toString());
-	      guestUsageTable.append("</table>");//</td>&nbsp;</tr></table>");
-	      guestUsageTable.append("<table style='width:700px;font-style:italic;font-size:x-small'><tr><td>&nbsp;&nbsp;</td><td>* A guest visit is any session using the Guest sign-in. May include visits by B2B members when viewing publicly available entries through Guest sign-in.</td></table>");
+	      guestUsageTable.append("</table>");
+	      guestUsageTable.append("<table style='width:700px;font-style:italic;font-size:x-small'><tr><td>&nbsp;&nbsp;</td><td>*A guest visit is any session using the Guest sign-in. Includes visits by B2B members who enter through Guest sign-in to view only the publicly available entries.</td></table>");
       }
       return guestUsageTable;
   }
@@ -579,12 +533,12 @@ public class UsageReportd extends TimerTask {
 	      if(expName == null || expName.length() == 0) {
 	        expName = " ";
 	      }
-	      expName = "<b>Name:</b> " + expName;
+	      expName = "<b>" + expName + "</b><br>";
 	      String expDescription = stripAndTruncate((String)row[6], 250);
 	      if(expDescription == null || expDescription.length() == 0) {
 	        expDescription = " ";        
 	      }
-	      expDescription = "<b>Description:</b> " + expDescription;
+	      expDescription = expDescription;
 	      LabStats ls = labInfo.get(idLab);
 	      if(ls != null) {
 	        int expCount = ls.getExperimentCount() + 1;
@@ -633,12 +587,12 @@ public class UsageReportd extends TimerTask {
 	      if(analysisName == null || analysisName.length() == 0) {
 	        analysisName = " ";
 	      }
-	      analysisName = "<b>Name:</b> " + analysisName;     
+	      analysisName = "<b>" + analysisName + "</b><br>";     
 	      String analysisDescription = stripAndTruncate((String)row[6], 250);
 	      if(analysisDescription == null || analysisDescription.length() == 0) {
 	        analysisDescription = " ";        
 	      }
-	      analysisDescription = "<b>Description:</b> " + analysisDescription;
+	      analysisDescription = analysisDescription;
 	      LabStats ls = labInfo.get(idLab);
 	      if(ls != null) {
 	        int analysisCount = ls.getAnalysisCount() + 1;
