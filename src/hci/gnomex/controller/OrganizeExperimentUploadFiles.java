@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
   private Integer                      idRequest;
   private String                       filesXMLString;
+  private String                       experimentFileXMLString;
+  private Document                     experimentFileDoc;
   private Document                     filesDoc;
   private String                       filesToRemoveXMLString;
   private String                       linkedSampleFileXMLString;
@@ -78,6 +81,19 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       } catch (JDOMException je ) {
         log.error( "Cannot parse filesXMLString", je );
         this.addInvalidField( "FilesLXMLString", "Invalid files xml");
+      }
+    }
+
+    if (request.getParameter("experimentFileXMLString") != null && !request.getParameter("experimentFileXMLString").equals("")) {
+      experimentFileXMLString = "<experimentFiles>" +  request.getParameter("experimentFileXMLString") + "</experimentFiles>";
+
+      StringReader reader = new StringReader(experimentFileXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        experimentFileDoc = sax.build(reader);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse experimentFileXMLString", je );
+        this.addInvalidField( "experimentFileXMLString", "Invalid experimentFileXMLString xml");
       }
     }
 
@@ -378,7 +394,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           }
 
           sess.flush();
-          
+
           if(directoryFilesToUnlink.size() > 0) {
             for(Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
               String fileName = (String)i.next();
@@ -407,7 +423,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 sess.flush(); 
               }
             }
-            
+
           }
 
           //Unlink experiment files from Samples
@@ -415,25 +431,45 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             Element root = this.filesToUnlinkDoc.getRootElement();
             for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
               Element fileDescriptor = (Element)i.next();
-              Integer idExperimentFile = Integer.parseInt(fileDescriptor.getAttributeValue("idExperimentFile"));
-              List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list());
 
-              if(l.size() == 1) {
-                SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
-                if(sef.getIdExpFileRead1() != null && sef.getIdExpFileRead1().equals(idExperimentFile)) {
-                  sef.setIdExpFileRead1(null);
-                } else if(sef.getIdExpFileRead2() != null && sef.getIdExpFileRead2().equals(idExperimentFile)) {
-                  sef.setIdExpFileRead2(null);
-                }
+              if(fileDescriptor.getAttributeValue("idExperimentFile") != null && !fileDescriptor.getAttributeValue("idExperimentFile").equals("")) {
+                Integer idExperimentFile = Integer.parseInt(fileDescriptor.getAttributeValue("idExperimentFile"));
+                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list());
 
-                if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
-                  sess.delete(sef);
-                } else {
-                  sess.update(sef);
+                if(l.size() == 1) {
+                  SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
+                  if(sef.getIdExpFileRead1() != null && sef.getIdExpFileRead1().equals(idExperimentFile)) {
+                    sef.setIdExpFileRead1(null);
+                  } else if(sef.getIdExpFileRead2() != null && sef.getIdExpFileRead2().equals(idExperimentFile)) {
+                    sef.setIdExpFileRead2(null);
+                  }
+
+                  if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                    sess.delete(sef);
+                  } else {
+                    sess.update(sef);
+                  }
                 }
               }
             }
             sess.flush();
+          }
+
+          //Map existing experiment files to file names that are coming in so we don't create duplicate experiment files
+          HashMap expFileDictionary = new HashMap();
+          if(experimentFileDoc != null) {
+            Element root = this.experimentFileDoc.getRootElement();
+            for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
+              Element fd = (Element)i.next();
+              String fileName = fd.getAttributeValue("zipEntryName");
+              fileName = fileName.replace("\\", "/");
+              List expFile = sess.createQuery("Select expFile from ExperimentFile expFile where fileName = '" + fileName + "'").list();
+              if(expFile.size() > 0) {
+                ExperimentFile ef = (ExperimentFile)expFile.get(0);
+                expFileDictionary.put(fileName, ef);
+              }
+            }
+
           }
 
           //Link experiment files to samples
@@ -447,41 +483,44 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               int seqRunNumber = 0;
               for(Iterator j = sampleNode.getChildren().iterator(); j.hasNext();) {
                 Element seqRunNode = (Element)j.next();
-                seqRunNumber = seqRunNumber + 1;
                 SampleExperimentFile sef = new SampleExperimentFile();
-                Integer idExperimentFile = null;
-                for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
-                  Element expFile = (Element)k.next();
-                  if(expFile.getAttributeValue("idExperimentFile") != null) {
-                    idExperimentFile = Integer.valueOf(expFile.getAttributeValue("idExperimentFile"));
-                    break;
-                  }
+                Integer idSampleExperimentFile = null;
+                if(seqRunNode.getAttributeValue("idSampleExperimentFile") != null) {
+                  idSampleExperimentFile = Integer.parseInt(seqRunNode.getAttributeValue("idSampleExperimentFile"));
                 }
+                seqRunNumber = seqRunNumber + 1;
+                if(idSampleExperimentFile != null && !idSampleExperimentFile.equals("")) {
+                  sef = (SampleExperimentFile)sess.load(SampleExperimentFile.class, idSampleExperimentFile);
+                }
+                Integer idExperimentFile = null;
                 fileCount = 1;
                 for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
                   Element expFile = (Element)k.next();
                   ExperimentFile ef = new ExperimentFile();
-                  if(expFile.getAttributeValue("idExperimentFile") == null) {
+
+                  if(expFileDictionary.containsKey(expFile.getAttributeValue("zipEntryName").replace("\\", "/"))){ //Is it in the dictionary?  Use it
+                    ef = (ExperimentFile)expFileDictionary.get(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
+                    idExperimentFile = ef.getIdExperimentFile();
+                  } else if(expFile.getAttributeValue("idExperimentFile") != null && !expFile.getAttributeValue("idExperimentFile").equals("")) {
+                    ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
+                    idExperimentFile = ef.getIdExperimentFile();
+                  } else {
                     java.util.Date d = new java.util.Date();
                     ef.setIdRequest(this.idRequest);
                     ef.setFileName(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
                     ef.setFileSize(new BigDecimal(expFile.getAttributeValue("fileSize")));
                     ef.setCreateDate(new Date(d.getTime()));
-                    sess.save(ef);                 
-                  } else {
-                    ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
-                    if(ef == null) {
-                      continue;
-                    } else {
-                      idExperimentFile = ef.getIdExperimentFile();
-                    }
+                    sess.save(ef);    
                   }
-                  
-                  if(idExperimentFile != null) {
-                    List sefList = sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list();
-                    if(sefList.size() == 1) {
-                      sef = (SampleExperimentFile)sefList.get(0);
+                  if(sef != null && ef != null) {
+                    if(sef.getIdExpFileRead1() != null && ef.getIdExperimentFile() != null && fileCount == 1 && sef.getIdExpFileRead1().equals(ef.getIdExperimentFile())) {
+                      fileCount++;
+                      continue;
+                    } else if(sef.getIdExpFileRead2() != null && ef.getIdExperimentFile() != null && fileCount == 2 && sef.getIdExpFileRead2().equals(ef.getIdExperimentFile())) {
+                      fileCount++;
+                      continue;
                     }
+
                   }
 
                   if(fileCount == 1) {
