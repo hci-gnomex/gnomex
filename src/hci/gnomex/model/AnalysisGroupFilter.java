@@ -36,6 +36,8 @@ public class AnalysisGroupFilter extends DetailObject {
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
+  private Boolean				isForExternalDataSharingSite = false;
+  
 //  private boolean isForExternalDataSharingSite = false;
   
   public static final int       COL_ID_ANALYSIS = 7;
@@ -359,10 +361,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-//      if(isForExternalDataSharingSite && secAdvisor.getIsGuest().equals("Y")){ // show guests on CvDC analyses that have been released to the public within the last week
-//   	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
-//      else {
-    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");//}
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last week
+   	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -374,10 +376,11 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-//      if(isForExternalDataSharingSite && secAdvisor.getIsGuest().equals("Y")){ // show guests on CvDC analyses that have been released to the public within the last month
-//    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
-//      else {
-    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");//}
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last month
+    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+    	  }
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -389,10 +392,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-//      if(isForExternalDataSharingSite && secAdvisor.getIsGuest().equals("Y")){ // show guests on CvDC analyses that have been released to the public within the last three months
-//    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
-//      else {
-    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");//}
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last three months
+    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -404,10 +407,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-//      if(isForExternalDataSharingSite && secAdvisor.getIsGuest().equals("Y")){ // show guests on CvDC analyses that have been released to the public within the last year
-//    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
-//      else {
-    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");//}
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last year
+    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
@@ -637,9 +640,9 @@ public class AnalysisGroupFilter extends DetailObject {
   
   
   
-//  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
-//	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
-//  }
+  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
+	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
+  }
 
     
 }

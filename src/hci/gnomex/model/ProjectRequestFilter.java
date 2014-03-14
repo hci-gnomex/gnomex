@@ -67,6 +67,8 @@ public class ProjectRequestFilter extends DetailObject {
   private SecurityAdvisor       secAdvisor;
   private DictionaryHelper      dictionaryHelper;
   
+  private Boolean				isForExternalDataSharingSite = false;
+  
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
@@ -401,17 +403,29 @@ public class ProjectRequestFilter extends DetailObject {
     //  Search by create date from 
     if (createDateFrom != null){
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // use when a request became public instead of create date
+	      queryBuf.append(" req.privacyExpirationDate >= '");
+	      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      } else {
+	      queryBuf.append(" req.createDate >= '");
+	      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      }
     } 
     //  Search by create date from 
-    if (createDateTo != null){
+    if (createDateTo != null){  
       createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate < '");
-      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" req.privacyExpirationDate < '");
+          queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+          queryBuf.append("'");
+      } else {
+	      queryBuf.append(" req.createDate < '");
+	      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      }
     } 
     // Search for requests submitted in last week
     if (lastWeek.equals("Y")) {
@@ -421,7 +435,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -433,7 +451,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -445,7 +467,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -457,7 +483,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
@@ -1087,5 +1117,10 @@ public class ProjectRequestFilter extends DetailObject {
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
+  
+  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
+	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
+  }
+
 
 }

@@ -118,6 +118,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           }
         }
         
+        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+        	filter.setIsForExternalDataSharingSite(true);
+        }   
+        
       
         String message = "";
         StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
