@@ -188,6 +188,7 @@ public class AnalysisGroupFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
     if (idLab != null ||
+    	idOrganism != null ||	
         idAppUser != null ||
         (publicProjects != null && publicProjects.equals("Y")) ||
         idRequest != null ||
