@@ -20,6 +20,7 @@ package views.util.grid
 	import mx.core.UIComponent;
 	import mx.managers.FocusManager;
 	import mx.utils.ObjectUtil;
+	import mx.utils.StringUtil;
 	
 	import views.util.grid.DataGridUtil;
 	
@@ -51,6 +52,7 @@ package views.util.grid
 		protected var _rowOperationsAllowed:Boolean = true;
 		protected var _dataType:String;
 		protected var _ignoredColumns:Array;
+		protected var _importantFields:Array;
 		
 		
 		public function CopyPasteDataGrid()
@@ -266,7 +268,7 @@ package views.util.grid
 		// Returns a tab-delimited string corresponding to the selected rows of the grid
 		public function getTextFromSelectedItems():String
 		{
-			var selectedItems:XMLListCollection = DataGridUtil.getSelectedRows( this,  _dataType, _ignoredColumns );
+			var selectedItems:XMLListCollection = DataGridUtil.getSelectedRows( this,  _dataType, null );
 			return DataGridUtil.getTextFromXMLList( this, selectedItems, DataGridUtil.TYPE_TSV, this.parentApplication );
 		}
 		
@@ -364,11 +366,19 @@ package views.util.grid
 		}
 		
 		protected function addItemToDataProvider(newItem:XML):void {
-			// Add a row - using the add row function if provided
-			this.addRow();
-			// Get the added row
-			var emptyNode:Object = this.getUnderlyingDataProvider().getItemAt(this.getUnderlyingDataProvider().length-1);
+			var ind:int = getFirstEmptyRowIndex();
+			var emptyNode:Object;
+			
+			if ( ind >= 0 ) {
+				emptyNode = this.getUnderlyingDataProvider().getItemAt(ind);
 				
+			} else {
+				// Add a row - using the add row function if provided
+				this.addRow();
+				// Get the added row
+				emptyNode = this.getUnderlyingDataProvider().getItemAt(this.getUnderlyingDataProvider().length-1);
+			}
+			
 			// Now copy the sample annotations
 			for each (var attribute:Object in newItem.attributes()) {
 				if ( this._ignoredColumns != null ) {
@@ -380,7 +390,24 @@ package views.util.grid
 					emptyNode["@" + attribute.name()] = String(attribute);
 				}
 			}
+							
+		}
+		
+		protected function getFirstEmptyRowIndex():int {
+			for each (var row:Object in this.getUnderlyingDataProvider()) {
+				var isBlank:Boolean = true;
 				
+				for each (var attribute:String in _importantFields) {
+					if ( row["@" + attribute] != null && StringUtil.trim(row["@" + attribute]) != '' ) {
+						isBlank = false;
+					}
+				}
+				
+				if ( isBlank ) {
+					return this.getUnderlyingDataProvider().getItemIndex(row);
+				}
+			}
+			return -1; 
 		}
 		
 		// Setters
@@ -440,6 +467,14 @@ package views.util.grid
 		public function set ignoredColumns( value:Array ):void
 		{
 			_ignoredColumns = value;
+		}
+		// These are the fields that are checked to determine if a row is empty or not.  If these
+		// fields are all empty, the row is considered empty.
+		[Bindable]
+		public function get importantFields():Array { return _importantFields; }
+		public function set importantFields( value:Array ):void
+		{
+			_importantFields = value;
 		}
 		
 		override protected function initializationComplete():void
