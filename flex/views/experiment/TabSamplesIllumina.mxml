@@ -119,7 +119,7 @@
 				
 				var idSampleType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? 
 					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : 
-					(parentDocument.request.@idSampleTypeDefault != null ?parentDocument.request.@idSampleTypeDefault : '');
+					(parentDocument.request.@idSampleTypeDefault != null ? parentDocument.request.@idSampleTypeDefault : '');
 				var otherSamplePrepMethod:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
 					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';				
 				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
@@ -134,8 +134,8 @@
 				
 				var numberSequencingLanes:String	= parentDocument.request.@isRapidMode == 'Y' ? '2' : '1';
 					
-				var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.request.@codeApplication);
-				var idSeqLibProtocol:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+				var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+				var idSeqLibProtocol:String = protocol != null ? protocol.@idSeqLibProtocol.toString() : "";
 				
 				if (parentDocument.isSolexaState()) {
 					if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 

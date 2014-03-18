@@ -246,10 +246,6 @@ package views.util.grid
 				
 				for each (var item:XML in items)
 				{
-					/*if ( this.selectedItem != null ) {
-						this.getUnderlyingDataProvider().setItemAt( item, this.getUnderlyingDataProvider().getItemIndex( selectedItem ) );
-						this.selectedItem = null;
-					}*/
 					addItemToDataProvider(item);
 				}
 			}
@@ -368,22 +364,23 @@ package views.util.grid
 		}
 		
 		protected function addItemToDataProvider(newItem:XML):void {
+			// Add a row - using the add row function if provided
 			this.addRow();
+			// Get the added row
 			var emptyNode:Object = this.getUnderlyingDataProvider().getItemAt(this.getUnderlyingDataProvider().length-1);
 				
-				// Now copy the sample annotations
-				for each (var attribute:Object in newItem.attributes()) {
-					if ( this._ignoredColumns != null ) {
-						var aName:String = attribute.name();
-						if (this._ignoredColumns.indexOf(aName) == -1) {
-							emptyNode["@" + attribute.name()] = String(attribute);
-						}
-					} else {
+			// Now copy the sample annotations
+			for each (var attribute:Object in newItem.attributes()) {
+				if ( this._ignoredColumns != null ) {
+					var aName:String = attribute.name();
+					if (this._ignoredColumns.indexOf(aName) == -1) {
 						emptyNode["@" + attribute.name()] = String(attribute);
 					}
+				} else {
+					emptyNode["@" + attribute.name()] = String(attribute);
 				}
+			}
 				
-//			this.getUnderlyingDataProvider().addItem( newItem );
 		}
 		
 		// Setters
