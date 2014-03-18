@@ -19,6 +19,9 @@
 	</mx:HTTPService>
 
 	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" horizontalGap="0">
+			<mx:Label text="{contextDisplay}"/>
+		</mx:HBox>
 		<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2">
 			<mx:VBox width="100%" height="100%" label="Help Text">
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
@@ -84,6 +87,9 @@
 			private var isNew:Boolean;
 			
 			[Bindable]
+			protected var contextDisplay:String;
+			
+			[Bindable]
 			private var helpXML:XML;
 			
 			public function init(context1:String, context2:String, context3:String, title:String, helpButton:ContextHelp) : void {
@@ -124,6 +130,29 @@
 				
 				previewToolTipButton.removeEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
 				previewToolTipButton.addEventListener(ToolTipEvent.TOOL_TIP_CREATE, createToolTip);
+				
+				getContextDisplayValues(context1, context2, context3);
+			}
+			
+			protected function getContextDisplayValues(context1:String, context2:String, context3:String):void {
+				contextDisplay = "";
+				if (parentDocument.coreFacilitiesICanManage.length() > 1) {
+					var coreFacilities:XMLList = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
+					for each (var cf:Object in coreFacilities) {
+						if (cf.@value == context2) {
+							contextDisplay += cf.@facilityName;
+						}
+					}
+					if (contextDisplay.length == 0) {
+						contextDisplay = "Core Facility:All";
+					} else {
+						contextDisplay = "Core Facility:" + contextDisplay;
+					}
+				}
+				if (contextDisplay.length > 0) {
+					contextDisplay += "    ";
+				}
+				contextDisplay += context3 == null || context3 == '' ? '' : "Experiment Type:" + context3;
 			}
 			
 			private function closeWindow():void {
