@@ -21,6 +21,7 @@ package views.util.grid
 		{
 			dataType="Sample";
 			ignoredColumns= ['idSample','number', 'wellName', 'idPlateWell'];
+			importantFields=['name','concentration'];
 			pasteEnabled=true;
 			horizontalScrollPolicy="auto";
 			variableRowHeight=true;
@@ -91,7 +92,7 @@ package views.util.grid
 		
 		override protected function addItemToDataProvider(newItem:XML):void {
 			if ( this._hasPlates ) {
-				// find next blank sample (no properties or annotations filled out
+				// find next blank sample
 				// insert the sample there
 				var ind:int = getFirstEmptyWellIndex();
 				if ( ind >= 0 ) {
