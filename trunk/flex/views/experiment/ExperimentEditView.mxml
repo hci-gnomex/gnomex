@@ -4479,7 +4479,7 @@
 	
 		private function onGetRequestToAmend(event:ResultEvent):void {
 			
-			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest);
+			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest)[0];
 			existingLanes = request.sequenceLanes.SequenceLane;
 
 			setupAmendForm(request);
@@ -4508,8 +4508,6 @@
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', codeRequestCategory);
 				this.requestIcon = requestCategory.@icon;
 			}
-
-			
 
 		}
 
