@@ -5033,9 +5033,18 @@
 			
 			private function filterBillingAccounts(item:Object):Boolean {
 				var keep:Boolean = false;
-				if(item.@idCoreFacility == parentDocument.selectedExperiment.@idCoreFacility)
-					return true;
-				return false;
+				var temp:String = flash.utils.getQualifiedClassName(parentDocument);
+				if(temp  == 'views.order::NavOrderView') {
+					if(item.@idCoreFacility == parentDocument.selectedRequest.@idCoreFacility)
+						return true;
+					else
+						return false;
+				} else {
+					if(item.@idCoreFacility == parentDocument.selectedExperiment.@idCoreFacility)
+						return true;
+					else
+						return false;
+				}
 			}
 			
 			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
