@@ -948,6 +948,9 @@
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
+			public var allowPaste:Boolean = false;
+			
+			[Bindable]
 			public var isTopicsSupported:Boolean = false;
 			
 			[Bindable]
@@ -1084,6 +1087,7 @@
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
 			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
+			public var PROPERTY_ALLOW_PASTE:String                     	  = "allow_paste";
 			public var PROPERTY_BULLETIN:String                           = "bulletin";
 			public var PROPERTY_USAGE_USER_VISIBILITY:String              = "usage_user_visibility";
 			public var PROPERTY_EXTERNAL_DATA_SHARING_SITE:String         = "external_data_sharing_site";
@@ -2500,6 +2504,13 @@
 					this.isFDTSupported = true;
 				} else {
 					this.isFDTSupported = false;
+				}
+				
+				if (this.getProperty(this.PROPERTY_ALLOW_PASTE) != null && 
+					this.getProperty(this.PROPERTY_ALLOW_PASTE) == 'N') {
+					this.allowPaste = false;
+				} else {
+					this.allowPaste = true;
 				}
 				
 				if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null && 

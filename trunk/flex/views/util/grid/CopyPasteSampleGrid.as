@@ -22,7 +22,6 @@ package views.util.grid
 			dataType="Sample";
 			ignoredColumns= ['idSample','number', 'wellName', 'idPlateWell'];
 			importantFields=['name','concentration'];
-			pasteEnabled=true;
 			horizontalScrollPolicy="auto";
 			variableRowHeight=true;
 			sortableColumns=false;
@@ -32,6 +31,12 @@ package views.util.grid
 			selectionMode="multipleRows";
 			this.setStyle("selectionColor","#DDF3FB");
 			this.setStyle("defaultLeafIcon",null);
+		}
+		
+		override protected function initializationComplete():void
+		{
+			pasteEnabled=parentApplication.allowPaste;
+			super.initializationComplete();
 		}
 		
 		public function getSampleTreeIcon(item:Object):Class {
