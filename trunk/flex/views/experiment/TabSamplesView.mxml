@@ -1013,6 +1013,7 @@
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
+				ccNumberVRule.visible = showCCNumberCheckbox.visible;
 				ccNumberCheckBoxHelp.visible = !isExternal;
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
 				
@@ -1108,6 +1109,7 @@
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
 				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
+				addOrgVRule.visible = this.addOrganismButton.visible;
 				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
 				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
 				
@@ -1253,6 +1255,9 @@
 		</mx:HBox>
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
+							  showEdit="{parentApplication.isSuperAdmin}" visible="{isExternal}" includeInLayout="{isExternal}"
+							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
 			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
 							  showEdit="{parentApplication.isSuperAdmin}" 
 							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
@@ -1264,7 +1269,7 @@
 								   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
 								   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 					<mx:Spacer width="1"/>
-					<mx:VRule height="20" id="ccNumberVRule" visible="{showCCNumberCheckbox.visible}"/>
+					<mx:VRule height="20" id="ccNumberVRule" />
 				</mx:HBox>
 			
 			<mx:Spacer width="4"/>
@@ -1279,7 +1284,7 @@
 			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
 							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
 			<mx:Spacer width="4" />
-			<mx:VRule height="20" id="addOrgVRule" visible="{addOrganismButton.visible}" />
+			<mx:VRule height="20" id="addOrgVRule" />
 			<mx:LinkButton  horizontalGap="0" label="Add Organism ..." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
 			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
 							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
@@ -1574,19 +1579,19 @@
 				</mx:AdvancedDataGridColumn> 
 
 
-				<mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
-					<mx:headerRenderer > 
+					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
 												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Conc. ng/uL" 
