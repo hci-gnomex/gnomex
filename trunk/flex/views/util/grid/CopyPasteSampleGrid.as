@@ -68,6 +68,9 @@ package views.util.grid
 					addItemToDataProvider( item );
 				}
 				this.propagateIndexTagSequence();
+				if ( this._hasPlates ) {
+					updateWellNames();
+				} 
 			}
 		}
 		
@@ -88,27 +91,11 @@ package views.util.grid
 			for each ( var item:XML in selectedItems ) {
 				addItemToDataProvider(item);
 			}
-		}
-		
-		override protected function addItemToDataProvider(newItem:XML):void {
 			if ( this._hasPlates ) {
-				// find next blank sample
-				// insert the sample there
-				var ind:int = getFirstEmptyWellIndex();
-				if ( ind >= 0 ) {
-					newItem.@plateName = parentDocument.getPlateName(ind);
-					newItem.@wellName = getWellName(ind);
-					this.getUnderlyingDataProvider().setItemAt( newItem, ind );
-					updateWellNames();
-				} else {
-					super.addItemToDataProvider( newItem ); 
-					updateWellNames();
-				}
-			} else {
-				super.addItemToDataProvider( newItem ); 
-			}
-		} 
-		
+				updateWellNames();
+			} 
+		}
+				
 		protected function getFirstEmptyWellIndex():int {
 			for each (var sample:Object in this.getUnderlyingDataProvider()) {
 				if ( sample.@name == '' ) {
@@ -129,6 +116,9 @@ package views.util.grid
 		}
 		
 		protected function updateWellNames():void {
+			if ( !this._hasPlates ) {
+				return;
+			}
 			for each (var sample:Object in this.getUnderlyingDataProvider()) {
 				sample.@plateName = parentDocument != null ? parentDocument.getPlateName(this.getUnderlyingDataProvider().getItemIndex(sample)) : "";
 				sample.@wellName = getWellName(this.getUnderlyingDataProvider().getItemIndex(sample));

@@ -294,7 +294,7 @@
 					" barcodeSequenceB = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+					" codeBioanalyzerChipType=''" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +	
 					" plateName='" + plateName + "'" +
