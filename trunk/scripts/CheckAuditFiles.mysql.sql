@@ -1,3 +1,5 @@
+use gnomex;
+
 create temporary table tempNoAuditTable (Table_Name varchar(1000), Err varchar(100));
 create temporary table tempOrphanedAuditTable (Table_Name varchar(1000), Err varchar(100));
 insert into tempNoAuditTable(Table_Name, Err)
