@@ -253,26 +253,34 @@
 					currentState = 'CherryPickState';
 				}  else if (requestCategory.@type == 'ISCAN') {
 					this.currentState = "IScanState";
-					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
-					parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';
-					parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);	
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
+					}					
+					parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'IScanState';	
 					if ( parentDocument.parentDocument.experimentEditView.annotationView != null ) {
 						parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 					}
 				} else if (requestCategory.@type == 'SEQUENOM') {
 					this.currentState = "SequenomState";
-					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
+					}
 					if ( this.bisulfideConversionBox != null ) {
 						this.bisulfideConversionBox.visible=requestCategory!=null && requestCategory.@codeRequestCategory=='SEQEPI';
 						this.bisulfideConversionBox.includeInLayout=requestCategory!=null && requestCategory.@codeRequestCategory=='SEQEPI';
 					}
 				} else if (requestCategory.@type == 'CLINSEQ') {
 					this.currentState = "ClinicalSeqState";
-					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';	
+					}
 					parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'ClinicalSequenomState';	
 				} else if (requestCategory.@type == 'ISOLATION') {
 					this.currentState = "IsolationState";
-					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
+					}	
 				}
 				
 				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
