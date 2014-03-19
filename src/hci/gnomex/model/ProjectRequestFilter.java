@@ -67,8 +67,6 @@ public class ProjectRequestFilter extends DetailObject {
   private SecurityAdvisor       secAdvisor;
   private DictionaryHelper      dictionaryHelper;
   
-  private Boolean				isForExternalDataSharingSite = false;
-  
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
@@ -403,8 +401,8 @@ public class ProjectRequestFilter extends DetailObject {
     //  Search by create date from 
     if (createDateFrom != null){
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // use when a request became public instead of create date
-	      queryBuf.append(" req.privacyExpirationDate >= '");
+      if(secAdvisor.isGuest()){ // use when a request became public instead of create date
+	      queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
 	      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
 	      queryBuf.append("'");
       } else {
@@ -417,8 +415,8 @@ public class ProjectRequestFilter extends DetailObject {
     if (createDateTo != null){  
       createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
-    	  queryBuf.append(" req.privacyExpirationDate < '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append("  CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  < '");
           queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
           queryBuf.append("'");
       } else {
@@ -435,8 +433,8 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
-    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
       } else {
     	  queryBuf.append(" req.createDate >= '");
       }
@@ -451,8 +449,8 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
-    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
       } else {
     	  queryBuf.append(" req.createDate >= '");
       }
@@ -467,8 +465,8 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
-    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
       } else {
     	  queryBuf.append(" req.createDate >= '");
       }
@@ -483,8 +481,8 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()) { // use when a request became public instead of create date
-    	  queryBuf.append(" req.privacyExpirationDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
       } else {
     	  queryBuf.append(" req.createDate >= '");
       }
@@ -1116,10 +1114,6 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
-  }
-  
-  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
-	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
   }
 
 

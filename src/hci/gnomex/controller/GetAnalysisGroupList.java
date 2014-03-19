@@ -86,9 +86,9 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           }
         }
         
-        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
-        	filter.setIsForExternalDataSharingSite(true);
-        }        	
+//        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+//        	filter.setIsForExternalDataSharingSite(true);
+//        }        	
         
         boolean labsWithAnalysesIsASubsetOfAllLabsInQuery = false;
         if( (filter.getLabKeys() != null && filter.getLabKeys() != "") || (filter.getSearchText() != null && filter.getSearchText() != "") ){
