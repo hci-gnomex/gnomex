@@ -701,9 +701,12 @@
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
+				ccNumberVRule.visible = showCCNumberCheckbox.visible;
 				ccNumberCheckBoxHelp.visible = !isExternal;
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
 
+				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
+				
 				setButtonsVisibility(!parentDocument.isAmendState());
 				samplesGrid.rowOperationsAllowed = true;
 				
@@ -757,6 +760,7 @@
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
 				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
+				addOrgVRule.visible = this.addOrganismButton.visible;
 				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
 				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
 				if (!parentDocument.isEditState()) {
@@ -987,6 +991,9 @@
 			
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
+			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
+							  showEdit="{parentApplication.isSuperAdmin}" visible="{isExternal}" includeInLayout="{isExternal}"
+							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
 			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
 							  showEdit="{parentApplication.isSuperAdmin}" 
 							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
@@ -998,7 +1005,7 @@
 						   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetInstructionsView, true));"
 						   toolTip=" 1.  Download the sample sheet (see instructions) or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
 			
-			<mx:VRule height="20" />
+			<mx:VRule height="20" id="ccNumberVRule" />
 			<mx:Spacer width="4"/>
 			
 			
@@ -1013,7 +1020,7 @@
 							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
 			
 			<mx:Spacer width="4"/>
-			<mx:VRule height="20"/>
+			<mx:VRule height="20" id="addOrgVRule"/>
 			<mx:LinkButton label="New Organism..." toolTip="If organism is not in dropdown, add here." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
 			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
 							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
