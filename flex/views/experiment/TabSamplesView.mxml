@@ -346,6 +346,9 @@
 			}
 			
 			override public function getPlateName(idx:int):String {
+				if ( parentDocument.isIScanState() ) {
+					return getIScanPlateName(idx);
+				}
 				var plateName:String = "";
 				if (parentDocument.request.@containerType == 'PLATE') {
 					var y:int = idx / 96;
