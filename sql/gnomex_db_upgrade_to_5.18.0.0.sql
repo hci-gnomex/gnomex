@@ -13,12 +13,15 @@ ENGINE = INNODB;
 
 -- RNA Prep type on request
 alter table Request add codeRNAPrepType varchar(10) NULL;
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit add codeRNAPrepType varchar(10) NULL');
+
 alter table Request add 
   CONSTRAINT `FK_Request_RNAPrepType` FOREIGN KEY `FK_Request_RNAPrepType` (`codeRNAPrepType`)
     REFERENCES `gnomex`.`RNAPrepType` (`codeRNAPrepType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 alter table Request add includeBisulfideConversion CHAR(1) null;  
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit add includeBisulfideConversion CHAR(1) null');
 
 -- add foreign key constraint from Request to Lab
 alter table Request add 
