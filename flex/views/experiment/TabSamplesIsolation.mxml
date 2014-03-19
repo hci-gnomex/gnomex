@@ -17,6 +17,7 @@
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
 			import mx.controls.TextInput;
+			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
@@ -60,7 +61,21 @@
 				checkSamplesCompleteness();
 				samplesGrid.selectedIndex = idx;
 			}
-						
+			
+			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					parentDocument.samples.removeAll();
+					if ( !parentDocument.isEditState() ){
+						this.initializeSamplesGrid();
+					} else {
+						this.samplesGrid.addRow();
+					}
+					
+					checkSamplesCompleteness();
+					this.initializeBarcoding();
+				}
+			}	
+			
 			override public function initializeSamplesGrid():void {
 				if (parentDocument.requestToClone != null) {
 					return;
@@ -336,6 +351,7 @@
 								  itemFocusOut="checkSamplesCompleteness()" 
 								  addRowFunction="{addSample}"
 								  deleteRowFunction="{deleteTheSample}"
+								  clearAllFunction="promptToClearAllSamples"
 								  showRowNumberCol="true">
 			<grid:columns>
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">

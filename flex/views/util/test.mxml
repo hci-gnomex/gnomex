@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 minWidth="20" minHeight="10" width="100" height="20"
+		 creationComplete="addLabel()">
+	
+	<fx:Metadata>
+		[Event("change", type="flash.events.Event")]    
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.IList;
+			import mx.controls.List;
+			import mx.core.IVisualElement;
+			import mx.events.IndexChangedEvent;
+			import mx.managers.IFocusManagerComponent;
+			
+			import spark.components.Label;
+			import spark.skins.SparkSkin;
+			
+			// --------------------------------------------------------------------
+			//
+			// Private Properties
+			//
+			// --------------------------------------------------------------------
+			private var _mouseObserveRectangle:Rectangle;
+			private var _nextFocusItem:IFocusManagerComponent;//list needs to steal focus, but this is in a pop up anchor so the focus loop changes. This is used to store a return to the "normal" focus loop
+			private var _openChanged:Boolean=false;//opening or closing is flagged as a pending change, handled by commitProperties
+			
+			// --------------------------------------------------------------------
+			//
+			// Public Properties
+			//
+			// --------------------------------------------------------------------
+			
+			[Bindable]public var listHeight:uint=100;
+			
+			public var prompt:String="Choose";
+			
+			[Bindable]public function set dataProvider(value:IList):void{
+				list.dataProvider=value;
+				updateLabel();
+			}
+			public function get dataProvider():IList{
+				return list.dataProvider;
+			}
+			
+			/*
+			The only reason _selectedIndices need to be stored 
+			(as opposed to just grabbing it from list.selectedIndices)
+			is because if the pop up hasn´t opened yet,
+			and these values have been set, updateLabel() doesn't work.
+			*/
+			private var _selectedIndices:Vector.<int>;
+			private var _selectedIndicesChanged:Boolean=false;
+			[Bindable]public function set selectedIndices(value:Vector.<int>):void{
+				_selectedIndices=value;
+				_selectedIndicesChanged=true;
+				invalidateProperties();
+			}
+			public function get selectedIndices():Vector.<int>{
+				return _selectedIndices;
+			}
+			
+			
+			[Bindable]public function set selectedItems(value:Vector.<Object>):void{
+				var indices:Vector.<int>=new Vector.<int>();
+				var index:int;
+				for each(var obj:Object in value){
+					index=list.dataProvider.getItemIndex(obj);
+					if(index>-1)indices.push(index);
+				}
+				selectedIndices=indices;
+			}
+			public function get selectedItems():Vector.<Object>{
+				return list.selectedItems;
+			}
+			
+			// --------------------------------------------------------------------
+			//
+			// Public Methods
+			//
+			// --------------------------------------------------------------------
+			public function open():void{
+				popUpAnchor.displayPopUp = true;
+				list.setFocus();
+				callLater(addListKeyDownListener);
+				callLater(observeMouse);
+			}
+			
+			public function close():void{
+				popUpAnchor.displayPopUp = false;
+				stopMouseObserve();
+				list.removeEventListener(KeyboardEvent.KEY_DOWN,list_keyDownHandler);
+			}
+			
+			public function selectAll():void{
+				var indices:Vector.<int>=new Vector.<int>();
+				for(var i:uint=0;i<dataProvider.length;i++){
+					indices[i]=i;
+				}
+				selectedIndices=indices;
+			}
+			
+			public function clearSelections():void{
+				selectedIndices=new Vector.<int>();
+			}
+			
+			// --------------------------------------------------------------------
+			//
+			// Protected Methods
+			//
+			// --------------------------------------------------------------------
+			
+			override protected function commitProperties():void{
+				super.commitProperties();
+				if(_selectedIndicesChanged){
+					list.selectedIndices=_selectedIndices;                    
+					_selectedIndicesChanged=false;
+					invalidateDisplayList();
+				}
+				if(_openChanged){
+					if(popUpAnchor.displayPopUp){
+						close();
+					}else{
+						open();
+					}
+					_openChanged=false;
+				}
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				list.width=width;
+				if(dataProvider)updateLabel();
+			}
+			
+			// --------------------------------------------------------------------
+			//
+			// Private Methods
+			//
+			// --------------------------------------------------------------------
+			
+			//spark.skins.spark.DropDownListButtonSkin doesn't contain a label, so we reparent labelDisplay there
+			//this is less annoying than having to create a custom skin
+			private function addLabel():void{
+				SparkSkin(dropDownButton.skin).addElement(labelDisplay);
+			}
+			
+			private function flagOpenToggle():void{
+				_openChanged=true;
+				invalidateProperties();            
+			}
+			
+			private function dropDownButton_mouseDownHandler():void{
+				flagOpenToggle();
+			}
+			
+			private function dropDownButton_focusInHandler():void{
+				if(!popUpAnchor.displayPopUp){
+					_nextFocusItem=focusManager.getNextFocusManagerComponent();
+					flagOpenToggle();
+				}
+			}
+			
+			private function list_focusInHandler(event:Event):void{
+				event.stopImmediatePropagation();//make sure dropDownButton_focusInHandler() isn´t called
+			}
+			
+			private function addListKeyDownListener():void{
+				list.addEventListener(KeyboardEvent.KEY_DOWN,list_keyDownHandler);
+			}
+			
+			private function list_keyDownHandler(event:KeyboardEvent):void{
+				if(event.charCode==Keyboard.ENTER){
+					flagOpenToggle();
+					callLater(moveToNextFocusItem);
+				}
+				if(event.charCode==Keyboard.TAB){
+					flagOpenToggle();
+					event.stopImmediatePropagation();
+					callLater(moveToNextFocusItem);
+				}
+			}
+			
+			private function moveToNextFocusItem():void{
+				focusManager.setFocus(_nextFocusItem);
+			}
+			
+			private function list_indexChangeHandler():void{
+				_selectedIndices=list.selectedIndices;
+				invalidateDisplayList();
+				dispatchEvent(new Event(Event.CHANGE));
+			}
+			
+			//==================
+			//label updating
+			//==================
+			
+			//because vectors don's seem to have inbuilt sort?!
+			private function numericalSort(a:int,b:int):int{
+				if(a==b){
+					return 0;
+				}else if(a>b){
+					return 1;
+				}
+				return -1;
+			}
+			
+			private function getLabelStringFromSelectedIndices():String{
+				var items:Array=[];
+				var item:Object;
+				_selectedIndices.sort(numericalSort);
+				for(var i:uint=0;i<_selectedIndices.length;i++){
+					item=dataProvider.getItemAt(_selectedIndices[i]);
+					if(item is String){
+						items.push(item);
+					}else if(item.hasOwnProperty("label")){
+						items.push(item.label);
+					}
+				}
+				return items.length ? items.join(", ") : selectedIndices.toString();
+			}
+			
+			private function updateLabel():void{
+				if(!labelDisplay)return;
+				var string:String=prompt;
+				if(_selectedIndices && _selectedIndices.length){
+					string=getLabelStringFromSelectedIndices();
+				}
+				labelDisplay.text=string;
+			}
+			
+			//==================
+			//mouse observe
+			//==================
+			
+			private function checkMouseOut(event:MouseEvent):void{
+				if(!_mouseObserveRectangle.contains(stage.mouseX,stage.mouseY))flagOpenToggle();
+			}
+			
+			private function observeMouse():void{
+				var point:Point=localToGlobal(new Point());
+				if(list.y<point.y){
+					_mouseObserveRectangle=new Rectangle(point.x,list.y,width,height+list.height);                
+				}else{
+					_mouseObserveRectangle=new Rectangle(point.x,point.y,width,height+list.height);
+				}
+				stage.addEventListener(MouseEvent.MOUSE_MOVE,checkMouseOut);
+			}
+			
+			private function stopMouseObserve():void{
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,checkMouseOut);            
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Button id="dropDownButton" mouseDown="dropDownButton_mouseDownHandler()" focusIn="dropDownButton_focusInHandler()"
+			  width="100%" height="100%" skinClass="spark.skins.spark.DropDownListButtonSkin" />
+	<s:PopUpAnchor id="popUpAnchor"
+				   popUpPosition="below"
+				   width="100%" height="100%">
+		<s:List id="list" allowMultipleSelection="true" change="list_indexChangeHandler()"
+				height="{listHeight}" focusIn="list_focusInHandler(event)" />
+	</s:PopUpAnchor>
+	<s:Label id="labelDisplay"
+			 width="100%" height="100%"
+			 maxDisplayedLines="1"
+			 horizontalCenter="0" verticalCenter="1" verticalAlign="middle"
+			 paddingLeft="10" paddingRight="25" paddingTop="2" paddingBottom="2" />
+</s:Group>
+
