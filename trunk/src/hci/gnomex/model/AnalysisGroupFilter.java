@@ -36,9 +36,6 @@ public class AnalysisGroupFilter extends DetailObject {
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
-  private Boolean				isForExternalDataSharingSite = false;
-  
-//  private boolean isForExternalDataSharingSite = false;
   
   public static final int       COL_ID_ANALYSIS = 7;
   public static final int       COL_ANALYSIS_NUMBER = 8;
@@ -362,8 +359,8 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last week
-   	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last week
+   	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
       else {
     	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
@@ -377,8 +374,8 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last month
-    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last month
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
       else {
     	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
     	  }
@@ -393,8 +390,8 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last three months
-    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last three months
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
       else {
     	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
@@ -408,8 +405,8 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      if(isForExternalDataSharingSite && secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last year
-    	  queryBuf.append(" Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) >= '");}
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last year
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
       else {
     	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
@@ -638,12 +635,5 @@ public class AnalysisGroupFilter extends DetailObject {
   public String getIdGenomeBuild(String idGenomeBuild) {
 	  return this.idGenomeBuild;
   }
-  
-  
-  
-  public void setIsForExternalDataSharingSite(boolean isForExternalDataSharingSite) {
-	  this.isForExternalDataSharingSite = isForExternalDataSharingSite;
-  }
-
     
 }
