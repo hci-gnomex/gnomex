@@ -1017,6 +1017,8 @@
 				ccNumberCheckBoxHelp.visible = !isExternal;
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
 				
+				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
+								
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				
