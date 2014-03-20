@@ -705,7 +705,7 @@
 				ccNumberCheckBoxHelp.visible = !isExternal;
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
 
-				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
+//				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
 				
 				setButtonsVisibility(!parentDocument.isAmendState());
 				samplesGrid.rowOperationsAllowed = true;
@@ -992,7 +992,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
 			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
-							  showEdit="{parentApplication.isSuperAdmin}" visible="{isExternal}" includeInLayout="{isExternal}"
+							  showEdit="{parentApplication.isSuperAdmin}" 
 							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
 			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
 							  showEdit="{parentApplication.isSuperAdmin}" 

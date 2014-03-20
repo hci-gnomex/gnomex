@@ -70,11 +70,11 @@ package views.util.grid
 			_expTSVMenuItem = new ContextMenuItem( "Copy grid to clipboard" );
 			_expTSVMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleExpGridSelect );
 			
-			_dupMenuItem = new ContextMenuItem( "Duplicate row", true );
-			_dupMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleDupSelect );
-			_addLineMenuItem = new ContextMenuItem( "Add row" );
+			_addLineMenuItem = new ContextMenuItem( "Add row", true );
 			_addLineMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleAddRowSelect );
 			_addLineMenuItem.visible = _addLineMenuItem.enabled = _addRowEnabled;
+			_dupMenuItem = new ContextMenuItem( "Duplicate row" );
+			_dupMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleDupSelect );
 			
 			_delMenuItem = new ContextMenuItem( "Delete row", true );
 			_delMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleDelSelect );
@@ -96,7 +96,7 @@ package views.util.grid
 				_pasteEnabled = false;
 				_ignoredColumns = [];
 			} else {
-				_contextMenu.customItems = [ _copyMenuItem, _expTSVMenuItem, _dupMenuItem, _addLineMenuItem, _delMenuItem, _clearAllMenuItem, _undoMenuItem ];
+				_contextMenu.customItems = [ _copyMenuItem, _expTSVMenuItem, _addLineMenuItem, _dupMenuItem, _delMenuItem, _clearAllMenuItem, _undoMenuItem ];
 				if (dataProvider is HierarchicalCollectionView ) {
 					this._undoMenuItem.visible =  this._undoMenuItem.enabled = false;
 				} else {
