@@ -2828,7 +2828,7 @@
 			
 			if(currentState == 'SolexaEditState'){		
 				for each (var samp1:Object in samples){
-					if(samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == ''){
+					if(samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == '' || !samp1.hasOwnProperty("@multiplexGroupNumber")){
 						errorMessage += "Please fill in missing multiplex group numbers.\n\n";
 						break;
 					}
