@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <exp:TabSamplesBase
-		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   xmlns:util="views.util.*"
-		   xmlns:fx="*.views.renderers"
-		   xmlns:exp="views.experiment.*"
-		   xmlns:grid="views.util.grid.*"
-		   show="{this.init();}"
-		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
-
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:util="views.util.*"
+	xmlns:fx="*.views.renderers"
+	xmlns:exp="views.experiment.*"
+	xmlns:grid="views.util.grid.*"
+	show="{this.init();}"
+	label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
+	
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
@@ -61,7 +61,7 @@
 			private var	sampleSheetXML:XML;
 			
 			private var saveInstructionToolTipText:String;
-
+			
 			override protected function initButtons():void {
 				
 			}
@@ -134,8 +134,8 @@
 				}
 				return addAllAnnotations;
 			}
-
-
+			
+			
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
@@ -143,26 +143,51 @@
 				var isValid:Boolean = true;
 				
 				if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
-					emptyNode = new XML("<Sample " +
-						" idSample='" + "Sample" + getNextSampleId() + "'" +
-						" name='' description='' " +
-						" canChangeSampleName='Y'" +
-						" canChangeSampleType='Y'" +
-						" canChangeSampleConcentration='Y'" +
-						" canChangeSampleSource='Y'" +
-						" canChangeNumberSequencingCycles='Y'" +
-						" canChangeNumberSequencingLanes='Y'" + 
-						" concentration=''" +
-						" idOligoBarcode = ''" +
-						" barcodeSequence = ''" +
-						" idOligoBarcodeB = ''" +
-						" barcodeSequenceB = ''" +
-						" codeConcentrationUnit='ng/ul'" + 
-						" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
-						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
-						" treatment=''"  +				
-						"/>");
+					if(parentDocument.isEditState()){
+						var otherSamplePrepMethod:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
+						emptyNode = new XML("<Sample " +
+							" idSample='" + "Sample" + getNextSampleId() + "'" +
+							" name='' description='' " +
+							" canChangeSampleName='Y'" +
+							" canChangeSampleType='Y'" +
+							" canChangeSampleConcentration='Y'" +
+							" canChangeSampleSource='Y'" +
+							" canChangeNumberSequencingCycles='Y'" +
+							" canChangeNumberSequencingLanes='Y'" + 
+							" concentration=''" +
+							" idOligoBarcode = ''" +
+							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
+							" codeConcentrationUnit='ng/ul'" + 
+							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.request.samples.Sample[0].@codeBioanalyzerChipType : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.request.samples.Sample[0].@idSampleType : '')  + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? (otherSamplePrepMethod).replace(/\"/g, "&quot;") : '')  + "\"" +				
+							" treatment=''"  +				
+							"/>");
+					} else{
+						emptyNode = new XML("<Sample " +
+							" idSample='" + "Sample" + getNextSampleId() + "'" +
+							" name='' description='' " +
+							" canChangeSampleName='Y'" +
+							" canChangeSampleType='Y'" +
+							" canChangeSampleConcentration='Y'" +
+							" canChangeSampleSource='Y'" +
+							" canChangeNumberSequencingCycles='Y'" +
+							" canChangeNumberSequencingLanes='Y'" + 
+							" concentration=''" +
+							" idOligoBarcode = ''" +
+							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
+							" codeConcentrationUnit='ng/ul'" + 
+							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
+							" treatment=''"  +				
+							"/>");
+						
+					}
 					
 				} else if (currentState != null && (currentState.indexOf('CapSeq') >= 0)) {
 					if (parentDocument.samples.length >= 384) {
@@ -240,28 +265,57 @@
 					emptyNode = this.getEmptyIScanNode(parentDocument.samples.length);
 					
 				} else {
-					var xmlString:String = "<Sample " +
-						" idSample='" + "Sample" + getNextSampleId() + "'" +
-						" name='' description='' " +
-						" cy3='false'" +
-						" cy5='false'" +			    
-						" canChangeSampleName='Y'" +
-						" canChangeSampleType='Y'" +
-						" canChangeSampleConcentration='Y'" +
-						" canChangeSampleSource='Y'" +
-						" canChangeNumberSequencingCycles='Y'" +
-						" canChangeNumberSequencingLanes='Y'" + 
-						" concentration=''" + 
-						" idOligoBarcode = ''" +				
-						" barcodeSequence = ''" +
-						" idOligoBarcodeB = ''" +
-						" barcodeSequenceB = ''" +
-						" codeConcentrationUnit='ng/ul'" + 
-						" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-						" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-						" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-						" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
-						"/>"
+					var xmlString:String = "";
+					if(parentDocument.isEditState()){
+						var otherSamplePrepMethodAffy:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
+						var otherOrganismAffy:String = parentDocument.request.samples.Sample[0].@otherOrganism;
+						xmlString = "<Sample " +
+							" idSample='" + "Sample" + getNextSampleId() + "'" +
+							" name='' description='' " +
+							" cy3='false'" +
+							" cy5='false'" +			    
+							" canChangeSampleName='Y'" +
+							" canChangeSampleType='Y'" +
+							" canChangeSampleConcentration='Y'" +
+							" canChangeSampleSource='Y'" +
+							" canChangeNumberSequencingCycles='Y'" +
+							" canChangeNumberSequencingLanes='Y'" + 
+							" concentration=''" + 
+							" idOligoBarcode = ''" +				
+							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
+							" codeConcentrationUnit='ng/ul'" + 
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.request.@idSampleTypeDefault : '') + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? (otherSamplePrepMethodAffy).replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.request.@idOrganism : idOrganism) + "'" +				
+							" otherOrganism='" + (parentApplication.submitInternalExperiment() ? (otherOrganismAffy).replace(/\"/g, "&quot;") : '') + "'" 	+	
+							"/>"
+					} else{
+						xmlString = "<Sample " +
+							" idSample='" + "Sample" + getNextSampleId() + "'" +
+							" name='' description='' " +
+							" cy3='false'" +
+							" cy5='false'" +			    
+							" canChangeSampleName='Y'" +
+							" canChangeSampleType='Y'" +
+							" canChangeSampleConcentration='Y'" +
+							" canChangeSampleSource='Y'" +
+							" canChangeNumberSequencingCycles='Y'" +
+							" canChangeNumberSequencingLanes='Y'" + 
+							" concentration=''" + 
+							" idOligoBarcode = ''" +				
+							" barcodeSequence = ''" +
+							" idOligoBarcodeB = ''" +
+							" barcodeSequenceB = ''" +
+							" codeConcentrationUnit='ng/ul'" + 
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
+							" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
+							"/>"
+						
+					}
 					emptyNode = new XML(xmlString);
 				}
 				
@@ -294,7 +348,7 @@
 					" barcodeSequenceB = ''" +
 					" codeConcentrationUnit='ng/ul'" + 
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-					" codeBioanalyzerChipType=''" +
+					" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +	
 					" plateName='" + plateName + "'" +
@@ -319,7 +373,7 @@
 				return emptyNode;
 			}
 			
-						
+			
 			private function getEmptyCherryPickNode(cherryWellName:String):XML {
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -392,7 +446,7 @@
 						isValid = false;
 					}
 				}
-						
+				
 				if (isValid) {
 					for each(var hyb:Object in parentDocument.hybs) {
 						if (hyb.@idSampleChannel1 == sample.@idSample) {
@@ -438,7 +492,7 @@
 						plateSample.@wellName = getWellName(psIdx);
 					}
 				}
-			
+				
 				// reset wells on samples when one deleted in mit seq or frag anal
 				if (deleteHappened && (parentDocument.isMitSeqState() || parentDocument.isFragAnalState())) {
 					for (var msIdx:int = 0; msIdx < parentDocument.samples.length; msIdx++) {
@@ -545,7 +599,7 @@
 					}
 				}
 			}
-						
+			
 			public function populateSampleList():void {
 				var numberOfSamples:int = parentDocument.numIScanPlates*96;
 				
@@ -781,8 +835,8 @@
 				
 				
 				callLater(postSamplesCompleteness, [isComplete]);
-			
-			
+				
+				
 			}
 			
 			private function showMaxLaneError(numberSeqLanes:String):void {
@@ -812,7 +866,7 @@
 						this.refreshHybsGrid();    				
 					} 
 				}
-			
+				
 			}
 			
 			override public function propagateContainerType(containerType:String):void {
@@ -832,7 +886,7 @@
 				}
 				parentDocument.samples.enableAutoUpdate();
 			}
-
+			
 			override public function propagateNumberSequencingCycles(theSample:Object):void {
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
@@ -850,7 +904,7 @@
 				// handle the download sample sheet events
 				this.samplesGrid.validateNow();
 				callLater(this.checkSamplesCompleteness);
-			
+				
 			}
 			
 			override public function setShowCCNumber(show:Boolean):void {
@@ -1021,7 +1075,7 @@
 				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
 				
 				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
-								
+				
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				
@@ -1058,9 +1112,9 @@
 				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
-
+				
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
-
+				
 				if (parentDocument.isSequencingState() ) {
 					this.concentrationCol.visible = false;
 					this.otherOrganismCol.visible = false;
@@ -1086,7 +1140,7 @@
 						} 
 						
 					} 
-
+					
 				} else if (currentState != null && currentState.indexOf('QCSamples') >= 0) {
 					numberSequencingLanesCol.visible = false;
 					sampleOrganismColumn.visible = false;
@@ -1121,7 +1175,7 @@
 				// If this is a QC request, hide the annotation columns 
 				if (currentState != null 
 					&& (currentState.indexOf('QCSamples') >= 0 || currentState == 'CapSeqState'
-					|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState')) {
+						|| currentState == 'FragAnalState' || currentState == 'MitSeqState' || currentState == 'CherryPickState')) {
 					// Make all annotation columns invisible
 					for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
 						if (col is views.util.AnnotationAdvancedDataGridColumn) {
@@ -1201,9 +1255,9 @@
 				} else {
 					cy5CheckBox.setStyle("fillAlphas", [.4, 0.2, 0.2, 0.2]);       			       			
 				}
-			
+				
 			}
-						
+			
 			public function textChange(item:String):void {
 				var txt:String = item;
 				if(txt.length == 30) {
@@ -1220,7 +1274,7 @@
 					this.buttonAndNoteBox.height=20;
 				}
 			}
-
+			
 			override public function setTopBoxVisibility(vis:Boolean):void {
 				topBox.visible = vis;
 				topBox.includeInLayout = vis;
@@ -1240,7 +1294,7 @@
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
 	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 	<mx:XMLList id="barcodeList"/>
-
+	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
 			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0" id="buttonAndNoteBox">
@@ -1256,7 +1310,7 @@
 								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
 								  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
 			</mx:VBox>
-
+			
 		</mx:HBox>
 		<mx:Spacer width="8"/>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
@@ -1266,19 +1320,19 @@
 			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
 							  showEdit="{parentApplication.isSuperAdmin}" 
 							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
-				<mx:HBox id="buttonsContainer2" horizontalGap="0">
-					<mx:LinkButton horizontalGap="0" textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
-					<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
-					<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
-								   label="Sample sheet help" 
-								   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
-								   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
-					<mx:Spacer width="1"/>
-					<mx:VRule height="20" id="ccNumberVRule" />
-				</mx:HBox>
+			<mx:HBox id="buttonsContainer2" horizontalGap="0">
+				<mx:LinkButton horizontalGap="0" textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+								label="Sample sheet help" 
+								click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+								toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+				<mx:Spacer width="1"/>
+				<mx:VRule height="20" id="ccNumberVRule" />
+			</mx:HBox>
 			
 			<mx:Spacer width="4"/>
-
+			
 			<mx:CheckBox id="showCCNumberCheckbox"
 						 selected="false"
 						 click="toggleShowCCNumber()"  
@@ -1294,15 +1348,15 @@
 			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
 							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
 		</mx:HBox>
-
+		
 		<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGrid"  
-							 editable="true"
-							 itemFocusOut="checkSamplesCompleteness()"
-							 addRowEnabled="{!this.hasPlates()}"
-							 addRowFunction="{addSample}"
-							 clearAllFunction="promptToClearAllSamples"
-							 showRowNumberCol="{!this.hasPlates()}"
-							 hasPlates="{this.hasPlates()}">
+								  editable="true"
+								  itemFocusOut="checkSamplesCompleteness()"
+								  addRowEnabled="{!this.hasPlates()}"
+								  addRowFunction="{addSample}"
+								  clearAllFunction="promptToClearAllSamples"
+								  showRowNumberCol="{!this.hasPlates()}"
+								  hasPlates="{this.hasPlates()}">
 			<grid:columns>
 				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
 					<mx:headerRenderer > 
@@ -1353,7 +1407,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
-
+				
 				<mx:AdvancedDataGridColumn id="labelColumn" dataField="@label"  
 										   width="100" headerText="Label" editable="false">
 					<mx:itemRenderer>
@@ -1423,7 +1477,7 @@
 							</mx:HBox>
 						</mx:Component>
 					</mx:itemRenderer>
-
+					
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -1432,9 +1486,9 @@
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
-
+					
 				</mx:AdvancedDataGridColumn>
-
+				
 				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
@@ -1476,7 +1530,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-
+				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sourcePlateCol" visible="false" editable="true" headerText="Source Plate" width="150" resizable="false"
 													 dataField="@sourcePlate" rendererIsEditor="false" editorDataField="value" sortable="false"
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentDocument.cherryPlateList, '@name', '@name', '@sourcePlate')}"                
@@ -1487,10 +1541,10 @@
 													 itemEditor="{hci.flex.controls.ComboBox.getFactory(parentDocument.wellList, '@name', '@name', '@sourceWell', true)}"/>
 				<mx:AdvancedDataGridColumn id="destinationWellCol" visible="false" editable="false" headerText="Dest. Well" width="75" resizable="false"
 										   dataField="@destinationWell" sortable="false"/>
-
+				
 				<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
-
-
+				
+				
 				<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@sequenceLaneCount" 
@@ -1504,8 +1558,8 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
-
-
+				
+				
 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Lanes to Sequence" width="72" dataField="@numberSequencingLanes" 
 										   editable="false"
 										   rendererIsEditor="false"
@@ -1520,8 +1574,8 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
-
-
+				
+				
 				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
 										   headerText="# Lanes to Sequence" width="72" 
 										   dataField="@numberSequencingLanes" 
@@ -1538,7 +1592,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
-
+				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
@@ -1582,12 +1636,12 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
-
-
+				
+				
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
-										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
+													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
@@ -1694,10 +1748,10 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-
+				
 				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
-										   sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
@@ -1709,35 +1763,35 @@
 				</mx:AdvancedDataGridColumn>
 			</grid:columns>
 		</grid:CopyPasteSampleGrid>
-
-
-
+		
+		
+		
 	</mx:VBox>
-
+	
 	<exp:states>
 		<mx:State name="SamplesEditState" >
 			<mx:RemoveChild target="{instructionVBox}"/>
 		</mx:State>
-
+		
 		<mx:State name="SamplesAdminState">
 			<mx:RemoveChild target="{instructionVBox}"/>
 		</mx:State>
-
-
+		
+		
 		<mx:State name="SolexaSamplesState" >
 		</mx:State>
 		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
 		</mx:State>
-
+		
 		<mx:State name="QCSamplesState" >
 		</mx:State>
 		<mx:State name="QCSamplesEditState" basedOn="SamplesEditState" >
 		</mx:State>
 		<mx:State name="QCSamplesAdminState" basedOn="SamplesAdminState" >
 		</mx:State>
-
+		
 		<mx:State name="MicroarraySamplesState" >
 			<mx:SetProperty target="{labelColumn}" name="visible" value="true" />
 		</mx:State>
@@ -1775,5 +1829,5 @@
 		</mx:State>
 		
 	</exp:states>
-
+	
 </exp:TabSamplesBase>
