@@ -367,7 +367,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>       
-				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Sample Name" width="115" editorDataField="text" dataField="@name" rendererIsEditor="false"
 										   id="sampleNameCol"
 										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
 										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
@@ -387,14 +387,14 @@
 				</mx:AdvancedDataGridColumn>  
 
 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" 
-										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100" dataField="@concentration" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+												  showEdit="{parentApplication.isAdminState}" label="NanoDrop       &#13;Conc (ng/ul)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
