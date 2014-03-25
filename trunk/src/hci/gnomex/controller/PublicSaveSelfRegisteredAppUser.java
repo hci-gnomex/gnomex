@@ -163,6 +163,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       Session sess = HibernateSession.currentSession(this.getUsername());
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       
+      String disableSignup = propertyHelper.getProperty(PropertyDictionary.DISABLE_USER_SIGNUP);
+      if (disableSignup != null && disableSignup.equals("Y")) {
+        this.addInvalidField("Signup disabled", "User signup is disabled");
+      }
+      
       // Get core facilities.
       activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
       if (activeFacilities.size() == 1) {

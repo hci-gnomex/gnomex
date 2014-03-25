@@ -34,6 +34,7 @@ GNomExFrontController.setWebContextPath(webContextPath);
 
 boolean showCampusInfoLink = false;
 boolean itemNotPublic = false;
+boolean showUserSignup = true;
 String itemType="";
 String siteLogo = "";
 Session sess = null;
@@ -46,6 +47,12 @@ try {
 
   // Get site specific log
   siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
+  
+  // Determine if user sign up screen is enabled
+  PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
+  if (disableUserSignup != null && disableUserSignup.getPropertyValue().equals("Y")) {
+    showUserSignup = false;
+  } 
  
   // If launching experiment, analysis, data track, or topic then check for public
   // If public then launch directly as guest user without requiring login
@@ -162,9 +169,11 @@ try {
             <img src="<%=siteLogo%>"/>
        </div>
        <div class="rightMenu" >    
-        <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |       
-        <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a> |
-        <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a> 
+        <a href="change_password.jsp<%=idCoreParm%>">Change password</a>       
+        |   <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
+        <%if(showUserSignup) {%>
+            |   <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a>
+        <%}%> 
       </div>
     </div>
     <form id="theform" method="POST" action="j_security_check<%=idCoreParm%>"  >
