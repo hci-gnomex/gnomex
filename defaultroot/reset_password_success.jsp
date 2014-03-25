@@ -36,9 +36,7 @@ session.invalidate();
 <div id="content" align="center" bgcolor="white">
 <div class="header-bar" >
   <div class="rightMenu" >
-      <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |    
-      <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |    
-      <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a> 
+      <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a>
   </div>
 </div>
 
