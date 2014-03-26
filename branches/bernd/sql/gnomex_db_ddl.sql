@@ -128,7 +128,6 @@ CREATE TABLE `gnomex`.`AnalysisGroup` (
   `idLab` INT(10) NULL,
   `codeVisibility` VARCHAR(10) NULL,
   `idAppUser` INT(10) NULL,
-  ucscUrl varchar(250) null,
   PRIMARY KEY (`idAnalysisGroup`),
   CONSTRAINT `FK_AnalysisGroup_AppUser` FOREIGN KEY `FK_AnalysisGroup_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -231,6 +230,7 @@ CREATE TABLE `gnomex`.`ApplicationTheme` (
   `idApplicationTheme` INT(10) NOT NULL AUTO_INCREMENT,
   `applicationTheme` VARCHAR(200) NULL,
   `isActive` CHAR(1) NULL,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idApplicationTheme`)
 )
 ENGINE = INNODB;
@@ -538,7 +538,23 @@ CREATE TABLE `gnomex`.`BillingStatus` (
 ENGINE = INNODB;
 
 
+DROP TABLE IF EXISTS `gnomex`.`DNAPrepType`;
+CREATE TABLE `gnomex`.`DNAPrepType` (
+  `codeDNAPrepType` VARCHAR(10) NOT NULL,
+  `dnaPrepType` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeDNAPrepType`)
+)
+ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`RNAPrepType`;
+CREATE TABLE `gnomex`.`RNAPrepType` (
+  `codeRNAPrepType` VARCHAR(10) NOT NULL,
+  `rnaPrepType` VARCHAR(100) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`codeRNAPrepType`)
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`PriceSheet`;
 CREATE TABLE `gnomex`.`PriceSheet` (
@@ -607,9 +623,9 @@ CREATE TABLE `gnomex`.`Price` (
   `idPrice` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NULL,
   `description` VARCHAR(500) NULL,
-  `unitPrice` DECIMAL(6, 2) NULL,
-  `unitPriceExternalAcademic` DECIMAL(6, 2) NULL,
-  `unitPriceExternalCommercial` DECIMAL(6, 2) NULL,
+  `unitPrice` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalAcademic` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalCommercial` DECIMAL(6, 2) NOT NULL DEFAULT 0,
   `idPriceCategory` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idPrice`),
@@ -830,6 +846,7 @@ CREATE TABLE `gnomex`.`FlowCell` (
   `notes` VARCHAR(200) NULL,
   `barcode` VARCHAR(100) NULL,
   `codeSequencingPlatform` VARCHAR(10) NULL,
+ `idCoreFacility` INT(10) null,
   PRIMARY KEY (`idFlowCell`),
   CONSTRAINT `FK_FlowCell_NumberSequencingCycles` FOREIGN KEY `FK_FlowCell_NumberSequencingCycles` (`idNumberSequencingCycles`)
     REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
@@ -841,6 +858,10 @@ CREATE TABLE `gnomex`.`FlowCell` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_FlowCell_SequencingPlatform` FOREIGN KEY `FK_FlowCell_SequencingPlatform` (`codeSequencingPlatform`)
     REFERENCES `gnomex`.`SequencingPlatform` (`codeSequencingPlatform`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_FlowCell_CoreFacility` FOREIGN KEY `FK_FlowCell_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1068,6 +1089,8 @@ CREATE TABLE `gnomex`.`Lab` (
   `excludeUsage` VARCHAR(1) NULL,
   `billingContactEmail` VARCHAR(200) NULL,
   `version` BIGINT(20) NOT NULL DEFAULT 0,
+  `contactAddress2` varchar(200) NULL,
+  `contactCountry` varchar(200) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
@@ -1240,13 +1263,28 @@ CREATE TABLE `gnomex`.`Application` (
   `hasCaptureLibDesign` CHAR(1) NULL,
   `coreSteps` VARCHAR(5000) NULL,
   `coreStepsNoLibPrep` VARCHAR(5000) NULL,
+  `codeApplicationType` varchar(10) NULL,
+  `onlyForLabPrepped` char(1) not null default 'N',
+  `samplesPerBatch` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_Application_ApplicationType 
+    FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
+    REFERENCES gnomex.ApplicationType (codeApplicationType)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS gnomex.ApplicationType;
+CREATE TABLE gnomex.ApplicationType (
+  codeApplicationType varchar(10) not null,
+  applicationType varchar(100),
+  PRIMARY KEY (codeApplicationType)
+) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCycles`;
 CREATE TABLE `gnomex`.`NumberSequencingCycles` (
@@ -1552,6 +1590,13 @@ CREATE TABLE `gnomex`.`Request` (
   `materialQuoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
   `uuid` VARCHAR(36) NULL,
+  `codeDNAPrepType` VARCHAR(10) NULL,
+  `bioinformaticsAssist` CHAR(1) NULL,
+  `hasPrePooledLibraries` CHAR(1) NULL,
+  `numPrePooledTubes` INT(10) null,
+  `trimAdapter` CHAR(1) null,
+  `codeRNAPrepType` varchar(10) NULL,
+  `includeBisulfideConversion` CHAR(1) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1612,7 +1657,11 @@ CREATE TABLE `gnomex`.`Request` (
   CONSTRAINT `FK_Request_IScanChip` FOREIGN KEY  (`idIScanChip`)
     REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION 
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_DNAPrepType` FOREIGN KEY `FK_Request_DNAPrepType` (`codeDNAPrepType`)
+    REFERENCES `gnomex`.`DNAPrepType` (`codeDNAPrepType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -1634,6 +1683,7 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
   `isClinicalResearch` CHAR(1) NULL,
+  `isOwnerOnly` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
@@ -1787,7 +1837,6 @@ CREATE TABLE `gnomex`.`Sample` (
   `ccNumber` VARCHAR(20) NULL,
   `multiplexGroupNumber` INT(10) NULL,
   `barcodeSequence` VARCHAR(20) NULL,
-  `isControl` CHAR(1) NULL,
   `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 
@@ -2060,9 +2109,19 @@ CREATE TABLE `gnomex`.`SampleType` (
   `sampleType` VARCHAR(50) NULL,
   `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idSampleType`)
+  `codeNucleotideType` VARCHAR(50) NULL,
+  PRIMARY KEY (`idSampleType`),
+  CONSTRAINT `FK_SampleType_NucleotideType` FOREIGN KEY `FK_SampleType_NucleotideType` (`codeNucleotideType`)
+    REFERENCES `gnomex`.`NucleotideType` (`codeNucleotideType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`NucleotideType`;
+create table gnomex.NucleotideType (
+  codeNucleotideType varchar(50), 
+  PRIMARY KEY(codeNucleotideType)) ;
 
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
 CREATE TABLE `gnomex`.`SampleTypeApplication` (
@@ -2990,7 +3049,8 @@ CREATE TABLE `gnomex`.`Notification` (
 	`date` DATETIME NULL,
 	`expID` INT(10) NULL,
 	`type`	VARCHAR(25) NULL,
-	`fullNameUser`	VARCHAR(100) NULL, 
+	`fullNameUser`	VARCHAR(100) NULL,
+	`imageSource` VARCHAR(50), 
 	PRIMARY KEY (`idNotification`)
 )
 ENGINE = INNODB;
@@ -3014,6 +3074,90 @@ CREATE TABLE `gnomex`.`RequestCategoryType` (
   PRIMARY KEY (`codeRequestCategoryType`)
 )
 ENGINE = INNODB;SET FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleFileType`;
+CREATE TABLE gnomex.SampleFileType(
+  codeSampleFileType varchar(10),
+  description varchar(200) NULL,
+ PRIMARY KEY (codeSampleFileType) 
+ ) ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleExperimentFile`;
+CREATE TABLE `gnomex`.`SampleExperimentFile` (
+  `idSampleExperimentFile` INT(10) NOT NULL AUTO_INCREMENT,
+  `idSample` INT(10),
+  `idExpFileRead1` INT(10),
+  `idExpFileRead2` INT(10),
+  `seqRunNumber` INT(10),
+  PRIMARY KEY (`idSampleExperimentFile`),
+  UNIQUE KEY `UN_SampleExperimentFile` (idSample, idExpFileRead1, idExpFileRead2),
+  CONSTRAINT `FK_SampleExperimentFile_Sample` FOREIGN KEY `FK_SampleExperimentFile_Sample` (`idSample`)
+    REFERENCES `gnomex`.`Sample` (`idSample`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile1` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile1` (`idExpFileRead1`)
+    REFERENCES `gnomex`.`ExperimentFile` (`idExperimentFile`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleExperimentFile_ExperimentFile2` FOREIGN KEY `FK_SampleExperimentFile_ExperimentFile2` (`idExpFileRead2`)
+    REFERENCES `gnomex`.`ExperimentFile` (`idExperimentFile`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`VisitLog`;
+CREATE TABLE `gnomex`.`VisitLog` (
+	  `idVisitLog`			INT(10)			NOT NULL	AUTO_INCREMENT
+	, `visitDateTime`		DATETIME		NOT NULL
+	, `idAppUser`			INT(10)			NOT NULL
+	, `ipAddress`			VARCHAR(50)		NOT NULL	DEFAULT 'Unknown'
+	, `sessionID`			VARCHAR(255)	NOT NULL	DEFAULT 'Unknown'
+	,PRIMARY KEY (`idVisitLog`)
+)
+ENGINE = INNODB;
+	
+DROP TABLE IF EXISTS `gnomex`.`ContextSensitiveHelp`;
+CREATE TABLE `gnomex`.`ContextSensitiveHelp` (
+  `idContextSensitiveHelp` INT(10) NOT NULL AUTO_INCREMENT, 
+  `context1` VARCHAR(100) NOT NULL,
+  `context2` VARCHAR(100),
+  `context3` VARCHAR(100),
+  `helpText` VARCHAR(10000) NULL,
+  `toolTipText` VARCHAR(10000) NULL,
+  PRIMARY KEY (`idContextSensitiveHelp`)
+)
+ENGINE = INNODB;
+
+
+
+-- Procedure to modify columns in audit tables if they exist.
+drop procedure if exists ExecuteIfTableExists;
+delimiter '//'
+
+create procedure ExecuteIfTableExists(
+  IN dbName tinytext,
+  IN tableName tinytext,
+  IN statement text)
+begin
+  IF EXISTS (SELECT * FROM information_schema.TABLES WHERE table_name=tableName and table_schema=dbName)
+  THEN
+    set @ddl=statement;
+    prepare stmt from @ddl;
+    execute stmt;
+  END IF;
+end;
+//
+
+-- Procuedure to save current application user for connection
+drop procedure if exists SetAppUser//
+CREATE PROCEDURE setAppUser( IN userName text)
+BEGIN
+  SET @userName=userName;
+END;
+//
+
+delimiter ';'
 
 -- ----------------------------------------------------------------------
 -- EOF

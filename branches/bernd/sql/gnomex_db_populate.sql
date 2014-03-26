@@ -274,6 +274,7 @@ VALUES (1, 'Agilent Gene Expression 44K', 'Y'),
 INSERT INTO `gnomex`.`BillingStatus`(`codeBillingStatus`, `billingStatus`, `isActive`)
 VALUES ('APPROVED', 'Approved', 'Y'),
   ('APPROVEDEX', 'Approved (External)', 'Y'),
+  ('APPROVEDCC', 'Approved (Credit Card)', 'Y'),
   ('COMPLETE', 'Completed', 'Y'),
   ('NEW', 'New', 'Y'),
   ('PENDING', 'Pending', 'Y');
@@ -341,87 +342,87 @@ VALUES
   
 
 INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternalAcademic`,`idPriceCategory`,`isActive`) VALUES
- (1,'Bioanalyzer RNA Nano','sample quality','0.00',NULL,1,'Y'),
- (2,'Bioanalyzer RNA Pico','sample quality','0.00',NULL,1,'Y'),
- (3,'Bioanalyzer DNA 1000','sample quality','0.00',NULL,1,'Y'),
- (4,'Bioanalyzer Small RNA','sample quality','0.00',NULL,1,'Y'),
- (5,'Agilent Gene Expression','agilent labeling','0.00',NULL,2,'Y'),
- (6,'Agilent CGH','agilent labeling','0.00',NULL,2,'Y'),
- (7,'Agilent ChIP-on-chip','agilent labeling','0.00',NULL,2,'Y'),
- (8,'Agilent DNA Methylation','agilent labeling','0.00',NULL,2,'Y'),
- (9,'Agilent HybMap','agilent labeling','0.00',NULL,2,'Y'),
- (10,'Agilent SNP','agilent labeling','0.00',NULL,2,'Y'),
- (11,'Agilent miRNA','agilent labeling','0.00',NULL,2,'Y'),
- (12,'Agilent Exon','agilent labeling','0.00',NULL,2,'Y'),
- (13,'Agilent Gene Expression 44K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (14,'Aglient CGH 244K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (15,'Agilent CGH 105K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (16,'Agilent CGH 44K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (17,'Agilent CGH 15K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (18,'Agilent ChIP-on-chip 244K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (19,'Agilent ChIP-on-chip 105K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (20,'Agilent ChIP-on-chip 44K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (21,'Agilent ChIP-on-chip 15K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (22,'Agilent HybMap 244K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (23,'Agilent HybMap 44K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (24,'Affymetrix Gene Expression','affy microarray analysis','0.00',NULL,30,'Y'),
- (25,'Affymetrix SNP','affy microarray analysis','0.00',NULL,30,'Y'),
- (26,'Agilent 244K Microarray','agilent microarray','0.00',NULL,4,'Y'),
- (27,'Agilent 105K Microarray','agilent microarray','0.00',NULL,4,'Y'),
- (28,'Agilent 44K Microarray','agilent microarray','0.00',NULL,4,'Y'),
- (29,'Agilent 15K Microarray','agilent microarray','0.00',NULL,4,'Y'),
- (30,'Affymetrix SNP 250K Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (31,'Genomic DNA','illumina library prep','0.00',NULL,5,'Y'),
- (32,'ChIP-Seq','illumina library prep','0.00',NULL,5,'Y'),
- (33,'Small RNA','illumina library prep','0.00',NULL,5,'Y'),
- (34,'Directional mRNA seq','illumina library prep','0.00',NULL,5,'Y'),
- (35,'18 Cycle SR','illumina ga sequencing','0.00',NULL,7,'Y'),
- (36,'26 Cycle SR','illumina ga sequencing','0.00',NULL,7,'Y'),
- (37,'36 Cycle SR','illumina ga sequencing','0.00',NULL,7,'Y'),
- (38,'18 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
- (39,'26 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
- (40,'36 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
- (41,'Affymetrix Gene Expression Labeling','affy labeling','0.00',NULL,20,'Y'),
- (42,'Affymetrix 250K SNP Labeling','affy labeling','0.00',NULL,20,'Y'),
- (43,'Qubit PicoGreen Assay','sample quality','0.00',NULL,1,'Y'),
- (44,'gDNA gel','sample quality','0.00',NULL,1,'Y'),
- (45,'Agilent HybMap 15K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (46,'Slide Re-use Preparation','agilent miscellaneous','0.00',NULL,9,'Y'),
- (47,'Bioanalyzer RNA Nano','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (48,'Bioanalyzer RNA Pico','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (49,'Bioanalyzer DNA 1000','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (50,'Bioanalyzer Small RNA','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (51,'Qubit PicoGreen Assay','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (52,'gDNA gel','sample quality (illumina lib)','0.00',NULL,8,'Y'),
- (53,'Agilent Zebrafish Custom','agilent microarray analysis','0.00',NULL,3,'Y'),
- (54,'Agilent 15K miRNA','agilent microarray analysis','0.00',NULL,3,'Y'),
- (55,'Affymetrix 5.0/6.0 SNP Labeling','affy labeling','0.00',NULL,20,'Y'),
- (57,'Affymetrix SNP 5.0 Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (58,'Affymetrix Gene Expression Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (59,'Agilent cDNA synthesis/Agilent ChIP-on-chip Labeling','agilent labeling','0.00',NULL,2,'Y'),
- (62,'Targeted Genomic DNA Sequencing','illumina library prep','0.00',NULL,5,'Y'),
- (63,'mRNA-Seq','illumina library prep','0.00',NULL,5,'Y'),
- (64,'Agilent Gene Expression 244K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (65,'Affymetrix SNP 6.0 Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (66,'Affymetrix Gene Expression (rat) Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (67,'Affymetrix Gene Expression (zebrafish) Microarray','affymetrix microarray','0.00',NULL,40,'Y'),
- (68,'Agilent miRNA 15K','agilent microarray','0.00',NULL,4,'Y'),
- (69,'Agilent 1M microarray','agilent microarray','0.00',NULL,4,'Y'),
- (70,'Agilent HybMap 1M','agilent microarray analysis','0.00',NULL,3,'Y'),
- (71,'Agilent HQ Gene Expression','agilent labeling','0.00',NULL,2,'Y'),
- (72,'Agilent 1X244K','illumina array capture','0.00',NULL,10,'Y'),
- (73,'Agilent 2x105K','illumina array capture','0.00',NULL,10,'Y'),
- (74,'Agilent 4x44K','illumina array capture','0.00',NULL,10,'Y'),
- (75,'Agilent 180K microarray','agilent microarray','0.00',NULL,4,'Y'),
- (76,'Agilent CGH 180K','agilent microarray analysis','0.00',NULL,3,'Y'),
- (77,'76 Cycle SR','illumina ga sequencing','0.00',NULL,7,'Y'),
- (78,'76 Cycle PE','illumina ga sequencing','0.00',NULL,7,'Y'),
- (79,'HiSeq 50 cycle single read','HiSeq 50 cycle single read','0.00',NULL,11,'Y'), 
- (80,'HiSeq 50 cycle paired end','HiSeq 50 cycle paired end','0.00',NULL,11,'Y'),
- (81,'HiSeq 101 cycle single read','HiSeq 101 cycle single read','0.00',NULL,11,'Y'),
- (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',NULL,11,'Y'), 
- (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',NULL,100,'Y'),
- (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',NULL,100,'Y');
+ (1,'Bioanalyzer RNA Nano','sample quality','0.00',0,1,'Y'),
+ (2,'Bioanalyzer RNA Pico','sample quality','0.00',0,1,'Y'),
+ (3,'Bioanalyzer DNA 1000','sample quality','0.00',0,1,'Y'),
+ (4,'Bioanalyzer Small RNA','sample quality','0.00',0,1,'Y'),
+ (5,'Agilent Gene Expression','agilent labeling','0.00',0,2,'Y'),
+ (6,'Agilent CGH','agilent labeling','0.00',0,2,'Y'),
+ (7,'Agilent ChIP-on-chip','agilent labeling','0.00',0,2,'Y'),
+ (8,'Agilent DNA Methylation','agilent labeling','0.00',0,2,'Y'),
+ (9,'Agilent HybMap','agilent labeling','0.00',0,2,'Y'),
+ (10,'Agilent SNP','agilent labeling','0.00',0,2,'Y'),
+ (11,'Agilent miRNA','agilent labeling','0.00',0,2,'Y'),
+ (12,'Agilent Exon','agilent labeling','0.00',0,2,'Y'),
+ (13,'Agilent Gene Expression 44K','agilent microarray analysis','0.00',0,3,'Y'),
+ (14,'Aglient CGH 244K','agilent microarray analysis','0.00',0,3,'Y'),
+ (15,'Agilent CGH 105K','agilent microarray analysis','0.00',0,3,'Y'),
+ (16,'Agilent CGH 44K','agilent microarray analysis','0.00',0,3,'Y'),
+ (17,'Agilent CGH 15K','agilent microarray analysis','0.00',0,3,'Y'),
+ (18,'Agilent ChIP-on-chip 244K','agilent microarray analysis','0.00',0,3,'Y'),
+ (19,'Agilent ChIP-on-chip 105K','agilent microarray analysis','0.00',0,3,'Y'),
+ (20,'Agilent ChIP-on-chip 44K','agilent microarray analysis','0.00',0,3,'Y'),
+ (21,'Agilent ChIP-on-chip 15K','agilent microarray analysis','0.00',0,3,'Y'),
+ (22,'Agilent HybMap 244K','agilent microarray analysis','0.00',0,3,'Y'),
+ (23,'Agilent HybMap 44K','agilent microarray analysis','0.00',0,3,'Y'),
+ (24,'Affymetrix Gene Expression','affy microarray analysis','0.00',0,30,'Y'),
+ (25,'Affymetrix SNP','affy microarray analysis','0.00',0,30,'Y'),
+ (26,'Agilent 244K Microarray','agilent microarray','0.00',0,4,'Y'),
+ (27,'Agilent 105K Microarray','agilent microarray','0.00',0,4,'Y'),
+ (28,'Agilent 44K Microarray','agilent microarray','0.00',0,4,'Y'),
+ (29,'Agilent 15K Microarray','agilent microarray','0.00',0,4,'Y'),
+ (30,'Affymetrix SNP 250K Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (31,'Genomic DNA','illumina library prep','0.00',0,5,'Y'),
+ (32,'ChIP-Seq','illumina library prep','0.00',0,5,'Y'),
+ (33,'Small RNA','illumina library prep','0.00',0,5,'Y'),
+ (34,'Directional mRNA seq','illumina library prep','0.00',0,5,'Y'),
+ (35,'18 Cycle SR','illumina ga sequencing','0.00',0,7,'Y'),
+ (36,'26 Cycle SR','illumina ga sequencing','0.00',0,7,'Y'),
+ (37,'36 Cycle SR','illumina ga sequencing','0.00',0,7,'Y'),
+ (38,'18 Cycle PE','illumina ga sequencing','0.00',0,7,'Y'),
+ (39,'26 Cycle PE','illumina ga sequencing','0.00',0,7,'Y'),
+ (40,'36 Cycle PE','illumina ga sequencing','0.00',0,7,'Y'),
+ (41,'Affymetrix Gene Expression Labeling','affy labeling','0.00',0,20,'Y'),
+ (42,'Affymetrix 250K SNP Labeling','affy labeling','0.00',0,20,'Y'),
+ (43,'Qubit PicoGreen Assay','sample quality','0.00',0,1,'Y'),
+ (44,'gDNA gel','sample quality','0.00',0,1,'Y'),
+ (45,'Agilent HybMap 15K','agilent microarray analysis','0.00',0,3,'Y'),
+ (46,'Slide Re-use Preparation','agilent miscellaneous','0.00',0,9,'Y'),
+ (47,'Bioanalyzer RNA Nano','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (48,'Bioanalyzer RNA Pico','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (49,'Bioanalyzer DNA 1000','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (50,'Bioanalyzer Small RNA','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (51,'Qubit PicoGreen Assay','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (52,'gDNA gel','sample quality (illumina lib)','0.00',0,8,'Y'),
+ (53,'Agilent Zebrafish Custom','agilent microarray analysis','0.00',0,3,'Y'),
+ (54,'Agilent 15K miRNA','agilent microarray analysis','0.00',0,3,'Y'),
+ (55,'Affymetrix 5.0/6.0 SNP Labeling','affy labeling','0.00',0,20,'Y'),
+ (57,'Affymetrix SNP 5.0 Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (58,'Affymetrix Gene Expression Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (59,'Agilent cDNA synthesis/Agilent ChIP-on-chip Labeling','agilent labeling','0.00',0,2,'Y'),
+ (62,'Targeted Genomic DNA Sequencing','illumina library prep','0.00',0,5,'Y'),
+ (63,'mRNA-Seq','illumina library prep','0.00',0,5,'Y'),
+ (64,'Agilent Gene Expression 244K','agilent microarray analysis','0.00',0,3,'Y'),
+ (65,'Affymetrix SNP 6.0 Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (66,'Affymetrix Gene Expression (rat) Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (67,'Affymetrix Gene Expression (zebrafish) Microarray','affymetrix microarray','0.00',0,40,'Y'),
+ (68,'Agilent miRNA 15K','agilent microarray','0.00',0,4,'Y'),
+ (69,'Agilent 1M microarray','agilent microarray','0.00',0,4,'Y'),
+ (70,'Agilent HybMap 1M','agilent microarray analysis','0.00',0,3,'Y'),
+ (71,'Agilent HQ Gene Expression','agilent labeling','0.00',0,2,'Y'),
+ (72,'Agilent 1X244K','illumina array capture','0.00',0,10,'Y'),
+ (73,'Agilent 2x105K','illumina array capture','0.00',0,10,'Y'),
+ (74,'Agilent 4x44K','illumina array capture','0.00',0,10,'Y'),
+ (75,'Agilent 180K microarray','agilent microarray','0.00',0,4,'Y'),
+ (76,'Agilent CGH 180K','agilent microarray analysis','0.00',0,3,'Y'),
+ (77,'76 Cycle SR','illumina ga sequencing','0.00',0,7,'Y'),
+ (78,'76 Cycle PE','illumina ga sequencing','0.00',0,7,'Y'),
+ (79,'HiSeq 50 cycle single read','HiSeq 50 cycle single read','0.00',0,11,'Y'), 
+ (80,'HiSeq 50 cycle paired end','HiSeq 50 cycle paired end','0.00',0,11,'Y'),
+ (81,'HiSeq 101 cycle single read','HiSeq 101 cycle single read','0.00',0,11,'Y'),
+ (82,'HiSeq 101 cycle paired end','HiSeq 101 cycle paired end','0.00',0,11,'Y'), 
+ (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',0,100,'Y'),
+ (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',0,100,'Y');
 
 INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idPrice`) VALUES 
  (1,'BIOAN','RNANANO',1),
@@ -630,34 +631,40 @@ INSERT INTO `gnomex`.`LabelingReactionSize`(`codeLabelingReactionSize`, `labelin
 VALUES ('STD', 'Standard', 'Y', 1),
   ('LRG', 'Large', 'Y', 2);
 
-INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`)
-VALUES (1, 'DNA Sequencing', 'Y'),
-  (2, 'RNA Sequencing', 'Y'),
-  (3, 'Microarray', 'Y'),
-  (4, 'Sample Quality', 'Y');
+INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`, sortOrder)
+VALUES (1, 'DNA Sequencing', 'Y', 1),
+  (2, 'RNA Sequencing', 'Y', 2),
+  (3, 'Microarray', 'Y', 3),
+  (4, 'Sample Quality', 'Y', 4);
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`)
-VALUES ('CGH', 'CGH', 'Y', 3, NULL),
-  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL),
-  ('EXON', 'Exon', 'Y', 3, NULL),
-  ('EXP', 'Gene Expression', 'Y', 3, NULL),
-  ('METH', 'DNA Methylation', 'Y', 3, NULL),
-  ('MIRNA', 'miRNA', 'Y', 3, NULL),
-  ('SNP', 'SNP', 'Y', 3, NULL),
-  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL),
-  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4),
-  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2),
-  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1),
-  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3),
-  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4),
-  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL),
-  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL),
-  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL),
-  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2),
-  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5),
-  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3),
-  ('OTHER', 'Custom', 'Y', NULL, 100);
+insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
+  ('Microarray', 'Microarray'),
+  ('QC', 'Sample Quality'),
+  ('Sequenom', 'Sequenom'),
+  ('Other', 'Other');
+
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`)
+VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray'),
+  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL, 'Microarray'),
+  ('EXON', 'Exon', 'Y', 3, NULL, 'Microarray'),
+  ('EXP', 'Gene Expression', 'Y', 3, NULL, 'Microarray'),
+  ('METH', 'DNA Methylation', 'Y', 3, NULL, 'MicroArray'),
+  ('MIRNA', 'miRNA', 'Y', 3, NULL, 'MicroArray'),
+  ('SNP', 'SNP', 'Y', 3, NULL, 'MicroArray'),
+  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL, 'MicroArray'),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4, 'Illumina'),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2, 'Illumina'),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1, 'Illumina'),
+  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3, 'Illumina'),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1, 'Illumina'),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4, 'Illumina'),
+  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL, 'QC'),
+  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL, 'QC'),
+  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL, 'Other'),
+  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2, 'Illumina'),
+  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5, 'Illumina'),
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3, 'Illumina'),
+  ('OTHER', 'Custom', 'Y', NULL, 100, 'Other');
 
 -- Populate InstrumentRunStatus dictionary
 insert into gnomex.InstrumentRunStatus 
@@ -815,7 +822,7 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (6,'contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
  (7,'contact_name_core_facility','','Core facility\'s contact name', 'N'),
  (8,'contact_email_core_facility','first.last@somwhere.edu','Core facility\'s email adress', 'N'),
- (9,'help_url','http://hci-bio-wiki/biowiki','The URL to the GNomEx help documentation', 'N'),
+ (9,'help_url','http://hci-scrum.hci.utah.edu/gnomexdoc','The URL to the GNomEx help documentation', 'N'),
  (10,'pricing_url','','The URL containing pricing info.', 'N'),
  (18,'core_facility_name','Microarray and Genomic Analysis Core Facility','The name of the core facility', 'N'),
  (19,'university_user_authentication','N','Always set to \'N\' for open source GNomEx.  Indicates that authentication is performed against local user name and passwords, stored in GNomEx database.', 'N'),
@@ -904,12 +911,21 @@ Test City, UT 12345',
  'Core facility lab address', 'N'),
  (98,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
  (99,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
- (100,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
- (101,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
- (102,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
- (103,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
- (104,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
- (105,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'); 
+ (100,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
+ (101,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ (102,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ (103,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'),
+ (104,'fdt_help_url','http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=116','The URL to the GNomEx FDT help documentation', 'N'),
+ (105,'request_work_auth_link_text','Submit Work Authorization','Text for the link on the experiment setup tab to submit a work authorization', 'N'),
+ (106,'request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N'),
+ (107,'contact_email_manage_sample_file_link','','Email address of who should be notified when a sample experiment file is deleted from the database', 'Y'),
+ (108,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
+ (109,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y');
+ 
+ 
+ 
+
+
 INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
 VALUES ('IACUC', 'IACUC', 'Y'),
   ('IRB', 'IRB', 'Y');
@@ -1079,19 +1095,21 @@ VALUES (1, 'Cell Line', 'Y'),
   (5, 'Other (specify in notes)', 'Y'),
   (6, 'Blood', 'Y');
 
-INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`)
-VALUES (1, 'DNA', 3, 'Y'),
-  (2, 'aRNA', 6, 'N'),
-  (3, 'miRNA', 8, 'Y'),
-  (4, 'mRNA', 7, 'Y'),
-  (5, 'Total RNA (eukaryote)', 1, 'Y'),
-  (6, 'FFPE DNA', 5, 'Y'),
-  (7, 'chIP DNA', 4, 'Y'),
-  (8, 'polyA RNA', NULL, 'N'),
-  (9, 'Total RNA (prokaryote)', 2, 'Y'),
-  (10, 'cDNA', 5, 'Y'),
-  (11, 'cap RNA', 6, 'Y'),
-  (12, 'small RNA', 10, 'Y');
+INSERT INTO `gnomex`.`NucleotideType` values('RNA'), ('DNA');
+
+INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`)
+VALUES (1, 'DNA', 3, 'Y', 'DNA'),
+  (2, 'aRNA', 6, 'N', `RNA`),
+  (3, 'miRNA', 8, 'Y', `RNA`),
+  (4, 'mRNA', 7, 'Y', `RNA`),
+  (5, 'Total RNA (eukaryote)', 1, 'Y', `RNA`),
+  (6, 'FFPE DNA', 5, 'Y', 'DNA'),
+  (7, 'chIP DNA', 4, 'Y', 'DNA'),
+  (8, 'polyA RNA', NULL, 'N', `RNA`),
+  (9, 'Total RNA (prokaryote)', 2, 'Y', `RNA`),
+  (10, 'cDNA', 5, 'Y', 'DNA'),
+  (11, 'cap RNA', 6, 'Y', `RNA`),
+  (12, 'small RNA', 10, 'Y', `RNA`);
 
 INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `isActive`)
 VALUES (2, 5, 'EXP',  'Y'),
@@ -1210,9 +1228,7 @@ values (2,  31, 'N'),
        (2,  33, 'N'),
        (2,  34, 'N'),
        (2,  35, 'N'),
-       (2,  39, 'N'),
-       (3,  31, 'N'),
-       (4,  31, 'Y');
+       (2,  39, 'N');
        
 
 
@@ -1504,14 +1520,26 @@ values (1,1);
 insert into gnomex.BillingAccount (accountName, accountNumber, startDate, idCoreFacility, idLab, isApproved)
 values ('Test Account', 'B1235', '2013-01-01', 1, 1, 'Y');
 
-insert into gnomex.AppUser(idAppUser, lastName, firstName, isActive)
-values (2, 'Test', 'User', 'Y');
+insert into gnomex.AppUser(idAppUser, lastName, firstName, isActive, codeUserPermissionKind)
+values (2, 'Test', 'User', 'Y', 'LAB');
 
 insert into gnomex.LabUser(idLab, idAppUser)
 values (1, 2);
 
+insert into gnomex.SampleFileType(codeSampleFileType, description)
+  values('fastqRead1', 'fastqRead1'),
+        ('fastqRead2', 'fastqRead2'),
+        ('BAM', 'BAM'),
+        ('Other', 'Other');
 
-
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('annotationTabAddHelp', '1', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">If you wish to add a custom characteristic</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">which does not exist in the list, simply type</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">it&apos;s name in the box at the left and press </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">the Add Annotation button.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">If you wish to add a more advanced characteristic,</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">such as one incorporating a dropdown of choices,</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">please click the Edit annotations link.  In the resulting</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">window you can add checkboxes, dropdown boxes,</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">multiple choice dropdown boxes and more.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">For a characteristic not in the list, enter </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">a value in the box to the left and press </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">the Add Annotation button.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Click for more help.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('annotationTabHelp', '1', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">Instructions</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">1.  Optional: Characteristics that are listed on this page can be used </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">      to provide additional annotation of your samples on a subsequent </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">       screen. Please select any characteristics that you would like to </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">       annotate  by clicking on the appropriate box(es).</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">2.  After completing all line items, click the &apos;Next&apos; button at the bottom </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="9" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">     of the page to proceed.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">You may add custom characteristics to your samples</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Click for more help.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('experimentInternalSetupHelp', '1', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"><B>Instructions</B></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1. Select the dropdown or radio button options for each line.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2. After completing all line items, click the &apos;Next&apos; button at the</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">    bottom of the page to proceed.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">3. The account selected from this work request will be</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">     electronically billed following the completion of the work.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">This set of screens will guide you through creating</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">an experiment.  Throughout the process hovering </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">over or pressing the information icon will give </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">you more help.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('multiplexGroupNumber', '1', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Group together those samples that will be grouped together in one lane.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Example:</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1   A</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1   B</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2   C</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">3   D</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">A and B are in group 1, C is in group 2 and D is in group 3.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">Group together those samples that will be grouped together in one lane.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">Example:</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">1   A</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">1   B</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">2   C</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">3   D</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">A and B are in group 1, C is in group 2 and D is in group 3.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('samplesTabHelp', '1', 'HISEQ', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Instructions</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">      as a highlighted column. Please type desired information under the highlighted field with the annotation header.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">3.  After completing all line items, click the &apos;Next&apos; button at the bottom of the page to proceed.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">You may also upload a sample sheet.  Please see the &quot;Sample sheet help&quot; for more help.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Instructions</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1.  Mandatory: Fill in the following highlighted fields:  sample name(Max 30 characters), label, and concentration.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2.  Optional: Any annotation characteristic that you selected from the previous screen appears on this screen</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">      as a highlighted column. Please type desired information under the highlighted field with the annotation header.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">3.  After completing all line items, click the &apos;Next&apos; button at the bottom of the page to proceed.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">You may also upload a sample sheet.  Please see the &quot;Sample sheet help&quot; for more help.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('samplesTabHelp', '1', 'MICROARRAY', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Instructions</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1. Mandatory: Fill in the following highlighted fields: sample name and concentration</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2. Optional: Any annotation characteristic that you selected from teh previous screen appears on this screen</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">    as a highlighted column.  Please type desired information under the highlighted field with the annotation header.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">3. After completing all line items, click the &apos;Next&apos; button at the bottom of the page to proceed.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">1. Mandatory: Fill in the following highlighted fields: sample name and concentration</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">2. Optional: Any annotation characteristic that you selected from teh previous screen appears on this screen</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">    as a highlighted column.  Please type desired information under the highlighted field with the annotation header.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">3. After completing all line items, click the &apos;Next&apos; button at the bottom of the page to proceed.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('samplesTabHelp', '1', 'QC', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Instructions</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">1. Mandatory: Fill in the following highlighted fields: sample name and concentration.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">2. After completing all line items, click the &apos;Next&apos; button at the bottom of the page toproceed.</FONT></P></TEXTFORMAT>', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">1. Mandatory: Fill in the following highlighted fields: sample name and concentration.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">2. After completing all line items, click the &apos;Next&apos; button at the bottom of the page toproceed.</FONT></P></TEXTFORMAT>');
+INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText) values('samplesGridHelp','','','<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">The Samples Grid has been given a functionality makeover.  It now supports <B>copy and paste</B>!  </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Further, there are many functions that can be accessed from the right-click context menu:</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Copy row(s) to clipboard - copies the selected row(s) to the clipboard which can then be pasted into the sample grid itself or into Excel</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Copy grid to clipboard - this will copy the entire grid (including headers) to the clipboard which can then easily be pasted into Excel or into a text file</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Duplicate row(s) - duplicates the selected row(s) and adds them to the bottom of the list</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Add row - adds an empty row at the end of the list</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Delete row(s) - removes the selected row(s) from the list</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Clear all - clears the list completely </FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><LI><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Undo/Redo - undoes the last action <I>performed from the list above </I>or redoes the last action if you have already clicked &apos;Undo&apos; and haven&apos;t done any other actions yet</FONT></LI></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">To paste into the grid, you just need to click on the grid and then click <FONT COLOR="#FF0000"><B>&apos;ctrl+v&apos;</B></FONT> (the normal key sequence for paste).  Data can be copied straight from Excel and then pasted into the grid.  Or, if your data is in a tab-delimited txt file, you can copy that and paste into the grid as well.  <FONT COLOR="#666666"><I>It is expected that the columns are the same and in the same order as the Samples Grid for it to work correctly.</I></FONT></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Special fields (like drop downs and multiple select annotations) should paste as you expect.  For example, if you want &apos;Option 1&apos; selected from the drop down, just enter the text &apos;Option 1&apos; in your spreadsheet before copying.  As long as the text matches (case-insensitive), the correct selection will be chosen.  For multiple select annotations, you can just separate selections with a comma.  For example if you have &apos;Option 1, Option 3, Option 4&apos; written in a cell, then &apos;Option 1&apos;, &apos;Option 3&apos;, and &apos;Option 4&apos; will be selected in the corresponding multiple selection box. Just make sure that your spelling matches!</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">If you have any questions or comments about the new features for the Sample Grid, don&apos;t hesitate to contact megan.bowler@hci.utah.edu. </FONT></P></TEXTFORMAT>','<TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">The samples grid now supports <B>copy and paste</B>.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">To paste into the grid, you just need to click on </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">the grid and then click <FONT COLOR="#FF0000"><B>&apos;ctrl+v&apos;</B></FONT> (the normal key </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">sequence for paste).</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">There are also several  right-click context menu </FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1">functions.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="1"></FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="JUSTIFY"><FONT FACE="Open Sans" SIZE="12" COLOR="#666666" LETTERSPACING="0" KERNING="1"><I>Click for more information.</I></FONT></P></TEXTFORMAT>');
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 
