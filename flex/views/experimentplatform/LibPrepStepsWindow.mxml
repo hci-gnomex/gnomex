@@ -13,6 +13,9 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent; 
 			
+			import views.util.DirtyNote;
+			import views.util.GNomExStringUtil;
+			
 			private var parentDirty:DirtyNote;
 			private var experimentType:String = null;
 			private var selectedItem:Object;

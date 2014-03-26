@@ -324,6 +324,7 @@
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ProjectDetailWindow;
+			import views.experimentplatform.ExperimentPlatformWindow;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.EditBillingAcctWindow;
@@ -338,7 +339,6 @@
 			import views.util.ContextHelpEditEnableDisableEvent;
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
-			import views.util.ExperimentPlatformWindow;
 			import views.util.GNomExStringUtil;
 			import views.util.IScanChipEvent;
 			import views.util.IScanChipWindow;

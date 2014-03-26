@@ -58,6 +58,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.util.IconUtility;
 			
 			[Bindable]
 			public var requestCategory:Object = null;

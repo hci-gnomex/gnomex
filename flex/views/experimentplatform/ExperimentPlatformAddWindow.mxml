@@ -26,7 +26,7 @@
 		private var platformTypeCode:String = null;
 		private var defaultIcon:String = null;
 		
-		public var parentWindow:views.util.ExperimentPlatformWindow = null;
+		public var parentWindow:views.experimentplatform.ExperimentPlatformWindow = null;
 		
 		private function init():void{
 			if (parentApplication.coreFacilitiesICanManage.length() == 1) {

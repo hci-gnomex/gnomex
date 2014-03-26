@@ -35,7 +35,7 @@
 			private var selectedProtocols:XMLListCollection;
 			
 			[Bindable]
-			private var parentWindow:views.util.ExperimentPlatformWindow = null;
+			private var parentWindow:views.experimentplatform.ExperimentPlatformWindow = null;
 			
 			private var selectedItem:Object;
 			
@@ -43,7 +43,7 @@
 			private var MULTI_REQUEST_CATEGORY:String = "requestCategory";
 			private var multiSelectOpened:String = "";
 			
-			public function init(parentWindow:views.util.ExperimentPlatformWindow, selectedItem:Object):void {
+			public function init(parentWindow:views.experimentplatform.ExperimentPlatformWindow, selectedItem:Object):void {
 				this.parentWindow = parentWindow;
 				themeCombo.setFocus();
 				var test:XMLList = parentWindow.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry;
