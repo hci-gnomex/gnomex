@@ -227,11 +227,25 @@
 			hci.gnomex.controller.UploadAndBroadcastEmailServlet
 		</servlet-class>
 	</servlet>
-
+	
 	<servlet>
 		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadAndBroadcastEmailURLServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>ReportIssueServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.ReportIssueFeedbackServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>ReportIssueServletGetURL</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.ReportIssueFeedbackServletGetURL
 		</servlet-class>
 	</servlet>
 
@@ -281,6 +295,34 @@
     <servlet-name>UploadQuoteInfoServlet</servlet-name>
     <servlet-class>
       hci.gnomex.controller.UploadQuoteInfoServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.CreateAnalysisServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveTransferLogServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveChromatogramFromFileServlet
+    </servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>FastDataTransferUploadStartServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.FastDataTransferUploadStartServlet
     </servlet-class>
   </servlet>
   
@@ -403,6 +445,21 @@
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
 		<url-pattern>/UploadAndBroadcastEmailServlet.gx</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
+		<url-pattern>/UploadAndBroadcastEmailURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ReportIssueServlet</servlet-name>
+		<url-pattern>/ReportIssueServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ReportIssueServletGetURL</servlet-name>
+		<url-pattern>/ReportIssueServletGetURL.gx</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
@@ -417,11 +474,6 @@
 	
 		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
 		<url-pattern>/UploadSampleSheetURLServlet.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
-		<url-pattern>/UploadAndBroadcastEmailURLServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
@@ -466,6 +518,26 @@
   <servlet-mapping>
     <servlet-name>UploadQuoteInfoServlet</servlet-name>
     <url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <url-pattern>/CreateAnalysisServlet.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <url-pattern>/SaveTransferLogServlet.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <url-pattern>/SaveChromatogramFromFileServlet.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>FastDataTransferUploadStartServlet</servlet-name>
+    <url-pattern>/FastDataTransferUploadStartServlet.gx</url-pattern>
   </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->
@@ -588,10 +660,9 @@
 			<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>/UploadExperimentFileServlet.gx</url-pattern>
-			<url-pattern>/UploadAndBroadcastEmailServlet</url-pattern>			
+			<url-pattern>/UploadAndBroadcastEmailServlet.gx</url-pattern>		
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	
-			<url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>  
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>GNomExUser</role-name>
@@ -603,7 +674,7 @@
 		<auth-method>FORM</auth-method>		
     <form-login-config>
 				<form-login-page>/login_tomcat.jsp</form-login-page>
-				<form-error-page>/login_tomcat_failed.jsp</form-error-page>
+				<form-error-page>/login_tomcat.jsp?err=Y</form-error-page>
 		</form-login-config>
 	</login-config>
  
@@ -634,11 +705,12 @@
       <res-auth>Container</res-auth>
   </resource-ref>
 
-   <resource-ref>
+  <resource-ref>
       <description>DB Connection</description>
       <res-ref-name>jdbc/GNOMEX_GUEST</res-ref-name>
       <res-type>javax.sql.DataSource</res-type>
       <res-auth>Container</res-auth>
   </resource-ref>
- 
+
+
 </web-app>

@@ -8,10 +8,12 @@
 <%@ page import="hci.gnomex.model.Analysis" %>
 <%@ page import="hci.gnomex.controller.GetDataTrack" %>
 <%@ page import="hci.gnomex.model.DataTrack" %>
-<%@ page import="hci.gnomex.utility.TopicQuery" %>
 <%@ page import="hci.gnomex.model.Topic" %>
+<%@ page import="hci.gnomex.utility.TopicQuery" %>
+<%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.model.Visibility" %>
+<%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 
 <html>
 
@@ -22,7 +24,9 @@
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
-
+String errFlag = (String)((request.getParameter("err") != null)?request.getParameter("err"):"N");
+Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
+String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toString());
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -30,6 +34,7 @@ GNomExFrontController.setWebContextPath(webContextPath);
 
 boolean showCampusInfoLink = false;
 boolean itemNotPublic = false;
+boolean showUserSignup = true;
 String itemType="";
 String siteLogo = "";
 Session sess = null;
@@ -41,15 +46,14 @@ try {
   }  
 
   // Get site specific log
-  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
-  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
-    siteLogo = "./" + propSiteLogo.getPropertyValue();
-  }  else {
-    siteLogo = "./assets/gnomex_logo.png";
+  siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
+  
+  // Determine if user sign up screen is enabled
+  PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
+  if (disableUserSignup != null && disableUserSignup.getPropertyValue().equals("Y")) {
+    showUserSignup = false;
   } 
  
-
-  
   // If launching experiment, analysis, data track, or topic then check for public
   // If public then launch directly as guest user without requiring login
   String requestNumber = (String) ((request.getParameter("requestNumber") != null)?request.getParameter("requestNumber"):"");
@@ -165,12 +169,14 @@ try {
             <img src="<%=siteLogo%>"/>
        </div>
        <div class="rightMenu" >    
-         <a href="change_password.jsp">Change password</a> |    
-         <a href="reset_password.jsp">Reset password</a>  |    
-         <a href="select_core.jsp">Sign up for an account</a> 
+        <a href="change_password.jsp<%=idCoreParm%>">Change password</a>       
+        |   <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
+        <%if(showUserSignup) {%>
+            |   <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a>
+        <%}%> 
       </div>
     </div>
-    <form id="theform" method="POST" action="j_security_check"  >
+    <form id="theform" method="POST" action="j_security_check<%=idCoreParm%>"  >
 
   <div class="box">
   
@@ -207,18 +213,16 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
       
       <div class="bottomPanel">
         <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div>
+        <!-- Note that guest ignores idCore parameter -- guest just sees all public objects. -->
         <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
       </div>
       
 
     </div>
-
-<!--         <div class="boxClear"> -->
-<!--           <div class="col1Wide"><note class="inline">For guest access to public data:</note></div> -->
-<!--           <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div> -->
-<!--        </div> -->
        
     </form>
-
+<% if (errFlag.equals("Y")) { %>
+  <div id="error" class="message"> <strong>User name or password you entered is incorrect.  Please try again.</strong></div>
+<% } %>
 </body>
 </html>

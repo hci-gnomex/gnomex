@@ -225,10 +225,27 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>UploadSampleSheetURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadSampleSheetURLServlet
+		</servlet-class>
+	</servlet>
+			
+	<servlet>
 		<servlet-name>UploadAndBroadcastEmailURLServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadAndBroadcastEmailURLServlet
 		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>ReportIssueServlet</servlet-name>
+		<servlet-class>hci.gnomex.controller.ReportIssueFeedbackServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>ReportIssueServletGetURL</servlet-name>
+		<servlet-class>hci.gnomex.controller.ReportIssueFeedbackServletGetURL</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -277,6 +294,34 @@
     <servlet-name>UploadQuoteInfoServlet</servlet-name>
     <servlet-class>
       hci.gnomex.controller.UploadQuoteInfoServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.CreateAnalysisServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveChromatogramFromFileServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.SaveTransferLogServlet
+    </servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>FastDataTransferUploadStartServlet</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.FastDataTransferUploadStartServlet
     </servlet-class>
   </servlet>
   
@@ -399,6 +444,16 @@
 		<servlet-name>UploadAndBroadcastEmailServlet</servlet-name>
 		<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ReportIssueServlet</servlet-name>
+		<url-pattern>ReportIssueServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+		<servlet-mapping>
+		<servlet-name>ReportIssueServletGetURL</servlet-name>
+		<url-pattern>ReportIssueServletGetURL.gx</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>UploadAnalysisURLServlet</servlet-name>
@@ -463,6 +518,26 @@
     <servlet-name>UploadQuoteInfoServlet</servlet-name>
     <url-pattern>UploadQuoteInfoServlet.gx</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>CreateAnalysisServlet</servlet-name>
+    <url-pattern>CreateAnalysisServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SaveTransferLogServlet</servlet-name>
+    <url-pattern>SaveTransferLogServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SaveChromatogramFromFileServlet</servlet-name>
+    <url-pattern>SaveChromatogramFromFileServlet.gx</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>FastDataTransferUploadStartServlet</servlet-name>
+    <url-pattern>FastDataTransferUploadStartServlet.gx</url-pattern>
+  </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->
 	<session-config>
@@ -500,7 +575,6 @@
 			<url-pattern>GetPrice*.gx</url-pattern>
 			<url-pattern>GetPricing*.gx</url-pattern>
 			<url-pattern>GetWorkItemList.gx</url-pattern>
-			<url-pattern>GetExperimentOverviewList.gx</url-pattern>
 			<url-pattern>GetUsageData.gx</url-pattern>
 			<url-pattern>GetUsageDetail.gx</url-pattern>
 			<url-pattern>LinkDataTrackFile.gx</url-pattern>
@@ -520,7 +594,7 @@
 			<url-pattern>UploadDataTrackFileServlet.gx</url-pattern>
 			<url-pattern>UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
-			<url-pattern>UploadAndBroadcastEmailServlet</url-pattern>			
+			<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>	
 			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>ExperimentQueue.gx</url-pattern>
 			<url-pattern>VerifyDas2Refresh</url-pattern>	

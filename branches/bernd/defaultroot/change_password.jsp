@@ -2,6 +2,9 @@
 <%@ page import="org.hibernate.Session" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
+<%@ page import="hci.gnomex.utility.JspHelper" %>
+<%@ page import="hci.gnomex.utility.JspHelper" %>
+<%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <html>
 
 <head>
@@ -18,6 +21,9 @@
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
+Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
+String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
+boolean showUserSignup = true;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -32,15 +38,16 @@ try {
   if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
     showCampusInfoLink = true;
   }  
+    
+  // Determine if user sign up screen is enabled
+  PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
+  if (disableUserSignup != null && disableUserSignup.getPropertyValue().equals("Y")) {
+    showUserSignup = false;
+  } 
   
   // Get site specific log
-  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
-  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
-    siteLogo = "./" + propSiteLogo.getPropertyValue();
-  }  else {
-    siteLogo = "./assets/gnomex_logo.png";
-  } 
- 
+siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
+   
 } catch (Exception e){
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
@@ -66,9 +73,11 @@ try {
         <img src="<%=siteLogo%>"/>
     </div>
    <div class="rightMenu" >
-      <a href="gnomexFlex.jsp">Sign in</a> |       
-      <a href="reset_password.jsp">Reset password</a> |    
-      <a href="select_core.jsp">Sign up for an account</a> 
+      <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a>
+      |   <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
+      <%if(showUserSignup) {%>
+          |   <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a>
+      <%}%> 
   </div>
 </div>
 
@@ -105,8 +114,9 @@ If you have registered using your uNID (u00000000), your password is tied to the
 <div class="message"> <strong><%= message %></strong></div>
 
 </div>
-    <input type="hidden" name="responsePageSuccess" value="/change_password_success.jsp"/>
-    <input type="hidden" name="responsePageError" value="/change_password.jsp"/>
+    <input type="hidden" name="responsePageSuccess" value="/change_password_success.jsp<%=idCoreParm%>"/>
+    <input type="hidden" name="responsePageError" value="/change_password.jsp<%=idCoreParm%>"/>
+    <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
     </form>
 
 

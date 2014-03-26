@@ -8,6 +8,11 @@
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
+String coreToPassThru = (String) ((request.getParameter("idCore") != null)?request.getParameter("idCore"):"");
+String idCoreParm = "";
+if (coreToPassThru != null && !coreToPassThru.equals("")) {
+  idCoreParm = "?idCore=" + coreToPassThru;
+}    
 
 //Set Cache-Control to no-cache.
 response.setHeader("Cache-Control", "max-age=0, must-revalidate");
@@ -31,9 +36,7 @@ session.invalidate();
 <div id="content" align="center" bgcolor="white">
 <div class="header-bar" >
   <div class="rightMenu" >
-      <a href="gnomexFlex.jsp">Sign in</a> |    
-      <a href="change_password.jsp">Change password</a> |    
-      <a href="select_core.jsp">Sign up for an account</a> 
+      <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a>
   </div>
 </div>
 
