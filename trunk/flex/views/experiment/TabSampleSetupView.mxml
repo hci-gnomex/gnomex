@@ -1848,8 +1848,6 @@
 														   labelField="@display"
 													 	   fontSize="10"
 													 	   prompt="Select number of samples"
-													 	   removeFilterOnSelection="true" 
-													 	   removeInputOnFocusOut="true"
 													 	   focusOut="{onNumberOfSamplesChanged()}">
 			   </renderers:FilterComboBoxNumberIScanSamples>
 		   </mx:AddChild>

@@ -1334,7 +1334,6 @@
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
 										  width="270"  
-										  removeFilterOnSelection="true"
 										  id="collaboratorCombo">
 				</renderers:FilterComboBox>
 				<mx:Button 

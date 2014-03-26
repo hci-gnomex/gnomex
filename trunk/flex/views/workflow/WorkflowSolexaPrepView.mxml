@@ -470,9 +470,7 @@
 																	  indexTagLetter="A" keyUp="{outerDocument.isDeleteKeyA(event, data)}"
 																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
-																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}"
-																	  removeFilterOnSelection="true"
-																	  removeInputOnFocusOut="true" >
+																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}">
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
@@ -491,9 +489,7 @@
 																	  indexTagLetter="B" keyUp="{outerDocument.isDeleteKeyB(event, data)}"
 																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
-																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}"
-																	  removeFilterOnSelection="true"
-																	  removeInputOnFocusOut="true" >
+																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}">
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>

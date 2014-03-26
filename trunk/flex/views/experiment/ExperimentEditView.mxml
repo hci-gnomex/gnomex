@@ -5828,8 +5828,7 @@
                 		<mx:Label text="(1) Verify your lab group." width="194"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 												  labelField="@name" 
-												  prompt="Select a lab..."												  
-												  removeFilterOnSelection="true"
+												  prompt="Select a lab..."		
 												  width="340"
 												  close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
 												  id="labCombo">

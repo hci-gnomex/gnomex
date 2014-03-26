@@ -1571,7 +1571,7 @@
 								</mx:VBox>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
-								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" removeFilterOnSelection="true"
+								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
 											 dataProvider="{requestCategories}" 
 											 labelField="@display" prompt="Experiment Type.."
 											 includeInLayout="{requestCategories.length > 1}" 
@@ -1732,7 +1732,6 @@
 				<mx:Spacer width="14"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall"/>
 				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
-										  removeFilterOnSelection="true"
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="160" 
