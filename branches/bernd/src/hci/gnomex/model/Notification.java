@@ -13,8 +13,10 @@ public class Notification extends HibernateDetailObject {
   private Integer			idUserTarget;
   private Integer			idLabTarget;
   private String			type;
-  private Integer			expID;
+  private String			expID;
   private String			fullNameUser;
+  private String      imageSource;
+  private Integer     idCoreFacility;
   
   public Integer getIdNotification(){
 	 return idNotification;
@@ -72,11 +74,11 @@ public class Notification extends HibernateDetailObject {
 		this.type = type;
 	}
 	
-	public Integer getExpID() {
+	public String getExpID() {
 		return expID;
 	}
 	
-	public void setExpID(Integer expID) {
+	public void setExpID(String expID) {
 		this.expID = expID;
 	}
 	
@@ -87,5 +89,21 @@ public class Notification extends HibernateDetailObject {
 	public void setFullNameUser(String fullNameUser) {
 		this.fullNameUser = fullNameUser;
 	}
+
+  public String getImageSource() {
+    return imageSource;
+  }
+
+  public void setImageSource(String imageSource) {
+    this.imageSource = imageSource;
+  }
+
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
    
 }

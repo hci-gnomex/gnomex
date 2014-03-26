@@ -47,7 +47,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         featureExtractionProtocols.setAttribute("label", "Feature Extraction Protocol");
         featureExtractionProtocols.setAttribute("protocolClassName", FeatureExtractionProtocol.class.getName());
         root.addContent(featureExtractionProtocols);
-        l = sess.createQuery("select fe from FeatureExtractionProtocol fe order by fe.featureExtractionProtocol ").list();
+        l = sess.createQuery("select fe from FeatureExtractionProtocol fe order by fe.featureExtractionProtocol").list();
         if (!l.isEmpty()) {
           Iterator iter = l.iterator();
           while (iter.hasNext()) {
@@ -64,7 +64,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         hybProtocols.setAttribute("label", "Hyb Protocol");
         hybProtocols.setAttribute("protocolClassName", HybProtocol.class.getName());
         root.addContent(hybProtocols);
-        l = sess.createQuery("select h from HybProtocol h order by h.hybProtocol ").list();
+        l = sess.createQuery("select h from HybProtocol h order by h.hybProtocol").list();
         if (!l.isEmpty()) {
           Iterator iter = l.iterator();
           while (iter.hasNext()) {
@@ -96,7 +96,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         scanProtocols.setAttribute("label", "Scan Protocol");
         scanProtocols.setAttribute("protocolClassName", ScanProtocol.class.getName());
         root.addContent(scanProtocols);
-        l = sess.createQuery("from ScanProtocol").list();
+        l = sess.createQuery("select sp from ScanProtocol sp order by sp.scanProtocol").list();
         if (!l.isEmpty()) {
           Iterator iter = l.iterator();
           while (iter.hasNext()) {
@@ -112,7 +112,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
         seqLibProtocols.setAttribute("label", "Sequence Lib Protocol");
         seqLibProtocols.setAttribute("protocolClassName", SeqLibProtocol.class.getName());
         root.addContent(seqLibProtocols);
-        l = sess.createQuery("from SeqLibProtocol").list();
+        l = sess.createQuery("select slp from SeqLibProtocol slp order by slp.seqLibProtocol").list();
         if (!l.isEmpty()) {
           Iterator iter = l.iterator();
           while (iter.hasNext()) {
@@ -245,8 +245,8 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("label", this.getNonNullString(sp.getSeqLibProtocol()));
     e.setAttribute("isActive", this.getNonNullString(sp.getIsActive()));
     e.setAttribute("protocolClassName", sp.getClass().getName());
-    e.setAttribute("adapterSequenceRead1", sp.getAdapterSequenceRead1() != null ? sp.getAdapterSequenceRead1() : "");
-    e.setAttribute("adapterSequenceRead2", sp.getAdapterSequenceRead2() != null ? sp.getAdapterSequenceRead2() : "");
+    e.setAttribute("adapterSequenceThreePrime", sp.getAdapterSequenceThreePrime() != null ? sp.getAdapterSequenceThreePrime() : "");
+    e.setAttribute("adapterSequenceFivePrime", sp.getAdapterSequenceFivePrime() != null ? sp.getAdapterSequenceFivePrime() : "");
 
     setPermissions(sp);
     e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");

@@ -95,16 +95,19 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       
       List theLanes = (List)seqLaneMap.get(key);
       
-      for(Iterator j = theLanes.iterator(); i.hasNext();) {
+      Integer maxLanesForSample = 0;
+      Map<Integer, Integer>numSeqLanesPerSample = new HashMap<Integer, Integer>();
+      for(Iterator j = theLanes.iterator(); j.hasNext();) {
         SequenceLane theLane = (SequenceLane)j.next();
-        Sample sample = theLane.getSample();
-        if (sample.getIdOligoBarcode() != null) {
-          sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
+        Integer numLanesForSample = numSeqLanesPerSample.get(theLane.getSample().getIdSample());
+        if (numLanesForSample == null) {
+          numLanesForSample = 1;
+        } else {
+          numLanesForSample++;
         }
-        
-        // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
-        if(sample.getIdOligoBarcodeB() != null){
-          sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
+        numSeqLanesPerSample.put(theLane.getSample().getIdSample(), numLanesForSample);
+        if (numLanesForSample > maxLanesForSample) {
+          maxLanesForSample = numLanesForSample;
         }
       }
       
@@ -131,7 +134,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       if (customNumberSequencingCyclesAllowed.containsKey(key)) {
         // Custom NumberSequencingCyclesAllowed bill for the whole cell in a single charge.
         RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
-        qty = 1;
+        qty = maxLanesForSample;
       }
       
       // Instantiate a BillingItem for the matched price

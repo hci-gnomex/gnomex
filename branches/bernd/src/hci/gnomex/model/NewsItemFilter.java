@@ -18,8 +18,7 @@ public class NewsItemFilter extends DetailObject {
 	  private String 			title;
 	  private java.util.Date	date;
 	  private Integer			idSubmitter;
-	  private Integer			idCoreSender;
-	  private Integer			idCoreTarget;
+	  private Integer			idCoreFacility;
 	
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -48,7 +47,7 @@ public class NewsItemFilter extends DetailObject {
   public void addBaseColumns(StringBuffer queryBuf) {
 	  queryBuf.append("SELECT distinct ");
 	  queryBuf.append(" n.idNewsItem, n.title, n.message, n.date, ");
-	  queryBuf.append(" n.idSubmitter, n.idCoreSender, n.idCoreTarget ");
+	  queryBuf.append(" n.idSubmitter, n.idCoreFacility ");
    } 
 
   private void addBaseQueryBody(StringBuffer queryBuf) {
@@ -86,18 +85,11 @@ public class NewsItemFilter extends DetailObject {
 	    	queryBuf.append(idSubmitter);
 	    	queryBuf.append("'");
 	    }
-	    //  Search by idCoreSender
-	    if(idCoreSender != null && idCoreSender != 0){
-	    	this.addWhereOrAnd();
-	    	queryBuf.append(" n.idCoreSender = '");
-	    	queryBuf.append(idCoreSender);
-	    	queryBuf.append("'");
-	    }
 	    // Search by idCoreTarget
-	    if(idCoreTarget != null && idCoreTarget != 0){
+	    if(idCoreFacility != null && idCoreFacility != 0){
 	    	this.addWhereOrAnd();
 	    	queryBuf.append(" n.idCoreTarget = '");
-	    	queryBuf.append(idCoreTarget);
+	    	queryBuf.append(idCoreFacility);
 	    	queryBuf.append("'");
 	    }
 	    
@@ -146,19 +138,11 @@ public class NewsItemFilter extends DetailObject {
 	}
 	
 	public Integer getIdCoreTarget() {
-		return idCoreTarget;
+		return idCoreFacility;
 	}
 	
-	public void setIdCoreTarget(Integer idCoreTarget) {
-		this.idCoreTarget = idCoreTarget;
-	}
-	
-	public Integer getIdCoreSender() {
-		return idCoreSender;
-	}
-	
-	public void setIdCoreSender(Integer idCoreSender) {
-		this.idCoreSender = idCoreSender;
+	public void setIdCoreTarget(Integer idCoreFacility) {
+		this.idCoreFacility = idCoreFacility;
 	}
 	
 	public Integer getIdSubmitter() {

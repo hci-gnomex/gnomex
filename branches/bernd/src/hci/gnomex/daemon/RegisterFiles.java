@@ -10,13 +10,16 @@ import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +34,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -84,6 +88,8 @@ public class RegisterFiles extends TimerTask {
   private String                       orionPath = "";
   
   private Boolean                      sendMail = true;
+  private Boolean                      testingSendMail = false;
+  private Boolean                      debug = false;
 
   private String                       errorMessageString = "Error in RegisterFiles";
   
@@ -111,11 +117,15 @@ public class RegisterFiles extends TimerTask {
         orionPath = args[++i];
       } else if (args[i].equals ("-doNotSendMail")) {
         sendMail = false;
-      } 
+      } else if(args[i].equals ("-debug")) {
+        debug = true;
+        testingSendMail = true;
+        sendMail = false;
+      }
     }
     
     try {
-      if (sendMail) {
+      if (sendMail || testingSendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
         System.out.println(getCurrentDateString() + ":" + "WARNING: Emails are enabled.");
       } else {
@@ -169,7 +179,6 @@ public class RegisterFiles extends TimerTask {
 
       dataSource = new BatchDataSource();
       app.connect();
-      
       
       app.initialize();
       app.registerExperimentFiles();
@@ -285,30 +294,58 @@ public class RegisterFiles extends TimerTask {
       // Now compare to the experiment files already registered in the db
       TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
       if (request.getFiles() != null) {
+        String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+        String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/" + Request.getBaseRequestNumber(request.getNumber());
+        directoryName.replace("\\", "/");
 
         for (Iterator i2 = request.getFiles().iterator(); i2.hasNext();) {
+          LinkedList<String> dirs = new LinkedList<String>();
           ExperimentFile ef = (ExperimentFile)i2.next();
-          FileDescriptor fd = (FileDescriptor)fileMap.get(ef.getFileName());
+          FileDescriptor fd = (FileDescriptor)fileMap.get(ef.getFileName().replace("\\", "/"));
+          
+          String efFileName = ef.getFileName().substring(ef.getFileName().lastIndexOf("/") + 1);
+          printDebugStatement("EXPERIMENT FILE NAME::::::::::::: " + efFileName);
+          printDebugStatement("EXPERIMENT FILE SIZE::::::::::::: " + ef.getFileSize());
+          dirs.add(directoryName);
+          String newFilePath = null;
+          
+          //If fd is initially null then the file may have just been moved so look for it in other directories
+          if(fd == null) {
+            printDebugStatement("name: " + efFileName + "     size: " + ef.getFileSize() + "        sizeOfLinkedList: " + dirs.size());
+            newFilePath = recurseDirectoriesForFile(efFileName, ef.getFileSize(), request, dirs);
+          }
+          //Create a new file descriptor to reference the experiment file if we found it.
+          if(newFilePath != null) {
+            newFilePath = newFilePath.replace("\\", "/");
+            printDebugStatement("NEW FILE PATH, WE FOUND OLD FILE::::::::::::: " + newFilePath);
+            fd = new FileDescriptor(request.getNumber(), newFilePath.substring(newFilePath.lastIndexOf("/")), new File(newFilePath), newFilePath.substring(newFilePath.indexOf(baseRequestNumber)));
+          }
           
           // If we don't find the file on the file system, delete it from the db.
-          if (fd == null) {
+          if (fd == null && newFilePath == null) {
             System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
-            //sess.delete(ef);
+            printDebugStatement("ABOUT TO REMOVE EF FROM REQUEST FILE SET!!");
+            i2.remove();//Remove the experiment file so we can delete the hibernate object
+            printDebugStatement("SUCCESSFUL REMOVAL FROM REQUEST FILE SET");
+            deleteExpFileAndNotify(sess, ef);
           } else {
             // Mark that the file system file has been found
             fd.isFound(true);
+            printDebugStatement("FD IS FOUND = TRUE!!!!    " + fd.isFound() + fd.getFileName());
             Boolean changed = false;
             // If the file size is different on the file system, update the ExperimentFile
             if (ef.getFileSize() == null || !ef.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
               ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
               changed = true;
             }
-            if (ef.getFileSize() == null || !ef.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
-              ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
-              changed = true;
-            }
             if (ef.getCreateDate() == null) {
               ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, request.getCreateDate()));
+              changed = true;
+            }
+            if(newFilePath != null) {
+              fileMap.remove(ef.getFileName());
+              fileMap.put(newFilePath.substring(newFilePath.indexOf(baseRequestNumber)), fd);
+              ef.setFileName(newFilePath.substring(newFilePath.indexOf(baseRequestNumber)));
               changed = true;
             }
             if (changed) {
@@ -323,11 +360,13 @@ public class RegisterFiles extends TimerTask {
       // not found in the db.
       for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
         String fileName = (String)i3.next();
+        printDebugStatement("LINE 354 FILENAME::::::::: " + fileName);
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
+        printDebugStatement(fd.getFileName() + "      " + fd.isFound());
         if (!fd.isFound()) {
           ExperimentFile ef = new ExperimentFile();
           ef.setIdRequest(request.getIdRequest());
-          ef.setFileName(fileName);
+          ef.setFileName(fileName.replace("\\", "/"));
           ef.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
           ef.setCreateDate(getEffectiveRequestFileCreateDate(fd, request.getCreateDate()));
           sess.save(ef);
@@ -336,6 +375,12 @@ public class RegisterFiles extends TimerTask {
       }
       
       request.getFiles().clear();
+      
+      if(debug) {
+        for(Iterator debug = newExperimentFiles.iterator(); debug.hasNext();) {
+          System.out.println(debug.next());
+        }
+      }
       
       if (newExperimentFiles != null && newExperimentFiles.size() > 0) {
         request.getFiles().addAll(newExperimentFiles);
@@ -465,7 +510,9 @@ public class RegisterFiles extends TimerTask {
             hashForNotification(emailAddress, af, null);
             
 
-          } 
+          }
+          i2.remove();
+          sess.delete(af);
           
         } else {
           // Mark that the file system file has been found
@@ -582,7 +629,6 @@ public class RegisterFiles extends TimerTask {
         }
       }
       
-      
       if (sendMail) {
         MailUtil.send( mailProps,
             emailAddress,
@@ -593,7 +639,7 @@ public class RegisterFiles extends TimerTask {
             false
           );
       }
-    }
+   }
   }
 
   private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
@@ -617,12 +663,16 @@ public class RegisterFiles extends TimerTask {
   
   private void sendErrorReport(String softwareTestEmail, String fromAddress)  {
     try {
+      java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+      if(debug) {
+        printDebugStatement(localMachine.getHostName());
+      }
       if (sendMail) {
         MailUtil.send( mailProps,
           softwareTestEmail,
           null,
           fromAddress,
-          "Register Files Error",
+          "Register Files Error [Server: " + localMachine.getHostName() + "]" ,
           errorMessageString,
           false
         );
@@ -637,7 +687,22 @@ public class RegisterFiles extends TimerTask {
     String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
     
     String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+    String directoryName = baseExperimentDir + Request.getCreateYear(createDate) + "/" + baseRequestNumber;
+    directoryName.replace("\\", "/");
     
+    String [] fileList = new File(directoryName).list();
+    //Get all files directly underneath the experiment number directory
+    if(fileList != null) {
+      for (int x = 0; x < fileList.length; x++) {
+        String fileName = directoryName + "/" + fileList[x];
+        File f1 = new File(fileName);
+        if(f1.isFile() && !Util.isSymlink(f1)) {
+          FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + "/" + fileList[x]);
+          fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
+        }
+
+      }
+    }
     
     // Get all of the folders in the experiment directory
     Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber, Request.getCreateYear(createDate), codeRequestCategory);
@@ -675,7 +740,7 @@ public class RegisterFiles extends TimerTask {
       }
       
     } else {
-      fileMap.put(fd.getZipEntryName(), fd);
+      fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
     }
     
   }
@@ -720,6 +785,112 @@ public class RegisterFiles extends TimerTask {
       }
     }
     return fileMap;
+  }
+  
+  private String recurseDirectoriesForFile(String fileToLookFor, BigDecimal sizeOfFile, Request r, LinkedList<String> dirs) {
+    if(dirs.isEmpty()) {
+      return null;
+    }
+    String dir = dirs.removeFirst();
+    printDebugStatement("DIRECTORY WE ARE CURRENTLY LOOKING THROUGH:   " + dir);
+    File f = new File(dir);
+    
+    if(f.exists()) {
+      String [] contents = f.list();
+      for(int i = 0; i < contents.length; i++) {
+        File f1 = new File(dir + "/" + contents[i]);
+        if(f1.isFile() && f1.getName().equals(fileToLookFor) && (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
+          //we found the file so return its new path
+          printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath());
+          return f1.getAbsolutePath();
+        } else if(f1.isDirectory()) {
+          dirs.add(f1.getAbsolutePath());
+        }
+      }
+    }
+    
+    return recurseDirectoriesForFile(fileToLookFor, sizeOfFile, r, dirs);
+    
+  }
+  
+  private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
+    List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+    ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
+    String listOfSampleNames = "";
+    String listOfSampleIdsString = "";
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+    String subject = "Experiment File " + ef.getFileName() + " has been deleted";
+    
+    printDebugStatement("SIZE OF SAMPLE_EXPERIMENT_FILES_LIST::::::::: " + sampleExperimentFiles.size());
+    
+    for(Iterator i = sampleExperimentFiles.iterator(); i.hasNext();) {
+      SampleExperimentFile sef = (SampleExperimentFile) i.next();
+      if(sef.getIdExpFileRead1() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead1())) {
+        sef.setIdExpFileRead1(null);
+      } else if(sef.getIdExpFileRead2() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead2())) {
+        sef.setIdExpFileRead2(null);
+      }
+      
+      if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+        listOfSampleIds.add(sef.getIdSample());
+        sess.delete(sef);
+        printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
+      }
+    }
+    
+    if(listOfSampleIds.size() > 0) {
+      StringBuffer buf = new StringBuffer();
+      buf.append("Select s.name from Sample s where idSample = ");
+      for(Iterator j = listOfSampleIds.iterator(); j.hasNext();) {
+        Integer i = (Integer)j.next();
+        listOfSampleIdsString += i.toString();
+        buf.append(i.toString());
+        if(j.hasNext()) {
+          buf.append(" OR idSample = ");
+          listOfSampleIdsString += ", ";
+        }
+      }
+
+      printDebugStatement(buf.toString());
+      List sampleNames = sess.createQuery(buf.toString()).list();
+      for(Iterator k = sampleNames.iterator(); k.hasNext();) {
+        String sampleName = (String)k.next();
+        printDebugStatement(sampleName);
+        listOfSampleNames += sampleName;
+        if(k.hasNext()) {
+          listOfSampleNames += " ,";
+        }
+      }
+    }
+    
+    sess.delete(ef);
+    sess.flush();
+
+    printDebugStatement("SAMPLE NAMES: " + listOfSampleNames);
+    if(!listOfSampleNames.equals("")) {
+      String toAddress = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK);
+      if(!MailUtil.isValidEmail(toAddress)) {
+        System.err.println("Unable to notify of unlinking of sample experiment files due to invalid email address:  " + toAddress);
+        return;
+      }
+      String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      String body = "The following Sample Names were unlinked: " + listOfSampleNames + "\n\n";
+      body += "(Corresponding Sample Id's: " + listOfSampleIdsString + ")\n\n";
+      body += "Please review your sample linkage.";
+      
+      printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
+      try {
+        MailUtil.send(mailProps, toAddress, null, fromAddress, subject, body, false);
+      } catch (Exception e) {
+        System.err.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: " + toAddress + e.toString());
+      }
+    }
+  }
+  
+  private void printDebugStatement(String message) {
+    if(debug) {
+      System.out.println(message);
+    }
   }
   
  

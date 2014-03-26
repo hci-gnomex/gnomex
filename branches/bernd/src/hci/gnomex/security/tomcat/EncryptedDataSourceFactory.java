@@ -1,5 +1,6 @@
 package hci.gnomex.security.tomcat;
 import hci.gnomex.controller.CheckDataTrackPermission;
+import hci.gnomex.utility.TomcatCatalinaProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,16 +21,8 @@ import org.apache.tomcat.jdbc.pool.XADataSource;
 
 public class EncryptedDataSourceFactory extends DataSourceFactory {       
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CheckDataTrackPermission.class);
-  private AESEncryption encryptor = null;       
-  private String propertyPath = null;
   
-  public String getPropertyPath() {
-    return propertyPath;
-  }
-  
-  public void setPropertyPath(String propertyPath) {
-    this.propertyPath = propertyPath;
-  }
+  private static TomcatCatalinaProperties catalinaProperties = null;
   
   public EncryptedDataSourceFactory() {         
   }       
@@ -38,27 +31,23 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
   public DataSource createDataSource(Properties properties, Context context, boolean XA) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, SQLException, NoSuchAlgorithmException, NoSuchPaddingException {
     org.apache.tomcat.jdbc.pool.DataSource dataSource = null;
     try {
-      String key = null;
-      try {
-        File file = new File("/properties/gnomex_tomcat.properties");
-        FileInputStream fis = new FileInputStream(file);
-        Properties p = new Properties();
-        p.load(fis);
-        if (p.getProperty("key") != null) {
-          key = p.getProperty("key");
-          
+      if (catalinaProperties == null) {
+        synchronized(this) {
+          if (catalinaProperties == null) {
+            String catalinaPath = System.getProperty("catalina.base") + "/conf/catalina.properties";
+            catalinaProperties = new TomcatCatalinaProperties(catalinaPath);
+          }
         }
-      } catch(Exception ex) {
-        log.error("Unable to get key property in EncryptedDataSourceFactory class", ex);
       }
       
-      AESEncryption encryptor = new AESEncryption();
-      if (key != null) {
-        encryptor = new AESEncryption(key);
+      if (catalinaProperties.getTomcatPropertyToken(TomcatCatalinaProperties.GNOMEX_AES_KEY) == null) {
+        log.error("Unable to get key property in EncryptedDataSourceFactory class");
       }
+      
       // Here we decrypt our password.         
       PoolConfiguration poolProperties = EncryptedDataSourceFactory.parsePoolProperties(properties);  
-      poolProperties.setPassword(encryptor.decrypt(poolProperties.getPassword()));          
+      poolProperties.setPassword(catalinaProperties.decryptPassword(poolProperties.getPassword()));          
+      
       // The rest of the code is copied from Tomcat's DataSourceFactory.         
       if (poolProperties.getDataSourceJNDI() != null && poolProperties.getDataSource() == null) {             
         performJNDILookup(context, poolProperties);         

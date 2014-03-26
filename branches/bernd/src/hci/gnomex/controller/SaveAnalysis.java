@@ -84,6 +84,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private String                lanesXMLString;
   private Document              lanesDoc;
   private AnalysisLaneParser    laneParser;
+  
+  private String                samplesXMLString;
+  private String                experimentsXMLString;
+
 
   private String                     collaboratorsXMLString;
   private Document                   collaboratorsDoc;
@@ -173,9 +177,17 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
     }
     
-
     if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
       lanesXMLString = request.getParameter("lanesXMLString");
+    }
+    else if (request.getParameter("samplesXMLString") != null && !request.getParameter("samplesXMLString").equals("")) {
+      lanesXMLString = request.getParameter("samplesXMLString") ;
+    }
+    else if (request.getParameter("experimentsXMLString") != null && !request.getParameter("experimentsXMLString").equals("")) {
+      lanesXMLString = request.getParameter("experimentsXMLString") ;
+    }
+    
+    if (lanesXMLString != null) {
       reader = new StringReader(lanesXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -297,7 +309,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       
       if (this.isValid()) {
         if (analysisGroupParser != null) {
-          analysisGroupParser.parse(sess);          
+          analysisGroupParser.parse(sess);     
         }
         if (analysisFileParser != null) {
           analysisFileParser.parse(sess);          
@@ -346,7 +358,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         // Save analysis groups
         //
-        if (!isNewAnalysisGroup) {
+        if (!isNewAnalysisGroup && (existingAnalysisGroup != null || analysisGroupParser != null) ) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
           if (existingAnalysisGroup != null) {
             analysisGroups.add(existingAnalysisGroup);
@@ -379,7 +391,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         ArrayList experimentItemsToRemove = new ArrayList();
         if (!isNewAnalysisGroup) {
-          ArrayList filesToRemove = new ArrayList();
           for (Iterator i = analysis.getExperimentItems().iterator(); i.hasNext();) {
             AnalysisExperimentItem ex = (AnalysisExperimentItem) i.next();
             boolean found = false;
@@ -534,7 +545,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         
         // Add/update collaborators
         if (collaboratorParser != null) {
-          Set collaborators = new TreeSet();
           for(Iterator i = collaboratorParser.getCollaboratorUploadMap().keySet().iterator(); i.hasNext();) {
             Integer idAppUser = (Integer)i.next();
             String canUploadData = (String)collaboratorParser.getCollaboratorUploadMap().get(idAppUser);
@@ -581,6 +591,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         // Save properties
         //
         this.saveAnalysisProperties(sess, analysis);
+        
+        String state = "EXIST";
+        if(isNewAnalysis){
+          state = "NEW";
+        }
+        sendNotification(analysis, sess, state, "ADMIN", "ANALYSIS");
+        sendNotification(analysis, sess, state, "USER", "ANALYSIS");
         
         // Create the analysis directory
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
@@ -664,7 +681,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         String idAnalysisFile = (String)i1.next();
         // Analysis files that are on the file system but not yet saved should
         // be ignored.
-        if (idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
+        if (idAnalysisFile == null || idAnalysisFile.startsWith("AnalysisFile") || idAnalysisFile.equals( "0" )) {
           continue;
         }
         inCount++;
@@ -831,7 +848,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     }
     
     StringBuffer buf = new StringBuffer("SELECT ag from AnalysisGroup ag where ag.name = '" + newAnalysisGroupName + "' and ag.idLab = " + analysisScreen.getIdLab());
-    List results = (List)sess.createQuery(buf.toString()).list();
+    List results = sess.createQuery(buf.toString()).list();
     if (results.size() > 0) {
       existingAnalysisGroup = (AnalysisGroup)results.get(0);
       isNewAnalysisGroup = false;
@@ -865,9 +882,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String fileName = analysisFile.getFileName();
     fileName = fileName.replaceAll("'", "''"); // Replace any single quotes in file with double quotes so SQL won't fail
 
@@ -886,9 +900,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String fileName;
     if (!analysisFile.getQualifiedFilePath().equals("") && analysisFile.getQualifiedFilePath() != null) {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();    
@@ -904,9 +915,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   }
   
   public static void removeAnalysisDirectoryFromFileSystem(String baseDir, Analysis analysis) {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-//    String createYear = formatter.format(analysis.getCreateDate());
-    
     String dirName = getAnalysisDirectory(baseDir, analysis);
     File f = new File(dirName);
     if (!f.delete()) {

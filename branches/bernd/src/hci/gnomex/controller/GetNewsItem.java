@@ -67,8 +67,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
               n.setAttribute("message", 					row[2] == null ? "" :  ((String) row[2]));
               n.setAttribute("date",              	 		row[3] == null ? "" :  this.formatDate((java.util.Date)row[3]));
               n.setAttribute("idSubmitter",              	row[4] == null ? "" :  ((Integer)row[4]).toString());
-              n.setAttribute("idCoreSender",              	row[5] == null ? "" :  ((Integer)row[5]).toString());
-              n.setAttribute("idCoreTarget",              	row[6] == null ? "" :  ((Integer)row[6]).toString());
+              n.setAttribute("idCoreFacility",              	row[5] == null ? "" :  ((Integer)row[5]).toString());
          
               // Add node content to rootElement XML output.
             doc.getRootElement().addContent(n);

@@ -1,7 +1,13 @@
 package hci.gnomex.utility;
 
-public class Util {
+import hci.gnomex.controller.GetOrganismList;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+public class Util {
+  
   // Parses a comma delimited string where commas are ignored if between quotes.
   public static String[] parseCommaDelimited(String s) {
     if (s == null) {
@@ -66,5 +72,54 @@ public class Util {
     Integer num = Integer.parseInt(intStr);
     
     return num;
+  }
+  
+  /* 
+   * return the key set of the Map as an array of Strings. 
+   */
+  public static String[] keysToArray(Map<String, ?> map) {
+    String[] keys = new String[map.size()];    
+   
+    int index = 0;
+    for (String key : map.keySet()) {
+        keys[index] = key;
+        index++;
+    }
+    return keys;
+  }
+
+  /*
+   * Indicates if file is a link file on unix.
+   */
+  public static boolean isSymlink(File file) {
+    try {
+      if (file == null) {
+        return false;
+      }
+      File canon;
+      if (file.getParent() == null) { 
+        canon = file; 
+      } else { 
+        File canonDir = file.getParentFile().getCanonicalFile(); 
+        canon = new File(canonDir, file.getName());
+      }
+  
+      return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+    } catch(IOException ex) {
+      return false;
+    }
+  }
+
+  public static String addURLParameter(String url, String parameter) {
+    if (parameter.startsWith("&") || parameter.startsWith("?")) {
+      parameter = parameter.substring(1);
+    }
+    if (url.contains("?")) {
+      url += "&";
+    } else {
+      url += "?";
+    }
+    url += parameter;
+    return url;
   }
 }

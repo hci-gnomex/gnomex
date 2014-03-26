@@ -35,6 +35,7 @@ public class ProjectRequestFilter extends DetailObject {
   private String                searchOrganismOnSample;
   private String                publicExperimentsInOtherGroups;
   private String                allExperiments = "N";
+  private String                allCollaborations = "N";
   private String                showSamples = "Y";
   private String                showCategory = "Y";
   private String                showExternalExperiments = "Y";
@@ -109,11 +110,10 @@ public class ProjectRequestFilter extends DetailObject {
     // automatically
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       return hasLimitingCriteria;
-    } else {
-      // Non-admins are always scoped by either lab, own experiments,
-      // so no need to require any additional filtering.
-      return true;
     }
+    // Non-admins are always scoped by either lab, own experiments,
+    // so no need to require any additional filtering.
+    return true;
   }
     
   
@@ -217,9 +217,8 @@ public class ProjectRequestFilter extends DetailObject {
     if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
         idSlideProduct != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
   
   
@@ -340,11 +339,21 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest is not null ");
     }
-    // Search by user 
-    if (idAppUser != null){
+    // Search by collaborator
+    if (allCollaborations != null && allCollaborations.equals("Y")){
       this.addWhereOrAnd();
-      queryBuf.append(" req.idSubmitter = ");
+      queryBuf.append(" collab.idAppUser = ");
       queryBuf.append(idAppUser);
+    } else if (idAppUser != null){
+      // Search by user
+      this.addWhereOrAnd();
+      queryBuf.append(" ( req.idSubmitter = ");
+      queryBuf.append(idAppUser);
+   
+      queryBuf.append(" OR ");
+      queryBuf.append(" req.idAppUser = ");
+      queryBuf.append(idAppUser);
+      queryBuf.append(" ) ");
     } 
     //  Search by idRequest 
     if (idRequest != null){
@@ -392,16 +401,29 @@ public class ProjectRequestFilter extends DetailObject {
     //  Search by create date from 
     if (createDateFrom != null){
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
-      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+      if(secAdvisor.isGuest()){ // use when a request became public instead of create date
+	      queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
+	      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      } else {
+	      queryBuf.append(" req.createDate >= '");
+	      queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      }
     } 
     //  Search by create date from 
-    if (createDateTo != null){
+    if (createDateTo != null){  
+      createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate <= '");
-      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append("  CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  < '");
+          queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+          queryBuf.append("'");
+      } else {
+	      queryBuf.append(" req.createDate < '");
+	      queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+	      queryBuf.append("'");
+      }
     } 
     // Search for requests submitted in last week
     if (lastWeek.equals("Y")) {
@@ -411,7 +433,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -423,7 +449,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -435,7 +465,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -447,7 +481,11 @@ public class ProjectRequestFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" req.createDate >= '");
+      if(secAdvisor.isGuest()) { // use when a request became public instead of create date
+    	  queryBuf.append(" CASE WHEN req.privacyExpirationDate IS NULL THEN req.createDate ELSE req.privacyExpirationDate END  >= '");
+      } else {
+    	  queryBuf.append(" req.createDate >= '");
+      }
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
@@ -580,12 +618,12 @@ public class ProjectRequestFilter extends DetailObject {
 
     if (this.allExperiments != null && this.allExperiments.equals("Y")) {
       boolean scopeToGroup = false;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities", true);
     } else if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere, true);
     } else {
       boolean scopeToGroup = true;
-      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities");
+      secAdvisor.buildSpannedSecurityCriteria(queryBuf, "project", "req", "collab", addWhere, "req.codeVisibility", scopeToGroup, "req.idRequest", "labFacilities", true);
 
     }
     
@@ -597,7 +635,7 @@ public class ProjectRequestFilter extends DetailObject {
   private void addAnalysisExperimentSecurityCriteria() {
     
     if (this.publicExperimentsInOtherGroups != null && this.publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) {
-      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere);
+      secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "req", addWhere, true);
     } else {
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
         
@@ -1024,6 +1062,13 @@ public class ProjectRequestFilter extends DetailObject {
     this.allExperiments = allExperiments;
   }
   
+  public String getAllCollaborations() {
+	    return allCollaborations;
+	  }
+
+  public void setAllCollaborations(String allCollaborations) {
+	    this.allCollaborations = allCollaborations;
+	  }
 
   public String getShowEmptyProjectFolders() {
     return showEmptyProjectFolders;
@@ -1052,13 +1097,11 @@ public class ProjectRequestFilter extends DetailObject {
   
   public void setCcNumber( String ccNumber ) {
     this.ccNumber = ccNumber;
-  }
-  
+  }  
+
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
-
-
   
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
@@ -1068,9 +1111,10 @@ public class ProjectRequestFilter extends DetailObject {
   public Date getCreateDateTo() {
     return createDateTo;
   }
-
   
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
+
+
 }

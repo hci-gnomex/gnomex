@@ -25,8 +25,7 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
   private Integer	idSubmitter;
   private String	title;
   private String	message;
-  private Integer 	coreFacilitySender = 0;
-  private Integer	coreFacilityTarget = 0;
+  private Integer 	idCoreFacility = 0;
   
   public void validate() {
   
@@ -39,8 +38,7 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
       message = request.getParameter("message");
       idNewsItem = Integer.parseInt(request.getParameter("idNewsItem"));
       idSubmitter = Integer.parseInt(request.getParameter("idAppUser"));
-      coreFacilityTarget = Integer.parseInt(request.getParameter("CFT"));
-      coreFacilitySender = Integer.parseInt(request.getParameter("CFS"));
+      idCoreFacility = Integer.parseInt(request.getParameter("idCoreFacility"));
     }
   }
 
@@ -102,8 +100,7 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
     newsItem.setTitle(RequestParser.unEscape(title));
     newsItem.setMessage(message);
     newsItem.setIdSubmitter(new Integer(idSubmitter));
-    newsItem.setIdCoreTarget(new Integer(coreFacilityTarget));
-    newsItem.setIdCoreSender(new Integer(coreFacilitySender));
+    newsItem.setIdCoreFacility(new Integer(idCoreFacility));
     newsItem.setDate(new java.sql.Date(System.currentTimeMillis()));
     
   }

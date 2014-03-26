@@ -3,12 +3,14 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
@@ -16,7 +18,9 @@ import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
 import java.io.Serializable;
@@ -201,6 +205,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
               this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
             } catch (Exception e) {
               this.xmlResult = "<InvalidSubmitterEmail notice=\"Unable to notify " + request.getAppUser().getFirstLastDisplayName() +" that their sequence lanes have been completed because either they have no email address listed in gnomex or their email address is malformed." + "\"" + "/>";
+              e.printStackTrace();
             }
           }
           setResponsePage(this.SUCCESS_JSP);
@@ -231,14 +236,103 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     return this;
   }
   
-  
+  private void sendBioinformaticsAssistanceEmail(Session sess, Request r) throws NamingException, MessagingException {
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    AppUser user = r.getAppUser();
+    String organismName = "";
+    String genomeBuild = "";
+    String seqRunType = "";
+    String seqLibProtocol = "";
+    String application = "";
+    String subject = "Bioinformatics analysis for " + user.getFirstLastDisplayName() + ", sequencing request number " + r.getNumber();
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS);
+    String ccAddress = "";
+    
+    if(r.getIdOrganismSampleDefault() != null) {
+      organismName = dictionaryHelper.getOrganism(r.getIdOrganismSampleDefault());
+    }
+    if(r.getApplication() != null && r.getApplication().getApplication() != null) {
+      application = r.getApplication().getApplication();
+    }
+    
+    for(Iterator i = r.getSamples().iterator(); i.hasNext();) {
+      Sample s = (Sample)i.next();
+      if(s.getIdSeqLibProtocol() != null) {
+        seqLibProtocol = dictionaryHelper.getSeqLibProtocol(s.getIdSeqLibProtocol());
+        break;
+      }
+    }
+    for(Iterator j = r.getSequenceLanes().iterator(); j.hasNext();) {
+      SequenceLane sl = (SequenceLane)j.next();
 
-  
+      if(sl.getIdSeqRunType() != null && seqRunType.equals("")) {
+        seqRunType = dictionaryHelper.getSeqRunType(sl.getIdSeqRunType());
+      }
+
+      if(sl.getIdGenomeBuildAlignTo() != null && genomeBuild.equals("")) {
+        genomeBuild = dictionaryHelper.getGenomeBuildName(sl.getIdGenomeBuildAlignTo());
+      }
+
+      if(!genomeBuild.equals("") && !seqRunType.equals("")) {
+        break;
+      }
+    }
+
+    
+    StringBuffer body = new StringBuffer();
+    
+    boolean send = false;
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      send = true;
+    } else {
+      send = true;
+      subject = subject + "  (TEST)";
+      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + ", cc: " + ccAddress +  "]<br><br>");
+      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      ccAddress = "";
+    }
+    
+    body.append(user.getFirstLastDisplayName() + " of the " + r.getLabName() + " has requested bioinformatic analysis assistance for sequencing request number " + r.getNumber() + ". <br>");
+    body.append("The data is now available in GNomEx.<br><br>");
+    body.append("<b>Contact Information:</b><br> " + user.getFirstLastDisplayName() + "<br>");
+    if(user.getEmail() != null) {
+      body.append(user.getEmail() + "<br>");
+      ccAddress = user.getEmail();
+    }
+    if(user.getPhone() != null) {
+      body.append(user.getPhone() + "<br> <br>");
+    } else {
+      body.append("<br>");
+    }
+    
+    if(r.getAnalysisInstructions() != null) {
+      body.append("<b>Analysis Notes:</b><br> " + r.getAnalysisInstructions() + "<br> <br>");
+    }
+    
+    body.append("<b>Experiment Information:</b><br>" + r.getNumberOfSamples() + " sample(s). <br>");
+    body.append("<u>Sequencing Application:</u> " + application + ". <br>");
+    body.append("<u>Organism:</u> " + organismName + ". <br>");
+    body.append("<u>Genome Build:</u> " + genomeBuild + ". <br>");
+    body.append("<u>Run Type:</u> " + seqRunType + ". <br>");
+    body.append("<u>Library Protocol:</u> " + seqLibProtocol);
+    
+    if (send) {
+      MailUtil.send(toAddress, 
+          ccAddress,
+          fromAddress, 
+          subject, 
+          body.toString(),
+          true);      
+    }
+    
+  }
+
   private void sendConfirmationEmail(Session sess, Request request, Collection lanes) throws NamingException, MessagingException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
 
     String analysisInstruction = null;
     String genomeAlignTo = null;
@@ -277,13 +371,15 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
     introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
-    
-    if(request.getIsExternal().equals("N") && request.getIdCoreFacility() == CoreFacility.CORE_FACILITY_GENOMICS_ID){
-      introNote.append("<br><br>" + dictionaryHelper.getPropertyDictionary(PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
+    if(request.getIsExternal().equals("N") && request.getIdCoreFacility().equals(CoreFacility.CORE_FACILITY_GENOMICS_ID)){
+      introNote.append("<br><br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(CoreFacility.CORE_FACILITY_GENOMICS_ID, PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
     
     introNote.append("<br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
     
+    if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {
+      introNote.append("<br><br>Bioinformatics core has been informed that the experiment is complete.");
+    }
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
     
@@ -319,68 +415,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
     
     // Send email to bioinformatics core
-    StringBuffer bioIntroNote = new StringBuffer();
-
-    bioIntroNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    bioIntroNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
-    bioIntroNote.append("<br>");
-    
-    emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS);
-    //As of 08/14/2013 the Bioinformatics contact email property is currently removed from gnomex.  So this email address is currently being set null.
-    //I've decided to just silently return out of this function for now if this email is null.  Otherwise we get an invalid email error in the server log.
-    if(emailRecipients == null){
-      return;
-    }
-    
-    if(emailRecipients != null && emailRecipients.contains(",")){
-      for(String e : emailRecipients.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
-          log.error("Invalid email address: " + e);
-        }
-      }
-    } else if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address: " + emailRecipients);
-    }
-    
-    if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email: " + emailRecipients);
-    }
-    
-    if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
-      bioIntroNote.append("<br><br><b>Genome Align To:   </b>" + genomeAlignTo);
-    }
-    if (analysisInstruction != null && !analysisInstruction.equals("")) {
-      bioIntroNote.append("<br><br><b>Analysis Instructions:   </b>" + analysisInstruction);
-    }
-    
-    bioIntroNote.append("<br><br><br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");
-
-    RequestEmailBodyFormatter bioEmailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), bioIntroNote.toString());
-    bioEmailFormatter.setIncludeMicroarrayCoreNotes(false);
-     
-    subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
-    boolean bioSend = false;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      if (analysisInstruction != null && !analysisInstruction.equals("")) {
-        bioSend = true;
-      }
-      if (genomeAlignTo != null && !genomeAlignTo.equals("")) {
-        bioSend = true;
-      }
-    } else {
-      bioSend = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    
-    if (bioSend) {      
-      MailUtil.send(emailRecipients, 
-          null,
-          fromAddress, 
-          subject, 
-          emailInfo + bioEmailFormatter.format(),
-          true);
+    if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {
+      sendBioinformaticsAssistanceEmail(sess, request);
     }
   }
 }

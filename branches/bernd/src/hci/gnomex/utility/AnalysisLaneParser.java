@@ -4,6 +4,7 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.model.SequenceLane;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,8 @@ import java.util.List;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 public class AnalysisLaneParser extends DetailObject implements Serializable {
@@ -24,6 +27,7 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
     this.doc = doc;
  
   }
+  
   
   public void parse(Session sess, boolean isBatchMode) throws Exception{
     
@@ -64,6 +68,43 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
 
 
     }
+    
+    for(Iterator i = root.getChildren("Experiment").iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      
+      if (isBatchMode) {
+        String experimentNumber = node.getAttributeValue("number");
+        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.id, l.id from Request r join r.sequenceLanes l where r.number = '" + experimentNumber + "'").list();
+        if (rows == null || rows.size() == 0) {
+          throw new RuntimeException("Cannot find experiment  " + experimentNumber);
+        }
+        for (Object[] row : rows) {
+          Integer idRequest = (Integer)row[0];
+          Integer idSequenceLane = (Integer)row[1];
+          idSequenceLaneList.add(idSequenceLane);
+          idRequestMap.put(idSequenceLane, idRequest);
+        }
+      }
+    }
+    
+    for(Iterator i = root.getChildren("Sample").iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      
+      if (isBatchMode) {
+        String sampleNumber = node.getAttributeValue("number");
+        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.idRequest, l.idSequenceLane from Request r join r.sequenceLanes l join l.sample s where s.number = '" + sampleNumber + "'").list();
+        if (rows == null || rows.size() == 0) {
+          throw new RuntimeException("Cannot find sample  " + sampleNumber);
+        }
+        for (Object[] row : rows) {
+          Integer idRequest = (Integer)row[0];
+          Integer idSequenceLane = (Integer)row[1];
+          idSequenceLaneList.add(idSequenceLane);
+          idRequestMap.put(idSequenceLane, idRequest);
+        }
+      }
+    }
+
   }
 
   

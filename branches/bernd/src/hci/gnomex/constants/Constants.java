@@ -91,6 +91,7 @@ public class Constants {
     ".bw",
     ".bed",
     ".bgr",
+    ".brs",
     ".gff", 
     ".gtf",
     ".vcf.gz",
@@ -113,6 +114,7 @@ public class Constants {
     ".bai",
     ".vcf.gz",
     ".vcf.gz.tbi",
+    ".useq",
   };
   
 

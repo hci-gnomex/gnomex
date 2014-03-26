@@ -259,6 +259,14 @@ public class DataTrackUtil {
   /**Does some minimal error checking on a bam alignment file.
    * @return null if no problems, otherwise an error.*/
   public static String checkBamFile(File bamFile) {
+    
+    // TDS 12/9/2013 - Commenting out code that throws exception.
+    // While working on Build 37 (H_sapiens_June_2013), Tim Mosbruger and Tony Di Sera did a test of
+    // a bam file with chromosomes names 1-22.  The data track loaded in DAS/2 and was visualized
+    // in DAS/2 without error.  
+    return null;
+
+    /*
     String message = null;
     SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
     SAMFileReader reader = null;
@@ -279,6 +287,7 @@ public class DataTrackUtil {
       }
       if (badChroms) throw new Exception("Your bam file contains chromosomes that are 1-2 letters/ numbers long. For DAS compatibility they need to start with 'chr'.");
       if (badMito) throw new Exception("Your bam file contains a chrMT chromosome. For DAS compatibility convert it to chrM.");
+      
       //read an alignment
       SAMRecordIterator it = reader.iterator();
       if (it.hasNext()) it.next();
@@ -290,6 +299,7 @@ public class DataTrackUtil {
       if (reader != null) reader.close();
     }
     return message;
+    */
   }
   
   /**Creates pseudorandom Strings derived from an alphabet of String[] using the
@@ -441,16 +451,23 @@ public class DataTrackUtil {
     	String fileName = f.getName();
     	for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
     		if (fileName.endsWith(ext)){
-    			if (ext.equals(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
-    	        else if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
-    	        filesAL.add(f);
-    	        break;
-    		}
+    	     if (ext.equals(".bw") || ext.equals(".bb")) bigFile = f; 
+    	     filesAL.add(f);
+    	     break;
+    		} 
     	}
+      if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) useq = f;
+      
     }
+    
 
-    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
     ArrayList<File> convertedUSeqFiles = null;
+    //convert useq archive?  If a xxx.useq file is found and autoConvertUSeqArchives == true, then the file is converted using a separate thread.
+    /*  FOR NOW, WE ARE COMMENTING THIS OUT.  WE DON'T WANT TO RUN USEQ CONVERSIONS
+     *  IN REALTIME AS IT IS TOO PRONE TO CONSUME THE CPU, ESPECIALLY IF THE
+     *  USEQ FILE IS CORRUPT.
+     */
+    /*
     if (bigFile == null && useq !=null && autoConvertUSeqArchives){
       //this can consume alot of resources and take 1-10min
       USeq2UCSCBig c = new USeq2UCSCBig(ucscWig2BigWigExe, ucscBed2BigBedExe, useq);
@@ -460,6 +477,7 @@ public class DataTrackUtil {
       c.convert(); //same thread!
       //c.start(); //separate thread!
     }
+    */
 
     if (filesAL.size() !=0){
       //stranded?

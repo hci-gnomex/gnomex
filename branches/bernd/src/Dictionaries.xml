@@ -34,8 +34,10 @@
 
 	<Dictionary displayName="Application Theme" className="hci.gnomex.model.ApplicationTheme" >
 	</Dictionary>
+	<Dictionary displayName="Application Type" className="hci.gnomex.model.ApplicationType" editable="N" />
 	<Dictionary displayName="Application" className="hci.gnomex.model.Application"  editable="N" >
 			<Filter className="hci.gnomex.model.ApplicationTheme" filterField="idApplicationTheme"/>
+      <Filter className="hci.gnomex.model.ApplicationType"  filterField="codeApplicationType"/>
 	</Dictionary>
 	<Dictionary displayName="Applications allowed for a Request Category" className="hci.gnomex.model.RequestCategoryApplication"  editable="N">
   	  <Filter className="hci.gnomex.model.RequestCategory" filterField="codeRequestCategory"/>
@@ -61,14 +63,6 @@
   <Dictionary displayName="Sample Type (Request defaults)" className="hci.gnomex.model.SampleTypeRequestCategory"  editable="N">
   	  <Filter className="hci.gnomex.model.SampleType"         filterField="idSampleType"/>
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
-	</Dictionary>
-	<Dictionary displayName="Sample Type (Application)" className="hci.gnomex.model.SampleTypeApplication"  editable="N">
-  	  <Filter className="hci.gnomex.model.Application"               filterField="codeApplication"/>
-  	  <Filter className="hci.gnomex.model.SampleType"                filterField="idSampleType"/>
-  	  <Filter className="hci.gnomex.model.LabelingProtocol"          filterField="idLabelingProtocolDefault"/>
-  	  <Filter className="hci.gnomex.model.HybProtocol"               filterField="idHybProtocolDefault"/>
-  	  <Filter className="hci.gnomex.model.ScanProtocol"              filterField="idScanProtocolDefault"/>
-  	  <Filter className="hci.gnomex.model.FeatureExtractionProtocol" filterField="idFeatureExtractionProtocolDefault"/>
 	</Dictionary>
   <Dictionary displayName="Sample Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
   <Dictionary displayName="Sample Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
@@ -156,6 +150,7 @@
 	<Dictionary displayName="Sample Source" className="hci.gnomex.model.SampleSource" />
 	<Dictionary displayName="Sample Type" className="hci.gnomex.model.SampleType"  editable="N">
   </Dictionary>
+   <Dictionary displayName="Nucleotide Type" className="hci.gnomex.model.NucleotideType" editable="Y" />
   
   <Dictionary displayName="DNA Seq Core - Run Status" className="hci.gnomex.model.InstrumentRunStatus" editable="N" />
   <Dictionary displayName="DNA Seq Core - Order Status" className="hci.gnomex.model.RequestStatus" editable="N" />
@@ -164,8 +159,9 @@
   <Dictionary displayName="DNA Seq Core - Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
   
 
-
-	
+  <Dictionary displayName="Molecular Diagnostics - DNA Prep Type" className="hci.gnomex.model.DNAPrepType" editable="Y" />
+	<Dictionary displayName="Molecular Diagnostics - RNA Prep Type" className="hci.gnomex.model.RNAPrepType" editable="Y" />
+  
 	
 	
   <Dictionary displayName="Owner" className="hci.gnomex.model.AppUserLite"  editable="N"  scrub="Y" />
@@ -178,6 +174,7 @@
 	<Dictionary displayName="Workflow Step" className="hci.gnomex.model.Step" editable="N"/>
 	<Dictionary displayName="Platform Definitions for Automated Alignment Runs" className="hci.gnomex.model.AlignmentPlatform" />
   <Dictionary displayName="Instrument" className="hci.gnomex.model.Instrument" />
+  <Dictionary displayName="Context Sensitive Help" className="hci.gnomex.model.ContextSensitiveHelp" editable="N" />
 
 </Dictionaries>
 	

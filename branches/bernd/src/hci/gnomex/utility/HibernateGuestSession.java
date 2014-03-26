@@ -33,7 +33,7 @@ public class HibernateGuestSession {
     
   public static Session currentGuestSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) guestSession.get();
-    if (s == null) {
+    if (s == null || !s.isOpen()) {
       
       if (GNomExFrontController.isTomcat()) {
         s = HibernateGuestUtil.getSessionFactory().openSession();

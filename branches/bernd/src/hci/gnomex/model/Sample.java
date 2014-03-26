@@ -70,12 +70,12 @@ public class Sample extends HibernateDetailObject {
   private Set         treatmentEntries;
   private Set         labeledSamples;
   private Set         wells;
+  private Set         sequenceLanes;
   private Integer     meanLibSizeActual;
   private Integer     idOligoBarcodeB;
   private String      barcodeSequenceB;
-  
-  private Set        workItems;
-  private Set		 sequenceLanes;
+  private Set         sampleExperimentFiles;
+  private Set         workItems;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -752,6 +752,7 @@ public class Sample extends HibernateDetailObject {
     return rxnPlateNames;
     
   }
+  
   public String getWorkflowStep() {
  
     String step = "1";
@@ -864,14 +865,6 @@ public class Sample extends HibernateDetailObject {
     this.sequenceLanes = sequenceLanes;
   }
 
-  public Set getWorkItems() {
-    return workItems;
-  }
-
-  public void setWorkItems(Set workItems) {
-    this.workItems = workItems;
-  }
-
   public Integer getIdSampleSource() {
     return idSampleSource;
   }
@@ -902,5 +895,21 @@ public class Sample extends HibernateDetailObject {
 
   public void setBarcodeSequenceB(String barcodeSequenceB) {
     this.barcodeSequenceB = barcodeSequenceB;
+  }
+
+  public Set getSampleExperimentFiles() {
+    return sampleExperimentFiles;
+  }
+
+  public void setSampleExperimentFiles(Set sampleExperimentFiles) {
+    this.sampleExperimentFiles = sampleExperimentFiles;
+  }
+
+  public Set getWorkItems() {
+    return workItems;
+  }
+
+  public void setWorkItems(Set workItems) {
+    this.workItems = workItems;
   }
 }

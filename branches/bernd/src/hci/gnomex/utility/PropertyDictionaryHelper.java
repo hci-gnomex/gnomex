@@ -561,5 +561,50 @@ public class PropertyDictionaryHelper implements Serializable {
     
   }
  
-  
+  // returns facility specific site logo.  Note that this is static because it is called before
+  // properties are loaded.
+  public static String getSiteLogo(Session sess, Integer idCoreFacility) {
+    String siteLogo = "./assets/gnomex_logo.png";
+    PropertyDictionary propSiteLogo = null;
+    if (idCoreFacility != null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility = :idCoreFacility");
+      propSiteQuery.setParameter("propName", PropertyDictionary.SITE_LOGO);
+      propSiteQuery.setParameter("idCoreFacility", idCoreFacility);
+      propSiteLogo = (PropertyDictionary)propSiteQuery.uniqueResult();
+    }
+    if (propSiteLogo == null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
+      propSiteQuery.setParameter("propName", PropertyDictionary.SITE_LOGO);
+      propSiteLogo = (PropertyDictionary)propSiteQuery.uniqueResult();
+    }
+    if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
+      siteLogo = "./" + propSiteLogo.getPropertyValue();
+    }
+
+    return siteLogo;
+  }
+
+  // returns facility specific site splash.  Note that this is static because it is called before
+  // properties are loaded.
+  public static String getSiteSplash(Session sess, Integer idCoreFacility) {
+    String siteSplash = "./assets/gnomex_splash_logo.png";
+    PropertyDictionary propSiteSplash = null;
+    if (idCoreFacility != null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility = :idCoreFacility");
+      propSiteQuery.setParameter("propName", PropertyDictionary.SITE_SPLASH);
+      propSiteQuery.setParameter("idCoreFacility", idCoreFacility);
+      propSiteSplash = (PropertyDictionary)propSiteQuery.uniqueResult();
+    }
+    if (propSiteSplash == null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
+      propSiteQuery.setParameter("propName", PropertyDictionary.SITE_SPLASH);
+      propSiteSplash = (PropertyDictionary)propSiteQuery.uniqueResult();
+    }
+    if (propSiteSplash != null && !propSiteSplash.getPropertyValue().equals("")) {
+      siteSplash = "./" + propSiteSplash.getPropertyValue();
+    }
+
+    return siteSplash;
+  }
+
 }

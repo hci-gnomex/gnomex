@@ -365,6 +365,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     
     String  sampleName          = (String)row[19];
     String  redoFlag            = (String)row[20];
+    Integer  idPlateWell        = (Integer)row[21];
 
     
     if (idPlate != null) {
@@ -405,6 +406,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     n.setAttribute("requestSubmitDate",  createDate == null ? ""  : this.formatDate((java.util.Date)createDate, this.DATE_OUTPUT_DASH));
     n.setAttribute("requestSubmitter",   submitter != null ? submitter.getDisplayName() : "");
     n.setAttribute("redoFlag",       redoFlag != null ? redoFlag : "");
+    n.setAttribute("idSourcePlateWell",        idPlateWell != null ? idPlateWell.toString() : "");
     
     if ( idAssay != null && idAssay.intValue() != -1 ) {
       n.setAttribute( "idAssay", idAssay.toString() );

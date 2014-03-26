@@ -293,7 +293,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     }
 
     Integer idSampleType = (Integer)row[18];
-    if (idSampleType.intValue() != -1) {
+    if (idSampleType != null && idSampleType.intValue() != -1) {
       String sampleType = (String)this.sampleTypeMap.get(idSampleType);
       itemNode.setAttribute("sampleType", sampleType);      
       this.requestSampleTypeMap.put(sampleType, null);

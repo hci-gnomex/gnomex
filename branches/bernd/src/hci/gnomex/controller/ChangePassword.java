@@ -11,6 +11,7 @@ import hci.gnomex.security.EncrypterService;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -79,6 +80,10 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       }
       if (request.getParameter("responsePageError") != null && !request.getParameter("responsePageError").equals("")) {
         responsePageError = request.getParameter("responsePageError");
+      }
+      if (request.getParameter("idCoreParm") != null && !request.getParameter("idCoreParm").equals("")) {
+        String idCoreParm = request.getParameter("idCoreParm");
+        launchAppURL = Util.addURLParameter(launchAppURL, idCoreParm);
       }
       
       this.validate();

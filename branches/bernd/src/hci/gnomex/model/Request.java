@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.hibernate.Hibernate;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -88,6 +89,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          materialQuoteNumber;
   private Date            quoteReceivedDate;
   private String          uuid;
+  private String          codeDNAPrepType;
+  private DNAPrepType     dnaPrepType;
+  private String          codeRNAPrepType;
+  private RNAPrepType     rnaPrepType;
+  private String          bioinformaticsAssist;
+  private String          hasPrePooledLibraries;
+  private Integer         numPrePooledTubes;
+  private String          trimAdapter;
+  private String          includeBisulfideConversion;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -317,10 +327,18 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public String getNotes() {
     return notes;
   }
-
   
   public void setNotes(String notes) {
     this.notes = notes;
+  }
+
+  
+  public String getBioinformaticsAssist() {
+    return bioinformaticsAssist;
+  }
+  
+  public void setBioinformaticsAssist(String bioinformaticsAssist) {
+    this.bioinformaticsAssist = bioinformaticsAssist;
   }
   
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
@@ -1035,6 +1053,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     
     root.setAttribute("idRequest",              this.getNonNullString(this.getIdRequest()));
     root.setAttribute("requestNumber",          this.getNonNullString(this.getNumber()));
+    root.setAttribute("number",          		this.getNonNullString(this.getNumber())); // analysis and datatrack have this "requestNumber" named "number". Now all three are congruent.
     root.setAttribute("requestCreateDate",      this.createDate == null ? ""  : this.formatDate(this.createDate, this.DATE_OUTPUT_ALTIO));
     root.setAttribute("requestCreateDateDisplay", this.getCreateDate() == null ? ""  : this.formatDate(this.getCreateDate(), this.DATE_OUTPUT_SQL));
     root.setAttribute("requestCreateDateDisplayMedium", this.getCreateDate() == null ? ""  : DateFormat.getDateInstance(DateFormat.MEDIUM).format(this.getCreateDate()));
@@ -1124,6 +1143,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("idRequest", this.getNonNullString(this.getIdRequest()));
     root.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
     root.setAttribute("label", this.getNumber() + " (Restricted Visibility)");
+    root.setAttribute("name",                   this.getNonNullString(this.getName()));
+    root.setAttribute("number",          this.getNonNullString(this.getNumber())); // analysis and datatrack have "number". Now all three are congruent.
     return doc;
   }  
  
@@ -1147,12 +1168,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
   public Boolean isSequenomPlate() {
     Boolean retVal = false;
-    if (this.getCodeRequestCategory() != null && this.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) && this.getSamples().size() > 0) {
+    if (this.getCodeRequestCategory() != null && RequestCategory.isSequenomType( this.getCodeRequestCategory() ) && this.getSamples().size() > 0) {
       retVal = isPlateRequest();
     }
     return retVal;
   }
-
+  
   private Boolean isPlateRequest() {
     Boolean retVal = false;
     if (this.getSamples().size() > 0) {
@@ -1328,5 +1349,80 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setUuid( String uuid ) {
     this.uuid = uuid;
   }
+  
+  public String getCodeDNAPrepType() {
+    return codeDNAPrepType;
+  }
+  
+  public void setCodeDNAPrepType( String codeDNAPrepType ) {
+    this.codeDNAPrepType = codeDNAPrepType;
+  }
+  
+  public DNAPrepType getDnaPrepType() {
+    return dnaPrepType;
+  }
+  
+  public void setDnaPrepType( DNAPrepType dnaPrepType ) {
+    this.dnaPrepType = dnaPrepType;
+  }
 
+  public String getCodeRNAPrepType() {
+    return codeRNAPrepType;
+  }
+  
+  public void setCodeRNAPrepType( String codeRNAPrepType ) {
+    this.codeRNAPrepType = codeRNAPrepType;
+  }
+  
+  public RNAPrepType getRnaPrepType() {
+    return rnaPrepType;
+  }
+  
+  public void setRnaPrepType( RNAPrepType rnaPrepType ) {
+    this.rnaPrepType = rnaPrepType;
+  }
+  
+  public String getHasPrePooledLibraries() {
+    return this.hasPrePooledLibraries;
+  }
+  
+  public void setHasPrePooledLibraries(String hasPrePooledLibraries) {
+    this.hasPrePooledLibraries = hasPrePooledLibraries;
+  }
+  
+  public Integer getNumPrePooledTubes() {
+    return this.numPrePooledTubes;
+  }
+  
+  public void setNumPrePooledTubes(Integer numPrePooledTubes) {
+    this.numPrePooledTubes = numPrePooledTubes;
+  }
+  
+  public String getSeqPrepByCore() {
+    // Since all samples have to have the same value for this, expose it at this level.
+    if (Hibernate.isInitialized(samples) && samples.size() > 0) {
+      Sample sample = (Sample)samples.iterator().next();
+      if (sample.getSeqPrepByCore() != null) {
+        return sample.getSeqPrepByCore();
+      } else {
+        return "";
+      }
+    } else {
+      return "";
+    }
+  }
+  public String getTrimAdapter() {
+    return trimAdapter;
+  }
+  public void setTrimAdapter(String trimAdapter) {
+    this.trimAdapter = trimAdapter;
+  }
+  
+  public String getIncludeBisulfideConversion() {
+    return includeBisulfideConversion;
+  }
+  
+  public void setIncludeBisulfideConversion( String includeBisulfideConversion ) {
+    this.includeBisulfideConversion = includeBisulfideConversion;
+  }
 }

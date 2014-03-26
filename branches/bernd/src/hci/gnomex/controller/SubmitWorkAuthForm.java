@@ -13,6 +13,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -146,8 +147,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
     
-    String launchBillingAccountDetail = this.launchAppURL + "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab();  
-    
+    String launchBillingAccountDetail = Util.addURLParameter(this.launchAppURL, "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab());  
     
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer coreNote= new StringBuffer();

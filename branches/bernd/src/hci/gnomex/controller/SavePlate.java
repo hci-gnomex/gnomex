@@ -11,12 +11,12 @@ import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PlateWellComparator;
 import hci.gnomex.utility.PlateWellParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -188,7 +188,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
           //
           // Save wells
           //
-          TreeSet<PlateWell> wellsToAdd = new TreeSet<PlateWell>(new WellComparator());
+          TreeSet<PlateWell> wellsToAdd = new TreeSet<PlateWell>(new PlateWellComparator());
           for (Iterator i = wellParser.getWellMap().keySet().iterator(); i.hasNext();) {
             String idPlateWellString = (String) i.next();
             PlateWell pw = 
@@ -315,17 +315,6 @@ public class SavePlate extends GNomExCommand implements Serializable {
     }
   }
 
-
-  private class WellComparator implements Comparator, Serializable {
-    public int compare(Object o1, Object o2) {
-      PlateWell u1 = (PlateWell) o1;
-      PlateWell u2 = (PlateWell) o2;
-      if (u1.getIdPlateWell() == null || u2.getIdPlateWell() == null) {
-
-      }
-      return u1.getIdPlateWell().compareTo(u2.getIdPlateWell());
-    }
-  }
 
   public void validate() {}
 }

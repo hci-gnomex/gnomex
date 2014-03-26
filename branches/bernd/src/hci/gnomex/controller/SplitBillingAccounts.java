@@ -225,7 +225,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), ba.getIdBillingAccount(), ba.getIdCoreFacility(), billingItemMap, relatedBillingItemMap, requestMap);
             for(Iterator j = parser.getRequest().getBillingItems().iterator(); j.hasNext();){
               BillingItem bi = (BillingItem)j.next();
-              if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO))
+              if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC))
                 allItemsApproved = false;
                 break;
             }

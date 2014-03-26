@@ -154,7 +154,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
       try {
         sess = HibernateSession.currentSession(this.getUsername());
         dh = DictionaryHelper.getInstance(sess);
-        parser.parse(sess);
+        parser.parse(sess, getSecAdvisor());
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           
@@ -164,6 +164,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             // Create a flow cell
             flowCell = new FlowCell();
             flowCell.setBarcode(flowCellBarcode);
+            flowCell.setIdCoreFacility(parser.getIdCoreFacility());
             sess.save(flowCell);
             sess.flush();
             
@@ -265,6 +266,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               
               // Create a work item for each channel
               WorkItem wi = new WorkItem();
+              wi.setIdCoreFacility(parser.getIdCoreFacility());
               wi.setFlowCellChannel(channel);
               wi.setCodeStepNext(codeStepNext);
               wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -306,6 +308,9 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             }
             
             sess.save(flowCell);
+            
+            sendNotification(flowCell, sess, "NEW", "ADMIN", "FLOWCELL");
+            sendNotification(flowCell, sess, "NEW", "USER", "FLOWCELL");
             
             
             sess.flush();

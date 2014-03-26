@@ -148,7 +148,6 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     Element root = this.doc.getRootElement();
     for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
-      System.out.println("ready to remove fileName " + node.getAttributeValue("fileName"));
       
       String fileIdString = node.getAttributeValue("idAnalysisFileString");
       String fileName = node.getAttributeValue("fileName");

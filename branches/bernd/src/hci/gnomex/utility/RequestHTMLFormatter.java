@@ -65,7 +65,7 @@ public class RequestHTMLFormatter {
      dnaSamples = true;
    }
 
-   if (RequestCategory.isSequenom(request.getCodeRequestCategory())) {
+   if (RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory())) {
      includeMicroarrayCoreNotes = false;
    }
    
@@ -106,7 +106,7 @@ public class RequestHTMLFormatter {
    
    return img;
  }
-
+// Header details
  public Element makeRequestTable() {
     
     
@@ -276,8 +276,7 @@ public class RequestHTMLFormatter {
     	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
     	}
-    	if ( (request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) || 
-    	      request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
+    	if (  RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
     	     (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
         showCcNumber = true;
       }
@@ -298,7 +297,11 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Plate", rowSpan, 1);
       this.addHeaderCell(rowh, "Well",rowSpan, 1);
     }
-    if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+    if (request.getCodeRequestCategory() != null && 
+        RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
+        !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) &&
+        !request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY) &&
+        !request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY) ) {
       this.addHeaderCell(rowh, "Container", rowSpan, 1);
       if (request.isSequenomPlate()) {
         this.addHeaderCell(rowh, "Plate", rowSpan, 1);
@@ -317,14 +320,18 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "Sample Name", rowSpan, new Integer(1));
     }
     if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
-      this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
-      if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
+      if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) || 
+          RequestCategory.isSequenomType( request.getCodeRequestCategory() ) ||
+          request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) {
+        this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1), new Integer(200));
+      }
+      if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) || request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) {
         this.addHeaderCell(rowh, "Conc.", rowSpan, new Integer(1));
         this.addHeaderCell(rowh, "Nucl. acid Extraction Method", rowSpan, new Integer(1), new Integer(300));
       }
     } else {
       if (request.getCodeRequestCategory() != null && 
-          (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || RequestCategory.isSequenom(request.getCodeRequestCategory()))) {
+          (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) )) {
         this.addHeaderCell(rowh, "Sample Type", rowSpan, new Integer(1));
       }
       if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
@@ -389,7 +396,6 @@ public class RequestHTMLFormatter {
       table.addContent(row);
       
 
-      
       String concentration = "";
       if (sample.getConcentration() != null) {
         concentration = new Integer(sample.getConcentration().intValue()).toString();
@@ -442,7 +448,7 @@ public class RequestHTMLFormatter {
         this.addCell(row, sample.getASourceWell().getPlate().getLabel());
         this.addCell(row, sample.getASourceWell().getWellName());
       }
-      if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY)) {
+      if (request.getCodeRequestCategory() != null && RequestCategory.isSequenomType( request.getCodeRequestCategory() )) {
         if (request.isSequenomPlate()) {
           this.addCell(row, "PLATE");
           this.addCell(row, sample.getASourceWell().getPlate().getLabel());
@@ -451,6 +457,7 @@ public class RequestHTMLFormatter {
           this.addCell(row, "TUBE");
         }
       }
+      
       if (showCcNumber) {
         if ( sample.getCcNumber() != null && !sample.getCcNumber().toString().equals( "" ) ) {
           String ccLinkString = "<a href=\"" + 
@@ -469,32 +476,34 @@ public class RequestHTMLFormatter {
       if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
         this.addCell(row, sample.getName());
       }
-      if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
-        this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-        if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
-          this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
-          this.addCell(row, getSamplePrepMethod(sample));
-        }
-      } else {
-        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+      if ( !request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY)&&!request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY)) {
+        if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
           this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
-        }
-        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
-          // Add in values.
-          this.assays = request.getAssays();
-          for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
-            String assayFlag = "&nbsp;";
-            if (sample.getAssays().containsKey((String)i.next())) {
-              assayFlag = "Y";
-            }
-            this.addCell(row, assayFlag);
+          if (!RequestCategory.isMolecularDiagnoticsRequestCategory( request.getCodeRequestCategory())) {
+            this.addCell(row, sample.getConcentration() == null ? "&nbsp;"      : concentration);
+            this.addCell(row, getSamplePrepMethod(sample));
           }
-        }
-        if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
-          PlateWell sourceWell = sample.getASourceWell();
-          this.addCell(row, sourceWell.getPlate().getLabel());
-          this.addCell(row, sourceWell.getWellName());
-          this.addCell(row, sample.getADestinationWell().getWellName());
+        } else {
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY)) {
+            this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
+          }
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
+            // Add in values.
+            this.assays = request.getAssays();
+            for(Iterator i=assays.keySet().iterator(); i.hasNext();) {
+              String assayFlag = "&nbsp;";
+              if (sample.getAssays().containsKey(i.next())) {
+                assayFlag = "Y";
+              }
+              this.addCell(row, assayFlag);
+            }
+          }
+          if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
+            PlateWell sourceWell = sample.getASourceWell();
+            this.addCell(row, sourceWell.getPlate().getLabel());
+            this.addCell(row, sourceWell.getWellName());
+            this.addCell(row, sample.getADestinationWell().getWellName());
+          }
         }
       }
       if (request.getCodeRequestCategory() != null && RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
@@ -653,7 +662,7 @@ public class RequestHTMLFormatter {
       this.addHeaderCell(rowh, "RIN #");
     }
 
-    this.addHeaderCell(rowh, "Index Group");
+    this.addHeaderCell(rowh, "Multiplex Group #");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     this.addHeaderCell(rowh, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Index&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     this.addHeaderCell(rowh, "Lib Conc.");
@@ -749,7 +758,7 @@ public class RequestHTMLFormatter {
     boolean showCcNumber = false;
      for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
-      if ( (request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY) || 
+      if ( (RequestCategory.isSequenomType( request.getCodeRequestCategory() ) || 
             request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
            (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
         showCcNumber = true;
@@ -957,7 +966,7 @@ public class RequestHTMLFormatter {
     return spm != null && !spm.trim().equals("") ? spm : "&nbsp;";
   }
 
-  private String getOrganism(Sample sample) {
+  /*private String getOrganism(Sample sample) {
     
     String org = null;
     if (dictionaryHelper.getOrganism(sample).equals("Other")) {
@@ -966,7 +975,7 @@ public class RequestHTMLFormatter {
       org = dictionaryHelper.getOrganism(sample); 
     }
     return org != null && !org.trim().equals("") ? org : "&nbsp;";
-  }
+  }*/
 
   public Element makeLabeledSampleTable(Element container, Set labeledSamples) {
 
@@ -1137,7 +1146,9 @@ public class RequestHTMLFormatter {
 
     
     // Group lanes by create Date
-    TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator());
+    TreeMap<Date, List<SequenceLane>> laneDateMap = new TreeMap<Date, List<SequenceLane>>(new DescendingDateComparator()); //***********
+    
+    // for each lane, add to Map's List for this lane's date if one exists or create a new List for this lane's date.
     for(Iterator i = lanes.iterator(); i.hasNext();) {
       SequenceLane lane = (SequenceLane)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(lane.getCreateDate());
@@ -1149,33 +1160,20 @@ public class RequestHTMLFormatter {
     }
     
     //Now show a lane table for each create date, most recent date first
-    int sectionCount = 0;
+
     for(Iterator i = laneDateMap.keySet().iterator(); i.hasNext();) {
       Date createDate = (Date)i.next();
       List<SequenceLane> theLanes = laneDateMap.get(createDate);
-
-      String caption = "Sample Sequence Lanes";
-      if (laneDateMap.size() > 1 || 
-          (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES))) {
-        if (sectionCount == 0) {
-          caption = "Most recent Sequence Lanes added on " + request.formatDate(createDate);
-        } else {
-          caption = "Sequence Lanes added on " + request.formatDate(createDate);
-        }
+      String caption = "Sequence Lanes added on " + request.formatDate(createDate);
+      if (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES)) {          
+          addSequenceLaneTableSection(parentNode, caption, theLanes, captionStyle);
+          break;	// if we are adding lanes, only add the most recent entries, otherwise print all
       }
-
       addSequenceLaneTableSection(parentNode, caption, theLanes, captionStyle);
       
-      // If the user just added lanes from the 'Add services' window,
-      // just show the lanes just added, not all of the existing lanes.
-      if (amendState != null && amendState.equals(Constants.AMEND_ADD_SEQ_LANES)) {
-        break;
-      }
-      
-      if (i.hasNext()) {
+      if (i.hasNext()) { // New date section
         makePageBreak(parentNode);        
       }
-      sectionCount++;
     }
     
     
@@ -1190,7 +1188,7 @@ public class RequestHTMLFormatter {
     String analysisInstructions = null;
     boolean uniqueInstructions = false;
     boolean showColInstructions = true;
-    for(Iterator i = lanes.iterator(); i.hasNext();) {
+    for(Iterator i = lanes.iterator(); i.hasNext();) { // have to group by lane
       SequenceLane l = (SequenceLane)i.next();
       if (analysisInstructions != null && l.getAnalysisInstructions() != null && !l.getAnalysisInstructions().equals(analysisInstructions)) {
         uniqueInstructions = true;
@@ -1537,9 +1535,9 @@ public class RequestHTMLFormatter {
     String sampleType = this.dictionaryHelper.getSampleType(sample.getIdSampleType());
     if (sampleType != null && sampleType.matches(".*DNA.*")) {
       return true;
-    } else {
-      return false;
     }
+    return false;
+   
   }
 
   public static void makePageBreak(Element maindiv) {

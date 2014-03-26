@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -15,6 +16,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -306,11 +308,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           // Show files under the root experiment directory
           String createDateString = this.formatDate((java.util.Date)row[0]);
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
-          addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, null);
+          addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, null, sess);
 
           // Show the files (and directories) under upload staging.  Show these under request node.
           if (includeUploadStagingDir.equals("Y")) {
-            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR);            
+            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR, sess);            
           }
         }
 
@@ -577,7 +579,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             fdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
-            recurseAddChildren(fdNode, fd, isFlowCellDirectory);
+            fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fd.getZipEntryName()));
+            recurseAddChildren(fdNode, fd, isFlowCellDirectory, sess);
             
             requestDownloadNode.addContent(fdNode);
             requestDownloadNode.setAttribute("isEmpty", "N");
@@ -595,13 +598,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory) throws XMLReflectException {
+  private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory, Session sess) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "Y");
       }
     } else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
-      if ( fd.getType() == "dir" ) {
+      if ( fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "N");
       }
     }
@@ -617,18 +620,33 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
       childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
+      childFdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, childFd.getZipEntryName()));
 
       fdNode.addContent(childFdNode);
       
       
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
-        recurseAddChildren(childFdNode, childFd, isFlowCellDirectory);
+        recurseAddChildren(childFdNode, childFd, isFlowCellDirectory, sess);
       }else {
-        if ( childFd.getType() == "dir" ) {
+        if ( childFd.getType().equals("dir")) {
           childFdNode.setAttribute("isEmpty", "Y");
         }
       }
     }
+    
+  }
+  
+  private static String getLinkedSampleNumber(Session sess, String fileName) {
+    List expFile = sess.createQuery("Select ef from ExperimentFile ef WHERE ef.fileName = '" + fileName.replace("\\", "/") + "'" ).list();
+    if(expFile.size() > 0) {
+      ExperimentFile ef = (ExperimentFile) expFile.get(0);
+      List sampleNumber = sess.createQuery("Select samp.number from SampleExperimentFile sef JOIN sef.sample as samp where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " or sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
+      if(sampleNumber.size() > 0) {
+        return (String)sampleNumber.get(0);
+      }
+    }
+    
+    return "";
     
   }
   
@@ -639,6 +657,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     String directoryName = baseDir + createYear + File.separator + requestNumber;
     File fd = new File(directoryName);
 
+    // Ignore soft links
+    if (Util.isSymlink(fd)) {
+      return folders;
+    }
+    
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
       for (int x = 0; x < fileList.length; x++) {
@@ -653,7 +676,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     
   }
   
-  private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate, String subDirectory) throws Exception {
+  private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate, String subDirectory, Session sess) throws Exception {
    
     String dirTokens[] = createDate.split("/");
     String createYear  = dirTokens[2];
@@ -672,8 +695,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           continue;
         } 
         
-        // bypass directories
-        if (f1.isDirectory()) {
+        // bypass directories and soft links.
+        if (f1.isDirectory() || Util.isSymlink(f1)) {
           continue;
         }
         
@@ -689,7 +712,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("state", "unchecked");
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
-
+        fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(requestNumber))));
+        
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
 

@@ -17,6 +17,7 @@ public class RequestCategoryType extends DictionaryEntry implements Comparable, 
   public static final String   TYPE_ISCAN               = "ISCAN";
   public static final String   TYPE_CLINICAL_SEQUENOM   = "CLINSEQ";
   public static final String   TYPE_SEQUENOM            = "SEQUENOM";
+  public static final String   TYPE_ISOLATION           = "ISOLATION";
   public static final String   TYPE_GENERIC             = "GENERIC";
 
   private String                codeRequestCategoryType;

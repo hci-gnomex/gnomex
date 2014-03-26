@@ -17,6 +17,9 @@ public class NotificationFilter extends DetailObject {
   private Integer			idLabTarget;
   private Integer			expID;
   private String			type;
+  private Integer     idCoreFacility;
+  
+  private static final String daysToRetrieve = "30"; //How many days of notifications should we retrieve
   	
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -37,6 +40,10 @@ public class NotificationFilter extends DetailObject {
     addBaseQueryBody(queryBuf);
     addRequestCriteria();
     
+    //By default only get the last 30 days of notifications
+    //this.addWhereOrAnd();
+    //queryBuf.append(" DATEDIFF(day, [date], GETDATE()) < " + daysToRetrieve);  DATEDIFF DOESN"T WORK IN HQL
+    
     return queryBuf;
   }
 
@@ -45,7 +52,7 @@ public class NotificationFilter extends DetailObject {
 	  queryBuf.append(" n.idNotification, n.sourceType, ");
 	  queryBuf.append(" n.message, n.date, ");
 	  queryBuf.append(" n.idUserTarget, n.idLabTarget, ");
-	  queryBuf.append(" n.expID, n.type, n.fullNameUser ");
+	  queryBuf.append(" n.expID, n.type, n.fullNameUser, n.imageSource, n.idCoreFacility ");
    } 
 
   private void addBaseQueryBody(StringBuffer queryBuf) {
@@ -93,6 +100,15 @@ public class NotificationFilter extends DetailObject {
 	    	queryBuf.append(expID);
 	    	queryBuf.append("'");
 	    }
+	    
+	     if(idCoreFacility != null){
+	        this.addWhereOrAnd();
+	        queryBuf.append("n.idCoreFacility = '");
+	        queryBuf.append(idCoreFacility);
+	        queryBuf.append("'");
+	        this.addWhereOrAnd();
+	        queryBuf.append("n.idCoreFacility is null");
+	      }
   }
 
   protected boolean addWhereOrAnd() {
@@ -168,4 +184,12 @@ public class NotificationFilter extends DetailObject {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
 } 

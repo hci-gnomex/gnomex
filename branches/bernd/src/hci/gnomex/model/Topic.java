@@ -315,6 +315,10 @@ public class Topic extends DetailObject implements Serializable, VisibilityInter
      }
    }
    
+   public String getNumber(){
+     return "T" + idTopic.toString();
+   }
+   
    public void registerMethodsToExcludeFromXML() {
      this.excludeMethodFromXML("getTopics");
      this.excludeMethodFromXML("getParentTopic");

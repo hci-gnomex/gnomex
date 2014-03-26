@@ -7,6 +7,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -224,6 +225,10 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
+        if (Util.isSymlink(f1)) {
+          continue;
+        }
+        
         String fileName = directoryName + "/" + f1.getName();
 
         // Show the subdirectory in the name if we are not at the main folder level

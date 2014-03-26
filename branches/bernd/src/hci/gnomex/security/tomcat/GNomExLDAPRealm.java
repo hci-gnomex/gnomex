@@ -1,6 +1,8 @@
 package hci.gnomex.security.tomcat;
 
+import hci.gnomex.security.ActiveDirectory;
 import hci.gnomex.security.EncrypterService;
+import hci.gnomex.utility.Util;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -8,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -34,9 +37,14 @@ public class GNomExLDAPRealm extends RealmBase {
   private String password;
   
   private String ldap_init_context_factory;
+  private String ldap_sec_principal;
   private String ldap_provider_url;
   private String ldap_protocol;
   private String ldap_auth_meth;
+  private String ldap_domain = null;
+  private String ldap_user_attributes  = null;
+  private HashMap<String, String> ldap_user_attribute_map = new HashMap<String, String>();
+
 
   private String alt_ldap_init_context_factory;
   private String alt_ldap_provider_url;
@@ -171,6 +179,46 @@ public class GNomExLDAPRealm extends RealmBase {
   }
 
 
+  public String getLdap_domain() {
+    return ldap_domain;
+  }
+
+  public void setLdap_domain(String ldap_domain) {
+    this.ldap_domain = ldap_domain;
+  }
+
+  public String getLdap_user_attributes() {
+    return ldap_user_attributes;
+  }
+
+  public void setLdap_user_attributes(String ldap_user_attributes) {
+    this.ldap_user_attributes = ldap_user_attributes;
+    
+    // Populate user attributes and values into a may (key=attribute, value=attribute value)
+    if (ldap_user_attributes != null) {
+      String attributeTokens[] = ldap_user_attributes.split(",");
+      for (int x = 0; x < attributeTokens.length; x++) {
+        String tokens[] = attributeTokens[x].split(":");
+        String attribute = tokens.length > 0 ? tokens[0] : null;
+        String value = tokens.length > 1 ? tokens[1] : null;
+        if (attribute != null && value != null) {
+          ldap_user_attribute_map.put(attribute, value);            
+        } else {
+          System.out.println("Unexpected token for ldap_user_attributes: " + " attribute entry=" + attributeTokens[x] + " tokens=" + tokens);
+        }
+      }
+    }
+
+  }
+
+  public String getLdap_sec_principal() {
+    return ldap_sec_principal;
+  }
+
+  public void setLdap_sec_principal(String ldap_sec_principal) {
+    this.ldap_sec_principal = ldap_sec_principal;
+  }
+
   public String getDatasource_lookup_name() {
     return datasource_lookup_name;
   }
@@ -213,31 +261,43 @@ public class GNomExLDAPRealm extends RealmBase {
       return false;
     }
 
-    Hashtable env = new Hashtable();
-    env.put(Context.INITIAL_CONTEXT_FACTORY, ldap_init_context_factory);
-    env.put(Context.PROVIDER_URL, ldap_provider_url);
-    env.put(Context.SECURITY_PROTOCOL, ldap_protocol);
-    env.put(Context.SECURITY_AUTHENTICATION, ldap_auth_meth);
-    // Authenticate with the end user's uid and password (collected from a servlet form)
-    env.put(Context.SECURITY_PRINCIPAL, "uid="+username+",ou=People,dc=utah,dc=edu");
-    env.put(Context.SECURITY_CREDENTIALS, password);
-
-    try {
-
-      DirContext ctx = new InitialDirContext(env);
-
-      ctx.close();
-
-      return true;
-    } catch (AuthenticationException ae) {
-      // Auth failed so return false
-      System.out.println("GNomExLDAPRealm checkLDAPCredentials failed " + ae.toString());
-
-      return false;
-    } catch (Exception e) {
-      System.out.println("hci.gnomex.security.tomcat.GNomExLDAPRealm ERROR - Cannot connect to LDAP server " + e.toString());
-      return false;
+    boolean isAuthenticated = false;
+    
+    // Change local copy since GNomExLDAPRealm is apparently static in tomcat
+    String localPrincipal = ldap_sec_principal;
+    if (localPrincipal != null && localPrincipal.contains("<")) {
+      localPrincipal = localPrincipal.replace("<uid>", username);      
+    } else if(localPrincipal != null && localPrincipal.contains("[")) {
+      // Need brackets if provided in a property because <> messes up parsing of context (xml) file
+      localPrincipal = localPrincipal.replace("[uid]", username);            
     }
+    
+    try {
+      ActiveDirectory ad = new ActiveDirectory(username, 
+          password, 
+          ldap_init_context_factory,
+          ldap_provider_url, 
+          ldap_protocol, 
+          ldap_auth_meth, 
+          localPrincipal);
+      
+      // If user attributes are property is present, then check the user attributes
+      // to see if they match the expected value.  
+      if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
+        NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
+        isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);     
+  
+      } else {
+        // If no user attributes property present, we have passed authentication at this point.
+        isAuthenticated = true;
+      }
+      
+      
+    } catch (Exception e) {
+      isAuthenticated = false;
+    } 
+    return isAuthenticated;
+
   }
   
   private boolean checkAlternateLDAPCredentials() {

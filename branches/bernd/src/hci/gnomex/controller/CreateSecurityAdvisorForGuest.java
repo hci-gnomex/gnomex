@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.jar.Attributes;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import nl.captcha.Captcha;
 
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
 
@@ -35,6 +37,12 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
   private String              errorAction;
+  
+  private java.util.Date visitDateTime;
+  private Integer idAppUser;
+  private String ipAddress;
+  private String sessionID;
+  private hci.gnomex.model.VisitLog visitLog;
 
   
   private static final String ERROR_CAPTCHA_JSP = "/captcha.jsp";
@@ -66,6 +74,13 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     String captchaPhrase = (String) request.getParameter("captchafield");
     launchAction  = (String) request.getParameter("launchAction");
     errorAction   = (String) request.getParameter("errorAction");
+    // Guest login ignores core facility id.
+
+    // VisitLog info from request
+    sessionID = request.getSession().getId();
+    visitDateTime = new java.util.Date(System.currentTimeMillis());
+    ipAddress = GNomExCommand.getRemoteIP(request);
+
 
 
     /*
@@ -103,11 +118,22 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
    *@exception  RollBackCommandException  Description of the Exception
    */
   public Command execute() throws RollBackCommandException {
-    
-    try {
       
+	  try {
       secAdvisor = SecurityAdvisor.createGuest();
       
+      // VisitLog info from secAdvisor
+      idAppUser = secAdvisor.getIdAppUser();
+      // save VisitLog
+	  visitLog = new hci.gnomex.model.VisitLog();
+	  visitLog.setVisitDateTime(visitDateTime);
+	  visitLog.setIdAppUser(idAppUser);
+	  visitLog.setIpAddress(ipAddress);
+	  visitLog.setSessionID(sessionID);
+	  
+      Session sess = HibernateSession.currentSession(this.getUsername());
+	  sess.save(visitLog);
+	  sess.flush();
       
 
       // Output the security advisor information

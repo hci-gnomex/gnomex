@@ -1,5 +1,6 @@
 package hci.gnomex.daemon;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.BillingItem;
@@ -154,7 +155,7 @@ public class ComputeMonthlyDiskUsage {
         
         // if disk usage properties are set for the core facility then compute the space.
         app.initialize(f);
-        System.out.println("\n" + new Date() + this.processingStatement);
+        System.out.println("\n" + new Date() + ": " + this.processingStatement);
         app.computeDiskUsage(f);
       }
 
@@ -298,7 +299,7 @@ public class ComputeMonthlyDiskUsage {
       storeBillingItems(modifiedUsages, labMap, billingAccountMap, invoiceMap);
     }
     if (sendReports) {
-      sendReports(modifiedUsages, labMap, billingAccountMap);
+      sendReports(modifiedUsages, labMap, billingAccountMap, facility);
     }
     removeUsage(facility, newUsageMap, existingUsageMap);
     
@@ -307,9 +308,8 @@ public class ComputeMonthlyDiskUsage {
   
   private Map<Integer, Lab> getLabMap(CoreFacility facility) {
     Map<Integer, Lab> labMap = new HashMap<Integer, Lab>();
-    String queryString = "select distinct l from Lab l join l.coreFacilities c where c.idCoreFacility = :idCoreFacility";
+    String queryString = "select distinct l from Lab l";
     Query query = sess.createQuery(queryString);
-    query.setInteger("idCoreFacility", facility.getIdCoreFacility());
     List l = query.list();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
       Lab lab = (Lab)i.next();
@@ -600,19 +600,19 @@ public class ComputeMonthlyDiskUsage {
     return totalCharge;
   }
 
-  private void sendReports(List<DiskUsageByMonth> modifiedUsages, Map<Integer, Lab> labMap, Map<Integer, BillingAccount> billingAccountMap) {
+  private void sendReports(List<DiskUsageByMonth> modifiedUsages, Map<Integer, Lab> labMap, Map<Integer, BillingAccount> billingAccountMap, CoreFacility facility) {
     for(DiskUsageByMonth usage: modifiedUsages) {
       Lab lab = labMap.get(usage.getIdLab());
       BillingAccount ba = billingAccountMap.get(usage.getIdLab());
       BigDecimal totalIncrements = getTotalIncrements(usage);
 
       if (totalIncrements.compareTo(BigDecimal.ZERO) > 0 && !lab.isExternalLab()) {
-        sendReport(lab, ba, usage, totalIncrements);
+        sendReport(lab, ba, usage, totalIncrements, facility);
       }
     }
   }
 
-  private void sendReport(Lab lab, BillingAccount ba, DiskUsageByMonth usage, BigDecimal totalIncrements) {
+  private void sendReport(Lab lab, BillingAccount ba, DiskUsageByMonth usage, BigDecimal totalIncrements, CoreFacility facility) {
     String emailAddress = lab.getContactEmail();
     if (testEmailAddress.length() > 0) {
       emailAddress = testEmailAddress;
@@ -646,7 +646,7 @@ public class ComputeMonthlyDiskUsage {
       body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
         .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
       body.append("The lab has no active billing accounts.  Please submit a work authorization to avoid file deletions(")
-        .append("<a href=\"").append(getLaunchWorkAuthUrl()).append("\">Work Authorization</a>).");
+        .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">Work Authorization</a>).");
     }
       
     if (sendMail) {
@@ -665,8 +665,8 @@ public class ComputeMonthlyDiskUsage {
     }
   }
   
-  public String getLaunchWorkAuthUrl() {
-    return baseURL + "gnomexFlex.jsp?launchWindow=WorkAuthForm";  
+  public String getLaunchWorkAuthUrl(CoreFacility facility) {
+    return baseURL + Constants.LAUNCH_APP_JSP + "?launchWindow=WorkAuthForm&idCore=" + facility.getIdCoreFacility().toString();  
   }
 
   private void removeUsage(CoreFacility facility, Map<Integer, DiskUsageByMonth> newUsageMap, Map<Integer, DiskUsageByMonth> existingUsageMap) {
@@ -715,7 +715,6 @@ public class ComputeMonthlyDiskUsage {
     
     if (sess != null) {
       
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       String toAddress = gnomexSupportEmail;
       if (testEmailAddress.length() > 0) {
         toAddress = testEmailAddress;

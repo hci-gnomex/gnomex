@@ -211,6 +211,13 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   }
   
   public static void changeOwnershipAndPermissions(Session sess, String dir) throws Exception {
+    //Kludge for testing
+    String osName = System.getProperty("os.name");
+    if (osName.startsWith("Windows")) {
+      return;
+    }
+    
+    // linux ownership code
     String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
     if (fdtUser == null || fdtUser.equals("")) {
       fdtUser = "fdt";

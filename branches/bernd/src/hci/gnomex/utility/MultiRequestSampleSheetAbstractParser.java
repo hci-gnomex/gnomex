@@ -49,6 +49,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   private Integer sampleNameOrdinal;
   private Map<String, Request>requestMap;
   private Map<String, Map> annotationMap;
+  private Map<String, Map> annotationsToDeleteMap;
   private SecurityAdvisor secAdvisor;
   private Map<String, List<Sample>> requestSampleMap;
   
@@ -70,6 +71,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (!fatalError()) {
       requestMap = new HashMap<String, Request>();
       annotationMap = new HashMap<String, Map>();
+      annotationsToDeleteMap = new HashMap<String, Map>();
       requestSampleMap = new HashMap<String, List<Sample>>();
       parseRows(sess, dh);
     }
@@ -81,6 +83,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   
   public Map<String, Map> getAnnotationMap() {
     return annotationMap;
+  }
+  
+  public Map<String, Map> getAnnotationsToDeleteMap() {
+    return annotationsToDeleteMap;
   }
   
   public List<Sample> getModifiedSamplesForRequest(String requestNumber) {
@@ -437,6 +443,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (annotations == null) {
       annotations = new HashMap();
     }
+    HashMap annotationsToDelete = (HashMap)annotationsToDeleteMap.get(sample.getIdSampleString());
+    if (annotationsToDelete == null) {
+      annotationsToDelete = new HashMap();
+    }
     if (info.getType().equals(PropertyType.MULTI_OPTION)) {
       Property p = info.getProperty();
       String[] values = value.split(",");
@@ -456,8 +466,15 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         value = newValue;
       }
     }
-    annotations.put(info.getProperty().getIdProperty(), value);
+    // only store annotation if non blank value.
+    if (value != null && !value.equals("")) {
+      annotations.put(info.getProperty().getIdProperty(), value);
+    }
     annotationMap.put(sample.getIdSampleString(), annotations);
+    
+    // delete old value of annotation even if new value is blank.
+    annotationsToDelete.put(info.getProperty().getIdProperty(), value);
+    annotationsToDeleteMap.put(sample.getIdSampleString(), annotationsToDelete);
   }
   
   public Document toXMLDocument() {

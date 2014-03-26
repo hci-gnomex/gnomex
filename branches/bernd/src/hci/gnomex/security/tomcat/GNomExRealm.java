@@ -130,7 +130,6 @@ System.out.println("In authenticate -- usrname=" + username);
 
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
-    setDatasource_lookup_name("java:comp/env/jdbc/GNOMEX"); 
     DataSource ds = (DataSource)initCtx.lookup(datasource_lookup_name);
     
     return ds.getConnection();

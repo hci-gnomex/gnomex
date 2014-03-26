@@ -13,6 +13,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.TreatmentEntry;
+import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -36,7 +37,7 @@ import org.jdom.Element;
 public class RequestParser implements Serializable {
   
   private SecurityAdvisor secAdvisor;
-  private Document        requestDoc;
+  private Element        requestNode;
   private Request         request;
   private boolean        isNewRequest = false;
   private boolean        reassignBillingAccount = false;
@@ -65,11 +66,24 @@ public class RequestParser implements Serializable {
   private Map<String, String> cherryPickSourcePlates = new HashMap<String, String>();
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   private Boolean hasPlates = false;
+  private Boolean forDownload = false;
   
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
-    this.requestDoc = requestDoc;
+    this.requestNode = requestDoc.getRootElement();
     this.secAdvisor = secAdvisor;
- 
+    this.forDownload = false;
+  }
+  
+  public RequestParser(Element requestNode, SecurityAdvisor secAdvisor) {
+    this.requestNode = requestNode;
+    this.secAdvisor = secAdvisor;
+    this.forDownload = false;
+  }
+  
+  public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor, Boolean forDownload) {
+    this.requestNode = requestDoc.getRootElement();
+    this.secAdvisor = secAdvisor;
+    this.forDownload = forDownload;
   }
   
   public void init() {
@@ -99,16 +113,30 @@ public class RequestParser implements Serializable {
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
   }
+
+  /* 
+   * Call this parse method from controller classes.  In this case, DictionaryHelper can
+   * be used because the servlet ManageDictionaries has already been called during initialization.
+   */
+  public void parse(Session sess) throws Exception {
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
+    parse(sess, requestCategory);
+  }
   
   
-  public void parse(Session sess) throws Exception{
+  /*
+   * Call this version of parse when coming from a batch java app instead of the web (servlet) interface.
+   * In this case, we can't rely on DictionaryHelper since ManageDictionaries only works as a command, not
+   * in a stand-alone java app.
+   */
+  public void parse(Session sess, RequestCategory requestCategory) throws Exception{
     
-    Element requestNode = this.requestDoc.getRootElement();
-    this.initializeRequest(requestNode, sess);
+    this.initializeRequest(requestNode, sess, requestCategory);
     
     for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
       Element sampleNode = (Element)i.next();
-      this.initializeSample(requestNode, sampleNode, sess);      
+      this.initializeSample(requestNode, sampleNode, sess, requestCategory);      
     }
     
     
@@ -131,7 +159,7 @@ public class RequestParser implements Serializable {
     
   }
   
-  private void initializeRequest(Element n, Session sess) throws Exception {
+  private void initializeRequest(Element n, Session sess, RequestCategory requestCategory) throws Exception {
       
       Integer idRequest = new Integer(n.getAttributeValue("idRequest"));
       if (idRequest.intValue() == 0) {
@@ -168,6 +196,13 @@ public class RequestParser implements Serializable {
           if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("") && !n.getAttributeValue("idInstitution").equals("null")) {
             request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
           } 
+        }
+      }
+      
+      if ( n.getAttributeValue("codeRequestCategory") != null ) {
+        request.setCodeRequestCategory(n.getAttributeValue("codeRequestCategory"));
+        if ( requestCategory.getIsOwnerOnly() != null && requestCategory.getIsOwnerOnly().equals("Y") ) {
+          request.setCodeVisibility( Visibility.VISIBLE_TO_OWNER );
         }
       }
       
@@ -255,6 +290,8 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("applicationNotes") != null && !n.getAttributeValue("applicationNotes").equals(""))
       request.setApplicationNotes(n.getAttributeValue("applicationNotes"));
     
+    if (n.getAttributeValue("includeBisulfideConversion") != null && !n.getAttributeValue("includeBisulfideConversion").equals(""))
+      request.setIncludeBisulfideConversion(n.getAttributeValue("includeBisulfideConversion"));
     
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
@@ -285,6 +322,39 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
+    if (n.getAttributeValue("codeDNAPrepType") != null && !n.getAttributeValue("codeDNAPrepType").equals("")) {
+      request.setCodeDNAPrepType(n.getAttributeValue("codeDNAPrepType"));      
+    }
+    if (n.getAttributeValue("codeRNAPrepType") != null && !n.getAttributeValue("codeRNAPrepType").equals("")) {
+      request.setCodeRNAPrepType(n.getAttributeValue("codeRNAPrepType"));      
+    }
+    if (n.getAttributeValue("bioinformaticsAssist") != null && !n.getAttributeValue("bioinformaticsAssist").equals("")) {
+      request.setBioinformaticsAssist(n.getAttributeValue("bioinformaticsAssist"));
+    }
+    if (request.getBioinformaticsAssist() == null || (!request.getBioinformaticsAssist().equals("Y") && !request.getBioinformaticsAssist().equals("N"))) {
+      request.setBioinformaticsAssist("N");
+    }
+    
+    if (n.getAttributeValue("trimAdapter") != null && !n.getAttributeValue("trimAdapter").equals("")) {
+      request.setTrimAdapter(n.getAttributeValue("trimAdapter"));
+    }
+    if (request.getTrimAdapter() == null || (!request.getTrimAdapter().equals("Y") && !request.getTrimAdapter().equals("N"))) {
+      request.setTrimAdapter("Y");
+    }
+    
+    if (n.getAttributeValue("hasPrePooledLibraries") != null && !n.getAttributeValue("hasPrePooledLibraries").equals("")) {
+      request.setHasPrePooledLibraries(n.getAttributeValue("hasPrePooledLibraries"));
+    }
+    if (request.getHasPrePooledLibraries() == null || (!request.getHasPrePooledLibraries().equals("Y") && !request.getHasPrePooledLibraries().equals("N"))) {
+      request.setHasPrePooledLibraries("N");
+    }
+
+    if (request.getHasPrePooledLibraries().equals("Y") && n.getAttributeValue("numPrePooledTubes") != null && !n.getAttributeValue("numPrePooledTubes").equals("")) {
+      request.setNumPrePooledTubes(new Integer(n.getAttributeValue("numPrePooledTubes")));
+    } else {
+      request.setNumPrePooledTubes(null);
+    }
+
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       // Don't change request status to submitted unless the request is in new status
       if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&& 
@@ -351,7 +421,7 @@ public class RequestParser implements Serializable {
     }
     
     // On existing requests, save visibility and privacyExpirationDate
-    if (!isNewRequest) {
+    if (!isNewRequest && (request.getRequestCategory().getIsOwnerOnly() == null || request.getRequestCategory().getIsOwnerOnly().equals("N"))) {
       if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
         request.setCodeVisibility(n.getAttributeValue("codeVisibility")); 
         request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
@@ -359,12 +429,12 @@ public class RequestParser implements Serializable {
     }
   }
   
-  private void initializeSample(Element requestNode, Element n, Session sess) throws Exception {
+  private void initializeSample(Element requestNode, Element n, Session sess, RequestCategory requestCategory) throws Exception {
     boolean isNewSample = false;
     Sample sample = null;
     
     String idSampleString = n.getAttributeValue("idSample");
-    if (isNewRequest || idSampleString == null || idSampleString.startsWith("Sample")) {
+    if (isNewRequest || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample")) {
       sample = new Sample();
       isNewSample = true;
     } else {
@@ -373,9 +443,16 @@ public class RequestParser implements Serializable {
     sample.setIdSampleString(idSampleString);
     
     PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-    initializeSample(n, sample, idSampleString, isNewSample, propertyHelper);
+
+    Boolean isExternal = (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y"));
     
-    if (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y")) {
+    if (requestCategory.getCategoryType() != null && requestCategory.getCategoryType().getIsIllumina().equals("Y") && !isExternal)  {
+      initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
+    } else {
+      initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, false);
+    }
+    
+    if (isExternal) {
       // the request create screen doesn't do the idOrganism at the request level so skip.
       if (requestNode.getAttributeValue("idOrganism") != null && requestNode.getAttributeValue("idOrganism").toString().length() > 0) {
         sample.setIdOrganism(new Integer(requestNode.getAttributeValue("idOrganism")));
@@ -389,7 +466,7 @@ public class RequestParser implements Serializable {
   }
   
  
-  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyDictionaryHelper propertyHelper) throws Exception {
+  private void initializeSample(Element n, Sample sample, String idSampleString, boolean isNewSample, PropertyDictionaryHelper propertyHelper, boolean isHiseqOrMiseq) throws Exception {
     
     sample.setName(unEscape(n.getAttributeValue("name")));
     
@@ -399,6 +476,11 @@ public class RequestParser implements Serializable {
       sample.setIdSampleType(new Integer(n.getAttributeValue("idSampleType")));
     } else {
       sample.setIdSampleType(null);
+    }
+    if (n.getAttributeValue("idSampleSource") != null && !n.getAttributeValue("idSampleSource").equals("")) {
+      sample.setIdSampleSource(new Integer(n.getAttributeValue("idSampleSource")));
+    } else {
+      sample.setIdSampleSource(null);
     }
     if (n.getAttributeValue("otherSamplePrepMethod") != null && !n.getAttributeValue("otherSamplePrepMethod").equals("")) {
       sample.setOtherSamplePrepMethod(n.getAttributeValue("otherSamplePrepMethod"));
@@ -440,11 +522,24 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdOligoBarcodeB(null);
     }
-    if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
-      sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+    
+    if(isHiseqOrMiseq) {
+      if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
+        sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+      } else {
+        // Allow to continue if just downloading a spread sheet.
+        if (!this.forDownload) {
+          throw new Exception("MultiplexGroupNumber cannot be empty for HiSeq or MiSeq experiments");
+        }
+      }
     } else {
-      sample.setMultiplexGroupNumber(null);
-    }    
+      if (n.getAttributeValue("multiplexGroupNumber") != null && !n.getAttributeValue("multiplexGroupNumber").equals("")) {
+        sample.setMultiplexGroupNumber(new Integer(n.getAttributeValue("multiplexGroupNumber")));
+      } else {
+        sample.setMultiplexGroupNumber(null);
+      }
+    }
+        
     if (n.getAttributeValue("barcodeSequence") != null && !n.getAttributeValue("barcodeSequence").equals("")) {
       sample.setBarcodeSequence(n.getAttributeValue("barcodeSequence"));
     } else {
@@ -651,7 +746,7 @@ public class RequestParser implements Serializable {
       Plate plate = new Plate();
       String plateIdAsString = "";
       if (n.getAttributeValue("idPlate") != null && n.getAttributeValue("idPlate").length() > 0) {
-        plateIdAsString = n.getAttributeValue("plateName");
+        plateIdAsString = n.getAttributeValue("idPlate");
         plate.setIdPlate(Integer.parseInt(n.getAttributeValue("idPlate")));
       } else {
         plateIdAsString = n.getAttributeValue("plateName");

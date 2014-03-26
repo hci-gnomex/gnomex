@@ -16,6 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
 
 public class UploadSampleSheetURLServlet extends HttpServlet {
+
+  // the static field for logging in Log4J
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadSampleSheetURLServlet.class);
   
   private String  directoryName = "";
   
@@ -59,8 +62,8 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
       // otherwise, existing session is not accessible to upload servlet.
       //
       //
-      
-      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
+
+      sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
       String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, req.getServerName());
       if (portNumber == null) {
         portNumber = "";
@@ -80,7 +83,7 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
       res.getOutputStream().println("<UploadSampleSheetURL url='" + URL + "'/>");
       
     } catch (Exception e) {
-      System.out.println("An error has occured in UploadSampleSheetURLServlet - " + e.toString());
+      log.error("An error occurred in UploadSampleSheetURLServlet", e);
     } finally {
       try {
         if (sess != null) {

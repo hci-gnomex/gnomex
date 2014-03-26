@@ -119,6 +119,7 @@ public class SaveWorkItemLabeling extends GNomExCommand implements Serializable 
                     if (existingWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(workItem.getIdRequest());
+                      wi.setIdCoreFacility(workItem.getIdCoreFacility());
                       wi.setCodeStepNext(Step.HYB_STEP);
                       wi.setHybridization(hyb);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));

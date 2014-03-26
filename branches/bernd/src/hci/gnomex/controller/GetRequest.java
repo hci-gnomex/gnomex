@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -177,6 +178,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               t.excludeMethodFromXML("getAppUser");
               t.excludeMethodFromXML("getLab");
             }
+            
           }
           
           request.excludeMethodFromXML("getBillingItems");
@@ -264,6 +266,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Show sequence lanes, organized by multiplex group or flow cell channel
           if (request.getSequenceLanes().size() > 0) {
             Element multiplexLanesNode = new Element("multiplexSequenceLanes");
+            for(Iterator i = request.getSequenceLanes().iterator(); i.hasNext();) {
+              SequenceLane sl = (SequenceLane) i.next();
+              if(sl.getIdGenomeBuildAlignTo() != null) {
+                multiplexLanesNode.setAttribute("idGenomeBuildAlignTo", sl.getIdGenomeBuildAlignTo().toString());
+                break;
+              }
+            }
             requestNode.addContent(multiplexLanesNode);
             SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
           }
@@ -272,22 +281,39 @@ public class GetRequest extends GNomExCommand implements Serializable {
           requestNode.setAttribute("idOrganism","");
           requestNode.setAttribute("organismName", "");
           requestNode.setAttribute("otherOrganism","");
+          TreeSet<String> organismNameSet = new TreeSet<String>();
           if (request.getSamples().size() > 0) {
-            Integer idOrganism = ((Sample)(request.getSamples().toArray()[0])).getIdOrganism();
-            String otherOrganism = ((Sample)(request.getSamples().toArray()[0])).getOtherOrganism();
-            if (otherOrganism == null) {
-              otherOrganism = "";
-            }
-            if (idOrganism != null) {
-              String organismName = dh.getOrganism(idOrganism);
-              if (organismName.equals("Other")) {
-                organismName += " (" + otherOrganism + ")";
+            String organismName = "";
+            Integer idOrganism = null;
+            String otherOrganism = "";
+            for(Iterator i = request.getSamples().iterator(); i.hasNext();) {
+              Sample s = (Sample) i.next();
+              idOrganism = s.getIdOrganism();
+              otherOrganism = s.getOtherOrganism();
+
+              if (otherOrganism == null) {
+                otherOrganism = "";
               }
-              requestNode.setAttribute("idOrganism", idOrganism.toString());
-              requestNode.setAttribute("organismName", organismName);
-              requestNode.setAttribute("otherOrganism", otherOrganism);
+              if (idOrganism != null) {
+                organismName = dh.getOrganism(idOrganism);
+                if (organismName.equals("Other")) {
+                  organismName += " (" + otherOrganism + ")";
+                }
+              }
+              organismNameSet.add(organismName);
             }
+            String organismNames = "";
+            for (String o : organismNameSet) {
+              if (organismNames.length() > 0) {
+                organismNames += ",";
+              }
+              organismNames += o;
+            }
+            requestNode.setAttribute("idOrganism", idOrganism != null ? idOrganism.toString() : "");
+            requestNode.setAttribute("organismName", organismNames);
+            requestNode.setAttribute("otherOrganism", otherOrganism);
           }
+        
           
           // Show list of property entries
           Element scParentNode = new Element("PropertyEntries");
@@ -445,16 +471,26 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolNode.setAttribute("label", dh.getFeatureExtractionProtocol(hyb.getIdFeatureExtractionProtocol()));
               break;
             }
-          }          
+          }
+          TreeMap<Integer, Sample> map = new TreeMap<Integer, Sample>();
           for(Iterator i4 = request.getSamples().iterator(); i4.hasNext();) {
             Sample s = (Sample)i4.next();
-            if (s.getIdSeqLibProtocol() != null) {
+            if (s.getIdSeqLibProtocol() != null && !(map.containsKey(s.getIdSeqLibProtocol()))) {
+              map.put(s.getIdSeqLibProtocol(), s);
               Element protocolNode = new Element("Protocol");
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", s.getIdSeqLibProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.SeqLibProtocol");
               protocolNode.setAttribute("label", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
-              break;
+              
+              String fivePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceFivePrime();
+              protocolNode.setAttribute("Adapter5Prime", fivePrime != null ? fivePrime : "");
+                            
+              String threePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceThreePrime();
+              protocolNode.setAttribute("Adapter3Prime", threePrime != null ? threePrime : "");
+             
+              
+             //break;
             }
           }
           
@@ -521,7 +557,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           
           if (request.getCodeRequestCategory() != null && 
-              (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || request.getCodeRequestCategory().equals(RequestCategory.SEQUENOM_REQUEST_CATEGORY))
+              (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM))
               && request.getSamples().size() > 0) {
             String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
             Query plateQuery = sess.createQuery(plateQueryString);
@@ -792,6 +828,47 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
 
+          // Augment sample with sample type name so that imports can lookup idSampeType based
+          // on the name.  Do the same for organism.
+          for (Iterator i1 = requestNode.getChild("samples").getChildren("Sample").iterator(); i1.hasNext();) {
+            Element sampleNode = (Element)i1.next();
+            String idSampleTypeString = sampleNode.getAttributeValue("idSampleType");
+            if (idSampleTypeString != null && !idSampleTypeString.equals("")) {
+              Integer idSampleType = Integer.parseInt(idSampleTypeString);
+              String sampleTypeName = dh.getSampleType(idSampleType);
+              if (sampleTypeName != null) {
+                sampleNode.setAttribute("sampleType", sampleTypeName);
+              }
+            }
+            String idOrganismString = sampleNode.getAttributeValue("idOrganism");
+            if (idOrganismString != null && !idOrganismString.equals("")) {
+              Integer idOrganism = Integer.parseInt(idOrganismString);
+              String organismName = dh.getOrganism(idOrganism);
+              if (organismName != null) {
+                sampleNode.setAttribute("organism", organismName);
+              }
+            }
+          }
+          
+          // Augment sequence lane node with organism and genome build names.
+          if (requestNode.getChild("sequenceLanes") != null) {
+            for (Iterator i1 = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i1.hasNext();) {
+              Element sequenceLaneNode = (Element)i1.next();
+              
+              String idOrganismString = sequenceLaneNode.getAttributeValue("idOrganism");
+              if (idOrganismString != null && !idOrganismString.equals("")) {
+                Integer idOrganism = Integer.parseInt(idOrganismString);
+                String organismName = dh.getOrganism(idOrganism);
+                sequenceLaneNode.setAttribute("organism", organismName);
+              }
+              String idGenomeBuildString = sequenceLaneNode.getAttributeValue("idGenomeBuildAlignTo");
+              if (idGenomeBuildString != null && !idGenomeBuildString.equals("")) {
+                Integer idGenomeBuild = Integer.parseInt(idGenomeBuildString);
+                String genomeBuildName = dh.getGenomeBuild(idGenomeBuild);
+                sequenceLaneNode.setAttribute("genomeBuild", genomeBuildName);
+              }
+            }
+          }
           
           // Append related analysis and data tracks and topics
           if (!newRequest) {

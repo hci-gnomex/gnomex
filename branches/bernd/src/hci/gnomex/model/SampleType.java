@@ -11,6 +11,7 @@ public class SampleType extends DictionaryEntry implements Serializable {
   private String   sampleType;
   private Integer  sortOrder;
   private String   isActive;
+  private String   codeNucleotideType;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSampleType());
@@ -59,7 +60,12 @@ public class SampleType extends DictionaryEntry implements Serializable {
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
   }
-
- 
-
+  
+  public String getCodeNucleotideType() {
+    return codeNucleotideType;
+  }
+  
+  public void setCodeNucleotideType(String codeNucleotideType) {
+    this.codeNucleotideType = codeNucleotideType;
+  }
 }

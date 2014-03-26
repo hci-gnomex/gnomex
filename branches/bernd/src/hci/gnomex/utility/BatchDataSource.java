@@ -1,11 +1,14 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.security.tomcat.AESEncryption;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
+import java.util.Properties;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,7 +22,7 @@ import org.xml.sax.SAXException;
 
 public class BatchDataSource extends DetailObject {
   
-
+  
   private String          gnomex_db_driver;
   private String          gnomex_db_url;
   private String          gnomex_db_username;
@@ -30,6 +33,9 @@ public class BatchDataSource extends DetailObject {
   private SessionFactory  sessionFactory;
   private String          specifiedOrionPath = "";
   private String          specifiedSchemaPath = "";
+  
+  private TomcatCatalinaProperties catalinaProperties;
+  
   
   public BatchDataSource() {
     specifiedOrionPath = "";
@@ -42,11 +48,11 @@ public class BatchDataSource extends DetailObject {
   }
   
   public Session connect() throws Exception {
-    String filePath = "../../";
+    String filePath = "../";
     if(specifiedOrionPath.length() > 0) {
       filePath = specifiedOrionPath;
     }
-    filePath = filePath + "conf/openejb.xml";
+    filePath = filePath + "META-INF/context.xml";
     File file = new File(filePath);
 
     if (file.exists()) {
@@ -63,9 +69,10 @@ public class BatchDataSource extends DetailObject {
   }
 
   public Session connectTomcat(File dataSourcesFile) throws Exception {
+    catalinaProperties = new TomcatCatalinaProperties(TomcatCatalinaProperties.getCatalinaPropertiesPathFromScripts(specifiedOrionPath));
     this.registerTomcatDataSources(dataSourcesFile);
-    String filePath = "WEB-INF/classes/";
-    if(specifiedOrionPath.length() > 0) {
+    String filePath = "../WEB-INF/classes/";
+    if(specifiedSchemaPath.length() > 0) {
       filePath = specifiedSchemaPath;
     }    
     filePath = filePath + "SchemaGNomEx.hbm.xml";
@@ -142,7 +149,7 @@ public class BatchDataSource extends DetailObject {
     }
   }
 
-  private void registerTomcatDataSources(File xmlFile) {
+  private void registerTomcatDataSources(File xmlFile) throws Exception {
     if(xmlFile.exists()) {
       try {
         SAXBuilder builder = new SAXBuilder();
@@ -158,34 +165,20 @@ public class BatchDataSource extends DetailObject {
   }
 
 
-  private void registerTomcatDataSources(org.jdom.Document doc) {
+  private void registerTomcatDataSources(org.jdom.Document doc) throws Exception {
     Element root = doc.getRootElement();
-    if (root.getChildren("openejb") != null) {
-      Iterator i = root.getChildren("Resource").iterator();
-      while (i.hasNext()) {
-        Element e = (Element) i.next();
-        if (e.getAttributeValue("id") != null && e.getAttributeValue("id").equals("jdbc/gnomexGuest")) {
-          String content = e.getTextNormalize();
-          if (content.indexOf("JdbcDriver") > -1) {
-            String[] tokens = content.substring(content.indexOf("JdbcDriver")).split(" ");
-            gnomex_db_driver = tokens[1];
-          }
-          if (content.indexOf("JdbcUrl") > -1) {
-            String[] tokens = content.substring(content.indexOf("JdbcUrl")).split(" ");
-            gnomex_db_url = tokens[1];
-          }
-          if (content.indexOf("Password") > -1) {
-            String[] tokens = content.substring(content.indexOf("Password")).split(" ");
-            gnomex_db_password = tokens[1];
-          }
-          if (content.indexOf("UserName") > -1) {
-            String[] tokens = content.substring(content.indexOf("UserName")).split(" ");
-            gnomex_db_username = tokens[1];
-          }
-        } 
-      }
+    Iterator i = root.getChildren("Resource").iterator();
+    while (i.hasNext()) {
+      Element e = (Element) i.next();
+      if (e.getAttributeValue("name") != null && e.getAttributeValue("name").equals("jdbc/GNOMEX")) {
+        gnomex_db_driver = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("driverClassName"));
+        gnomex_db_url = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("url"));
+        gnomex_db_password = catalinaProperties.decryptPassword(catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("password")));
+        gnomex_db_username = catalinaProperties.getTomcatPropertyToken(e.getAttributeValue("username"));
+      } 
     }
   }
+  
   // Bypassed dtd validation when reading data sources.
   public class DummyEntityRes implements EntityResolver
   {

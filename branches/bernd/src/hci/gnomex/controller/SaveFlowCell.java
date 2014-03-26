@@ -196,6 +196,13 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           }
         }
 
+        if(isNewFlowCell){
+          sendNotification(flowCell, sess, "NEW", "USER", "FLOWCELL");
+          sendNotification(flowCell, sess, "NEW", "ADMIN", "FLOWCELL");
+        } else{
+          sendNotification(flowCell, sess, "EXIST", "USER", "FLOWCELL");
+          sendNotification(flowCell, sess, "EXIST", "ADMIN", "FLOWCELL");
+        }
         sess.flush();
 
         this.xmlResult = "<SUCCESS idFlowCell=\"" + flowCell.getIdFlowCell()
@@ -234,6 +241,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setRunNumber(fc.getRunNumber());
     flowCell.setIdInstrument(fc.getIdInstrument());
     flowCell.setSide(fc.getSide());
+    flowCell.setIdCoreFacility(fc.getIdCoreFacility());
   }
 
   private class ChannelComparator implements Comparator, Serializable {

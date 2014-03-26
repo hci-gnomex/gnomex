@@ -1,8 +1,10 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingControl;
 import hci.gnomex.model.WorkItem;
+import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   private TreeMap<String, String>               channelConcentrationMap = new TreeMap<String, String>();
   private TreeMap<String, String>               controlMap = new TreeMap<String, String>();
   private ArrayList<WorkItem>                   dirtyWorkItemList = new ArrayList<WorkItem>();
+  private Integer    idCoreFacility = null;     // core facility for chosen work items.
   
   
   public WorkItemSolexaAssembleParser(Document docFlowCellChannels, Document docDirtyWorkItem) {
@@ -33,7 +36,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
  
   }
   
-  public void parse(Session sess) throws Exception{
+  public void parse(Session sess, SecurityAdvisor secAdvisor) throws Exception{
     
     // Parse the contents for flow cell channels
     if (docFlowCellChannels != null) {
@@ -53,6 +56,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
           
           SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(idSequenceLaneString));
           WorkItem workItem = (WorkItem)sess.load(WorkItem.class, new Integer(idWorkItemString));
+          idCoreFacility = workItem.getIdCoreFacility();
           
           cc.setSequenceLane(lane);
           cc.setWorkItem(workItem);
@@ -60,6 +64,17 @@ public class WorkItemSolexaAssembleParser implements Serializable {
           String idSequencingControlString = node.getAttributeValue("idSequencingControl");
           SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
           cc.setSequenceControl(control);
+        }
+        
+        //Kludge in case they ever create a flow cell with only a control on it.
+        // This will only work so long as the user creating the flow cell is associated with
+        // only one core facility.
+        if (idCoreFacility == null) {
+          Set facilities = secAdvisor.getCoreFacilitiesIManage();
+          if (facilities.size() > 0) {
+            CoreFacility facility = (CoreFacility)(facilities.iterator().next());
+            idCoreFacility = facility.getIdCoreFacility();
+          }
         }
         
         List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(channelNumber);
@@ -164,6 +179,10 @@ public class WorkItemSolexaAssembleParser implements Serializable {
   public String getIsControl(String channelNumber) {
     String isControl = this.controlMap.get(channelNumber);
     return isControl;
+  }
+  
+  public Integer getIdCoreFacility() {
+    return this.idCoreFacility;
   }
   
   

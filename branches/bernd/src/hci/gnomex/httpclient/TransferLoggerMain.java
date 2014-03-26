@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.Authenticator;
 import java.net.InetAddress;
@@ -34,25 +35,14 @@ import javax.net.ssl.X509TrustManager;
  * log info about a file upload or download.
  *
  */
-public class TransferLoggerMain {
+public class TransferLoggerMain extends HttpClientBase {
   
-  private String      server;
-  private String      serverURL;
   private String      type;
   private String      method;
   private String      fileName;
   private String      startDateTimeStr;
   private String      endDateTimeStr;
   private BigDecimal  fileSize;
-
-  
-  private String userName;
-  private String password;
-  
-  private String propertiesFileName = "/properties/gnomex_httpclient.properties";
-
-  
-  
 
   /**
    * @param args
@@ -95,8 +85,7 @@ public class TransferLoggerMain {
     }
   }
     
-  
-  private void printUsage() {
+  protected void printUsage() {
     System.out.println("java hci.gnomex.utility.TransferLogger " + "\n" +
         "-server | -serverURL server name or server url (e.g. http://server.somewhere.edu:8008)" + "\n" +
         "-method http|fdt" + "\n" +
@@ -106,219 +95,33 @@ public class TransferLoggerMain {
         "[-startDateTime yyyy-MM-dd hh:mm:ss.SSS]" + "\n" +
         "[-endDateTime yyyy-MM-dd hh:mm:ss.SSS]" + "\n" +
         "[-properties properties]");
-  }
+   }
+ 
+   protected boolean checkParms() {
+     if (fileName == null || fileName.equals("") || type == null || type.equals("") || method == null || method.equals("")) {
+       return false;
+     } else {
+       return true;
+     }
+   }
   
-  
-  private String getCurrentTime() {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-    return dateFormat.format(new java.util.Date(System.currentTimeMillis()));
-  }
-  
-
-  private void callServlet() {
-    BufferedReader in = null;
-    String inputLine;    
-    StringBuffer outputXML = new StringBuffer();
-    boolean success = false;
-
-    try {
-      loadProperties();
-
-      // Make sure mandatory arguments were passed in
-      if ((server == null || server.equals("")) && (serverURL == null || serverURL.equals(""))) {
-        this.printUsage();
-        throw new Exception("server or serverURL is required");
-      }
-      
-      if (fileName == null || fileName.equals("")) {
-        this.printUsage();
-        throw new Exception("fileName is required");
-      }
-      if (type == null || type.equals("")) {
-        this.printUsage();
-        throw new Exception("type is required");
-        
-      }
-      if (method == null || method.equals("")) {
-        this.printUsage();
-        throw new Exception("method is required");
-      }
-
-
-      trustCerts(); 
-      
-      if (serverURL == null || serverURL.equals("")) {
-        serverURL = (server.equals("localhost") ? "http://" : "https://") + server;
-      }
-
-      //
-      // Login using forms based authentication
-      //
-      URL url = new URL(serverURL + "/gnomex/login_verify.jsp?j_username=" + userName + "&j_password=" + password);
-      URLConnection conn = url.openConnection();
-      in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      success = false;
-      while ((inputLine = in.readLine()) != null) {
-        System.out.println(inputLine);
-        if (inputLine.indexOf("<SUCCESS") >= 0) {
-          success = true;
-          break;
-        }
-      }
-      if (!success) {
-        System.err.print(outputXML.toString());
-        throw new Exception("Unable to login");
-      }
-      // Capture session id from cookie
-      List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
-
-      //
-      // Create a security advisor
-      //
-      url = new URL(serverURL + "/gnomex/CreateSecurityAdvisor.gx");
-      conn = url.openConnection();
-      for (String cookie : cookies) {
-        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
-      }
-      in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      success = false;
-      outputXML = new StringBuffer();
-      while ((inputLine = in.readLine()) != null) {
-        outputXML.append(inputLine);
-        if (inputLine.indexOf("<SecurityAdvisor") >= 0) {
-          success = true;
-          break;
-        }
-      }
-      if (!success) {
-        System.err.print(outputXML.toString());
-        throw new Exception("Unable to create security advisor");
-      }
-
-
-      //
-      // Make http request to insert transfer log
-      //
-
-      // Construct request parameters
-      String parms = URLEncoder.encode("fileName", "UTF-8") + "=" + URLEncoder.encode(fileName, "UTF-8");
-      parms += "&" + URLEncoder.encode("transferType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8");
-      parms += "&" + URLEncoder.encode("transferMethod", "UTF-8") + "=" + URLEncoder.encode(method.toString(), "UTF-8");
-      if (startDateTimeStr != null) {
-        parms += "&" + URLEncoder.encode("startDateTime", "UTF-8") + "=" + URLEncoder.encode(startDateTimeStr.toString(), "UTF-8");        
-      }
-      if (endDateTimeStr != null) {
-        parms += "&" + URLEncoder.encode("endDateTime", "UTF-8") + "=" + URLEncoder.encode(endDateTimeStr.toString(), "UTF-8");
-      }
-      if (fileSize != null) {
-        parms += "&" + URLEncoder.encode("fileSize", "UTF-8") + "=" + URLEncoder.encode(fileSize.toString(), "UTF-8");
-      }
-      
-
-      success = false;
-      outputXML = new StringBuffer();
-      url = new URL(serverURL + "/gnomex/SaveTransferLog.gx");
-      conn = url.openConnection();
-      conn.setDoOutput(true);
-      for (String cookie : cookies) {
-        conn.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
-      }
-      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-      wr.write(parms);
-      wr.flush();
-
-      in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      while ((inputLine = in.readLine()) != null) {
-        System.out.print(inputLine);
-        if (inputLine.indexOf("<SUCCESS") >= 0) {
-          success = true;
-        } 
-      }
-      System.out.println();
-      if (!success) {
-        throw new Exception("Unable to insert transfer log");
-      }
-
-    } catch (MalformedURLException e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } catch (IOException e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } catch (Exception e) {
-      printUsage();
-      e.printStackTrace();
-      System.err.println(e.toString());
-    } finally {
-      if (in != null) {
-        try {
-          in.close();          
-        } catch (IOException e) {
-
-        }
-      }
-    }
-  }
-  private void loadProperties() throws FileNotFoundException, IOException {
-    File file = new File(propertiesFileName);
-    FileInputStream fis = new FileInputStream(file);
-    Properties p = new Properties();
-    p.load(fis);
-    userName = (String)p.get("userName");
-    password = (String)p.get("password");
-  }
-
-  
-  
-  private void trustCerts() {
-    TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {  
-      public java.security.cert.X509Certificate[] getAcceptedIssuers() {  
-        return null;  
-      }  
-
-      public void checkClientTrusted(  
-          java.security.cert.X509Certificate[] certs, String authType) {  
-      }  
-
-      public void checkServerTrusted(  
-        java.security.cert.X509Certificate[] certs, String authType) {  
-      }  
-    } };  
-
-    try {  
-      SSLContext sc = SSLContext.getInstance("SSL");  
-      sc.init(null, trustAllCerts, new java.security.SecureRandom());  
-      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());  
-    } catch (Exception e) {  
-      e.printStackTrace();  
-      System.exit(1);  
-    }  
-
-  }
-  
-
-
-  private static class MyAuthenticator extends Authenticator {
-    private String userName;
-    private String password;
-
-    private MyAuthenticator(String userName, String password) {
-      this.userName = userName;
-      this.password = password;
-    }
-    // This method is called when a password-protected URL is accessed
-    protected PasswordAuthentication getPasswordAuthentication() {
-      // Get information about the request
-      String promptString = getRequestingPrompt();
-      String hostname = getRequestingHost();
-      InetAddress ipaddr = getRequestingSite();
-      int port = getRequestingPort();
-
-      // Return the information
-      return new PasswordAuthentication(userName, password.toCharArray());
-    }
-  }
-
+   protected String getServletName() {
+     return "SaveTransferLogServlet";
+   }
+   
+   protected String getParms() throws UnsupportedEncodingException {
+     String parms = URLEncoder.encode("fileName", "UTF-8") + "=" + URLEncoder.encode(fileName, "UTF-8");
+     parms += "&" + URLEncoder.encode("transferType", "UTF-8") + "=" + URLEncoder.encode(type, "UTF-8");
+     parms += "&" + URLEncoder.encode("transferMethod", "UTF-8") + "=" + URLEncoder.encode(method.toString(), "UTF-8");
+     if (startDateTimeStr != null) {
+       parms += "&" + URLEncoder.encode("startDateTime", "UTF-8") + "=" + URLEncoder.encode(startDateTimeStr.toString(), "UTF-8");        
+     }
+     if (endDateTimeStr != null) {
+       parms += "&" + URLEncoder.encode("endDateTime", "UTF-8") + "=" + URLEncoder.encode(endDateTimeStr.toString(), "UTF-8");
+     }
+     if (fileSize != null) {
+       parms += "&" + URLEncoder.encode("fileSize", "UTF-8") + "=" + URLEncoder.encode(fileSize.toString(), "UTF-8");
+     }
+     return parms;
+   }
 }

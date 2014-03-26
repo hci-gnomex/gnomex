@@ -78,6 +78,7 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
 
       Map<String, Request> requestMap = parser.getRequestMap();
       Map<String, Map> annotationMap = parser.getAnnotationMap();
+      Map<String, Map> annotationsToDeleteMap = parser.getAnnotationsToDeleteMap();
       for(String requestNumber : requestMap.keySet()) {
         Request request = requestMap.get(requestNumber);
         Integer nextSampleNumber = getStartingNextSampleNumber(request);
@@ -90,8 +91,10 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
             }
             nextSampleNumber = SaveRequest.initSample(sess, request, sample, isNewSample, nextSampleNumber);
             Map sampleAnnotations = annotationMap.get(sample.getIdSampleString());
+            Map sampleAnnotationsToDelete = annotationsToDeleteMap.get(sample.getIdSampleString());
             if (sampleAnnotations != null) {
-              SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, null, dh, sampleAnnotations);
+              SaveRequest.setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, 
+                  null, sampleAnnotationsToDelete, dh.getPropertyMap());
             }
             sess.flush();
           }

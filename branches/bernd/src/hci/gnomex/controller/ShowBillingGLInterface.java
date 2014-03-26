@@ -264,13 +264,12 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 BillingItem bi = (BillingItem)i1.next();
 
                 String acctNum = bi.getBillingAccount().getAccountNumber();
-                String acctName = bi.getBillingAccount().getAccountName();
                 String labName = bi.getLabName();
                 
                 String labBillingName = bi.getLabName() + acctNum;
 
                 if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                  writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription);
+                  writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, billingPeriod.getBillingPeriod());
                 }
 
               
@@ -299,7 +298,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           }
 
           if (billingItemMap.size() > 0) {
-            writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription);
+            writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, billingPeriod.getBillingPeriod());
             
             // Verify that grand total matches expected grand total
             if (this.totalPrice.compareTo(this.expectedGrandTotalPrice) != 0) {
@@ -326,7 +325,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
               buf.append("FROM   BillingItem bi ");
               buf.append("JOIN   bi.lab as lab ");
               buf.append("JOIN   bi.billingAccount as ba ");
-              buf.append("WHERE  bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
+              buf.append("WHERE  (bi.codeBillingStatus = '" + BillingStatus.APPROVED_PO + "' ");
+              buf.append("OR     bi.codeBillingStatus = '" + BillingStatus.APPROVED_CC + "') ");
               buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
               buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
               if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -470,10 +470,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     }
   }
   
-  private void writeLabAccountDebit(String labName, BillingAccount billingAccount, String description) {
+  private void writeLabAccountDebit(String labName, BillingAccount billingAccount, String description, String billingPeriod) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
-
     
     String amt = this.currencyFormat.format(this.totalPriceForLabAccount);
     amt = amt.replaceAll("\\.", "");
@@ -504,7 +503,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     } else {
       values.add(getFixedWidthEmptyValue(5));  // au blank when project is charged
     }
-    values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
+    values.add(getFixedWidthValue(billingPeriod.substring(billingPeriod.indexOf(" ") + 1), 4)); // budget year (blank)
     values.add(getFixedWidthValue(billingAccount.getAccountNumberProject(), 15)); // project id
     values.add(getFixedWidthEmptyValue(3));     // statistics code
     values.add(getFixedWidthEmptyValue(5));  // affiliate
@@ -516,6 +515,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
     values.add(getFixedWidthEmptyValue(16)); // base currency amount (blank)
+    values.add(getFixedWidthEmptyValue(3)); 
+    values.add(getFixedWidthEmptyValue(3));
+    values.add(getFixedWidthEmptyValue(3)); 
+    values.add(getFixedWidthEmptyValue(3));
     
     reportRow.setValues(values);
     tray.addRow(reportRow);
@@ -528,7 +531,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
   private void writeCoreFacilityCredit(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String property_for_account, BigDecimal totalAmt, boolean isCredit) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
-
+    String year = billingPeriod.getBillingPeriod();
     
     String amt = this.currencyFormat.format(totalAmt);
     amt = amt.replaceAll("\\.", "");
@@ -547,7 +550,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ORG), 10)); // dept id
     values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
     values.add(getFixedWidthEmptyValue(5));  // au (blank for credits)
-    values.add(getFixedWidthEmptyValue(4)); // budget year (blank)
+    values.add(getFixedWidthValue(year.substring(year.indexOf(" ") + 1), 4)); // budget year (blank)
     values.add(getFixedWidthEmptyValue(15)); // project id
     values.add(getFixedWidthEmptyValue(3));     // statistics code
     values.add(getFixedWidthEmptyValue(5));  // affiliate
@@ -559,6 +562,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthEmptyValue(5)); // foreign currency rate type (blank)
     values.add(getFixedWidthEmptyValue(16)); // foreign currency exchange rate (blank)
     values.add(getFixedWidthEmptyValue(16)); // base currency amount (blank)
+    values.add(getFixedWidthEmptyValue(3));
+    values.add(getFixedWidthEmptyValue(3));
+    values.add(getFixedWidthEmptyValue(3));
+    values.add(getFixedWidthEmptyValue(3));
     
     reportRow.setValues(values);
     tray.addRow(reportRow);

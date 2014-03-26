@@ -22,6 +22,7 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  runNumber;
   private Integer  idInstrument;
   private String   side;
+  private Integer  idCoreFacility;
   private Set      flowCellChannels = new TreeSet();
   
   // Bernd added
@@ -132,6 +133,13 @@ public class FlowCell extends HibernateDetailObject {
     side = s;
   }
 
+  public Integer getIdCoreFacility() {
+    return this.idCoreFacility;
+  }
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
+  
   public String getCreateYear() {
     String createDate    = this.formatDate(this.getCreateDate());
     String tokens[] = createDate.split("/");

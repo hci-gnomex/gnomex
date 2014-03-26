@@ -131,7 +131,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           response.setContentType(mimeType);
         } else {
           response.setContentType("application/x-download");
-          response.setHeader("Content-Disposition", "attachment;filename=" + fileName);          
+          response.setHeader("Content-Disposition", "attachment;filename=" + "\"" + fileName + "\"");          
           response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         }
         
@@ -293,7 +293,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
         AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
         
-        childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != "" ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
+        childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
         
         AnalysisFileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
         if (matchingFd != null) {

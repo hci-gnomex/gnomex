@@ -1,14 +1,27 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.gnomex.constants.Constants;
-import hci.gnomex.security.SecurityAdvisor;
-
-import java.io.Serializable;
-
+import java.io.*;
+import java.sql.*;
+import java.net.InetAddress;
+import java.rmi.*;
+import javax.sql.*;
+import javax.rmi.*;
+import javax.naming.*;
+import javax.ejb.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import hci.framework.control.*;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.*;
+import hci.gnomex.security.SecurityAdvisor;
+
+import org.hibernate.*;
+
+import hci.framework.utilities.*;
+import java.util.*;
+
+import org.jdom.*;
 
 /**
  *
@@ -115,6 +128,71 @@ public abstract class GNomExCommand extends Command implements Serializable {
   public String getShowRequestFormURL(HttpServletRequest request) throws Exception {
     return getAppURL(request) + Constants.SHOW_REQUEST_FORM;
   }
-
+  
+  public void sendNotification(Object obj, Session sess, String state, String targetGroup, String source){
+    Integer idLab = null;
+    Integer idAppUser = getSecAdvisor().getIdAppUser();
+    String objectNumber = null;
+    String imageSource = null;
+    Integer idCoreFacility = null;
+    
+    if(obj instanceof Request){
+      Request r = (Request) obj;
+      idLab = r.getIdLab();
+      objectNumber = r.getNumber();
+      imageSource = ((RequestCategory) sess.load(RequestCategory.class, r.getCodeRequestCategory())).getIcon();
+      idCoreFacility = r.getIdCoreFacility();
+    } else if (obj instanceof Analysis){
+      idLab = ((Analysis) obj).getIdLab();
+      objectNumber = ((Analysis) obj).getNumber();
+      imageSource = "assets/map.png";
+      idCoreFacility = ((Analysis) obj).getIdCoreFacility();
+    } else if(obj instanceof Invoice){
+      objectNumber = ((Invoice) obj).getInvoiceNumber();
+      idCoreFacility = ((Invoice) obj).getIdCoreFacility();
+    } else if(obj instanceof DataTrack){
+      idLab = ((DataTrack) obj).getIdLab();
+      objectNumber = ((DataTrack) obj).getNumber();
+      imageSource = "assets/datatrack.png";
+    } else if(obj instanceof Topic){
+      idLab = ((Topic) obj).getIdLab();
+      objectNumber = ((Topic) obj).getNumber();
+      imageSource = "assets/topic_tag.png";
+    } else if(obj instanceof FlowCell){
+      objectNumber = ((FlowCell) obj).getNumber();
+      imageSource = "assets/rectangle.png";
+    }
+    
+    Notification note = new Notification();
+    note.setSourceType(targetGroup);
+    note.setType(source);
+    note.setExpID(objectNumber);
+    note.setDate(new java.sql.Date(System.currentTimeMillis()));
+    note.setIdLabTarget(idLab);
+    note.setIdUserTarget(idAppUser);
+    note.setMessage(state);
+    note.setImageSource(imageSource);
+    note.setIdCoreFacility(idCoreFacility);
+    
+    StringBuffer buf = new StringBuffer();
+    if(idAppUser != null){
+      buf.append("SELECT firstName, lastName FROM AppUser WHERE idAppUser='" + idAppUser +"'");
+    
+      List rows = (List) sess.createQuery(buf.toString()).list();
+      String fullName = "";
+        if (rows.size() > 0) {
+          for(Iterator i = rows.iterator(); i.hasNext();) {
+            Object[] row = (Object[])i.next();
+            fullName = row[0] == null ? "" : (String)row[0].toString();
+            fullName += " ";
+            fullName += row[1] == null ? "" : (String)row[1].toString();
+          }
+        }
+      note.setFullNameUser(fullName);
+    }
+    
+    sess.save(note);
+    sess.flush();
+  }
 
 }

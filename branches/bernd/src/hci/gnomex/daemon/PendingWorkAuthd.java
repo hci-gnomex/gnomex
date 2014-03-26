@@ -142,11 +142,24 @@ public class PendingWorkAuthd extends TimerTask {
         String queryString = "from CoreFacility";
         Query query = sess.createQuery(queryString);
         List coreFacilityList = query.list();
+        Integer numSent = 0;
+        Integer numSkipped = 0;
         for(Iterator i = coreFacilityList.iterator(); i.hasNext(); ) {
           CoreFacility facility = (CoreFacility)i.next();
-          mailReminders(sess, facility);
+          if (facility.getAcceptOnlineWorkAuth() != null && facility.getAcceptOnlineWorkAuth().equals("Y")) {
+            mailReminders(sess, facility);
+            numSent++;
+          } else {
+            numSkipped++;
+          }
         }
+        
+        String msg = new Date() + ": Sent emails to " + numSent.toString() + " cores and skipped " + numSkipped.toString() + " cores."; 
+        System.out.println(msg);
+
       } catch (Exception ex) {
+        System.out.println( ex.toString() );
+        ex.printStackTrace();
         throw new RollBackCommandException();
       } finally {
         if(myConn != null) {
@@ -181,6 +194,10 @@ public class PendingWorkAuthd extends TimerTask {
     boolean hasWorkAuthorizations = false;
 
     StringBuffer tableRows = new StringBuffer("");
+    if (contactList == null || contactList.length() == 0) {
+      contactList = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility()); 
+      tableRows.append("<tr><td width='250'>Following message was not sent to " + facility.getFacilityName() + " because no contacts have been set up in " + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + ".</td><td width='500'>&nbsp;</td></tr>");
+    }
     while(it.hasNext()) {
       if(!hasWorkAuthorizations) {
         tableRows.append("<tr><td width='250'><span class='fontClassBold'>Lab</span></td><td width='500'><span class='fontClassBold'>Account</span></td></tr>");
@@ -220,7 +237,7 @@ public class PendingWorkAuthd extends TimerTask {
     body.append(tableRows.toString());
     body.append("</table></td></tr></table></body></html>");     
     
-    if (!testNoMailServer) {    
+    if (contactList != null && contactList.length() > 0 && !testNoMailServer) {    
       if(testEmailTo.length() > 0) {
         MailUtil.send(mailProps, testEmailTo, "", replyEmail, subject, body.toString(), true);               
       } else {
@@ -230,27 +247,6 @@ public class PendingWorkAuthd extends TimerTask {
   }
   
   private void getPendingWorkAuthorizations(Session sess, CoreFacility facility) throws Exception{
-    /*
-    Connection myConn = null;
-
-    StringBuffer hqlbuf = new StringBuffer("SELECT distinct l from Lab l ");
-    hqlbuf.append(" join l.billingAccounts ba");
-    hqlbuf.append(" join l.coreFacilities f");
-    hqlbuf.append(" where ba.isApproved <> 'Y' and f.idCoreFacility=:idCoreFacility");
-    hqlbuf.append(" order by l.lastName, l.firstName");
-    
-    waList = new ArrayList<String>();
-    Query query = sess.createQuery(hqlbuf.toString());
-    query.setParameter("idCoreFacility", facility.getIdCoreFacility());
-    List results = query.list();
-    for (Iterator i = results.iterator(); i.hasNext();) {
-      Lab thisLab = (Lab)i.next();
-      for(Iterator j = thisLab.getPendingBillingAccounts().iterator(); j.hasNext();) {
-        BillingAccount ba = (BillingAccount) j.next();
-        waList.add("<tr><td width='250'><span class='fontClass'>" + thisLab.getName() + "</span></td><td width='500'><span class='fontClass'>" + ba.getAccountNameAndNumber() + "</span></td></tr>");
-      }
-    }      
-    */
     StringBuffer hqlbuf = new StringBuffer("SELECT distinct l, ba ");
     hqlbuf.append(" from Lab l ")
       .append(" join l.billingAccounts ba ")

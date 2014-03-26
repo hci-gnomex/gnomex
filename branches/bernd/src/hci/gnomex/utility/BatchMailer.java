@@ -15,7 +15,9 @@ import org.xml.sax.SAXException;
 
 public class BatchMailer  {
   
-  private String          specifiedOrionPath = "";
+  private String                   specifiedOrionPath = "";
+  
+  private TomcatCatalinaProperties catalinaProperties;
   
   public BatchMailer() {
     specifiedOrionPath = "";
@@ -67,13 +69,18 @@ public class BatchMailer  {
       }
     } else {
       // Check for context.xml if we are running under apache tomcat
-      File contextFile = new File("META-INF/context.xml");
+      catalinaProperties = new TomcatCatalinaProperties(TomcatCatalinaProperties.getCatalinaPropertiesPathFromScripts(specifiedOrionPath));
+      String contextFilePath = "../";
+      if (specifiedOrionPath.length() > 0) {
+        contextFilePath = specifiedOrionPath; 
+      }
+      File contextFile = new File(contextFilePath + "META-INF/context.xml");
       if (contextFile.exists()) {
         try {
           SAXBuilder builder = new SAXBuilder();
           builder.setEntityResolver(new DummyEntityRes());
           
-          org.jdom.Document doc = builder.build(serverFile);
+          org.jdom.Document doc = builder.build(contextFile);
           Element root = doc.getRootElement();
           
           Iterator i = root.getChildren("Resource").iterator();
@@ -82,8 +89,8 @@ public class BatchMailer  {
             if(mailElement != null) {
               if (mailElement.getAttributeValue("mail.smtp.host") != null) {
                 foundHost = true;
-                mailProps.put("mail.smtp.host", mailElement.getAttributeValue("mail.smtp.host"));
-                mailProps.put("name", mailElement.getAttributeValue("name"));
+                mailProps.put("mail.smtp.host", catalinaProperties.getTomcatPropertyToken(mailElement.getAttributeValue("mail.smtp.host")));
+                mailProps.put("name", catalinaProperties.getTomcatPropertyToken(mailElement.getAttributeValue("name")));
               } 
             }
             

@@ -12,8 +12,8 @@ public class SeqLibProtocol extends DictionaryEntry implements Serializable {
   private String   description;
   private String   url;
   private String   isActive;
-  private String   adapterSequenceRead1;
-  private String   adapterSequenceRead2;
+  private String   adapterSequenceThreePrime;
+  private String   adapterSequenceFivePrime;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSeqLibProtocol());
@@ -79,20 +79,20 @@ public class SeqLibProtocol extends DictionaryEntry implements Serializable {
     this.url = url;
   }
 
-  public String getAdapterSequenceRead1() {
-    return adapterSequenceRead1;
+  public String getAdapterSequenceThreePrime() {
+    return adapterSequenceThreePrime;
   }
 
-  public void setAdapterSequenceRead1(String threeAdapterSequence) {
-    this.adapterSequenceRead1 = threeAdapterSequence;
+  public void setAdapterSequenceThreePrime(String threeAdapterSequence) {
+    this.adapterSequenceThreePrime = threeAdapterSequence;
   }
 
-  public String getAdapterSequenceRead2() {
-    return adapterSequenceRead2;
+  public String getAdapterSequenceFivePrime() {
+    return adapterSequenceFivePrime;
   }
 
-  public void setAdapterSequenceRead2(String fiveAdapterSequence) {
-    this.adapterSequenceRead2 = fiveAdapterSequence;
+  public void setAdapterSequenceFivePrime(String fiveAdapterSequence) {
+    this.adapterSequenceFivePrime = fiveAdapterSequence;
   }
 
 

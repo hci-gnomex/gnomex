@@ -1,7 +1,9 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +25,11 @@ public class UploadPurchaseOrder extends HttpServlet {
   private Integer idBillingAccount;
   private String fileName;
   private File file;
+  private String directoryName;
+  
+  private static final int                        ERROR_MISSING_TEMP_DIRECTORY_PROPERTY  = 900;
+  private static final int                        ERROR_INVALID_TEMP_DIRECTORY           = 901;
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadPurchaseOrder.class);
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
 
@@ -38,7 +45,31 @@ public class UploadPurchaseOrder extends HttpServlet {
       byte[] blob = new byte[1024];
       Part part;
       String fileType = null;
+      
+      directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.TEMP_DIRECTORY, req.getServerName());
+      if (directoryName == null || directoryName.equals("")) {
+        res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
+        throw new ServletException("Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
+      }
+      if (!directoryName.endsWith("/") && !directoryName.endsWith("\\")) {
+        directoryName += File.separator;
+      }
 
+      File dir = new File(directoryName);
+      if (!dir.exists()) {
+        if (!dir.mkdir()) {
+          res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+          throw new ServletException("Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
+        }
+      }
+      if (!dir.canRead()) {
+        res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+        throw new ServletException("Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
+      } 
+      if (!dir.canWrite()) {
+        res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
+        throw new ServletException("Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
+      }
 
       while ((part = mp.readNextPart()) != null) {
         String name = part.getName();
@@ -56,12 +87,12 @@ public class UploadPurchaseOrder extends HttpServlet {
           fileType = fileName.substring(fileName.indexOf("."));
 
           if(fileName != null){
-            file = new File(fileName);
+            file = new File(directoryName + fileName);
             filePart.writeTo(file);
             fileStream = new FileInputStream(file);
             blob = new byte[(int)file.length()];
             fileStream.read(blob);
-            
+            fileStream.close();
           }
         }
       }
@@ -71,18 +102,21 @@ public class UploadPurchaseOrder extends HttpServlet {
       ba.setOrderFormFileSize(new Long(file.length()));
       sess.update(ba);
       sess.flush();
+      //Delete the file now that we are finished
+      file.delete();
 
     } 
     catch (Exception e) {
       HibernateSession.rollback();
-      e.printStackTrace();
+      log.error("Unexpected error in UploadPurchaseOrder", e);
+      throw new ServletException("Unable to upload purchase order file.  Please contact gnomex support.");
     }
     finally{
       try {
         HibernateSession.closeSession();
         HibernateSession.closeTomcatSession();
       } catch (Exception e) {
-        e.printStackTrace();
+        log.error("Unable to close hibernate session in UploadPurcahseOrder", e);
       }
       }
     }

@@ -567,7 +567,6 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("seqPrepBypassed",                   row[24] == null ? "" :  (String)row[24]);
     n.setAttribute("idSampleType",                      row[25] == null ? "" :  ((Integer)row[25]).toString());
     // Fill in the seq lib protocol with the default specified in dictionary
-    // SampleTypeApplication.
     String codeApplication = (String)row[26];
     if (codeApplication != null) {
       Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
@@ -701,7 +700,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       firstCycleStatus = Constants.STATUS_COMPLETED;
     } else if (n.getAttributeValue("firstCycleFailed").equals("Y")) {
       firstCycleStatus = Constants.STATUS_TERMINATED;
-    } else if (n.getAttributeValue("firstCycleStartDate") != "") {
+    } else if (!n.getAttributeValue("firstCycleStartDate").equals("")) {
       firstCycleStatus = Constants.STATUS_IN_PROGRESS;
     } 
     

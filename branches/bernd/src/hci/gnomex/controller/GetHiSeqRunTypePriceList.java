@@ -27,7 +27,7 @@ import org.jdom.output.XMLOutputter;
 
 public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetCoreCommentsForBillingPeriod.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetHiSeqRunTypePriceList.class);
   
   private Integer idLab;
   private String codeRequestCategory;

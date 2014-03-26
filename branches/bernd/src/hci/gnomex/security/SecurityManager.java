@@ -1,5 +1,6 @@
 package hci.gnomex.security;
 
+import hci.gnomex.utility.Util;
 import hci.utility.server.LDAPURLEncoder;
 
 import java.io.File;
@@ -9,15 +10,22 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import com.orionsupport.security.SimpleUserManager;
+import com.sun.tools.javac.code.Attribute.Array;
 
 
 public class SecurityManager extends SimpleUserManager  {
@@ -31,6 +39,9 @@ public class SecurityManager extends SimpleUserManager  {
   private String ldap_sec_protocol = null;
   private String ldap_sec_auth = null;
   private String ldap_sec_principal = null;
+  private String ldap_domain = null;
+  private String ldap_user_attributes  = null;
+  private HashMap<String, String> ldap_user_attribute_map = new HashMap<String, String>();
   
   public SecurityManager() {
     super();
@@ -194,34 +205,39 @@ public class SecurityManager extends SimpleUserManager  {
   }
   
   private boolean checkUniversityCredentials(String uid, String password) {
-        
-    
-    Hashtable env = new Hashtable();
-    env.put(Context.INITIAL_CONTEXT_FACTORY,ldap_init_context_factory);
-    env.put(Context.PROVIDER_URL, ldap_provider_url);
-    env.put(Context.SECURITY_PROTOCOL, ldap_sec_protocol);
-    env.put(Context.SECURITY_AUTHENTICATION, ldap_sec_auth);
-    // Authenticate with the end user's uid and password (collected from a servlet form)
-    ldap_sec_principal = ldap_sec_principal.replace("<uid>", uid);
-    env.put(Context.SECURITY_PRINCIPAL, ldap_sec_principal);
-    env.put(Context.SECURITY_CREDENTIALS, password);
-
-    try {
-      
-      DirContext ctx = new InitialDirContext(env);
-      
-      ctx.close();
-
-      return true;
-    } catch (AuthenticationException ae) {
-      // Auth failed so return false
-      System.err.println("hci.gnomex.security.SecurityManager Authentication Exception : " + ae.toString());
-      return false;
-    } catch (Exception e) {
-      System.err.println("hci.gnomex.security.SecurityManager ERROR - Cannot connect to UofU LDAP server " + e.toString());
-      return false;
+    boolean isAuthenticated = false;
+    if (ldap_sec_principal.contains("<")) {
+      ldap_sec_principal = ldap_sec_principal.replace("<uid>", uid);      
+    } else if(ldap_sec_principal.contains("[")) {
+      // Need brackets if provided in a property because <> messes up parsing of context (xml) file
+      ldap_sec_principal = ldap_sec_principal.replace("[uid]", uid);            
     }
+    try {
+      ActiveDirectory ad = new ActiveDirectory(uid, 
+          password, 
+          ldap_init_context_factory,
+          ldap_provider_url, 
+          ldap_sec_protocol, 
+          ldap_sec_auth, 
+          ldap_sec_principal);
+      
+      if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
+        NamingEnumeration<SearchResult> answer = ad.searchUser(uid, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
+        isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);        
+      } else {
+        isAuthenticated = true;
+      }
+      
+      
+    } catch (Exception e) {
+      isAuthenticated = false;
+    } 
+    return isAuthenticated;
+    
   }
+    
+
+
   
   
   private void loadProperties()  throws Exception {
@@ -257,6 +273,26 @@ public class SecurityManager extends SimpleUserManager  {
         ldap_sec_principal = p.getProperty("ldap_sec_principal");
       } else if (p.getProperty("uofu_ldap_sec_principal") != null) {
         ldap_sec_principal = p.getProperty("uofu_ldap_sec_principal");
+      }
+      if (p.getProperty("ldap_domain") != null) {
+        ldap_domain = p.getProperty("ldap_domain");
+      }
+      if (p.getProperty("ldap_user_attributes") != null) {
+        ldap_user_attributes = p.getProperty("ldap_user_attributes");
+      }
+      // Populate user attributes and values into a may (key=attribute, value=attribute value)
+      if (ldap_user_attributes != null) {
+        String attributeTokens[] = ldap_user_attributes.split(",");
+        for (int x = 0; x < attributeTokens.length; x++) {
+          String tokens[] = attributeTokens[x].split(":");
+          String attribute = tokens.length > 0 ? tokens[0] : null;
+          String value = tokens.length > 1 ? tokens[1] : null;
+          if (attribute != null && value != null) {
+            ldap_user_attribute_map.put(attribute, value);            
+          } else {
+            System.err.println("Unexpected token for ldap_user_attributes: " + " attribute entry=" + attributeTokens[x] + " tokens=" + tokens);
+          }
+        }
       }
       if (p.getProperty("dbUsername") != null) {
         dbUsername = p.getProperty("dbUsername");

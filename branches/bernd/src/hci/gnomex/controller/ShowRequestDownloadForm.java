@@ -70,7 +70,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
     
     serverName = request.getServerName();
     
-    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + request.getContextPath();
+    baseURL =  (request.isSecure() ? "https://" : "http://") + serverName + ":" + request.getServerPort() + request.getContextPath();
     
   }
 
@@ -258,7 +258,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
         String theCreateYear  = dateTokens[2];
         String sortDate = theCreateYear + createMonth + createDay;    
         
-        String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+        String fcKey = flowCell.getCreateYear() + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + flowCell.getNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + experiment.getIdCoreFacility() + Constants.DOWNLOAD_KEY_SEPARATOR + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
         
         Map requestMap = new TreeMap();
         Map directoryMap = new TreeMap();

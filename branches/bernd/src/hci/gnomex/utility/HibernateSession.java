@@ -37,7 +37,7 @@ public class HibernateSession {
 
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
-    if (s == null) {
+    if (s == null || !s.isOpen()) {
       
       if (GNomExFrontController.isTomcat()) {
         s = HibernateUtil.getSessionFactory().openSession();
@@ -122,6 +122,11 @@ public class HibernateSession {
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         CallableStatement stmt;
         stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
+        stmt.setString(1, username);
+        stmt.executeUpdate();
+      } else {
+        CallableStatement stmt;
+        stmt = con.prepareCall("call setAppUser(?);");
         stmt.setString(1, username);
         stmt.executeUpdate();
       }

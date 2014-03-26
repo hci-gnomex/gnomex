@@ -7,6 +7,7 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -42,13 +43,18 @@ public class SequenomDNAExtractPlugin implements BillingPlugin {
     int qty = samples.size();
         
     
-    // Find the price - there is only one
+    // Find the price
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
       if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
-        price = p;
-        break;
+        for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+          PriceCriteria criteria = (PriceCriteria)i2.next();
+          if (criteria.getFilter1().equals(request.getCodeDNAPrepType())) {          
+            price = p;
+            break;            
+          }
+        }
       }
     }
     
@@ -76,7 +82,6 @@ public class SequenomDNAExtractPlugin implements BillingPlugin {
       billingItem.setCategory(priceCategory.getName());
       billingItem.setIdCoreFacility(request.getIdCoreFacility());
     
-      
       billingItems.add(billingItem);
       
     }

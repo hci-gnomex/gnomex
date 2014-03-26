@@ -48,7 +48,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
       this.fileName = file.getCanonicalPath();      
     } catch (Exception e) {
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
-      this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
+      this.fileName = file.getAbsolutePath().replace("\\", "/");
     }
     this.zipEntryName = PropertyDictionaryHelper.parseAnalysisZipEntryName(baseDir, fileName);  
     
@@ -368,6 +368,13 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
         String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
         viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
+    } else if(fileName.toLowerCase().endsWith(".csv") ||
+        fileName.toLowerCase().endsWith(".ppt") ||
+        fileName.toLowerCase().endsWith(".pptx") ||
+        fileName.toLowerCase().endsWith(".xls")) {
+      String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
+      viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
+
     }
     return viewURL;
   }

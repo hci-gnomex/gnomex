@@ -8,6 +8,7 @@ import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateGuestSession;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -202,11 +203,11 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
       this.xmlResult = doc.asXML();
 
     } finally {
-      
-
-      if (sess != null) {
-        sess.close();
-      }
+        try {
+          HibernateGuestSession.closeGuestSession();
+        } catch(Exception ex) {
+          log.error("Unable to close guest session in ShowDataTrackInfo");
+        }
     }
     
     return this;

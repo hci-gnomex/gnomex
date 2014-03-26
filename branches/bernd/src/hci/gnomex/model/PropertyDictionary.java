@@ -79,6 +79,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        GET_REQUEST_NUMBER_PROCEDURE        = "get_request_number_procedure";
   public static final String        ID_DEFAULT_INSTITUTION              = "id_default_institution";
   public static final String        SITE_LOGO                           = "site_logo";
+  public static final String        SITE_SPLASH                         = "site_splash";
   public static final String        CONFIGURABLE_BILLING_ACCOUNTS       = "configurable_billing_accounts";
   public static final String        INVOICE_NOTE_1                      = "invoice_note_1";
   public static final String        INVOICE_NOTE_2                      = "invoice_note_2";
@@ -105,14 +106,20 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        HISEQ_RUN_TYPE_LABEL_CUSTOM         = "hiseq_run_type_label_custom";
   public static final String        HISEQ_RUN_TYPE_CUSTOM_WARNING       = "hiseq_run_type_custom_warning";
   public static final String        ANALYSIS_ASSISTANCE_NOTE            = "analysis_assistance_note";
+  public static final String        CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK = "contact_email_manage_sample_file_link";
+  public static final String        CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS = "contact_email_bioinformatics_analysis_requests";
+  public static final String        CUSTOM_BILLING_MESSAGE              = "custom_billing_message";
+  public static final String        DISABLE_USER_SIGNUP                 = "disable_user_signup";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
+  public static final String 		USAGE_GUEST_STATS 					= "usage_guest_stats";
+  public static final String 		USAGE_REPORT_EMAILS 				= "usage_report_emails";
 
-  public static final String		METRIX_SERVER_HOST					= "metrix_server_host";
-  public static final String		METRIX_SERVER_PORT					= "metrix_server_port";
 
+  public static final String		    METRIX_SERVER_HOST					= "metrix_server_host";
+  public static final String		    METRIX_SERVER_PORT					= "metrix_server_port";
 
   private Integer       idPropertyDictionary;
   private String        propertyName;

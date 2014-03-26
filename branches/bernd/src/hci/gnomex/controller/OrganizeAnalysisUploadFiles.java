@@ -200,6 +200,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
             for(Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String)i1.next();
+              File sourceFile = new File(fileName);
+              // don't move it it doesn't exist.
+              if (!sourceFile.exists()) {
+                continue;
+              }
               int lastIndex = fileName.lastIndexOf("\\");
               if (lastIndex == -1) {
                 lastIndex = fileName.lastIndexOf("/");
@@ -227,6 +232,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   } else if(idFileString.startsWith("AnalysisFile") && new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()){
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
+                    af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setIdAnalysis(Integer.valueOf(idAnalysis));
                     af.setFileName(new File(fileName).getName());
                     af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
@@ -265,7 +271,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
               sess.flush();
 
-              File sourceFile = new File(fileName);
               sourceFile = sourceFile.getCanonicalFile();
               String targetDirName = baseDir + File.separator + analysis.getNumber() + File.separator + qualifiedFilePath;
               File targetDir = new File(targetDirName);
@@ -417,20 +422,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
     }
 
     return this;
-  }
-
-  protected AnalysisFile initializeFile(String idAnalysisFileString, Session sess){
-
-    AnalysisFile af = null;
-    if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
-      af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idAnalysisFileString));
-    } else {
-      af = new AnalysisFile();
-      af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
-    }
-    af.setIdAnalysis(Integer.valueOf(idAnalysis));
-    return af;
-
   }
 
   private Boolean deleteDir(File childFile) throws IOException{

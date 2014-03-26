@@ -49,7 +49,7 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
         
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
-        StringBuffer buf =  filter.getQuery();
+        StringBuffer buf =  filter.getQuery(this.getSecAdvisor());
         List flowCells = (List)sess.createQuery(buf.toString()).list();
         
         Document doc = new Document(new Element("FlowCellList"));

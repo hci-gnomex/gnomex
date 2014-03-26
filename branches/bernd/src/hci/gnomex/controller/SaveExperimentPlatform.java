@@ -3,11 +3,12 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
+import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibProtocolApplication;
@@ -21,6 +22,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -50,11 +52,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private String                         sequencingOptionsXMLString;
   private Document                       sequencingOptionsDoc; 
+
+  private Document                       requestCategoryApplicationsDoc;
   
   private RequestCategory                rcScreen;
   private boolean                        isNewRequestCategory = false;
   
   private String                         newCodeRequestCategory;
+  
+  private Map<String, String>            newCodeApplicationMap;
   
   
   public void validate() {
@@ -135,6 +141,18 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
     } 
+    
+    if (request.getParameter("requestCategoryApplicationXMLString") != null && !request.getParameter("requestCategoryApplicationXMLString").equals("")) {
+      String requestCategoryApplicationXMLString = request.getParameter("requestCategoryApplicationXMLString");
+      StringReader reader = new StringReader(requestCategoryApplicationXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        requestCategoryApplicationsDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse requestCategoryApplicationXMLString", je );
+        this.addInvalidField( "requestCategoryApplicationXMLString", "Invalid requestCategoryApplicationXMLString");
+      }
+    }
       
 
   }
@@ -181,7 +199,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSampleTypes(sess, rc);
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
-
+        saveRequestCategoryApplications(sess);
+        
         sess.flush();
 
 
@@ -226,6 +245,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setNumberOfChannels(rcScreen.getNumberOfChannels());
     rc.setIsSampleBarcodingOptional(rcScreen.getIsSampleBarcodingOptional());
     rc.setIsClinicalResearch(rcScreen.getIsClinicalResearch());
+    rc.setIsOwnerOnly(rcScreen.getIsOwnerOnly());
   }
   
   private void saveSampleTypes(Session sess, RequestCategory rc) {
@@ -252,6 +272,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       st.setSampleType(node.getAttributeValue("display"));
       st.setIsActive(node.getAttributeValue("isActive"));
+      st.setCodeNucleotideType(node.getAttributeValue("codeNucleotideType"));
       sess.save(st);
 
       //
@@ -270,44 +291,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         for (Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
           SampleTypeRequestCategory x = (SampleTypeRequestCategory)ix.next();
           sess.delete(x);
-        }
-      }
-
-      //
-      // Save association between sample types and applications
-      //
-      String codeApplications = node.getAttributeValue("codeApplications");
-      existingAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where idSampleType = " + st.getIdSampleType()).list();
-      HashMap<String, SampleTypeApplication> existingApplicationMap = new HashMap<String, SampleTypeApplication>();
-      for (Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
-        SampleTypeApplication sta = (SampleTypeApplication)i1.next();
-        existingApplicationMap.put(sta.getCodeApplication(), sta);
-      }
-      HashMap<String, Application> applicationMap = new HashMap<String, Application>();
-      if (codeApplications != null && !codeApplications.equals("")) {
-        String[] tokens = codeApplications.split(",");
-        for (int x = 0; x < tokens.length; x++) {
-          String codeApplication = tokens[x];
-          applicationMap.put(codeApplication, null);
-        }
-      }
-      // Add associations
-      for (Iterator i1 = applicationMap.keySet().iterator(); i1.hasNext();) {
-        String codeApplication = (String)i1.next();
-        if (!existingApplicationMap.containsKey(codeApplication)) {
-          SampleTypeApplication sta = new SampleTypeApplication();
-          sta.setIdSampleType(st.getIdSampleType());
-          sta.setCodeApplication(codeApplication);
-          sess.save(sta);
-        }
-      }
-
-      // Remove associations
-      for (Iterator i1 = existingApplicationMap.keySet().iterator(); i1.hasNext();) {
-        String codeApplication = (String)i1.next();
-        if (!applicationMap.containsKey(codeApplication)) {
-          SampleTypeApplication sta = existingApplicationMap.get(codeApplication);
-          sess.delete(sta);
         }
       }
 
@@ -331,13 +314,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           }
         }
         
-        // Remove associations
-        List existingsAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where idSampleType = " + sampleType.getIdSampleType()).list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SampleTypeApplication x = (SampleTypeApplication)i1.next();
-          sess.delete(x);
-        }
-        
         if (deleteSampleType) {
           sess.delete(sampleType);
         } else {
@@ -353,6 +329,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       return;
     }
 
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    RequestCategoryType rct = dh.getRequestCategoryType(rc.getType());
+    
+    newCodeApplicationMap = new HashMap<String, String>();
+    
     //
     // Save applications
     //
@@ -367,8 +348,13 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (codeApplication.startsWith("Application")) {
         app = new Application();
         app.setCodeApplication("APP" + getNextAssignedAppNumber(sess));
+        newCodeApplicationMap.put(codeApplication, app.getCodeApplication());
       } else {
         app = (Application) sess.load(Application.class, codeApplication);
+      }
+
+      if (app.getCodeApplicationType() == null) {
+        app.setCodeApplicationType(ApplicationType.getCodeApplicationType(rct));
       }
 
       String idLabelingProtocolDefault = node.getAttributeValue("idLabelingProtocolDefault");
@@ -376,54 +362,76 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       String idScanProtocolDefault = node.getAttributeValue("idScanProtocolDefault");
       String idFeatureExtractionProtocolDefault = node.getAttributeValue("idFeatureExtractionProtocolDefault");
       String idApplicationTheme = node.getAttributeValue("idApplicationTheme");
+      String sortOrder = node.getAttributeValue("sortOrder");
+      String samplesPerBatch = node.getAttributeValue("samplesPerBatch");
 
       app.setHasCaptureLibDesign(node.getAttributeValue("hasCaptureLibDesign"));
+      app.setOnlyForLabPrepped(node.getAttributeValue("onlyForLabPrepped"));
+      if (app.getOnlyForLabPrepped() == null) {
+        app.setOnlyForLabPrepped("Y");
+      }
       app.setApplication(node.getAttributeValue("display"));
-      app.setIsActive(node.getAttributeValue("isActive"));
+      if (app.getIsActive() != null && app.getIsActive().equals("Y") && !node.getAttributeValue("isActive").equals("Y")) {
+        // if app selected in request category just quietly ignore setting it to inactive.  Front end shouldn't allow this.
+        // note null getIsActive() means it's a new one.
+        app.setIsActive(node.getAttributeValue("isActive"));
+        if (!appSelectedInRequestCategory(sess, app, node.getAttributeValue("isSelected"), rc)) {
+          app.setIsActive(node.getAttributeValue("isActive"));
+        }
+      } else {
+        app.setIsActive(node.getAttributeValue("isActive"));
+      }
       app.setIdApplicationTheme(idApplicationTheme != null && !idApplicationTheme.equals("") ? Integer.valueOf(idApplicationTheme) : null);
       app.setCoreSteps(node.getAttributeValue("coreSteps"));
       app.setCoreStepsNoLibPrep(node.getAttributeValue("coreStepsNoLibPrep"));
+      app.setSortOrder(sortOrder != null && sortOrder.length() > 0 ? Integer.valueOf(sortOrder) : 0);
+      app.setSamplesPerBatch(samplesPerBatch != null && !samplesPerBatch.equals("") ? Integer.valueOf(samplesPerBatch) : null);
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);
 
-      //
-      // Save association between application and request category
-      //
-      List existingAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + app.getCodeApplication() + "' and x.codeRequestCategory = '" + rc.getCodeRequestCategory() + "'").list();
-      if (node.getAttributeValue("isSelected").equals("Y")) {
-        if (existingAssociations.size() == 0) {
-          RequestCategoryApplication x = new RequestCategoryApplication();
-          x.setCodeApplication(app.getCodeApplication());
-          x.setCodeRequestCategory(rc.getCodeRequestCategory());
-          x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
-          x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
-          x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
-          x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
-          sess.save(x);
-        } else {
-          for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
-            RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+      if (this.requestCategoryApplicationsDoc == null) {
+        //
+        // Save association between application and request category
+        // Note if requestCategoryApplicationsDoc is parsed then it is done in saveRequestCategoryApplications
+        //
+        List existingAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + app.getCodeApplication() + "' and x.codeRequestCategory = '" + rc.getCodeRequestCategory() + "'").list();
+        if (node.getAttributeValue("isSelected").equals("Y")) {
+          // if selected make it active
+          app.setIsActive("Y");
+          if (existingAssociations.size() == 0) {
+            RequestCategoryApplication x = new RequestCategoryApplication();
+            x.setCodeApplication(app.getCodeApplication());
+            x.setCodeRequestCategory(rc.getCodeRequestCategory());
             x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
             x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
             x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
             x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
             sess.save(x);
+          } else {
+            for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
+              RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+              x.setIdLabelingProtocolDefault(idLabelingProtocolDefault != null && !idLabelingProtocolDefault.equals("") ? Integer.valueOf(idLabelingProtocolDefault) : null);
+              x.setIdHybProtocolDefault(idHybProtocolDefault != null && !idHybProtocolDefault.equals("") ? Integer.valueOf(idHybProtocolDefault) : null);
+              x.setIdScanProtocolDefault(idScanProtocolDefault != null && !idScanProtocolDefault.equals("") ? Integer.valueOf(idScanProtocolDefault) : null);
+              x.setIdFeatureExtractionProtocolDefault(idFeatureExtractionProtocolDefault != null && !idFeatureExtractionProtocolDefault.equals("") ? Integer.valueOf(idFeatureExtractionProtocolDefault) : null);
+              sess.save(x);
+            }
           }
+        } else {
+          for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
+            RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
+            sess.delete(x);
+          }
+          sess.flush();
         }
-      } else {
-        for(Iterator ix = existingAssociations.iterator(); ix.hasNext();) {
-          RequestCategoryApplication x = (RequestCategoryApplication)ix.next();
-          sess.delete(x);
-        }
-        sess.flush();
       }
-
+      
       //
       // Save association between applications and seq lib protocols
       //
       String idSeqLibProtocols = node.getAttributeValue("idSeqLibProtocols");
-      existingAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + app.getCodeApplication() + "'").list();
+      List existingAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + app.getCodeApplication() + "'").list();
       HashMap<Integer, SeqLibProtocolApplication> existingProtocolMap = new HashMap<Integer, SeqLibProtocolApplication>();
       for (Iterator i1 = existingAssociations.iterator(); i1.hasNext();) {
         SeqLibProtocolApplication x = (SeqLibProtocolApplication)i1.next();
@@ -465,7 +473,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     // Remove applications
     for (Iterator i = sess.createQuery("SELECT a from Application a").list().iterator(); i.hasNext();) {
       Application application = (Application)i.next();
-      if (!applicationMap.containsKey(application.getCodeApplication())) {
+      if (application.isApplicableApplication(rct) && !applicationMap.containsKey(application.getCodeApplication())) {
 
         boolean deleteApplication = true;
         List experiments = sess.createQuery("select count(*)from Request r where r.codeApplication = '" + application.getCodeApplication() + "'").list();
@@ -477,12 +485,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
 
         // Remove associations
-        List existingsAssociations = sess.createQuery("SELECT x from SampleTypeApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          SampleTypeApplication x = (SampleTypeApplication)i1.next();
-          sess.delete(x);
-        }
-        existingsAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
+        List existingsAssociations = sess.createQuery("SELECT x from SeqLibProtocolApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
         for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
           SeqLibProtocolApplication x = (SeqLibProtocolApplication)i1.next();
           sess.delete(x);
@@ -504,6 +507,64 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }    
     sess.flush();
 
+  }
+  
+  private void saveRequestCategoryApplications(Session sess) {
+    if (requestCategoryApplicationsDoc == null || requestCategoryApplicationsDoc.getRootElement().getChildren().size() == 0) {
+      return;
+    }
+   
+    Map<String, Element> requestCategoryApplicationMap = new HashMap<String, Element>();
+    for(Iterator i = this.requestCategoryApplicationsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      String key = node.getAttributeValue("codeApplication") + "\t" + node.getAttributeValue("codeRequestCategory");
+      node.setAttribute("isStored", "N");
+      requestCategoryApplicationMap.put(key, node);
+    }
+    
+    for (RequestCategoryApplication recApp : (List<RequestCategoryApplication>)sess.createQuery("from RequestCategoryApplication").list()) {
+      String key = recApp.getCodeApplication() + "\t" + recApp.getCodeRequestCategory();
+      Element node = requestCategoryApplicationMap.get(key);
+      if (node != null) {
+        if (!node.getAttributeValue("isSelected").equals("Y")) {
+          sess.delete(recApp);
+        } else {
+          node.setAttribute("isStored", "Y");
+        }
+      }
+    }
+    
+    for(String key : requestCategoryApplicationMap.keySet()) {
+      Element node = requestCategoryApplicationMap.get(key);
+      if (!node.getAttributeValue("isStored").equals("Y") && node.getAttributeValue("isSelected").equals("Y")) {
+        RequestCategoryApplication recApp = new RequestCategoryApplication();
+        String codeApplication = node.getAttributeValue("codeApplication");
+        if (this.newCodeApplicationMap.containsKey(codeApplication)) {
+          codeApplication = this.newCodeApplicationMap.get(codeApplication);
+        }
+        recApp.setCodeApplication(codeApplication);
+        recApp.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
+        sess.save(recApp);
+      }
+    }
+    
+  }
+  
+  private Boolean appSelectedInRequestCategory(Session sess, Application app, String isSelected, RequestCategory rc) {
+    Boolean hasSelections = false;
+    if (isSelected.equals("Y")) {
+      hasSelections = true;
+    } else {
+      Query q = sess.createQuery("Select x from RequestCategoryApplication x where codeApplication = :codeApplication AND codeRequestCategory != :codeRequestCategory");
+      q.setParameter("codeApplication", app.getCodeApplication());
+      q.setParameter("codeRequestCategory", rc.getCodeRequestCategory());
+      List l = q.list();
+      if (l.size() > 0) {
+        hasSelections = true;
+      }
+    }
+    
+    return hasSelections;
   }
   
   private void saveSequencingOptions(Session sess, RequestCategory rc) {

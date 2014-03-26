@@ -4,6 +4,7 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -26,11 +27,15 @@ public class AnalysisGroupFilter extends DetailObject {
   private String                lastYear = "N";
   private String                allAnalysis = "N";
   private String                publicAnalysisOtherGroups = "N";
+  
+  private String				idGenomeBuild;
+  private String				idOrganism;
 
 
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
+  
   
   public static final int       COL_ID_ANALYSIS = 7;
   public static final int       COL_ANALYSIS_NUMBER = 8;
@@ -97,8 +102,57 @@ public class AnalysisGroupFilter extends DetailObject {
     
   }
   
-  
-  public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
+//returns an ArrayList of all labs in user's query (not just those with >0 analyses)
+ // ArrayList will be rows from query ordered by lastName, firstName, idLab
+ public StringBuffer getAllLabsInQuery(SecurityAdvisor secAdvisor) {
+	 this.secAdvisor = secAdvisor;
+	 addWhere = true;
+	 boolean labSearch = false;
+	 boolean textSearch = false;
+	  ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
+	  StringBuffer queryBuf = new StringBuffer();
+	  queryBuf.append("SELECT idLab, lastName, firstName ");	  
+	  queryBuf.append("FROM Lab as lab ");
+	  
+	  
+	  // if we have one or more labKeys then filter query by those ids
+	  if (labKeys != null && !labKeys.equals("")) {
+		  labSearch = true;		
+	      String[] tokens = labKeys.split(":");
+	      if (tokens.length > 0) {
+	    	  queryBuf.append(" WHERE ");
+	    	  queryBuf.append(" idLab IN (");
+	    	  for(int x=0; x < tokens.length; x++){
+	    	  if(x > 0) { //not the first element
+	    		  queryBuf.append(", "); }
+	    	  queryBuf.append(tokens[x]);
+	    	  }
+	    	  queryBuf.append(")");	    	  
+	      }
+	  }
+	  if (searchText != null && !searchText.equals("")) {
+		  textSearch = true;
+		      if(labSearch){
+		    	  queryBuf.append(" AND ");
+		      }
+		      else {
+		      queryBuf.append(" WHERE "); 
+		      }	      
+		      queryBuf.append("(");
+		      queryBuf.append(" lab.firstName like '%" + searchText + "%'");
+		      queryBuf.append(" OR ");
+		      queryBuf.append(" lab.lastName like '%" + searchText + "%'");
+		      queryBuf.append(")");
+		    }
+	  if(!labSearch && !textSearch){
+		  return new StringBuffer(); // no need to find labs without analyses as there is no applicable search criteria, should guarantee an error in caller if my logic doesn't cover all possibilities
+	  }	  
+	  
+	  queryBuf.append(" ORDER BY lastName, firstName, idLab");
+	  return queryBuf;
+ }
+ 
+ public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
     return getAnnotationQuery(secAdvisor, false);
   }
 
@@ -131,6 +185,7 @@ public class AnalysisGroupFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
     if (idLab != null ||
+    	idOrganism != null ||	
         idAppUser != null ||
         (publicProjects != null && publicProjects.equals("Y")) ||
         idRequest != null ||
@@ -169,6 +224,7 @@ public class AnalysisGroupFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           a.lab as alab ");
     queryBuf.append(" LEFT JOIN           a.appUser as owner ");
     queryBuf.append(" LEFT JOIN           a.collaborators as collab ");
+    queryBuf.append(" LEFT JOIN			  a.genomeBuilds as genBuild ");
     
 
     // Only add selection criteria when "all analysis" is not turned on
@@ -303,7 +359,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last week
+   	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -315,7 +374,11 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last month
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+    	  }
       queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -327,7 +390,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last three months
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -339,7 +405,10 @@ public class AnalysisGroupFilter extends DetailObject {
       java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
       
       this.addWhereOrAnd();
-      queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last year
+    	  queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
+      else {
+    	  queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
@@ -348,6 +417,14 @@ public class AnalysisGroupFilter extends DetailObject {
     if (publicProjects != null && publicProjects.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append(" a.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
+    }
+    
+    if( this.idGenomeBuild != null && !this.idOrganism.equals("") ) { // user selected a specific Genome Build for an Organism
+    	this.addWhereOrAnd();
+    	queryBuf.append(" genBuild.idGenomeBuild = '" + this.idGenomeBuild + "' ");
+    }else if(this.idOrganism != null && !this.idOrganism.equals("") ){ // user only selected an Organism, not a specific Genome Build for that Organism
+    	this.addWhereOrAnd();
+    	queryBuf.append(" a.idOrganism = '" + this.idOrganism + "' ");
     }
       
 
@@ -366,7 +443,7 @@ public class AnalysisGroupFilter extends DetailObject {
   private void addSecurityCriteria() {
     
     if (publicAnalysisOtherGroups != null && publicAnalysisOtherGroups.equals("Y")) {
-      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "a", addWhere);
+      addWhere = secAdvisor.addPublicOnlySecurityCriteria(queryBuf, "a", addWhere, false);
     } else {
       boolean scopeToGroup = true;
       // Don't limit to user's lab if "show all analysis" checked.
@@ -379,7 +456,7 @@ public class AnalysisGroupFilter extends DetailObject {
       
       if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       }  else {
-        addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis", null);
+        addWhere = secAdvisor.buildSpannedSecurityCriteria(queryBuf, "ag", "a", "collab", addWhere, "a.codeVisibility", scopeToGroup, "a.idAnalysis", null, false);
       }
       
     }
@@ -544,6 +621,19 @@ public class AnalysisGroupFilter extends DetailObject {
   public void setPublicAnalysisOtherGroups(String publicAnalysisOtherGroups) {
     this.publicAnalysisOtherGroups = publicAnalysisOtherGroups;
   }
-
+  
+  public void setIdOrganism(String idOrganism) {
+	  this.idOrganism = idOrganism;
+  }
+  public String getIdOrganism(String idOrganism) {
+	  return this.idOrganism;
+  }
+  
+  public void setIdGenomeBuild(String idGenomeBuild) {
+	  this.idGenomeBuild = idGenomeBuild;
+  }
+  public String getIdGenomeBuild(String idGenomeBuild) {
+	  return this.idGenomeBuild;
+  }
     
 }

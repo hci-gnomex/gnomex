@@ -193,6 +193,10 @@ public class MailUtil
       }
     }
     
+    // Send an email with an attachment(s)
+    // Parameter file can be a file or a directory.  
+    // If it is a directory, every file under that directory will be attached
+    // recursively.
     public static void send_attach( String to,
         String cc,
         String from,
@@ -204,7 +208,6 @@ public class MailUtil
     AddressException,
     MessagingException,
     IOException{
-
 
       Session session = GNomExFrontController.getMailSession();
       send_attach(session, to, cc, "", from, subject, body, formatHtml, file);        
@@ -266,8 +269,7 @@ public class MailUtil
         if(formatHtml){
           format = "text/html";
         }
-  
-        
+          
         Multipart multipart = new MimeMultipart();
         
         // Email body
@@ -276,23 +278,40 @@ public class MailUtil
         multipart.addBodyPart( messageBodyPart );
   
         // Add file attachment(s)
-        if (file.isDirectory()) {
-          String[] fileList = file.list();
-          for (int x = 0; x < fileList.length; x++) {
-            String fileName = file.getCanonicalPath() + File.separator + fileList[x];
-            File f1 = new File(fileName);
-            addAttachment( multipart, f1 );
-          }
-        } else {
-          addAttachment( multipart, file );
-        }
-        
+        recurseAddAttachment( multipart, file );
+                
         msg.setHeader( "X-Mailer", "JavaMailer" );
         msg.setSentDate( new Date(  ) );
   
         msg.setContent( multipart );
         
         Transport.send( msg );
+      }
+    }
+    
+    private static void recurseAddAttachment(Multipart multipart, File file) throws MessagingException, IOException
+    {
+      if ( multipart== null || file == null || !file.exists() ) {
+        return;
+      }
+      
+      // If multipart has more than 10 file attachments, don't send.
+      if ( multipart.getCount() > 11 ) {
+        throw new IOException("Too many files. Cannot send more than 10 files at once.");
+      }
+      
+      if ( file.isFile() ) {
+        addAttachment( multipart, file );
+        return;
+      }
+      String[] fileList = file.list();
+      if ( fileList.length == 0 ) {
+        return;
+      }
+      for (int x = 0; x < fileList.length; x++) {
+        String fileName = file.getCanonicalPath() + File.separator + fileList[x];
+        File f1 = new File(fileName);
+          recurseAddAttachment( multipart, f1 );
       }
     }
     

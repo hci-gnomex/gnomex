@@ -8,6 +8,10 @@ import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +33,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   
   private NotificationFilter filter;
   private Integer workflowCoreFacility = null;
+  private Integer idCoreFacility = null;
   
   public void validate() {
 	  
@@ -42,6 +47,9 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
     if(request.getParameter("workflowCoreFacility") != null){
     	workflowCoreFacility = Integer.parseInt(request.getParameter("workflowCoreFacility"));	
     }
+    if(request.getParameter("idCoreFacility") != null){
+      idCoreFacility = Integer.parseInt(request.getParameter("idCoreFacility"));  
+    }
     
     this.addInvalidFields(errors);
   }
@@ -50,7 +58,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
    
 	try {
 	//	if(isValid()){
-		
+	  
 	    	Boolean adminAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_ADMIN_NOTIFICATION);
 	    	Boolean billingAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_BILLING_NOTIFICATION);
 	    	Boolean workflowAuth = this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_RECEIVE_WORKFLOW_NOTIFICATION);
@@ -60,6 +68,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	        
 	        // Process filter calling here 
 	        Document doc = new Document(new Element("NotificationCollection"));
+	        filter.setIdCoreFacility(idCoreFacility);
 	        
 	        StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
 	        List rows = (List) sess.createQuery(queryBuf.toString()).list();
@@ -106,15 +115,25 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	            	x = new Element("Unknown");
 	            }
 	            
+          Date date = (Date)row[3];
+          DateFormat df = new SimpleDateFormat("H:mm");
+          String time = "";
+          if(date != null){
+            time = df.format(date);
+          }
+          
 	    		x.setAttribute("notificationId",	row[0] == null ? "0" : ((Integer)row[0]).toString());
 	    		x.setAttribute("sourceType",		row[1] == null ? "" : sourceType);						// Should not be undef.
 	    		x.setAttribute("state", 			row[2] == null ? "" : (String)row[2]);
 	    		x.setAttribute("date",				row[3] == null ? "" : this.formatDate((java.util.Date)row[3]));
+	    		x.setAttribute("time",       time);
 	    		x.setAttribute("idTargetUser", 		row[4] == null ? "" : ((Integer)row[4]).toString());
 	    		x.setAttribute("idTargetLab",		row[5] == null ? "" : ((Integer)row[5]).toString());
-	    		x.setAttribute("expId", 			row[6] == null ? "" : ((Integer)row[6]).toString());
+	    		x.setAttribute("expId", 			row[6] == null ? "" : (String)row[6]);
 	    		x.setAttribute("type", 				row[7] == null ? "" : (String)row[7]);
 	    		x.setAttribute("fullNameUser", 		row[8] == null ? "" : (String)row[8]);
+	    		x.setAttribute("imageSource",     row[9] == null ? "" : (String)row[9]);
+	    		x.setAttribute("idCoreFacility",     row[10] == null ? "" : ((Integer)row[10]).toString());
 	           
 	            // Add node content to rootElement XML output.
 	            if(row[0] != null){
@@ -122,14 +141,15 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	            }
 	        }
 	
-	        // If authorized for workflow management 
+	        // If authorized for workflow management show all work flow items in each of the steps.
 	        	if(workflowAuth){
 	                StringBuffer buf = new StringBuffer();
 	                // Build the workflow samples
-	                buf.append("SELECT wi.codeStepNext, count(wi.codeStepNext)");
-	                buf.append(" FROM  Sample s ");
-	          	  	buf.append(" JOIN    s.request as req ");
-	          	  	buf.append(" LEFT JOIN	 s.workItems wi ");
+	                buf.append("SELECT wi.codeStepNext, max(wi.createDate), count(wi.codeStepNext)");
+	                buf.append(" FROM  WorkItem wi ");
+//	                buf.append(" FROM  Sample s ");
+//	          	  	buf.append(" JOIN    s.request as req ");
+//	          	  	buf.append(" LEFT JOIN	 s.workItems wi ");
 	          	  	
 	          	  	if(workflowCoreFacility != null){
 	          	  		buf.append(" WHERE req.idCoreFacility='");
@@ -137,7 +157,8 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	          	  		buf.append("'");
 	          	  	}
 	          	  	
-	          	  	buf.append(" GROUP BY wi.codeStepNext ");
+	          	  	buf.append(" GROUP BY wi.codeStepNext, wi.createDate ");
+	          	  	buf.append(" ORDER BY wi.createDate DESC");
 	          	  	
 	                rows = sess.createQuery(buf.toString()).list();
 	                if (rows.size() > 0) {
@@ -146,8 +167,9 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	                    x = new Element("workflow");
 	                    
 	                    x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
-	                    x.setAttribute("count", 	row[1] == null ? "" : ((Integer)row[1]).toString());
-	                    x.setAttribute("sourceType", "WORKFLOW");
+	                    x.setAttribute("count", 	row[2] == null ? "" : ((Integer)row[2]).toString());
+	                    x.setAttribute("date",   row[1] == null ? "" : this.formatDate((java.util.Date)row[1]));
+//	                    x.setAttribute("sourceType", "WORKFLOW");
 	                    x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));
 	                    
 	                    if((String)row[0] != null){
@@ -156,6 +178,35 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	                  }
 	                }
 	        	}
+	        	
+	        	//Get workflow items for specific user
+	        	StringBuffer buf = new StringBuffer();
+	        	buf.append("SELECT wi.codeStepNext, wi.createDate, s.number, r.number");
+	        	buf.append(" FROM WorkItem wi ");
+	        	buf.append(" JOIN wi.sample as s");
+	        	buf.append(" JOIN s.request as r");
+	        	buf.append(" Where r.idAppUser = " + idUser);
+            buf.append(" ORDER BY wi.createDate DESC");
+	        	
+	        	rows = sess.createQuery(buf.toString()).list();
+	        	if (rows.size() > 0) {
+              for(Iterator i = rows.iterator(); i.hasNext();) {
+                Object[] row = (Object[])i.next();
+                x = new Element("userWorkflow");
+                
+                x.setAttribute("codeStep",  row[0] == null ? "" : (String)row[0]);
+                x.setAttribute("date",   row[1] == null ? "" : this.formatDate((java.util.Date)row[1]));
+                x.setAttribute("sampleNumber",   row[2] == null ? "" : (String)row[2]);
+                x.setAttribute("requestNumber", row[3] == null ? "" : (String)row[3]);
+                x.setAttribute("sourceType", "USER");
+                x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));
+                
+                if((String)row[0] != null){
+                  doc.getRootElement().addContent(x);
+                }
+              }
+            }
+	        	
 	        XMLOutputter out = new org.jdom.output.XMLOutputter();
 	        this.xmlResult = out.outputString(doc);
         

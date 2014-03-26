@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.IScanChip;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PropertyDictionary;
@@ -21,6 +22,7 @@ import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.RequisitionFormUtil;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -37,7 +39,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.output.XMLOutputter;
 
 
 
@@ -53,7 +54,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   private Integer          idRequest = 0;
   private String           launchAppURL;
   private String           appURL;
-  private String           showRequestFormURLBase;
   private String           serverName;
   
   public void validate() {
@@ -63,7 +63,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     try {
       launchAppURL = this.getLaunchAppURL(request);  
-      showRequestFormURLBase = this.getShowRequestFormURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
       log.warn("Cannot get launch app URL in SaveRequest", e);
@@ -86,7 +85,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
             
       if ( codeRequestStatus.equals(null) || idRequest.equals("0") ) {
         this.addInvalidField( "Missing information", "id and code request status needed" );
@@ -128,9 +126,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             // For INTERNAL ISCAN Requests
             if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && !req.getLab().isExternalLab() ) {
               
-              // Bypass requisition form and illumina email for CUSTOM orders.
+              // Bypass requisition form and illumina email for CUSTOM orders and for internal HCI labs.
               IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
-              if ( chip != null && req.getNumberIScanChips()!=0 ) {
+              boolean isHCI = req.getLab().getContactEmail().indexOf( "@hci.utah.edu" ) > 0;
+              
+              if ( chip != null && req.getNumberIScanChips()!=0 && !isHCI ) {
 
                 // REQUISITION FORM
                 try {
@@ -148,7 +148,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   }
 
                 } catch (Exception e) {
-                  String msg = "Unable to download and/or fill out requisition form for request "
+                  String msg = "Unable to download requisition form OR unable to send purchasing email for Request "
                     + req.getNumber()
                     + ".  " + e.toString();
                   log.error(msg);
@@ -156,14 +156,16 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                 }
                 // ILLUMINA EMAIL
                 // Send email to illumina contact requesting quote #
-                try {
-                  sendIlluminaEmail(sess, req);
-                } catch (Exception e) {
-                  String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
-                    + req.getNumber()
-                    + ".  " + e.toString();
-                  log.error(msg);
-                  e.printStackTrace();
+                if ( req.getMaterialQuoteNumber() == null || req.getMaterialQuoteNumber().equals( "" ) ) {
+                  try {
+                    sendIlluminaEmail(sess, req);
+                  } catch (Exception e) {
+                    String msg = "Unable to send Illumina IScan Chip email requesting a quote number for request "
+                      + req.getNumber()
+                      + ".  " + e.toString();
+                    log.error(msg);
+                    e.printStackTrace();
+                  }
                 }
               }
             } 
@@ -211,8 +213,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         }
         
         sess.flush();
-
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
 
         this.xmlResult = "<SUCCESS idRequest=\"" + idRequest + 
         "\" codeRequestStatus=\"" + codeRequestStatus  +
@@ -305,15 +305,24 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     
     StringBuffer introNote = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + req.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    String trackRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + req.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
     
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
       ".  You will receive email notification when the experiment is complete.");   
     
-    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) &&  req.getNumberIScanChips()==0 ) {
+    // Special notes for iScan requests
+    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)){
+      if ( req.getNumberIScanChips()==0 ) {
         introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");   
+      } else {
+        Lab lab = dictionaryHelper.getLabObject( req.getIdLab() );
+        String email = lab.getContactEmail();
+        if ( email.indexOf( "@hci.utah.edu" ) > 0 ) {
+          introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");   
+        }
+      }
     }
-
+  
     introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
        
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, req, "", req.getSamples(), new HashSet(), new HashSet(), introNote.toString());
@@ -383,7 +392,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       return false;
     }
     
-    String numberChips = req.getNumberIScanChips() != null ? req.getNumberIScanChips().toString() : "";
     String chipName = chip.getName() != null ? chip.getName() : "";
     String catNumber = chip.getCatalogNumber() != null ? chip.getCatalogNumber() : "";
     
@@ -400,7 +408,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     emailBody.append("<br><br><table border='0' width = '600'><tr><td>Experiment:</td><td>" + requestNumber );
     emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
     emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
-    emailBody.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
+    emailBody.append("</td></tr><tr><td>Number of Samples:</td><td>" + req.getNumberOfSamples() );
 
     emailBody.append("</td></tr></table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME + " - Upload Quote Info</a>.");
 

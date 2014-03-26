@@ -76,7 +76,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     try {
       SAXBuilder sax = new SAXBuilder();
       Document doc = sax.build(requestReader);
-      requestParser = new RequestParser(doc, secAdvisor);
+      requestParser = new RequestParser(doc, secAdvisor, true);
     } catch (JDOMException je ) {
       log.error( "Cannot parse requestXMLString", je );
       this.addInvalidField( "requestXMLString", "Invalid request xml");

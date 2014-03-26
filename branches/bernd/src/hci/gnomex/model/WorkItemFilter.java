@@ -71,6 +71,12 @@ public class WorkItemFilter extends DetailObject {
     addRequestCriteria();
     addWorkItemCriteria();
     addSecurityCriteria();
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      queryBuf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(queryBuf, "wi");
+      queryBuf.append(" ");
+    }
+
     
     // We have control break login for Seq Assemble so that seq lanes are grouped by
     // multiplex group number.  So we need this sort so that the control break logic

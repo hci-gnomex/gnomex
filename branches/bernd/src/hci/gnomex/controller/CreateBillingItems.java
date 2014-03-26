@@ -27,6 +27,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PlateWellComparator;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
@@ -223,7 +224,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
                 plate.setCodePlateType(PlateType.SOURCE_PLATE_TYPE);
               }
               well.setPlate(plate);
-              Set<PlateWell> wells = new TreeSet<PlateWell>();
+              Set<PlateWell> wells = new TreeSet<PlateWell>(new PlateWellComparator());
               wells.add(well);
               sample.setWells(wells);
             }
@@ -300,7 +301,8 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       }
 
-
+      List discountBillingItems = new ArrayList<BillingItem>();
+      
       // Find the appropriate price sheet
       PriceSheet priceSheet = null;
       List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
@@ -331,19 +333,27 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Instantiate plugin for billing category
           BillingPlugin plugin = null;
+          Boolean isDiscount = false;
           if (priceCategory.getPluginClassName() != null) {
             try {
               plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
+              if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
+                isDiscount = true;
+              }
             } catch(Exception e) {
               log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
             }
-
+            
           }
 
           // Get the billing items
           if (plugin != null) {
             List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null);
-            billingItems.addAll(billingItemsForCategory);                
+            if (isDiscount) {
+              discountBillingItems.addAll(billingItemsForCategory);
+            } else {
+              billingItems.addAll(billingItemsForCategory);
+            }
           }
         }
 
@@ -379,7 +389,21 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         billingItemNode.setAttribute("isDirty", "Y");
         requestNode.addContent(billingItemNode);
       }
-      
+      // Add in any discounts
+      for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem)i.next();
+        Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+        if (bi.getUnitPrice() != null) {
+          BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
+          bi.setUnitPrice( invoicePrice );
+          bi.setInvoicePrice( invoicePrice );
+          billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));
+          billingItemNode.setAttribute("unitPrice", nf.format(bi.getInvoicePrice().doubleValue()));
+          grandInvoicePrice = grandInvoicePrice.add(invoicePrice); 
+        }
+        billingItemNode.setAttribute("isDirty", "Y");
+        requestNode.addContent(billingItemNode);
+      }
 
       StringBuffer buf = new StringBuffer();
       buf.append("SELECT sum(bi.invoicePrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());

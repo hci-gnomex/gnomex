@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class Lab extends HibernateDetailObject {
+public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   private Integer idLab;
   private String  firstName;
   private String  lastName;
@@ -17,17 +17,18 @@ public class Lab extends HibernateDetailObject {
   private String  isExternalPricingCommercial;
   private String  department;
   private String  contactName;
+  private String  contactAddress2;
   private String  contactAddress;
   private String  contactCodeState;
   private String  contactCity;
   private String  contactZip;
+  private String  contactCountry;
   private String  contactEmail;
   private String  contactPhone;
   private String  isCcsgMember;
   private String  isActive;
   private String  excludeUsage;
-  private String  billingContactEmail;
-  private Long    version;
+  private String  billingContactEmail;  private Long    version;
   private Set     billingAccounts;
   private Set     members;
   private Set     collaborators;
@@ -82,6 +83,14 @@ public class Lab extends HibernateDetailObject {
     this.contactName = contactName;
   }
   
+  public String getContactAddress2() {
+    return contactAddress2;
+  }
+  
+  public void setContactAddress2(String contactAddress2) {
+    this.contactAddress2 = contactAddress2;
+  }
+  
   public String getContactPhone() {
     return contactPhone;
   }
@@ -97,6 +106,14 @@ public class Lab extends HibernateDetailObject {
   public void setContactZip(String contactZip) {
     this.contactZip = contactZip;
   }
+  
+  public String getContactCountry() {
+	    return contactCountry;
+	  }
+	  
+	  public void setContactCountry(String contactCountry) {
+	    this.contactCountry = contactCountry;
+	  }
   
   public String getDepartment() {
     return department;
@@ -474,5 +491,23 @@ public class Lab extends HibernateDetailObject {
     }
     
     return defaultInst;
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof Lab) {
+      Lab ol = (Lab)o;
+      if (ol.getIdLab() == null && this.getIdLab() == null) {
+        return 0;
+      } else if (ol.getIdLab() == null) {
+        return 1;
+      } else if (this.getIdLab() == null) {
+        return -1;
+      } else {
+        return this.getIdLab().compareTo(ol.getIdLab());
+      }
+    } else {
+      return 1;
+    }
   }
 }

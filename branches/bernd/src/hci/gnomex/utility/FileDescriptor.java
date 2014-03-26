@@ -255,10 +255,19 @@ public class FileDescriptor extends DetailObject implements Serializable {
         dirParm.replace("/", "&#47;");
         viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
+      //Browsers don't know how to open the following file types so download them instead of showing in browser
+    } else if(fileName.toLowerCase().endsWith(".csv") ||
+        fileName.toLowerCase().endsWith(".ppt") ||
+        fileName.toLowerCase().endsWith(".pptx") ||
+        fileName.toLowerCase().endsWith(".xls")) {
+      String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+      dirParm.replace("/", "&#47;");
+      viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
+
     }
     return viewURL;
   }
-  
+
   public void isFound(boolean isFound) {
     this.found = isFound;
   }

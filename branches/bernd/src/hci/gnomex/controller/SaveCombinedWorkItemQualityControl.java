@@ -17,6 +17,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemQualityControlParser;
 
 import java.io.Serializable;
@@ -130,6 +131,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                   
                   WorkItem wi = new WorkItem();
                   wi.setIdRequest(sample.getIdRequest());
+                  wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                   wi.setCodeStepNext(Step.LABELING_STEP);
                   wi.setLabeledSample(ls);
                   wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -139,6 +141,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               } else {
                 WorkItem wi = new WorkItem();
                 wi.setIdRequest(sample.getIdRequest());
+                wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                 
                 String codeStepNext;
                 if(workItem.getCodeStepNext().equals(Step.SEQ_QC)) {
@@ -275,7 +278,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
-    String downloadRequestURL = launchAppURL + "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS;
+    String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
     
     if (isStepQualityControl && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";

@@ -1,15 +1,15 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Project;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SubmissionInstruction;
@@ -52,12 +52,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 
   private String           amendState = "";
 
-  private String           appURL = "";
-
   private AppUser          appUser;
   private BillingAccount   billingAccount;
-  private Project          project;
-  private Lab              lab;
 
   private DictionaryHelper dictionaryHelper;
 
@@ -76,11 +72,6 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("amendState") != null && !request.getParameter("amendState").equals("")) {
       amendState = request.getParameter("amendState");
-    }
-    try {
-      this.appURL = this.getAppURL(request);
-    } catch (Exception e) {
-      log.warn("Unable to obtain gnomex app url", e);
     }
   }
 
@@ -204,12 +195,32 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               maindiv.addContent(he);              
             }
             
+            // FORM HEADER
             // Application
             if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
                 Element hApp = new Element("H4");
                 hApp.addContent(dictionaryHelper.getApplication(request.getCodeApplication()));
+                if ( request.getCodeApplication().equals("OTHER") && request.getApplicationNotes() != null && !request.getApplicationNotes().equals( "" ) ) {
+                  hApp.addContent( " - " + request.getApplicationNotes() );
+                }
                 maindiv.addContent(hApp);
+            } else if ( request.getCodeDNAPrepType() != null && !request.getCodeDNAPrepType().equals("")) {
+              RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
+              RequestCategoryType rct = rc.getCategoryType();
+              if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
+              Element hApp = new Element("H4");
+              hApp.addContent(dictionaryHelper.getDNAPrepType(request.getCodeDNAPrepType()));
+              maindiv.addContent(hApp);
+              }
+          } else if ( request.getCodeRNAPrepType() != null && !request.getCodeRNAPrepType().equals("")) {
+            RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
+            RequestCategoryType rct = rc.getCategoryType();
+            if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
+            Element hApp = new Element("H4");
+            hApp.addContent(dictionaryHelper.getRNAPrepType(request.getCodeRNAPrepType()));
+            maindiv.addContent(hApp);
             }
+        }
             
             // Number of seq cycles and seq run type
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
@@ -232,9 +243,9 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
 	            boolean corePrepLib = true;
-              String steps = request.getApplication().getCoreSteps();
+             /* String steps = request.getApplication().getCoreSteps();
               String sampleType = "";
-              String samplePrepMethod = "";
+              String samplePrepMethod = "";*/
 	            if (request.getSamples().iterator().hasNext()) {
                 Sample smp = (Sample) request.getSamples().iterator().next(); 
                 if (smp.getSeqPrepByCore() != null && smp.getSeqPrepByCore().equals("N")) {
@@ -243,10 +254,23 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                 if (!corePrepLib) {
                 	Element preppedByUserNode = new Element("H4");
                 	preppedByUserNode.setAttribute("class", "special");
-                	preppedByUserNode.addContent("Library Prepared By Client");
+                	if (request.getHasPrePooledLibraries() != null && request.getHasPrePooledLibraries().equals("Y") && request.getNumPrePooledTubes() != null) {
+                    preppedByUserNode.addContent("Library Prepared By Client, " + request.getNumPrePooledTubes().toString() + " Pre-Pooled Tubes");
+                	} else {
+                    preppedByUserNode.addContent("Library Prepared By Client");
+                	}
                 	maindiv.addContent(preppedByUserNode);
                 }
 	            }
+            }
+            
+            if (request.getSamples().size() > 0) {
+              Sample s = (Sample)request.getSamples().iterator().next();
+              if (s.getOtherSamplePrepMethod() != null && s.getOtherSamplePrepMethod().length() > 0) {
+                Element othSamplePrepMethod = new Element("H4");
+                othSamplePrepMethod.addContent("Sample Nucl. Extraction Method: " + s.getOtherSamplePrepMethod());
+                maindiv.addContent(othSamplePrepMethod);
+              }
             }
             
             
@@ -258,7 +282,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             }
 
             maindiv.addContent(new Element("BR"));
-            maindiv.addContent(formatter.makeRequestTable());
+            maindiv.addContent(formatter.makeRequestTable()); //Header details
 
             maindiv.addContent(new Element ("BR"));
 
@@ -275,7 +299,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
               }
               description.addContent(desc);
               maindiv.addContent(description);              
-            } else if (!RequestCategory.isSequenom(request.getCodeRequestCategory())) {
+            } else if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory())) {
               // Show core facility notes for internal experiments
               Element sequenceNote = new Element("H5");
               sequenceNote.addContent("Notes for Core facility");
@@ -291,8 +315,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             }
 
             if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-            	formatter.addIlluminaSampleTable(maindiv,  request.getSamples());
-            	formatter.addCovarisSampleTable(maindiv, request.getSamples());
+            	formatter.addIlluminaSampleTable(maindiv,  request.getSamples()); // Samples(#) table
+            	formatter.addCovarisSampleTable(maindiv, request.getSamples()); // Covaris Information table
             } else {
                 formatter.addSampleTable(maindiv, request.getSamples());
             }
@@ -315,7 +339,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
               formatter.makePageBreak(maindiv);
 
-              formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);          
+              formatter.addSequenceLaneTable(maindiv, request.getSequenceLanes(), amendState);   
             }
             
             // Append the submission instructions to the printable form
@@ -672,14 +696,14 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
       if (maxMatchCount.intValue() > 0 && instructions != null && instructions.size() == 1) {
         SubmissionInstruction instruction = instructions.get(0);
         return instruction.getUrl();
-      } else {
+      } 
         log.warn("Cannot find exact matching Submission Instructions for request " + request.getNumber());
         return null;
-      }      
-    } else {
+           
+    } 
       log.warn("No matching Submission Instructions for request " + request.getNumber());
       return null;
-    }
+   
 
   }
 }

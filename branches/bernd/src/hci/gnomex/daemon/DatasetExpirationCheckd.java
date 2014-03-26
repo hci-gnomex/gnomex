@@ -16,6 +16,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -133,6 +134,10 @@ public class DatasetExpirationCheckd extends TimerTask {
 
       dataSource = new BatchDataSource();
       app.connect();
+      
+      if(serverName == null) {
+        serverName = InetAddress.getLocalHost().getHostName();
+      }
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       String datasetPrivacyExp = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION, serverName);
@@ -257,7 +262,8 @@ public class DatasetExpirationCheckd extends TimerTask {
           }                
         }
       }           
-    }                
+    }
+    
 
     String labEmail = "";
     if(lab != null) {
@@ -330,6 +336,7 @@ public class DatasetExpirationCheckd extends TimerTask {
 
     catch (Exception ex) {
       System.out.println("Error sending restricted visibility warning: "  + ex.getMessage());
+      ex.printStackTrace(); //DEBUG LINE
       throw new RollBackCommandException();
     }        
   }  
