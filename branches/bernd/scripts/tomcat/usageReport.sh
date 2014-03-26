@@ -1,5 +1,4 @@
 #!/bin/bash
-
 TOMCAT_HOME=../../../
 COMMON_LIB=$TOMCAT_HOME/lib
 
@@ -20,4 +19,4 @@ CLASSPATH="$CLASSPATH:$JAR"
 done
 export CLASSPATH
 
-java hci.gnomex.daemon.RegisterFiles $*
+java hci.gnomex.daemon.UsageReportd $*

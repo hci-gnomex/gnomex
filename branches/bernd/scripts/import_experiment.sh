@@ -16,8 +16,9 @@ done
 for JAR in $GNOMEX_LIB/*.jar
 do
 CLASSPATH="$CLASSPATH:$JAR"
-
 done
+
 export CLASSPATH
 
-java hci.gnomex.daemon.RegisterFiles $*
+java hci.gnomex.daemon.ImportExperiment $*
+
