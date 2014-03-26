@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" minHeight="20" minWidth="50" maxHeight="600" maxWidth="810"
+				xmlns:views="views.*"
+				showCloseButton="true" 
+				close="{closeWindow(null)}"
+				creationComplete="movePopup(event)"
+				title="Help" 
+				xmlns:util="views.util.*" >
+		<util:ResizableTextArea id="helpText" autoResize="true" styleName="contextHelpView" maxWidth="800" wordWrap="true" verticalScrollPolicy="auto" editable="false"/>
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.core.mx_internal;
+			import mx.events.FlexMouseEvent;
+			import mx.managers.PopUpManager;
+			import mx.messaging.channels.StreamingAMFChannel;
+			
+			private var helpButton:UIComponent;
+			
+			public function init(helpText:String,  title:String, helpButton:UIComponent) : void {
+				this.helpButton = helpButton;
+				this.helpText.htmlText = helpText;
+				if (title != null && title.length > 0) {
+					this.title = title;
+				} else {
+					title = "Help";
+				}
+				this.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closeWindow);
+			}
+			
+			private function movePopup(event:Event):void {
+				// Position below help button.
+				var globalPoint:Point = helpButton.localToGlobal(new Point(helpButton.x, helpButton.y));
+				this.x = globalPoint.x + helpButton.width;
+				this.y = globalPoint.y + helpButton.height;
+
+				// Move so the help window is visible within the application (if necessary)
+				var applicationWidth:Number = screen.width;
+				var applicationHeight:Number = screen.height;
+				if ((this.x + this.width) > applicationWidth) {
+					this.x = applicationWidth - this.width -5;
+				} 
+				if ((this.y + this.height) > applicationHeight) {
+					this.y = applicationHeight - this.height -5;
+				}
+			}
+			
+			private function closeWindow(evt:FlexMouseEvent):void {
+				this.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closeWindow);
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+</mx:TitleWindow>
