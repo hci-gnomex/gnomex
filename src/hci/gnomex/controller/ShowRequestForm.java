@@ -399,7 +399,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	              formatter.makePageBreak(maindiv);
 	              
 	              maindiv.addContent(new Element("BR"));
-	              maindiv.addContent(formatter.makeRequestInfoTable());
+	              maindiv.addContent(formatter.makeRequestTable());
 	              maindiv.addContent(new Element ("BR"));
 	  
 	              Element reqNum = new Element("H2");

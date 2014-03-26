@@ -137,28 +137,37 @@ public class RequestHTMLFormatter {
     
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
+    //		"Requester" userName	| "Lab" labName
     table.addContent(makeRow("Requester",   userName,
                              "Lab",         labName));
-    
-    table.addContent(makeRow("Date", request.formatDate(request.getCreateDate()),
-                             "Phone",        phone));
+    //		"Phone" phone	|	"Date" createDate
+    table.addContent(makeRow("Phone",        phone,
+    						"Date", request.formatDate(request.getCreateDate())
+                             ));
 
     if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
-      table.addContent(makeRow("Account",     accountName, 
-          "Email",        email));      
-
-      table.addContent(makeRow("", accountNumber,
-           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
+    //	"Email" email	|	"Account"	accountName
+      table.addContent(makeRow("Email",        email,
+    		  					"Account",     accountName));      
+      // "Modified" modifiedDate	|	"" accountNumber
+      table.addContent(makeRow(
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),
+           "", accountNumber
+           ));
       
     } else {
-      table.addContent(makeRow("&nbsp;",     "&nbsp;", 
-          "Email",        email));      
-
-      table.addContent(makeRow("", "&nbsp;",
-           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
+    	// "Email"	email	| ""	"" (external so no account name)
+      table.addContent(makeRow("Email",        email,
+    		  					"&nbsp;",     "&nbsp;"
+          ));      
+      	// "Modified"	modifiedDate		|	"" "" (external so no account number)
+      table.addContent(makeRow(
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),
+           			"", "&nbsp;"));
       
     }
     if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
+    	// "iScan Chip"	chipName	|	"# of chips"	numberIScanChips
       table.addContent(makeRow("iScan Chip", iScanChip.getName(),
           "# of Chips",        request.getNumberIScanChips().toString()));
     }
@@ -166,69 +175,7 @@ public class RequestHTMLFormatter {
     
     
     return table;
-  }
-
- public Element makeRequestInfoTable() {
-	    
-	    
-	    String userName = "";
-	    String phone = "";
-	    String email = "";
-	    if (appUser != null) {
-	      userName = (appUser.getFirstName() != null ? appUser.getFirstName() : "") + " " + (appUser.getLastName() != null ? appUser.getLastName() : "");
-	      phone    = appUser.getPhone();
-	      email    = appUser.getEmail();
-	    }
-	    String accountName = "";
-	    if (billingAccount != null) {
-	      accountName = billingAccount.getAccountName();
-	    }
-	    String accountNumber = "";
-	    if (billingAccount != null) {
-	      if (!this.secAdvisor.isGuest()) {
-	        // Don't show the account number if the user logged in as guest
-	        accountNumber = billingAccount.getAccountNumber();
-	          accountNumber = billingAccount.getAccountNumber();
-	      }
-	    }
-	    String labName = "";
-	    if (request.getLab() != null) {
-	      labName = request.getLab().getName();
-	    }
-	    
-	    Element table = new Element("TABLE");    
-	    table.setAttribute("CELLPADDING", "5");
-	    table.addContent(makeRow("Requester",   userName,
-	    		"Date", request.formatDate(request.getCreateDate())));
-	    
-	    table.addContent(makeRow("Phone",        phone,
-	    						 "Lab",         labName));
-
-	    if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
-	      table.addContent(makeRow("Email",        email, 
-	    		  "Account",     accountName));      
-
-	      table.addContent(makeRow(
-	           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),"", accountNumber));
-	      
-	    } else {
-	      table.addContent(makeRow("Email",        email, 
-	    		  "&nbsp;",     "&nbsp;"));      
-
-	      table.addContent(makeRow(
-	           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"), "", "&nbsp;"));
-	      
-	    }
-	    if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
-	      table.addContent(makeRow("iScan Chip", iScanChip.getName(),
-	          "# of chips",        request.getNumberIScanChips().toString()));
-	    }
-	    
-	    
-	    
-    return table;
   } 
- 
  
   public void addSampleTable(Element parentNode, Set samples) {
      addSampleTable(parentNode, samples, null);
