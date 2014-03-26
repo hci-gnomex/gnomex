@@ -303,7 +303,6 @@
 											  prompt="Lab..."
 											  width="200"
 											  close="labSelected();" 
-											  removeFilterOnSelection="true"
 											  id="labCombo">
 					</renderers:FilterComboBox>
 					<mx:Label text="Owner" paddingLeft="8" styleName="formLabel"/>

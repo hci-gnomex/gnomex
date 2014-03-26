@@ -2634,7 +2634,7 @@ package views.renderers
 		
 		private var _caseSensitive				: Boolean;
 		private var _selectSingleMatch			: Boolean;
-		private var _removeFilterOnSelection	: Boolean;
+		private var _removeFilterOnSelection	: Boolean = true;
 		private var _removeInputOnFocusOut		: Boolean = true;
 		private var _highlightTextFormat		: TextFormat;
 		
