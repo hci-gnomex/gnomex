@@ -54,7 +54,7 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
 
       Document doc = new Document(new Element("OrganismList"));
       
-      List organisms = sess.createQuery("SELECT o from Organism o order by case when o.organism='Other' then 'aa' else o.organism end").list();
+      List organisms = sess.createQuery("SELECT o from Organism o order by case when o.organism='Human' then 'aaa' when o.organism='Other' then 'aab' else o.organism end").list();
 
       for(Iterator i = organisms.iterator(); i.hasNext();) {
         Organism organism = (Organism)i.next();
