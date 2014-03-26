@@ -35,7 +35,10 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 
-			private var parentWindow:views.util.IlluminaExperimentTypeDetailWindow = null;
+			import views.util.GNomExStringUtil;
+			import views.util.IconUtility;
+			
+			private var parentWindow:views.experimentplatform.IlluminaExperimentTypeDetailWindow = null;
 			
 			[Bindable]
 			private var protocolDescription:String;
@@ -43,7 +46,7 @@
 			[Bindable]
 			private var protocol:Object;
 			
-			public function init(parentWindow:views.util.IlluminaExperimentTypeDetailWindow, protocolPassed:Object):void {
+			public function init(parentWindow:views.experimentplatform.IlluminaExperimentTypeDetailWindow, protocolPassed:Object):void {
 				topBox.enabled = false;
 				this.parentWindow = parentWindow;
 				protocolName.setFocus();

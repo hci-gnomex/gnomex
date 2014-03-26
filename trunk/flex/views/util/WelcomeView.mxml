@@ -249,12 +249,6 @@
 				PopUpManager.centerPopUp(apWindow);				
 			}
 			
-			private function showExperimentPlatformWindow():void {
-				var platformWindow:ExperimentPlatformWindow = ExperimentPlatformWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformWindow, true));
-				PopUpManager.centerPopUp(platformWindow);
-				
-			}
-			
 			private function showUsageWindow():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsageView;
 			}
