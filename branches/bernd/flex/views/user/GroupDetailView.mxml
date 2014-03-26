@@ -691,10 +691,12 @@
 				params.lastName =  this.groupLastName.text;
 				params.department = this.department.text;
 				params.contactName =  this.contactName.text;
+				params.contactAddress2 =  this.contactAddress2.text;
 				params.contactAddress = this.contactAddress.text;
 				params.contactCity =  this.contactCity.text;
 				params.contactCodeState =  this.contactStateCombo.selectedItem != null ? this.contactStateCombo.selectedItem.@value : "";
-				params.contactZip = this.contactZip.text; 
+				params.contactZip = this.contactZip.text;
+				params.contactCountry = this.contactCountry.text;
 				params.contactPhone = this.contactPhone.text;
 				params.contactEmail = this.contactEmail.text;
 				params.isCcsgMember = this.isCcsgMemberCheckBox.selected ? "Y" : "N";
@@ -1044,6 +1046,10 @@
 			* PO document functions
 			*/
 			public function prepareToUploadPDF(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove/view a purchase order form.");
+					return;
+				}
 				if(this.poBillingAccounts[this.billingAccountPOGrid.selectedIndex].@orderFormFileType != ''){
 					Alert.show("By uploading a new purchase form you will overwrite the existing purchase form.\n\nContinue anyway?",
 						null, (Alert.YES | Alert.NO), this, continueToUpload);
@@ -1095,6 +1101,10 @@
 			}
 			
 			public function removeOrder(event:MouseEvent):void{
+				if(dirty.isDirty()){
+					Alert.show("Please save existing changes before attempting to upload/remove a purchase order form.");
+					return;
+				}
 				deletePurchaseForm.send();
 			}
 			
@@ -1189,6 +1199,14 @@
 					}
 				}
 				
+			}
+			
+			private function poGridChange(event:DataGridEvent):void {
+				// this is primarily so we don't set diry on the Purchase order form column, 
+				// but basically will not set it for any column with editable false. 
+				if (this.billingAccountPOGrid.columns[event.columnIndex].editable) {
+					dirty.setDirty();
+				}
 			}
 
 		]]>
@@ -1339,14 +1357,22 @@
 							</mx:columns>
 						</mx:DataGrid>			   	
 					</mx:VBox>
-					<mx:VBox  verticalGap="4" borderStyle="solid" cornerRadius="6" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2"> 
-						<mx:VBox verticalGap="0">
+					<mx:VBox  verticalGap="4" borderStyle="solid" cornerRadius="6" paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="2"> 						
+						<mx:VBox verticalGap="0">							
 							<mx:HBox width="100%">
 								<mx:VBox verticalGap="0">
 									<mx:Label text="Billing Contact" styleName="formLabel"/>
 									<mx:TextInput id="contactName" text="{parentDocument.fullLab.@contactName}" width="260"/>
 								</mx:VBox>
 							</mx:HBox>
+							
+							<mx:HBox width="100%">
+								<mx:VBox verticalGap="0">
+									<mx:Label text="Department" styleName="formLabel"/>
+									<mx:TextInput id="contactAddress2" text="{parentDocument.fullLab.@contactAddress2}" width="260"/>
+								</mx:VBox>
+							</mx:HBox>
+							
 							<mx:VBox  verticalGap="0" width="100%">
 								<mx:Label text="Address"  styleName="formLabel" paddingBottom="0"/>
 								<mx:TextInput id="contactAddress" text="{parentDocument.fullLab.@contactAddress}" width="260" change="dirty.setDirty()"/>
@@ -1363,16 +1389,21 @@
 										</mx:LinkButton>
 									</mx:HBox>
 									<mx:VBox verticalGap="0" horizontalAlign="right">
-										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="74" change="dirty.setDirty()" labelField="@value">
+										<mx:ComboBox id="contactStateCombo"  text="{parentDocument.fullLab.@contactCodeState}" width="74" change="dirty.setDirty()" labelField="@value" toolTip="Leave blank for non-U.S. address">
 										</mx:ComboBox>
 									</mx:VBox>
 								</mx:VBox>
 								<mx:VBox  verticalGap="0">
-									<mx:Label text="Zip"  styleName="formLabel"/>
+									<mx:Label text="Postal Code"  styleName="formLabel"/>
 									<mx:TextInput id="contactZip" text="{parentDocument.fullLab.@contactZip}" width="84" click="dirty.setDirty()"/>
 								</mx:VBox>
 							</mx:HBox>
-							
+							<mx:HBox width="100%" horizontalGap="3">
+								<mx:VBox verticalGap="0">
+									<mx:Label text="Country" styleName="formLabel"/>
+									<mx:TextInput id="contactCountry" text="{parentDocument.fullLab.@contactCountry}" width="260" click="dirty.setDirty()"/>
+								</mx:VBox>
+							</mx:HBox>							
 						</mx:VBox>
 					</mx:VBox>
 				</mx:HBox>
@@ -1566,7 +1597,7 @@
 									<mx:Spacer width="100%"/>
 								</mx:HBox>
 								<mx:DataGrid width="100%"   height="100%" id="billingAccountPOGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10" itemEditBeginning="{poGridChange(event)}">
 									<mx:dataProvider>{poBillingAccounts}</mx:dataProvider>
 									<mx:columns>
 										<mx:DataGridColumn headerText="PO" dataField="@accountName" width="160" 
@@ -1600,7 +1631,7 @@
 														   editorDataField="selectedDate"/>
 										
 										
-										<mx:DataGridColumn headerText="Purchase Order Form"  width="120">
+										<mx:DataGridColumn headerText="Purchase Order Form"  width="120" editable="false">
 											<mx:itemRenderer>
 												<mx:Component>
 													<mx:HBox horizontalGap="3" horizontalScrollPolicy="off">
@@ -1655,7 +1686,7 @@
 								</mx:HBox>
 								
 								<mx:DataGrid width="100%" height="100%" id="billingAccountCreditCardGrid" editable="true"
-											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10">
+											 horizontalScrollPolicy="off" variableRowHeight="true"  fontSize="10" change="{dirty.setDirty()}">
 									<mx:dataProvider>{creditCardBillingAccounts}</mx:dataProvider>
 									<mx:columns>
 										<mx:DataGridColumn headerText="Credit Card Last 4 digits" dataField="@accountName" width="75" 

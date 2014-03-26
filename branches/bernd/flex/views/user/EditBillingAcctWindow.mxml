@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:renderers="views.renderers.*"
 				layout="vertical" 
-				title="Edit Billing Account" 
+				title="Edit Campus Billing Account" 
 				width="675" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
@@ -122,6 +122,7 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
+		import views.util.GNomExStringUtil;
 		
 		[Bindable]
 		public var parentView:GroupDetailView; 
@@ -204,10 +205,18 @@
 					// ba.@startDateOther is set in update function since startDatePicker doesn't set text until display
 				}
 			}
+			
+			if (parentApplication.myCoreFacilities.length() == 1) {
+				coreCombo.visible = false;
+				coreCombo.includeInLayout = false;
+				coreComboHBox.visible = false;
+				coreComboHBox.includeInLayout = false;
+				ba.@idCoreFacility = parentApplication.myCoreFacilities[0].@idCoreFacility;
+			}
 		}
 		
 		private function initWorkAuthState():void {
-			this.title = "Enter Work Authorization";
+			this.title = "Submit Campus billing account";
 			if (!parentApplication.useConfigurableBillingAccounts) {
 				
 				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
@@ -624,34 +633,36 @@
 				return;
 			}
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-			coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
-			coreCombo.dropdown.dataProvider = coreFacilities;
-			
-			if (coreFacilities.length > 1) {
-				var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
-				coreFacilities.addItemAt(blankNode, 0);
-				if (ba.@idCoreFacility != '') {
-					var found:Boolean = false;
-					for(var i:int = 1; i < coreFacilities.length; i++) {
-						if (coreFacilities[i].@idCoreFacility == ba.@idCoreFacility) {
-							coreCombo.selectedIndex = i;
-							found = true;
-							break;
+			if (coreCombo.visible) {
+				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+				coreCombo.dropdown.dataProvider = coreFacilities;
+				
+				if (coreFacilities.length > 1) {
+					var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
+					coreFacilities.addItemAt(blankNode, 0);
+					if (ba.@idCoreFacility != '') {
+						var found:Boolean = false;
+						for(var i:int = 1; i < coreFacilities.length; i++) {
+							if (coreFacilities[i].@idCoreFacility == ba.@idCoreFacility) {
+								coreCombo.selectedIndex = i;
+								found = true;
+								break;
+							}
 						}
-					}
-					if (!found) {
-						ba.@idCoreFacility = '';
+						if (!found) {
+							ba.@idCoreFacility = '';
+							coreCombo.selectedIndex = 0;
+						}
+					} else {
 						coreCombo.selectedIndex = 0;
 					}
-				} else {
+				} else if (coreFacilities.length > 0) {
+					ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
 					coreCombo.selectedIndex = 0;
+				} else {
+					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+					PopUpManager.removePopUp(this);
 				}
-			} else if (coreFacilities.length > 0) {
-				ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
-				coreCombo.selectedIndex = 0;
-			} else {
-				Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
-				PopUpManager.removePopUp(this);
 			}
 		}
 		
@@ -667,39 +678,28 @@
 		
 		private function onActivityChanged():void {
 			ba.@accountNumberActivity = activity.text;
-			if (currentState == "internalWorkAuthState") {
-				if (ba.@accountNumberActivity.toString().length > 0) {
-					this.au.text = "1";
-					this.auBox.visible = true;
-					this.auBox.includeInLayout = true;
-					this.project.text = "";
-					this.project.enabled = false;
-				} else {
-					this.au.text = "";
-					this.auBox.visible = false;
-					this.auBox.includeInLayout = false;
-					this.project.enabled = true;
-				}
-				ba.@accountNumberAu = this.au.text;
-				ba.@accountNumberProject = this.project.text;
-			} else {
+			if (ba.@accountNumberActivity.toString().length > 0) {
+				ba.@accountNumberAu = "1";
 				this.auBox.visible = true;
 				this.auBox.includeInLayout = true;
+				ba.@accountNumberProject = "";
+			} else {
+				ba.@accountNumberAu = "";
+				this.auBox.visible = false;
+				this.auBox.includeInLayout = false;
 			}
 		}
 		
 		private function onProjectChanged():void {
 			ba.@accountNumberProject = project.text;
-			if (currentState == "internalWorkAuthState") {
-				if (ba.@accountNumberProject.toString().length > 0) {
-					this.activity.text = "";
-					this.activity.enabled = false;
-				} else {
-					this.activity.enabled = true;
+			if (ba.@accountNumberProject.toString().length > 0) {
+				ba.@accountNumberActivity = "";
+				ba.@accountNumberAu = "";
+				this.auBox.visible = false;
+				this.auBox.includeInLayout = false;					
 				}
-				ba.@accountNumberActivity = this.activity.text;
-			}
 		}
+		
 		private function toggleType(type:int):void {
 			if (type == 0) {
 				if (this.internalCheckbox.selected) {
@@ -775,7 +775,7 @@
 
 		<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" id="accountNameHBox">
 			<mx:Text text="{ba.@isCreditCard == 'Y' ? 'Credit Card Last 4 digits' : 'Title of Account'}" styleName="formLabel" width="120"/>
-			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = accountName.text}"></mx:TextInput>
+			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = GNomExStringUtil.unicodeToAscii(accountName.text)}"></mx:TextInput>
 		</mx:HBox>
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="shortAcctHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
@@ -783,7 +783,7 @@
 			<mx:TextInput width="120" id="shortAcct" text="{ba.@shortAcct}" focusOut="{ba.@shortAcct = shortAcct.text}"></mx:TextInput>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4">
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox">
 			<mx:Label text="Core Facility" width="120" styleName="formLabel"/>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
@@ -793,32 +793,39 @@
 		<mx:VBox verticalGap="0" visible="{!poCheckbox.selected &amp;&amp; !creditCardCheckbox.selected}" includeInLayout="{!poCheckbox.selected  &amp;&amp; !creditCardCheckbox.selected}">
 			<mx:HBox horizontalGap="4" width="100%">
 				<mx:Text text="Chartfield to be charged" textAlign="left" width="120" id="chartFieldLabel" styleName="formLabel"/>
-				<mx:HBox width="100%" id='internalChartFieldHBox'>
+				<mx:HBox width="100%" id='internalChartFieldHBox' height="68">
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Bus"/>
 						<mx:TextInput id="bus" width="52" maxChars="2" text="{ba.@accountNumberBus}" focusOut="{ba.@accountNumberBus = bus.text}"/>
 						<mx:Label text="2 digits" styleName="labelSmall"/>
 					</mx:VBox>
+					<mx:VRule height="100%"/>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Org"/>
 						<mx:TextInput id="org" width="52" maxChars="5" text="{ba.@accountNumberOrg}" focusOut="{ba.@accountNumberOrg = org.text}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
 					</mx:VBox>
+					<mx:VRule height="100%"/>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Fund"/>
 						<mx:TextInput id="fund" width="52" maxChars="4" text="{ba.@accountNumberFund}" focusOut="{ba.@accountNumberFund = fund.text}"/>
 						<mx:Label text="4 digits" styleName="labelSmall"/>
 					</mx:VBox>
+					<mx:VRule height="100%"/>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Activity"/>
 						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" change="{onActivityChanged()}"/>
 						<mx:Label text="5 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VBox height="100%" verticalAlign="middle">
+						<mx:Label text="OR"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Project"/>
 						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" change="{onProjectChanged()}"/>
 						<mx:Label text="8 digits" styleName="labelSmall"/>
 					</mx:VBox>
+					<mx:VRule height="100%"/>
 					<mx:VBox verticalGap="0">
 						<mx:Label text="Account"/>
 						<mx:TextInput id="account" width="62" maxChars="5" text="{ba.@accountNumberAccount}" focusOut="{ba.@accountNumberAccount = account.text}"/>

@@ -29,7 +29,7 @@
 	
 	<mx:Fade id="fadeOut" duration="100"/>
 	<mx:Fade id="fadeIn" duration="100"/>	
-	<mx:Fade id="fadeInSlow" duration="2000"/>	
+	<mx:Fade id="fadeInSlow" duration="2000"/>
 	
 	<mx:HTTPService 
 		id="logoutService"	    
@@ -286,6 +286,17 @@
 		</mx:request>
 	</mx:HTTPService >
 	
+	<mx:HTTPService 
+		id="getFAQ" 
+		url="GetFAQ.gx"
+		resultFormat="e4x"
+		destination="getFAQ"
+		showBusyCursor="true"
+		result="onGetFAQInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get items', event)"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	<mx:Style source="css/gnomex_flex.css" />
 	
 	
@@ -299,6 +310,7 @@
 			import hci.flex.renderers.RendererFactory;
 			import hci.flex.util.DictionaryManager;
 			
+			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -306,9 +318,11 @@
 			import mx.controls.menuClasses.MenuBarItem;
 			import mx.controls.treeClasses.TreeItemRenderer;
 			import mx.core.IFlexDisplayObject;
+			import mx.core.IUIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
+			import mx.graphics.ImageSnapshot;
 			import mx.managers.CursorManager;
 			import mx.managers.CursorManagerPriority;
 			import mx.managers.PopUpManager;
@@ -321,6 +335,7 @@
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
+			import views.dashboard.ManageQuickLinks;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ProjectDetailWindow;
@@ -333,21 +348,72 @@
 			import views.util.AppProgressView;
 			import views.util.BroadcastEmailWindow;
 			import views.util.CaptchaView;
+			import views.util.ContactView;
+			import views.util.DictionaryHelper;
+			import views.util.ContextHelp;
+			import views.util.ContextHelpEditEnableDisableEvent;
+			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
 			import views.util.ExperimentPlatformWindow;
+			import views.util.GNomExStringUtil;
 			import views.util.IScanChipEvent;
 			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
+			import views.util.ScreenshotWindow;
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
 			import views.workflow.FlowCellView;
 			
 			
+			
+			override protected function focusOutHandler(event:FocusEvent):void 
+			{				
+				if(event.type == FocusEvent.FOCUS_OUT)
+				{
+					if(event.currentTarget.id == 'searchText')
+					{
+						if (searchText.text == '') {
+							searchText.text = 'Search';
+							searchText.setStyle('fontStyle', 'italic');
+							searchText.setStyle('color', 0x666666);
+						}						
+					}
+					else if(event.currentTarget.id == 'requestNumber' ) {
+						if (requestNumber.text == '') {
+							requestNumber.text = 'Lookup by #';
+							requestNumber.setStyle('fontStyle', 'italic');
+							requestNumber.setStyle('color', 0x666666);
+
+						} 
+					}
+				}
+				super.focusOutHandler(event);
+				
+			}
+			
+			private function onSearchClick():void {
+				if (searchText.text=='Search') {
+					searchText.text='';
+					searchText.setStyle('fontStyle', 'normal');
+					searchText.setStyle('color', 0x000000);
+				} 
+			}
+			private function onLookupClick():void {
+				if (requestNumber.text=='Lookup by #') {
+					requestNumber.text='';
+					requestNumber.setStyle('fontStyle', 'normal');
+					requestNumber.setStyle('color', 0x000000);
+				} 
+			}
+			
 			[Bindable]
 			public var dictionaryManager:DictionaryManager;
+			
+			[Bindable]
+			public var dictionaryHelper:DictionaryHelper;
 			
 			private var navSearchView:NavSearchView;
 			
@@ -359,8 +425,7 @@
 			
 			
 			[Bindable]
-			[Embed(source="assets/gnomex_splash_logo.png")]
-			public var welcomeSplash:Class;
+			public var welcomeSplash:String = "";
 			
 			[Bindable]  
 			public var siteLogo:String = "";
@@ -368,6 +433,10 @@
 			[Bindable]
 			[Embed(source="assets/gnomex_logo.png")]
 			public var iconLogo:Class;
+			
+			[Bindable]
+			[Embed(source="assets/house.png")]
+			public var iconHome:Class;
 			
 
 			[Bindable]
@@ -383,8 +452,21 @@
 			public var iconBlackCheck:Class;
 			
 			[Bindable]
+			[Embed(source="assets/white_information.png")]
+			public var iconEmptyInformation:Class;
+
+			[Bindable]
 			[Embed(source="assets/information.png")]
 			public var iconInformation:Class;
+			
+			[Bindable]
+			[Embed(source="assets/door_out.png")]
+			public var iconSignOut:Class;
+			
+			[Bindable]
+			[Embed(source="assets/cog.png")]
+			public var iconSettings:Class;
+			
 			
 			[Bindable]
 			[Embed(source="assets/flag_yellow.png")]
@@ -414,6 +496,10 @@
 			[Bindable]
 			[Embed(source="assets/folder.png")]
 			public var iconFolder:Class;
+			
+			[Bindable]
+			[Embed(source="assets/test_tube.png")]
+			public var testTube:Class;
 			
 			[Bindable]
 			[Embed(source="assets/folder_disable.png")]
@@ -623,9 +709,6 @@
 			[Embed(source="assets/images_disable.png")]
 			public var iconSlideSetInActive:Class;
 			
-			
-			
-			
 			[Bindable]
 			[Embed(source="assets/genome_build.png")]
 			public var iconGenomeBuild:Class;
@@ -756,6 +839,10 @@
 			[Bindable]
 			[Embed(source="assets/rectangle.png")]
 			public var iconFlowCell:Class;
+			
+			[Bindable]
+			[Embed(source="assets/note.png")]
+			public var iconNote:Class;
 
 			
 			
@@ -782,6 +869,7 @@
 					<item label="" icon="assets/iscan.png" />
 					<item label="" icon="assets/sequenom_clinical.png" />
 					<item label="" icon="assets/sequenom_plate.png" />
+					<item label="" icon="assets/DNA_test_tube.png" />
 					<item label="" icon="assets/data-accept.png" />
 				</items>    
 			);
@@ -876,6 +964,9 @@
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
+			public var allowPaste:Boolean = false;
+			
+			[Bindable]
 			public var isTopicsSupported:Boolean = false;
 			
 			[Bindable]
@@ -968,9 +1059,14 @@
 			[Bindable]
 			public var otherAccountFieldsConfigurationList:XMLListCollection;
 			
+			[Bindable]
+			private var faqList:XMLListCollection;
+			
 			private var properties:Object;
 			
-			private var requestCategoryTypeMap:Object;
+			public var requestCategoryTypeMap:Object;
+			
+			private var faqLoaded:Boolean = false;
 			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
 			
@@ -983,6 +1079,7 @@
 			public  var TYPE_MIT_SEQ:String	      = "MITSEQ";
 			public  var TYPE_CHERRY_PICK:String   = "CHERRYPICK";
 			public  var TYPE_ISCAN:String   	  = "ISCAN";
+			public  var TYPE_ISOLATION:String     = "ISOLATION";
 			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
 			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";
@@ -1011,6 +1108,7 @@
 			public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 			public var PROPERTY_BST_LINKAGE_SUPPORTED:String              = "bst_linkage_supported";
 			public var PROPERTY_FDT_SUPPORTED:String                      = "fdt_supported";
+			public var PROPERTY_ALLOW_PASTE:String                     	  = "allow_paste";
 			public var PROPERTY_BULLETIN:String                           = "bulletin";
 			public var PROPERTY_USAGE_USER_VISIBILITY:String              = "usage_user_visibility";
 			public var PROPERTY_EXTERNAL_DATA_SHARING_SITE:String         = "external_data_sharing_site";
@@ -1041,6 +1139,18 @@
 			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD:String      = "hiseq_run_type_label_standard";
 			public var PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM:String        = "hiseq_run_type_label_custom";
 			public var PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING:String      = "hiseq_run_type_custom_warning";
+			public var SHOW_NEWS_DASHBOARD:String				          = "show_news_dashboard";
+			public var SHOW_METRIX_DASHBOARD:String       				  = "show_metrix_dashboard";
+			public var SHOW_ACTIVITY_DASHBOARD:String     				  = "show_activity_dashboard";
+
+			public var PROPERTY_REQUEST_BIO_ANALYSIS_NOTE:String 		  = "request_bio_analysis_note";
+
+			public var PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT:String        = "request_work_auth_link_text"
+			public var PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED:String = "experiment_file_sample_linking_enabled";
+			public var PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE:String		  = "request_bio_alignment_note";
+			public var PROPERTY_ANALYSIS_ASSISTANCE_GROUP:String		  = "analysis_assistance_group";
+			public var PROPERTY_ANALYSIS_ASSISTANCE_HEADER:String		  = "analysis_assistance_header";
+			public var PROPERTY_CUSTOM_BILLING_MESSAGE:String		  	  = "custom_billing_message";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -1068,11 +1178,28 @@
 			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
 			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
 			
+			
+			
+			
+			public function takeScreenshotForReportIssue(source:IBitmapDrawable):void {
+				var imageSnap:ImageSnapshot = ImageSnapshot.captureImage(source);
+				var imageByteArray:ByteArray = new ByteArray();		
+					imageByteArray = imageSnap.data as ByteArray;					
+				var screenshotWindow:ScreenshotWindow = ScreenshotWindow(PopUpManager.createPopUp(DisplayObject(this.theBody), ScreenshotWindow, false));			
+				screenshotWindow.imageByteArray = imageByteArray;
+				PopUpManager.centerPopUp(screenshotWindow);
+				screenshotWindow.swfLoader.load(imageByteArray);
+				
+			}
+			
 			// email address entered when guest downloads files.
 			public var guestEmailAddress:String = "";	
 			
 			private function init():void {
-				getLaunchProperties.send();
+				var idCoreFacility:String = Application.application.parameters.idCore;
+				var parms:Object = new Object();
+				parms.idCoreFacility = idCoreFacility;
+				getLaunchProperties.send(parms);
 			} 
 			
 			public function resetAlertButtons():void {
@@ -1098,8 +1225,12 @@
 					} else {
 						siteLogo = "assets/gnomex_logo.png";
 					}
-					linkbutton1.visible = true;
-					linkbutton3.visible = true;
+					if (getLaunchProperties.lastResult.Property.(@name == "site_splash").@value != "") {
+						welcomeSplash = getLaunchProperties.lastResult.Property.(@name == "site_splash").@value;
+					} else {
+						welcomeSplash = "assets/gnomex_splash_logo.png";
+					}
+					topMenuBar.visible = true;
 					loggedInInit();	
 					
 					coreFacilityList = new XMLListCollection();
@@ -1123,7 +1254,7 @@
 			}
 			
 			protected function logout():void {
-				Alert.show("Are you sure you want to log out?", 
+				Alert.show("Are you sure you want to sign out?", 
 					"Confirm", 
 					(Alert.YES | Alert.NO), this, 
 					onPromptToLogout);
@@ -1135,8 +1266,34 @@
 				}
 			}			
 			
+
+			// returns core facility specified at logon.  Null if none
+			public function getSpecifiedIdCoreFacility():String {
+				var id:String = null;
+				if (createSecurityAdvisor.lastResult != null && createSecurityAdvisor.lastResult.@specifiedIdCoreFacility != null) {
+					id = createSecurityAdvisor.lastResult.@specifiedIdCoreFacility.toString();
+				} else if (getSecurityAdvisorForGuest.lastResult != null && getSecurityAdvisorForGuest.lastResult.@specifiedIdCoreFacility != null) {
+					id = getSecurityAdvisorForGuest.lastResult.@specifiedIdCoreFacility.toString();
+				} 
+				return id;
+			}
+			
+			public function appendSpecifiedIdCoreFacilityToUrl(url:String):String {
+				var id:String = getSpecifiedIdCoreFacility();
+				if (id != null && id != '') {
+					if (url.indexOf("?") >= 0) {
+						url += "&";
+					} else {
+						url += "?";
+					}
+					url += "idCore=" + id;
+				}
+				return url;
+			}
+			
 			public function loggedOut():void {
-				var urlRequest:URLRequest = new URLRequest("gnomexFlex.jsp");
+				var urlString:String = appendSpecifiedIdCoreFacilityToUrl("gnomexFlex.jsp");
+				var urlRequest:URLRequest = new URLRequest(urlString);
 				navigateToURL(urlRequest,"_self");
 				
 			}			
@@ -1407,19 +1564,26 @@
 				
 			}
 			
-			public function showPlate(idPlate:String):void {
+			public function showPlate(plate:Object):void {
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navPlateView;
 				
-				callLater( function():void {
-					
-					navPlateView.loadPlateById(idPlate);
-					navPlateView.toggleBuildState( "PLATE" );
-					navPlateView.switchToViewState();
-					navPlateView.tabNav.selectedChild = navPlateView.plateTab;
-				});
+				var idPlate:String = plate.@idPlate;
+				var idRun:String = plate.@idInstrumentRun;
 				
+				if ( idRun != "" && idRun != "0" ) {
+					this.showInstrumentRun(idRun);
+				} else {
+					callLater( function():void {
+						
+						navPlateView.loadPlateById(idPlate);
+						navPlateView.toggleBuildState( "PLATE" );
+						navPlateView.switchToViewState();
+						navPlateView.tabNav.selectedChild = navPlateView.plateTab;
+						
+					});
+				}
 			}
 			
 			public function showPlateEditor( buildState:String ):void {
@@ -1532,18 +1696,21 @@
 				
 			}
 			
-			public function showWorkAuthWindow():void {
+			public function showWorkAuthWindow(idLab:String = null, idCoreFacility:String = null):void {
 				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				wa.isEdit = false;
 				var labLine:String = "";
 				if (this.workAuthLabList.length == 1) {
 					labLine = " idLab='" + this.workAuthLabList[0].@idLab.toString() + "'";
 				}
+				if (labLine.length == 0 && idLab != null) {
+					labLine = " idLab='" + idLab.toString() + "'";
+				}
 				wa.ba = new XML("<BillingAccount " +
 					" idBillingAccount='BillingAccount0'" +
 					labLine +
 					" accountName=''" +
-					" idCoreFacility=''" +
+					" idCoreFacility='" + (idCoreFacility == null ? '' : idCoreFacility.toString()) + "'" +
 					" expirationDateOther=''" + 
 					" startDateOther=''" +
 					" accountNumberBus=''" + 
@@ -1644,6 +1811,41 @@
 				theViews.visible = true;
 				
 				currentView = theViews.selectedChild;
+			}
+			
+			public function reloadFAQ():void{
+				getFAQ.send();
+			}
+			
+			private function onGetFAQInterface(event:ResultEvent):void {
+				if(event.result.name() == "FaqCollection"){
+					faqList = new XMLListCollection(getFAQ.lastResult.FAQ);
+					addQuickLinks();
+				} else{
+					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Quick Links.");
+				}
+			}
+			
+			private function addQuickLinks():void{
+				var quickLinkArray:ArrayCollection = new ArrayCollection;
+				for each(var item:XML in faqList){
+					var menuItem:XML = <menuItem label={item.@title} url={item.@url} />;
+					quickLinkArray.addItem(menuItem);
+				}
+				
+				for each(var mi:XML in topMenu){
+					if(mi.@label == "Quick Links"){
+						mi.setChildren(new XMLList);
+						for each(var quickLink:XML in quickLinkArray){
+							mi.appendChild(quickLink);
+						}
+						if(isSuperAdmin){
+							var manageLink:XML = <menuItem label='Manage...' />;
+							mi.appendChild(manageLink);
+						}
+						break;
+					}
+				}
 			}
 			
 			
@@ -1823,7 +2025,9 @@
 				
 				// This is for handler to enable Mac MouseWheel
 				this.addEventListener(Event.ADDED_TO_STAGE, stage_init);
-				
+				var idCoreFacility:String = Application.application.parameters.idCore;
+				var parms:Object = new Object();
+				parms.idCoreFacility = idCoreFacility;
 				if (isGuestMode() ) { 
 					/*
 					Captcha feature removed 7.6.12. Guests can now login directly
@@ -1833,11 +2037,12 @@
 					captchaWindow.init();
 					captchaWindow.phrase.setFocus();
 					*/
-					getSecurityAdvisorForGuest.send();
+					getSecurityAdvisorForGuest.send(parms);
 					
 				} else {
-					createSecurityAdvisor.send();
+					createSecurityAdvisor.send(parms);
 				}
+				
 			} 
 			
 			public function stage_init(e:Event):void {		    
@@ -1995,8 +2200,14 @@
 				if (!usesKindOfRequestCategory("MISEQ")) {
 					hideMenusByContext(navMenu, "MISEQ");
 				}
-				if (!usesKindOfRequestCategory("SOLEXA")) {
-					hideMenusByContext(navMenu, "SOLEXA");
+				if (!usesExperimentType("HISEQ")) {
+					hideMenusByContext(navMenu, "HISEQ");
+				}
+				if (!usesExperimentType("QC")) {
+					hideMenusByContext(navMenu, "QC");
+				}
+				if (!usesExperimentType("MICROARRAY")) {
+					hideMenusByContext(navMenu, "microarray");
 				}
 				if(this.isGuestMode()){
 					hideMenusByContext(navMenu, "guest");
@@ -2006,6 +2217,7 @@
 				
 				addPricingMenus(navMenu);
 				
+				addNewExperimentMenus(navMenu);
 			}
 			
 			private function addPricingMenus(navMenu:XMLList):void {
@@ -2069,6 +2281,44 @@
 				
 			}
 			
+			private function addNewExperimentMenus(navMenu:XMLList):void {
+				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
+					for(var i:int; i < navMenu.length(); i++) {
+						var children:XMLList = new XMLList();
+						var changed:Boolean = false;
+						if (navMenu[i].@context == "newExperimentTopLevel") {
+							children = addCoreNewExperiments(navMenu[i], children);
+							changed = true;
+						} else {
+							for each (var child:XML in navMenu[i].children()) {
+								if (child.@context == "newInternalExperiment") {
+									children = addCoreNewExperiments(child, children);
+									changed = true;
+								} else {
+									children += child;
+								}
+							}
+						}
+						if (changed) {
+							navMenu[i].setChildren(children);
+						}
+					}
+				}
+			}
+			
+			private function addCoreNewExperiments(template:XML, children:XMLList):XMLList {
+				for each(var core:Object in myCoreFacilities) {
+					var label:String = template.@label + " for " + core.@facilityName;
+					var xml:XML = new XML("<menuitem/>");
+					xml.@label = label;
+					xml.@icon = template.@icon;
+					xml.@idCoreFacility = core.@idCoreFacility;
+					children += xml;
+				}
+				
+				return children;
+			}
+			
 			private function hideMenusByContext(navMenu:XMLList, context:String):void {
 				var foundSomethingToDelete:Boolean = true;
 				
@@ -2094,7 +2344,6 @@
 					}
 				}
 			}
-			
 
 			private function hideMenusByProperties(navMenu:XMLList):void {
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
@@ -2203,7 +2452,12 @@
 				} else {
 					currentState = "UserNonSubmitterState";
 				}
-				
+
+				// Hide help edit unless admin
+				if (!isAdminState) {
+					hideMenusByContext(topMenu, 'helpEdit');
+				}
+
 				// Let's remove Orders from admin menu for Microarray core
 				// since it uses the workflow
 				callLater(this.resizeMenuItems);
@@ -2216,7 +2470,12 @@
 			private function onCreateSecurityAdvisor(event:ResultEvent):void {
 				if (!(createSecurityAdvisor.lastResult is XML) ||
 					createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
-					Alert.show("Authentication failed.");  
+					var msgString:String = createSecurityAdvisor.lastResult..ERROR.@message;
+					if (msgString == null || msgString == '') {
+						Alert.show("Authentication failed.");  
+					} else {
+						Alert.show("Authentication failed:" + msgString);
+					}
 					return;	
 				}
 				
@@ -2234,10 +2493,6 @@
 				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 				dictionaryManager.call("load", "");
-				
-				
-				
-				
 				
 			}
 			
@@ -2270,6 +2525,8 @@
 			}
 			
 			public function onDictionariesLoaded(event:Event):void {
+				dictionaryHelper = new DictionaryHelper(dictionaryManager);
+				
 				properties = new Object();
 				for each(var prop:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (prop.@value == '') {
@@ -2306,6 +2563,13 @@
 					this.isFDTSupported = true;
 				} else {
 					this.isFDTSupported = false;
+				}
+				
+				if (this.getProperty(this.PROPERTY_ALLOW_PASTE) != null && 
+					this.getProperty(this.PROPERTY_ALLOW_PASTE) == 'N') {
+					this.allowPaste = false;
+				} else {
+					this.allowPaste = true;
 				}
 				
 				if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null && 
@@ -2488,6 +2752,11 @@
 				} else {
 					this.useConfigurableBillingAccounts = false;
 				}
+				
+				if(!faqLoaded){
+					getFAQ.send();
+					faqLoaded = true;
+				}
 
 				getSessionTimeout.send();
 			}
@@ -2550,7 +2819,7 @@
 				if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					var found:Boolean = false;
 					for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (rc.@type == experimentType &&
+						if (rc.@type.toString().toLowerCase() == experimentType.toLowerCase() &&
 							rc.@isActive == 'Y') {
 							found = true;
 							break;
@@ -2562,7 +2831,7 @@
 				for each (var cf:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
-							requestCategory.@type == experimentType &&
+							requestCategory.@type.toLowerCase() == experimentType.toLowerCase() &&
 						    requestCategory.@isActive == 'Y') {
 							return true;
 							break;
@@ -2626,6 +2895,9 @@
 					result = properties[qualName];
 					if (result == null || result == "") {
 						result = properties[name];
+					}
+					if (result == null) {
+						result = "";
 					}
 				}
 				return result;
@@ -2742,8 +3014,9 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label=''/>;
+				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
 				das2OrganismList.addItem(emptyNode);
+				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());
@@ -3017,9 +3290,7 @@
 					} else {
 						return this.iconSlide;
 					}
-				}
-					
-				else if (item.name() == "RequestDownload") {
+				} else if (item.name() == "RequestDownload") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
 					} else {
@@ -3229,10 +3500,22 @@
 			
 			
 			public function showView(menuitem:Object):void {
+				if (menuitem.children().length() > 0) {
+					return;
+				}
 				var label:String = menuitem.@label;
 				var url:String = menuitem.hasOwnProperty("@url") ? menuitem.@url : "";
 				var codeStepNext:String = menuitem.hasOwnProperty("@codeStepNext") ? menuitem.@codeStepNext : "";
 				var codeSequencingPlatform:String = menuitem.hasOwnProperty("@codeSequencingPlatform") ? menuitem.@codeSequencingPlatform : "";
+				var idCoreFacility:String = "";
+				
+				if(!isGuest && myCoreFacilities[0] != null){
+					if (menuitem.hasOwnProperty("@idCoreFacility") && menuitem.@idCoreFacility != '') {
+						idCoreFacility = menuitem.@idCoreFacility;
+					} else {
+						idCoreFacility = myCoreFacilities[0].@idCoreFacility;
+					}
+				}
 				
 				if (label == 'Analysis') {
 					theViews.selectedChild = navAnalysisView;
@@ -3248,14 +3531,14 @@
 				} else if (label == "Add Services to Experiment Order") {
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
-				} else if (label == "Upload Experiment data generated at third party facility" || label=="Create New Experiment and Upload Files") {
+				} else if (GNomExStringUtil.startsWith(label,"Upload Experiment data generated at third party facility") || GNomExStringUtil.startsWith(label,"Create New Experiment and Upload Files")) {
 					// If a request is currently loaded then make sure to reinitialze if changing between internal and external
 					if(this.submitRequestView.request != null && this.isInternalExperimentSubmission) {
 						this.submitRequestView.startNewRequest();
 					}
 					this.isInternalExperimentSubmission = false;
 					this.theViews.selectedChild = homeView;
-					callLater(this.homeView.submitExternalExperiment);	
+					callLater(this.homeView.submitExternalExperiment, [idCoreFacility]);	
 					// If new experiment then initialize ShowCCNumber checkbox
 					this.submitRequestView.showCCNumberColumn = false; 
 				} else if (label == "Track Usage") {
@@ -3284,12 +3567,12 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
-				} else if (label == "New Experiment Order") {
+				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = homeView;
-					callLater(this.homeView.submitRequest);	
+					callLater(this.homeView.submitRequest, [idCoreFacility]);	
 				} else if (label == "Browse Experiments" || label == "Experiments") {
 					this.navExperimentView.shortcutToExperimentListTab = true;
 					theViews.selectedChild = navExperimentView;
@@ -3366,6 +3649,53 @@
 				}
 			}
 			
+			private function onTopMenuClick(event:MouseEvent):void {
+				if (event == null || event.target == null || !event.target.hasOwnProperty("data") || event.target.data == null || !event.target.data.hasOwnProperty("@label") || event.target.data.@label == null) {
+					return;
+				}
+				onTopMenuImpl(event.target.data);
+			}
+			
+			private function onTopMenuSelect(event:MenuEvent):void {				
+				onTopMenuImpl(event.item);
+			}
+			
+			private function onTopMenuImpl(menuItem:Object):void {				
+				var label:String = menuItem.@label;
+				if (label == "About") {
+					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));
+				} else if (label == "Contact Us") {
+					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, ContactView, true));					
+				} else if (label == "User Guide") {
+					navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');
+				} else if (label == "Enable Help Edit") {
+					ContextHelp.editEnabled = true;
+					dispatchEvent(new ContextHelpEditEnableDisableEvent(ContextHelpEditEnableDisableEvent.DATA_REFRESHED));
+					menuItem.@label = 'Disable Help Edit';
+					menuItem.@icon = "iconInformation";
+				} else if (label == "Disable Help Edit") {
+					ContextHelp.editEnabled = false;
+					dispatchEvent(new ContextHelpEditEnableDisableEvent(ContextHelpEditEnableDisableEvent.DATA_REFRESHED));
+					menuItem.@label = 'Enable Help Edit';
+					menuItem.@icon = "iconEmptyInformation";
+				} else if (label == "Home") {
+					theViews.selectedChild = homeView;
+				} else if (label == "My Account") {
+					if (!isGuest) {
+						this.showUserPublicView();						
+					}
+				} else if (label== "Sign out") {
+					this.logout();
+				} else if (label == "Manage..."){
+					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, ManageQuickLinks, true));
+				} else if(menuItem.@url != null && menuItem.@url != ''){
+					navigateToURL(new URLRequest(menuItem.@url), '_blank');	
+				} else if (label== "Report Issue") {
+				takeScreenshotForReportIssue(this.theBody);
+				}
+				
+			}
+		 
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 12;
 				var screenResolutionX:Number = flash.system.Capabilities.screenResolutionX;
@@ -3383,6 +3713,7 @@
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
 					item.width += menuBarSpacing;
 				}
+
 			}
 			
 			public function getCurrentFiscalYear():String {
@@ -3473,8 +3804,11 @@
 				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
 					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
 				}
-			}				
+			}
 			
+			private function refreshNotificationHub():void{
+				homeView.refreshDashboard();
+			}
 		]]>
 	</mx:Script>
 	
@@ -3497,10 +3831,10 @@
 
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
@@ -3516,39 +3850,57 @@
 		<menuitem label="Topics" icon="iconTopic" context="bioinformatics"   />
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
-			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
-			<menuitem type="separator"/>
-			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
-			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
-			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
-			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
-			<menuitem type="separator"/>
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
 				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
-			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
-				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
-				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
-				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
-				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
-			</menuitem>
-			<menuitem label="Microarray..." icon="iconMicroarray"   >
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"  >
 				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
 				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
 				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
 			</menuitem>
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="workflowAllSeparator"/>
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="plateRunSeparator"/>
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
 
+		<menuitem label="Workflow" icon="iconWorkflow">
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  context="HISEQ" />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
+			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
+			</menuitem>
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"  >
+				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
+				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
+				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
+			</menuitem>
+			<menuitem type="separator" label="workflowAllSeparator"/>
+			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
+			
+		</menuitem>
+			
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   >
@@ -3601,7 +3953,7 @@
 	<mx:XMLList id="adminESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
@@ -3637,7 +3989,7 @@
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
@@ -3667,7 +4019,7 @@
 	<mx:XMLList id="userESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment"/>
+			<menuitem label="Create New Experiment and Upload Files" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 		</menuitem>
 		
@@ -3701,40 +4053,34 @@
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
-			<menuitem label="QC" icon="iconQC" codeStepNext="QC"   />
-			<menuitem type="separator"/>
-			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" />
-			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM"  />
-			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  />
-			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" />
-			<menuitem type="separator"/>
+			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
+			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
+			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
+			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
+			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
 				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
-			<menuitem label="Illumina GAIIx..." icon="iconMiSeq" context="SOLEXA"  >
-				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="SEQPREP"  />
-				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="SEQASSEM"  />
-				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="SEQPIPE" />
-				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="SOLEXA" />
-			</menuitem>
-			<menuitem label="Microarray..." icon="iconMicroarray"   >
+			<menuitem label="Microarray..." icon="iconMicroarray" context="microarray"   >
 				<menuitem label="Labeling" icon="iconLabeling" codeStepNext="LABEL" />
 				<menuitem label="Hyb" icon="iconHyb"  codeStepNext="HYB" />
 				<menuitem label="Extraction" icon="iconExtraction"  codeStepNext="EXT" />
 			</menuitem>
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="workflowAllSeparator"/>
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
-			<menuitem type="separator"/>
+			<menuitem type="separator" label="plateRunSeparator"/>
 			<menuitem label="Fill Plate" icon="iconPlate"   />
 			<menuitem label="Build Run" icon="iconInstrumentRun"   />
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
@@ -3770,14 +4116,14 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="userMenu">
-		<menuitem label="New Experiment Order" icon="iconSubmitExperiment"   />
+		<menuitem label="New Experiment Order" icon="iconSubmitExperiment" context="newExperimentTopLevel" />
 		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3812,10 +4158,10 @@
 	<mx:XMLList id="managerMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
-			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment"/>
+			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
@@ -3876,15 +4222,26 @@
 		
 		
 	</mx:XMLList>
-
+	
+	<mx:XMLList id="topMenu">
+		<menuitem label="Home"/>
+		<menuitem label="My Account"  />
+		<menuitem label="Quick Links" />
+		<menuitem label="Help..."  >
+			<menuitem label="Enable Help Edit" icon="iconEmptyInformation" context="helpEdit"/>
+			<menuitem label="User Guide"  />
+			<menuitem label="About" />
+		</menuitem>
+		<menuitem label="Contact Us"   />
+		<menuitem label="Sign out"  />
+	</mx:XMLList>
 	
 	<mx:VBox id="theBody"
 			 width="100%" height="100%" 
-			 verticalGap="2"    visible="true" 
+			 verticalGap="8"    visible="true" 
 			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
 			 paddingTop="0" paddingLeft="0" 
-			 paddingRight="0" paddingBottom="0">
-		   
+			 paddingRight="0" paddingBottom="0">		   
 		 
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"   backgroundAlpha="1"
@@ -3892,50 +4249,55 @@
 				  visible="false" borderStyle="solid"  borderThickness="0" dropShadowEnabled="true" dropShadowColor="#A5A5A8" 
 				  backgroundImage="@Embed(source='assets/navbar_gradient.png')" backgroundSize="100%">
 			
-			 
-			
 			<mx:VBox width="100%" verticalGap="0"  
 					 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" visible="false" id="vbox1">
 				
-				<mx:VBox width="100%" verticalGap="0">
+				<mx:VBox width="100%" verticalGap="0" paddingTop="0">
 					<mx:HBox width="100%"  
 							 horizontalAlign="left" verticalAlign="middle" horizontalGap="0"  
 							 paddingBottom="2" id="hbox1" 
 							 paddingTop="4" 
 							 paddingLeft="4" paddingRight="4" borderStyle="none">
-						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
+						<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView; refreshNotificationHub();}"/> 
 						<mx:Spacer width="100%"/>
-						<mx:HBox  horizontalGap="2"  verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
-							
-							<mx:Text text="Lookup by #" id="requestNumberLabel" visible="false"  styleName="navLabel"  />
-							<mx:TextInput id="requestNumber"   
+						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
+							<mx:TextInput id="requestNumber"
+										  text="Lookup by #" fontStyle="italic" color="0x666666"
+										  click="{onLookupClick()}"
+										  focusOut="focusOutHandler(event)"
 										  toolTip="Enter experiment, analysis, data track, or topic #. Example: 6145R, A210, DT45, T21" width="80"   visible="false" borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
 							<mx:Button id="lookupButton" 
 									   width="30"
 									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
+						</mx:HBox>				  
+						<mx:HBox height="36" paddingTop="8" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
+					
+							<mx:TextInput id="searchText"
+										  text="Search"   fontStyle="italic" color="0x666666"
+										  click="{onSearchClick()}"
+										  focusOut="focusOutHandler(event)"	width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
+							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/> 					
 						</mx:HBox>
-						<mx:HBox height="36" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
-							<mx:Text text="Search" styleName="navLabel" id="searchLabel" visible="false"  paddingBottom="4" height="20"/>
-							<mx:TextInput id="searchText"  width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
-							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
-							<mx:LinkButton visible="false" styleName="navLabel"  paddingLeft="1" label="Advanced search" id="advancedSearchButton" click="{showSearch()}"  textDecoration="underline"    height="20">
-							</mx:LinkButton>
-						</mx:HBox>
-						
+
 						<mx:Spacer width="100%"/>
-						
-						<mx:HBox horizontalAlign="left"  verticalAlign="middle" horizontalGap="0" height="36" id="hbox2">
-							<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
+						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
+							<mx:LinkButton label="Report Problem"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000"/>
+							<mx:MenuBar  id="topMenuBar"  styleName="topMenuBar"   dataProvider="{topMenu}" 
+									  itemClick="{onTopMenuSelect(event)}"  
+									  click="{onTopMenuClick(event)}"
+									  labelField="@label" iconField="@icon" alpha="1.0">
+							</mx:MenuBar> 
+							<!--<mx:LinkButton styleName="navLabel" textDecoration="underline" id="homeLinkButton" 
 										   label="Home" visible="false" 
 										   click="{theViews.selectedChild = homeView}"
 										   paddingLeft="0" paddingRight="1"/>
 							<mx:LinkButton label="My account" click="showUserPublicView()" styleName="navLabel"  id="linkbutton4" paddingLeft="0" paddingRight="1" textAlign="left" textDecoration="underline" enabled="false" visible="false"/>
+							<mx:LinkButton label="Quick Links" styleName="navLabel" id="quickLinkButton" textAlign="left" textDecoration="underline" />
 							<mx:LinkButton label="Help"  paddingLeft="0" styleName="navLabel" visible="true" click="navigateToURL(new URLRequest(getProperty(PROPERTY_HELP_URL)), '_blank');" id="linkbutton1"  textDecoration="underline" paddingRight="1"/>
 							<mx:LinkButton label="About"  paddingLeft="0"  styleName="navLabel" click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, AboutView, true));" id="linkbutton2" visible="true" textDecoration="underline"  paddingRight="1"/>
-							<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="false" />
+							<mx:LinkButton label="Log out"  paddingLeft="0"  paddingRight="2" styleName="navLabel"  click="logout();" id="linkbutton3" textDecoration="underline" visible="false" />-->
 						</mx:HBox>
 					</mx:HBox>  
-					
 						<mx:MenuBar height="37"    width="100%"  id="mainMenu"   
 									click="onMenuClick(event)"
 									itemClick="{onMenuSelect(event)}"
@@ -3943,23 +4305,16 @@
 
 									alpha="1.0">
 							
-						</mx:MenuBar> 
-						
-
-				</mx:VBox>
-					
-				
-				
+						</mx:MenuBar> 		
+				</mx:VBox>			
 			</mx:VBox>
-			
 		</mx:VBox>  
 		
 		<mx:VBox id="mainArea" width="100%" 
 				 height="100%" paddingTop="0"  paddingBottom="4" paddingLeft="4" 
 				 paddingRight="4" horizontalCenter="0" verticalGap="0" backgroundAlpha="1" visible="false" borderStyle="none">
 			<mx:ViewStack id="stateStack" creationPolicy="auto" paddingTop="0" paddingBottom="0" width="100%" height="100%">
-				<mx:ViewStack id="initViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >
-					
+				<mx:ViewStack id="initViews" visible="true" width="100%" height="100%"   creationPolicy="auto" paddingTop="0" paddingBottom="0" >					
 					<util:LaunchView id="homeView1"   >
 					</util:LaunchView> 
 				</mx:ViewStack>
@@ -4046,19 +4401,12 @@
 			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{stateStack}" name="selectedIndex" value="1"/>
 			<mx:SetProperty target="{theViews}" name="visible" value="true"/>
-			<mx:SetProperty target="{requestNumberLabel}" name="visible" value="true"/> 
 			<mx:SetProperty target="{requestNumber}" name="visible" value="true"/>
 			<mx:SetProperty target="{lookupButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{searchLabel}" name="visible" value="true"/>
 			<mx:SetProperty target="{searchText}" name="visible" value="true"/>
 			<mx:SetProperty target="{searchButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{advancedSearchButton}" name="visible" value="true"/>
 			<mx:SetProperty target="{theViews}" name="selectedIndex" value="0"/>
-			<mx:SetProperty target="{homeLinkButton}" name="visible" value="true"/>
-			<mx:SetProperty target="{linkbutton4}" name="visible" value="true"/>
-			<mx:SetProperty target="{linkbutton4}" name="enabled" value="true"/>
 			<mx:SetProperty target="{mainArea}" name="visible" value="true"/>
-			<mx:SetProperty target="{linkbutton3}" name="visible" value="true"/>
 			<mx:SetProperty target="{vbox1}" name="visible" value="true"/>
 			<mx:SetProperty target="{navBar}" name="visible" value="true"/>
 			<mx:SetProperty target="{theBody}" name="visible" value="true"/>
@@ -4084,11 +4432,9 @@
 		</mx:State>
 		<mx:State name="UserNonSubmitterState" basedOn="UserState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{userNonSubmitterMenu}"/>
-			<mx:RemoveChild target="{linkbutton4}"/>
 		</mx:State>
 		<mx:State name="GuestState" basedOn="UserState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{guestMenu}"/>
-			<mx:RemoveChild target="{linkbutton4}"/>
 		</mx:State>
 		
 		<mx:State name="AdminESState" basedOn="AdminState">

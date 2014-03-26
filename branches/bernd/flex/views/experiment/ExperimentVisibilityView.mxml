@@ -63,6 +63,13 @@
 	public function  save():void {
 	    var dirtyRequests:XMLList = parentDocument.parentDocument.browseTree.selectedItem..Request.(@isDirty == 'Y');        	
     	var dirtyRequestList:XMLListCollection = new XMLListCollection(dirtyRequests);
+		
+		for each(var r:Object in dirtyRequestList){
+			if(r.@codeVisibility == 'INST' && r.@idInstitution == ''){
+				Alert.show("Please specify an Institution for requests whose visibility is set to 'Institution'.");
+				return;
+			}
+		}
     	
     	var params:Object = new Object();
     	params.idProject = parentDocument.parentDocument.browseTree.selectedItem.@idProject;

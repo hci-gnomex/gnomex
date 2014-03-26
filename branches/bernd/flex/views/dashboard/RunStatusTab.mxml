@@ -2,10 +2,9 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="480" height="387" backgroundAlpha="1"
+		   width="500" height="440" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
-		   horizontalScrollPolicy="off"
-		   verticalScrollPolicy="off">   
+		   horizontalScrollPolicy="off">   
 
 	<mx:HTTPService 
 		id="metrixInterface" 
@@ -68,13 +67,13 @@
 				if(MIList.length == 0){
 					refreshTimer.delay = 60000;
 					emptySpace.width = 40;
-					overViewButton.visible = false;
+//					overViewButton.visible = false;
 					emptyText.visible = true;
 					failText.visible = false;
 					failText.includeInLayout = false;
 				}else{
 					refreshTimer.delay = 600000;
-					overViewButton.enabled = true;
+//					overViewButton.enabled = true;
 					emptySpace.includeInLayout = true;
 				}
 
@@ -133,7 +132,7 @@
 				bar.indeterminate=true;
 				bar.setStyle("indeterminateMoveInterval", "60");
 				bar.label="Initializing... Template phase";
-				bar.mode="event";
+				bar.mode="manual";
 			}
 			
 			bar.setProgress(cur,tot);
@@ -142,7 +141,7 @@
 		private function filterXLC():void {
 			MIList.filterFunction = state_filterFunc;
 			var dateSort:Sort = new Sort();
-			dateSort.fields = [new SortField('runDate', true, false)];	// Set sort properties
+			dateSort.fields = [new SortField('lastUpdated', true, false, true)];	// Set sort properties
 			dateSort.reverse();											// Reverse the sort list
 			MIList.sort = dateSort;										// Apply sort
 			MIList.refresh();
@@ -178,29 +177,35 @@
 			PopUpManager.centerPopUp(rsd);
 		}
 		
-		private function formatDate(item:String):String
-		{
+		private function formatDate(item:String):String {
 			var rawDate:String = item;
-			var yr:String = rawDate.substr(0,2);
-			var mn:String = rawDate.substr(2,2);
-			var dy:String = rawDate.substr(4,2);
+			var year:String = rawDate.substr(0,2);
+			var month:String = rawDate.substr(2,2);
+			var day:String = rawDate.substr(4,2);
 			
-			var year:String = "20"+yr;
+			year = "20"+year;
 			
-			var date:String = dy+"/"+mn+"/"+year;
+			var date:String = month+"/"+day+"/"+year;
 			
 			return date;
+		}
+		
+		private function formatLastUpdate(item:String):String{
+			var dateArray:Array = item.substr(0, item.lastIndexOf(" ")).split("/");
+			var year:String = dateArray[2];
+			var month:String = dateArray[1];
+			var day:String = dateArray[0];
+			
+			return month + "/" + day + "/" + year;
+			
 		}
 		
 	]]>
 </mx:Script>
 	
-	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3">
-		<mx:HBox id="overViewBar"  width="100%" >
-			<mx:LinkButton id="overViewButton" fontWeight="bold" label="Overview" click="Application.application.theViews.selectedChild = parentApplication.sequencerOverview"/>
-		</mx:HBox>
+	<mx:VBox id="main" width="100%" height="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" >
 		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
-			<mx:VBox cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#DEDEDE" verticalGap="11">
+			<mx:VBox cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#FFFFFF" verticalGap="11">
 				<mx:HBox id="runProgress" width="100%" fontSize="10"  height="18">
 					<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />
 					<mx:Label id="seqMachineVal" text="{repStatus.currentItem.instrument}" />
@@ -224,9 +229,9 @@
 					<mx:Label id="runDateVal" text="{formatDate(repStatus.currentItem.runDate)}"/> <!-- Start date of run -->
 					<mx:VRule height="6" />
 					<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
-					<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
-					<mx:Spacer width="20%" /> 
-					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" enabled="false" click="showRunDetails()"/>
+					<mx:Label id="lastUpdateVal" text="{formatLastUpdate(repStatus.currentItem.lastUpdated)}"/>   <!-- Last update of run --> 
+					<!--<mx:Spacer width="20%" /> 
+					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" enabled="true" click="showRunDetails()"/>-->
 				</mx:HBox>
 			</mx:VBox>
 		</mx:Repeater>

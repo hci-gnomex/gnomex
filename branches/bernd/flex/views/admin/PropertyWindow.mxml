@@ -111,7 +111,8 @@
 				"Seq Lib Conc. ng/uL",
 				"Seq Lib Prep Status"];
 			
-			private var nameFieldDefault:String = 'enter name here..';
+			[Bindable]
+			public static var NAME_FIELD_DEFAULT:String = 'Enter Custom Annotation Name Here..';
 			
 			[Bindable]
 			private var property:Object;
@@ -401,9 +402,9 @@
 					var thisPropName:String = StringUtil.trim(sc.@name);
 					thisPropName = thisPropName.toLowerCase();
 					
-					if(nameFieldDefault.toLocaleLowerCase() == thisPropName) {
+					if(NAME_FIELD_DEFAULT.toLocaleLowerCase() == thisPropName) {
 						Alert.show('There is already an annotation with the default name ("' 
-							+ nameFieldDefault.toLocaleLowerCase() 
+							+ NAME_FIELD_DEFAULT.toLocaleLowerCase() 
 							+ '"). You must either rename or delete it before creating a new one.');
 						refresh(null);
 						return;
@@ -413,7 +414,7 @@
 				
 				var params:Object = new Object();
 				params.idProperty = '';
-				params.name = nameFieldDefault;
+				params.name = NAME_FIELD_DEFAULT;
 				params.isActive = 'Y';
 				params.isRequired = 'N';
 				params.forSample =  "Y";
@@ -755,7 +756,8 @@
 						<mx:VBox  label="Annotation" width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none">			 
 							<mx:HBox width="100%" verticalGap="0">
 								<mx:Label text="Name" width="90" styleName="formLabel"/>
-								<mx:TextInput text="{property.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50"/>
+								<mx:TextInput text="{property.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50" focusIn="{scName.text == NAME_FIELD_DEFAULT ? scName.text = '' : scName.text = scName.text}"
+											  focusOut="{scName.text == '' ? scName.text = NAME_FIELD_DEFAULT : scName.text = scName.text}"/>
 								<mx:HBox >
 									<mx:CheckBox label="Active" id="isActive"  click="setDirty()">
 										<mx:selected>{property.@isActive == 'Y' ? true : false}</mx:selected>

@@ -13,13 +13,13 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent; 
 			
-			public var parentWindow:views.util.ExperimentPlatformWindow = null;
-			public var experimentType:String = null;
-			public var selectedIndex:int;
+			private var parentDirty:DirtyNote;
+			private var experimentType:String = null;
+			private var selectedItem:Object;
 			
-			public function init(parentView:ExperimentPlatformWindow):void {
-				parentWindow = parentView;
-				selectedIndex = parentView.appGrid.selectedIndex;
+			public function init(dirty:DirtyNote, selectedItem:Object):void {
+				parentDirty = dirty;
+				this.selectedItem = selectedItem;
 			}
 			
 			private function removeRichTextButtons():void {
@@ -34,9 +34,9 @@
 			}
 			
 			private function save():void {
-				parentWindow.appGrid.selectedItem.@coreSteps = GNomExStringUtil.cleanRichTextHTML(coreSteps.htmlText);
-				parentWindow.appGrid.selectedItem.@coreStepsNoLibPrep = GNomExStringUtil.cleanRichTextHTML(coreStepsNoLibPrep.htmlText);
-				parentWindow.dirty.setDirty();
+				selectedItem.@coreSteps = GNomExStringUtil.cleanRichTextHTML(coreSteps.htmlText);
+				selectedItem.@coreStepsNoLibPrep = GNomExStringUtil.cleanRichTextHTML(coreStepsNoLibPrep.htmlText);
+				parentDirty.setDirty();
 				PopUpManager.removePopUp(this);
 				Alert.show("You must press save on this screen to make your updates to configuration steps permanent.");
 			}
@@ -46,11 +46,11 @@
 			}
 
 			private function showCoreSteps():void{
-				coreSteps.htmlText = parentWindow.appGrid.selectedItem.@coreSteps;
+				coreSteps.htmlText = selectedItem.@coreSteps;
 			}
 
 			private function showCoreStepsNoLibPrep():void{
-				coreStepsNoLibPrep.htmlText = parentWindow.appGrid.selectedItem.@coreStepsNoLibPrep;
+				coreStepsNoLibPrep.htmlText = selectedItem.@coreStepsNoLibPrep;
 			}
 
 		

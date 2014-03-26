@@ -199,7 +199,7 @@
 		<mx:HBox width="95%" horizontalAlign="center" verticalAlign="middle">
 			<mx:Button id="idContinue" label="Keep application active" 
 					   click="this.keepSessionAlive('User choose to continue working at the end of timeout', true)"/>
-			<mx:Button id="idQuit" label="Log out" 
+			<mx:Button id="idQuit" label="Sign out" 
 					   click="logout();"/>
 		</mx:HBox>
 	</mx:VBox>	

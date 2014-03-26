@@ -69,13 +69,12 @@
 				
 			}
 			
-			override public function getSamplesGrid():DataGrid {
+			override public function getSamplesGrid():Object {
 				return this.samplesGridConfirm;
 			}
 			
-			override public function setBillingGridRowCount(rowCount:int):void{
-				this.billingConfirmGrid.rowCount = rowCount;
-				this.billingConfirmGrid.validateNow();
+			override public function getBillingGrid():Object {
+				return this.billingConfirmGrid;
 			}
 			
 			public function getSamplesConfirmGridRowNumber(item:Object,col:int):String

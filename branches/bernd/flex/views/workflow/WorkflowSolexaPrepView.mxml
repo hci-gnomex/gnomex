@@ -59,7 +59,7 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.validators.NumberValidator;
-	
+		
 		import views.renderers.ComboBox;
 
 		[Bindable]
@@ -342,7 +342,10 @@
 		}			
 			
 			private function sortSampleNumber(item1:Object, item2:Object, fields:Array=null):int {
-				var n1:String  = item1.@sampleNumber;
+				var n1:String = "";
+				if(item1.hasOwnProperty("@sampleNumber")){
+					n1 = item1.@sampleNumber;	
+				}
 				var n2:String  = item2.@sampleNumber;
 				
 				var parts:Array = n1.split("X");
@@ -496,7 +499,10 @@
 							</mx:Component>
 						</mx:itemEditor>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Mean Lib Size" width="20" headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"/>
+					<mx:DataGridColumn id='meanLibSizeActualCol' headerText="Ave Lib Size" width="20" 
+									   headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"
+									   editorDataField="value" rendererIsEditor="false"
+									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}"/>
 					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 

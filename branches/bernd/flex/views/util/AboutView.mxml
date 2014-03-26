@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="760" height="535"  
-				xmlns:views="views.*"
+				layout="vertical" width="760" height="467"  
+				xmlns:views="views.*" 
 				initialize="init()"
 				showCloseButton="true" 
 				close="{PopUpManager.removePopUp(this)}" 
-				title="{'GNomEx ' + parentApplication.version }" 
+				title="About" 
 				backgroundColor="#ffffff"  alpha="1.0" >
+	
 	<mx:VBox width="100%" verticalGap="2" height="100%" fontSize="10" paddingTop="2" paddingLeft="2" styleName="form" paddingRight="2" paddingBottom="2" backgroundSize="100%" borderStyle="none">
 		<mx:HBox width="100%" horizontalAlign="center" id="hbox10" paddingTop="2" paddingBottom="4">
 			<mx:Image source="assets/gnomex_logo_small.png"/>
+		</mx:HBox>
+		<mx:HBox width="100%" paddingTop="12" paddingBottom="12">
+			<mx:Text fontSize="12" fontWeight="bold" text="{'GNomEx ' + parentApplication.version }"/>
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="2" fontSize="12" paddingTop="0" paddingLeft="10">
@@ -33,20 +37,11 @@
 			
 		</mx:VBox>
 		
-		<mx:VBox id="contactBox" width="100%" verticalGap="0" fontSize="12" paddingLeft="10">		
-			<mx:Text text="Contact Info" fontWeight="normal" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
-			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
-				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="To report software bugs and/or provide feedback:"/>
-				<mx:LinkButton paddingLeft="12" label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="0"/>
-			</mx:HBox>
-		</mx:VBox>
-		
-		<mx:VBox width="100%" verticalGap="1" fontSize="12" paddingLeft="10">
+		<mx:VBox width="100%" fontSize="12" paddingLeft="10" paddingTop="10" verticalGap="1">
 			<mx:Text text="Credits" fontWeight="normal" fontSize="12" paddingBottom="0"  color="#000000" textDecoration="none" fontStyle="normal"/>
 			<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="GNomEx was developed by Hunstman Cancer Institute Informatics and designed in conjuction with the Microarray and Genomics Analysis Core Facility and the University of Utah Bioinformatics Core." width="100%"/>
+				<mx:Text text="GNomEx was developed by Huntsman Cancer Institute Informatics and designed in conjuction with the Microarray and Genomics Analysis Core Facility and the University of Utah Bioinformatics Core." width="100%"/>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
 				<mx:Image source="{parentApplication.iconBullet}"/>
@@ -66,48 +61,20 @@
 			<mx:Image source="assets/hcsLogoTransparent.gif"/>
 		</mx:HBox>
 	</mx:VBox>
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
+			import mx.events.FlexMouseEvent;
 			
-			private function init() : void {
-				
-				if (!parentApplication.isExternalDataSharingSite) {
-					for each(var cf:XML in parentApplication.coreFacilityList) {
-						var coreContactBox:HBox = new HBox();
-						coreContactBox.setStyle("horizontalGap",0);
-						coreContactBox.setStyle("verticalAlign","middle");
-						coreContactBox.setStyle("width","100%");
-						
-						var bullet:Image = new Image();
-						bullet.source = parentApplication.iconBullet;
-						coreContactBox.addChild(bullet);
-						
-						var genericText:Text = new Text();
-						genericText.text = cf.@coreName + " Core:";
-						//genericText.width = 340;
-						coreContactBox.addChild(genericText);
-						
-						var contactText:Text = new Text();
-						contactText.htmlText = "<b>" + cf.@contactName + "</b>" + "<i> &nbsp;Phone: </i>" + cf.@contactNumber + "<i> &nbsp;Email: </i>";
-						coreContactBox.addChild(contactText);
-						
-						
-						var emailLink:LinkButton = new LinkButton();
-						emailLink.label = cf.@contactEmail;
-						emailLink.setStyle("textDecoration","underline");
-						emailLink.setStyle("color","#0000ff");
-						emailLink.setStyle("paddingLeft", 0);
-						emailLink.addEventListener("click", function (e:Event):void{navigateToURL(new URLRequest('mailto:' + e.target.label));});
-						
-						
-						coreContactBox.addChild(emailLink);
-						contactBox.addChild(coreContactBox);
-					}
-					
-				}
+			public function init():void {
+				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);
 			}
-				
+			
+			protected function mouseDownOutsideHandler(event:Object):void {
+				PopUpManager.removePopUp(this);
+			}
+			
 		]]>
 	</mx:Script>
 </mx:TitleWindow>

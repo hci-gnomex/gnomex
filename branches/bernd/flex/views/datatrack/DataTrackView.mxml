@@ -30,7 +30,7 @@
 						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
 						   click="{parentDocument.createURLLinks()}" 
 						   id="makeURLLinksButton"   textDecoration="underline"/>
-			<mx:LinkButton label="Remove Links"
+			<mx:LinkButton label="Clear file links"
 					       icon="@Embed(source='../../assets/link_delete.png')"
 					       disabledIcon="@Embed(source='../../assets/link_delete_disable.png')"
 					       toolTip="Destroys all existing IGV, UCSC and URL links to user-owned datatracks.  Re-created links will have different random paths, making tracks private if old paths were distributed."
@@ -1025,7 +1025,7 @@
 		
 		<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 			<mx:HBox width="100%" horizontalGap="0" id="hbox1">
-				<mx:Text id="labelApplication" text="The level of visibility for this data track:&#xd;" styleName="formLabel"/>
+				<mx:Text id="labelApplication" text="Select the level of visibility:&#xd;" styleName="formLabel"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 				</mx:RadioButtonGroup>
 			</mx:HBox>
@@ -1039,13 +1039,8 @@
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
 						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="All Lab Members "/>
-						<mx:VBox verticalGap="0" height="100%" width="300" verticalAlign="bottom">
-							<mx:Text width="300" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10">									
-								<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-							</mx:Text>
-						</mx:VBox>
 					</mx:HBox>
-					<mx:HBox horizontalGap="4"  verticalAlign="middle">
+					<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
 						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 1}" label="Institution  (all groups that are part of institution)"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
@@ -1053,7 +1048,7 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackPublic}"/>
-						<mx:RadioButton value="PUBLIC" label="Public        (anyone)" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}"/>
+						<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}"/>
 					</mx:HBox>
 					
 				</mx:VBox>

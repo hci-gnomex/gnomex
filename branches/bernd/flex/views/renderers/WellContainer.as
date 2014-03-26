@@ -52,7 +52,7 @@ package views.renderers {
 		
 		
 		// Constructor
-		public function WellContainer( label:String ):void {
+		public function WellContainer( label:String, ht:int ):void {
 			
 			super();
 			this.sampleName = label;
@@ -61,7 +61,7 @@ package views.renderers {
 				this.loadSourceWell( null );
 			}
 			
-			height = 26;
+			height = ht;
 			width = height;
 			verticalScrollPolicy = 'off';
 			horizontalScrollPolicy = 'off';
@@ -78,6 +78,12 @@ package views.renderers {
 			addEventListener( DragEvent.DRAG_OVER, dragOverWell );
 			addEventListener( DragEvent.DRAG_DROP, dropOnWell );
 			addEventListener( DragEvent.DRAG_EXIT, dragExitWell );
+		}
+		
+		public function resizeWell( ht:int ):void {
+			height = ht;
+			width = height;
+			setStyle( 'cornerRadius', height / 2 );
 		}
 		
 		public function getSample():Object {

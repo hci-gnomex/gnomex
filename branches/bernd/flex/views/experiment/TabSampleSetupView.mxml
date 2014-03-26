@@ -1,24 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Sample setup" 
+<mx:Canvas label="Sample Details" 
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
 	xmlns:renderers="views.renderers.*"
-	 width="100%" height="100%" >
+	 width="100%" height="100%" show="{init();}" >
+	
 <mx:Script>
 	<![CDATA[
+		import mx.collections.Sort;
 		import mx.events.ListEvent;
 		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
+		import views.util.OrganismAddEvent;
 		import views.util.OrganismEvent; 
 
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 
-		[Bindable]
-		public var barcodeQuestionVisible:Boolean = true;
 		public var numIScanChips:int = 0;
+
+		private var addOrganismOpen:Boolean = false;
 		
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+		public var configuredCodeRequestCategory:String = "";
+		private var configuredEditState:String = "";
+		
+		public var selectedIdLab:String = null;
+		public var selectedCodeRequestCategory:String = null;
+		private var loadedIdLab:String = null;
+		public var loadedCodeRequestCategory:String = null;
+		private var priceMap:Dictionary = new Dictionary();
+
+		private function init():void {
+			var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
+			if(sampleTypeRadioGroup.selectedValue == null) {
+				sampleTypeDNARNAHBox.styleName = 'requiredBox';}
+			sampleSetupCanvas.verticalScrollPosition = 0;
+			if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
+				initIllumina();
+			}
+			if ( qcInstructions != null ) {
+				qcInstructions.text = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS);
+			}
+			
+			this.pickSequenomType();
+		}
+		
+		private function initIllumina():void {
+			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.precision = 2;
+			currencyFormatter.useThousandsSeparator;
+
+			//Since old values are not cleared out when creating second experiment in same session
+			//Check to make sure that the old values are valid enough to enable the next button right away.
+			parentDocument.enableNextButtons();
+		}
+
 		public function setPrimerDefaults():void {
 			if (parentDocument.isMitSeqState()) {
 				// Set defaults for primers				
@@ -70,13 +109,23 @@
 				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' ? 'Y' : 'N');
 			}
 		}
-		
+		private function propagateSampleSource():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.sampleSourceCombo.selectedItem != null && 
+					this.sampleSourceCombo.selectedItem.@idSampleSource != null && 
+					this.sampleSourceCombo.selectedItem.@idSampleSource != '') {
+					sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@idSampleSource;
+				} else {
+					sample.@idSampleSource = "";
+				}
+			}
+		}
        	private function propagateSampleType():void {
 			for each (var sample:Object in parentDocument.samples) {
-				if (this.sampleTypeCombo.selectedItem != null) {
-					sample.@idSampleType = this.sampleTypeCombo.selectedItem.@value;
+				if (this.sampleTypeRadioGroup.selectedValue != null) {
+					sample.@idSampleType = this.sampleTypeRadioGroup.selectedValue;
 				} else {
-					sample.@idSampleType = null;
+					sample.@idSampleType = "";
 				}
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
@@ -91,10 +140,8 @@
        	private function propagateSeqLibProtocol():void {
 			for each (var sample:Object in parentDocument.samples) {
 				if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState') {
-					sample.@idSeqLibProtocol = this.seqLibProtocolCombo.selectedItem != null ? this.seqLibProtocolCombo.selectedItem.@value : '';
 					sample.@seqPrepByCore = "N";
 				} else {
-					sample.@idSeqLibProtocol = '';
 					sample.@seqPrepByCore = "Y";
 				}
 			}
@@ -126,30 +173,12 @@
 			}
 		}
 		
-		private function propagateSeqRunType():void {
-			if (parentDocument.isSolexaState()) {
-				this.parentDocument.seqSetup1View.propagateSeqRunType();
-			}
-		}
-		
 		private function selectDefaultGenomeBuild():void {
 			if (parentDocument.isSolexaState()) {
 				this.parentDocument.bioinformaticsView.selectDefaultGenomeBuild();
 			}
 		}
 
-		
-		public function getDefaultIdSeqRunType():String {
-			var idSeqRunType:String = "";
-			for each(var item:Object in this.parentDocument.seqSetup1View.seqRunRepeater.dataProvider) {
-				if (item.@display.toUpperCase().indexOf("SINGLE") > -1) {
-					idSeqRunType = item.@value;
-					break;
-				}
-			}
-			return idSeqRunType;
-		}
-		
 		private function toggleChipTypeCheck(event:ListEvent):void {
    			if (event.columnIndex == 0) {
 	   			return;
@@ -195,25 +224,6 @@
           		chipTypeBox.styleName = "normalBoxThick";
           	}        	
         }
-        
-        public function checkForSampleTypeCompatibility():void {
-        	if (!this.parentDocument.isSampleTypeCompatibile()) {
-        		if (parentDocument.isEditState()) {
-					var sampleType:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.request.@idSampleTypeDefault);
-					var sampleTypeName:String = sampleType.@display.toString();
-        			mx.controls.Alert.show('Sample type ' + sampleTypeName + 
-	        		  ' cannot be used for ' + parentDocument.applicationName + 
-	        		  ' experiments.  Please change the microarray application.',
-	        		  'Warning');
-        			
-        		} else {
-	        		this.parentDocument.userWarningsSampleSetup += 'Sample type ' + this.sampleTypeCombo.selectedItem.@display + 
-	        		' cannot be used for ' + parentDocument.applicationName + 
-	        		' experiments.  Please change the sample type or microarray application.';
-        			
-        		}        		
-        	} 
-        } 
 
       	public function checkSampleSetupCompleteness():Boolean {
         	var isComplete:Boolean = false;
@@ -225,45 +235,29 @@
         	if (parentDocument.isEditState()) {
         		isComplete = true;
         	} else if (currentState == 'MicroarrayAmendState') {
-	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasOrganism()) {
+	        	if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
 		        	isComplete = true;
 	        	 }
-        	
-        	} else if (parentDocument.isSolexaAmendState()) {
-	        	if (this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-	        	    hasOrganism() &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
-	        	    	
-	        	    if (currentState == 'SolexaAmendPreppedState') {
- 						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
- 							isComplete = true;
- 						}	        	    	
-	        	    } else {
-		        	    isComplete = true;
-	        	    }
-	        	    
-	        	 }
-        	
+			} else if (parentDocument.isSolexaAmendState()) {
+				if (hasOrganism() && 
+					this.sampleTypeRadioGroup.selectedValue &&
+					otherSamplePrepMethod.text.length > 0) {
+					
+					isComplete = checkPrePooledSamplesCompleteness();
+				}
         	} else if (parentDocument.isSolexaState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
+					this.sampleTypeRadioGroup.selectedValue &&
 	        	    hasOrganism() &&
-	        	    this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue != '') {
-	        	    	
-	        	    if (currentState == 'SolexaSetupPreppedState') {
- 						if (this.seqLibProtocolCombo.selectedItem != null && this.seqLibProtocolCombo.selectedItem.@value != '') {
- 							isComplete = true;
- 						}	        	    	
-	        	    } else {
-		        	    isComplete = true;
-	        	    }
-	        	    
+					this.otherSamplePrepMethod.text.length > 0) {
+					
+					isComplete = checkPrePooledSamplesCompleteness();
 	        	 }
         	
         	} else if (parentDocument.isQCState()) {
 	        	if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-	        	    this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+					this.sampleTypeRadioGroup.selectedValue &&
+					this.otherSamplePrepMethod.text.length > 0) {
 	        	    	
 	        	   	// Only need to check if chip type selected if this is 
 	        	   	// a bioanalyzer qc request.
@@ -429,8 +423,8 @@
 				iScanNumSourcePlatesValidator.validate();
 				
 			} else if (parentDocument.isSequenomState()) {
-				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+				sampleCountWarning.text = "";
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 					if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 						if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
 							isComplete = true;
@@ -438,16 +432,36 @@
 					} else if (this.radioGroupSeqApp.selectedValue != null ){
 						isComplete = true;
 					}
+					if ( coreToExtractDNACheckBox.selected ) {
+						isComplete  = isComplete && ( dnaPrepTypeCombo.selectedItem != null && dnaPrepTypeCombo.selectedIndex > 0 );
+					} else {
+						isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
+					}
+					if ( this.radioGroupSeqApp.selectedValue != null ){  
+						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+						var samplesPerBatch:int = application.@samplesPerBatch;
+						if ( parseInt(this.numberOfSamples.text) % samplesPerBatch != 0 && this.radioGroupSeqApp.selectedValue != "OTHER") {
+							sampleCountWarning.text = " You have selected a panel which runs in batches of " + samplesPerBatch + " samples. Please note you will be responsible to pay for unused wells.";
+						}
+					}
 				}
+				
 			} else if (parentDocument.isClinicalSequenomState()) {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '') {
+					this.sampleTypeRadioGroup.selectedValue) {
 					isComplete = true;	        	    	
 				}
+			} else if (parentDocument.isIsolationState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.isolationTypeRadioGroup.selectedValue) {
+					isComplete = true;	        	    	
+				}
+				
 			} else {
 				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-					this.sampleTypeCombo.selectedItem != null && this.sampleTypeCombo.selectedItem.@value != '' &&
-					hasOrganism()) {
+					this.sampleTypeRadioGroup.selectedValue &&
+					hasOrganism() &&
+					this.otherSamplePrepMethod.text.length > 0) {
 					isComplete = true;	        	    	
 				}
 			}
@@ -458,9 +472,7 @@
         	}
 			        	
         	if (parentDocument.isSolexaState()) {
-        		parentDocument.seqSetup1View.enabled = isComplete; 
-        	}else {
-	    		parentDocument.samplesView.enabled = isComplete; 
+        		parentDocument.seqSetupView.enabled = isComplete; 
         	}
     			
 			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
@@ -470,9 +482,27 @@
 
         	callLater(postSampleSetupCompleteness, [isComplete]);
         	
+			
     		return isComplete;
     	    	
         }
+		
+		private function checkPrePooledSamplesCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (this.seqPrepRadioGroup != null && this.seqPrepRadioGroup.selectedValue == 'N') {
+				if (this.prePooledSamplesRadioGroup.selectedValue == 'Y') {
+					if (this.prePooledNumTubes.text != null && this.prePooledNumTubes.text != '' && Number(this.prePooledNumTubes.text) > 0) {
+						isComplete = true;
+					}
+				} else if (this.prePooledSamplesRadioGroup.selection != null) {
+					isComplete = true;
+				}
+			} else {
+				isComplete = true;
+			}
+
+			return isComplete;
+		}
 		
 		private function hasOrganism():Boolean {
 			if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
@@ -503,8 +533,9 @@
 				}
     		} else {
     			if (parentDocument.isSolexaState()) {
-        			parentDocument.seqSetup1View.checkSeqSetup1Completeness();				
+        			parentDocument.seqSetupView.checkSeqAppSetupCompleteness();				
     			} else {
+					parentDocument.samplesView.enabled = true;
 	    			parentDocument.samplesView.checkSamplesCompleteness();
     			}
     		}
@@ -519,49 +550,6 @@
         	this.validConcentration = true;
         	this.checkSampleSetupCompleteness();
         }
-
-		public function pickSeqApp():void {
-			
-			this.sampleTypeCombo.selectedIndex = -1;
-			parentDocument.filteredSampleTypeList.refresh();
-			if (parentDocument.filteredSampleTypeList.length == 2) {
-				this.sampleTypeCombo.selectedIndex = 1;
-			}
-			
-			if (this.parentDocument.isSolexaState()) {
-				parentDocument.seqLibProtocolList.refresh();				
-			}
-			
-			this.pickDefaultSeqLibProtocol();
-			
-			this.checkSampleSetupCompleteness();
-			
-		}
-		
-		private function pickDefaultSeqLibProtocol():void {
-			if (this.currentState == "SolexaSetupPreppedState" || this.currentState == 'SolexaAmendPreppedState') {
-				this.seqLibProtocolCombo.visible = true;
-			} else if (this.currentState == "SolexaSetupState" || this.currentState == "SolexaAmendState") {
-				this.seqLibProtocolCombo.visible = false;
-			} else {
-				return;
-			}
-			
-			this.seqLibProtocolCombo.selectedIndex = -1;
-			if (parentDocument.seqLibProtocolList.length == 2) {
-				this.seqLibProtocolCombo.selectedIndex = 1;
-				this.propagateSeqLibProtocol();
-			}			
-		}
-		
-		public function pickRadioBarcoding():void {
-
-			if (this.barcodeRadioGroup.selectedValue != null && this.barcodeRadioGroup.selectedValue == 'N') {
-				this.clearBarcodingFields();				
-			}
-			this.checkSampleSetupCompleteness();
-			this.parentDocument.seqSetup1View.pickBarcodeScheme();
-		}
 		
 		private function pickQCApp():void {
 			if (this.radioGroupQCApp.selectedValue != null && this.radioGroupQCApp.selectedValue == "BIOAN") {
@@ -580,22 +568,18 @@
 				this.qcAppBox.styleName = 'requiredBox';
 				this.parentDocument.applicationName = '';
 			}
-			this.sampleTypeCombo.selectedIndex = -1;
-			parentDocument.filteredSampleTypeList.refresh();
-			if (parentDocument.filteredSampleTypeList.length == 2) {
-				this.sampleTypeCombo.selectedIndex = 1;
-			}
+
 			this.checkSampleSetupCompleteness();
 		}
 		
 		private function pickSequenomApp():void {
 			if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 				sequenomPanelContainer.visible = true;
-				sequenomPanelContainer.visible = true;
+				sequenomPanelContainer.includeInLayout = true;
 				sequenomApplicationDesc.styleName = 'requiredBox';
 			} else {
 				sequenomPanelContainer.visible = false;
-				sequenomPanelContainer.visible = false;
+				sequenomPanelContainer.includeInLayout = false;
 				sequenomApplicationDesc.styleName = 'normalBox';
 				sequenomApplicationDesc.text = '';
 			}
@@ -607,10 +591,15 @@
 				this.seqAppBox.styleName = 'requiredBox';
 				this.parentDocument.applicationName = '';
 			}
-			this.checkSampleSetupCompleteness();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function pickSampleType():void {
+			if(sampleTypeRadioGroup.selectedValue != null) {
+				sampleTypeDNARNAHBox.styleName = '';
+			}
 			if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
 				
 				propagateSampleType();
@@ -639,12 +628,24 @@
 			
 			propagateSampleType();
 			parentDocument.samplesView.initializeSamplesGrid();
-
-			this.checkForSampleTypeCompatibility();
 		}
 		
 		
 		private function pickOrganism():void {
+			
+			// kludge because close event is fired twice for combo box.
+			if (addOrganismOpen) {
+				return;
+			}
+			
+			if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.text != null && sampleOrganismCombo.text.length > 0 && sampleOrganismCombo.text != sampleOrganismCombo.prompt) {
+				addOrganismOpen = true;
+				var oName:String = sampleOrganismCombo.text;
+				sampleOrganismCombo.text = '';
+				propagateOtherSampleOrganism();
+				callLater(addOrganism,[oName]);
+				return;
+			}
 			
 			// Clear other organism if non 'Other' selected
 			if (this.sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@display != 'Other') {
@@ -695,8 +696,9 @@
 		
 		
 		private function pickSeqPrepState():void {
-			parentDocument.showHideBarcodingQuestion();
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
+				this.prePooledSamplesRadioGroup.selection = null;
+				this.prePooledNumTubes.text = "";
 				if (parentDocument.isAmendState()) {
 					currentState = 'SolexaAmendState';
 				} else {
@@ -710,13 +712,11 @@
 				}
 			}
 			this.propagateSeqPrepByCore();
-			pickDefaultSeqLibProtocol();
 			propagateSeqLibProtocol();
 			clearBarcodingFields();
 			parentDocument.seqLibProtocolList.refresh();
 			checkSampleSetupCompleteness();
 			parentDocument.samplesView.showHideColumns();
-			this.seqLibProtocolCombo.visible = samplesAlreadyPreppedCheckbox.selected; 
 		}
 		
 		private function pickContainerType():void {
@@ -1064,7 +1064,37 @@
 		
 		private function onCoreToExtractDNACheckBoxChanged():void {
 			parentDocument.request.@coreToExtractDNA = coreToExtractDNACheckBox.selected ? 'Y' : 'N';
-			checkSampleSetupCompleteness();
+			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
+			this.sampleTypeRadioGroup.enabled = !coreToExtractDNACheckBox.selected;
+			if ( coreToExtractDNACheckBox.selected ) {	
+				this.sampleTypeRadioGroup.selectedValue = null;
+			} 
+			this.propagateSampleType();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
+		private function onIncludeBisulfideConversionCheckBoxChanged():void {
+			parentDocument.request.@includeBisulfideConversion = bisulfideConversionCheckBox.selected ? 'Y' : 'N';
+			
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
+		private function onDNAPrepTypeChanged():void {
+			parentDocument.request.@codeDNAPrepType = dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '';
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+		
+		private function onSampleSourceChanged():void {
+			propagateSampleSource();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function onAppDescChanged():void{
@@ -1078,7 +1108,9 @@
 			} else if (this.radioGroupSeqApp.selectedValue != null ){
 				parentDocument.request.@applicationDescription = "";
 			}
-			checkSampleSetupCompleteness();
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
 		}
 		
 		private function pickChip():void {
@@ -1096,17 +1128,60 @@
 			this.onNumberOfSamplesChanged();
 		}
 		
-		private function addOrganism():void {
-			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
-			PopUpManager.centerPopUp(addOrganismWindow);
-			
-			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
-			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		
+		private function pickIsolationType():void {
+			if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'DNAISOL'){
+				parentDocument.request.@coreToExtractDNA = 'Y';
+				parentDocument.request.@codeDNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				parentDocument.request.@codeRNAPrepType = "";
+			} else if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'RNAISOL') {
+				parentDocument.request.@codeRNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				parentDocument.request.@codeDNAPrepType = "";
+			}
+			if ( this.checkSampleSetupCompleteness() ) {
+				parentDocument.samplesView.initializeSamplesGrid();
+				parentDocument.samplesView.showHideColumns();
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.showHideColumns();
+				}
+			}
 		}
 		
-		private function onOrganismRefreshed(event:Event):void {
+		public function pickSequenomType():void {
+			if ( this.bisulfideConversionBox != null ) {
+				if (parentDocument.getRequestCategory()!=null && parentDocument.getRequestCategory().@codeRequestCategory=='SEQEPI') {
+					this.bisulfideConversionBox.visible = true;
+					this.bisulfideConversionBox.includeInLayout = true;
+				} else {
+					this.bisulfideConversionBox.visible = false;
+					this.bisulfideConversionBox.includeInLayout = false;
+					parentDocument.request.@includeBisulfideConversion = 'N';
+				}
+			} else {
+				parentDocument.request.@includeBisulfideConversion = 'N';
+			}
+		}
+		
+		private function addOrganism(oName:String):void {
+			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
+			PopUpManager.centerPopUp(addOrganismWindow);
+			addOrganismWindow.oName.text = oName;
+			
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		                                  
+			this.systemManager.addEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		
+			
+			addOrganismOpen = false;
+		}
+		
+		private function onOrganismRefreshed(event:OrganismAddEvent):void {
 			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
-			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);		                                  
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
+			
+			for each (var o:Object in sampleOrganismCombo.dataProvider) {
+				if (o.@organism == event.nameAdded) {
+					sampleOrganismCombo.selectedItem = o;
+					break;
+				}
+			}
 		}
 	]]>
 </mx:Script>
@@ -1116,18 +1191,22 @@
 						requiredFieldError="Please enter the number of samples you are submitting."
 						required="true" 
 						lowerThanMinError="You must submit at least 1 sample." minValue="1" allowNegative="false" domain="int" maxValue="384" />	
-	<mx:NumberValidator id="otherSamplePrepMethodValidator" source="{otherSamplePrepMethod}" property="text" 
-         required="false" />
     <mx:NumberValidator id="organismValidator"
-        source="{this.sampleOrganismCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="0" />
-    <mx:NumberValidator id="sampleTypeValidator"
-        source="{this.sampleTypeCombo}"
-        lowerThanMinError="This field is required."
-        property="selectedIndex"
-        minValue="1" />
+				        source="{this.sampleOrganismCombo}"
+				        lowerThanMinError="This field is required."
+				        property="selectedIndex"
+				        minValue="0" />
+	<mx:NumberValidator id="sampleTypeValidator"
+						source="{this.sampleTypeRadioGroup}"						
+						property="selectedValue"						
+						minValue = "0"
+						required="true"						
+						/>
+	<mx:NumberValidator id="dnaPrepTypeValidator"
+						source="{this.dnaPrepTypeCombo}"
+						lowerThanMinError="This field is required."
+						property="selectedIndex"
+						minValue="1" />
 	<mx:NumberValidator id="sampleDropOffLocationValidator"
 						source="{this.sampleDropOffLocationCombo}"
 						lowerThanMinError="This field is required."
@@ -1138,36 +1217,68 @@
 						lowerThanMinError="You must submit your samples on at least 1 plate."
 						requiredFieldError="Please enter the number of plates you are submitting your samples on."
 						exceedsMaxError="You can only submit up to 12 plates per order."/>
+	<mx:StringValidator	id="samplePrepValidator" 
+						source="{this.otherSamplePrepMethod}" 
+						property="text"
+						required ="true"
+						/>
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
         
-  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
+  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto" id="sampleSetupCanvas">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="2" >
-		<mx:VBox height="100%"  paddingTop="2"  verticalGap="12" id="sampleSetupContainer" width="100%">
-			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle">
-				<mx:Label text="(1) How many samples will you be submitting?" width="334"  id="label5"/>
+		<mx:VBox height="100%"  paddingTop="2"  verticalGap="2" id="sampleSetupContainer" width="100%">
+			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
+				<util:ContextHelp context1="SampleDetailsNumSamples" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number of Samples Help"
+								  label="(1) How many unique samples are in this experiment order?" labelPlacement="left" id="label5" width="334"/>
 				<mx:TextInput width="40" id="numberOfSamples" >
 					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
-			<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle">
-				<mx:Label text="(2) Which category best describes your samples?" width="334" id="label8"/>
-				<mx:ComboBox labelField="@display" width="300" id="sampleTypeCombo" 
-					change="pickSampleType()" dataProvider="{parentDocument.filteredSampleTypeList}" close="pickSampleType()">							
-				</mx:ComboBox>
+			<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
+				<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}" 
+								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+								  showEdit="{parentApplication.isAdminState}" title="Sample Category Help"
+								  label="(2) Which category best describes your samples?" labelPlacement="left" id="label8" width="334"/>
+				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />
+				<mx:HBox verticalGap="0" paddingTop="0" paddingBottom="0" styleName="requiredBox" id="sampleTypeDNARNAHBox">				
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
+						<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
+						<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
+							<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
+											label="{sampleTypeDnaRepeater.currentItem.@display}" 
+											value="{sampleTypeDnaRepeater.currentItem.@value}" 
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />							
+						</mx:Repeater>
+						<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup" 
+										label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />
+					</mx:VBox>
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
+						<mx:Label text="RNA" visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
+						<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
+							<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup" 
+											label="{sampleTypeRnaRepeater.currentItem.@display}" 
+											value="{sampleTypeRnaRepeater.currentItem.@value}" 
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />							
+						</mx:Repeater>
+					</mx:VBox>
+				</mx:HBox>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Label text="(3) Which organism is the source for these samples?" width="334" id="label7"/>
-				<renderers:FilterComboBox labelField="@display" 
+				<util:ContextHelp context1="SampleDetailsOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Organism Help"
+								  label="(3) Which organism is the source for these samples?" labelPlacement="left" id="label7" width="334"/>
+				<renderers:FilterComboBox labelField="@combinedName" 
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
 										  dataProvider="{parentApplication.activeOrganismList.source}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
-				<mx:LinkButton label="Add Organism ..." textDecoration="underline" styleName="blueLinkButton" click="addOrganism()" id="addOrganismButton">		  	
-				</mx:LinkButton>						
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
@@ -1176,8 +1287,11 @@
 				</mx:TextInput>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
-				<mx:Text text="(4) Specify the nucleic acid extraction method (optional)." width="334" id="label2"/>
-				<mx:TextInput width="300" id="otherSamplePrepMethod" change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness()}" maxChars="50"/>
+				<util:ContextHelp context1="sampleDetailsNucleicAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Nucleic Acid Extraction Help"
+								  label="(4) Specify the nucleic acid extraction method. (required)." labelPlacement="left" id="label2" width="334"/>
+				<mx:TextInput width="300" id="otherSamplePrepMethod" 
+							  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}" 
+							  maxChars="50"/>
 			</mx:HBox>
 			
 		</mx:VBox>
@@ -1198,7 +1312,7 @@
 						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" 
 							horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="5">
 							<mx:Text width="100%" id="qcInstructions" styleName="submitNote">									
-								<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
+								<mx:text>{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
 							</mx:Text>
 						</mx:HBox>
 					</mx:HBox>
@@ -1206,22 +1320,24 @@
 				</mx:VBox>
         		
         	</mx:AddChild>
-        	<mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
-        	<mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
-        	<mx:SetProperty target="{label2}" name="text">
-        		<mx:value>(4) Specify the nucleic acid extraction method (optional).</mx:value>
+        	<mx:SetProperty target="{label5}" name="label" value="(2) How many unique samples are in this experiment order?"/>
+        	<mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
+        	<mx:SetProperty target="{label2}" name="label">
+        		<mx:value>(4) Specify the nucleic acid extraction method. (required)</mx:value>
         	</mx:SetProperty>
         	<mx:SetProperty target="{label5}" name="width" value="334"/>
         	<mx:SetProperty target="{label2}" name="width" value="334"/>
         	<mx:SetProperty target="{label8}" name="width" value="334"/>
         	<mx:AddChild relativeTo="{hbox3}" position="before">
         		<mx:HBox width="100%" horizontalGap="0">
-        		    <mx:Text text="(1) Select a sample quality application." width="334" id="labelQCApplication"/>
-                    <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="qcAppBox">
+					<util:ContextHelp context1="sampleDetailsQCApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Quality Application Help"
+									  label="(1) Select a sample quality application." labelPlacement="left" id="labelQCApplication" width="334"/>
+                    <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="qcAppBox">
                         <mx:RadioButtonGroup id="radioGroupQCApp"/>
 						<mx:Repeater id="qcAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
 				    		<mx:RadioButton  label="{qcAppRepeater.currentItem.@display}" 
 				    			paddingLeft="1" paddingRight="1"
+								paddingTop="0" paddingBottom="0"
 				    			value="{qcAppRepeater.currentItem.@value}"
 				    	 	    groupName="radioGroupQCApp"
 				    			click="{pickQCApp()}"/>
@@ -1234,50 +1350,50 @@
         	
         </mx:State>
         <mx:State name="SolexaSetupState">
-         	
             <mx:AddChild relativeTo="{sampleOrganismContainer}" position="after">
             
-				<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-					<mx:Text text="(5) Do you want the Core Facility to perform library preparation on the samples?" width="305"  id="text1"/>
-					<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
-                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
-					    <mx:HBox id="hbox2" width="100%">
-							<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
- click="{pickSeqPrepState()}">
-							</mx:RadioButton>									    	
-					    </mx:HBox>
-					    
-						<mx:HBox >
-							<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
- click="{pickSeqPrepState()}">
-							</mx:RadioButton>							
-							<mx:ComboBox labelField="@display" width="300" id="seqLibProtocolCombo" dataProvider="{parentDocument.seqLibProtocolList}" visible="false">															
-								<mx:change>{pickSeqLibProtocol()}</mx:change>
-							</mx:ComboBox>								
-						</mx:HBox>				
-					</mx:VBox>
-				</mx:HBox>            	
+				<mx:VBox paddingBottom="0" paddingTop="0">
+					<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+						<util:ContextHelp context1="sampleDetailsLibPrep" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Library Preparation Help"
+										  label="(5) Do you want the Core Facility to perform library preparation on the samples?" labelPlacement="left" id="text1" width="305"/>
+						<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
+	                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
+						    <mx:HBox id="hbox2" width="100%">
+								<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
+	 click="{pickSeqPrepState()}">
+								</mx:RadioButton>									    	
+						    </mx:HBox>
+						    
+							<mx:HBox >
+								<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
+	 click="{pickSeqPrepState()}">
+								</mx:RadioButton>							
+							</mx:HBox>				
+						</mx:VBox>
+					</mx:HBox>
+					<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0" id="prePooledSamplesHBox" visible="{samplesAlreadyPreppedCheckbox.selected}" includeInLayout="{samplesAlreadyPreppedCheckbox.selected}">
+						<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Pooling Help"
+										  label="(6) How are the samples pooled?" labelPlacement="left" id="samplePoolingLabel" width="305"/>
+						<mx:VBox width="100%" verticalGap="0" paddingLeft="0">
+							<mx:RadioButtonGroup id="prePooledSamplesRadioGroup"/>
+							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be submitted in a separate microfuge tube."
+											click="{parentDocument.request.@hasPrePooledLibraries='N';prePooledNumTubes.text='';parentDocument.request.@numPrePooledTubes='';this.checkSampleSetupCompleteness()}"/>
+							<mx:HBox paddingLeft="0">
+								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be submitted in"
+												click="{parentDocument.request.@hasPrePooledLibraries='Y';this.checkSampleSetupCompleteness()}"/>
+								<mx:TextInput id="prePooledNumTubes" width="25" restrict="0-9" maxChars="2" enabled="{prePooled.selected}" 
+											  change="{parentDocument.request.@numPrePooledTubes = prePooledNumTubes.text;this.checkSampleSetupCompleteness()}"/>
+								<mx:Label text="(number) microfuge tubes."/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>
+				</mx:VBox>
             </mx:AddChild>
 
             <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
             <mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
             <mx:SetProperty target="{label5}" name="width" value="305"/>
             <mx:SetProperty target="{label8}" name="width" value="305"/>
-            <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
-                <mx:HBox id="barcodeContainer" width="100%" horizontalGap="0" visible="{barcodeQuestionVisible}">
-                	<mx:Text text="(6) Should sequencing libraries be constructed with index tags for multiplexing capability?" width="305"  id="label13" visible="{barcodeQuestionVisible}"/>
-                	<mx:VBox  height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="normalBox" id="barcodeRadioBox" visible="{barcodeQuestionVisible}">
-                		<mx:RadioButtonGroup id="barcodeRadioGroup" selectedValue="Y"/>
-                		<mx:RadioButton groupName="barcodeRadioGroup" value="Y" id="radioYesBarcoding" label="Yes, samples require index tags" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" selected="true" visible="{barcodeQuestionVisible}">
-                		</mx:RadioButton>
-                		<mx:RadioButton groupName="barcodeRadioGroup" value="N" id="radioNoBarcoding" label="No, samples do not require index tags." paddingTop="0" paddingBottom="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" selected="false" visible="{barcodeQuestionVisible}">
-                		</mx:RadioButton>
-                	</mx:VBox>
-                	<mx:Text width="300" id="barcodingNote" styleName="submitNote" height="40" paddingLeft="4" visible="{barcodeQuestionVisible}">									
-                		<mx:text>{parentApplication.getProperty(parentApplication.PROPERTY_ILLUMINA_BARCODING_NOTE)}</mx:text>
-                	</mx:Text>
-				</mx:HBox>
-            </mx:AddChild>
             <mx:RemoveChild target="{samplePrepContainer}"/>
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
             <mx:SetProperty target="{label2}" name="width" value="305"/>
@@ -1286,36 +1402,16 @@
 			
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
-            <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
-            <mx:SetProperty target="{samplesAlreadyPreppedCheckbox}" name="label">
-                <mx:value>No, library has already been prepped using kit</mx:value>
-            </mx:SetProperty>
-            <mx:SetProperty target="{label13}" name="text">
-                <mx:value>(6) How are sequencing libraries constructed with index tags for multiplexing capability?</mx:value>
-            </mx:SetProperty>
-            <mx:AddChild relativeTo="{radioNoBarcoding}" position="before">
-                <mx:RadioButton groupName="barcodeRadioGroup" value="C" id="radioYesCustomBarcoding" label="Samples tagged with custom index tag sequence" paddingBottom="0" paddingTop="0" click="pickRadioBarcoding()" change="pickRadioBarcoding()" visible="{parentApplication.submitInternalExperiment()}">
-                </mx:RadioButton>
-            </mx:AddChild>
-            <mx:SetProperty target="{radioYesBarcoding}" name="label" value="Samples tagged with Illumina multiplexing sequencing primers "/>
-            <mx:SetProperty target="{label13}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-            <mx:SetProperty target="{barcodeRadioBox}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-            <mx:SetProperty target="{barcodingNote}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-            <mx:SetProperty target="{radioNoBarcoding}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-			<mx:SetProperty target="{radioYesBarcoding}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-            <mx:SetEventHandler target="{radioYesBarcoding}" name="change" handler="pickRadioBarcoding()"/>
-			<mx:SetProperty target="{barcodeContainer}" name="visible" value="{parentApplication.isInternalExperimentSubmission}"/>
-			<mx:SetProperty target="{radioNoBarcoding}" name="selected" value="{!parentApplication.isInternalExperimentSubmission}"/>
-			<mx:SetProperty target="{radioYesBarcoding}" name="selected" value="{parentApplication.isInternalExperimentSubmission}"/>
         </mx:State>
         <mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
              <mx:AddChild relativeTo="{hbox4}" position="lastChild">
-                  <mx:Label text="(5) Select a Bioanalyzer Chip Type." width="340"/>
+				 <util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bioanalyzer Chip Type Help"
+								   label="(5) Select a Bioanalyzer Chip Type." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
              </mx:AddChild>
              <mx:AddChild relativeTo="{hbox5}" position="before">
                   <mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
                        <mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
-                       	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot;)}</mx:dataProvider>
+                       	<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot; &amp;&amp; @isActive == 'Y')}</mx:dataProvider>
                        	<mx:columns>
                        	    <mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
                        	        	width="20" 
@@ -1335,74 +1431,63 @@
              </mx:AddChild>
         </mx:State>
         <mx:State name="MicroarrayAmendState">
-             <mx:SetProperty target="{label7}" name="text">
+             <mx:SetProperty target="{label7}" name="label">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
              <mx:RemoveChild target="{hbox3}"/>
-             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
+             <mx:SetProperty target="{label8}" name="label" value="(1) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label2}" name="label" value="(3) Specify the nucleic acid extraction method. (required)."/>
              <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop"/>
         </mx:State>
         <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
              <mx:RemoveChild target="{hbox3}"/>
-             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
-             <mx:SetProperty target="{label7}" name="text">
+             <mx:SetProperty target="{label8}" name="label" value="(1) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label7}" name="label">
                   <mx:value>(2) Which organism is the source for these samples?</mx:value>
              </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
-             <mx:SetProperty target="{text1}" name="text">
+             <mx:SetProperty target="{label2}" name="label" value="(3) Specify the nucleic acid extraction method. (required)."/>
+             <mx:SetProperty target="{text1}" name="label">
                   <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
-             </mx:SetProperty>
-             <mx:SetProperty target="{label13}" name="text">
-                  <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
              </mx:SetProperty>
              <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop" value="38"/>
              <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="20"/>
              <mx:SetStyle target="{sampleOrganismContainer}" name="paddingTop" value="4"/>
         </mx:State>
         <mx:State name="SolexaAmendPreppedState" basedOn="SolexaSetupPreppedState">
-             <mx:RemoveChild target="{hbox3}"/>
-             <mx:SetProperty target="{label8}" name="text" value="(1) Which category best describes your samples?"/>
-             <mx:SetProperty target="{label7}" name="text">
-                  <mx:value>(2) Which organism is the source for these samples?</mx:value>
-             </mx:SetProperty>
-             <mx:SetProperty target="{label2}" name="text" value="(3) Specify the nucleic acid extraction method (optional)."/>
-             <mx:SetProperty target="{text1}" name="text">
-                  <mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
-             </mx:SetProperty>
-             <mx:SetProperty target="{label13}" name="text">
-                  <mx:value>(5) Should sequencing libraries be constructed with barcode tags for multiplexing capability?</mx:value>
-             </mx:SetProperty>
         </mx:State>
         <mx:State name="CapSeqState">
+			 <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
              <mx:RemoveChild target="{sampleOrganismContainer}"/>
              <mx:RemoveChild target="{samplePrepContainer}"/>
-             <mx:AddChild relativeTo="{hbox6}" position="before">
+             <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
                   <mx:HBox width="100%" horizontalGap="0">
-                       <mx:Label text="(2) The samples will be delivered in what container?" width="334"  id="label0"/>
+					  <util:ContextHelp context1="sampleDetailsSampleContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
+										label="(2) The samples will be delivered in what container?" labelPlacement="left" id="label0" width="334"/>
                        <mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE" change="{callLater(onContainerTypeChange)}"/>
                        <mx:RadioButton id="containerTypeTube" label="Tubes" value="TUBE" groupName="containerTypeRadioGroup"/>
                        <mx:RadioButton id="containerTypePlate" label="Plate" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
                   </mx:HBox>
              </mx:AddChild>
-			<mx:AddChild relativeTo="{hbox6}" position="before">
+			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" id="capSeqNumPlatesBox" verticalAlign="middle">
-					<mx:Label text="(3) If plates, how many plates will you be submitting?" width="334"  id="capSeqNumPlatesLabel" enabled="{containerTypePlate.selected}"/>
+					<util:ContextHelp context1="sampleDetailsNumPlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number Of Plates Help"
+									  label="(3) If plates, how many plates will you be submitting?" labelPlacement="left" id="capSeqNumPlatesLabel" width="334"/>
 					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup"  change="onCapSeqNumPlatesChanged()" />
 					<mx:RadioButton id="capSeqNumPlates1" label="1" value="1" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 					<mx:Spacer width="20"/>
 					<mx:RadioButton id="capSeqNumPlates4" label="4" value="4" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox6}" position="before">
+			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:Label id="fourPlateWarningLabel" visible="false" includeInLayout="false" color="Green"
 						  text="With Bulk pricing you ARE paying for the empty wells, so it is in your best interest to have the max 95 samples per plate to get the best pricing possible." />
 			</mx:AddChild>
-             <mx:SetProperty target="{label8}" name="text" value="(4) Which category best describes your samples?"/>
+             <mx:SetProperty target="{label8}" name="label" value="(4) Which category best describes your samples?"/>
              <mx:SetEventHandler target="{numberOfSamples}" name="change" handler="pickContainerType();"/>
              <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
                   <mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
-                  	<mx:Label text="(5) Where are you dropping off your samples?" width="334" id="sampleDropOffLocationLabel"/>
+			  		<util:ContextHelp context1="sampleDetailsDropOff" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Drop Off Help"
+									  label="(5) Where are you dropping off your samples?" labelPlacement="left" id="sampleDropOffLocationLabel" width="334"/>
                   	<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
                   				 change="parentDocument.samplesView.initializeSamplesGrid();" 
 								 dataProvider="{parentDocument.filteredSampleDropOffLocationList}" 
@@ -1412,13 +1497,14 @@
              </mx:AddChild>
         </mx:State>
 	   <mx:State name="FragAnalState">
+		   <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
-		   <mx:RemoveChild target="{label8}"/>
-		   <mx:RemoveChild target="{sampleTypeCombo}"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
-				   <mx:Label text="(2) Choose the Assays to be used." width="310"  id="labelAssayHeader"/>
+				   <util:ContextHelp context1="sampleDetailsAssays" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Assays Help"
+									 label="(2) Choose the Assays to be used." labelPlacement="left" id="labelAssayHeader" width="310"/>
 				   <mx:Tile id="assayTile" direction="vertical" borderStyle="none"
 							paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
 							verticalGap="0" horizontalGap="0" tileWidth="200"> 
@@ -1429,14 +1515,60 @@
 			   </mx:VBox>
 		   </mx:AddChild>
 	   </mx:State>
+	   <mx:State name="IsolationState" basedOn="SequenomState">
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
+		   <mx:RemoveChild target="{hbox7}"/>
+		   <mx:RemoveChild target="{hbox0}"/>
+		   <mx:RemoveChild target="{hbox9}"/>
+		   <mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
+		   	<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="middle" width="100%">
+				<util:ContextHelp context1="sampleDetailsIsolationMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Isolation Method Help"
+								  label="(2) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="334"/>
+			   	<mx:RadioButtonGroup id = "isolationTypeRadioGroup" />       	
+			   	<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox">
+			   	 <mx:Repeater id="isolationTypeRepeater" dataProvider="{parentDocument.isolationTypeList}">
+			   	  <mx:RadioButton id="isolationTypeBtn" groupName="isolationTypeRadioGroup" 
+			   	  	   label="{isolationTypeRepeater.currentItem.@display}" 
+			   	  	   value="{isolationTypeRepeater.currentItem.@value}" 
+			   	  	   click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+			   	  	   width="250" />							
+			   	 </mx:Repeater>
+			   	 <mx:RadioButton id="isolationTypeNull" groupName="isolationTypeRadioGroup" 
+			   	 	   label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
+			   	</mx:VBox>
+		   	</mx:HBox>
+		   </mx:AddChild>
+		   <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
+		  <mx:RemoveChild target="{sequenomContainerTypePlate}"/>
+		  <mx:RemoveChild target="{sequenomPlateNamesBox}"/>
+		  <mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
+		  <mx:RemoveChild target="{hbox8}"/>
+		  <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+		  	<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle" width="100%">
+				<util:ContextHelp context1="sampleDetailsSampleSource" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Source Help"
+								  label="(3) Select the sample source." labelPlacement="left" id="sampleSourceLabel" width="334"/>
+			  	<mx:RadioButtonGroup id = "isolationTypeRadioGroup0" />       	
+			  	<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox0">
+			  	 <mx:Repeater id="isolationTypeRepeater0" dataProvider="{parentDocument.isolationTypeList}">
+			  	 </mx:Repeater>
+			  	 <mx:RadioButton id="isolationTypeNull0" groupName="isolationTypeRadioGroup" 
+			  	 	   label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
+			  	</mx:VBox>
+			  	<mx:ComboBox labelField="@display" width="245" id="sampleSourceCombo"
+			  				 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleSource').DictionaryEntry}"
+			  				 change="{onSampleSourceChanged()}"/>
+		  	</mx:HBox>
+		  </mx:AddChild>
+	   </mx:State>
 	   <mx:State name="MitSeqState">
+		   <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
-		   <mx:RemoveChild target="{label8}"/>
-		   <mx:RemoveChild target="{sampleTypeCombo}"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:VBox width="100%" horizontalGap="0">
-				   <mx:Label text="(2) Choose the Primers to be used." width="310"  id="labelPrimerHeader"/>
+				   <util:ContextHelp context1="sampleDetailsPrimers" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Primers Help"
+									 label="(2) Choose the Primers to be used." labelPlacement="left" id="labelPrimerHeader" width="310"/>
 				   <mx:HBox width="100%" horizontalGap="5">
 					   <mx:VBox>
 						   <mx:Label text="Primer 1" id="labelPrimer1"/>
@@ -1487,28 +1619,30 @@
 	   <mx:State name="CherryPickState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
-		   <mx:RemoveChild target="{label8}"/>
-		   <mx:RemoveChild target="{sampleTypeCombo}"/>
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
 		   <mx:RemoveChild target="{hbox3}"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:HBox width="100%" horizontalGap="0">
-				   <mx:Label text="(1) How many wells does the destination plate contain?" width="334"  id="cherryNumDestinationWells"/>
+				   <util:ContextHelp context1="sampleDetailsDestinationWells" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Destination Wells Help"
+									 label="(1) How many wells does the destination plate contain?" labelPlacement="left" id="cherryNumDestinationWells" width="334"/>
 				   <mx:RadioButtonGroup id="cherryNumDestinationWellsRadioGroup" change="parentDocument.samples.removeAll();parentDocument.samplesView.initializeSamplesGrid()"/>
 				   <mx:RadioButton id="cherryNumDestinationWells96" label="96" click="{callLater(checkSampleSetupCompleteness)}" value="96" groupName="cherryNumDestinationWellsRadioGroup"/>
 				   <mx:RadioButton id="cherryNumDestinationWells384" label="384" click="{callLater(checkSampleSetupCompleteness)}" value="384" groupName="cherryNumDestinationWellsRadioGroup"/>
 			   </mx:HBox>
 		   </mx:AddChild>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:HBox horizontalGap="0" id="cherryNumSourcePlatesBox" verticalAlign="middle">
-				   <mx:Label text="(2) How many source plates will you be submitting?" width="334"  id="cherryNumSourcePlatesLabel"/>
+				   <util:ContextHelp context1="sampleDetailsNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Source Plates Help"
+									 label="(2) How many source plates will you be submitting?" labelPlacement="left" id="cherryNumSourcePlatesLabel" width="334"/>
 				   <mx:TextInput width="40" id="cherryNumSourcePlates" 
 								 change="onCherryNumSourcePlatesChanged()">
 				   </mx:TextInput>							
 			   </mx:HBox>
 		   </mx:AddChild>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:VBox horizontalGap="0" id="cherryPlateNamesBox" verticalAlign="middle">
-				   <mx:Label text="(3) Name your plates." width="334"/>
+				   <util:ContextHelp context1="sampleDetailsPlateNames" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Plate Names Help"
+									 label="(3) Name your plates." labelPlacement="left" id="plateNamesLabel" width="334"/>
 				   <mx:HBox horizontalGap="10" verticalAlign="middle">
 					   	<mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate1Box" visible="false">
 							<mx:Label text="Plate 1:"/>
@@ -1579,11 +1713,10 @@
 	   <mx:State name="IScanState">
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
-		   <mx:RemoveChild target="{label8}"/>
-		   <mx:RemoveChild target="{sampleTypeCombo}"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
-				   <mx:Label text="(1) Select the desired chip:" width="334"  id="label10"/>
+				   <util:ContextHelp context1="sampleDetailsIScanChip" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Chip Help"
+									 label="(1) Select the desired chip:" labelPlacement="left" id="iscanChipLabel" width="334"/>
 				   <mx:VBox verticalGap="0" id="iScanChipBox" styleName="requiredBox">
 					   <mx:HBox width="100%" paddingBottom="5">
 						   <mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
@@ -1623,22 +1756,24 @@
 				   </mx:VBox>
 			   </mx:HBox>
 		   </mx:AddChild>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before" target="{hbox3}"/>
-		   <mx:SetProperty target="{label5}" name="text" value="(2) How many samples will you be submitting?"/>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before" target="{hbox3}"/>
+		   <mx:SetProperty target="{label5}" name="label" value="(2) How many samples will you be submitting?"/>
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(3) How many source plates will you be submitting?" width="334"  id="iScanNumSourcePlatesLabel"/>
+				   <util:ContextHelp context1="SampleDetailsIScanNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Source Plates Help"
+									 label="(3) How many source plates will you be submitting?" labelPlacement="left" id="iScanNumSourcePlatesLabel" width="334"/>
 				   <mx:TextInput width="40" id="iScanNumSourcePlates" 
 								 change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();">
 				   </mx:TextInput>							
 			   </mx:HBox>
 		   </mx:AddChild>
-		   <mx:AddChild relativeTo="{hbox6}" position="before">
+		   <mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 			   <mx:VBox horizontalGap="0" id="iScanPlateNamesBox" verticalAlign="middle" visible="{parentDocument.request.@idRequest == '0'}" includeInLayout="{parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(4) Name your plates." width="334"/>
+				   <util:ContextHelp context1="SampleDetailsIScanNamePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Plate Names Help"
+									 label="(4) Name your plates." labelPlacement="left" id="iScanPlateNamesLabel" width="334"/>
 				   <mx:HBox horizontalGap="10" verticalAlign="middle">
 					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate1Box" visible="false">
 						   <mx:Label text="Plate 1:"/>
@@ -1705,6 +1840,7 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
 		   <mx:AddChild relativeTo="{numberOfSamples}" position="before">
 			   <renderers:FilterComboBoxNumberIScanSamples id="numberIScanSamples"
 														   enabled="{parentDocument.request.@idRequest == '0' || parentDocument.request.@codeRequestStatus == 'NEW'}"
@@ -1722,10 +1858,11 @@
 		   <mx:AddChild relativeTo="{iScanNumSourcePlatesBox}" position="before">
 		   	<mx:HBox horizontalGap="0" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}" 
 					 visible="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}">
-		   	 <mx:Label text="(3) Quote number" width="334"  id="quoteNumberLabel"/>
-		   	 <mx:TextInput width="200" id="quoteNumber" text="{parentDocument.request.@materialQuoteNumber}"
-		   	 	 change="{parentDocument.request.@materialQuoteNumber = this.quoteNumber.text}" >
-		   	 </mx:TextInput>							
+				<util:ContextHelp context1="SampleDetailsIScanQuoteNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Quote Number Help"
+								  label="(3) Quote number" labelPlacement="left" id="quoteNumberLabel" width="334"/>
+			   	 <mx:TextInput width="200" id="quoteNumber" text="{parentDocument.request.@materialQuoteNumber}"
+			   	 	 change="{parentDocument.request.@materialQuoteNumber = this.quoteNumber.text}" >
+			   	 </mx:TextInput>							
 		   	</mx:HBox>
 		   </mx:AddChild>
 		   
@@ -1735,29 +1872,38 @@
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox7">
-				   <mx:Text text="(1) Select an application." width="334" id="labelSeqApplication"/>
-				   <mx:VBox height="100%" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
-					   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
-					   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
-						   <mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
-											paddingLeft="1" paddingRight="1"
-											value="{seqAppRepeater.currentItem.@value}"
-											groupName="radioGroupSeqApp"
-											click="{pickSequenomApp()}"/>
-					   </mx:Repeater>
+				   <util:ContextHelp context1="SampleDetailsSequenomSeqApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Application Help"
+									 label="(1) Select an application." labelPlacement="left" id="labelSeqApplication" width="334"/>
+				   <mx:VBox verticalGap="2" id="appAndPanelContainerVBox">
+					   <mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
+						   <mx:RadioButtonGroup id="radioGroupSeqApp"/>
+						   <mx:Repeater id="seqAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
+							   <mx:HBox verticalAlign="middle">
+								   <mx:RadioButton  label="{seqAppRepeater.currentItem.@display}" 
+													paddingLeft="1" paddingRight="1"
+													value="{seqAppRepeater.currentItem.@value}"
+													groupName="radioGroupSeqApp"
+													click="{pickSequenomApp()}"
+													width="200"/>
+								   <mx:Label text="{seqAppRepeater.currentItem.@samplesPerBatch != '' ? seqAppRepeater.currentItem.@samplesPerBatch + ' samples/batch' : ''}" />
+							   </mx:HBox>
+						   </mx:Repeater>
+					   </mx:VBox>
+					   <mx:HBox id="sequenomPanelContainer" width="400" verticalAlign="middle" paddingBottom="5" >
+						   <mx:Spacer width="22"/>
+						   <mx:Label text="Please specify" id="seqPanelLabel"/>
+						   <mx:TextInput width="100%" id="sequenomApplicationDesc" styleName="requiredBox" focusOut="onAppDescChanged()" />
+					   </mx:HBox>
 				   </mx:VBox>
-				   <mx:HBox id="sequenomPanelContainer" height="100%" width="400" horizontalGap="0" verticalAlign="bottom" paddingBottom="5">
-					   <mx:Label text="Please specify" id="seqPanelLabel"/>
-					   <mx:TextInput width="100%" id="sequenomApplicationDesc" styleName="requiredBox" focusOut="onAppDescChanged()" />
-				   </mx:HBox>
 			   </mx:HBox>
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild" target="{hbox3}"/>
-		   <mx:SetProperty target="{label5}" name="text" value="(4) How many samples will you be submitting?"/>
+		   <mx:SetProperty target="{label5}" name="label" value="(4) How many samples will you be submitting?"/>
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox8">
-				   <mx:Label text="(5) The samples will be delivered in what container?" width="334"  id="seqContLabel"/>
+				   <util:ContextHelp context1="SampleDetailsSequenomContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
+									 label="(5) The samples will be delivered in what container?" labelPlacement="left" id="seqContLabel" width="334"/>
 				   <mx:RadioButtonGroup id="sequenomContainerTypeRadioGrp" selectedValue="TUBE" change="{callLater(onSequenomContainerTypeChange)}"/>
 				   <mx:RadioButton id="sequenomContainerTypeTube" label="Tubes" value="TUBE" groupName="sequenomContainerTypeRadioGrp"/>
 				   <mx:RadioButton id="sequenomContainerTypePlate" label="Plates" value="PLATE" groupName="sequenomContainerTypeRadioGrp" paddingLeft="20"/>
@@ -1767,7 +1913,8 @@
 			   <mx:HBox horizontalGap="0" id="sequenomNumSourcePlatesBox" verticalAlign="middle" 
 						includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(6) How many source plates will you be submitting?" width="334"  id="sequenomNumSourcePlatesLabel"/>
+				   <util:ContextHelp context1="SampleDetailsSequenomNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Source Plates Help"
+									 label="(6) How many source plates will you be submitting?" labelPlacement="left" id="sequenomNumSourcePlatesLabel" width="334"/>
 				   <mx:TextInput width="40" id="sequenomNumSourcePlates" 
 								 change="onSequenomNumSourcePlatesChanged()" 
 								 focusOut="onNumberOfSamplesChanged()">
@@ -1778,7 +1925,8 @@
 			   <mx:VBox horizontalGap="0" id="sequenomPlateNamesBox" verticalAlign="middle" 
 						visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
-				   <mx:Label text="(7) Name your plates." width="334"/>
+				   <util:ContextHelp context1="SampleDetailsSequenomPlateNames" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Plate Name Help"
+									 label="(7) Name your plates." labelPlacement="left" id="sequenomPlateNameLabel" width="334"/>
 				   <mx:HBox horizontalGap="10" verticalAlign="middle">
 					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="sequenomPlate1Box" visible="false">
 						   <mx:Label text="Plate 1:"/>
@@ -1847,22 +1995,42 @@
 		   </mx:AddChild>
 		   <mx:AddChild relativeTo="{hbox3}" position="before">
 		   	<mx:HBox horizontalGap="0" id="hbox0" verticalAlign="middle">
-		   		<mx:Label text="(2) Would you like the core facility to extract the DNA?" width="334"  id="label1"/>
-				<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%"/>					
+				<util:ContextHelp context1="SampleDetailsSequenomDNAExtract" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="DNA Extraction Help"
+								  label="(2) Would you like the core facility to extract the DNA?" labelPlacement="left" id="sequenomDNAExtractLabel" width="334"/>
+				<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9"/>		
+				<mx:Label text="DNA prep type?" paddingRight="9"
+						  visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}" id="label11"/>	
+				<mx:ComboBox labelField="@display" width="245" id="dnaPrepTypeCombo"
+							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
+							 change="{onDNAPrepTypeChanged()}"
+							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>		
+			</mx:HBox>
+		   </mx:AddChild>
+		   <mx:AddChild relativeTo="{hbox3}" position="before">
+			   <mx:HBox horizontalGap="0"  verticalAlign="middle" id="bisulfideConversionBox">
+				   <util:ContextHelp context1="SampleDetailsSequenomBisulfideConversion" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bisulfide Conversion Help"
+									 label="     Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="334"/>
+				   <mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
+			   </mx:HBox>
+		   </mx:AddChild>
+		   <mx:RemoveChild target="{sampleTypeHBox}"/>
+		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
+		   <mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
+		   <mx:AddChild relativeTo="{hbox3}" position="lastChild">
+		   	<mx:HBox width="100%" id="hbox9">
+				<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 		   	</mx:HBox>
 		   </mx:AddChild>
-		   <mx:RemoveChild target="{hbox6}"/>
-		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{hbox6}"/>
-		   <mx:SetProperty target="{label8}" name="text" value="(3) Which category best describes your samples?"/>
+		   <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="5"/>
+		   
 	   </mx:State>
 	   <mx:State name="ClinicalSequenomState" basedOn="SequenomState">
-	   	<mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
-	   	<mx:AddChild relativeTo="{hbox7}" position="lastChild">
-	   		<mx:Text text="{parentDocument.applicationName}" 
+		   <mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
+		   <mx:AddChild relativeTo="{hbox7}" position="lastChild">
+			   <mx:Text text="{parentDocument.applicationName}" 
 					 id="seqApplicationText"/>
 	   	</mx:AddChild>
-	   	<mx:RemoveChild target="{seqAppBox}"/>
-	   	<mx:RemoveChild target="{sequenomPanelContainer}"/>
+	   	<mx:RemoveChild target="{appAndPanelContainerVBox}"/>
 	   	<mx:RemoveChild target="{hbox8}"/>
 	   	<mx:RemoveChild target="{sequenomNumSourcePlatesBox}"/>
 	   	<mx:RemoveChild target="{sequenomPlateNamesBox}"/>

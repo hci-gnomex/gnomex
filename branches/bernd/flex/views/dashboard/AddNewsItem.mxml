@@ -2,22 +2,22 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
 				layout="vertical" horizontalAlign="right" verticalGap="10"  creationPolicy="all" 
-				title="News Item Manager - New Item" styleName="loginWindow"
-				borderThickness="4"  titleStyleName="loginTitleStyle" height="725" width="725">	
-
-    <mx:HTTPService 
-	    id="saveNewsItem"	 
+				title="Add News Item" creationComplete="init()" 
+				borderThickness="4" height="400" width="400" verticalScrollPolicy="off" horizontalScrollPolicy="off">	
+	
+	<mx:HTTPService 
+		id="saveNewsItem"	 
 		destination="saveNewsItem"
-	    url="SaveNewsItem.gx"
-	    resultFormat="e4x"
-	    result="onSaveNewsItem(event)"
-	    fault="parentApplication.onFailHttpRequest('Save Newsitem Failed', event)"
-	    showBusyCursor="true"
-	    useProxy="false">
-    </mx:HTTPService> 	
-
-    <mx:Script>            
-        <![CDATA[
+		url="SaveNewsItem.gx"
+		resultFormat="e4x"
+		result="onSaveNewsItem(event)"
+		fault="parentApplication.onFailHttpRequest('Save Newsitem Failed', event)"
+		showBusyCursor="true"
+		useProxy="false">
+	</mx:HTTPService> 	
+	
+	<mx:Script>            
+		<![CDATA[
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -32,12 +32,6 @@
 			import mx.utils.ArrayUtil;
 			
 			import views.util.WelcomeView;
-
-			[Bindable]
-			public var CFS:String; // CoreFacilitySender
-			
-			[Bindable]
-			public var CFT:String; // CoreFacilityTarget
 			
 			[Bindable]
 			public var itemTitle:String; // Title
@@ -54,13 +48,17 @@
 			[Bindable]
 			public var idAppUser:int; // User ID 
 			
+			[Bindable]
+			private var coreFacilities:XMLListCollection = new XMLListCollection();
+			
+			public var newsParent:News;
+			
 			public function init():void {
-				
-				if(coreFacilities.length < 2){
-					CFT = coreFacilities.getItemAt(0).@idCoreFacility;
-				}else{
-					CFT = cfSelector.selectedItem.@idCoreFacility;
-				}
+				coreFacilities = new XMLListCollection(new XMLList(parentApplication.coreFacilitiesICanManage));
+				var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
+				coreFacilities.addItemAt(allFacilities, 0);
+				coreFacilities.refresh();
+				cfSelector.selectedIndex = 0;
 				
 			}
 			
@@ -69,33 +67,20 @@
 					Alert.show("Length of the news item title and message cannot exceed 2000 characters.");
 					return;
 				}else{
-					if(coreFacilities.length < 2){
-						CFT = coreFacilities.getItemAt(0).@idCoreFacility;
-					}else{
-						CFT = cfSelector.selectedItem.@idCoreFacility;
-					}
-					
 					var params:Object = new Object();
 					params.idNewsItem = idNewsItem;
 					params.title = titleInput.text;
 					params.message = messageInput.text;
 					params.idAppUser = parentApplication.getIdAppUser();
-					params.CFT = CFT;
-					params.CFS = "1";
+					params.idCoreFacility = cfSelector.selectedItem.@idCoreFacility;
 					saveNewsItem.send(params);
 					PopUpManager.removePopUp(this);
 				}
 			}
 			
-			protected function corefacilityFilter_changeHandler(event:ListEvent):void
-			{
-				CFT = cfSelector.selectedItem.@idCoreFacility; 
-			}
-			
 			private function onSaveNewsItem(event:ResultEvent):void {
 				if (saveNewsItem.lastResult.name() == "SUCCESS") {
-					// Success.
-					saveButton.dispatchEvent(new Event("testEvent",true, false));
+					newsParent.getNewsItem.send();
 				}else{
 					Alert.show("Error in saving newsitem.");
 				}
@@ -105,27 +90,24 @@
 				PopUpManager.removePopUp(this);
 			}
 		]]>
-    </mx:Script>   
-	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
+	</mx:Script>   
 	
-	<mx:VBox styleName="form" width="90%" height="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20">
+	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox>
-	  		<mx:Label fontWeight="bold" text="Title: "/>
-	  		<mx:TextInput id="titleInput" text="{itemTitle}" width="633" />
+			<mx:Label fontWeight="bold" text="Title: " paddingRight="45"/>
+			<mx:TextInput id="titleInput" text="{itemTitle}" width="{cfSelector.width}"/>
 		</mx:HBox>
-		<mx:HBox>
-			<mx:Label fontWeight="bold" text="Recipient Core Facility: "/>
-			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="0" /> 
-			<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(0).@display}" visible="{coreFacilities.length &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length &lt; 2 ? true : false}" />
+		<mx:HBox includeInLayout="true" visible="true">
+			<mx:Label fontWeight="bold" text="Intended For: "/>
+			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" selectedIndex="0" /> 
 		</mx:HBox>
-
-		<mx:Label fontWeight="bold" text="Message: "/>
-		<mx:TextArea id="messageInput" text="{message}" width="100%" height="535"/>
 		
-		<mx:HBox width="100%">
-			<mx:Button id="cancelButton" label="Cancel" click="cancelNewsItem()" />
-			<mx:Spacer width="100%"/>
+		<mx:Label fontWeight="bold" text="Message: "/>
+		<mx:TextArea id="messageInput" text="{message}" width="100%" height="100%"/>
+		
+		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{titleInput.text != '' &amp;&amp; messageInput.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button id="cancelButton" label="Cancel" click="cancelNewsItem()" />
 		</mx:HBox>
 	</mx:VBox>
 </mx:TitleWindow>

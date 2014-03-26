@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="824" 
 				xmlns:util="views.util.*"
 				height="408" creationPolicy="all"
+				creationComplete="centerMe()"
 				showCloseButton="true"
 				close="xClose(event);" 
 				title="{'Upload Files for Analysis ' + this.analysis.@number}"  xmlns:controls="hci.flex.controls.*">
@@ -78,6 +79,7 @@
       import mx.rpc.events.ResultEvent;
       
       import views.util.MultiFileUpload;
+      import views.util.ResizableTitleWindow;
 			
 			[Bindable]
 			private var analysis:Object;
@@ -97,7 +99,11 @@
 			
 			private var isInitialized:Boolean = false;
 			
-			
+			// ResizableTitleWindow needs to be posistioned after it is created
+			public function centerMe():void
+			{
+				PopUpManager.centerPopUp(this);
+			}
 			
 			public function init(analysis:Object):void {
 				this.analysis = analysis;
@@ -237,6 +243,16 @@
 		            	if (count>=maxFiles){
 		              	break;
           		 		}
+					}
+				}
+			}
+			
+			private function collapseDownloadTree():void {
+				if (downloadTree != null) {
+					downloadTree.expandItem(downloadList.getItemAt(0),true); 
+					for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+						downloadTree.expandItem(a,false);
+						
 					}
 				}
 			}
@@ -548,7 +564,6 @@
 						} else {
 							dropFolderNode.appendChild(fileNode);
 						}
-						downloadTree.expandItem(dropFolderNode, true);
 						
 						// We have to manually remove the file when we are
 						// dragging within the download tree.
@@ -690,8 +705,6 @@
 	<mx:XMLListCollection id="filesToRemove"/>
 	
 	<mx:Canvas width="100%" height="100%">
-		<mx:TextArea width="594" height="20" 
-					 styleName="instructionBox" visible="{theTab.selectedIndex == 1}" text="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." right="0"/>
 		<mx:TabNavigator id="theTab" change="onTabChange()" width="100%" paddingTop="0" height="100%" styleName="form">
 			<mx:VBox label="Upload files" width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 				<mx:ViewStack id="uploadFilesStack" width="100%" height="100%">
@@ -720,11 +733,15 @@
 				</mx:ViewStack>
 			</mx:VBox>
 			<mx:VBox width="100%" height="100%" label="Organize files"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
-				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0">
+				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0" verticalAlign="middle">
 					<mx:LinkButton id="newFolderButton" label="New folder"  enabled="false" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create folder"  textDecoration="underline" click="showAddFolderWindow()" paddingLeft="0"/>
 					<mx:LinkButton id="removeFileButton" label="Remove (from file system)"  enabled="{filesGrid.selectedItem != null || (this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0)}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove file"  textDecoration="underline" click="removeAnalysisFile()" paddingLeft="0"/>
 					<mx:LinkButton id="renameFileButton" label="Rename file" textDecoration="underline" click="renameFile(event)" enabled="{this.downloadTree.selectedItem != null &amp;&amp; this.downloadTree.selectedIndex != 0 &amp;&amp; this.downloadTree.selectedItems.length == 1}" toolTip="Rename selected file or folder" icon="@Embed(source='../../assets/segment_import.png')"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
+					<mx:Spacer width="100%"/>
+					<mx:Image source="assets/information.png" 
+							  click="{Alert.show('Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting.')}"
+							  toolTip="Drag uploaded file into one of the folders on the right.  To drag multiple files, hold CTRL or SHIFT key while selecting." />
 					
 				</mx:HBox>
 				
@@ -764,7 +781,11 @@
 								 dragEnter="doDragEnter(event)"
 								 dragExit="doDragExit(event)"
 								 itemClick="{this.filesGrid.selectedItem = null;}">						
-						</mx:Tree>		
+						</mx:Tree>	
+						<mx:HBox>
+							<mx:LinkButton label="Expand Folders" click="{this.expandDownloadTree()}" textDecoration="underline" />
+							<mx:LinkButton label="Collapse Folders" click="{this.collapseDownloadTree()}" textDecoration="underline" />
+						</mx:HBox>
 					</mx:VBox>
 				</mx:HDividedBox>
 			</mx:VBox>
@@ -794,4 +815,4 @@
 		</mx:ViewStack>
 	</mx:ControlBar>
 	
-</mx:TitleWindow>
+</util:ResizableTitleWindow>

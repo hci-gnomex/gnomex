@@ -18,10 +18,6 @@ package views.renderers
           var g:Graphics = graphics;
           g.clear();
           g.beginFill( !parentDocument.parentDocument.isEditState() && data.@barcodeSequence == '' ? RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND : 0xffffff );
-          if (!parentDocument.parentDocument.isEditState() && data.@barcodeSequence == '') {
-	          g.lineStyle(RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS,
-	                      RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER );          	
-          }
           g.drawRect(0,0,unscaledWidth,unscaledHeight);
           g.endFill();
 

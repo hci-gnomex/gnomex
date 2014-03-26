@@ -23,6 +23,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.net.URLRequest;
 			import mx.controls.Alert;
 			import mx.controls.listClasses.ListBase;
 			import mx.core.DragSource;
@@ -435,6 +436,12 @@
 				}
 			}
 			
+			private function showDownloadHelp():void {
+				var helpURL:String = parentApplication.getProperty(parentApplication.PROPERTY_FDT_HELP_URL);
+				var urlRequest:URLRequest = new URLRequest(helpURL);				
+				navigateToURL(urlRequest);
+			}
+			
 		]]>
 	</mx:Script>	
 	
@@ -520,11 +527,13 @@
 		</mx:VBox>
 	</mx:Canvas>
 	<mx:ControlBar width="100%">
+		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Troubleshooting Guide, Important info about Chrome Browser!"
+					   click="{showDownloadHelp()}"
+					   color="#1453E2" fontStyle="italic" fontWeight="bold"
+					   textDecoration="underline"/>
 		
 		<mx:HBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="right">
-			<mx:LinkButton label="Upload and Download Help" 
-						   click="parentApplication.showUploadDownloadHints()" 
-						   id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
 			<mx:Spacer width="100%"/>
 			<mx:Button id="downloadExpandedFilesButton" 
 					   enabled="{filesToDownload.length>0}"
@@ -533,8 +542,8 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtDownload" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownload" 
+					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" 
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))" 
 					   label="FDT Download"  

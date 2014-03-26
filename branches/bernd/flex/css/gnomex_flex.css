@@ -431,6 +431,14 @@ TextArea {
 	fontWeight: normal;	
 	fontSize: 10;
 }
+.selectedLabel
+{
+	backgroundColor: #ace788;
+	backgroundAlpha: 0.80;
+	fontWeight: bold;
+	fontSize: 11;
+	
+}
 .navTabNavigator {
 	
 	backgroundAlpha:            1.0;
@@ -933,6 +941,38 @@ MenuBar.linkMenuBar1
 	color: #6A5858;
 	textDecoration: underline;
 }
+
+MenuBar.topMenuBar {	
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #000000;
+	menuStyleName: topMenuItem;
+	fontSize: 13;
+	fontWeight: normal;
+	highlightAlphas: .25, .9;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
+	borderColor: #FFFFFF;
+	menuStyleName: topMenuItem;
+}
+
+
+.topMenuItem {
+	backgroundAlpha: 0;
+	borderColor: #FDFDFD;
+	fillAlphas: 1, 1;
+	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
+	color: #2E2D2C;
+	fontSize: 13;
+	disabledColor: #ACE2F2;
+	errorColor: #ACE2F2;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	highlightAlphas: 0,0;
+}	
+
 .titleWindowStatus
 {
 }
@@ -991,4 +1031,32 @@ HRule
 {
 	strokeColor: #D7D5D1;
 	strokeWidth: 1;
+}
+.confirmHeaderLabel {
+	fontStyle: underline;
+	fontWeight: bold;
+}
+.contextHelpEditNoContentIcon {
+	icon: Embed(source='../assets/white_information.png');
+}
+.contextHelpNoContentIcon {
+	icon: Embed(source='../assets/empty.png');
+	disabledColor: #2E2D2C; 
+	selectionColor: #2E2D2C;
+	textRollOverColor: #2E2D2C;
+	textSelectedColor: #2E2D2C;
+	color: #2E2D2C;
+}
+.contextHelpNoIcon {
+	disabledColor: #2E2D2C; 
+	selectionColor: #2E2D2C;
+	textRollOverColor: #2E2D2C;
+	textSelectedColor: #2E2D2C;
+	color: #2E2D2C;
+}
+.contextHelpIcon {
+	icon: Embed(source='../assets/information.png');
+}
+.contextHelpView {
+	backgroundColor: #FFFEC3;
 }

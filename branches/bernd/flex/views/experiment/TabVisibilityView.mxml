@@ -34,6 +34,7 @@
 		import mx.controls.Spacer;
 		import mx.events.ListEvent;
 		import mx.rpc.events.ResultEvent;
+		import mx.utils.StringUtil;
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
 		import views.util.DateUtils;
@@ -51,26 +52,25 @@
 		private var possibleCollaborators:XMLListCollection;
 
 		[Bindable]
+		private var collaborators:XMLListCollection;
+		
+		[Bindable]
 		private var possibleInstitutions:PromptXMLListCollection;
 
 		public function init():void {
 			checkSecurity();
-			if (this.currentState == "EditState") {
+			if(this.currentState == "EditState") {
 				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
-				this.privacyExpirationPicker.text = parentDocument.request.@privacyExpirationDate;
-			} else {
+			}else {
 				if(parentDocument.request.@codeVisibility != null && parentDocument.request.@codeVisibility != '') {
 					this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
 				} else {
 					this.visibilityRadioGroup.selectedValue = 'MEM';
-				}
-				
-				if(parentApplication.isPrivacyExpirationSupported) {
-					var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
-					privacyExpirationPicker.text = parentApplication.formatDate(expireDate);
-				}
+				}				
 			}
-			this.collaboratorCombo.selectedItem = null;
+			setDefaultPrivacyExpirationDate();
+			setPrivacyExpirationPickerEditable();
+			
 			this.institutionCombo.selectedItem = null;
 			checkVisibilitySetupCompleteness();
 			
@@ -96,8 +96,8 @@
 				    " displayName=''"  +
 					"/>");
 				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				collaboratorGrid.dataProvider = null;
 				possibleCollaborators = new XMLListCollection(lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
-				possibleCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 				if (this.idInstitution != null && this.idInstitution != '') {
@@ -125,6 +125,26 @@
 						this.institutionCombo.selectedIndex = 0;
 					}	
 				}
+				
+				collaborators = new XMLListCollection();
+				for each (var old:XML in possibleCollaborators) {
+					var o:XML = old.copy();
+					o.@canView = "N";
+					o.@canUpdate = "N";
+					o.@canUploadData = "N";
+					for each (var o1:XML in parentDocument.request.collaborators.ExperimentCollaborator) {
+						if (o1.@idAppUser == o.@idAppUser) {
+							o.@canView = "Y";
+							o.@canUpdate = o1.@canUpdate;
+							o.@canUploadData = o1.@canUploadData;
+							break;
+						}
+					}
+					collaborators.addItem(o);
+				}
+				
+				collaboratorGrid.dataProvider = collaborators;
+				collaboratorGrid.validateNow();
 				checkVisibilitySetupCompleteness();
 			}
 		}
@@ -155,33 +175,74 @@
     		return isComplete;
     	    	
         }
-        
-		private function addCollaborator():void {
-			parentDocument.dirty.setDirty();
-			var node:XML = new XML("<ExperimentCollaborator " +
-			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
-				"/>");
-			this.collaborators.addItem(node);
+		
+		public function getCollaborators():XMLListCollection {
+			var list:XMLListCollection = new XMLListCollection();
+			for each (var c:XML in collaborators) {
+				if (c.@canView == "Y") {
+					var c1:XML = XML("<ExperimentCollaborator></ExperimentCollaborator>");
+					c1.@idAppUser = c.@idAppUser;
+					c1.@displayName = c.@displayName;
+					c1.@canUpdate = c.hasOwnProperty("@canUpdate") ? c.@canUpdate : "N";
+					c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
+					list.addItem(c1);
+				}
+			}
+			return list;
 		}
 		
-		private function removeCollaborator():void {
-			parentDocument.dirty.setDirty();
-			if (collaboratorGrid.selectedIndex != -1) {
-				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
+		private function toggleCheck(event:ListEvent):void {
+			if (event.columnIndex == 1 ) {
+				
+				if (collaboratorGrid.selectedItem.@canView == "Y") {
+					collaboratorGrid.selectedItem.@canView = "N";
+				} else {
+					collaboratorGrid.selectedItem.@canView = "Y";
+				}
+				
+			}
+			if (collaboratorGrid.selectedItem.@canView == "N") {
+				collaboratorGrid.selectedItem.@canUploadData = "N";
+				collaboratorGrid.selectedItem.@canUpdate = "N";
+			}
+			
+		}
+		
+		private function setDefaultPrivacyExpirationDate():void {
+			if(parentApplication.isPrivacyExpirationSupported){
+				if(visibilityRadioGroup.selectedValue == "PUBLIC") {
+					this.privacyExpirationPicker.selectedDate = new Date(); // this request will become public today
+				} else { // if the request has a default set use it
+					if(parentDocument.request.@privacyExpirationDate != null && parentDocument.request.@privacyExpirationDate != "") {
+						var tempDate:Array = (parentDocument.request.@privacyExpirationDate).split("-");					
+						this.privacyExpirationPicker.selectedDate = new Date(tempDate[1] + "/" + tempDate[0] + "/" + tempDate[2]);
+					} else { // otherwise don't modify it by setting a default
+						this.privacyExpirationPicker.selectedDate = null;
+					}
+				}
+			}
+		}
+		
+		private function setPrivacyExpirationPickerEditable():void {
+			if(visibilityRadioGroup.selectedValue == "PUBLIC") {
+				privacyExpirationPicker.editable = false;
+				privacyExpirationPicker.disabledDays = new Array(0,1,2,3,4,5,6);
+			} else {
+				privacyExpirationPicker.editable = true;
+				privacyExpirationPicker.disabledDays = new Array();
 			}
 		}
 	]]>
 </mx:Script>
 
-  <mx:XMLListCollection id="collaborators" source="{parentDocument.request.collaborators.ExperimentCollaborator}"/>
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
         	
 	<mx:VBox width="100%" height="100%" verticalGap="20" horizontalScrollPolicy="off" verticalScrollPolicy="off">
    		<mx:VBox width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
-		       <mx:Text text="(1) Pick the level of visibility this experiment should have." id="labelApplication"/>
-		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+			   <util:ContextHelp context1="visibilityLevel" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Level Help"
+								 label="(1) Select the level of visibility." labelPlacement="left" id="visibilityLevelLabel"/>
+			   <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 		       </mx:RadioButtonGroup>
 		   </mx:HBox>
 		   <mx:HBox horizontalGap="0" width="100%">
@@ -189,14 +250,20 @@
 		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 				<mx:HBox horizontalGap="0">
 					<mx:VBox verticalGap="2" width="140" paddingBottom="1">
-						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
-						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
+						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+										toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
+						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+										toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
 					</mx:VBox>
-					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
+					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">						
 					</mx:VBox>
 				</mx:HBox>				
-				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
+				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
+					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+									id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
 					</mx:ComboBox>	
 					<mx:Text id="institutionNote" styleName="submitNote" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10" width="300" paddingTop="0">									
@@ -204,61 +271,69 @@
 					</mx:Text>
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
-					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to everyone" width="85" paddingTop="0" paddingBottom="0"/>
-					<mx:HBox horizontalGap="0" verticalAlign="middle">
-						<mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
-						<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
-					</mx:HBox>
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
 				</mx:HBox>
 		   	</mx:VBox>
+			   <mx:VBox verticalGap="2" width="100%" visible="{parentApplication.isPrivacyExpirationSupported}">
+				   <mx:HBox horizontalGap="0" verticalAlign="middle" >
+					   <mx:DateField id="privacyExpirationPicker" width="100" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
+					   <mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
+				   </mx:HBox>
+			   </mx:VBox>			   
 		   </mx:HBox>
 		   	 
 
 
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-			<mx:Text text="(2) Specify other individual collaborators allowed access to this experiment&#xa;"   width="330"/>
-			<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
-										  labelField="@displayName" 
-										  prompt="Collaborator to add..."
-										  width="270"  
-										  removeFilterOnSelection="true"
-										  id="collaboratorCombo">
-				</renderers:FilterComboBox>
-				<mx:Button 
-					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
-					icon="@Embed(source='../../assets/add.png')" 
-					disabledIcon="@Embed(source='../../assets/add_disable.png')"
-					click="addCollaborator()" 
-					width="25">
-				</mx:Button>
-				<mx:Button  
-					icon="@Embed(source='../../assets/delete.png')" 
-					disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-					enabled="{collaboratorGrid.selectedItem != null}" 
-					click="removeCollaborator()" width="25"/>
-			</mx:HBox>
-			<mx:HBox width="100%" height="100%">
-				<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%" showHeaders="true">
-					<mx:columns>
-						<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />  
-						<mx:DataGridColumn headerText="Upload" 
-										   width="65" 
-										   editable="true"                        	
-										   dataField="@canUploadData" 
-										   editorDataField="selected" sortable="false"
-										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
-						<mx:DataGridColumn headerText="Update" 
-										   width="65" 
-										   editable="true"                        	
-										   dataField="@canUpdate" 
-										   editorDataField="selected" sortable="false"
-										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
-					</mx:columns>
-				</mx:DataGrid>		   		
-			</mx:HBox>
+			<util:ContextHelp context1="visibilityCollaborators" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Collaborator Help"
+							  label="(2) Select other individual collaborators allowed access to this experiment&#xa;" labelPlacement="left" id="visibilityCollaboratorsLabel" width="500"/>
+			<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%"	itemClick="toggleCheck(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText=""  
+									   width="25" 
+									   editable="true"                        	
+									   dataField="@canView" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true)}">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="" toolTip="If checked then collaborator can view experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name"  
+									   width="250" 
+									   editable="false"
+									   dataField="@displayName" />                        	
+					<mx:DataGridColumn headerText="Upload"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUploadData" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Upload" toolTip="If checked then collaborator can upload files to the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Update"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUpdate" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Update" toolTip="If checked then collaborator can update data on the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
 		</mx:VBox>
 		
 	</mx:VBox>

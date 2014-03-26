@@ -34,6 +34,7 @@
 			
 			import views.analysis.AnalysisEditView;
 			import views.datatrack.DistributeDataTrackWindow;
+			import views.util.CollaboratorWindow;
 			import views.util.FileUtil;
 			import views.util.RunAlignmentWindow;
 			import views.util.WebLinksView;
@@ -417,6 +418,15 @@
 				}				
 			}
 
+			private function showCollaboratorWindow():void {
+				var collaboratorWindow:CollaboratorWindow = CollaboratorWindow(PopUpManager.createPopUp(parentApplication.theBody, CollaboratorWindow, true));
+				PopUpManager.centerPopUp(collaboratorWindow);
+				collaboratorWindow.init("Collaborators for Analysis " + analysis.@number, 
+					collaborators, 
+					analysis);
+				
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -437,6 +447,8 @@
 			</mx:Sort>
 		</mx:sort>
 	</mx:XMLListCollection>
+	<mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AnalysisCollaborator}"/>
+	
 	
 	<mx:HBox width="100%" verticalGap="20" verticalAlign="middle" horizontalGap="20">
 		<mx:HBox horizontalGap="1" verticalAlign="middle">
@@ -533,11 +545,17 @@
 							<mx:Text text="Institution"  width="98" styleName="formLabel" textAlign="left"/>
 							<mx:Text  text="{institutionName}" width="180"/>
 						</mx:HBox>
-						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top">
-							<mx:Text  width="100" text="Collaborators"  styleName="formLabel" textAlign="left"/>
+						<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top"
+								 visible="{this.analysis.@canUpdate == 'Y'}"
+								 includeInLayout="{this.analysis.@canUpdate == 'Y'}">
+							<mx:LinkButton  width="100" label="Collaborators" textDecoration="underline"
+											enabled="{this.analysis.@canUpdateVisibility == 'Y'}"
+											styleName="formLabel" textAlign="left" click="showCollaboratorWindow()" paddingLeft="0" />
+							
 							<mx:VBox verticalGap="0">
 								<mx:Repeater id="collaboratorRepeater" dataProvider="{analysis.collaborators.AnalysisCollaborator}"> 
 									<mx:Text id="collaborator" 
+											 
 											 text="{parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', collaboratorRepeater.currentItem.@idAppUser)}" />
 								</mx:Repeater>
 							</mx:VBox>
@@ -586,7 +604,7 @@
 					</mx:Canvas>
 					<mx:Canvas label="{'Illumina Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%">
 						<mx:DataGrid width="100%" height="100%" 
-									 dataProvider="{analysis..SequenceLane}" 
+									 dataProvider="{analysis..AnalysisExperimentItem..SequenceLane}" 
 									 id="lanesGrid"
 									 doubleClickEnabled="true"
 									 doubleClick="showExperimentForSelectedLane()">									

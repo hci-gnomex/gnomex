@@ -48,9 +48,6 @@
 			
 			private function init():void {
 				if (this.experimentViews.selectedChild == browseView) {
-					if ( parentApplication.managesPlateBasedWorkflow ) {
-						this.browseView.currentState = 'DNASeqCoreState';
-					}
 					this.browseView.init();
 				}
 			}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 				xmlns:db="views.dashboard.*" 
-				width="500" height="370" backgroundAlpha="1" cornerRadius="12" 
+				width="500" height="350" backgroundAlpha="1" cornerRadius="12" 
 				preinitialize="init()">   
 
 	<mx:HTTPService 
@@ -127,10 +127,9 @@
 		
 	]]>
 </mx:Script>
-	
 	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" paddingLeft="155" horizontalGap="75"  paddingTop="5" horizontalAlign="center">
-			<mx:Label id="mainTitle" text="Getting Started" fontSize="18" />
+			<mx:Label id="mainTitle" text="Quick Links" fontSize="18" />
 			<mx:Spacer width="100%" />
 			<mx:LinkButton id="addFAQ" click="showAddFAQ()" 
 						   icon="@Embed(source='../../assets/table_row_insert.png')" width="22" 
@@ -143,7 +142,7 @@
 					
 		<mx:VBox id="main" width="100%" paddingTop="10" verticalGap="5">
 				<mx:Repeater id="faqRep" dataProvider="{FAQList}" count="6">
-					<mx:HBox id="FAQItem" width="100%" height="25" backgroundColor="#D6D6D6" 
+					<mx:HBox id="FAQItem" width="100%" height="25" backgroundColor="#E6E6E6" 
 							 cornerRadius="7" borderStyle="solid" borderThickness="0"
 							 paddingTop="2" paddingLeft="2" paddingRight="2"
 							 >

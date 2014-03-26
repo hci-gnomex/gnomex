@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:util="views.util.*" 
 		   width="100%" height="100%" enabled="false">
+	
+	<mx:HTTPService  
+		id="saveProperty" 
+		url="SaveProperty.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveProperty(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save annotation', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+
 	<mx:states>
 		<mx:State name="EditState">
 		</mx:State>
 		<mx:State name="ExternalState">
-			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
+			<mx:SetProperty target="{text1}" name="label" value="Check the sample annotations that apply"/>
 		</mx:State>
 	</mx:states>
 	<mx:Script>
@@ -16,11 +29,13 @@
 			import hci.flex.dictionary.DictionaryEvent;
 			
 			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.controls.dataGridClasses.DataGridItemRenderer;
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
 			
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
@@ -34,6 +49,8 @@
 			private var dictionaryEditor:DictionaryEditor; 
 			
 			public var ignoreToggle:Boolean = false;
+			
+			private var addingAnnotation:Boolean = false;
 			
 			public function checkSecurity():void {
 				if (parentDocument == null) {
@@ -119,21 +136,29 @@
 				parentDocument.propertyEntries.refresh();
 				
 				this.checkForRemovedAnnotations();   
-				this.checkForNewAnnotations();
-				  		
+				this.checkForNewAnnotations(addingAnnotation);
+				
+				if (addingAnnotation) {
+					addingAnnotation = false;
+					this.enabled = true;
+				}				  		
 			}	
 			
 			
-			private function checkForNewAnnotations():void {
+			private function checkForNewAnnotations(doSelect:Boolean):void {
 				var sc:XML;
 				var annotation:Object;
 				var exists:Boolean = false;
+				var selectedName:String = "";
 				for each(sc in parentApplication.propertyList) {
 					exists = false; 
 					
 					for each(annotation in parentDocument.request.PropertyEntries.PropertyEntry) {
 						if (sc.@value == annotation.@idProperty) {
 							exists = true;
+							if (sc.@name != annotation.@name) {
+								annotation.@name = sc.@name;
+							}
 							break;
 						}      				
 					}
@@ -143,13 +168,21 @@
 						node.@idProperty = sc.@value;
 						node.@name = sc.@display; 
 						node.@otherLabel = "";
-						node.@isSelected = "false";
+						if (doSelect) {
+							node.@isSelected = "true";
+							selectedName = sc.@display;
+						} else {
+							node.@isSelected = "false";
+						}
 						
 						parentDocument.propertyEntries.addItem(node);
 						
 					}
 				}
 				parentDocument.propertyEntries.refresh();
+				if (selectedName.length > 0) {
+					selectAndScrollToName(selectedName);
+				}
 			}
 			
 			
@@ -223,6 +256,73 @@
 				sampleAnnotationGrid.toolTip = null;
 			}
 			
+			private function addNewAnnotation():void {
+				if (newAnnotationName.text == null || newAnnotationName.text.length == 0 || newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT) {
+					Alert.show('Please enter name of new annotation in the text box before pressing Add Annotation');
+					return;
+				}
+				
+				var found:Boolean = selectAndScrollToName(newAnnotationName.text);
+				
+				if (!found) {
+					this.enabled = false;
+					addingAnnotation = true;
+					var params:Object = new Object();
+					params.idProperty = '';
+					params.name = newAnnotationName.text;
+					params.isActive = 'Y';
+					params.isRequired = 'N';
+					params.forSample =  "Y";
+					params.forAnalysis = "N";
+					params.forDataTrack = "N";
+					params.forSample = "Y";
+					if (parentApplication.hasPermission("canWriteDictionaries")) {
+						params.idAppUser = '';			
+					} else {
+						params.idAppUser = parentApplication.getIdAppUser();
+					}
+					params.codePropertyType = 'TEXT';
+					params.optionsXMLString = "<options>"  + "</options>";
+					params.organismsXMLString = "<organisms>"  + "</organisms>";
+					params.platformsXMLString = "<platformApplications>"  + "</platformApplications>";
+					params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
+					
+					saveProperty.send(params);
+				}
+				
+				newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT;
+			}
+			
+			private function onSaveProperty(event:ResultEvent): void {
+				if (saveProperty.lastResult.name() == "SUCCESS") {
+					parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
+						onPropertyRefreshed);		                                  
+					parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
+						onPropertyRefreshed);
+					parentApplication.dictionaryManager.call("reload", "");
+					parentApplication.getPropertyList.send();
+				} else {
+					this.enabled = true;
+					addingAnnotation = false;
+					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}	
+			
+			private function selectAndScrollToName(name:String):Boolean {
+				var found:Boolean = false;
+				var idx:int = 0;
+				for each (var a:Object in parentDocument.propertyEntries) {
+					if (a.@name.toString().toLowerCase() == name.toLocaleLowerCase()) {
+						found = true;
+						a.@isSelected = 'true';
+						sampleAnnotationGrid.scrollToIndex(idx);
+						break;
+					}
+					idx++;
+				}
+				
+				return found;
+			}
 		]]>
 	</mx:Script>
 	
@@ -232,10 +332,8 @@
 		<mx:HBox width="100%" height="100%" horizontalGap="0">
 			<mx:VBox height="100%" verticalGap="1">
 				<mx:HBox>
-					<mx:Text width="300" height="100%" id="text1">
-						<mx:text>(1) Check sample characteristics</mx:text>
-					</mx:Text>
-					
+					<util:ContextHelp context1="annotationTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Annotation Help"
+									  label="(1) Check sample characteristics" labelPlacement="left" id="text1" width="300"/>
 				</mx:HBox>
 				<mx:HBox width="100%" height="100%">
 					<mx:VBox width="100%" height="100%" verticalGap="0">
@@ -276,17 +374,21 @@
 								</mx:DataGridColumn>
 							</mx:columns>
 						</mx:DataGrid>
-						
-						<mx:LinkButton label="Configure annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
-						</mx:LinkButton>						
 					</mx:VBox>
 				</mx:HBox>
 			</mx:VBox>
-			<mx:Spacer width="100%"/>	
-			<mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="120" visible="true" id="textarea1">
-				<mx:htmlText><![CDATA[Instructions<br>1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
-			</mx:TextArea>
-			
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:TextInput id="newAnnotationName" text="{PropertyWindow.NAME_FIELD_DEFAULT}" width="250"
+					 focusIn="{newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT ? newAnnotationName.text = '' : newAnnotationName.text = newAnnotationName.text}"
+					 focusOut="{newAnnotationName.text == '' ? newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT : newAnnotationName.text = newAnnotationName.text}"/>
+			<mx:Button id="newAnnotationNameButton" click="addNewAnnotation()" label="Add Annotation"/>
+			<util:ContextHelp context1="annotationTabAddHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Add Annotation Help"
+							  label="" labelPlacement="left" id="annotationTabAddHelp"/>
+			<mx:Spacer width="40"/>
+			<mx:LinkButton label="Edit annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
+			</mx:LinkButton>						
 		</mx:HBox>
 		
 	</mx:VBox>

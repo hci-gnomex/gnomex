@@ -131,6 +131,7 @@
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
+			import views.util.DateUtils;
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -220,7 +221,9 @@
 				organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
 				filteredGenomeBuildList.refresh();
 				visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
-				privacyExpirationPicker.text = analysis.@privacyExpirationDate;	
+				//privacyExpirationPicker.text = analysis.@privacyExpirationDate;
+				setDefaultPrivacyExpirationDate();
+				setPrivacyExpirationPickerEditable();
 				
 				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
 				if(!skipGetInfo) {
@@ -959,6 +962,31 @@
 				this.description.toolbar.removeChild(description.fontSizeCombo);
 			}
 			
+			private function setDefaultPrivacyExpirationDate():void {
+				if(parentApplication.isPrivacyExpirationSupported){
+					if(visibilityRadioGroup.selectedValue == "PUBLIC") {
+						this.privacyExpirationPicker.selectedDate = new Date(); // this analysis will become public today
+					} else { // if the analysis has a default set use it
+						if(analysis.@privacyExpirationDate != null && analysis.@privacyExpirationDate != "") {
+							var tempDate:Array = (analysis.@privacyExpirationDate).split("-");					
+							this.privacyExpirationPicker.selectedDate = new Date(tempDate[1] + "/" + tempDate[0] + "/" + tempDate[2]);
+						} else { // otherwise don't modify it by setting a default
+							this.privacyExpirationPicker.selectedDate = null;
+						}
+					}
+				}
+			}
+			
+			private function setPrivacyExpirationPickerEditable():void {
+				if(visibilityRadioGroup.selectedValue == "PUBLIC") {
+					privacyExpirationPicker.editable = false;
+					privacyExpirationPicker.disabledDays = new Array(0,1,2,3,4,5,6);
+				} else {
+					privacyExpirationPicker.editable = true;
+					privacyExpirationPicker.disabledDays = new Array();
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -1257,10 +1285,11 @@
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
       <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-	
-		<mx:VBox  width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		  <mx:HBox width="1092">
+		<mx:VBox  width="509" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+						
 			<mx:HBox horizontalGap="0" id="hbox1">
-				<mx:Text text="(1) Pick the level of visibility this analysis should have." id="labelApplication"/>
+				<mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 				</mx:RadioButtonGroup>
 			</mx:HBox>
@@ -1269,30 +1298,34 @@
 					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="0" width="140">
-							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visbile to the submitter and the lab PI"/>
-							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to all members of the lab group"/>
+							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
+											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+											toolTip="Visbile to the submitter and the lab PI"/>
+							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
+											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+											toolTip="Visible to all members of the lab group"/>
 						</mx:VBox>
 					</mx:HBox>
-					<mx:Text width="100%" id="institutionNote" styleName="submitNote" height="33" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}"
-							 includeInLayout="{this.radioInstitutionVisibility.enabled ? false : true}">									
-						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
-					</mx:Text>
-					<mx:HBox horizontalGap="0" verticalAlign="middle">
-						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="dirty.setDirty()" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
+					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
+						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
+										click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:RadioButton value="PUBLIC" label="Public" groupName="visibilityRadioGroup"  click="dirty.setDirty()" toolTip="Visible to everyone"/>
-					<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}">
-						<mx:HBox width="100%" verticalAlign="middle">
-							<mx:DateField id="privacyExpirationPicker" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-							<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="250" height="30"/>
-						</mx:HBox>
-					</mx:VBox>		   		
-				</mx:VBox>
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
+									click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" toolTip="Visible to everyone"/>					   		
+				</mx:VBox>				
 			</mx:HBox>
+		</mx:VBox>
+			<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}" >
+				<mx:HBox width="100%" verticalAlign="middle" >
+					<mx:DateField id="privacyExpirationPicker" width="100" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
+					<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="427" height="30"/>
+				</mx:HBox>
+			</mx:VBox>
+			</mx:HBox>		
 			
-		</mx:VBox>		
+		
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			
 			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>

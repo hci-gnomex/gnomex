@@ -32,12 +32,24 @@ package views.experiment
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference; 
 
-		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategory:Object, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
+		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
 			if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
 				} else {
 					return new TabSamplesIllumina();
+				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'SEQUENOM' || requestCategoryType.@codeRequestCategoryType == 'CLINSEQ') {
+				if (existingTab is TabSamplesSequenom) {
+					return existingTab;
+				} else {
+					return new TabSamplesSequenom();
+				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
+				if (existingTab is TabSamplesIsolation) {
+					return existingTab;
+				} else {
+					return new TabSamplesIsolation();
 				}
 			} else {
 				if (existingTab is TabSamplesView) {
@@ -107,10 +119,6 @@ package views.experiment
 			return true;
 		}
 		
-		public function setMultiplexGroupNumberImported(val:Boolean):void {
-			
-		}
-		
 		public function setShowCCNumber(show:Boolean):void {
 			
 		}
@@ -149,7 +157,7 @@ package views.experiment
 			grid.validateNow();
 		}
 		
-		private function isDescriptionEnabled():Boolean {
+		protected function isDescriptionEnabled():Boolean {
 			var enabled:Boolean = false;
 			for each(var node:XML in parentDocument.propertyEntries) {
 				if (node.@idProperty == "-1") {
@@ -162,7 +170,7 @@ package views.experiment
 			return enabled;
 		}
 		
-		private function addAnnotationProperties(columns:Array, newColumns:Array):void {
+		protected function addAnnotationProperties(columns:Array, newColumns:Array):void {
 			// Add real annotations.
 			for each(var node:XML in parentDocument.propertyEntries) {
 				// -1 check is because description is handled above.
@@ -172,7 +180,7 @@ package views.experiment
 			}
 		}
 		
-		private function addAnnotationProperty(columns:Array, newColumns:Array, node:XML):void {
+		protected function addAnnotationProperty(columns:Array, newColumns:Array, node:XML):void {
 			var dc:AnnotationAdvancedDataGridColumn = findAnnotationGridColumn(columns, node);
 			if (dc == null) {
 				dc = buildNewAnnotationGridColumn(node);
@@ -182,7 +190,7 @@ package views.experiment
 			newColumns.push(dc);
 		}
 		
-		private function findAnnotationGridColumn(columns:Array, propertyNode:XML):AnnotationAdvancedDataGridColumn {
+		protected function findAnnotationGridColumn(columns:Array, propertyNode:XML):AnnotationAdvancedDataGridColumn {
 			var dcFound:AnnotationAdvancedDataGridColumn = null;
 			for each (var dc:AdvancedDataGridColumn in columns) {
 				if (dc is AnnotationAdvancedDataGridColumn && 
@@ -195,14 +203,14 @@ package views.experiment
 			return dcFound;
 		}
 		
-		private function buildNewAnnotationGridColumn(propertyNode:XML):AnnotationAdvancedDataGridColumn {
+		protected function buildNewAnnotationGridColumn(propertyNode:XML):AnnotationAdvancedDataGridColumn {
 			var fieldName:String = "@ANNOT" + propertyNode.@idProperty;
 			var newCol:AnnotationAdvancedDataGridColumn = new AnnotationAdvancedDataGridColumn(fieldName);
 			refreshAnnotationGridColumn(propertyNode, newCol);
 			return newCol;
 		}
 		
-		private function refreshAnnotationGridColumn(propertyNode:XML, dc:AnnotationAdvancedDataGridColumn):void {
+		protected function refreshAnnotationGridColumn(propertyNode:XML, dc:AnnotationAdvancedDataGridColumn):void {
 			var property:XML = parentApplication.getSampleProperty(propertyNode.@idProperty);
 			if (property == null) {
 				dc.visible = false;
@@ -213,6 +221,10 @@ package views.experiment
 			if ( parentDocument.isIScanState() ) {
 				propertyNode.@isSelected = 'true';
 			}
+			
+			/*if ( parentDocument.isSequenomState() && propertyNode.@isRequired == "true") {
+				propertyNode.@isSelected = parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null && parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'true' : 'false';
+			}*/
 			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
@@ -289,21 +301,22 @@ package views.experiment
 			return 0;
 		}
 		
-		protected function uploadSampleSheet():void {
+		public function uploadSampleSheet():void {
 			var uploadSampleSheetWindow:UploadSampleSheetView = UploadSampleSheetView(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetView, true));
 			PopUpManager.centerPopUp(uploadSampleSheetWindow);
 			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
 			var numPlates:int = getNumPlates();
 			var nextPlate:int = getNextPlate();
 			
-			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.showSampleMultiplexGroup(), parentDocument.getAnnotationView());
-			if (parentDocument.isEditState()) {
-				uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
-			}
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView());
+				
+			uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
 		}
 		
 		protected function uploadComplete(event:Event):void {
-			Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
+			if (parentDocument.isEditState()) {
+				Alert.show("Samples grid has been updated.  Press 'Save' to update the samples in the database.");
+			}
 		}
 		
 		protected function getSampleSheetSpecifiedFieldList():Dictionary {
@@ -313,26 +326,15 @@ package views.experiment
 		protected function getSampleSheetFieldList():XMLListCollection {
 			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
 			var addAllAnnotations:Boolean = getAddAllAnnotations();
-			return UploadSampleSheetView.getFieldList(this, fieldList, parentDocument.showSampleMultiplexGroup(), null, parentDocument.getAnnotationView(), addAllAnnotations);
+			return UploadSampleSheetView.getFieldList(this, fieldList, null, parentDocument.getAnnotationView(), addAllAnnotations);
 		}
 		
 		protected function getAddAllAnnotations():Boolean {
 			return true;
 		}
 		
-		protected function downloadSampleSheetExample(fileName:String):void {
-			try {
-				downloadRequest = new URLRequest("doc/" + fileName);
-				downloadFileRef = new FileReference();
-				downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
-				downloadFileRef.download(downloadRequest, fileName);
-				
-			} catch (error:Error) {
-				Alert.show("Unable to download example sample sheet due to error. " + error.message);
-			}
-		}
 		
-		protected function downloadSampleSheet():void{
+		public function downloadSampleSheet():void{
 			var fieldList:XMLListCollection = getSampleSheetFieldList();
 			var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
 			var uv:URLVariables = new URLVariables();
@@ -355,8 +357,10 @@ package views.experiment
 			names += "</NameList>";
 			uv.names = names;
 			//If this is a new request send back the lab id to create the file name for sample sheet.
+			// Also make sure the code request category is set.
 			if(parentDocument.request.@idRequest == "0" && parentDocument.setupView != null){
 				parentDocument.request.@idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+				parentDocument.request.@codeRequestCategory = parentDocument.getRequestCategory().@codeRequestCategory;
 			}
 			uv.requestXMLString = parentDocument.request.toXMLString();
 			showUrl.data = uv;
@@ -368,13 +372,6 @@ package views.experiment
 		{
 			mx.controls.Alert.show("Example sample sheet downloaded.");
 		}
-		
-		public function copyColumn():void {
-			var copySampleSheetColumnWindow:CopySampleSheetColumnView = CopySampleSheetColumnView(PopUpManager.createPopUp(this, CopySampleSheetColumnView, true));
-			PopUpManager.centerPopUp(copySampleSheetColumnWindow);
-			copySampleSheetColumnWindow.init(this);
-		}
-
 		
 		protected function getNextSampleId():Number {
 			var lastId:Number = -1;
@@ -415,7 +412,16 @@ package views.experiment
 			return true;
 		}
 		
-		protected function deleteSample():void {
+		public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				return "";
+			} else {
+				return item.groupLabel;
+			}
+		}
+		
+		public function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
 			var deleteHappened:Boolean = false;
@@ -423,7 +429,7 @@ package views.experiment
 				for each(var sample:Object in getSamplesGrid().selectedItems) {
 					var isValid:Boolean = true;
 					// Only administrators can delete samples
-					if (sample.@idSample.indexOf("Sample") < 0 && parentDocument.request.@canDeleteSample != 'Y') {
+					if (sample.@idSample!=null && sample.@idSample!='' && sample.@idSample.toString().indexOf("Sample") < 0 && (parentDocument.request.@canDeleteSample != null && parentDocument.request.@canDeleteSample != 'Y')) {
 						Alert.show("Existing sample " + sample.@number + " cannot be deleted from the experiment.");
 						isValid = false;
 						continue;
@@ -463,68 +469,6 @@ package views.experiment
 
 		}
 		
-		protected function copyTheSample():void {
-			var idx:int = getSamplesGrid().selectedIndex;
-			copySample();
-			this.initializeBarcoding();
-			checkSamplesCompleteness();
-			getSamplesGrid().selectedIndex = idx;
-			
-		}
-		
-		protected function copySample():void {
-			parentDocument.dirty.setDirty();
-			if (getSamplesGrid().selectedIndex != -1) {
-				for each(var sampleToCopy:Object in getSamplesGrid().selectedItems) {	
-					
-					var emptyNodeString:String = "<Sample " +
-						" idSample='" + "Sample" + getNextSampleId() + "'" +
-						" name='" + sampleToCopy.@name + "'" + 
-						" canChangeSampleName='Y'" +
-						" canChangeSampleType='Y'" +
-						" canChangeSampleDropOffLocation='Y'" +
-						" canChangeSampleConcentration='Y'" +
-						" canChangeSampleSource='Y'" +
-						" canChangeNumberSequencingLanes='Y'" + 
-						" description='" + sampleToCopy.@description + "'" + 
-						" idSampleType='" + sampleToCopy.@idSampleType + "'" +
-						" otherSamplePrepMethod=\"" + sampleToCopy.@otherSamplePrepMethod + "\"" +				
-						" idSeqLibProtocol='" + sampleToCopy.@idSeqLibProtocol + "'" +				
-						" idOrganism='" + sampleToCopy.@idOrganism + "'" +				
-						" concentration='" + sampleToCopy.@concentration + "'" +				
-						" treatment='" + sampleToCopy.@treatment + "'" +		
-						" idOligoBarcode='" + sampleToCopy.@idOligoBarcode + "'" +		
-						" barcodeSequence='" + sampleToCopy.@barcodeSequence + "'" +		
-						" seqPrepByCore='" + sampleToCopy.@seqPrepByCore + "'" +		
-						" codeConcentrationUnit='" + sampleToCopy.@codeConcentrationUnit + "'" +				
-						" codeBioanalyzerChipType='" + sampleToCopy.@codeBioanalyzerChipType + "'" +				
-						" idNumberSequencingCycles='" + sampleToCopy.@idNumberSequencingCycles+ "'" +				
-						" idSeqRunType='" + sampleToCopy.@idSeqRunType + "'" +				
-						" numberSequencingLanes='" + sampleToCopy.@numberSequencingLanes + "'" +
-						" ccNumber='" + sampleToCopy.@ccNumber + "'";
-
-					addSpecialCopyColumns(emptyNodeString);
-					
-					emptyNodeString = emptyNodeString + "/>";
-					var emptyNode:XML = new XML(emptyNodeString); 
-					
-					// Now copy the sample annotations
-					for each (var attribute:Object in sampleToCopy.attributes()) {
-						if (attribute.name().toString().indexOf("ANNOT") == 0) {
-							emptyNode["@" + attribute.name()] = sampleToCopy["@" + attribute.name()];
-						}
-					}
-					
-					parentDocument.samples.addItem(emptyNode);
-					
-					
-				}
-			}
-		}
-
-		protected function addSpecialCopyColumns(emptyNodeString:String):void {
-			
-		}
 		
 		public function promptToClearAllSamples():void {
 			Alert.show("Remove all samples currently showing in list?",
@@ -538,7 +482,6 @@ package views.experiment
 			if (event.detail==Alert.YES) {
 				parentDocument.samples.removeAll();
 				parentDocument.lanes.removeAll();
-				setMultiplexGroupNumberImported(false);
 				addSample(); 	// Add an initial blank sample to the grid
 				checkSamplesCompleteness();
 				this.initializeBarcoding();
@@ -583,14 +526,6 @@ package views.experiment
 				return true;
 			}
 		}
-
-		public function getSampleTreeIcon(item:Object):Class {
-			if (item == null) {
-				return parentApplication.iconGroup;
-			} else {
-				return null; 
-			}  
-		}  
 		
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
@@ -601,5 +536,56 @@ package views.experiment
 			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
 			PopUpManager.centerPopUp(addOrganismWindow);
 		}
+		
+		public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+			
+		}
+		
+		public function setTopBoxVisibility(vis:Boolean):void {
+			
+		}
+		
+		public function setExternalNoteVisibility():void {
+			if (!parentApplication.isInternalExperimentSubmission) {
+				if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
+					setCoreFacilityNoteVisibility(false);
+					setTopBoxVisibility(true);
+				} else {
+					setCoreFacilityNoteVisibility(true);
+					setTopBoxVisibility(true);
+				}
+			} else {
+				if (parentDocument.isEditState()) {
+					setCoreFacilityNoteVisibility(false);
+				} else {
+					setCoreFacilityNoteVisibility(true);
+				}
+				setTopBoxVisibility(true);
+			}
+		}
+		
+		public function getPlateName(idx:int):String {
+			return "";
+		}
+		
+		protected function getWellName(idx:int):String {
+			var wellName:String = "";
+			if (parentDocument.isFragAnalState()) {
+				wellName = "ABCDEFGH".substr(idx / 12, 1);
+				var fragColNumber:int = idx % 12 + 1;
+				wellName += fragColNumber.toString();
+			} else {
+				var y:int = idx % 96;
+				wellName = parentApplication.wellNamesByColumn[y];
+			}
+			return wellName;
+		}
+		
+		protected function updateWellNames():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@wellName = getWellName(parentDocument.samples.getItemIndex(sample));
+			}
+		}
+		
 	}
 }

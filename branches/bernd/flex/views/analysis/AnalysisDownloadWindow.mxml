@@ -410,6 +410,13 @@
 				}
 			}
 			
+			private function showDownloadHelp():void {
+				var helpURL:String = parentApplication.getProperty(parentApplication.PROPERTY_FDT_HELP_URL);
+				var urlRequest:URLRequest = new URLRequest(helpURL);				
+				navigateToURL(urlRequest);
+			}
+
+			
 		]]>
 	</mx:Script>	
 	
@@ -497,11 +504,13 @@
 	<mx:ControlBar width="100%">
 		
 		<mx:HBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="right">
-			<mx:LinkButton label="Upload and Download Help" 
-						   click="parentApplication.showUploadDownloadHints()" 
-						   id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>
 			<mx:Spacer width="100%"/>
-			<mx:Button id="downloadExpandedFilesButton" 
+						
+			<mx:LinkButton label="Troubleshooting Guide, Important info about Chrome Browser!"
+						   click="{showDownloadHelp()}"
+						   color="#1453E2" fontStyle="italic" fontWeight="bold"
+						   textDecoration="underline"/>
+			<mx:Button id="downloadExpandedFilesButton" 
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.downloadExpandedFiles(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
 					   icon="@Embed('../../assets/download.png')" 

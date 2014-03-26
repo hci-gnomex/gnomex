@@ -2,7 +2,8 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="480" height="340" backgroundAlpha="1"
+		   xmlns:util="views.util.*"
+		   width="510" height="400" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
@@ -23,7 +24,6 @@
 	<mx:XMLListCollection id="workflowData" />
 	<mx:XMLListCollection id="adminData" />
 	<mx:XMLListCollection id="billingData" />
-	<mx:XMLListCollection id="noteData" />
 
 	<mx:Script>
 		<![CDATA[
@@ -54,13 +54,23 @@
 			public var notificationState:int;
 			
 			[Bindable]
+			public var noteData:XMLListCollection = new XMLListCollection;
+			
+			[Bindable]
 			public var userName:String;
 			
 			[Bindable]
 			private var refreshTimer:Timer = new Timer(300000);
 			
+			private var requestCategories:XMLList = new XMLList;
+			
 			public function init():void {
-				notificationInterface.send();
+				var params:Object = new Object();
+				if(parentApplication.isAdminState && !parentApplication.isSuperAdmin){
+					params.idCoreFacility = parentApplication.coreFacilitiesICanManage[0];
+				}
+				notificationInterface.send(params);
+				requestCategories = parentApplication.dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType");
 			}
 			
 						
@@ -84,9 +94,17 @@
 					}else if(notificationState == 3){								// Admin Data
 						adminData.source = notificationInterface.lastResult.admin;
 						noteData = adminData;
+						if(parentApplication.isAdminState && !parentApplication.isSuperAdmin){
+							noteData.filterFunction = filterByCoreFacility;
+							noteData.refresh();
+						}
 					}else if(notificationState == 4){								// Billing Data
 						billingData.source = notificationInterface.lastResult.billing;
 						noteData = billingData;
+						if(parentApplication.isAdminState && !parentApplication.isSuperAdmin){
+							noteData.filterFunction = filterByCoreFacility;
+							noteData.refresh();
+						}
 					}
 
 					var mySort:Sort = new Sort();
@@ -105,24 +123,35 @@
 						emptyNote.visible = true;
 						emptyNoteBox.visible = true;
 						emptyNoteBox.includeInLayout = true;
-						repStatus.includeInLayout = false;	
+						repStatus.includeInLayout = false;
 					}else{
 						emptyNote.visible = false;
 						emptyNote.includeInLayout = false;
 						repStatus.includeInLayout = true;
 					}
 					
-/*					if(workflowData.length == 0){
-						emptyString.text = "No samples in Core Facility Workflow.";
-						emptyNote.visible = true;
+					
+					
+					if(workflowData.length == 0){
+//						emptyString.text = "No samples in Core Facility Workflow.";
+//						emptyNote.visible = true;
 						repWorkflow.includeInLayout = false;
 					}else{
-						emptyNote.visible = false;
+//						emptyNote.visible = false;
 						repWorkflow.includeInLayout = true;
 					}
-					*/
+					
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error retrieving Notifications.");
+				}
+			}
+			
+			private function filterByCoreFacility(notification:Object):Boolean{
+				var coreFacility:XML = parentApplication.coreFacilitiesICanManage[0];
+				if(notification.@idCoreFacility == coreFacility.@idCoreFacility){
+					return true;
+				} else{
+					return false;
 				}
 			}
 			
@@ -141,20 +170,36 @@
 					
 					if(type == "REQUEST"){
 						if(state == "NEW"){
-							// A new request has been made.
-							notification += " new request (" + expID + "R) has been received.";
+							notification += " experiment (" + expID + ") has been created.";
 						}else if(state == "EXIST"){
-							// An existing request has been edited.
-							notification += " existing request (" + expID + "R) revisions have been received.";
+							notification += " existing experiment (" + expID + ") has been edited.";
 						}
 					}else if(type == "ANALYSIS"){
 						if(state == "NEW"){
-							// A new analysis has been made.
-							notification += " new analysis for " + expID + "R has been received.";							
+							notification += " analysis (" + expID + ") has been created.";							
 						}else if(state == "EXIST"){
-							// An existing analysis has been edited.
-							notification += "n analysis for " + expID + "R has been edited.";
+							notification += " analysis (" + expID + ") has been edited.";
 						}
+					} else if(type == "DATATRACK"){
+						if(state == "NEW"){
+							notification += " Data Track (" + expID + ") has been created.";							
+						}else if(state == "EXIST"){
+							notification += " Data Track (" + expID + ") has been edited.";
+						}
+					} else if(type == "TOPIC"){
+						if(state == "NEW"){
+							notification += " Topic (" + expID + ") has been created.";							
+						}else if(state == "EXIST"){
+							notification += " Topic (" + expID + ") has been edited.";
+						}
+					} else if(type == "FLOWCELL"){
+						if(state == "NEW"){
+							notification += " Flow Cell (" + expID + ") has been created.";							
+						}else if(state == "EXIST"){
+							notification += " Flow Cell (" + expID + ") has been edited.";
+						}
+					} else if(type == "WORKFLOW"){
+						notification = " Sample " + rep.@sampleNumber + " for Request " + rep.@requestNumber + " has entered " + rep.@codeStepName;							
 					}
 				}else if(sourceType == "WORKFLOW"){
 					
@@ -163,28 +208,40 @@
 					
 					if(type == "REQUEST"){
 						if(state == "NEW"){
-							// A new request has been made.
-							notification += " has submitted a new request (" + expID + "R).";
+							notification += " has submitted a new request (" + expID + ").";
 						}else if(state == "EXIST"){
-							// An existing request has been edited.
-							notification += " has edited an existing request (" + expID + "R).";
+							notification += " has edited an existing request (" + expID + ").";
 						}
 					}else if(type == "ANALYSIS"){
 						if(state == "NEW"){
-							// A new analysis has been made.
-							notification += " new analysis for " + expID + "R has been received.";							
+							notification += " has submitted a new analysis (" + expID + ").";							
 						}else if(state == "EXIST"){
-							// An existing analysis has been edited.
-							notification += "n analysis for " + expID + " has been edited.";
+							notification += " has edited an existing analysis (" + expID + ").";;
+						}
+					} else if(type == "DATATRACK"){
+						if(state == "NEW"){
+							notification += " has submitted a new Data Track (" + expID + ").";;							
+						}else if(state == "EXIST"){
+							notification += " has edited a Data Track (" + expID + ").";;
+						}
+					} else if(type == "TOPIC"){
+						if(state == "NEW"){
+							notification += " has submitted a new Topic (" + expID + ").";;							
+						}else if(state == "EXIST"){
+							notification += " has edited an existing Topic (" + expID + ").";;
+						}
+					} else if(type == "FLOWCELL"){
+						if(state == "NEW"){
+							notification += " Flow Cell (" + expID + ") has been created.";							
+						}else if(state == "EXIST"){
+							notification += " Flow Cell (" + expID + ") has been edited.";
 						}
 					}					
-				}else if(sourceType == "BILLING"){
+				} else if(sourceType == "BILLING"){
 					if(state == "NEW"){
-						// A new invoice has been made.
-						notification = "The invoice for request " + expID + "R has been created.";
+						notification = "The invoice for request " + expID + " has been created.";
 					}else if(state == "EXIST"){
-						// An existing invoice has been edited.
-						notification = "The invoice for " + expID + "R has been edited.";
+						notification = "The invoice for " + expID + " has been edited.";
 					}					
 				}
 				
@@ -204,35 +261,78 @@
 					
 					return xml;
 			}
+			
+			private function showItem(itemNumber:String):void{
+				if(itemNumber.indexOf("A") == 0){
+					parentApplication.showAnalysisForNumber(itemNumber);
+				} else if(itemNumber.indexOf("DT") == 0){
+					parentApplication.showDataTrackForNumber(itemNumber);
+				} else if(itemNumber.indexOf("T") == 0){
+					parentApplication.showTopicForNumber(itemNumber.substr(1));
+				} else if(itemNumber.indexOf("FC") == 0){
+					parentApplication.showFlowCellForNumber(itemNumber);
+				} else if(itemNumber.indexOf("R") != -1){
+					parentApplication.showExperiment(itemNumber, false);
+				}
+				
+			}
+			
+			private function getImageSource(item:Object):String{
+				if(item.@imageSource != ''){
+					return item.@imageSource;
+				}else{
+					return "assets/flask.png";
+					
+				}
+				
+			}
+			
+			private function getMoreItems(startingIndex:int):void{
+				if(noteData.length > startingIndex + 8){
+					repStatus.startingIndex = startingIndex + 8;
+				}
+				
+				if(noteData.length <= repStatus.startingIndex + repStatus.count){
+					this.moreButton.visible = false;
+					this.moreButton.includeInLayout = false;
+					this.topButton.visible = true;
+					this.topButton.includeInLayout = true;
+				}
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:VBox id="main" width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="6">
+	<mx:VBox id="main" width="100%" height="100%" paddingBottom="3" paddingLeft="3" paddingRight="3">
 		<mx:VBox includeInLayout="{notificationState != 2 ? true : false}">
-			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="8">
-				<mx:VBox  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
-					<mx:HBox id="notificationItem" width="465">
-						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" fontWeight="bold" />
-						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" click="Application.application.showExperimentById(event.currentTarget.getRepeaterItem().@expId);" />
+			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="8" startingIndex="0" >
+				<mx:VBox  cornerRadius="7"  paddingBottom="4" paddingLeft="2" borderStyle="solid" borderThickness="1" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
+					<mx:HBox id="notificationItem" width="465" verticalAlign="middle" paddingLeft="5">
+						<mx:Image id="itemImage"  source="{getImageSource(repStatus.currentItem)}" />
+						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" />
+						<mx:Label id="noteTime" text="{repStatus.currentItem.@time}" />
+						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" fontWeight="bold" click="showItem(event.currentTarget.getRepeaterItem().@expId);" />
 					</mx:HBox>
 				</mx:VBox>
 			</mx:Repeater>
 		</mx:VBox>
 		<mx:VBox includeInLayout="{notificationState == 2 ? true : false}">
-			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}" count="8">
-				<mx:HBox id="workflowItem" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#DEDEDE">
+			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}" count="8" startingIndex="0" includeInLayout="{notificationState == 2 ? true : false}" >
+				<mx:HBox id="workflowItem" includeInLayout="{notificationState == 2 ? true : false}" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
+					<mx:Label id="workflowDate" text="{repWorkflow.currentItem.@date}" />
 					<mx:LinkButton id="wfStep" click="Application.application.showView(genXMLTag(event.currentTarget.getRepeaterItem()));" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
 					<mx:Spacer width="100%" />
-					<mx:Label id="wfCount" text="{repWorkflow.currentItem.@count}" />
+					<mx:Label id="wfCount" text="Current items: {repWorkflow.currentItem.@count}" />
 				</mx:HBox>
 			</mx:Repeater>
 		</mx:VBox>
 		
-		<mx:VBox id="emptyNote"  height="200" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold" paddingLeft="110">
+		<mx:VBox id="emptyNote"  height="150" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold" paddingLeft="110">
 			<mx:Spacer height="100" />
 			<mx:HBox id="emptyNoteBox" horizontalAlign="center" visible="false" includeInLayout="false">
 				<mx:Label id="emptyString" text="No available notifications." />
 			</mx:HBox>
 		</mx:VBox>
+		<mx:LinkButton id="moreButton" label="More..." fontStyle="italic" visible="{noteData.length > 8}" includeInLayout="{noteData.length > 8}" click="getMoreItems(repStatus.startingIndex)"/>
+		<mx:LinkButton id="topButton" label="Top..." visible="false" fontStyle="italic" includeInLayout="false" click="{this.repStatus.startingIndex = 0; moreButton.visible = true; moreButton.includeInLayout = true; topButton.visible = false; topButton.includeInLayout = false;}"/>
 	</mx:VBox>
 </mx:Canvas>

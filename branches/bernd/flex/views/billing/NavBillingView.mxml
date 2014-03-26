@@ -935,7 +935,6 @@
  				return;
  			}
 
-			billingStatusCombo.enabled = true;
  			lastSelectedItem = this.requestTree.selectedItem;
 			if (lastSelectedItem.hasOwnProperty("@idInvoice")) {
 				lastSelectedInvoice = invoiceMap[lastSelectedItem.@idInvoice.toString()];
@@ -1404,7 +1403,7 @@
 							'&idCoreFacility=' + this.getSelectedCoreFacilityId());
 						navigateToURL(showUrl, '_blank');
 					}
-				} else if (!email && this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "COMPLETE")){
+				} else if (!email && this.requestTree.selectedItem.name() == "Status" && (this.requestTree.selectedItem.@status == "APPROVED" || this.requestTree.selectedItem.@status == "APPROVEDEX" || this.requestTree.selectedItem.@status == "APPROVEDCC" || this.requestTree.selectedItem.@status == "COMPLETE")){
 					Alert.show("Print all invoices for this folder?", "", (Alert.YES | Alert.NO), null, onPromptToPrintAll); 
 				} else{
 					Alert.show("Please select a lab folder");	
@@ -1446,7 +1445,7 @@
 					statusNode = this.requestTree.selectedItem;
 				}
 				if (statusNode != null && 
-				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+				    (statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX" || statusNode.@status == "APPROVEDCC") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReport.gx' +
 					    '?codeBillingStatus=' + statusNode.@status +
 						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
@@ -1476,7 +1475,7 @@
 					statusNode = this.requestTree.selectedItem;
 				}
 				if (statusNode != null && 
-					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX") ) {
+					(statusNode.@status == "APPROVED" || statusNode.@status == "APPROVEDEX" || statusNode.@status == "APPROVEDCC") ) {
 					var url:URLRequest = new URLRequest('ShowBillingMonthendReportUMergeFormat.gx' +
 						'?codeBillingStatus=' + statusNode.@status +
 						'&idCoreFacility=' + this.getSelectedCoreFacilityId() +
@@ -1508,7 +1507,7 @@
 		public function showNotesToCoreWindow():void {
 			
 			if (lastSelectedBillingPeriod == null ||
-				lastSelectedBillingPeriod .@value == "") {
+				lastSelectedBillingPeriod.@value == "") {
 				Alert.show("Please select a billing period.");
 				return;    	
 			} 
@@ -1519,7 +1518,6 @@
 			coreCommentsWindow.parentView = this;
 			coreCommentsWindow.idBillingPeriod = lastSelectedBillingPeriod.@idBillingPeriod;
 			coreCommentsWindow.update();
-			coreCommentsWindow.positionWindow();
 		}
 		
 		public function showBillingGLInterface():void {
@@ -2056,17 +2054,38 @@
 			var nextPeriodDisplay:String = months[nextMonth] + " " + selYear;
 			
 			// Get the billing period with that month and year and change all billing items to that billing period.
+			var idBillingPeriod:String = ''
 			for each( var de:Object in billingPeriods) {
 				if (de.@display == nextPeriodDisplay) {
-					for each(var request:XML in billingItemsDisplayed){
-						for each(var bi:Object in request.BillingItem){
-							bi.@idBillingPeriod = de.@idBillingPeriod
-								bi.@isDirty = "Y";
-						}
-					}
-					return;
+					idBillingPeriod = de.@idBillingPeriod;
+					break;
 				}
 			}
+			
+			// Change the billing period for the selected items (or all displayed if none selected)
+			if ( idBillingPeriod != '' ) {
+				if ( billingItemGrid.selectedItems.length == 0 ) {
+					for each(var request:XML in billingItemsDisplayed){
+						for each(var bi:Object in request.BillingItem){
+							bi.@idBillingPeriod = idBillingPeriod;
+							bi.@isDirty = "Y";
+						}
+					}
+				} else {
+					for each ( var item:XML in billingItemGrid.selectedItems){
+						if (item.name() == "BillingItem") {
+							item.@idBillingPeriod = idBillingPeriod;
+							item.@isDirty = "Y";
+						} else if (item.name() == "Request") {
+							for each ( var bItem:XML in item.BillingItem ) {
+								bItem.@idBillingPeriod = idBillingPeriod;
+								bItem.@isDirty = "Y"
+							}
+						}
+					}
+				}
+			} 
+			
 			
 			
 		}
@@ -2451,20 +2470,17 @@
 							<mx:Label id="lastEmailDate" styleName="titleLabel" text="{lastSelectedInvoice == null ? '' : lastSelectedInvoice.@lastEmailDate}" fontSize="11"/>
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
-						<mx:LinkButton label="Move to next billing period" 
-									   toolTip="Move all pending items to the next billing period."
-									   textDecoration="underline" 
-									   styleName="formLinkSmallButton" 
-									   click="forwardPendingBillingItems()" 
-									   id="forwardPendingItemsLink"
-									   visible="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}"
-									   includeInLayout="{requestTree.selectedItem != null &amp;&amp; requestTree.selectedItem.@label == 'Pending' &amp;&amp; billingItemsDisplayed.length!=0}" fontSize="10"/>
+						<mx:Button label="Move to next billing period" 
+								   toolTip="This will move all the selected items to the next billing period.  If no items are selected, all of the items displayed will move to the next billing period. (Shift or ctrl + click will highlight multiple rows.)" 
+								   click="forwardPendingBillingItems()" 
+								   id="forwardPendingItemsLink"
+								   fontSize="10" enabled="{this.billingItemsDisplayed.length>0}"/>
 						<mx:ComboBox id="billingStatusCombo" 
 									 prompt="- Change Status -" 
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
 									 labelField="@display" 
-									 toolTip="Shift or ctrl + click will highlight multiple rows.  This will update the status for all the selected items.  If no items are selected, all of the items' statuses will update." 
-									 change="changeStatusImpl()" enabled="false"/>
+									 toolTip="This will update the status for all the selected items.  If no items are selected, all of the displayed items' statuses will update. (Shift or ctrl + click will highlight multiple rows.)" 
+									 change="changeStatusImpl()" enabled="{this.billingItemsDisplayed.length>0}"/>
 					</mx:HBox>
 				</mx:VBox>
 				

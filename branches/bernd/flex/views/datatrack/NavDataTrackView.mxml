@@ -963,7 +963,7 @@
 		}
 		else {
 			//this should never happen
-			Alert.show(makeUCSCLinks.lastResult.toXMLString(), "Error! Failed to convert UCSC link, contact site admin!");
+			Alert.show(makeUCSCLinks.lastResult..ACTMESSAGE.@TEXT, "Failed to create to UCSC file link. Please contact site admin.");
 		}
 	}
 	
@@ -990,8 +990,8 @@
 	private function onDestroyLinks(event:ResultEvent):void {
 		if (destroyLinks.lastResult.name() == "SUCCESS") {
 			Alert.show("All Links Destroyed");
-		} else {
-			Alert.show(destroyLinks.lastResult.toXMLString(), "Error! Failed to delete links, contact site admin!");
+		} else { 
+			Alert.show(destroyLinks.lastResult..ACTMESSAGE.@TEXT, "Failed to delete links. Contact site admin.");
 		}
 		
 	}
@@ -1010,7 +1010,7 @@
 		}
 		else {
 			//this should never happen
-			Alert.show(makeIGVLink.lastResult.toXMLString(), "Error! Failed to make IGV link, contact site admin!");
+			Alert.show(makeIGVLink.lastResult..ACTMESSAGE.@TEXT, "Failed to make IGV link, contact site admin!");
 		}
 	}
 	
@@ -1038,7 +1038,7 @@
 		}
 		else {
 			//this should never happen
-			Alert.show(makeLinks.lastResult.toXMLString(), "Error! Failed to fetch URL links, contact site admin!");
+			Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Failed to fetch URL links, contact site admin!");
 		}
 	}
 	
@@ -1701,12 +1701,12 @@
 	}
 	
 	public function getTreeLabel(item:Object):String {
-		if (item.name() == "DataTrack") {
-			return item.@number + " - " + item.@label;
-			
-		} else {
+//		if (item.name() == "DataTrack") {
+//			return item.@number + " - " + item.@label;
+//			
+//		} else {
 			return item.@label;
-		}
+//		}
 	}		
 	
 	public function addToLabel(label:String): String {

@@ -31,23 +31,11 @@
 			if(parentDocument.request.@captureLibDesignId != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
 				capLibDesignBox.visible = true;
 				capLibDesignBox.includeInLayout = true;
-				avgInsertSizeBox.includeInLayout = false;
-				avgInsertSizeBox.visible = false;
 				capLibLabel.text = parentDocument.request.@captureLibDesignId;
-			}
-			else if(parentDocument.request.@meanInsertSizeRequested != "" && parentDocument.requestCategory.@isIlluminaType == 'Y'){
-				avgInsertSizeBox.visible = true;
-				avgInsertSizeBox.includeInLayout = true;
-				capLibDesignBox.includeInLayout = false;
-				capLibDesignBox.visible = false;
-				avgInsertSizeLabel.text = parentDocument.request.@meanInsertSizeRequested + " bp";
-				
 			}
 			else{
 				capLibDesignBox.includeInLayout = false;
 				capLibDesignBox.visible = false;
-				avgInsertSizeBox.includeInLayout = false;
-				avgInsertSizeBox.visible = false;
 			}
 			
 			submitterName.text = parentDocument.getSubmitterName();
@@ -65,6 +53,8 @@
 			}
 			
 			if (this.parentDocument.isSolexaState()) {
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
 					this.confirmContainer.removeChild(this.hybsConfirmContainer);
 				}
@@ -115,9 +105,9 @@
 					this.sampleDropOffLocationVbox.visible = false;	
 				}
 				this.vbox4.visible = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				this.vbox4.includeInLayout = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
 				this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
 				if (parentDocument.isMitSeqState()) {
@@ -238,7 +228,7 @@
 			}
 			
 			if (parentDocument.isSequencingState() || parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
-				concentrationUnitConfirmColumn.visible = false;
+				
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
@@ -256,10 +246,13 @@
 					this.sampleNameColumn.visible = false;
 				} else if ( parentDocument.isIScanState() ) {
 					this.sampleTypeColumn.visible = false;
+				} else if ( parentDocument.isSequenomState() ) {
+					this.sampleTypeColumn.visible =  (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					this.concentrationCol.visible = (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					
 				}
 				
 			} else if (parentDocument.isSolexaState()) {
-				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				chipTypeConfirmColumn.visible = false; 
 				
@@ -284,7 +277,6 @@
 					seqLibProtocolConfirmCol.visible = true;
 				}
 			} else if (parentDocument.currentState == 'QCState') {
-				concentrationUnitConfirmColumn.visible = true;
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = true; 
@@ -296,7 +288,6 @@
 				this.sampleRowNumberCol.visible = false;
 
 			} else {
-				concentrationUnitConfirmColumn.visible = parentApplication.submitInternalExperiment();
 				sampleOrganismConfirmColumn.visible = true;
 				otherOrganismCol.visible = false;
 				chipTypeConfirmColumn.visible = false; 
@@ -348,10 +339,13 @@
 			this.channel2SampleConfirmColumn.visible = false;
 		}
 		
-		override public function getSamplesGrid():DataGrid {
+		override public function getSamplesGrid():Object {
 			return this.samplesGridConfirm;
 		}
 		
+		override public function getBillingGrid():Object {
+			return this.billingConfirmGrid;
+		}
 		override public function setBillingGridRowCount(rowCount:int):void{
 			this.billingConfirmGrid.rowCount = rowCount;
 			this.billingConfirmGrid.validateNow();
@@ -377,6 +371,12 @@
 								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}"/>
 						<mx:Text  text="{parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'Yes' : 'No'}" 
 								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}" />
+					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
+							 includeInLayout="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}" 
+							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
+						<mx:Label text="Prep type:" textAlign="left" />
+						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedIndex > 0 ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
 					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
@@ -474,10 +474,6 @@
 						<mx:Label text="Capture Library Design Id" styleName="formLabel" height="16"/>
 						<mx:Label id="capLibLabel" alpha="0.8" text=""/>
 					</mx:VBox>
-					<mx:VBox id="avgInsertSizeBox" visible="false" includeInLayout="false">
-						<mx:Label text="Requested Mean Insert Size" styleName="formLabel" height="16"/>
-						<mx:Label id="avgInsertSizeLabel" alpha="0.8" text=""/>
-					</mx:VBox>
 					<mx:VBox id="sampleDropOffLocationVbox" visible="false">
 						<mx:Label text="Sample Drop Off Location" styleName="formLabel" height="16"/>
 						<mx:Label id="sampleDropOffLocation" width="200" alpha="0.8"  text="{parentDocument.sampleSetupView.sampleDropOffLocationCombo.selectedItem.@display}"/>
@@ -539,9 +535,7 @@
 						</mx:DataGridColumn>
 
 						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
-		                <mx:DataGridColumn id="concentrationUnitConfirmColumn" headerText="Unit"  width="60" 
-	                  	  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
-	                    <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="60"/>
+		                 <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 
 		                <mx:DataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multipexGroupNumber" editable="false" visible="false"
 							width="58">

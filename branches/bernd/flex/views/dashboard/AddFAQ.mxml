@@ -50,6 +50,9 @@
 				if(urlInput.length == 0 && titleInput.length > 200){
 					Alert.show("Length of the FAQ title cannot exceed 200 characters and url cannot be empty.");
 					return;
+				}else if (urlInput.text.indexOf("http://") == -1 && urlInput.text.indexOf("https://") == -1){
+					Alert.show("URL must contain either http:// or https://");
+					return;
 				}else{
 					itemTitle = titleInput.text;
 					url = urlInput.text;
@@ -81,7 +84,7 @@
 		
 		<mx:HBox>
 			<mx:Label fontWeight="bold" text="URL: "/>
-			<mx:TextInput id="urlInput" text="{url}" width="633" />
+			<mx:TextInput id="urlInput" text="http://" width="633" />
 		</mx:HBox>
 		<mx:Spacer height="100%" />
 			

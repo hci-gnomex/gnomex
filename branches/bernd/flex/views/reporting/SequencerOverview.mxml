@@ -52,31 +52,38 @@
 			private function sortXLC():void {
 				
 				var mySort:Sort = new Sort();
-				var sortField:SortField = new SortField("runId"); // Set sort properties
+				var sortField:SortField = new SortField("@lastUpdated"); // Set sort properties
 				sortField.descending = true;							// Reverse the sort list
-				sortField.numeric = false;
+				sortField.numeric = true;
 				
 				mySort.fields = [sortField];
 				MIList.sort = mySort;
 				MIList.refresh();										// Refresh datasource
 			}		
 			
-			private function formatDate(item:Object,column:AdvancedDataGridColumn):String
-			{
+//			private function formatLastUpdate(item:Object,column:AdvancedDataGridColumn):String{
+//				var dateArray:Array = item[column.dataField].substr(0, item[column.dataField].lastIndexOf(" ")).split("/");
+//				var year:String = dateArray[2];
+//				var month:String = dateArray[1];
+//				var day:String = dateArray[0];
+//				
+//				return month + "/" + day + "/" + year;
+//			}
+			
+			private function formatDate(item:Object,column:AdvancedDataGridColumn):String{
 				var rawDate:String = item[column.dataField];
 				var yr:String = rawDate.substr(0,2);
 				var mn:String = rawDate.substr(2,2);
 				var dy:String = rawDate.substr(4,2);
 				
 				var year:String = "20"+yr;
-
-				var date:String = dy+"/"+mn+"/"+year;
+				
+				var date:String = mn+"/"+dy+"/"+year;
 				
 				return date;
 			}
 
-			private function formatState(item:Object,column:AdvancedDataGridColumn):String
-			{
+			private function formatState(item:Object,column:AdvancedDataGridColumn):String{
 				var rawState:int = item[column.dataField];
 				
 				if(rawState == 1){
@@ -132,7 +139,7 @@
 				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" labelFunction="formatState" headerText="Run State" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn headerText="Date" dataField="runDate" labelFunction="formatDate" editable="false" width="60"/>
-				<mx:AdvancedDataGridColumn  dataField="lastUpdated"  editable="false" headerText="Last Indexed"   width="32" />
+				<mx:AdvancedDataGridColumn  dataField="lastUpdated" editable="false" headerText="Last Updated"   width="32" />
 				<mx:AdvancedDataGridColumn  dataField="currentCycle" editable="false" headerText="Current Cycle" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="totalCycle" editable="false" headerText="Total Cycle" width="60">

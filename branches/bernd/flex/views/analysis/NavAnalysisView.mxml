@@ -484,7 +484,7 @@
 			}
 			
 			
-			private function onBrowseTree():void {
+			public function onBrowseTree():void {
 				if(browseTree.selectedItems.length != 1){
 					return;
 				}
@@ -619,6 +619,25 @@
 				}   
 				return keep;
 			}
+			
+			private function filterGenomeBuild(item:Object):Boolean {
+				if (item.@value == "") {
+					return true;
+				}
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				var doesMatch:Boolean = false;
+				if (this.organismCombo.selectedItem != null && 
+					this.organismCombo.selectedItem.@value != null  &&
+					this.organismCombo.selectedItem.@value != "") {
+					if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+						doesMatch = true;
+					}
+				}
+				return doesMatch;
+			}	
+			
 			
 			
 			
@@ -820,6 +839,8 @@
 					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
 					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
 					params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
+					params.idGenomeBuild = genomeBuildCombo.selectedItem == null ? "" : genomeBuildCombo.selectedItem.@idGenomeBuild;
+					params.idOrganism = organismCombo.selectedItem == null ? "" : organismCombo.selectedItem.@idOrganism;
 					
 				}
 				
@@ -1011,6 +1032,8 @@
 					// If dropped within Lab then use first AnalysisGroup
 					var item:Object;
 					p = node;
+					if(p.AnalysisGroup.length() == 0) {	// Adding to Lab with no AnalysisGroups. No longer illegal as backend can now handle this.						
+						illegalDrop = false;}					
 					for each(item in p.AnalysisGroup) {
 						p = XML(item);
 						illegalDrop = false;
@@ -1108,6 +1131,9 @@
 	<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
 	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
+	<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+	<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
+	
 	<mx:VBox   width="100%" height="100%" verticalGap="2">
 		<mx:VBox styleName="panelBox" width="100%" id="vbox1"  paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			<mx:VBox id="filterBox"  verticalGap="0" width="100%">
@@ -1144,6 +1170,27 @@
 						<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
 							<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
 						</mx:CheckBox>
+					</mx:HBox>
+					<mx:HBox verticalAlign="middle">
+						<mx:VBox verticalAlign="middle">
+							<mx:Label text="Organism:" styleName="labelSmall" />
+							<mx:Label text="Genome Build:" styleName="labelSmall" />
+						</mx:VBox>
+						<mx:VBox verticalAlign="middle" paddingBottom="5">						
+						<renderers:FilterComboBox labelField="@display"
+												  prompt="Organism..."
+												  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
+												  id="organismCombo"
+												  dataProvider="{organisms.source}"
+												  width="281">
+						</renderers:FilterComboBox>
+						<mx:ComboBox width="281" 
+									 id="genomeBuildCombo" 
+									 labelField="@display"
+									 change="refreshAnalysis();"
+									 dataProvider="{filteredGenomeBuildList}">							
+						</mx:ComboBox>
+						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
 						<mx:Label text="Search" id="searchLabel" paddingLeft="6"/>
@@ -1253,11 +1300,12 @@
 			<mx:AddChild relativeTo="{filterBox}" position="lastChild">
 				<mx:HBox width="100%" verticalAlign="middle" paddingLeft="90">
 					<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
-						<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall" paddingLeft="2"/>
+						<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
+						<mx:Spacer width="45"/>
 						<renderers:FilterComboBox dataProvider="{labList}" 
 												  labelField="@name" 
 												  prompt="Select a lab..."
-												  width="170" 
+												  width="281" 
 												  close="{selectLab();refreshAnalysis()}"  
 												  id="browseLabCombo">
 						</renderers:FilterComboBox>

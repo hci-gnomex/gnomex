@@ -711,6 +711,13 @@
 		var itemType:String = "data track";
 		var itemNumber:String = itemToRemove.@number;
 		
+		if(itemToRemove.@label.toString().indexOf("(Restricted Visibility)") > -1 ||
+			itemToRemove.@number.toString().indexOf("(Restricted Visibility)") > -1) {
+			Alert.show("This item is restricted.\n You are not authorized to delete it.",
+				"Restricted Visibility", Alert.OK, this);
+			return;
+		}
+		
 		if(itemToRemove.name() == "Request") {
 			itemType = "request";
 			itemNumber = itemToRemove.@requestNumber;
@@ -1062,21 +1069,41 @@
 	
 	public function getTreeLabel(item:Object):String {
 		var retValue:String = "";
+//		if(item.name() == "Analysis" || item.name() == "DataTrack" || item.name() == "Request") {
+//			retValue = item.@number + addToLabel(item.@name);
+//			return retValue;
+//		} else
+//			return item.@label;
 		if (item.name() == "Analysis") { 
-			retValue = item.@number;
+			retValue = item.@number; // "(Restricted Visibility)" is added to @number for Analysis by TopicQuery.java
 			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
-				retValue;
-			}
+				var number:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
+				retValue = number + addToLabel(item.@name) + " (Restricted Visbility)";
+			} else {
+				retValue = item.@number + addToLabel(item.@name);
+			}				
 			return retValue;
 		} else if (item.name() == "DataTrack") {
-			retValue = item.@number;
+			retValue = item.@number; // "(Restricted Visiblity)" is added to @number for DataTrack by TopicQuery.java
 			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
-				retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+				//retValue = retValue + addToLabel(item.@label) + addToLabel(parentApplication.getLabName(item, 0)) + addToLabel(item.@createDate);
+				var number1:String = retValue.toString().substr(0, retValue.toString().indexOf("(Restricted Visibility)"));
+				retValue = number1 + addToLabel(item.@name) + " (Restricted Visbility)";				
+			} else {
+				retValue = item.@number + addToLabel(item.@name);
+			}
+			return retValue;		
+		} else if (item.name() == "Request") {
+			retValue = item.@label; // "(Restricted Visibility)" is added to @label for Request by Request.java
+			if(retValue.toString().indexOf("(Restricted Visibility)") > -1 ) {
+				retValue = item.@number + addToLabel(item.@name) + " (Restricted Visibility)";
+			} else {
+				retValue = item.@number + addToLabel(item.@name);
 			}
 			return retValue;
-		} else {
+		} else { // it is a Folder, Topic or Category
 			return item.@label;
-		}
+		}		
 	}
 	
 	public function addToLabel(label:String): String {

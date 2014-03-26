@@ -18,7 +18,7 @@
 			
 			import views.util.DirtyNote;
 			
-			private var _listData:DataGridListData;
+			protected var _listData:DataGridListData;
 			
 			[Bindable]
 			public var txt:String;
@@ -29,10 +29,13 @@
 			[Bindable]
 			public var _enabledField:String;
 			
+			[Bindable]
+			public var _enabledFunction:Function;
+			
 			public var dirty:DirtyNote
 			
-			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true, _enabledField:String=null):IFactory {
-				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice, _enabledField:_enabledField});
+			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true, _enabledField:String=null, _enabledFunction:Function=null):IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice, _enabledField:_enabledField, _enabledFunction:_enabledFunction});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -101,6 +104,10 @@
 					this.enabled = data[_enabledField] == 'Y';
 				}
 
+				if (this._enabledFunction != null) {
+					this.enabled = _enabledFunction(data);
+				}
+				
 				var n:int = numChildren;
 				for (var i:int = 0; i < n; i++)
 				{

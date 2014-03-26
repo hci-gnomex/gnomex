@@ -6,7 +6,7 @@
 	xmlns:search="views.search.*" 
 	showCloseButton="true"
 	close="{closeWindow()}"
-	title="Edit User Account Settings"
+	title="My Account"
 	creationPolicy="all"
 	height="472" icon="@Embed('../../assets/user.png')" width="720">
 

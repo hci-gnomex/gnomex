@@ -188,7 +188,7 @@
 
 		[Bindable]
 		public var promptedMyCoreFacilities:PromptXMLListCollection;
-
+		
         private var dropProject:Object;
         private var dragRequest:Object;
         
@@ -250,10 +250,9 @@
         		this.browseView.theViews.selectedChild = this.browseView.experimentListView;
         	}
 			
-			var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
+			var emptyNode:XML = <CoreFacility displayName='' idCoreFacility='' value='' label=''/>;
 			promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.myCoreFacilities));
 			
-
 			isInitialized = true;
 
 		}
@@ -581,7 +580,7 @@
 	    }
     
 
-		private function onBrowseTree():void {
+		public function onBrowseTree():void {
 			setResultsCount();
 			
 			browseView.dirtyProject.resetDirty();
@@ -1021,6 +1020,9 @@
 			if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
 				params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
 			} 
+			if ( requestCategoryComboBox != null && requestCategoryComboBox.selectedItem != null && requestCategoryComboBox.selectedLabel != ''){
+				params.codeRequestCategory = requestCategoryComboBox.selectedItem.@codeRequestCategory;
+			}
 			if ( ccLookupText.text != '' ) {
 				params.ccNumber = ccLookupText.text;
 			}
@@ -1037,40 +1039,28 @@
 				} else if (currentState != "GuestState") {
 					if (myExperimentsCheckbox.selected) {
 						params.idAppUser = parentApplication.getIdAppUser();
-					}		
-					if (this.userAllExperimentsCheckbox.selected) {
+					}	else if (this.userAllExperimentsCheckbox.selected) {
 						params.allExperiments = 'Y';
+					}	else if (this.myCollaborationsCheckbox.selected) {				
+						params.allCollaborations = 'Y';
+						params.idAppUser = parentApplication.getIdAppUser();
 					}
 				}
 				if (this.externalExperimentsOnlyCheckbox.selected) {
 					params.isExternalOnly = 'Y';
 				}
 			
-				
 				if (publicExperimentsOtherGroupsCheckbox.selected) {
 					params.publicExperimentsInOtherGroups = 'Y';
 				} else {
 					params.publicExperimentsInOtherGroups = 'N';
 				}
-				if (currentState == 'AdminState' || 
-					this.MicroarrayCheckbox.selected ||
-					this.NextGenSeqCheckbox.selected ||
-					this.BioanalyzerCheckbox.selected ) {
+				if (currentState == 'AdminState'  ) {
 					params.showMyLabsAlways = 'N'; 
 				} else {
 					params.showMyLabsAlways = 'Y';
 				}
 				
-				params.isMicroarray  = this.MicroarrayCheckbox.selected ? "Y" : "N";
-				params.isNextGenSeq  = this.NextGenSeqCheckbox.selected ? "Y" : "N";
-				params.isBioanalyzer = this.BioanalyzerCheckbox.selected ? "Y" : "N";
-
-				params.isCapSeq      = this.CapSeqCheckbox.selected ? "Y" : "N";
-				params.isMitSeq      = this.MitSeqCheckbox.selected ? "Y" : "N";
-				params.isFragAnal    = this.FragAnalCheckbox.selected ? "Y" : "N";
-				params.isCherryPick  = this.CherryPickingCheckbox.selected ? "Y" : "N";
-				params.isIScan       = this.IScanCheckbox.selected ? "Y" : "N";
-
 			}
 
 			if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
@@ -1088,21 +1078,23 @@
 		 
 		public function resetSearchComponents():void {
 			
-			if (this.MicroarrayCheckbox == null) {
-				return;
+			if (coreFacilityCombo != null) {
+				this.coreFacilityCombo.selectedItem = null;
 			}
-			
-			this.coreFacilityCombo.selectedItem = null;
-			
-			this.MicroarrayCheckbox.selected = false;
-			this.NextGenSeqCheckbox.selected = false;
-			this.BioanalyzerCheckbox.selected = false;
-			
+			if (requestCategoryComboBox != null) {
+				this.requestCategoryComboBox.selectedItem = null;
+			}			
 			
 			if (this.currentState == null) {
-				this.myExperimentsCheckbox.selected = false;
-				this.myLabsExperimentsCheckbox.selected = false;
-				this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				if (myExperimentsCheckbox != null) {
+					this.myExperimentsCheckbox.selected = false;
+				}
+				if (this.myLabsExperimentsCheckbox != null) {
+					this.myLabsExperimentsCheckbox.selected = false;
+				}
+				if (this.publicExperimentsOtherGroupsCheckbox != null) {
+					this.publicExperimentsOtherGroupsCheckbox.selected = false;
+				}
 			} else if (this.currentState == "AdminState") {
 				this.browseUserCombo.selectedItem = null;				
 			}
@@ -1346,127 +1338,25 @@
 		}			
 
 	
-	private function toggleOwnershipCheckboxes(checkBoxNumber:int):void {
-		if (checkBoxNumber == 1) {
-			this.publicExperimentsOtherGroupsCheckbox.selected = false;
-		} else if (checkBoxNumber == 2) { 
-			this.myExperimentsCheckbox.selected = false;
-		} 
-	}
-	private function toggleRequestKindCheckboxes(checkBoxNumber:int):void {
+	private function toggleOwnershipRadio():void {
 		this.ccLookupText.text = '';
-		if (checkBoxNumber == 1) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.BioanalyzerCheckbox.selected  = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} else if (checkBoxNumber == 2) {
-			this.MicroarrayCheckbox.selected = false;
-			this.BioanalyzerCheckbox.selected  = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} else if (checkBoxNumber == 3) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}  else if (checkBoxNumber == 4) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}  else if (checkBoxNumber == 5) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.CapSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}  else if (checkBoxNumber == 6) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		}  else if (checkBoxNumber == 7) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.IScanCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} else if (checkBoxNumber == 8) {
-			this.NextGenSeqCheckbox.selected = false;
-			this.MicroarrayCheckbox.selected = false;
-			this.CapSeqCheckbox.selected = false;
-			this.MitSeqCheckbox.selected = false;
-			this.FragAnalCheckbox.selected = false;
-			this.CherryPickingCheckbox.selected = false;
-			if (currentState == "AdminState") {
-				this.allExperimentsCheckbox.selected = false;
-			}
-		} 
+		selectedIdProject=null;
+		selectedIdLab=null;
+		selectedIdRequest=null;
+		selectedRequestNumber=null;
 	}
+	
 			
 	private function toggleAllExperiments():void {
 		if (currentState == "AdminState") {
 			if (this.allExperimentsCheckbox.selected) {
 				this.browseLabCombo.enabled = false;
 				this.browseUserCombo.enabled = false;
-				this.MicroarrayCheckbox.enabled = false;
-				this.NextGenSeqCheckbox.enabled = false;
-				this.BioanalyzerCheckbox.enabled = false;
-				this.externalExperimentsOnlyCheckbox.enabled = false;
-				this.CapSeqCheckbox.enabled = false;
-				this.MitSeqCheckbox.enabled = false;
-				this.FragAnalCheckbox.enabled = false;
-				this.CherryPickingCheckbox.enabled = false;
-				this.IScanCheckbox.enabled = false;
+				
 			} else {
 				this.browseLabCombo.enabled = true;
 				this.browseUserCombo.enabled = true;
-				this.MicroarrayCheckbox.enabled = true;
-				this.NextGenSeqCheckbox.enabled = true;
-				this.BioanalyzerCheckbox.enabled = true;
-				this.externalExperimentsOnlyCheckbox.enabled = true;
-				this.CapSeqCheckbox.enabled = true;
-				this.MitSeqCheckbox.enabled = true;
-				this.FragAnalCheckbox.enabled = true;
-				this.CherryPickingCheckbox.enabled = true;
-				this.IScanCheckbox.enabled = true;
+				
 			}
 		} 
 	}
@@ -1508,19 +1398,74 @@
 			this.getProjectRequestList.send(getBrowseParameters());
 		} 
 	}
-		
+	
+	private function sortRequestCategory(obj1:Object, obj2:Object, fields:Array=null):int {
+		if (obj1 == null && obj2 == null) {
+			return 0;
+		} else if (obj1 == null) {
+			return 1;
+		} else if (obj2 == null) {
+			return -1;
+		} else {
+			var idCore1:Number = obj1.@idCoreFacility == "" ? 999 : obj1.@idCoreFacility
+			var idCore2:Number = obj2.@idCoreFacility == "" ? 999 : obj2.@idCoreFacility
 			
-	/* private function pickDateRange():void 
-	{
-		PopUpManager.addPopUp(pickDateRangeWindow, pickDateRangeButton, false);
-		PopUpManager.centerPopUp(pickDateRangeWindow);
+			var sortOrder1:Number = obj1.@sortOrder == "" ? 999 : obj1.@sortOrder;
+			var sortOrder2:Number = obj2.@sortOrder == "" ? 999 : obj2.@sortOrder;
+			
+			var display1:String = obj1.@display;
+			var display2:String = obj2.@display;
+			
+			if (idCore1 < idCore2) {
+				return -1;
+			} else if (idCore1 > idCore2) {
+				return 1;
+			} else {
+				if (sortOrder1 < sortOrder2) {
+					return -1;
+				} else if (sortOrder1 > sortOrder2) {
+					return 1;
+				} else {
+					if (display1 < display2) {
+						return -1;
+					} else if (display1 > display2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}
+			
+		}
+	}			
+			
+	private function filterRequestCategory(item:Object):Boolean {
+		var keep:Boolean = false;
+		if (item.@idCoreFacility != null ) {
+			if ( parentApplication.coreFacilitiesICanManage.length() > 1 && (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') ) {
+				keep = false;
+			} else if ( coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@value != null && coreFacilityCombo.selectedItem.@value != '' ) {
+				if (item.@idCoreFacility == coreFacilityCombo.selectedItem.@value){
+					keep = true;
+				}
+			} else if (parentApplication.isCoreFacilityIManage(item.@idCoreFacility)) {
+				keep = true;
+			}
+			
+		}
+		return keep;
 		
-	} */
+	}
+			
+	
 			
        ]]>
     </mx:Script> 
    	
-   	 
+	<mx:XMLListCollection id="requestCategories"   sort="{requestCategorySorter}" filterFunction="filterRequestCategory"
+						  source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y')}"/>
+	<mx:Sort id="requestCategorySorter" compareFunction="sortRequestCategory"/>	 
+	
    	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>
 	<mx:Sort id="requestNumberSorter" compareFunction="sortRequestNumbers" unique="true"/>
      
@@ -1532,39 +1477,82 @@
 			<mx:VBox  verticalGap="6" height="100%">
 				<mx:HBox horizontalGap="0" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
 					<mx:HBox paddingLeft="0" verticalAlign="middle" width="100%">
-						<mx:HBox horizontalGap="0" width="100" verticalAlign="middle">
+						<mx:HBox horizontalGap="0" width="100" verticalAlign="middle" >
 							<mx:Image source="assets/flask.png"/>
 							<mx:Label text="Experiments" styleName="titleLabel"/>	
 						</mx:HBox>
 						
+						<mx:Spacer width="17"/>
+						
 						<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0" id="hbox2">
 							<mx:RadioButtonGroup id="experimentRadioGroup"/>
-							<mx:RadioButton label="My experiments" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Experiments that I submitted">
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							<mx:RadioButton label="" id="myExperimentsCheckbox"  groupName="experimentRadioGroup" paddingRight="2" selected="true">
+								<mx:toolTip>Experiments that I submitted</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="My lab" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall" selected="true">
-								<mx:toolTip><![CDATA[Experiments of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+							<mx:VBox styleName="{myExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox5">
+								<mx:Label text="My experiments" styleName="{myExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label2">
+									<mx:toolTip>Experiments that I submitted</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="myLabsExperimentsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2" >
+								<mx:toolTip>Experiments of my lab and those visible to to my institution</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="Other labs" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:VBox styleName="{myLabsExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox6">
+								<mx:Label text="My lab" styleName="{myLabsExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="label3">
+									<mx:toolTip>Experiments of my lab and those visible to to my institution</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myLabsExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="myCollaborationsCheckbox" groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
+								<mx:toolTip>Experiments I collaborate on</mx:toolTip>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
+							</mx:RadioButton>
+							<mx:VBox styleName="{myCollaborationsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox7">
+								<mx:Label text="My collaborations" styleName="{myCollaborationsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label4">
+									<mx:toolTip>Experiments I collaborate on</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();myCollaborationsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
 								<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
-							<mx:RadioButton label="All" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:VBox styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox8">
+								<mx:Label text="Public data" styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label5">
+									<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();publicExperimentsOtherGroupsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
+							<mx:RadioButton label="" id="userAllExperimentsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
 								<mx:toolTip>All experiments I have access to</mx:toolTip>
-								<mx:click>this.ccLookupText.text = '';selectedIdProject=null;selectedIdLab=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
+								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
+							<mx:VBox styleName="{userAllExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox9">
+								<mx:Label text="All" styleName="{userAllExperimentsCheckbox.selected?'selectedLabel':'labelSmall'}" id="label6">
+									<mx:toolTip>All experiments I have access to</mx:toolTip>
+									<mx:click>this.toggleOwnershipRadio();userAllExperimentsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
+								</mx:Label>
+							</mx:VBox>
+							
 						</mx:HBox>
 						<mx:Spacer width="10" id="spacer1"/>
-						
-						<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
+						<mx:HBox>
+							<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
+						</mx:HBox>
 						
 					</mx:HBox>	
 				</mx:HBox>
 				
 				<mx:VBox id="filterBox" verticalGap="4" visible="false" includeInLayout="false">
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox7">
-						<mx:Spacer width="100"/>
+						<mx:Spacer width="125"/>
 						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
 							<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments" paddingRight="0" horizontalGap="0" 
 										  styleName="labelSmall" toolTip="External experiments (only)" 
@@ -1578,11 +1566,18 @@
 										 visible="{parentApplication.myCoreFacilities.length() > 1}" >
 									<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{promptedMyCoreFacilities}"
 												 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
-										<mx:change>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:change>
+										<mx:change>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;requestCategoryComboBox.selectedItem = null;requestCategories.refresh();</mx:change>
 									</mx:ComboBox>
 								</mx:VBox>
-								<mx:Spacer width="18" id="spacer2" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
+								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
+								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" removeFilterOnSelection="true"
+											 dataProvider="{requestCategories}" 
+											 labelField="@display" prompt="Experiment Type.."
+											 includeInLayout="{requestCategories.length > 1}" 
+											 visible="{requestCategories.length > 1}" />
+								<mx:Spacer width="18" id="spacer2" includeInLayout="{requestCategories.length > 1}" 
+										   visible="{requestCategories.length > 1}"/>
 								<mx:Label text="CC Number" paddingBottom="0" styleName="labelSmall" visible="{parentApplication.isBSTLinkageSupported}" id="label1"/>
 								<mx:TextInput id="ccLookupText" fontSize="9"
 											  height="19"
@@ -1590,63 +1585,6 @@
 											  enter="{ccNoLookupFieldEntered()}" visible="{parentApplication.isBSTLinkageSupported}" includeInLayout="{parentApplication.isBSTLinkageSupported}"/>
 							</mx:HBox>
 						</mx:HBox>	
-					</mx:HBox>
-					
-					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
-						<mx:Spacer width="100"/>
-						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
-							
-							<mx:HBox horizontalGap="2" id="hbox5" verticalAlign="middle">
-								<mx:CheckBox label="Illumina Seqencing"  id="NextGenSeqCheckbox"
-											 visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(2);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="Microarray" id="MicroarrayCheckbox" 
-											 visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(1);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="Sample Quality"  id="BioanalyzerCheckbox" 
-											 visible="{parentApplication.isCoreGenomics}" includeInLayout="{parentApplication.isCoreGenomics}"								 
-											 horizontalGap="0" styleName="labelSmall" >
-									<mx:click>toggleRequestKindCheckboxes(3);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-							</mx:HBox>
-							<mx:Spacer width="14" visible="{parentApplication.usesExperimentTypeCapSeq}" 							 
-									   includeInLayout="{parentApplication.usesExperimentTypeCapSeq}" />
-							<mx:HBox horizontalGap="2" id="dnaSeqCoreCheckboxBox" verticalAlign="middle">
-								<mx:CheckBox label="Sanger Seq" id="CapSeqCheckbox" toolTip="DNA (Sanger) Sequencing"
-											 visible="{parentApplication.usesExperimentTypeCapSeq}" 							 
-											 includeInLayout="{parentApplication.usesExperimentTypeCapSeq}" 							 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(4);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="Mit Seq"  id="MitSeqCheckbox"  toolTip="Mitochonrial Sequencing"
-											 visible="{parentApplication.usesExperimentTypeMitSeq}" 							 
-											 includeInLayout="{parentApplication.usesExperimentTypeMitSeq}" 							 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(5);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="Frag Analysis"  id="FragAnalCheckbox"  toolTip="Fragment Analysis"
-											 visible="{parentApplication.usesExperimentTypeFragAnalysis}" 							 
-											 includeInLayout="{parentApplication.usesExperimentTypeFragAnalysis}" 							 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(6);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="Cherry Pick"  id="CherryPickingCheckbox"  toolTip="Cherry Picking"
-											 visible="{parentApplication.usesExperimentTypeCherryPick}" 							 
-											 includeInLayout="{parentApplication.usesExperimentTypeCherryPick}" 							 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(7);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-								<mx:CheckBox label="iScan"  id="IScanCheckbox"  toolTip="iScan"
-											 visible="{parentApplication.usesExperimentTypeIScan}" includeInLayout="{parentApplication.usesExperimentTypeIScan}"								 
-											 horizontalGap="0" styleName="labelSmall">
-									<mx:click>toggleRequestKindCheckboxes(8);selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;</mx:click>
-								</mx:CheckBox>
-							</mx:HBox>
-						</mx:HBox>
 					</mx:HBox>
 					
 				</mx:VBox>
@@ -1725,7 +1663,7 @@
 							</mx:CheckBox>
 						</mx:HBox>
 						<mx:HBox>
-							<mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow()" 
+							<mx:LinkButton label="New project" id="newProjectButton" click="browseView.showNewProjectWindow();showEmptyProjectFolders.selected=true;" 
 										   icon="@Embed('../../assets/folder_add.png')" 
 											   toolTip="New project..." 
 											   enabled="false" 
@@ -1787,6 +1725,7 @@
 			<mx:RemoveChild target="{myExperimentsCheckbox}"/>
 			<mx:RemoveChild target="{publicExperimentsOtherGroupsCheckbox}"/>
 			<mx:RemoveChild target="{myLabsExperimentsCheckbox}"/>
+			<mx:RemoveChild target="{myCollaborationsCheckbox}"/>
 			<mx:AddChild relativeTo="{hbox2}"  position="firstChild">
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();" />
@@ -1815,6 +1754,16 @@
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:RemoveChild target="{label2}"/>
+			<mx:RemoveChild target="{label3}"/>
+			<mx:RemoveChild target="{vbox5}"/>
+			<mx:RemoveChild target="{label4}"/>
+			<mx:RemoveChild target="{vbox6}"/>
+			<mx:RemoveChild target="{label5}"/>
+			<mx:RemoveChild target="{vbox7}"/>
+			<mx:RemoveChild target="{label6}"/>
+			<mx:RemoveChild target="{vbox8}"/>
+			<mx:RemoveChild target="{vbox9}"/>
 
 		</mx:State>
 

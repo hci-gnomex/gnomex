@@ -67,7 +67,7 @@
 				uploadURLRequest = new URLRequest;
 	        	uploadURLRequest.method = "POST";  // this can also be set to "POST" depending on your needs 
 	        	uploadURLRequest.contentType = "multipart/form-data";
-        		uploadURLRequest.url = getUploadURL.lastResult.@url;
+        		uploadURLRequest.url = getUploadURL.lastResult.@url; 
         		
         	}
         }
@@ -98,13 +98,27 @@
         }
 
         private function onFileRefComplete(evt:Event):void {
-            Alert.show("Email message has been sent to all active GNomEx users with valid email accounts.");
+           Alert.show("Email message has been sent.");
             PopUpManager.removePopUp(this);
         }
 	
 		
 		
-		private function save():void {
+		private function save():void {			
+			var coreIds:String = "";
+			if (parentApplication.coreFacilitiesICanManage.length() < 2) {
+				coreIds = parentApplication.coreFacilitiesICanManage[0].@idCoreFacility;
+			} else {
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					if (coreFacilityCheckbox[x].selected == true) {
+						if (coreIds != '') {
+							coreIds = coreIds + ',';
+						}
+						coreIds = coreIds + parentApplication.coreFacilitiesICanManage[x].@idCoreFacility;
+					}
+				}
+			}
+			
 			if (fileRef != null) {
 				var postVariables:URLVariables = new URLVariables;
 				postVariables.subject = subject.text;
@@ -112,28 +126,16 @@
 					postVariables.format = "html";
 				} else {
 					postVariables.format = "text";
-				}
-				uploadURLRequest.data = postVariables;
+				}				
+				postVariables.coreFacilityIds = coreIds;				
+				uploadURLRequest.data = postVariables;				
 				fileRef.upload(uploadURLRequest);
 			}  else {
 			 	var params:Object = new Object();
 			 	params.subject = subject.text;
 			 	params.format = "text";
 				params.fromAddress = fromAddress.text;
-			 	params.body = body.text;
-				var coreIds:String = "";
-				if (parentApplication.coreFacilitiesICanManage.length() < 2) {
-					coreIds = parentApplication.coreFacilitiesICanManage[0].@idCoreFacility;
-				} else {
-					for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
-						if (coreFacilityCheckbox[x].selected == true) {
-							if (coreIds != '') {
-								coreIds = coreIds + ',';
-							}
-							coreIds = coreIds + parentApplication.coreFacilitiesICanManage[x].@idCoreFacility;
-						}
-					}
-				}
+			 	params.body = body.text;	
 				params.coreFacilityIds = coreIds;
 			 	this.sendBroadcastEmail.send(params);
 			}

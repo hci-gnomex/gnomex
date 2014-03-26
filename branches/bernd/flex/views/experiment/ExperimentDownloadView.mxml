@@ -123,9 +123,26 @@
 				}    	 
 				this.downloadTree.visible = true;
 				setFileCount();
+				sortDownloadList(this.downloadList);
 				callLater(expandNodes);
 				parentDocument.filterList();
 							
+			}
+			
+			private function sortDownloadList(theList:XMLListCollection):void{
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@displayName", true)];
+				theList.sort = sort;
+				theList.refresh();
+				for each(var child:XML in theList){
+					if(child.children().length() > 0){
+						var childList:XMLListCollection = new XMLListCollection(child.children());
+						sortDownloadList(childList);
+						child.setChildren(childList.copy());
+					}
+					
+				}
+				theList.refresh();
 			}
 			 
 			private function expandNodes():void {
@@ -345,6 +362,15 @@
 				}
 			}
 			
+			private function showLinkSamplesWindow():void{
+				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+				var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+				if (idRequest != null && idRequest != "") {
+					ExperimentEditView.showLinkSamplesWindow(parentApplication.theBody, request, new ExperimentEditView, this);		 
+				}
+				
+			}
+			
 			public function showDownloadWindow():void {
 				if (this.browseParameters != null) {
 					var downloadTerms:String = parentApplication.getProperty(parentApplication.PROPERTY_GUEST_DOWNLOAD_TERMS);
@@ -384,7 +410,7 @@
 			}
 			
 			[Bindable(event="requestChanged")]
-			private function isClinicalResearchRequest():Boolean {
+			public function isClinicalResearchRequest():Boolean {
 				if (this.request != null) {
 					var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.request.@codeRequestCategory);
 					if (requestCategory.hasOwnProperty("@isClinicalResearch") && requestCategory.@isClinicalResearch == "Y") {
@@ -454,6 +480,7 @@
 				<mx:AdvancedDataGridColumn dataField="@displayName"  labelFunction="getDownloadName"  headerText="Folder or File" width="250"/> 
 				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
 				<mx:AdvancedDataGridColumn dataField="@info" headerText="Info" width="80"/>
+				<mx:AdvancedDataGridColumn dataField="@linkedSampleNumber" headerText="Linked Sample" width="100"/>
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
 				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
 			</mx:columns>

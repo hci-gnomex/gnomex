@@ -990,17 +990,6 @@
 			}
 		}
 		
-		// Disallow operation if matching .bam, .bai are not selected
-		var isBamOrBai:Boolean = false;
-		for each(var dragItem1:Object in ds.dataForFormat("treeDataGridItems") as Array) {
-			if (dragItem1.name() == "AnalysisFileDescriptor") {
-				if (dragItem1.@type == 'BAM' || dragItem1.@type == 'bam' || dragItem1.@type == 'BAI' || dragItem1.@type == 'bai') {
-					isBamOrBai = true;
-					break;
-				}
-			}
-		}
-		
 		// retrieve the data associated with the "items" format. This will be the data that
 		// the dragInitiator has copied into the DragSource.
 		dragParams = new ArrayCollection();
@@ -1016,9 +1005,11 @@
 					params.idLab = dragItem.@idLab;
 					
 					// Don't include .bai if .bam is already selected
-					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
-						continue;
-					}
+//					if (this.hasMatchingBAMFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")) {
+//						continue;
+//					} else if(this.hasMatchingUSEQFilePair(dragItem, ds.dataForFormat("treeDataGridItems"), "@displayName", "@type")){
+//						continue;
+//					}
 					
 					dragParams.addItem(params);
 				} 
@@ -1074,6 +1065,38 @@
 		return hasBAMFilePair;
 	}
 	
+	private function hasMatchingUSEQFilePair(dragItem:Object, dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		
+		
+		var hasUSEQFilePair:Boolean = false;
+		
+		var idx:int = dragItem[fileNameAttribute].lastIndexOf(".");
+		var dragItemBaseFileName:String = dragItem[fileNameAttribute].substr(0, idx);
+		var dragItemExt:String = dragItem[typeAttribute];
+		
+		if (dragItemExt.toString().toUpperCase() != "BW" && dragItemExt.toString().toUpperCase() != "BB") {
+			return false;
+		}
+		
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
+			var ext:String = di[typeAttribute];
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			
+			if (baseFileName.toString().toUpperCase() == dragItemBaseFileName.toUpperCase()) {
+				if (dragItemExt.toUpperCase() != ext.toUpperCase()) {
+					if (ext.toUpperCase() == "USEQ" ) {
+						hasUSEQFilePair = true;
+						break;
+					}
+				}
+			}
+			
+		}
+		return hasUSEQFilePair;
+	}
+	
 	
 	// Need separate function to look at drag items before
 	// they are stuffed into dragParams
@@ -1115,6 +1138,94 @@
 		return baseFileNameCount == 1 && isBAI && isBAM;
 	}
 	
+	private function isUSEQFilePair(dragItems:Object, fileNameAttribute:String, typeAttribute:String):Boolean {
+		if (dragItems.length != 2) {
+			return false;
+		}
+		var fileNameMap:Object = new Object();
+		for each(var di:Object in dragItems) {
+			var fileName:String = di[fileNameAttribute];
+			var pos:int = fileName.lastIndexOf(".");
+			var baseFileName:String = fileName.substr(0, pos);
+			var extensions:Array = fileNameMap[baseFileName];
+			if (extensions == null) {
+				extensions = new Array();
+			}
+			extensions.push(di[typeAttribute]);
+			fileNameMap[baseFileName] = extensions;
+		}
+		var baseFileNameCount:int = 0;
+		var isUSEQ:Boolean = false;
+		var isBW:Boolean = false;
+		var isBB:Boolean = false;
+		// Check the extensions to make sure we have both  a .useq and .bw or .bb for
+		// the same file name
+		for (var key:Object in fileNameMap) {
+			baseFileNameCount++;
+			var theExtensions:Array = fileNameMap[key];
+			if (theExtensions.length == 2) {
+				for each (var ext:Object in theExtensions) {
+					if  (ext.toUpperCase() == 'USEQ') {
+						isUSEQ = true;
+					} else if  (ext.toUpperCase() == 'BW') {
+						isBW = true;
+					} else if (ext.toUpperCase() == 'BB'){
+						isBB = true;
+					}
+				}
+				
+			}
+		}
+		return baseFileNameCount == 1 && isUSEQ && (isBW || isBB);
+	}
+	
+	private function isUSEQOrphanDuoTrioOrQuad(dragItems:Object):Boolean {
+		if (dragItems.length != 2 && dragItems.length != 3 && dragItems.length != 4) {
+			return false;
+		}
+		var baseFileName:String = dragItems[0].fileName;
+		if(baseFileName.toUpperCase().indexOf("_PLUS") > 0){
+			baseFileName = baseFileName.substr(0, baseFileName.toUpperCase().indexOf("_PLUS"));
+		} else if(baseFileName.toUpperCase().indexOf("_MINUS") > 0){
+			baseFileName = baseFileName.substr(0, baseFileName.toUpperCase().indexOf("_MINUS"));
+		} else{
+			baseFileName = baseFileName.substr(0, baseFileName.indexOf("."));
+		}
+		
+		var baseFileNameCount:int = 0;
+		var isUSEQ:Boolean = false;
+		var isBW:Boolean = false;
+		var hasOrphanPlus:Boolean = false;
+		var hasOrphanMinus:Boolean = false;
+		var isBB:Boolean = false;
+		
+		for each(var di:Object in dragItems) {
+			baseFileNameCount++;
+			var fileName:String = di.fileName;
+			if(fileName.toUpperCase().indexOf("_PLUS") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf("_PLUS")) == baseFileName ){
+				hasOrphanPlus = true;
+			} else if(fileName.toUpperCase().indexOf("_MINUS") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf("_MINUS")) == baseFileName ){
+				hasOrphanMinus = true;
+			} else if(fileName.toUpperCase().indexOf(".USEQ") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".USEQ")) == baseFileName) {
+				isUSEQ = true;
+			} else if(fileName.toUpperCase().indexOf(".BW") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".BW")) == baseFileName) {
+				isBW = true;
+			} else if(fileName.toUpperCase().indexOf(".BB") > 0 && fileName.substr(0, fileName.toUpperCase().indexOf(".BB")) == baseFileName) {
+				isBB = true;
+			}
+		}
+		
+		if(dragItems.length == 2 && baseFileNameCount == 2){
+			return (isUSEQ && (hasOrphanPlus || hasOrphanMinus)) || ((isBW || isBB) && (hasOrphanPlus || hasOrphanMinus))
+		} else if(dragItems.length == 3 && baseFileNameCount == 3){
+			return ((isUSEQ && (hasOrphanPlus || hasOrphanMinus) && (isBW || isBB)) || ((isBW || isBB) && hasOrphanPlus && hasOrphanMinus) || (isUSEQ && hasOrphanPlus && hasOrphanMinus)) ;
+		} else if(dragItems.length == 4 && baseFileNameCount == 4){
+			return (isUSEQ && hasOrphanPlus && hasOrphanMinus && (isBB || isBW));
+		} else {
+			return false;
+		}
+	}
+	
 	private function promptToAssociateFiles():void {
 		var dragItemCount:int = 0;
 		for each(var di:Object in dragParams) {
@@ -1128,11 +1239,17 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			getDataTrack.send(params);
 		} //  File pairs are dragged onto a data track
-		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && isBAMFilePair(dragParams, "fileName", "type")) {
+		else if (dragItemCount == 2 && dropNode.name() == 'DataTrack' && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type") || isUSEQOrphanDuoTrioOrQuad(dragParams))) {
 			var params1:Object = new Object();
 			params1.idDataTrack = dropNode.@idDataTrack;
 			getDataTrackForFilePair.send(params1);
-		} 
+		}
+		else if (dragItemCount >= 2 && dropNode.name() == 'DataTrack' && isUSEQOrphanDuoTrioOrQuad(dragParams)){
+			var params2:Object = new Object();
+			params2.idDataTrack = dropNode.@idDataTrack;
+			getDataTrackForFilePair.send(params2);
+			
+		}
 		// If more than one file is dragged onto a data track, duplicate the data track to create a 
 		// new one for each dragged file.
 		else if (dragItemCount > 1 && dropNode.name() == 'DataTrack') {
@@ -1144,7 +1261,15 @@
 		}
 		// One file dragged onto a folder
 		else if (dragItemCount == 1 && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
-			Alert.show("Create Data track and link to " + dragParams[0].fileName + " under " + dropNode.@label + "?",
+			var dtName:String = dropNode.@label;
+			if(dtName.toUpperCase().indexOf("_PLUS") > 0){
+				var plusIndex:int = dtName.toUpperCase().indexOf("_PLUS");
+				dtName = dtName.substr(0, plusIndex);
+			} else if(dtName.toUpperCase().indexOf("_MINUS") > 0){
+				var minusIndex:int = dtName.toUpperCase().indexOf("_MINUS");
+				dtName = dtName.substr(0, minusIndex);
+			}
+			Alert.show("Create Data track and link to " + dtName + " under " + dropNode.@label + "?",
 				"Confirm Link",
 				(Alert.YES | Alert.NO),
 				this,
@@ -1152,12 +1277,20 @@
 			
 		} 
 		// File pairs dragged onto a folder
-		else if (dragItemCount == 2 && isBAMFilePair(dragParams, "fileName", "type") && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+		else if (dragItemCount == 2 && (isBAMFilePair(dragParams, "fileName", "type") || isUSEQFilePair(dragParams, "fileName", "type") || isUSEQOrphanDuoTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
 			Alert.show("Create a Data track for pair of analysis files under  " + dropNode.@label + "?",
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
 				this,
-				onPromptToAddAndLinkFilePair);
+				onPromptToAddAndLink);
+			
+		}
+		else if ((dragItemCount > 1 && isUSEQOrphanDuoTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
+			Alert.show("Create a Data track for these analysis files under  " + dropNode.@label + "?",
+				"Confirm Add",
+				(Alert.YES | Alert.NO),
+				this,
+				onPromptToAddAndLink);
 			
 		}
 		// Multiple files dragged onto a folder
@@ -1226,7 +1359,7 @@
 					"Confirm",
 					(Alert.YES | Alert.NO),
 					this,
-					onPromptToLinkFilePair);				
+					onPromptToLink);				
 				
 			}
 			

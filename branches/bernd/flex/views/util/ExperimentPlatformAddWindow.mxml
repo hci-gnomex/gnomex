@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="470" height="188" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="470" height="210" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
 
     <mx:HTTPService 
     id="saveExperimentPlatform" 
@@ -29,11 +29,23 @@
 		public var parentWindow:views.util.ExperimentPlatformWindow = null;
 		
 		private function init():void{
+			if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+				coreFacilityCombo.selectedIndex = 0;
+				coreFacilityCombo.editable = false;
+				coreFacilityCombo.enabled = false;
+			}
 		}
 		
 		private function save():void {
 			var params:Object = new Object();
 			
+			params.idCoreFacility = coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : "";
+			params.isActive = "Y";
+			params.isInternal = 'Y';
+			params.isExternal = 'Y';
+			params.isClinicalResearch = 'N';
+			params.isOwnerOnly = 'N';
+
 			params.requestCategory = this.platformName.text;
 			params.newCodeRequestCategory = this.codeRequestCategoryField.text.toUpperCase();
 			params.idAppUser = (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser());
@@ -49,6 +61,27 @@
 		}
 		
 		private function promptToSave():void{
+			var error:String = "";
+			if (platformName.text.length == 0) {
+				error = "Please specify a name for your platform";
+			}
+			if (platformTypeCode == null || platformTypeCode.length == 0) {
+				if (error.length > 0) {
+					error += "\n";
+				}
+				error += "Please specify a type."
+			}
+			if (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') {
+				if (error.length > 0) {
+					error += "\n";
+				}
+				error += "Please specify a core facility."
+			}
+			if (error.length > 0) {
+				Alert.show(error, "Error");
+				return;
+			}
+			
 			if(codeRequestCategoryField.text == ''){
 				Alert.show("If you do not provide a code request category, the system will provide one for you.  Is this okay?", 
 					null, 
@@ -102,6 +135,11 @@
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
 			<mx:Text text="Type" width="130" styleName="formLabel"/>
 			<mx:ComboBox id="typeCombo" dataProvider="{parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategoryType')}" labelField="@display" width="100%" change="{updatePlatform()}"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Core Facility" width="130" styleName="formLabel"/>
+			<mx:ComboBox id="coreFacilityCombo" dataProvider="{parentApplication.coreFacilitiesICanManage}" labelField="@display" width="100%"/>
 		</mx:HBox>
 		
 	</mx:VBox>

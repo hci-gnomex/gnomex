@@ -38,6 +38,10 @@
 			}		
 			
 			override public function set data(value:Object):void {
+				if (_listData == null || value == null) {
+					return;
+				}
+				
 				super.data = value;
 				txt =  data[_listData.dataField];
 				

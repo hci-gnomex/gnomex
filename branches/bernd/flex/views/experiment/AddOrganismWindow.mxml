@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="390" height="100" 
+				width="500" height="150" 
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				title="Add New Organism">
@@ -23,7 +23,8 @@
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-
+			
+			import views.util.OrganismAddEvent;
 			import views.util.OrganismEvent; 
 
 			private var idOrganism:Object = null;
@@ -45,7 +46,7 @@
 				params.mageOntologyDefinition = ''; 
 				params.abbreviation = '';
 				params.das2Name = '';
-				params.binomialName = '';
+				params.binomialName = oBinomial.text == null ? "" : oBinomial.text;
 				params.ncbiTaxID = '';
 				params.sortOrder = '';
 				params.idAppUser = parentApplication.getIdAppUser();
@@ -68,6 +69,8 @@
 			}
 			
 			private function onOrganismRefreshed(event:Event):void {
+				var nameAdded:String = oName.text;
+				dispatchEvent(new OrganismAddEvent(nameAdded));
 				closeWindow();
 			}
 			
@@ -77,9 +80,12 @@
 					return;
 				}
 				for each(var o:XML in parentApplication.organismList) {
-					if (o.@organism == oName.text) {
-						Alert.show("Organism name already exists.", "Already Exists");
+					if (o.@organism.toString().toLowerCase() == oName.text.toLowerCase()) {
+						Alert.show("Common name already exists.", "Already Exists");
 						return;
+					}
+					if (o.@binomialName != '' && o.@binomialName.toString().toLowerCase() == oBinomial.text.toLowerCase()) {
+						Alert.show("Genus species already exists.", "Already Exists");
 					}
 				}
 				save();
@@ -90,8 +96,12 @@
 	<mx:XMLListCollection id="organisms"/>
 	<mx:VBox width="100%" height="100%" verticalGap="10">
 		<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-			<mx:Label text="Name:"  width="70" />
+			<mx:Label text="Common Name:"  width="150" />
 			<mx:TextInput width="293" id="oName" maxChars="100" />
+		</mx:HBox>		 
+		<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+			<mx:Label text="Genus species (optional):"  width="150" />
+			<mx:TextInput width="293" id="oBinomial" maxChars="100" />
 		</mx:HBox>		 
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 			<mx:Button id="saveButton" label="Add Organism"  enabled="{oName.text != '' ? true : false}"

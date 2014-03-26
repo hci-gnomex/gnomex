@@ -575,7 +575,8 @@
 			   	
 	    <mx:HDividedBox height="100%" width="100%" paddingTop="2">
 	        <mx:VBox height="100%" verticalGap="2"   width="135" borderStyle="none" id="vbox1">
-	            <mx:Label text="Cy3 Samples (green)" paddingTop="2" id="label3"/>
+				<util:ContextHelp context1="hybCy3Sample" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Cy3 Samples Help"
+								  label="Cy3 Samples (green)" labelPlacement="left" id="label3"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%"  showHeaders="false"
 	        		 dataProvider="{cy3Samples}" labelField="@name" 
@@ -601,7 +602,8 @@
 					</mx:columns>
 								        				        		
 	         	</mx:DataGrid>
-	            <mx:Label text="Cy5 Samples (red)" paddingTop="4" id="label4"/>
+				<util:ContextHelp context1="hybCy4Sample" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Cy4 Samples Help"
+								  label="Cy4 Samples (red)" labelPlacement="left" id="label4"/>
 	        	<mx:DataGrid
 	        		 height="100%" width="100%"  showHeaders="false"
 	        		 dataProvider="{cy5Samples}" labelField="@name" 
@@ -632,7 +634,8 @@
 				width="100%" height="100%" 
 				borderStyle="none" verticalGap="2">
 						<mx:HBox id="buttonContainer" horizontalGap="0" verticalAlign="middle">
-							<mx:Label text="Hybridizations"/>
+							<util:ContextHelp context1="hybHybridizations" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hybridizations Help"
+											  label="Hybridizations" labelPlacement="left"/>
 							<mx:LinkButton textDecoration="underline" label="Add hyb" click="addHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addHybButton" toolTip="Add hyb" paddingLeft="15"/>
 							<mx:LinkButton textDecoration="underline" label="Copy hyb" click="copyHyb();checkHybsCompleteness()" icon="@Embed('../../assets/table_multiple.png')" id="copyHybButton"  toolTip="Copy hyb"/>
 							<mx:LinkButton textDecoration="underline" label="Delete hyb" click="deleteHyb();checkHybsCompleteness()" icon="@Embed(source='../../assets/delete.png')" id="deleteHybButton" toolTip="Delete hyb(s)"/>
@@ -649,8 +652,17 @@
 					horizontalScrollPolicy="auto">
 					<util:columns>
 					    <mx:DataGridColumn id="hybRowNumberCol" editable="false" visible="{currentState == 'HybsState'}" headerText=""   resizable="false" width="25" labelFunction="parentDocument.getHybsGridRowNumber"/>
-  					    <mx:DataGridColumn id="hybNumberCol"  headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"   dataField="@number"  editable="false"/>
-			            <mx:DataGridColumn width="50" id="slideNumberColumn" headerText="Slide">
+  					    <mx:DataGridColumn id="hybNumberCol"  headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"   dataField="@number"  editable="false">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb ID Help" 
+														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
+			            <mx:DataGridColumn width="75" id="slideNumberColumn" headerText="Slide Nbr" editable="false">
 			                <mx:itemRenderer>
 			                    <mx:Component >
 			                        <mx:HBox  horizontalGap="0" >
@@ -661,48 +673,101 @@
 			                        </mx:HBox>
 			                    </mx:Component>
 			                </mx:itemRenderer>
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybSlideNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Number Help" 
+														  showEdit="{parentApplication.isAdminState}" label="Silde Nbr" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
 			            </mx:DataGridColumn> 
-			            <mx:DataGridColumn id="arrayCoordinateColumn" headerText="Coord" dataField="@arrayCoordinate" width="45"/>
+			            <mx:DataGridColumn id="arrayCoordinateColumn" headerText="Coord" dataField="@arrayCoordinate" width="55">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybCoord" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Coord Help" 
+														  showEdit="{parentApplication.isAdminState}" label="Coord" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
 					    <mx:DataGridColumn headerText="Cy3 Sample (green)"  width="100"  
 					    	labelFunction="parentDocument.getSampleChannel1Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
                             itemEditor="views.renderers.TextInputSampleChannel1"
                             itemRenderer="views.renderers.LabelSampleChannel1" >
-                            <mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    	<mx:Label text="Cy3 Sample"/>
-							    	<mx:Label text="(green)"/>
-								</mx:VBox>
-							</mx:Component>
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybGridCy3Sample" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 Sample Help" 
+														  showEdit="{parentApplication.isAdminState}" label="Cy3 Sample&#13;(green)" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
 							</mx:headerRenderer>
 					    </mx:DataGridColumn>
   					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  
-  					    	labelFunction="parentDocument.getSampleChannel1Number" editable="false"/>
+  					    	labelFunction="parentDocument.getSampleChannel1Number" editable="false">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybGridCy3ID" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy3 ID Help" 
+														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
 					    <mx:DataGridColumn id="channel2SampleColumn" headerText="Cy5 Sample (red)"  width="100"  
 					    	labelFunction="parentDocument.getSampleChannel2Name" 
                             editorDataField="text" sortable="false" editable="true" rendererIsEditor="false" 
                             itemEditor="views.renderers.TextInputSampleChannel2" 
                             itemRenderer="views.renderers.LabelSampleChannel2" > 
-                            <mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-							    	<mx:Label text="Cy5 Sample"/>
-							    	<mx:Label text="(red)"/>
-								</mx:VBox>
-							</mx:Component>
-							</mx:headerRenderer>								    	
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybGridCy5Sample" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 Sample Help" 
+														  showEdit="{parentApplication.isAdminState}" label="Cy5 Sample&#13;(red)" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
 					    </mx:DataGridColumn> 
-  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false"/>
+  					    <mx:DataGridColumn headerText="ID" visible="{currentState == 'HybsAdminState' || currentState == 'HybsEditState'}" width="60"  labelFunction="parentDocument.getSampleChannel2Number" editable="false">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybGridCy5ID" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Cy5 ID Help" 
+														  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>
                             
                         <mx:DataGridColumn id="slideDesignColumn" visible="{showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide"  width="280" dataField="@idSlideDesign" 						             						             
 			                editorDataField="value" sortable="false"  editable="true" rendererIsEditor="false" 
  	                        itemEditor="{views.renderers.ComboBoxSlideDesign.create('@idSlideDesign', '@idSlideDesign', '@name' ,'@canChangeSlideDesign')}"			                
-    	                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideDesign').DictionaryEntry, '@display', '@value', '@idSlideDesign', true)}"/>                 			                
+    	                    itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideDesign').DictionaryEntry, '@display', '@value', '@idSlideDesign', true)}">
+							<mx:headerRenderer > 
+								<mx:Component>
+									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										<util:ContextHelp context1="hybSlideDesign" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Hyb Slide Help" 
+														  showEdit="{parentApplication.isAdminState}" label="Slide" noIconSpaceIfNoHelp="true"/>
+									</mx:VBox> 
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:DataGridColumn>                 			                
 			             <mx:DataGridColumn visible="{!parentApplication.isInternalExperimentSubmission || showCy3LabelingFieldsCheckBox.selected || showCy5LabelingFieldsCheckBox.selected || showHybFieldsCheckBox.selected || showExtFieldsCheckBox.selected ? false : true}"  headerText="Slide Source"  width="70" dataField="@codeSlideSource" 
 			                editorDataField="value" sortable="false" editable="false"  rendererIsEditor="false" 
  	                        itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource', true)}"
- 	                        itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource', '@canChangeSlideSource', true)}"/>			                
+ 	                        itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SlideSource').DictionaryEntry, '@display', '@value', '@codeSlideSource', '@canChangeSlideSource', true)}">
+							 <mx:headerRenderer > 
+								 <mx:Component>
+									 <mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+										 <util:ContextHelp context1="hybSlideSource" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Slide Source Help" 
+														   showEdit="{parentApplication.isAdminState}" label="Slide Source" noIconSpaceIfNoHelp="true"/>
+									 </mx:VBox> 
+								 </mx:Component>
+							 </mx:headerRenderer>
+						 </mx:DataGridColumn>			                
 			                
 					<mx:DataGridColumn id="labelCol1"  visible="false"  headerText="Channel1 Labeling protocol"  width="80" dataField="@idLabelingProtocolChannel1"
         	                   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
@@ -888,7 +953,7 @@
     		<mx:SetStyle target="{buttonContainer}" name="horizontalGap"/>
     		<mx:SetStyle target="{workflowCheckBoxContainer}" name="paddingLeft" value="10"/>
     		<mx:SetStyle target="{label3}" name="paddingTop" value="4"/>
-    		<mx:SetProperty target="{label3}" name="text" value="Samples"/>
+    		<mx:SetProperty target="{label3}" name="label" value="Samples"/>
     		<mx:RemoveChild target="{cy5SampleDragGrid}"/>
     		<mx:RemoveChild target="{label4}"/>
     		<mx:RemoveChild target="{textarea1}"/>

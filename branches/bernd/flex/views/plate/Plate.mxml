@@ -98,7 +98,7 @@
 						gi.setStyle( 'borderStyle', 'solid' );
 						gi.setStyle( 'borderColor', 'white' );
 						// This creates a well container for each well.
-						var well:WellContainer = new WellContainer( '' );
+						var well:WellContainer = new WellContainer( '', this.getWellSize() );
 						well.plateView = this.parentDocument as NavPlateView;
 						gi.addChild( well );
 						gr.addChild( gi );
@@ -131,6 +131,7 @@
 							well = wells[ index ];
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
+							well.resizeWell(this.getWellSize());
 							gi.removeAllChildren();
 							gi.addChild( well );
 							index++;
@@ -145,6 +146,7 @@
 							well = wells[ index ];
 							well.row = alph.charAt( row - 1 );
 							well.col = col;
+							well.resizeWell(this.getWellSize());
 							gi.removeAllChildren();
 							gi.addChild( well );
 							index++;
@@ -169,7 +171,7 @@
 						gr = grid.getChildAt( row ) as GridRow;
 						gi = gr.getChildAt( col ) as GridItem;
 						gi.removeAllChildren();
-						well = new WellContainer( '' );
+						well = new WellContainer( '', this.getWellSize() )
 						well.plateView = this.parentDocument as NavPlateView;
 						gi.addChild( well );
 					}
@@ -228,7 +230,7 @@
 			// Function to return an array of all the wells in the plate
 			public function getWellsXML():String {
 				
-				var wellXMLString:String = "<plateWellXMLString>"
+				var wellXMLString:String = "<plateWellXMLString>";
 				var gr:GridRow;
 				var gi:GridItem;
 				var well:WellContainer;
@@ -486,6 +488,25 @@
 				}
 			}
 			
+			// Resize Handling
+			private var resizeExecuting:Boolean = false;
+			
+			private function onSizeChange(event:Event):void {
+				if ( !resizeExecuting ) 
+					callLater(handleResize);
+				resizeExecuting = true;
+			}
+			
+			private function handleResize():void {
+				for each ( var well:WellContainer in getWells()) {
+					well.resizeWell(this.getWellSize());
+				}
+				resizeExecuting = false;
+			}
+			
+			private function getWellSize():int {
+				return Math.min(this.height/12,this.width/18);
+			}
 		]]>
 		
 	</mx:Script>
@@ -501,6 +522,7 @@
 			 paddingLeft="2"
 			 paddingRight="2"
 			 paddingTop="2"
+			 resize="onSizeChange(event)"
 			 initialize="populatePlate()"  width="100%" height="100%" fontSize="10"/>
 
 </mx:Canvas>

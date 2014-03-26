@@ -53,10 +53,8 @@
 				if ( plateGrid.selectedItem.@codeReactionType == "CHERRY" || plateGrid.selectedItem.@codePlateType == "SOURCE" ) {
 					return;
 				}
-				var idPlate:String = plateGrid.selectedItem.@idPlate;
-				
 				if ( event.columnIndex == 2 ) {
-					parentApplication.showPlate(idPlate);
+					parentApplication.showPlate(plateGrid.selectedItem);
 				}
 				if ( event.columnIndex != 0 && event.columnIndex != 2 ) {
 					plateGrid.selectedIndex = -1;

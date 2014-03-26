@@ -230,6 +230,9 @@
         
     	[Bindable]
 		public var selectedIdSlideProduct:Object;
+			
+		[Bindable]
+		public var coreFacility:Object = null;
 
         [Bindable]
         private var submittedIdRequest:String;
@@ -272,7 +275,11 @@
 		[Bindable]
 		public var sampleSourceList:XMLListCollection;
 		[Bindable]
-		public var filteredSampleTypeList:XMLListCollection;
+		public var filteredSampleTypeListRna:XMLListCollection;
+		[Bindable]
+		public var filteredSampleTypeListDna:XMLListCollection;
+		[Bindable]
+		public var isolationTypeList:XMLListCollection;
 		[Bindable]
 		public var filteredSampleDropOffLocationList:XMLListCollection;
 		[Bindable]
@@ -345,7 +352,11 @@
 		
 		[Bindable]
 		private var labList:XMLListCollection = null;
-		
+
+		// Variables to hold parameters for showExperiment after experiment is submitted.
+		private var theRequestNumber:String;
+		private var showPromptToUpload:Boolean;
+			
 		private function init():void {
 	 		// If this is the first time this instance
 	 		// has been shown, perform 1-time-only
@@ -389,7 +400,7 @@
 
 			// Always perform checkSecurity on setupView
 			if (this.theTab.contains(setupView)) {
-				setupView.checkSecurity();
+				setupView.init();
 			}
 			
 			// Always perform checkSecurity on annotationView
@@ -408,8 +419,6 @@
         	}	
 
 			this.theTab.selectedIndex = 0;
-			
-			this.samplesView.setMultiplexGroupNumberImported(false);
 		}
 
 		private function enableTabs(enable:Boolean):void {
@@ -427,7 +436,7 @@
 
 			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
 				if (theTab.getChildAt(tabIdx) == this.samplesView) {
-					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
+					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategoryType, isEditState, isAmendState);
 					if (newSamplesView != this.samplesView) {
 						this.samplesView = newSamplesView;
 						theTab.removeChildAt(tabIdx);
@@ -435,7 +444,7 @@
 					}
 				}
 				if (theTab.getChildAt(tabIdx) == this.confirmView) {
-					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategory);
+					var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategoryType);
 					if (newConfirmView != this.confirmView) {
 						this.confirmView = newConfirmView;
 						theTab.removeChildAt(tabIdx);
@@ -475,12 +484,15 @@
 	        sampleSourceList.refresh();
 			
         	
-        	filteredSampleTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
+        	filteredSampleTypeListRna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
+			filteredSampleTypeListDna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
         	sampleTypeSorter = new Sort();
         	sampleTypeSorter.compareFunction = this.sortSampleTypes;	   
-        	filteredSampleTypeList.sort = sampleTypeSorter;     	
-        	filteredSampleTypeList.refresh();
-			
+        	filteredSampleTypeListRna.sort = sampleTypeSorter;     	
+			filteredSampleTypeListDna.sort = sampleTypeSorter;     	
+        	filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.refresh();
+									
 			filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
 			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
 			filteredSampleDropOffLocationList.refresh();
@@ -535,7 +547,7 @@
 			filteredProjectList.refresh();
 		}
 		
-		public function initFilters():void {
+		private function initFilters():void {
 	        this.filteredProjectList.filterFunction = this.filterProject;
 	        this.filteredProjectList.refresh();
 						
@@ -555,8 +567,10 @@
 			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
 
-			filteredSampleTypeList.filterFunction = filterSampleType;
-			filteredSampleTypeList.refresh();
+			filteredSampleTypeListRna.filterFunction = filterSampleTypeRna;
+			filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.filterFunction = filterSampleTypeDna;
+			filteredSampleTypeListDna.refresh();
 			
 			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 			filteredSampleDropOffLocationList.refresh();
@@ -636,6 +650,13 @@
 				return false;
 			}
 		}
+		public function isIsolationState():Boolean {
+			if (currentState == 'IsolationState' || currentState == 'IsolationEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 			
 		public function isClinicalSequenomState():Boolean {
 			if (currentState == 'ClinicalSequenomState' || currentState == 'ClinicalSequenomEditState') {
@@ -672,6 +693,7 @@
 				currentState == 'MitSeqEditState' ||
 				currentState == 'IScanEditState' ||
 				currentState == 'SequenomEditState' ||
+				currentState == 'IsolationEditState' ||
 				currentState == 'ClinicalSequenomEditState') {
 				return true;    	
 			} else {
@@ -687,7 +709,7 @@
 			}
 		}
 		public function getOrganism():XML {
-			if (theTab.contains(sampleSetupView) && (this.isMicroarrayState() || this.isSolexaState())) {
+			if (theTab.contains(sampleSetupView) && (this.isMicroarrayState() || this.isSolexaState()) && currentState != 'SolexaLaneAmendState') {
 				return sampleSetupView.sampleOrganismCombo.selectedItem as XML;
 			} else if (request != null) {
 				var idOrganism:Object = null;
@@ -732,18 +754,21 @@
 			}
 		}
 		private function getBillingAccountName():void {
-			var billingAccount:Object = null;
-			for each(var lab:Object in parentApplication.labList) {
-				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
-					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
-						billingAccount = ba;
-						break;
-					}
-						
-				}
-			}
-			if (billingAccount != null) {
-				billingAccountName = billingAccount.@accountName;
+//			var billingAccount:Object = null;
+//			for each(var lab:Object in parentApplication.labList) {
+//				for each(var ba:Object in lab.billingAccounts.BillingAccount) {
+//					if (ba.@idBillingAccount == this.request.@idBillingAccount) {
+//						billingAccount = ba;
+//						break;
+//					}
+//						
+//				}
+//			}
+//			if (billingAccount != null) {
+//				billingAccountName = billingAccount.@accountName;
+//			}
+			if(this.request.@billingAccountName != null) {
+				billingAccountName = this.request.@billingAccountName;
 			}
 		}
 		
@@ -822,6 +847,8 @@
 			if (request == null) {
 				getNewRequest.send();
 				buttonStack.selectedIndex = 0;
+				requestIcon = '';
+				requestCategoryName = '';
 			}
 		}
 				
@@ -856,6 +883,8 @@
 			submittedIdRequest = null;
 			submittedRequestNumber = null;
 
+			this.filteredLabList.refresh();
+
 			setupView.selectDefaultLab();
 			setupView.projectCombo.selectedIndex = -1;
 			if ( setupView.appUserCombo != null ){
@@ -874,13 +903,14 @@
 				if (this.samples != null && this.samples.length > 0) {
 					this.samples.removeAll();
 				}
-				sampleSetupView.sampleTypeCombo.selectedIndex = -1;
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = null;
 				sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				sampleSetupView.enabled = false;
 				sampleSetupView.otherSamplePrepMethod.text = "";
 				
 				if ( sampleSetupView.iScanChipRadioGroup != null ){
-					sampleSetupView.iScanChipRadioGroup.selectedValue = '';
+					sampleSetupView.iScanChipRadioGroup.selectedValue = null;
+					sampleSetupView.iScanChipRadioGroup.selection = null;
 				}
 				if ( sampleSetupView.numberIScanSamples != null ){
 					sampleSetupView.numberIScanSamples.selectedIndex = -1;
@@ -895,7 +925,6 @@
 				}
 				if (isSolexaState()) {
 					seqSetupView.enabled = false;
-					seqSetup1View.enabled = false;
 					bioinformaticsView.enabled = false;
 				}
 			}
@@ -908,7 +937,6 @@
 				hybSetupView.organismCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
-				hybSetupView.isCatalogRadio.selected = true;
 			 	hybSetupView.unselectSlideSources();
 
 				hybSetupView.organismCombo.enabled = true;
@@ -943,8 +971,6 @@
 			// disable tabs we missed above.
 			enableTabs(false);
 			setupView.enabled = true;
-			
-			this.filteredLabList.refresh();
 		}
 
 		private function nextTab():void {
@@ -1008,29 +1034,13 @@
 				}
 				
 			}
-			
-			if ((this.currentState == 'SolexaAmendState' || this.currentState == 'SolexaLaneAmendState') && theTab.selectedChild == this.seqSetup1View) {
-				// This is the 'Add services' view, so check the number of cycles radio button
-				if (this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == '') {
-					
-					nextButton.enabled = false;
-				} else {
-					nextButton.enabled = true;
-				}
-			} else if(theTab.selectedChild == this.seqSetup1View) {
-				// This is the new experiment order screen, so check both number of samples per lane as well as number of cycles radio button
-				if(this.seqSetup1View.numberSamplesPerChannel != null && 
-					(this.seqSetup1View.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == null || this.seqSetup1View.numberSequencingCyclesRadioGroup.selectedValue == '')){
-					nextButton.enabled = false;
-				} else{
-					nextButton.enabled = true;
-				}
-			}
+
 			
 		}
 
 		public function applicationSelected(experimentApplication:String):void {
 			codeApplication = experimentApplication;
+			request.@codeApplication = experimentApplication;
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
 			}			
@@ -1059,10 +1069,10 @@
 			codeApplication = '';
 			request.@applicationNotes = '';
 			request.@codeApplication = '';
-			
-			if (theTab.contains(notesView)) {
-				notesView.setExternalNoteVisibility();
-			}
+			request.@codeDNAPrepType = '';
+			request.@codeRNAPrepType = '';
+			request.@coreToExtractDNA = 'N';
+			request.@includeBisulfideConversion = 'N';
 			
 			if (theTab.contains(confirmView)) {
 				this.confirmView.setBarcodeColVisibility(false);        					
@@ -1103,29 +1113,9 @@
 					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
 				this.samplesView.currentState = 'SolexaSamplesState';
-				if (theTab.contains(setupView) && setupView.labCombo.selectedItem != null) {
-					this.seqSetup1View.loadPriceList(setupView.labCombo.selectedItem.@idLab.toString(), requestCategory.@codeRequestCategory.toString());
-				}
-				
-				if (parentApplication.submitInternalExperiment()) {
-					showHideBarcodingQuestion();
-				}
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
-
-				// Only show the barcode labeling option if we have
-				// at least one set of barcodes 
-				if (parentApplication.submitInternalExperiment()) {
-					var barcodes:XMLList = this.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.OligoBarcode');
-					if (barcodes.length() > 0) {
-						this.sampleSetupView.barcodeContainer.visible = true;
-					} else {
-						this.sampleSetupView.radioNoBarcoding.selected = true;
-						this.sampleSetupView.barcodeContainer.visible = false;
-						this.sampleSetupView.pickRadioBarcoding();
-					}
-				}
 				
 				this.samplesView.currentState = 'SolexaSamplesState';	
 				if (parentApplication.submitInternalExperiment()) {
@@ -1233,8 +1223,7 @@
 				
 			} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 				this.currentState = "SequenomState";
-				this.sampleSetupView.currentState = 'SequenomState';
-				this.samplesView.currentState = 'SequenomState';				
+				this.sampleSetupView.currentState = 'SequenomState';		
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
 
@@ -1243,11 +1232,31 @@
 				
 				this.sampleSetupView.sequenomPanelContainer.visible = false;
 				this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
-				this.notesView.setCoreFacilityNoteVisibility(false);
 				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 								
+			} else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
+				
+				this.currentState = "IsolationState";
+				this.sampleSetupView.currentState = 'IsolationState';		
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
+				if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'DNAISOL') {
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType'));
+				} else if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'RNAISOL') {
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.RNAPrepType'));
+				}
+				isolationTypeList.sort = dictionarySorter;
+				isolationTypeList.refresh();
+				
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -1261,8 +1270,6 @@
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).includeInLayout = false;
 
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
 				
@@ -1342,7 +1349,8 @@
 
 			
 			
-			filteredSampleTypeList.refresh();
+			filteredSampleTypeListRna.refresh();
+			filteredSampleTypeListDna.refresh();
 			filteredSampleDropOffLocationList.refresh();
 			seqLibProtocolList.refresh();
 			
@@ -1355,7 +1363,32 @@
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
 			}
+			
+			if (theTab.contains(notesView)) {
+				notesView.setExternalNoteVisibility();
+			}
+			if (theTab.contains(samplesView)) {
+				samplesView.setExternalNoteVisibility();
+			}
+			
+			loadPriceLists(getIdLab());
 			this.setupView.checkSecurity();
+		}
+
+		public function labSelected(lab:Object):void {
+			loadPriceLists(lab.@idLab.toString());
+		}
+
+		private function loadPriceLists(idLab:String):void {
+			requestCategory = this.getRequestCategory();
+			if (requestCategory != null && requestCategory.@codeRequestCategory != null && idLab != null) {
+				if (theTab.contains(seqSetup1View)) {
+					this.seqSetup1View.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
+				}
+				if (theTab.contains(seqSetupView)) {
+					this.seqSetupView.loadPriceList(idLab, requestCategory.@codeRequestCategory.toString());
+				}
+			}
 		}
 			
 		private function setTabsVisible():void {
@@ -1364,22 +1397,6 @@
 				theTab.getTabAt(tabIdx).includeInLayout = true;
 			}
 		}
-			
-		public function showHideBarcodingQuestion():void {
-			sampleSetupView.radioYesBarcoding.selected = true;
-			sampleSetupView.pickRadioBarcoding();
-
-			var requestCategory:Object = getRequestCategory();
-			// If barcoding is not optional or this is an external
-            // experiment submission, don't show the question,
-			// that asks about sample barcode tags
-			if (requestCategory.@isSampleBarcodingOptional == "N" || !parentApplication.submitInternalExperiment()) {
-				sampleSetupView.barcodeQuestionVisible = false;
-			} else {
-				sampleSetupView.barcodeQuestionVisible = true;
-			}			
-		}
-			
 
 		private function pickDefaultOrganism():void {
 			// Select the default organism on sample setup if the request category specifies one
@@ -1398,17 +1415,7 @@
 
 
 		}
-		
-		public function getSamplesGridRowNumber(item:Object,col:int):String
-        {
-        	if (samples!= null) {
-	           var x:int = samples.getItemIndex(item) + 1;
-	           return String(x);     		
-        	} else {
-        		return "";
-        	}
-        }
-			
+					
 		public function getWellNameByColumn(item:Object,col:int):String
 		{
 			var wellName:String = "";
@@ -1555,7 +1562,10 @@
 			}
 			
 			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PropertyPlatformApplication").length() > 0 || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
+			if (property.descendants("PropertyPlatformApplication").length() > 0 || 
+				this.isIScanState() || 
+				this.isSequenomState() || this.isClinicalSequenomState() ||
+				this.isIsolationState()) {
 				filterByPlatformApplication = true;	
 			}
 			
@@ -1676,15 +1686,18 @@
 			return requestCategory;			
 		}
 			
-        private function filterSampleType(item:Object):Boolean {
+        private function filterSampleType(item:Object, codeNucleotideType:String):Boolean {
         	if (item.@value == "") {
-        		return true;
+        		return false;
         	}
 
 			if (!isEditState() && item.@isActive == 'N') {
 				return false;	
 			}
         	
+			if (item.@codeNucleotideType != codeNucleotideType) {
+				return false;
+			}
         	
         	var doesMatchRequestCategory:Boolean = false;
         	var requestCategory:Object = this.getRequestCategory();
@@ -1696,25 +1709,16 @@
     	   		}
     	   	}
 
-			// If this is a solexa request, filter the sample type
-			// by the selected application
-			var doesMatchApplication:Boolean = true;
-			if (this.isSolexaState()) {
-				var codeApplication:Object = this.seqSetupView.radioGroupSeqApp.selectedValue;
-				if (codeApplication != null) {
-					doesMatchApplication = false;
-		        	var theSampleTypes:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeApplication').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
-		    	   	for each (var xref2:Object in theSampleTypes) {
-		    	   		if (xref2.@codeApplication.toString() == codeApplication.toString()) {
-			   				doesMatchApplication = true;
-		    	   		    break;
-		    	   		}
-		    	   	}
-	    	   	}
-			}
-
-        	return doesMatchRequestCategory && doesMatchApplication;
+        	return doesMatchRequestCategory;
         }  
+			
+		private function filterSampleTypeRna(item:Object):Boolean {
+			return filterSampleType(item, 'RNA');
+		}
+			
+		private function filterSampleTypeDna(item:Object):Boolean {
+			return filterSampleType(item, 'DNA');
+		}
 			
 		private function filterSampleDropOffLocation(item:Object):Boolean {
 			if (item.@value == "") {
@@ -1762,21 +1766,35 @@
 			if (item.@value == "") {
     	    	return false;
 			} 
-        	
+			if (isEditState() && item.@value == request.@codeApplication) {
+				return true;
+			}
 			if (!isEditState() && item.@isActive == 'N') {
 				return false;	
 			}
         	var doesMatchRequestCategory:Boolean = false;
         	var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
     	   	for each (var xref:Object in theApplications) {
-    	   		if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
+				if (xref.@codeRequestCategory.toString() == codeRequestCategory) {
 	   				doesMatchRequestCategory = true;
     	   		    break;
     	   		}
     	   	}
-        	
-        	
-        	return doesMatchRequestCategory;
+        	        	
+			var doesMatchSeqPrepByCore:Boolean = false;
+			if (doesMatchRequestCategory) {
+				if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y') {
+					doesMatchSeqPrepByCore = true;
+				} else {
+					for each (var sample:Object in samples) {
+						if ((sample.@seqPrepByCore == "Y" && item.@onlyForLabPrepped == "N") || sample.@seqPrepByCore == "N") {
+							doesMatchSeqPrepByCore = true;
+							break;
+						}
+					}
+				}
+			}
+        	return doesMatchRequestCategory && doesMatchSeqPrepByCore;
         }  
 
 		private function filterMicroarrayApplication(item:Object):Boolean {
@@ -1962,16 +1980,7 @@
         	var doesMatchGroup:Boolean = true;
 			// Only filter by custom slides if this is an internal experiment
 			if (parentApplication.submitInternalExperiment()) {
-				var idLab:Object = null;
-				if (this.isAmendState() || this.isEditState()) {
-					if  (request != null && request.hasOwnProperty("@idLab")) {
-						idLab = request.@idLab;    			
-					}
-				} else {
-					if (setupView.labCombo.selectedItem != null) {
-						idLab = setupView.labCombo.selectedItem.@idLab;
-					}
-				}
+				var idLab:Object = getIdLab();
 				if (idLab != null && idLab != "" && hybSetupView.isCustomRadio.selected) {
 					if (item.@isCustom == "Y" && item.@idLab == idLab) {
 						doesMatchGroup = true;
@@ -1990,6 +1999,20 @@
         	return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
         }  
 		
+		public function getIdLab():String {
+			var idLab:String = null;
+			if (this.isAmendState() || this.isEditState()) {
+				if  (request != null && request.hasOwnProperty("@idLab")) {
+					idLab = request.@idLab;    			
+				}
+			} else {
+				if (setupView.labCombo.selectedItem != null) {
+					idLab = setupView.labCombo.selectedItem.@idLab;
+				}
+			}
+			return idLab;
+		}	
+			
 		public function cloneRequest(requestToClone:Object):void {
 			this.requestToClone = requestToClone;
 			getRequestToClone.send();
@@ -2181,8 +2204,6 @@
 			samplesView.enabled = request.@canUpdateSamples == "Y";
 			notesView.enabled = true;
 			notesView.currentState = "EditState";
-			notesView.setExternalNoteVisibility();
-			bioinformaticsView.currentState = "EditState";
 
 			parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 
@@ -2278,12 +2299,14 @@
 			} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
 				this.experimentCategoryName = '';
 				this.currentState = "IScanEditState";
-			}  else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
+			}  else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
+				this.currentState = "IsolationEditState";
+				this.sampleSetupView.currentState = 'IsolationState';
+				
+			} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 				this.currentState = "SequenomEditState";
 				this.sampleSetupView.currentState = 'SequenomState';
-				
-				this.samplesView.currentState = 'SequenomState';
-				
+								
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomEditState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -2357,6 +2380,8 @@
 
 			}
 			
+			notesView.setExternalNoteVisibility();
+			samplesView.setExternalNoteVisibility();
 			
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.
@@ -2433,8 +2458,13 @@
 			
 			initializeSubmitForm();		
 
+			if (theRequestNumber != null) {
+				parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
+				theRequestNumber = null;
+				showPromptToUpload = false;
+			}
 		}
-		
+			
 		private function refreshLab():void {
 			if (requestEditLabCombo.selectedItem != null && requestEditLabCombo.selectedItem.@idLab != '') {
 
@@ -2516,7 +2546,7 @@
 
 			if (theTab.contains(sampleSetupView)) {
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 				
 				if (currentState == 'QCState') {
 					for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
@@ -2585,16 +2615,23 @@
 					}
 				}
 				this.sampleSetupView.coreToExtractDNACheckBox.selected = request.@coreToExtractDNA == 'Y' ? true : false;
+				this.sampleSetupView.bisulfideConversionCheckBox.selected = request.@includeBisulfideConversion == 'Y' ? true : false;
 				if (this.isSequenomState() ){
 					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
 				} 
-				this.notesView.setCoreFacilityNoteVisibility(false);
-				
+
 				sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 				this.propertyEntries.refresh();
 				this.annotationView.checkSecurity();
 				this.samplesView.showHideColumns();		
 				this.samplesView.initializeSamplesGrid(); 
+			}
+			
+			if (this.isIsolationState() ) {
+				
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+				
 			}
 			
 			if (isMicroarrayState() || this.isSolexaState()) {
@@ -2609,13 +2646,8 @@
 				selectedIdSlideProduct = request.@idSlideProduct;
 				hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 				var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
-				hybSetupView.organismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', theSlideProduct.@idOrganism);
-
-				if (theSlideProduct.@isCustom == 'Y') {
-					hybSetupView.isCustomRadio.selected = true;				
-				} else {
-					hybSetupView.isCatalogRadio.selected = true;
-				}
+				// Organism combo not set up yet so can't initialize the Combo.  Done in init on TabHybSetupview
+				hybSetupView.organismCombo.selectedIndex = -1;
 				
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 				if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
@@ -2637,7 +2669,7 @@
 				hybSetupView.selectDefaultSlideSource();
 				
 			}			
-			if (isEditState()) {
+			if (isEditState() && theTab.contains(visibilityView)) {
 				visibilityView.init(); // Set institution combo, etc.
 				if (request.@canUpdateVisibility != 'Y') {
 					this.visibilityView.enabled = false;
@@ -2689,9 +2721,9 @@
 				} else if (sc2 == 'Other') {
 					return  -1;
 				} else {
-					if (sc1 < sc2) {
+					if (sc1.toLowerCase() < sc2.toLowerCase()) {
 						return -1;
-					} else if (sc1 > sc2) {
+					} else if (sc1.toLowerCase() > sc2.toLowerCase()) {
 						return 1;
 					} else {
 						return 0;
@@ -2700,44 +2732,6 @@
 				
 			}
 		}	
-        
-        public function isSampleTypeCompatibile():Boolean {
-        	var compatible:Boolean = true;
-        	var sampleTypeX:Object = null;
-        	if (this.isSolexaState()) {
-        		return compatible;		
-        	}
-        	
-        	if (isEditState()) {
-        		if (request.@codeApplication!= '' && 
-        		    request.@idSampleTypeDefault != '') {
-    	    		compatible = false;
-					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
-						if (sampleTypeX.@codeApplication == request.@codeApplication &&
-					    	sampleTypeX.@idSampleType == request.@idSampleTypeDefault) {
-							compatible = true;
-							break;
-						}
-					}    
-        		}
-        	} else {
-	        	if (hybSetupView.microarrayAppRadioGroup.selectedValue != null &&
-	        	    hybSetupView.microarrayAppRadioGroup.selectedValue!= '' &&
-	        	    sampleSetupView.sampleTypeCombo.selectedItem != null &&
-	        	    sampleSetupView.sampleTypeCombo.selectedItem.@value != '') {
-	        	    compatible = false;
-					for each(sampleTypeX in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleTypeApplication')) {
-						if (sampleTypeX.@codeApplication == hybSetupView.microarrayAppRadioGroup.selectedValue &&
-						    sampleTypeX.@idSampleType == sampleSetupView.sampleTypeCombo.selectedItem.@value) {
-							compatible = true;
-							break;
-						}
-					}        		    	
-	        	}
-        		
-        	}
-        	return compatible;
-        }        
 
 		private function validateRequest():void {
 			errorMessage = '';
@@ -2832,6 +2826,15 @@
 
 			}
 			
+			if(currentState == 'SolexaEditState'){		
+				for each (var samp1:Object in samples){
+					if(samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == '' || !samp1.hasOwnProperty("@multiplexGroupNumber")){
+						errorMessage += "Please fill in missing multiplex group numbers.\n\n";
+						break;
+					}
+				}
+			}
+			
 			// Check for duplicate sampleNames / wells
 			var sampleNames:Dictionary = new Dictionary();
 			var sourceWells:Dictionary = new Dictionary();
@@ -2914,7 +2917,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -3025,10 +3028,12 @@
 		}
 		
 		private function validateAndSubmitRequest():void {
+			this.submitButton.enabled = false;
 			
 			// Only submit request if it is valid
 			validateRequest();
 			if (errorMessage != '') {
+				this.submitButton.enabled = true;
 				Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
 				return;
 			}
@@ -3040,9 +3045,11 @@
 		}
 		
 		private function validateAndSaveRequest():void {
+			this.submitButton.enabled = false;
 			validateRequest();
 			
 			if (errorMessage != '') {
+				this.submitButton.enabled = true;
 				Alert.show(errorMessage);
 				return; 
 			} else if (warningMessage != '') {
@@ -3133,12 +3140,11 @@
 		public function getMultiplexLanes():void {
 			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
 				this.bioinformaticsView.propagateGenomeBuild();
+				initializeRequestXML();
+				var params:Object = new Object();
+				params.requestXMLString = request.toXMLString();
+				getMultiplexLaneList.send(params);
 			}
-			initializeRequestXML();
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
-			getMultiplexLaneList.send(params);
-			
 		}
 		private function onGetMultiplexLaneList(event:ResultEvent):void {
 			var readyToSubmit:Boolean = true;
@@ -3299,13 +3305,11 @@
 				if (currentState == 'QCState' && this.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
 				}
-				
-				request.@name = notesView.experimentName.text;
 			}
 			
 			if (theTab.contains(sampleSetupView)) {
-				if (sampleSetupView.contains(sampleSetupView.sampleTypeCombo) && sampleSetupView.sampleTypeCombo.selectedItem != null) {
-					request.@idSampleTypeDefault = sampleSetupView.sampleTypeCombo.selectedItem.@value;
+				if (sampleSetupView.contains(sampleSetupView.sampleTypeHBox) && sampleSetupView.sampleTypeRadioGroup.selectedValue != null) {
+					request.@idSampleTypeDefault = sampleSetupView.sampleTypeRadioGroup.selectedValue;
 				}
 				
 				if (this.isCapSeqState()) {
@@ -3322,13 +3326,14 @@
 					request.@applicationNotes = sampleSetupView.sequenomApplicationDesc.text;
 					request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
+					request.@includeBisulfideConversion = this.sampleSetupView.bisulfideConversionCheckBox.selected ? 'Y' : 'N';
 				}
 				if (this.isClinicalSequenomState()) {
 					request.@applicationNotes = '';
 					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
-				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState()) {
+				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState' && !isIsolationState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						
 			}
@@ -3369,7 +3374,7 @@
 			
 			request.replace("samples", <samples></samples>); 
 			for each(var sample:Object in samples) {
-				if ( this.isSequencingState() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
+				if ( (this.isSequencingState() || this.isSequenomState() || this.isIsolationState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 					continue;
 				}
 				request.samples.appendChild(sample);
@@ -3432,12 +3437,12 @@
 			}
 			
 			// Collaborators
-			if (request.toString().indexOf("<collaborators>") >= 0) {
+			if (request.toString().indexOf("<collaborators") >= 0) {
 				request.replace("collaborators", <collaborators></collaborators>);
 			} else{
 				request.appendChild("<collaborators></collaborators>");
 			}
-			for each(var collaborator:Object in visibilityView.collaborators) {
+			for each(var collaborator:Object in visibilityView.getCollaborators()) {
 				request.collaborators.appendChild(collaborator);
 		 	}
 			
@@ -3546,7 +3551,7 @@
 			
 			// Collaborators
 			request.replace("collaborators", <collaborators></collaborators>);
-			for each(var collaborator:Object in visibilityView.collaborators) {
+			for each(var collaborator:Object in visibilityView.getCollaborators()) {
 				request.collaborators.appendChild(collaborator);
 			}
 			
@@ -3591,7 +3596,9 @@
             if (event.detail==Alert.YES) {
             	warningMessage = '';
             	submitRequest();
-            }
+            } else {
+				this.submitButton.enabled = true;
+			}
         }
 		
 		public function promptToSaveRequest():void {
@@ -3607,7 +3614,9 @@
             if (event.detail==Alert.YES) {
             	warningMessage = '';
             	saveRequest();
-            }
+            } else {
+				this.submitButton.enabled = true;
+			}
         }
 		
 		private function onSaveNewRequest(event:ResultEvent):void {
@@ -3625,6 +3634,10 @@
 				if (theTab.contains(setupView)) {
 					setupView.enabled = false;				
 				}
+				
+				if (theTab.contains(seqSetup1View)) {
+					seqSetup1View.enabled = false;				
+				}
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.enabled = false;				
 				}
@@ -3637,8 +3650,7 @@
 					if (theTab.contains(seqSetupView)) {
 						this.seqSetupView.enabled = false;					
 					}
-					if (theTab.contains(seqSetup1View)) {
-						this.seqSetup1View.enabled = false;
+					if (theTab.contains(bioinformaticsView)) {
 						bioinformaticsView.enabled = false;
 					}
 				}
@@ -3683,7 +3695,7 @@
 		
 		private function onNotifySubmitRequest(event:CloseEvent):void {
 			if (event.detail==Alert.OK) {
-				var showPromptToUpload:Boolean = false;
+				showPromptToUpload = false;
 				if (this.isExternalExperimentSubmission()) {
 					externalRequestNumber = submittedRequestNumber;
 					externalIdRequest = submittedIdRequest;
@@ -3695,10 +3707,8 @@
 				}
 				// Just close the window when the request has been submitted
 				// and show the submitted experiment in the Experiments view.
-				var theRequestNumber:String = this.submittedRequestNumber;
+				theRequestNumber = this.submittedRequestNumber;
 				getNewRequest.send();  
-				initializeSubmitForm();
-				parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
 				
 
 			} else {
@@ -3711,40 +3721,56 @@
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 				dirty.resetDirty();
 				
-				// Inform if billing accounts reassigned on billing items
-				if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
-					Alert.show(saveExistingRequest.lastResult.@billingAccountMessage);
-				}
-				
-				// Warn if billing should be adjusted to take into account
-				// delete hybs or lanes
-				if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
-				    saveExistingRequest.lastResult.@deleteHybCount > 0 || 
-				    saveExistingRequest.lastResult.@deleteLaneCount > 0) {
-					if (parentApplication.hasPermission("canWriteAnyObject")) {
-						
-						var deleteTarget:String = "";
-						if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
-							deleteTarget += "Samples";
-						} 
-						if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
-							if (deleteTarget.length > 0) {
-								deleteTarget += " and ";								
-							}
-							deleteTarget += "Hybs";
-						} 
-						if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
-							if (deleteTarget.length > 0) {
-								deleteTarget += " and ";								
-							}
-							deleteTarget += "Sequence Lanes";
-						} 					
+				// For cap seq, warn if editing a submitted request so that billing is adjusted accordingly.
+				if (this.isCapSeqState() ){ 
+					// If samples have been removed:
+					if( saveExistingRequest.lastResult.@deleteSampleCount > 0 ) {
+						if (parentApplication.hasPermission("canWriteAnyObject")) {
+							Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.\n\nSome samples have been deleted, please adjust billing accordingly.", 
+								"Warning");				
+						}
+					} else {
+						// If samples have been added, we get the message from saveExistingRequest.
+						if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
+							Alert.show(saveExistingRequest.lastResult.@billingAccountMessage, "Warning");
+						}
+					}
+				} else {
+					// Inform if billing accounts reassigned on billing items
+					if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
+						Alert.show(saveExistingRequest.lastResult.@billingAccountMessage, "Warning");
+					}
 					
-						Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
-						"Warning");				
+					// Warn if billing should be adjusted to take into account
+					// delete hybs or lanes
+					if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
+						saveExistingRequest.lastResult.@deleteHybCount > 0 || 
+						saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+						if (parentApplication.hasPermission("canWriteAnyObject")) {
+							
+							var deleteTarget:String = "";
+							if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
+								deleteTarget += "Samples";
+							} 
+							if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
+								if (deleteTarget.length > 0) {
+									deleteTarget += " and ";								
+								}
+								deleteTarget += "Hybs";
+							} 
+							if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
+								if (deleteTarget.length > 0) {
+									deleteTarget += " and ";								
+								}
+								deleteTarget += "Sequence Lanes";
+							} 					
+							
+							Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
+								"Warning");				
+						}
 					}
 				}
-
+				
 			 	var parms:Object = new Object();
 			 	parms.idRequest = request.@idRequest;
 			 	getRequest.send(parms);
@@ -3811,7 +3837,6 @@
 					}
 					if (pe.property == "@idOrganism") {
 						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-						samplesView.propagateOrganism(String(pe.newValue));
 						samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
 					}else if (pe.property == "@idNumberSequencingCycles") {
 						samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
@@ -3932,7 +3957,31 @@
 					} else if (int1 > int2) {
 						return 1;
 					} else {
-						return 0;
+						var n1:String = obj1.@number.toString();
+						var n2:String = obj2.@number.toString();
+						var n1P:Array = n1.split('_');
+						var n2P:Array = n2.split('_');
+						var fcNum1:int = -1;
+						var fcNum2:int = -1;
+						if (n1P.length > 1) {
+							fcNum1 = parseInt(n1P[1]);
+							if (isNaN(fcNum1)) {
+								fcNum1 = -1;
+							}
+						}
+						if (n2P.length > 1) {
+							fcNum2 = parseInt(n2P[1]);
+							if (isNaN(fcNum2)) {
+								fcNum2 = -1;
+							}
+						}
+						if (fcNum1 < fcNum2) {
+							return -1;
+						} else if (fcNum1 > fcNum2) {
+							return 1;
+						} else {
+							return 0;
+						}
 					}
 				}
 			}			
@@ -4013,6 +4062,8 @@
 			} else {
 				var order1:int = obj1.@sortOrder;
 				var order2:int = obj2.@sortOrder;
+				var disp1:String = obj1.@display;
+				var disp2:String = obj2.@display;
 				
 				if (obj1.@value == '') {
 					return -1;
@@ -4024,7 +4075,13 @@
 					} else if (order1 > order2) {
 						return 1;
 					} else {
-						return 0;
+						if (disp1 < disp2) {
+							return -1;
+						} else if (disp1 > disp2) {
+							return 1;
+						} else {
+							return 0;
+						}
 					}
 				}
 			}			
@@ -4050,9 +4107,9 @@
 				
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 				if (requestEditBillingAccountCombo.dropdown != null) {
-					requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;
+					//requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;  // already has dynamic binding
 				}
-		        for each(var ba:Object in billingAccounts) {
+		        for each(var ba:Object in filteredBillingAccounts) {
 		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
 		        		requestEditBillingAccountCombo.selectedItem = ba;
 		        		break;
@@ -4174,7 +4231,6 @@
 					this.filteredAppList.refresh();
 					this.currentState = "SolexaBaseAmendState";
 					setAmendTitle();
-					this.seqSetup1View.currentState = "BarcodeState";
 				} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_MICROARRAY) {
 					this.currentState = "MicroarrayAmendState"; 
 					setAmendTitle();
@@ -4364,17 +4420,17 @@
 			
 
 			if (currentState == "SolexaBaseAmendState") {
-	    		seqSetupView.enabled = isComplete;
+	    		sampleSetupView.enabled = isComplete;
         	} else if (currentState == "SolexaLaneAmendState") {
         		this.seqSetup1View.enabled = isComplete;
         	} else if (currentState == "MicroarrayAmendState" ) {
-	    		sampleSetupView.enabled = isComplete;
+				sampleSetupView.enabled = isComplete;
     			if (theTab.contains(this.annotationView)) {
         			annotationView.enabled = isComplete;
        			}        			
     		} else {
-				// capillary sequencing
-				sampleSetupView.enabled = isComplete;
+				// capillary sequencing -- never happens
+				seqSetup1View.enabled = isComplete;
 			}
     		
     		enableNextButtons();
@@ -4390,7 +4446,7 @@
     			if (currentState == "SolexaBaseAmendState") {
     				this.seqSetupView.enabled = false;
     			} else if (currentState == "SolexaLaneAmendState") {
-    				this.seqSetup1View.enabled = false;
+    				this.sampleSetupView.enabled = false;
 					bioinformaticsView.enabled = false;
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.enabled = false;
@@ -4405,9 +4461,10 @@
 	        	this.confirmView.enabled = false;
     		} else {
     			if (currentState == "SolexaBaseAmendState") {
-    				this.seqSetupView.checkSeqAppSetupCompleteness();
+					this.sampleSetupView.currentState = "SolexaAmendState";
+    				this.sampleSetupView.checkSampleSetupCompleteness();
     			} else if (currentState == "SolexaLaneAmendState") {
-    				this.seqSetup1View.checkSeqSetup1Completeness();
+    				this.sampleSetupView.checkSampleSetupCompleteness();
     			} else if (currentState == "MicroarrayAmendState") {
     				this.sampleSetupView.checkSampleSetupCompleteness();
     			}
@@ -4422,7 +4479,7 @@
 	
 		private function onGetRequestToAmend(event:ResultEvent):void {
 			
-			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest);
+			var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest)[0];
 			existingLanes = request.sequenceLanes.SequenceLane;
 
 			setupAmendForm(request);
@@ -4452,8 +4509,6 @@
 				this.requestIcon = requestCategory.@icon;
 			}
 
-			
-
 		}
 
 		public function setupAmendForm(theRequest:Object):void {
@@ -4477,9 +4532,6 @@
 				this.annotationView.checkSecurity();		
 			}
 			if (this.isSolexaAmendState()) {
-				if (this.currentState != "SolexaLaneAmendState") {
-					this.sampleSetupView.currentState = "SolexaAmendState";
-				} 
 				this.samplesView.currentState = "SolexaSamplesState";
 			} else if (this.isMicroarayAmendState()) {				
 				this.sampleSetupView.currentState = "MicroarrayAmendState";
@@ -4537,10 +4589,12 @@
 				// additional lanes
 				lanes.removeAll();
 				
-				// Propagate the entries on seq setup1 that
+				// Propagate the entries on sample setup that
 				// may have been selected from prev amend request
-				this.seqSetup1View.propagateSeqRunType();
-				this.seqSetup1View.propagateNumberSequencingCycles();
+				if (theTab.contains(seqSetup1View)) {
+					this.seqSetup1View.propagateSeqRunType();
+					this.seqSetup1View.propagateNumberSequencingCycles();
+				}
 				this.bioinformaticsView.propagateGenomeBuild();
 
 				
@@ -4549,7 +4603,8 @@
 			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 				// We are converting a QC request to a microarray or illumina
 				// sequencing request.
-				this.filteredSampleTypeList.refresh();
+				filteredSampleTypeListRna.refresh();
+				filteredSampleTypeListDna.refresh();
 			
 				// Set the default sample type on the request based on the first sample listed
 				var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
@@ -4564,7 +4619,7 @@
 				}
 
 				// Default the sample type on sample setup
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 				
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -4586,7 +4641,7 @@
 				
 				// Default the sample type and nucleic acid extraction
 				// dropdowns on sample setup
-				sampleSetupView.sampleTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType',request.@idSampleTypeDefault);
+				sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
 
 				// Reset the organism on the sample if it was previously selected
 				sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
@@ -4614,7 +4669,6 @@
 				hybSetupView.organismCombo.selectedIndex = -1;
 				hybSetupView.slideProductCombo.selectedIndex = -1;
 				hybSetupView.numberOfHybs.text = '';
-				hybSetupView.isCatalogRadio.selected = true;
 				hybSetupView.unselectSlideSources();
 
 
@@ -4692,6 +4746,15 @@
 			uploadWindow.init(request);
 			uploadWindow.theTab.selectedIndex = 1;
 		}
+			
+		public static function showLinkSamplesWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
+			var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+			experimentEditView.downloadView = experimentDownloadView;
+			uploadWindow.parentView = experimentEditView;
+			PopUpManager.centerPopUp(uploadWindow);
+			uploadWindow.init(request);
+			uploadWindow.theTab.selectedIndex = 2;
+		}
 		
 
 		public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
@@ -4715,7 +4778,7 @@
 					show = false;
 				} else if (this.isEditState()) {
     				show = true;
-    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				} 	
     		}
@@ -4736,7 +4799,7 @@
 					show = false;
 				} else if (this.isEditState()) {
 					show = true;
-				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'Y') {
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				} 	
 			}
@@ -4757,7 +4820,7 @@
 					show = false;
 				} else if (this.isEditState()) {
 					show = true;
-				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" && sampleSetupView.barcodeRadioGroup.selectedValue == 'C') {
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 					show = true;
 				}	
     		}
@@ -4779,13 +4842,8 @@
 					show = false;
 				}  else if (!parentApplication.submitInternalExperiment()) {
 					show = false;
-				} else if (sampleSetupView.barcodeRadioGroup != null && 
-					sampleSetupView.barcodeRadioGroup.selectedValue != null && 
-					sampleSetupView.barcodeRadioGroup.selectedValue != 'N' && 
-					this.seqSetup1View.numberSamplesPerChannel != null) {
-					show = true;
 				} else {
-					show = false;
+					show = true;
 				}	
     		}
     		return show;
@@ -4852,10 +4910,11 @@
 						params.createDateFrom = dateFormatter.format( parentDocument.pickDateRangeButton.fromDate );
 						params.createDateTo = dateFormatter.format( parentDocument.pickDateRangeButton.toDate );
 					}
-					
-					params.isMicroarray  = this.parentDocument.MicroarrayCheckbox.selected ? "Y" : "N";
-					params.isNextGenSeq  = this.parentDocument.NextGenSeqCheckbox.selected ? "Y" : "N";
-					params.isBioanalyzer = this.parentDocument.BioanalyzerCheckbox.selected ? "Y" : "N";
+					if ( !this.isEditState() ) {
+						if ( parentDocument.requestCategoryRadioGroup != null && parentDocument.requestCategoryRadioGroup.selectedValue != null && parentDocument.requestCategoryRadioGroup.selectedValue != ''){
+							params.codeRequestCategory = parentDocument.requestCategoryRadioGroup.selectedValue;
+						}
+					}					
 					
 				}
 				
@@ -4949,20 +5008,41 @@
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;
 				if (defaultCodeRequestCategory == null) {
-					keep=true;
-				} else {
-					if (defaultRequestCategory == null) {
-						keep = true;   // should never happen.
-					} else {
-						for each(var cf:Object in item..CoreFacility) {
-							if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
+					if (coreFacility != null) {
+						for each(var core:XML in item..CoreFacility) {
+							if (core.@idCoreFacility == coreFacility.@idCoreFacility) {
 								keep = true;
 								break;
 							}
 						}
+					} else {
+						keep=true;
+					}
+				} else {
+					for each(var cf:Object in item..CoreFacility) {
+						if (cf.@idCoreFacility == defaultRequestCategory.@idCoreFacility) {
+							keep = true;
+							break;
+						}
 					}
 				}
 				return keep;
+			}
+			
+			private function filterBillingAccounts(item:Object):Boolean {
+				var keep:Boolean = false;
+				var temp:String = flash.utils.getQualifiedClassName(parentDocument);
+				if(temp  == 'views.order::NavOrderView') {
+					if(item.@idCoreFacility == parentDocument.selectedRequest.@idCoreFacility)
+						return true;
+					else
+						return false;
+				} else {
+					if(item.@idCoreFacility == parentDocument.selectedExperiment.@idCoreFacility)
+						return true;
+					else
+						return false;
+				}
 			}
 			
 			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
@@ -5040,6 +5120,8 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
+	<mx:XMLListCollection id="filteredBillingAccounts" source="{billingAccounts.source}" filterFunction="filterBillingAccounts" />
+
   	<mx:XMLListCollection id="projects" />
 
 	<mx:XMLListCollection id="appUsers"   source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
@@ -5157,7 +5239,9 @@
     <mx:VBox width="735" verticalGap="8" id="navBox" verticalAlign="top" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="{parentApplication.isInternalExperimentSubmission ? 'New Experiment Order' : 'Upload experiment data from a third party facility'}" fontWeight="normal" paddingRight="50"/>
+			<mx:Label id="titleLabel" styleName="titleLabel" 
+					  text="{(parentApplication.isInternalExperimentSubmission ? 'New ' + ( requestCategoryName != '' ? requestCategoryName : 'Experiment') + ' Order' : 'Upload experiment data from a third party facility') + (coreFacility != null ? ' For ' + coreFacility.@facilityName : '')}" 
+					  fontWeight="normal" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
 
@@ -5173,24 +5257,21 @@
 			
 			<experiment:TabNotesView id="notesView" enabled="false">
 			</experiment:TabNotesView>
+			
+			<experiment:TabSampleSetupView id="sampleSetupView">		    	
+			</experiment:TabSampleSetupView>
 						
 		    <experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
 		    </experiment:TabSeqSetupView>			
 			
-		    <experiment:TabSampleSetupView id="sampleSetupView">		    	
-		    </experiment:TabSampleSetupView>
-
-		    <experiment:TabSeqSetup1View id="seqSetup1View">		    	
-		    </experiment:TabSeqSetup1View>
+			<experiment:TabSeqSetup1View id="seqSetup1View" enabled="false">
+			</experiment:TabSeqSetup1View>			
 		   
 		    <experiment:TabAnnotationView id="annotationView">		    	
 		    </experiment:TabAnnotationView> 
 		    
 		    <experiment:TabSamplesBase id="samplesView">		    	
 		    </experiment:TabSamplesBase>
-		    
-			<experiment:TabBioinformaticsView id="bioinformaticsView">
-			</experiment:TabBioinformaticsView>
 			
 			<experiment:TabHybSetupView id="hybSetupView">				
 			</experiment:TabHybSetupView>
@@ -5200,6 +5281,9 @@
 			
 			<experiment:TabVisibilityView id="visibilityView">
 			</experiment:TabVisibilityView>
+			
+			<experiment:TabBioinformaticsView id="bioinformaticsView">
+			</experiment:TabBioinformaticsView>
 			
 			<experiment:TabConfirmBase id="confirmView">				
 			</experiment:TabConfirmBase>
@@ -5222,14 +5306,14 @@
 							  <mx:ViewStack id="userWarningStack" width="100%">
 							      <mx:HBox width="100%">
 							      </mx:HBox>
-								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
-										<mx:Label  text="{userWarningsSamples}" width="100%" styleName="warningLabel"/>
+								  <mx:HBox  id="userWarningsBoxSamples" width="100%" horizontalScrollPolicy="off" visible="{userWarningsSamples == '' ? false : true}" backgroundAlpha="{userWarningsSamples == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsSamples == '' ? 'none' : 'solid'}" >
+										<mx:Label  text="{userWarningsSamples}" width="100%" />
 								  </mx:HBox>							  	
-								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
-										<mx:Label  text="{userWarningsSampleSetup}" width="100%" styleName="warningLabel" />
+								  <mx:HBox id="userWarningsBoxSampleSetup"  width="100%" horizontalScrollPolicy="off" visible="{userWarningsSampleSetup == '' ? false : true}" backgroundAlpha="{userWarningsSampleSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3" borderColor="#000000" borderStyle="{userWarningsSampleSetup == '' ? 'none' : 'solid'}">
+										<mx:Label  text="{userWarningsSampleSetup}" width="100%" />
 								  </mx:HBox>
-								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFFFF"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
-										<mx:Label  text="{userWarningsHybSetup}" width="100%" styleName="warningLabel"/>
+								  <mx:HBox id="userWarningsBoxHybSetup"  horizontalScrollPolicy="off" visible="{userWarningsHybSetup == '' ? false : true}"  backgroundAlpha="{userWarningsHybSetup == '' ? 0 : 1}" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{userWarningsHybSetup == '' ? 'none' : 'solid'}">
+										<mx:Label  text="{userWarningsHybSetup}" width="100%" />
 								  </mx:HBox>
 							  </mx:ViewStack>
 							</mx:HBox>
@@ -5274,7 +5358,6 @@
 				</mx:HBox>
 			</mx:AddChild>
 
-    		<mx:RemoveChild target="{seqSetup1View}"/>
     		<mx:AddChild relativeTo="{theTab}" position="lastChild">
     			<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
     			 <mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
@@ -5284,7 +5367,7 @@
 					    	styleName="formLabel"/>
 					    <mx:ComboBox id="requestEditBillingAccountCombo"
 					       	  labelField="@accountName" 
-					       	  dataProvider="{billingAccounts}" 
+					       	  dataProvider="{filteredBillingAccounts}"							  
 					       	  change="{this.dirty.setDirty();}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
 							  width="400"
@@ -5459,8 +5542,9 @@
 		</mx:State>
         <mx:State name="MicroarrayState">
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
 		<mx:State name="MicroarrayExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
@@ -5471,7 +5555,7 @@
 		</mx:State>
         <mx:State name="MicroarrayAmendState" basedOn="AmendState">
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
             <mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
         </mx:State>
@@ -5480,8 +5564,9 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
         </mx:State>
 		<mx:State name="QCExternalState" >
 			<mx:RemoveChild target="{sampleSetupView}"/>
@@ -5497,7 +5582,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{annotationView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-            <mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
         </mx:State>
 		<mx:State name="SequencingEditState" basedOn="EditState">
@@ -5520,6 +5605,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="CapSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5552,6 +5638,7 @@
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="FragAnalEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5572,6 +5659,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="MitSeqEditState" basedOn="SequencingChromaEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5592,6 +5680,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="CherryPickEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5611,6 +5700,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="IScanEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5628,6 +5718,7 @@
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
 		</mx:State>
 		<mx:State name="SequenomEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{setupView}"/>
@@ -5637,6 +5728,7 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
@@ -5644,6 +5736,12 @@
 					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
+		</mx:State>
+		<mx:State name="IsolationState" basedOn="SequenomState">
+			
+		</mx:State>
+		<mx:State name="IsolationEditState" basedOn="SequenomEditState">
+			
 		</mx:State>
 		<mx:State name="ClinicalSequenomState"  basedOn="SequenomState">
 			<mx:RemoveChild target="{notesView}"/>
@@ -5654,6 +5752,7 @@
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
          </mx:State>
 		<mx:State name="SolexaBaseExternalState">
 			<mx:RemoveChild target="{sampleSetupView}"/>
@@ -5662,7 +5761,6 @@
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:RemoveChild target="{hybSetupView}"/>
 			<mx:RemoveChild target="{hybsView}"/>
-			<mx:RemoveChild target="{visibilityView}"/>	
 		</mx:State>
         <mx:State name="SolexaBaseAmendState" basedOn="AmendState">
         	<mx:RemoveChild target="{hybSetupView}"/>
@@ -5676,7 +5774,7 @@
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{confirmView}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-    		<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="MicroarrayEditState" basedOn="EditState">
@@ -5686,12 +5784,13 @@
             <mx:RemoveChild target="{hybSetupView.numberOfHybsContainer}"/>
             <mx:RemoveChild target="{hybSetupView.slideSourceContainer}"/>
     		<mx:RemoveChild target="{seqSetupView}"/>
-    		<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
          </mx:State>
         <mx:State name="SolexaEditState" basedOn="EditState">
     		<mx:RemoveChild target="{seqSetupView}"/>
             <mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
             <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{hybsView}"/>
             <mx:RemoveChild target="{hybSetupView}"/>
@@ -5722,7 +5821,7 @@
             <mx:SetStyle target="{agreeCheckbox}" name="textSelectedColor" value="#3A940E"/>
         </mx:State>
         <mx:State name="AmendState"> 
-            <mx:AddChild relativeTo="{seqSetupView}" position="before">
+            <mx:AddChild relativeTo="{sampleSetupView}" position="before">
                 <mx:VBox id="amendSetupView" label="Choose the services you want to add" paddingLeft="0" verticalGap="8" paddingRight="0" paddingTop="0" paddingBottom="0">
                 	<mx:RadioButtonGroup id="radioGroupAmendType"/>
                 	<mx:HBox width="100%" horizontalGap="8" verticalAlign="middle">
@@ -5826,8 +5925,8 @@
 			
         </mx:State>
         <mx:State name="SolexaLaneAmendState" basedOn="SolexaBaseAmendState">
-            <mx:RemoveChild target="{sampleSetupView}"/>
             <mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
         </mx:State>
 
     </mx:states>

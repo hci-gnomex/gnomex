@@ -33,6 +33,16 @@
 					useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService id="savePlateWellList"
+					url="SavePlateWellList.gx"
+					resultFormat="e4x"
+					result="onSavePlateWellList(event)"
+					showBusyCursor="true"
+					fault="parentApplication.onFailHttpRequest('Unable to save plate', event)"
+					method="POST"
+					useProxy="false">
+	</mx:HTTPService>
+	
 	<mx:HTTPService id="getPlate"
 					url="GetPlate.gx"
 					resultFormat="e4x"
@@ -702,7 +712,6 @@
 					return;
 				}
 				// Find the plate in the run or plate tree
-				collapseRunTree();
 				for each ( var pl:Object in getInstrumentRunList.lastResult..Plate.(@idInstrumentRun == run.idRun) ) {
 					if ( pl.@quadrant == plateStack.selectedIndex ) {
 						runTree.expandItem( XML(pl).parent(), true );
@@ -792,6 +801,39 @@
 					
 				}
 				return added + "/" + count + " samples";
+			}
+			
+			private function getSelectedRedoItems():Array {
+				
+				var selectedItems:Array = sampleTree.selectedItems;
+				var selectedRedoItems:Array = new Array();
+				
+				for each ( var item:Object in selectedItems ) {
+					if ( sampleTree.dataDescriptor.hasChildren( item )) {
+						for each ( var child:Object in item.children()) {
+							if ( sampleTree.dataDescriptor.hasChildren( child )) {
+								for each ( var child1:Object in child.children()) {
+									if ( sampleTree.dataDescriptor.hasChildren( child1 )) {
+										for each ( var child2:Object in child.children()) {
+											if ( child2.@redoFlag != null && child2.@redoFlag == "Y" ) {
+												selectedRedoItems.push(child2);
+											}
+										}
+									} else if ( child1.@redoFlag != null && child1.@redoFlag == "Y" ) {
+										selectedRedoItems.push(child1);
+									}
+								}
+							} else if ( child.@redoFlag != null && child.@redoFlag == "Y" ) {
+								selectedRedoItems.push(child);
+							}
+						}
+					} else {
+						if ( item.@redoFlag != null && item.@redoFlag == "Y" ) {
+							selectedRedoItems.push(item);
+						}
+					}
+				}
+				return selectedRedoItems;
 			}
 			
 			
@@ -1259,7 +1301,6 @@
 						switchActivePlate();
 						return;
 					}
-					collapseRunTree();
 					if ( currentState.substr( 0, 3 ) == "new" ) {
 						switchToEditState();
 					} 
@@ -1268,19 +1309,21 @@
 					}
 				}
 				if ( selection.name() == "Plate" ) {
-					collapseRunTree();
 					if ( run.idRun != selection.@idInstrumentRun || this.isDirty) {
 						loadRunById( selection.@idInstrumentRun )
 					}
-					if ( plateStack.initialized && plateStack.numChildren > selection.@quadrant ) {
-						if ( plateStack.getChildAt(selection.@quadrant) != null ) {
-							plateLinkBar.selectedIndex = plateStack.selectedIndex = selection.@quadrant;
-							switchActivePlate();
-						}
-					}
+					switchToQuadrant(selection.@quadrant);
 				}
 			}
 			
+			public function switchToQuadrant( quad:int ):void {
+				if ( plateStack.initialized && plateStack.numChildren > quad ) {
+					if ( plateStack.getChildAt(quad) != null ) {
+						plateLinkBar.selectedIndex = plateStack.selectedIndex = quad;
+						switchActivePlate();
+					}
+				}
+			}
 			
 			private function loadFromPlateTree( event:Event ):void {
 				
@@ -1587,7 +1630,6 @@
 				savePlate.send( params );
 			}
 			
-			
 			private function onSavePlate( event:ResultEvent ):void {
 				
 				if ( savePlate.lastResult.name() == "SUCCESS" ) {
@@ -1603,6 +1645,54 @@
 				}
 			}
 			
+			private function promptToRemoveRedoFlag():void {
+				if ( getSelectedRedoItems().length == 0 ) {
+					return;
+				}
+				var message:String = "Are you sure you want to remove the redo flags from the following selected samples:   ";
+				for each ( var item:Object in getSelectedRedoItems() ) {
+					message += item.@sampleName + ", ";
+				}
+				message = message.substr(0,message.length-2);
+				//for each 
+				message += "?";
+				Alert.show( message, "Confirm Remove Redo Flag", ( Alert.YES | Alert.NO ), this, onPromptToRemoveRedoFlag, iconWarning );
+				
+			}
+			private function onPromptToRemoveRedoFlag( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					removeRedoFlag();
+				}
+			}
+			
+			private function removeRedoFlag():void {
+				
+				var wellXMLString:String = "<plateWellXMLString>";
+				for each ( var item:Object in getSelectedRedoItems() ) {
+					item.@redoFlag = "N";
+					wellXMLString += "<PlateWell " + 
+						" idPlateWell ='" + item.@idSourcePlateWell + "'" +
+						" idRequest ='" + item.@idRequest + "'" +
+						" redoFlag='N'" +  "/>";
+				}
+				wellXMLString += "</plateWellXMLString>";
+				
+				var params:Object = new Object();
+				params.plateWellXMLString = wellXMLString;
+				
+				savePlateWellList.send( params );
+			}
+			
+			private function onSavePlateWellList( event:ResultEvent ):void {
+				
+				if ( savePlateWellList.lastResult.name() == "SUCCESS" ) {
+					refreshLists();
+					
+				} else {
+					Alert.show(savePlateWellList.lastResult.ERROR.@message, "Unable to remove redo flags");
+				}
+			}
 			
 			//-------------------
 			// Remove Functions
@@ -2695,15 +2785,15 @@
 									   click="{addButtonClick()}"
 									   id="addSamplesButton"
 									   textDecoration="underline"
-									   visible="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
-									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; selectedItemAdded() == false}"
+									   visible="{sampleTree.selectedItems.length>=1 &amp;&amp; !selectedItemAdded()}"
+									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; !selectedItemAdded()}"
 									   color="#000000"  fontSize="10"/>
 						<mx:LinkButton label="Add All"
 									   icon="@Embed('../../assets/add_all.png')"
 									   click="{addAllSamples()}"
 									   textDecoration="underline"
-									   visible="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
-									   includeInLayout="{sampleTree.selectedItems.length==0 &amp;&amp; allSamplesAdded() == false}"
+									   visible="{sampleTree.selectedItems.length==0 &amp;&amp; !allSamplesAdded()}"
+									   includeInLayout="{sampleTree.selectedItems.length==0 &amp;&amp; !allSamplesAdded()}"
 									   color="#010101" />
 						
 					</mx:HBox>
@@ -2741,7 +2831,12 @@
 								 dropShadowEnabled="false">
 						</mx:Tree>
 						
-						
+						<mx:LinkButton label="Remove Redo Flag"
+									   color="#000000"
+									   click="{promptToRemoveRedoFlag()}"
+									   visible="{sampleTree.selectedItems.length>=1 &amp;&amp; getSelectedRedoItems().length>=1 &amp;&amp; !selectedItemAdded()}"
+									   includeInLayout="{sampleTree.selectedItems.length>=1 &amp;&amp; getSelectedRedoItems().length>=1 &amp;&amp; !selectedItemAdded()}"
+									   textDecoration="underline" />
 						
 						<mx:HBox verticalAlign="middle" width="100%">
 							
@@ -2976,7 +3071,7 @@
 						 paddingTop="0"
 						 height="100%">
 					
-					<mx:ViewStack id="plateStack" width="525" height="300">
+					<mx:ViewStack id="plateStack" width="100%" height="100%">
 						
 						<plate:Plate visible="false"
 									 id="P1R1"

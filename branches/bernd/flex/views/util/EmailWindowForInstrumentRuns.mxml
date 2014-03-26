@@ -8,7 +8,7 @@
        
     <mx:HTTPService 
     id="sendInstrumentRunEmail" 
-    url="InstrumentRunEmailServlet.gx"
+    url="EmailServlet.gx"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSendInstrumentRunEmail(event)"
@@ -45,9 +45,7 @@
 			} 
 			runsSelected += "</InstrumentRuns>";
 			params.runsSelectedXMLString = new XML(runsSelected);
-			
 	 		params.subject = subject.text;
-	 		params.format = "text";
 	 		params.body = body.text;
 	 		this.sendInstrumentRunEmail.send(params);
 			

@@ -93,6 +93,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.SampleSheetColumnFormats;
+			import mx.utils.StringUtil;
 
 			
 			private var uploadFR:FileReference;
@@ -102,7 +103,6 @@
 			private var numPlates:int;
 			private var startRow:int;
 			private var specifiedFieldList:Dictionary;
-			private var allowMultiPlexGroupNumber:Boolean;
 			private var tabAnnotationView:TabAnnotationView;
 			private var fullHeight:int;
 			private var fullWidth:int;
@@ -132,8 +132,8 @@
 				return displayText;
 			}
 			
-			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
-				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, allowMultiPlexGroupNumber, tabAnnotationView);
+			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
+				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, tabAnnotationView);
 				
 				// Cap seq window is simplified and should be smaller.
 				fullWidth = 738;
@@ -171,11 +171,10 @@
 				}
 			}
 
-			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, tabAnnotationView:TabAnnotationView):void {
+			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
-				this.allowMultiPlexGroupNumber = allowMultiPlexGroupNumber;
 				this.tabAnnotationView = tabAnnotationView;
 				this.startRow = 0;
 				
@@ -317,7 +316,6 @@
 					// Make sure there is an initial row
 					tabSamplesView.addSample();
 				}
-				tabSamplesView.setMultiplexGroupNumberImported(false);
 				for each (var ssRowItem:XML in ssRowList) {				
 					if(hasColNames.selected && ssRowCount==1) {
 						// Skip row 1 if it consists of column names
@@ -335,9 +333,6 @@
 						var ssColumnForThisField:int = node.@selectedSSColumn;
 						ssColumnForThisField--;
 						if(ssColumnForThisField >= 0) {
-							if (thisDataField == "multiplexGroupNumber" && this.allowMultiPlexGroupNumber) {
-								tabSamplesView.setMultiplexGroupNumberImported(true);
-							}
 							var ssColList:XMLList = ssRowItem.Column;
 							if(ssColumnForThisField >= ssColList.length()) {
 								continue;	// Skip this column if it doesn't exist.
@@ -370,6 +365,7 @@
 							if(node.@fieldType == "OPTION") {
 								if(ssColItemValue.length > 0) {
 									var optionFound:Boolean = false;
+									ssColItemValue = StringUtil.trim(ssColItemValue);
 									// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
 									for each(var col:AdvancedDataGridColumn in grid.columns) {
 										if (col.dataField == node.@dataField) {
@@ -416,7 +412,7 @@
 									var notFoundCnt:int = 0;
 									for each (var thisParam:String in params) {
 										// Loops through one or multiple labels stored in the spreadsheet
-										thisParam = trimSpaces(thisParam);
+										thisParam = StringUtil.trim(thisParam);
 										var mOptionFound:Boolean = false;
 										for each (var optionItem:XML in options) {
 											// Compares against Multi Select options and matches up with corresponding values
@@ -504,7 +500,7 @@
 				if(sampleGroupingCollection != null) {
 					sampleGroupingCollection.refresh(false);
 				}
-				tabSamplesView.checkSamplesCompleteness();
+				callLater(tabSamplesView.checkSamplesCompleteness);
 				if (allSuccess) {
 					uploadComplete();
 				} else {
@@ -538,21 +534,6 @@
 					}
 				}
 				return output;
-			}
-
-			
-			public static function trimSpaces( original:String ):String {
-				var characters:Array = original.split("");
-				
-				for ( var i:int = 0; i < characters.length; i++ ) {
-					if (characters[i] == ' ') {
-						characters.splice( i, 1 );
-						i--;
-					} else {
-						break;
-					}
-				}
-				return characters.join("");
 			}
 			
 			private function uploadSampleSheetSelectHandler(event:Event):void { 
@@ -589,7 +570,7 @@
 					sampleSheetColumnList = new XMLListCollection(sampleSheetXML.ColumnSelector.ColumnSelectorItem);
 					markColumnsWithData(sampleSheetColumnList);
 
-					fieldList = getFieldList(tabSamplesView, specifiedFieldList, allowMultiPlexGroupNumber, sampleSheetColumnList, tabAnnotationView);
+					fieldList = getFieldList(tabSamplesView, specifiedFieldList, sampleSheetColumnList, tabAnnotationView);
 					
 					vsMain.selectedChild=chooseColumns;
 					this.changeHeightWidth(fullHeight, fullWidth);
@@ -634,7 +615,7 @@
 				}
 			}
 			
-			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, allowMultiPlexGroupNumber:Boolean, 
+			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, 
 												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, sampleSheetDownload:Boolean = false):XMLListCollection {
 				
 				var samplesViewState:String = tabSamplesView.currentState;
@@ -668,10 +649,6 @@
 					}
 					if ( (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') && (col.visible && col.editable && col.dataField != null) ){
 						
-						addColumn = true;
-					}
-					
-					if ((col.dataField == '@multiplexGroupNumber' && allowMultiPlexGroupNumber) && (samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState')) {
 						addColumn = true;
 					}
 					
@@ -724,7 +701,7 @@
 			
 			// only called if there is an  error detected by flash player browsing or uploading a file   
 			private function uploadIoErrorHandler(event:IOErrorEvent):void{
-				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload (" + event.text + ")  Please contact GNomEx support.",
 					"Upload IO error",0);
 				PopUpManager.removePopUp(this);
 			}    
@@ -774,18 +751,6 @@
 				return displayText;
 			}			
 
-
-			private function downloadSampleSheetExample(fileName:String):void {
-				try {
-					downloadRequest = new URLRequest("doc/" + fileName);
-					downloadFileRef = new FileReference();
-					downloadFileRef.addEventListener(Event.COMPLETE, downloadCompleteHandler);
-					downloadFileRef.download(downloadRequest, fileName);
-					
-				} catch (error:Error) {
-					Alert.show("Unable to download example sample sheet due to error. " + error.message);
-				}
-			}
 
 			private function downloadCompleteHandler(event:Event):void
 			{
