@@ -1285,8 +1285,8 @@
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
       <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		  <mx:HBox width="1092">
-		<mx:VBox  width="509" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		  <mx:VBox width="1092">
+		<mx:VBox  width="600" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 						
 			<mx:HBox horizontalGap="0" id="hbox1">
 				<mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
@@ -1317,18 +1317,23 @@
 				</mx:VBox>				
 			</mx:HBox>
 		</mx:VBox>
-			<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}" >
-				<mx:HBox width="100%" verticalAlign="middle" >
+		<mx:VBox id="privacyExpirationBox" includeInLayout="{parentApplication.isPrivacyExpirationSupported}" visible="{parentApplication.isPrivacyExpirationSupported}" 
+				 							width="600" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+			<mx:VBox verticalGap="0"  >
+				<mx:Text text="(2) Select the privacy expiration date." id="privacyExpirationLabel"/>
+				<mx:HBox width="550" verticalAlign="middle" >
 					<mx:DateField id="privacyExpirationPicker" width="100" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-					<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="427" height="30"/>
+					<mx:Text text="Public visibility date&#13;(visibility automatically changes to public on this date)"  />
 				</mx:HBox>
 			</mx:VBox>
-			</mx:HBox>		
+		</mx:VBox>
+
+			</mx:VBox>		
 			
 		
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			
-			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>
+			<mx:Text text="{(parentApplication.isPrivacyExpirationSupported ? '(3)' : '(2)') + ' Specify other individual collaborators allowed access to this analysis'}" width="300" height="30" id="selectCollaboratorsLabel" />
 			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
 				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
 										  labelField="@displayName" 
