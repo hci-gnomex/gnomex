@@ -323,6 +323,10 @@ public class Topic extends DetailObject implements Serializable, VisibilityInter
 
    }
    
+   public String getNumber(){
+     return "T" + idTopic.toString();
+   }
+   
    /*
     *  An analysis, experiment, or data track can be part of many topics.  This convenience method
     *  allows the caller to send in the list of parent topics and it will generate XML nodes showing the
