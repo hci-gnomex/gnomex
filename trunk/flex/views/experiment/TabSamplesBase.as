@@ -29,8 +29,7 @@ package views.experiment
 		
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference; 
-		
-		[Bindable]
+
 		public var filteredSampleTypeList:XMLListCollection;
 
 		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
