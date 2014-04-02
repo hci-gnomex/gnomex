@@ -94,6 +94,14 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         sess.save(topic);
         sess.flush();
         
+        if(isNewTopic){
+          sendNotification(topic, sess, "NEW", "USER", "TOPIC");
+          sendNotification(topic, sess, "NEW", "ADMIN", "TOPIC");
+        } else{
+          sendNotification(topic, sess, "EXIST ", "USER", "TOPIC");
+          sendNotification(topic, sess, "EXIST", "ADMIN", "TOPIC");
+        }
+        
         this.xmlResult = "<SUCCESS idTopic=\"" + topic.getIdTopic() 
             + "\" codeVisibility=\"" + topic.getCodeVisibility()
             + "\" visibilityMsg=\"" + visibilityMessage + "\"/>";

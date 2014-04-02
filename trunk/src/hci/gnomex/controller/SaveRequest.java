@@ -321,6 +321,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               
         // save request
         originalRequestNumber = saveRequest(sess, requestParser, description);
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? "NEW" : "EXIST", "ADMIN", "REQUEST");
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? "NEW" : "EXIST", "USER", "REQUEST");
 
         // Remove files from file system
         if (filesToRemoveParser != null) {
@@ -825,6 +827,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           message.append(msg + "\n");
         }              
       }
+      
+     // Add to BILLING Notification to table.
+     sendNotification(requestParser.getRequest(), sess, "NEW", "BILLING", "REQUEST");             
+
     }                
     
     return message.toString();
@@ -2109,9 +2115,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if (isNewSequenceLane) {
       Sample theSample = (Sample)sess.get(Sample.class, sequenceLane.getIdSample());
-      
-      String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", "F");
-      sequenceLane.setNumber(flowCellNumber + "_" + (lastSampleSeqCount + 1));
+ 
+      String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER));
+      sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR) + (lastSampleSeqCount + 1));
       sess.save(sequenceLane);
       sess.flush();
       
@@ -2342,6 +2348,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
     String requestNumber = requestParser.getRequest().getNumber();
     String requestCategoryMsg = "";
+
     String submitterName = requestParser.getRequest().getSubmitterName();
     String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
    
@@ -2365,11 +2372,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
+      ".");
     } else {
       emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
-      ".");   
-      
+      ".");
     }
    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
 

@@ -329,6 +329,8 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     
     if (load.getIdDataTrack() == null || load.getIdDataTrack().intValue() == 0) {
       createNewDataTrack(sess, load, idDataTrackFolder);
+      sendNotification(dataTrack, sess, "NEW", "USER", "DATATRACK");
+      sendNotification(dataTrack, sess, "NEW", "ADMIN", "DATATRACK");
       isNewDataTrack = true;
     } else {
       dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, load.getIdDataTrack()));
@@ -344,6 +346,8 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
       dataTrack.setIdLab(load.getIdLab());
       dataTrack.setIdAppUser(load.getIdAppUser());
       sess.flush();
+      sendNotification(dataTrack, sess, "EXIST", "USER", "DATATRACK");
+      sendNotification(dataTrack, sess, "EXIST", "ADMIN", "DATATRACK");
     }
   }  
   private DataTrack createNewDataTrack(Session sess, DataTrack load, Integer idDataTrackFolder) throws Exception {
