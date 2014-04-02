@@ -367,6 +367,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       if (invoice != null) {
         invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
         sess.save(invoice);
+        
+        sendNotification(invoice, sess, "NEW", "BILLING", "INVOICE");
+        
         sess.flush();
       }
     }

@@ -592,6 +592,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         this.saveAnalysisProperties(sess, analysis);
         
+        String state = "EXIST";
+        if(isNewAnalysis){
+          state = "NEW";
+        }
+        sendNotification(analysis, sess, state, "ADMIN", "ANALYSIS");
+        sendNotification(analysis, sess, state, "USER", "ANALYSIS");
+        
         // Create the analysis directory
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
         String analysisDir = getAnalysisDirectory(baseDir, analysis);
