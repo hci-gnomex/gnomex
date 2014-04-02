@@ -86,7 +86,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     try {
       sess = HibernateSession.currentSession(this.getUsername());
             
-      if ( codeRequestStatus.equals(null) || idRequest.equals("0") ) {
+      if ( codeRequestStatus == null || idRequest.equals("0") ) {
         this.addInvalidField( "Missing information", "id and code request status needed" );
       }
       
