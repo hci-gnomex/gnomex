@@ -1,14 +1,20 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.SequenceLane;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
  public class SequenceLaneNumberComparator implements Comparator, Serializable {
+   private String seqLaneNumberSeparator = "";
+   private String seqLaneLetter = "";
     public int compare(Object o1, Object o2) {
       SequenceLane l1 = (SequenceLane)o1;
       SequenceLane l2 = (SequenceLane)o2;
+      
+      seqLaneNumberSeparator = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR);
+      seqLaneLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
       
       if (l1.getNumber() == null && l2.getNumber() == null) {
         return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
@@ -22,11 +28,11 @@ import java.util.Comparator;
       String sampleNumber1;
       String seqNumber1 = "";
       // Deal with old (ex. 6142L1) and new (ex. 6142F1_1) naming scheme
-      if (l1.getNumber().indexOf("F") >= 0) {
-        String[] tokens        = l1.getNumber().split("F");
+      if (l1.getNumber().indexOf(seqLaneLetter) >= 0) {
+        String[] tokens        = l1.getNumber().split(seqLaneLetter);
         requestNumber1         = tokens[0];
         String number1         = tokens[tokens.length - 1];
-        String[] numberTokens  = number1.split("_");
+        String[] numberTokens  = number1.split(seqLaneNumberSeparator);
         sampleNumber1          = numberTokens[0];
         seqNumber1             = numberTokens[1];        
       } else {
@@ -39,11 +45,11 @@ import java.util.Comparator;
       String requestNumber2;
       String sampleNumber2;
       String seqNumber2 = "";
-      if (l2.getNumber().indexOf("F") >= 0) {
-        String[] tokens        = l2.getNumber().split("F");
+      if (l2.getNumber().indexOf(seqLaneLetter) >= 0) {
+        String[] tokens        = l2.getNumber().split(seqLaneLetter);
         requestNumber2         = tokens[0];
         String number2         = tokens[tokens.length - 1];
-        String[] numberTokens  = number2.split("_");
+        String[] numberTokens  = number2.split(seqLaneNumberSeparator);
         sampleNumber2          = numberTokens[0];
         seqNumber2             = numberTokens[1];        
       } else {
