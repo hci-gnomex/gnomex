@@ -442,6 +442,7 @@
 			<key column="idFlowCell"/>
 			<one-to-many class="hci.gnomex.model.FlowCellChannel" />
 		</set>
+		<many-to-one name="instrument" column="idInstrument" class="hci.gnomex.model.Instrument" cascade="none" update="false" insert="false" />
 	</class>	   
 
 	<!-- hci.gnomex.model.FlowCellChannel -->
@@ -911,6 +912,10 @@
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.SampleExperimentFile" />
 		</set>
+		<set name="workItems" table="WorkItem" lazy="true" cascade="none" >
+			<key column="idSample"/>
+			<one-to-many class="hci.gnomex.model.WorkItem" />
+		</set>
 		
   </class>
   
@@ -979,7 +984,8 @@
 		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
 		<property name="idFlowCellChannel" column="idFlowCellChannel" type="integer"/>
 		<many-to-one name="flowCellChannel" column="idFlowCellChannel" class="hci.gnomex.model.FlowCellChannel" cascade="none" insert="false" update="false" />
-		
+		<many-to-one name="numberSeqCycles" column="idNumberSequencingCycles" class="hci.gnomex.model.NumberSequencingCycles" cascade="none" insert="false" update="false" />
+		<many-to-one name="seqRunType" column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />
 	</class>	
 	
 	<!-- hci.gnomex.model.Slide -->
@@ -2209,7 +2215,51 @@
       <key column="idDiskUsageByMonth"/>
       <one-to-many class="hci.gnomex.model.BillingItem" />
     </set>    
-  </class>  
+  </class>
+  
+    <!-- hci.gnomex.model.Notification -->  
+	<class name="hci.gnomex.model.Notification" table="Notification">
+		<id name="idNotification" column="idNotification" type="integer">
+			<generator class="native" />
+		</id>
+				
+		<property name="sourceType" 				column="sourceType" 					type="string" />
+		<property name="message" 					column="message"						type="string" />
+		<property name="date" 						column="date" 							type="java.util.Date" />
+		<property name="idUserTarget" 				column="idUserTarget" 					type="integer" />
+		<property name="idLabTarget" 				column="idLabTarget" 					type="integer" />
+		<property name="type"						column="type"							type="string" />
+		<property name="expID"						column="expID"							type="string" />
+		<property name="fullNameUser"				column="fullNameUser"					type="string" />	
+		<property name="imageSource"				column="imageSource"					type="string" />
+		<property name="idCoreFacility"				column="idCoreFacility"					type="integer" />						
+	     
+	</class>
+	
+	<!-- hci.gnomex.model.NewsItem -->
+	<class name="hci.gnomex.model.NewsItem" table="NewsItem">
+		<id name="idNewsItem" column="idNewsItem" type="integer">
+			<generator class="native" />
+		</id>
+		
+		<property name="date"						column="date"				type="java.util.Date" />
+		<property name="message"					column="message"			type="string" />
+		<property name="title"						column="title"				type="string" />
+		<property name="idSubmitter"				column="idSubmitter"		type="integer" />
+		<property name="idCoreFacility"				column="idCoreFacility"		type="integer" />
+	</class>
+	
+	<!-- hci.gnomex.model.FAQ -->
+	<class name="hci.gnomex.model.FAQ" table="FAQ">
+		<id name="idFAQ" column="idFAQ" type="integer">
+			<generator class="native" />
+		</id>
+		
+		<property name="title"						column="title"				type="string" />
+		<property name="url"						column="url"				type="string" />
+		<property name="views"						column="views"				type="integer" />
+		
+	</class>  
     
   <!-- hci.gnomex.model.BSTSampleInformation (view into BST sample information) -->
   <class name="hci.gnomex.model.BSTSampleInformation" table="BSTSampleInformation">
