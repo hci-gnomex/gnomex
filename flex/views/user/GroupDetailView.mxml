@@ -119,6 +119,7 @@
 				
 				
 				appUsers.refresh();
+				activeAppUsers.filterFunction = filterIsActive;
 				activeAppUsers.refresh();
 				
 				parentApplication.promptedAppUserList.refresh();
@@ -1208,6 +1209,15 @@
 					dirty.setDirty();
 				}
 			}
+			
+			private function filterIsActive(item:Object):Boolean{
+				if(item.@isActive == 'Y'){
+					return true;
+				} else{
+					return false;
+				}
+				
+			}
 
 		]]>
 	</mx:Script>	  
@@ -1223,7 +1233,7 @@
 	<mx:XMLListCollection id="collaborators" source="{parentDocument.fullLab.collaborators.AppUser}" sort="{alphabeticSort}"/>
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}" sort="{alphabeticSort}"/>
 	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
-	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser.(@isActive=='Y')}"/>
+	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}" filterFunction="filterIsActive"/>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
@@ -1435,7 +1445,7 @@
 					<mx:VBox width="100%" verticalGap="1" backgroundAlpha=".1" borderStyle="none" height="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1">
 						<mx:Label text="Collaborators" styleName="formLabel"/>
 						<mx:HBox width="100%" horizontalGap="6">
-							<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
+							<renderers:FilterComboBox dataProvider="{activeAppUsers}" 
 													  labelField="@displayName" 
 													  prompt="Collaborator to add..."
 													  width="170"
@@ -1455,7 +1465,7 @@
 						<mx:VBox  width="100%" verticalGap="1" backgroundAlpha=".1" borderStyle="none" height="100%" paddingLeft="2" paddingRight="2" paddingTop="10" paddingBottom="2" borderThickness="1">
 							<mx:Label text="Managers" styleName="formLabel"/>
 							<mx:HBox width="100%" horizontalGap="6">
-								<renderers:FilterComboBox dataProvider="{activeAppUsers.source}" 
+								<renderers:FilterComboBox dataProvider="{activeAppUsers}" 
 														  labelField="@displayName" 
 														  prompt="Manager to add..."
 														  width="170"
