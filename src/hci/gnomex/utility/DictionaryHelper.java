@@ -263,6 +263,15 @@ public class DictionaryHelper implements Serializable {
     return (Property)propertyDictionaryMap.get(idProperty);
   }
   
+  public String getCodeStepName(String abbr) {
+    lazyLoadManagedDictionaries();
+    String codeStep = "";
+      if (codeStep != null) {
+        codeStep = DictionaryManager.getDisplay("hci.gnomex.model.Step", abbr);
+      }
+    return codeStep;
+  }
+  
   public Map getPropertyDictionaryMap() {
     return propertyDictionaryMap;
   }
