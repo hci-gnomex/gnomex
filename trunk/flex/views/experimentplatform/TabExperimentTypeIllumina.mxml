@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Experiment Types" 
+		 verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.util.FilteredTreeDataDescriptor;
+			import mx.collections.ICollectionView;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			
+			private var nextNewAppNum:int = 0;
+			
+			public function init(state:ExperimentPlatformState):void {
+				this.state = state;
+				nextNewAppNum = 0;
+				applicationTreeSource = state.requestCategory.applications;
+				appTree.validateNow();
+				appTree.invalidateList();
+				appTree.expandChildrenOf(applicationTreeSource[0], true);
+			}
+			
+			private function applicationListFilter(node:Object):ICollectionView {
+				var xNode:XML = XML(node);
+				var newList:XMLList = new XMLList();
+				for each (var child:XML in xNode.children()) {
+					if (child.name() == 'ApplicationTheme') {
+						newList += child;
+					} else if (child.name() == 'Application' && applicationIsVisible(child)) { 
+						newList += child;
+					} // note ignore RequestCategoryApplication children
+				}
+				
+				return new XMLListCollection(newList);
+			}
+			
+			private function applicationIsVisible(obj:Object):Boolean {
+				var node:XML = XML(obj);
+				var v:Boolean = false;
+				if (node.name() == 'Application') {
+					if (node.@isSelected == 'Y') {
+						v = true;
+					} else if (node.@isActive != 'Y' && showInActiveCheckbox.selected) {
+						// Note that if it is inactive it is never selected.
+						v = true;
+					} else if (node.@isActive == 'Y' && node.@isSelected != 'Y' && showOtherCheckbox.selected) {
+						v = true;
+					} // otherwise leave false
+				} else {
+					v = true;
+				}
+				
+				return v;
+			}
+			
+			private function editExperimentType():void {
+				if (XML(appTree.selectedItem).name().toString() == "ApplicationTheme") {
+					Alert.show("Please click on an experiment type instead of a theme.  (Choose 'Other' checkbox above to see unselected experiment types)");
+					return;
+				}
+				showEditExperimentTypeWindow(appTree.selectedItem);
+			}
+			
+			private function showEditExperimentTypeWindow(app:Object):void {
+				var editWindow:IlluminaExperimentTypeDetailWindow = IlluminaExperimentTypeDetailWindow(PopUpManager.createPopUp(this, IlluminaExperimentTypeDetailWindow, true));
+				PopUpManager.centerPopUp(editWindow);
+				editWindow.init(this, state, app);
+			}
+			
+			public function updateIlluminaExperimentTypeNode(newNode:XML, oldThemeId:String):void {
+				appTree.dataProvider = null;
+				var themeList:XMLList = applicationTreeSource..ApplicationTheme;
+				var newSort:int = getSort(newNode);
+				for each(var theme:XML in themeList) {
+					if (oldThemeId != newNode.@idApplicationTheme && theme.@idApplicationTheme == oldThemeId) {
+						removeChildFromTheme(theme, newNode);
+					}
+					if (theme.@idApplicationTheme == newNode.@idApplicationTheme) {
+						// replace or add the new node in it's new theme.
+						var appended:Boolean = false;
+						var newList:XMLList = new XMLList();
+						for each (var child:XML in theme.children()) {
+							if (child.@codeApplication != newNode.@codeApplication) {
+								if (illuminaAppGreaterThan(child, newNode) && !appended) {
+									newList += newNode;
+									appended = true;
+								}
+								newList += child;
+							}
+						} 
+						if (!appended) {
+							newList += newNode;
+						}
+						theme.setChildren(newList);
+					}
+				}
+				
+				appTree.dataProvider = applicationTreeSource;
+				appTree.validateNow();
+				appTree.expandChildrenOf(applicationTreeSource[0], true);
+				
+				
+				setAppTreeSelectedItem(newNode, applicationTreeSource, -1);
+				
+				state.dirty.setDirty();
+			}
+			
+			private function illuminaAppGreaterThan(app1:XML, app2:XML):Boolean {
+				var greater:Boolean = false;
+				if (app1.@isActive == app2.@isActive) {
+					if (app1.@isSelected == app2.@isSelected) {
+						if (getSort(app1) == getSort(app2)) {
+							if (app1.@application > app2.@application) {
+								greater = true;
+							}
+						} else if (getSort(app1) > getSort(app2)) {
+							greater = true;
+						}
+					} else if (app1.@isSelected != 'Y' && app2.@isSelected == 'Y') {
+						greater = true;
+					}
+				} else if (app1.@isActive != 'Y' && app2.@isActive == 'Y') {
+					greater = true;
+				}
+				return greater;
+			}
+			
+			private function getSort(node:XML):int {
+				var sort:int = 0;
+				if (node.hasOwnProperty("@sortOrder") && node.@sortOrder != '') {
+					sort = int(node.@sortOrder);
+				}
+				return sort;
+			}
+			
+			private function setAppTreeSelectedItem(selectedNode:XML, list:XMLList, idx:int):int {
+				for each (var node:XML in list) {
+					idx++;
+					if (node.name() == 'Application' && node.@codeApplication == selectedNode.@codeApplication) {
+						appTree.selectedItem = node;
+						if (idx > 15) {
+							appTree.scrollToIndex(idx - 15);
+						} else {
+							appTree.scrollToIndex(0);
+						}
+					}
+					idx = setAppTreeSelectedItem(selectedNode, node.children(), idx);
+				}
+				
+				return idx;
+			}
+			
+			private function addExperimentType():void {
+				this.nextNewAppNum++;
+				var appCode:String = 'Application' + this.nextNewAppNum.toString();
+				var newNode:XML = new XML("<Application " +
+					" isSelected='Y'" +
+					" codeApplication='" + appCode + "'" +
+					" display='" + 'enter experiment type here...' + "'" +
+					" idSeqLibProtocols=''" +
+					" idLabelingProtocolDefault=''" +
+					" idHybProtocolDefault=''" +
+					" idScanProtocolDefault=''" +
+					" idFeatureExtractionProtocolDefault=''" +
+					" isActive='Y'" +
+					" />");
+				// Illumina window needs list of all illumina request categories.
+				var rcApps:XMLList = new XMLList();
+				for each (var rc:Object in state.dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+					var rct:Object = parentApplication.requestCategoryTypeMap[rc.@type];
+					if (rct.@isIllumina == 'Y') {
+						var rcApp:XML = XML(rc).copy();
+						rcApp.setName("RequestCategoryApplication");
+						rcApp.@isSelected = rcApp.@isActive;
+						rcApps += rcApp;
+					}
+				}
+				newNode.setChildren(rcApps);
+				showEditExperimentTypeWindow(newNode);
+			}
+			
+			private function removeExperimentType():void {
+				var item:Object = null;
+				if (appTree.selectedItem != null) {
+					item = appTree.selectedItem;
+				} else {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment type " + item.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveExperimentType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveExperimentType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeExperimentTypeImpl();
+				}
+			}
+			
+			private function removeExperimentTypeImpl():void {
+				if (appTree.selectedItem != null) {
+					var themeList:XMLList = applicationTreeSource..ApplicationTheme;
+					for each (var theme:XML in themeList) {
+						if (appTree.selectedItem.@idApplicationTheme == theme.@idApplicationTheme) {
+							removeChildFromTheme(theme, XML(appTree.selectedItem));
+							state.dirty.setDirty();
+							break;
+						}
+					}
+					appTree.invalidateList();
+				}
+			}
+			
+			private function filterApplications():void {
+				appTree.invalidateList();
+				appTree.expandChildrenOf(applicationTreeSource[0], true);
+			}
+			
+			private function removeChildFromTheme(root:XML, nodeToRemove:XML):void {
+				// Remove node from the old root by making a new list of everything but the node to remove.
+				var newList:XMLList = new XMLList();
+				for each(var child:XML in root.children()) {
+					if (child.@codeApplication != nodeToRemove.@codeApplication) {
+						newList += child;
+					}
+				}
+				root.setChildren(newList);
+			}
+			
+			private function getAppTreeLabel(item:Object):String {
+				var retValue:String = "";
+				if (item.name() == "ApplicationTheme") { 
+					retValue = item.@applicationTheme;
+				} else if (item.name() == "Application") {
+					retValue = item.@application;
+				}
+				
+				return retValue;
+			}
+		]]>
+	</mx:Script>
+	<mx:XMLList id="applicationTreeSource" />
+	
+	<mx:HBox verticalAlign="middle">
+		<mx:LinkButton label="Add" styleName="linkMenuButton" 
+					   enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" 
+					   icon="@Embed(source='../../assets/add.png')" 
+					   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
+		<mx:LinkButton label="Remove" styleName="linkMenuButton" 
+					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; appTree.selectedItem != null}"   
+					   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+					   click="removeExperimentType()" fontSize="10"/>
+		<mx:Text text="Double click experiment type to edit." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6" fontWeight="normal"/>
+		<mx:HBox width="100%" icon="@Embed(source='../../assets/printer.png')">
+			<mx:CheckBox label="Show Other" id="showOtherCheckbox" change="{filterApplications()}" />
+			<mx:CheckBox label="Show Inactive" id="showInActiveCheckbox" change="{filterApplications()}" />
+		</mx:HBox>
+	</mx:HBox>
+	<mx:VBox width="100%" height="100%">
+		<mx:Tree width="100%" height="100%"
+				 dataProvider="{applicationTreeSource}" 
+				 showRoot="false" 
+				 id="appTree" 
+				 borderStyle="none"
+				 labelFunction="getAppTreeLabel" 
+				 doubleClickEnabled="true" doubleClick="{editExperimentType()}"
+				 itemRenderer="views.renderers.ExperimentPlatformApplicationTreeNodeRenderer"
+				 dataDescriptor="{new FilteredTreeDataDescriptor(applicationListFilter)}"
+				 backgroundAlpha="1" />
+	</mx:VBox>
+</mx:VBox>

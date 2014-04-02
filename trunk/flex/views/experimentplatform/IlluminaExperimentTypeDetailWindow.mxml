@@ -36,7 +36,7 @@
 			private var selectedProtocols:XMLListCollection;
 			
 			[Bindable]
-			private var parentWindow:views.experimentplatform.TabExperimentType = null;
+			private var parentWindow:views.experimentplatform.TabExperimentTypeIllumina = null;
 			
 			[Bindable]
 			private var state:ExperimentPlatformState = null;
@@ -47,7 +47,7 @@
 			private var MULTI_REQUEST_CATEGORY:String = "requestCategory";
 			private var multiSelectOpened:String = "";
 			
-			public function init(parentWindow:views.experimentplatform.TabExperimentType, state:ExperimentPlatformState, selectedItem:Object):void {
+			public function init(parentWindow:views.experimentplatform.TabExperimentTypeIllumina, state:ExperimentPlatformState, selectedItem:Object):void {
 				this.parentWindow = parentWindow;
 				this.state = state;
 				themeCombo.setFocus();

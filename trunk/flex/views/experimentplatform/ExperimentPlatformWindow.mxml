@@ -187,8 +187,9 @@
 				PopUpManager.centerPopUp(addWindow);
 				addWindow.parentWindow = this;
 				addWindow.platformName.setFocus();
-				this.theViews.selectedIndex = 1;
+				this.theViews.selectedIndex = 0;
 				this.theTabs.selectedIndex = 0;
+				this.theTabsIllumina.selectedIndex = 0;
 			}
 			
 			private function removePlatform():void {
@@ -226,22 +227,37 @@
 				this.dirty.resetDirty();
 			}		
 			
-			private function onSelectPlatform():void {
+			private function onSelectPlatform(event:ExperimentTypeChangedEvent = null):void {
+				this.systemManager.removeEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, onSelectPlatform);
 				if (platformList.selectedItem != null) {
+					this.systemManager.addEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, onSelectPlatform);
 					theViews.selectedIndex = 1;
 					
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 					
 					state = new ExperimentPlatformState(platformList.selectedItem, dirty, dictionaryManager);
-					experimentPlatform.init(state);
-					experimentType.init(state);
-					sampleType.init(state);
-					illuminaSeq.init(state);
-					
-					dirty.resetDirty();
+					if (state.isIllumina) {
+						tabStack.selectedIndex = 1;
+						experimentPlatformIllumina.init(state);
+						sampleTypeIllumina.init(state);
+						experimentTypeIllumina.init(state);
+						illuminaSeq.init(state);
+					} else {
+						tabStack.selectedIndex = 0;
+						experimentPlatform.init(state);
+						sampleType.init(state);
+						experimentType.init(state);
+					}
+
+					// if event is not null it means this was called because they changed the experiment type.
+					// don't reset dirty if they changed the experiment type.
+					if (event == null) {
+						dirty.resetDirty();
+					}
 				} else {
 					theViews.selectedIndex = 0;
 					codeRequestCategorySelected = null;
+					dirty.resetDirty();
 				}
 			}
 			
@@ -305,12 +321,19 @@
 						 paddingRight="4" paddingBottom="0"/>
 				<mx:VBox width="100%" height="100%" 
 						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2" backgroundAlpha="0">
-					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
-						<experimentplatform:TabExperimentPlatform id="experimentPlatform"/>
-						<experimentplatform:TabExperimentType id="experimentType"/>
-						<experimentplatform:TabSampleType id="sampleType"/>
-						<experimentplatform:TabIlluminaSeq id="illuminaSeq"/>
-					</mx:TabNavigator>
+					<mx:ViewStack id="tabStack" width="100%" height="100%" paddingBottom="0" paddingTop="0">
+						<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
+							<experimentplatform:TabExperimentPlatform id="experimentPlatform"/>
+							<experimentplatform:TabSampleType id="sampleType"/>
+							<experimentplatform:TabExperimentType id="experimentType"/>
+						</mx:TabNavigator>
+						<mx:TabNavigator  id="theTabsIllumina" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
+							<experimentplatform:TabExperimentPlatform id="experimentPlatformIllumina"/>
+							<experimentplatform:TabSampleType id="sampleTypeIllumina"/>
+							<experimentplatform:TabExperimentTypeIllumina id="experimentTypeIllumina"/>
+							<experimentplatform:TabIlluminaSeq id="illuminaSeq"/>
+						</mx:TabNavigator>
+					</mx:ViewStack>
 					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
 						<util:DirtyNote id="dirty" />
 						<mx:Button id="saveButton" label="Save"
