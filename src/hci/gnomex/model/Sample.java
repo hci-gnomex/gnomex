@@ -75,6 +75,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idOligoBarcodeB;
   private String      barcodeSequenceB;
   private Set         sampleExperimentFiles;
+  private Set         workItems;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -902,5 +903,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setSampleExperimentFiles(Set sampleExperimentFiles) {
     this.sampleExperimentFiles = sampleExperimentFiles;
+  }
+  
+  public Set getWorkItems() {
+    return workItems;
+  }
+
+  public void setWorkItems(Set workItems) {
+    this.workItems = workItems;
   }
 }

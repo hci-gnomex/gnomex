@@ -25,6 +25,8 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  idCoreFacility;
   private Set      flowCellChannels = new TreeSet();
   
+  private Instrument instrument;
+  
   public Integer getIdFlowCell() {
     return idFlowCell;
   }
@@ -188,6 +190,14 @@ public class FlowCell extends HibernateDetailObject {
     } else {
       return runFolder;
     }
+  }
+  
+  public Instrument getInstrument() {
+    return instrument;
+  }
+
+  public void setInstrument(Instrument instrument) {
+    this.instrument = instrument;
   }
     
 }
