@@ -4,59 +4,21 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
-			import hci.flex.util.FilteredTreeDataDescriptor;
-			import mx.collections.ICollectionView;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.DataGridEvent;
-			import mx.managers.PopUpManager;
 			
 			[Bindable]
 			private var state:ExperimentPlatformState = null;
-			private var service:ExperimentPlatformService = new ExperimentPlatformService();
 			
 			private var nextNewAppNum:int = 0;
 			
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
 				nextNewAppNum = 0;
-				changeExperimentType();
-				this.systemManager.removeEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, changeExperimentType);
-				this.systemManager.addEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, changeExperimentType);
-			}
-			
-			private function applicationListFilter(node:Object):ICollectionView {
-				var xNode:XML = XML(node);
-				var newList:XMLList = new XMLList();
-				for each (var child:XML in xNode.children()) {
-					if (child.name() == 'ApplicationTheme') {
-						newList += child;
-					} else if (child.name() == 'Application' && applicationIsVisible(child)) { 
-						newList += child;
-					} // note ignore RequestCategoryApplication children
-				}
-				
-				return new XMLListCollection(newList);
-			}
-			
-			private function changeExperimentType(event:ExperimentTypeChangedEvent = null):void {
-				if(state.isIllumina) {
-					appGridStack.selectedIndex = 1;
-					applications.filterFunction = null;
-					
-					applicationTreeSource = state.requestCategory.applications;
-					appTree.validateNow();
-					appTree.invalidateList();
-					appTree.expandChildrenOf(applicationTreeSource[0], true);
-				} else {
-					applications.filterFunction = applicationIsVisible;
-					applications.refresh();
-					applicationTreeSource = new XMLList();
-					appTree.validateNow();
-					appGridStack.selectedIndex = 0;
-					showHideAppColumns();
-				}
+				applications.refresh();
+				showHideAppColumns();
 			}
 			
 			private function showHideAppColumns():void {
@@ -76,125 +38,6 @@
 				
 			}
 			
-			private function applicationIsVisible(obj:Object):Boolean {
-				var node:XML = XML(obj);
-				var v:Boolean = false;
-				if (!state.isIllumina) {
-					v = true;
-				} else if (node.name() == 'Application') {
-					if (node.@isSelected == 'Y') {
-						v = true;
-					} else if (node.@isActive != 'Y' && showInActiveCheckbox.selected) {
-						// Note that if it is inactive it is never selected.
-						v = true;
-					} else if (node.@isActive == 'Y' && node.@isSelected != 'Y' && showOtherCheckbox.selected) {
-						v = true;
-					} // otherwise leave false
-				} else {
-					// should never happen
-					v = true;
-				}
-				
-				return v;
-			}
-			
-			public function editExperimentType():void {
-				if (XML(appTree.selectedItem).name().toString() == "ApplicationTheme") {
-					Alert.show("Please click on an experiment type instead of a theme.  (Choose 'Other' checkbox above to see unselected experiment types)");
-					return;
-				}
-				showEditExperimentTypeWindow(appTree.selectedItem);
-			}
-			
-			private function showEditExperimentTypeWindow(app:Object):void {
-				var editWindow:IlluminaExperimentTypeDetailWindow = IlluminaExperimentTypeDetailWindow(PopUpManager.createPopUp(this, IlluminaExperimentTypeDetailWindow, true));
-				PopUpManager.centerPopUp(editWindow);
-				editWindow.init(this, state, app);
-			}
-			
-			public function updateIlluminaExperimentTypeNode(newNode:XML, oldThemeId:String):void {
-				appTree.dataProvider = null;
-				var themeList:XMLList = applicationTreeSource..ApplicationTheme;
-				var newSort:int = getSort(newNode);
-				for each(var theme:XML in themeList) {
-					if (oldThemeId != newNode.@idApplicationTheme && theme.@idApplicationTheme == oldThemeId) {
-						removeChildFromTheme(theme, newNode);
-					}
-					if (theme.@idApplicationTheme == newNode.@idApplicationTheme) {
-						// replace or add the new node in it's new theme.
-						var appended:Boolean = false;
-						var newList:XMLList = new XMLList();
-						for each (var child:XML in theme.children()) {
-							if (child.@codeApplication != newNode.@codeApplication) {
-								if (illuminaAppGreaterThan(child, newNode) && !appended) {
-									newList += newNode;
-									appended = true;
-								}
-								newList += child;
-							}
-						} 
-						if (!appended) {
-							newList += newNode;
-						}
-						theme.setChildren(newList);
-					}
-				}
-				
-				appTree.dataProvider = applicationTreeSource;
-				appTree.validateNow();
-				appTree.expandChildrenOf(applicationTreeSource[0], true);
-				
-				
-				setAppTreeSelectedItem(newNode, applicationTreeSource, -1);
-				
-				state.dirty.setDirty();
-			}
-			
-			private function illuminaAppGreaterThan(app1:XML, app2:XML):Boolean {
-				var greater:Boolean = false;
-				if (app1.@isActive == app2.@isActive) {
-					if (app1.@isSelected == app2.@isSelected) {
-						if (getSort(app1) == getSort(app2)) {
-							if (app1.@application > app2.@application) {
-								greater = true;
-							}
-						} else if (getSort(app1) > getSort(app2)) {
-							greater = true;
-						}
-					} else if (app1.@isSelected != 'Y' && app2.@isSelected == 'Y') {
-						greater = true;
-					}
-				} else if (app1.@isActive != 'Y' && app2.@isActive == 'Y') {
-					greater = true;
-				}
-				return greater;
-			}
-			
-			private function getSort(node:XML):int {
-				var sort:int = 0;
-				if (node.hasOwnProperty("@sortOrder") && node.@sortOrder != '') {
-					sort = int(node.@sortOrder);
-				}
-				return sort;
-			}
-			
-			private function setAppTreeSelectedItem(selectedNode:XML, list:XMLList, idx:int):int {
-				for each (var node:XML in list) {
-					idx++;
-					if (node.name() == 'Application' && node.@codeApplication == selectedNode.@codeApplication) {
-						appTree.selectedItem = node;
-						if (idx > 15) {
-							appTree.scrollToIndex(idx - 15);
-						} else {
-							appTree.scrollToIndex(0);
-						}
-					}
-					idx = setAppTreeSelectedItem(selectedNode, node.children(), idx);
-				}
-				
-				return idx;
-			}
-			
 			private function addExperimentType():void {
 				this.nextNewAppNum++;
 				var appCode:String = 'Application' + this.nextNewAppNum.toString();
@@ -209,34 +52,16 @@
 					" idFeatureExtractionProtocolDefault=''" +
 					" isActive='Y'" +
 					" />");
-				if (state.isIllumina) {
-					// Illumina window needs list of all illumina request categories.
-					var rcApps:XMLList = new XMLList();
-					for each (var rc:Object in state.dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						var rct:Object = parentApplication.requestCategoryTypeMap[rc.@type];
-						if (rct.@isIllumina == 'Y') {
-							var rcApp:XML = XML(rc).copy();
-							rcApp.setName("RequestCategoryApplication");
-							rcApp.@isSelected = rcApp.@isActive;
-							rcApps += rcApp;
-						}
-					}
-					newNode.setChildren(rcApps);
-					showEditExperimentTypeWindow(newNode);
-				} else {
-					applications.addItemAt(newNode, 0);
-					appGrid.selectedItem = newNode;
-					appGrid.scrollToIndex(0);
-					state.dirty.setDirty();
-				}				
+				applications.addItemAt(newNode, 0);
+				appGrid.selectedItem = newNode;
+				appGrid.scrollToIndex(0);
+				state.dirty.setDirty();
 			}
 			
 			private function removeExperimentType():void {
 				var item:Object = null;
 				if (appGrid.selectedItem != null) {
 					item = appGrid.selectedItem;
-				} else if (appTree.selectedItem != null) {
-					item = appTree.selectedItem;
 				} else {
 					return;
 				}
@@ -258,37 +83,7 @@
 				if (appGrid.selectedItem != null) {
 					applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
 					state.dirty.setDirty();
-				} else if (appTree.selectedItem != null) {
-					var themeList:XMLList = applicationTreeSource..ApplicationTheme;
-					for each (var theme:XML in themeList) {
-						if (appTree.selectedItem.@idApplicationTheme == theme.@idApplicationTheme) {
-							removeChildFromTheme(theme, XML(appTree.selectedItem));
-							state.dirty.setDirty();
-							break;
-						}
-					}
-					appTree.invalidateList();
 				}
-			}
-			
-			private function filterApplications():void {
-				if (appGridStack.selectedIndex == 0) {
-					applications.refresh();
-				} else {
-					appTree.invalidateList();
-					appTree.expandChildrenOf(applicationTreeSource[0], true);
-				}
-			}
-			
-			private function removeChildFromTheme(root:XML, nodeToRemove:XML):void {
-				// Remove node from the old root by making a new list of everything but the node to remove.
-				var newList:XMLList = new XMLList();
-				for each(var child:XML in root.children()) {
-					if (child.@codeApplication != nodeToRemove.@codeApplication) {
-						newList += child;
-					}
-				}
-				root.setChildren(newList);
 			}
 			
 			private function onAppGridItemEditEnd(event:DataGridEvent):void {
@@ -307,21 +102,9 @@
 				}
 				return enabled;
 			}
-			
-			private function getAppTreeLabel(item:Object):String {
-				var retValue:String = "";
-				if (item.name() == "ApplicationTheme") { 
-					retValue = item.@applicationTheme;
-				} else if (item.name() == "Application") {
-					retValue = item.@application;
-				}
-				
-				return retValue;
-			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="applications" source="{state.requestCategory.applications..Application}"/>
-	<mx:XMLList id="applicationTreeSource" />
 
 	<mx:HBox verticalAlign="middle">
 		<mx:LinkButton label="Add" styleName="linkMenuButton" 
@@ -329,92 +112,71 @@
 					   icon="@Embed(source='../../assets/add.png')" 
 					   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
 		<mx:LinkButton label="Remove" styleName="linkMenuButton" 
-					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; (appGrid.selectedItem != null || appTree.selectedItem != null)}"   
+					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem}"   
 					   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
 					   click="removeExperimentType()" fontSize="10"/>
-		<mx:Text text="Double click experiment type to edit." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6" fontWeight="normal"
-				 visible="{appGridStack.selectedIndex == 1}" includeInLayout="{appGridStack.selectedIndex == 1}"/>
-		<mx:HBox width="100%" icon="@Embed(source='../../assets/printer.png')" 
-				 visible="{state.isIllumina}" includeInLayout="{state.isIllumina}">
-			<mx:CheckBox label="Show Other" id="showOtherCheckbox" change="{filterApplications()}" />
-			<mx:CheckBox label="Show Inactive" id="showInActiveCheckbox" change="{filterApplications()}" />
-		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack id="appGridStack" width="100%" height="100%" paddingBottom="0" paddingTop="0">
-		<mx:VBox width="100%" height="100%">
-			<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
-						 dataProvider="{applications}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
-						 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
-				<mx:columns>
-					<mx:DataGridColumn headerText=" "  
-									   width="20"  editable="false"                      	
-									   dataField="@isSelected" 
-									   editorDataField="selected"
-									   wordWrap="true"
-									   itemRenderer="{views.renderers.ExperimentPlatformIsSelectedCheckboxRenderer.create(state.dirty, true, null, null)}">			 
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Experiment Type"  
-									   itemRenderer="views.renderers.LabelActive"
-									   rendererIsEditor="false"  width="350"
-									   editable="true" wordWrap="true" dataField="@display" >
-					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
-									   width="80"
-									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
-									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
-									   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
-					<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="110"
-									   wordWrap="true"
-									   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
-									   dataField="@idSeqLibProtocols"/>
-					<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty)}"
-									   wordWrap="true" width="60"
-									   visible="{state != null &amp;&amp; state.isIllumina}" editorDataField="selected" editable="false"/>
-					<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{state != null &amp;&amp; state.isMicroarray}" dataField="@idLabelingProtocol"  
-									   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
-									   wordWrap="true" width="80"
-									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
-									   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
-					<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="@idHybProtocol" 
-									   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-									   wordWrap="true" width="80"
-									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
-									   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
-					<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="@idScanProtocol"  
-									   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-									   wordWrap="true" width="80"
-									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
-									   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
-					<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="@idFeatureExtractionProtocol"  
-									   editorDataField="value"  
-									   wordWrap="true" width="80"
-									   sortable="false" editable="true" rendererIsEditor="false"  
-									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
-									   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
-					<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
-									   visible="{state != null &amp;&amp; state.isSequenom}" 
-									   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
-					<mx:DataGridColumn headerText="Active"  
-									   width="25"   
-									   editable="false"                      	
-									   dataField="@isActive" 
-									   editorDataField="selected" textAlign="center"
-									   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, appIsActiveEnabled)}">			 
-					</mx:DataGridColumn>
-				</mx:columns>
-			</mx:DataGrid>
-		</mx:VBox>
-		<mx:VBox width="100%" height="100%">
-			<mx:Tree width="100%" height="100%"
-					 dataProvider="{applicationTreeSource}" 
-					 showRoot="false" 
-					 id="appTree" 
-					 borderStyle="none"
-					 labelFunction="getAppTreeLabel" 
-					 doubleClickEnabled="true" doubleClick="{editExperimentType()}"
-					 itemRenderer="views.renderers.ExperimentPlatformApplicationTreeNodeRenderer"
-					 dataDescriptor="{new FilteredTreeDataDescriptor(applicationListFilter)}"
-					 backgroundAlpha="1" />
-		</mx:VBox>
-	</mx:ViewStack>
+	<mx:VBox width="100%" height="100%">
+		<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
+					 dataProvider="{applications}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
+					 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
+			<mx:columns>
+				<mx:DataGridColumn headerText=" "  
+								   width="20"  editable="false"                      	
+								   dataField="@isSelected" 
+								   editorDataField="selected"
+								   wordWrap="true"
+								   itemRenderer="{views.renderers.ExperimentPlatformIsSelectedCheckboxRenderer.create(state.dirty, true, null, null)}">			 
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Experiment Type"  
+								   itemRenderer="views.renderers.LabelActive"
+								   rendererIsEditor="false"  width="350"
+								   editable="true" wordWrap="true" dataField="@display" >
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
+								   width="80"
+								   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
+				<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="110"
+								   wordWrap="true"
+								   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+								   dataField="@idSeqLibProtocols"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty)}"
+								   wordWrap="true" width="60"
+								   visible="{state != null &amp;&amp; state.isIllumina}" editorDataField="selected" editable="false"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{state != null &amp;&amp; state.isMicroarray}" dataField="@idLabelingProtocol"  
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="@idHybProtocol" 
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="@idScanProtocol"  
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="@idFeatureExtractionProtocol"  
+								   editorDataField="value"  
+								   wordWrap="true" width="80"
+								   sortable="false" editable="true" rendererIsEditor="false"  
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
+								   visible="{state != null &amp;&amp; state.isSequenom}" 
+								   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
+				<mx:DataGridColumn headerText="Active"  
+								   width="25"   
+								   editable="false"                      	
+								   dataField="@isActive" 
+								   editorDataField="selected" textAlign="center"
+								   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, appIsActiveEnabled)}">			 
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
 </mx:VBox>
