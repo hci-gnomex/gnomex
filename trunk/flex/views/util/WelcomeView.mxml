@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 		   xmlns:views="views.*"    
-		   xmlns:util="views.util.*"   
-		   creationPolicy="all" width="100%" height="100%"  		
-		   show="init()" 
-		    >
+			xmlns:db="views.dashboard.*"
+		    xmlns:util="views.util.*" 			
+			creationPolicy="all" width="100%" height="100%" horizontalScrollPolicy="off"
+			creationComplete="init()"
+			>
 	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
@@ -55,16 +56,31 @@
 			import views.experiment.ExperimentEditView;
 			import views.user.EditBillingAcctWindow;
 			
+			//Additional pixels to move dashboard boxes to the right of splash image.
+			private var dashBuffer:int = 360;
+			
 			public function checkDirty():void {
 			}
 			
 			public function init():void {
 				checkSecurity();
-				callLater(showSplash);
+				callLater(showSplashAndDash);
 			}
 			
-			private function showSplash():void {
-				splashImage.visible = true;
+			private function showSplashAndDash():void {
+				splashImageBox.visible = true;
+				
+				if(parentApplication.getProperty(parentApplication.SHOW_NEWS_DASHBOARD) == 'Y'){
+					newsButtonBox.visible = true;
+				}
+				if(parentApplication.getProperty(parentApplication.SHOW_ACTIVITY_DASHBOARD) == 'Y'){
+					activityBox.visible = true;
+				}
+				if(parentApplication.getProperty(parentApplication.SHOW_METRIX_DASHBOARD) == 'Y'){
+					sequencerButton.visible = true;
+				}
+				
+				
 			}
 			
 			public function checkSecurity():void {
@@ -259,32 +275,108 @@
 				navigateToURL(url, '_blank');
 			}
 			
+			public function refreshDashboard():void{
+				this.newsHub.getNewsItem.send();
+				this.notificationHub.userTab.notificationInterface.send();
+				this.notificationHub.workflowTab.notificationInterface.send();
+				this.notificationHub.adminTab.notificationInterface.send();
+				this.notificationHub.billingTab.notificationInterface.send();
+				this.runStatusHub.metrixInterface.send();
+			}
+			
+			private function showNewsBox():void{
+				if(newsBox.visible == false){
+					moveDashboard.target = newsBox;
+					moveDashboard.xTo = dashBuffer;
+					newsBox.includeInLayout = true;
+					newsBox.visible = true;
+					notificationBox.includeInLayout = false;
+					notificationBox.visible = false;
+					sequencerBox.includeInLayout = false;
+					sequencerBox.visible = false;
+					moveDashboard.play();
+				}
+			}
+			
+			private function showNotificationBox():void{
+				if(notificationBox.visible == false){
+					moveDashboard.target = notificationBox;
+					moveDashboard.xTo = dashBuffer;
+					notificationBox.includeInLayout = true;
+					notificationBox.visible = true;
+					newsBox.includeInLayout = false;
+					newsBox.visible = false;
+					sequencerBox.includeInLayout = false;
+					sequencerBox.visible = false;
+					moveDashboard.play();
+				}
+				
+			}
+			
+			private function showSequencerBox():void{
+				if(sequencerBox.visible == false){
+					moveDashboard.target = sequencerBox;
+					moveDashboard.xTo = dashBuffer;
+					sequencerBox.includeInLayout = true;
+					sequencerBox.visible = true;
+					newsBox.includeInLayout = false;
+					newsBox.visible = false;
+					notificationBox.includeInLayout = false;
+					notificationBox.visible = false;
+					moveDashboard.play();
+				}
+				
+			}
+			
 		]]> 
-	</mx:Script>  
+	</mx:Script> 
+	
+	<mx:Move id="moveDashboard" xFrom="1700"/>
 	
 	<mx:VBox    backgroundColor="#FFFFFF"
 		width="100%" height="100%"  
 		verticalAlign="top" horizontalAlign="center"  
-		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center">
-		<mx:Spacer height="60" />
+		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center" horizontalScrollPolicy="off">
+		<mx:Spacer height="30" />
 
-		<mx:HBox paddingTop="4" verticalAlign="middle" >
-			<mx:Image id="splashImage" source="{parentApplication.welcomeSplash}"  visible="false" showEffect="{parentApplication.fadeInSlow}"/>			
+		<mx:HBox width="100%">
+			<mx:VBox paddingTop="30">
+				<mx:VBox id="newsButtonBox" showEffect="{parentApplication.fadeInSlow}" show="{showSplashAndDash()}" visible="false" >
+					<mx:LinkButton label="News" fontSize="20" icon="@Embed(source='../../assets/newspaper.png')" click="{splashImage.visible = false; splashImage.includeInLayout = false; showNewsBox();}" />
+					<mx:HRule width="200"/>
+					<mx:Spacer height="10"/>
+				</mx:VBox>
+				<mx:VBox id="activityBox" showEffect="{parentApplication.fadeInSlow}" show="{showSplashAndDash()}" visible="false">
+					<mx:LinkButton label="Activity" fontSize="20" icon="@Embed(source='../../assets/activity_monitor.png')" click="{splashImage.visible = false;splashImage.includeInLayout = false; showNotificationBox();}" />
+					<mx:HRule width="200"/>
+					<mx:Spacer height="10"/>
+				</mx:VBox>
+				<mx:LinkButton label="Sequencing" id="sequencerButton" visible="false" showEffect="{parentApplication.fadeInSlow}" show="{showSplashAndDash()}" icon="@Embed(source='../../assets/sequencing_bars.png')" click="{splashImage.visible = false;splashImage.includeInLayout = false; showSequencerBox();}" fontSize="20" />
+			</mx:VBox>
+			<mx:HBox id="splashImageBox" showEffect="{parentApplication.fadeInSlow}" horizontalAlign="center" verticalAlign="middle" paddingLeft="360" paddingTop="33" visible="false">
+				<mx:Image id="splashImage" horizontalAlign="left" source="{parentApplication.welcomeSplash}"  show="{showSplashAndDash()}" showEffect="{parentApplication.fadeInSlow}"/>	
+			</mx:HBox>
+			<mx:VBox id="newsBox" paddingTop="30" verticalAlign="middle" width="100%" horizontalAlign="center" visible="false" includeInLayout="false">
+				<db:News id="newsHub"/>
+			</mx:VBox>
+			<mx:VBox id="notificationBox" paddingTop="30" width="100%" verticalAlign="middle" horizontalAlign="center" visible="false" includeInLayout="false">
+				<db:NotificationHub id="notificationHub"/>
+			</mx:VBox>
+			<mx:VBox id="sequencerBox" paddingTop="30" width="100%" verticalAlign="middle" horizontalAlign="center" visible="false" includeInLayout="false">
+				<db:RunStatusHub id="runStatusHub"/>
+			</mx:VBox>
 		</mx:HBox>
-		<mx:Spacer height="40" id="spacer2a"/>
-		<mx:HBox id="bugContact" horizontalGap="2" verticalAlign="middle">
-			<mx:Text text="GNomEx support"/>
+		<mx:HBox id="bugContact" verticalAlign="middle" horizontalAlign="center">
+			<mx:Text text="GNomEx support123"/>
 			<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" />
 		</mx:HBox>
-
-		<mx:Spacer height="40" id="spacer2"/>
-		<mx:VBox width="400" paddingBottom="2" paddingTop="2" id="vbox15" height="80" paddingLeft="2" paddingRight="2">
+		<mx:Spacer id="spacer2" height="100%"/>
+		<mx:VBox width="400" horizontalAlign="center" paddingBottom="2" paddingTop="2" id="vbox15" height="100%" paddingLeft="2" paddingRight="2">
 			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
 				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal"  textAlign="left" height="100%"   id="text4" width="100%"/>  			
 			</mx:VBox>
 		</mx:VBox>
-		<mx:Spacer  height="100%"/>
-		<mx:HBox width="100%" horizontalGap="20">
+		<mx:HBox width="100%">
 			<mx:Text text="{'Session started ' + parentApplication.loginDateTime}" styleName="welcomeSessionLabel" textAlign="right" fontSize="12"/>
 			<mx:Spacer width="100%"/>
 			<mx:Text text="{parentApplication.userName}"/>
