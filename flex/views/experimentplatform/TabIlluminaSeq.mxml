@@ -18,7 +18,7 @@
 			
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
-				
+
 				sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 				sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 			}
