@@ -1145,7 +1145,7 @@
 		<mx:HBox width="100%" visible="{getDataTrack.lastResult.@canWrite == 'Y'}" includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}" >
 			<mx:LinkButton  label="Show folder(s)" styleName="linkMenuButton"
 							visible="{parentDocument.currentState == 'AdminState'}"
-							includeInLayout="{parentDocument.lcurrentState == 'AdminState'}"
+							includeInLayout="{parentDocument.currentState == 'AdminState'}"
 							icon="@Embed(source='../../assets/folder.png')" 
 							click="{showFolderInfoWindow()}"/>
 			<mx:Spacer width="100%"/>
