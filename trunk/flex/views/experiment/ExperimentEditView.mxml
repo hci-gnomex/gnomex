@@ -275,6 +275,8 @@
 		[Bindable]
 		public var sampleSourceList:XMLListCollection;
 		[Bindable]
+		public var filteredSampleTypeList:XMLListCollection;
+		[Bindable]
 		public var filteredSampleTypeListRna:XMLListCollection;
 		[Bindable]
 		public var filteredSampleTypeListDna:XMLListCollection;
@@ -483,13 +485,15 @@
 	        sampleSourceList.sort = dictionarySorter;
 	        sampleSourceList.refresh();
 			
-        	
+        	filteredSampleTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
         	filteredSampleTypeListRna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
 			filteredSampleTypeListDna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
         	sampleTypeSorter = new Sort();
-        	sampleTypeSorter.compareFunction = this.sortSampleTypes;	   
+        	sampleTypeSorter.compareFunction = this.sortSampleTypes;	
+			filteredSampleTypeList.sort = sampleTypeSorter;
         	filteredSampleTypeListRna.sort = sampleTypeSorter;     	
-			filteredSampleTypeListDna.sort = sampleTypeSorter;     	
+			filteredSampleTypeListDna.sort = sampleTypeSorter;
+			filteredSampleTypeList.refresh();
         	filteredSampleTypeListRna.refresh();
 			filteredSampleTypeListDna.refresh();
 									
@@ -567,6 +571,8 @@
 			filteredAppList.filterFunction = filterApplication;
 			filteredAppList.refresh();
 
+			filteredSampleTypeList.filterFunction = filterAllSampleType;
+			filteredSampleTypeList.refresh();
 			filteredSampleTypeListRna.filterFunction = filterSampleTypeRna;
 			filteredSampleTypeListRna.refresh();
 			filteredSampleTypeListDna.filterFunction = filterSampleTypeDna;
@@ -1348,7 +1354,7 @@
 			}
 
 			
-			
+			filteredSampleTypeList.refresh();
 			filteredSampleTypeListRna.refresh();
 			filteredSampleTypeListDna.refresh();
 			filteredSampleDropOffLocationList.refresh();
@@ -1695,7 +1701,7 @@
 				return false;	
 			}
         	
-			if (item.@codeNucleotideType != codeNucleotideType) {
+			if ( codeNucleotideType != null && item.@codeNucleotideType != codeNucleotideType) {
 				return false;
 			}
         	
@@ -1711,6 +1717,10 @@
 
         	return doesMatchRequestCategory;
         }  
+			
+		private function filterAllSampleType(item:Object):Boolean {
+			return filterSampleType(item, null);
+		}
 			
 		private function filterSampleTypeRna(item:Object):Boolean {
 			return filterSampleType(item, 'RNA');
@@ -2389,6 +2399,8 @@
 
 			this.filteredLabList.refresh();
 
+			this.filteredSampleTypeList.refresh();
+			
 		    postSetupEditForm();
 
 		}
@@ -4603,6 +4615,7 @@
 			if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 				// We are converting a QC request to a microarray or illumina
 				// sequencing request.
+				filteredSampleTypeList.refresh();
 				filteredSampleTypeListRna.refresh();
 				filteredSampleTypeListDna.refresh();
 			
