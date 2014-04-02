@@ -7,12 +7,14 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItemFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
@@ -229,6 +231,20 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String key = (String)i.next();
 
           Object[] row = (Object[])allRows.get(key);
+          if (filter.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP) ||
+              filter.getCodeStepNext().equals(Step.SEQ_QC) ||
+              filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_QC)) {
+            
+            String codeRequestStatus = (String)row[29] != null ? (String)row[29] : "";
+            Integer idCoreFacility = (Integer)row[30];
+            if(idCoreFacility != null) {
+              String statusToStartWorkflow = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility,PropertyDictionary.STATUS_TO_START_WORKFLOW);
+              if(statusToStartWorkflow != null && !statusToStartWorkflow.equals("") && !codeRequestStatus.equals(statusToStartWorkflow)) {
+                continue;
+              } 
+            }
+          }
           
           Integer idRequest = (Integer)row[0];
           String requestNumber = (String)row[1];
