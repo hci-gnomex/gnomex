@@ -29,6 +29,9 @@ package views.experiment
 		
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference; 
+		
+		[Bindable]
+		public var filteredSampleTypeList:XMLListCollection;
 
 		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
 			if (requestCategoryType.@isIllumina == 'Y') {
@@ -61,6 +64,14 @@ package views.experiment
 		public function TabSamplesBase()
 		{
 			super();
+		}
+		
+		public function initializeSampleTypes():void {
+			var sampleTypeList:XMLList = new XMLList();
+			for each (var sampleType:Object in parentDocument.filteredSampleTypeList) {
+				sampleTypeList += sampleType;
+			}		
+			this.filteredSampleTypeList = new XMLListCollection(sampleTypeList);
 		}
 		
 		public function initializeSamplesGrid():void {
@@ -287,6 +298,7 @@ package views.experiment
 				initButtons();
 				rebuildSamplesGrid();
 				initializeBarcoding();
+				initializeSampleTypes();
 			}
 		}
 		

@@ -1176,7 +1176,7 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
-													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}">
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(this.filteredSampleTypeList.source, '@display', '@value', '@idSampleType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
