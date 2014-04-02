@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 xmlns:util="views.util.*"
+		 width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="5">
+	
+	<mx:Script>
+		<![CDATA[
+
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			private var service:ExperimentPlatformService = new ExperimentPlatformService();
+			[Bindable]
+			private var types:XMLList = null;
+			[Bindable]
+			private var coreFacilities:XMLList = null;
+			
+			public function init(state:ExperimentPlatformState):void {
+				this.state = state;
+				
+				types = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry;
+				coreFacilities = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry;
+				
+				vendorCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.Vendor',state.requestCategory.@idVendor);
+				organismCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',state.requestCategory.@idOrganism);
+				coreFacilityCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',state.requestCategory.@idCoreFacility);
+				typeCombo.selectedItem = state.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", state.requestCategory.@type);
+				setIconCombo(state.requestCategory.@icon);
+			}
+			
+			private function coreFacilityChanged():void {
+				if (coreFacilityCombo.selectedItem != null) {
+					state.requestCategory.@idCoreFacility = coreFacilityCombo.selectedItem.@idCoreFacility;
+				} else {
+					state.requestCategory.@idCoreFacility = "";
+				}
+				state.dirty.setDirty();
+			}
+			
+			private function pickType(setDirty:Boolean = true):void {
+				if (setDirty) {
+					state.dirty.setDirty();
+				}
+				
+				var iconToCheck:String = "";
+				if (typeCombo.selectedItem != null && typeCombo.selectedItem.@value != '') {
+					iconToCheck = typeCombo.selectedItem.@defaultIcon;
+					state.requestCategory.@type = typeCombo.selectedItem.@value;
+					state.selectedType = typeCombo.selectedItem;
+				} else {
+					iconToCheck = "assets/cherrypick.png";				
+					state.requestCategory.@type = "";
+					state.selectedType = null;
+				}
+				
+				setIconCombo(iconToCheck);
+				
+				if(state.isIllumina) {
+					channelLabel.width = 160;
+					channelLabel.text = "Number of flowcell channels";
+					numberOfChannelsStepper.maximum = 8;
+				} else {
+					channelLabel.width = 120;
+					channelLabel.text = "Number of channels";	
+					numberOfChannelsStepper.maximum = 2;
+				}
+
+				this.systemManager.dispatchEvent(new ExperimentTypeChangedEvent());
+			}
+
+			private function setIconCombo(icon:String):void {
+				iconCombo.selectedIndex = 0;
+				if(icon.length > 0) {
+					var expIconLst:XMLList = parentApplication.expIcons.item; 
+					for(var i:Number = 0; i < expIconLst.length(); i++) {
+						if(expIconLst[i].@icon == icon) {
+							iconCombo.selectedIndex = i;
+							break;
+						}
+					}					
+				}
+			}
+			
+			private function setIsActive():void {
+				if (isActiveCheckbox.selected) {
+					state.requestCategory.@isActive = 'Y';
+				} else {
+					state.requestCategory.@isActive = 'N';
+				}
+				state.dirty.setDirty();
+			}
+			
+			private function vendorChanged():void {
+				if (vendorCombo.selectedItem != null) {
+					state.requestCategory.@idVendor = vendorCombo.selectedItem.@idVendor;
+				} else {
+					state.requestCategory.@idVendor = '';
+				}
+			}
+			
+			private function iconChanged():void {
+				if(iconCombo.selectedIndex > 0) {
+					state.requestCategory.@icon = iconCombo.selectedItem.@icon;
+				} else {
+					state.requestCategory.@icon = "";
+				}
+
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:Label text="Name" width="80" styleName="formLabel"/>
+		<mx:TextInput  id="platformName"  width="400" text="{state.requestCategory.@requestCategory}"  change="{state.requestCategory.@requestCategory=platformName.text;state.dirty.setDirty();}"/>
+		<mx:Label  text="Code" paddingLeft="20" styleName="formLabel"/>
+		<mx:TextInput id="codeRequestCategoryField"  width="85" backgroundColor="0xffffff" text="{state.requestCategory.@codeRequestCategory}" editable="false"/>
+		<mx:Spacer width="10"/>
+		<mx:CheckBox id="isActiveCheckbox" label="Active"  click="{setIsActive()}" selected="{state.requestCategory.@isActive == 'N' ? false : true}"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:Label text="Notes" width="80" styleName="formLabel"/>
+		<mx:TextInput id="notes"  width="100%" text="{state.requestCategory.@notes}"  change="state.requestCategory.@notes = notes.text;state.dirty.setDirty()"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+		<mx:Label  text="Sort Order" width="80" styleName="formLabel"/>
+		<mx:TextInput id="sortOrder"  width="40" text="{state.requestCategory.@sortOrder}" change="state.requestCategory.@sortOrder = sortOrder.text;state.dirty.setDirty()"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:Label text="Vendor" width="80" styleName="formLabel"/>
+		<mx:ComboBox  width="300" 
+					  dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
+					  labelField="@display"
+					  close="{vendorChanged()}"
+					  id="vendorCombo"/>
+	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:Label text="Core Facility" width="80" styleName="formLabel"/>
+		<mx:ComboBox width="300"
+					 dataProvider="{coreFacilities}"
+					 labelField="@display" 
+					 close="{coreFacilityChanged();}"
+					 id="coreFacilityCombo"/>
+	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0" fontSize="11">
+		<mx:Label text="Type" width="73" fontSize="12" styleName="formLabel"/>
+		<mx:ComboBox id="typeCombo" dataProvider="{types}" labelField="@display" width="100%" change="{pickType()}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+		<mx:Text text="Security" 
+				 width="80"  styleName="formLabel"/>
+		<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" visible="{parentApplication.isBSTLinkageSupported}" selected="{state.requestCategory.@isClinicalResearch == 'Y'}" enabled="false"/>
+		<mx:CheckBox id="isOwnerOnly" label="Force Owner Visibility" selected="{state.requestCategory.@isOwnerOnly == 'Y'}" enabled="false"/>
+	</mx:HBox>
+	<mx:HBox visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" includeInLayout="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+		<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>
+		<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="8" value="{state.requestCategory.@numberOfChannels}" change="state.requestCategory.@numberOfChannels = numberOfChannelsStepper.value;state.dirty.setDirty()"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
+		<mx:Label text="Show for" width="80" styleName="formLabel"/>
+		<mx:CheckBox id="isInternalCheckbox" label="Internal Experiment Requests" click="{state.requestCategory.@isInternal = isInternalCheckbox.selected ? 'Y' : 'N';state.dirty.setDirty()}" selected="{state.requestCategory.@isInternal == 'Y' ? true : false}" />
+		<mx:CheckBox id="isExternalCheckbox" label="External Experiments" click="{state.requestCategory.@isExternal = isExternalCheckbox.selected ? 'Y' : 'N';state.dirty.setDirty()}" selected="{state.requestCategory.@isExternal == 'Y' ? true : false}"/>
+		<mx:Spacer width="100%"/>
+	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+		<mx:Label text="Icon" width="80" styleName="formLabel"/>
+		<util:IconComboBox id="iconCombo" dataProvider="{parentApplication.expIcons..item}" labelField="@label" change="{iconChanged()}"  iconFunction="service.getIcon"  x="10" y="10" rowCount="12"/>
+		<mx:Spacer width="10"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+		<mx:Text text="Default Organism" 
+				 width="80" visible="{isInternalCheckbox.selected}"  styleName="formLabel"/>
+		<mx:ComboBox width="300" id="organismCombo"
+					 dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
+					 labelField="@display" visible="{isInternalCheckbox.selected}" close="{state.requestCategory.@idOrganism = organismCombo.selectedItem != null ? organismCombo.selectedItem.@value : '';state.dirty.setDirty();}"/>
+	</mx:HBox>
+	
+	
+</mx:VBox>

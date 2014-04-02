@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="{state != null &amp;&amp; state.isIllumina}" 
+		 label="Illumina Seq" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.PropertyChangeEvent;
+			import views.experimentplatform.ExperimentPlatformState;
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			
+			public function init(state:ExperimentPlatformState):void {
+				this.state = state;
+				
+				sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+			}
+			
+			private function addNumberSequencingCyclesAllowed():void {
+				var newNode:XML = new XML("<NumberSequencingCyclesAllowed " +
+					" idNumberSequencingCyclesAllowed='" + 'NumberSequencingCyclesAllowed' + "'" +
+					" codeRequestCategory='" + state.requestCategory.codeRequestCategory.toString() + "'" +
+					" idNumberSequencingCycles=''" +
+					" idSeqRunType=''" +
+					" isCustom='N'" +
+					" name=''" +
+					" />");
+				sequencingOptions.addItemAt(newNode, 0);
+				sequencingOptionGrid.selectedItem = newNode;
+				sequencingOptionGrid.scrollToIndex(0);
+				state.dirty.setDirty();
+			}
+			
+			private function removeNumberSequencingCyclesAllowed():void {
+				if (sequencingOptionGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove the sequencing option named '" + sequencingOptionGrid.selectedItem.@name.toString() + "'?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveNumberSequencingCyclesAllowed,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveNumberSequencingCyclesAllowed(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeNumberSequencingCyclesAllowedImpl();
+				}
+			}
+			
+			private function removeNumberSequencingCyclesAllowedImpl():void {
+				if (sequencingOptionGrid.selectedItem != null) {
+					sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
+					state.dirty.setDirty();
+				}
+			}
+			
+			private function underlyingSeqOptionChange(event:CollectionEvent):void {
+				var ignore:int = 0;
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				for each(var e:Object in event.items) {
+					if (e is PropertyChangeEvent) {
+						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+						
+						if (pe.property == "@paired") {
+							if (pe.newValue == "Y") {
+								sequencingOptionGrid.selectedItem.@pairedName = sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle paired-end reads";
+							} else {
+								sequencingOptionGrid.selectedItem.@pairedName = "";
+							}
+						}else if (pe.property == "@single") {
+							if (pe.newValue == "Y") {
+								sequencingOptionGrid.selectedItem.@singleName = sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle single-end reads";
+							} else {
+								sequencingOptionGrid.selectedItem.@singleName = "";
+							}
+						}         	
+					}
+				}
+			}
+			
+			private function selectBarcodingOptional():void {
+				state.dirty.setDirty();
+				state.requestCategory.@isSampleBarcodingOptional = barcodingRadioGroup.selectedValue.toString();
+			}
+		]]>
+	</mx:Script>
+	<mx:XMLListCollection id="sequencingOptions" source="{state.requestCategory.sequencingOptions.NumberSequencingCyclesAllowed}"/>
+
+	<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
+		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+			<mx:Label text="Sample Index Tags" width="150" styleName="formLabel"/>
+			<mx:HBox>
+				<mx:RadioButtonGroup id="barcodingRadioGroup" change="{selectBarcodingOptional()}"/>
+				<mx:RadioButton label="Optional"  value="Y" groupName="barcodingRadioGroup" selected="{state.requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
+				<mx:RadioButton label="Required" value="N" groupName="barcodingRadioGroup" selected="{state.requestCategory.@isSampleBarcodingOptional == 'Y' ? false : true}"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:VBox width="100%" verticalGap="0" height="100%">
+			<mx:HBox verticalAlign="middle" horizontalGap="0">
+				<mx:Label text="Sequencing options" width="150"/>
+				
+				<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" 
+							   disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCyclesAllowed()" fontSize="10"/>
+				<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   
+							   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCyclesAllowed()" fontSize="10"/>
+				
+			</mx:HBox> 
+			<mx:DataGrid id="sequencingOptionGrid" editable="true"
+						 dataProvider="{sequencingOptions}" wordWrap="true"
+						 width="100%" height="100%"  itemEditBegin="state.dirty.setDirty()" fontSize="10">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Cycles" id="numberSequencingCyclesColumn" dataField="@idNumberSequencingCycles"  width="75"
+									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
+									   itemEditor="{ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', null, true)}"/>										
+					<mx:DataGridColumn headerText="Type" id="seqRunTypeColumn" dataField="@idSeqRunType"  
+									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"                
+									   itemEditor="{ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', null, true)}"/>										
+					<mx:DataGridColumn headerText="Custom?"   headerWordWrap="true"
+									   width="75" 
+									   editable="false"                        	
+									   dataField="@isCustom" 
+									   editorDataField="selected"
+									   itemRenderer="{CheckBoxRenderer.create(state.dirty)}">		
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name" wordWrap="true" width="200" dataField="@name"  >
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+	</mx:VBox>
+</mx:VBox>

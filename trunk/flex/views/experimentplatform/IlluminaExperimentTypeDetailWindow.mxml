@@ -24,6 +24,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.experimentplatform.ExperimentPlatformState;
 			import views.renderers.MultiselectPopupCommon;
 			
 			private var platformTypeCode:String = null;
@@ -35,7 +36,10 @@
 			private var selectedProtocols:XMLListCollection;
 			
 			[Bindable]
-			private var parentWindow:views.experimentplatform.ExperimentPlatformWindow = null;
+			private var parentWindow:views.experimentplatform.TabExperimentType = null;
+			
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
 			
 			private var selectedItem:Object;
 			
@@ -43,11 +47,12 @@
 			private var MULTI_REQUEST_CATEGORY:String = "requestCategory";
 			private var multiSelectOpened:String = "";
 			
-			public function init(parentWindow:views.experimentplatform.ExperimentPlatformWindow, selectedItem:Object):void {
+			public function init(parentWindow:views.experimentplatform.TabExperimentType, state:ExperimentPlatformState, selectedItem:Object):void {
 				this.parentWindow = parentWindow;
+				this.state = state;
 				themeCombo.setFocus();
-				var test:XMLList = parentWindow.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry;
-				allSeqLibProtocols = parentWindow.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' && @isActive != 'N');
+				var test:XMLList = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry;
+				allSeqLibProtocols = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' && @isActive != 'N');
 				this.selectedItem = selectedItem;
 				
 				initValues(selectedItem);
@@ -86,7 +91,7 @@
 				var txt:String = "";
 				for each(var p:XML in selectedItem..RequestCategoryApplication) {
 					if (p.@isSelected == 'Y') {
-						if (p.@codeRequestCategory == parentWindow.requestCategory.@codeRequestCategory) {
+						if (p.@codeRequestCategory == state.requestCategory.@codeRequestCategory) {
 							if (txt.length > 0) {
 								txt = ", " + txt;
 							}
@@ -108,7 +113,7 @@
 				var values:Array = ids.split(",");
 				for each (var id:String in values) {
 					// Apparently dictionaryManager has multiple entries for a single key so we need [0]
-					selectedProtocols.addItem(parentWindow.dictionaryManager.getEntry('hci.gnomex.model.SeqLibProtocol', id)[0]);
+					selectedProtocols.addItem(state.dictionaryManager.getEntry('hci.gnomex.model.SeqLibProtocol', id)[0]);
 				}
 			}
 			
@@ -122,7 +127,7 @@
 						if (id == node.@codeRequestCategory) {
 							found = true;
 							anyFound = true;
-							if (id == parentWindow.requestCategory.@codeRequestCategory) {
+							if (id == state.requestCategory.@codeRequestCategory) {
 								selectedItem.@isSelected = "Y";
 							}
 							break;
@@ -385,19 +390,19 @@
 				<mx:Spacer width="20" />
 				<mx:LinkButton label="Add New" styleName="linkMenuButton" 
 							   click="addNewSeqLibProtocol()"
-							   enabled="{parentWindow.platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+							   enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" 
 							   icon="@Embed(source='../../assets/add.png')" 
 							   disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
 				
 				<mx:LinkButton label="Add Existing" styleName="linkMenuButton" 
 							   click="addExistingSeqLibProtocol()"
-							   enabled="{parentWindow.platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+							   enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" 
 							   icon="@Embed(source='../../assets/add.png')" 
 							   disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
 				
 				<mx:LinkButton label="Remove" styleName="linkMenuButton"
 							   click="removeSeqLibProtocol()"
-							   enabled="{parentWindow.platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; seqLibProtocolGrid.selectedItem != null}"   
+							   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; seqLibProtocolGrid.selectedItem != null}"   
 							   icon="@Embed(source='../../assets/delete.png')" 
 							   disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
 				<mx:Text text="Double click protocol to edit." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6" fontWeight="normal"/>
