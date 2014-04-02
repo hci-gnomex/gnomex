@@ -112,8 +112,13 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
-  public static final String 		USAGE_GUEST_STATS 					= "usage_guest_stats";
-  public static final String 		USAGE_REPORT_EMAILS 				= "usage_report_emails";
+  public static final String 		    USAGE_GUEST_STATS 					        = "usage_guest_stats";
+  public static final String 		    USAGE_REPORT_EMAILS 				        = "usage_report_emails";
+  public static final String        METRIX_SERVER_HOST                  = "metrix_server_host";
+  public static final String        METRIX_SERVER_PORT                  = "metrix_server_port";
+  public static final String        SEQ_LANE_NUMBER_SEPARATOR           = "seq_lane_number_separator";
+  public static final String        SEQ_LANE_LETTER                     = "seq_lane_letter";
+  public static final String        STATUS_TO_START_WORKFLOW            = "status_to_start_workflow";
 
 
 
