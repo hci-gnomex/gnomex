@@ -30,18 +30,18 @@ import org.jdom.Element;
 
 
 public class GetDataTrack extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDataTrack.class);
-  
+
   private Integer idDataTrack;
   private String dataTrackNumber;
   private String serverName;
   private String baseDir;
   private String analysisBaseDir;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
       idDataTrack = new Integer(request.getParameter("idDataTrack"));   
@@ -54,14 +54,14 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-      
+
       DataTrack dataTrack;
       if ( idDataTrack != null && !idDataTrack.equals( "" )) {
         dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
@@ -69,16 +69,21 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
         dataTrack = this.getDataTrackFromDataTrackNumber( sess, dataTrackNumber );
       }
 
-      // TODO: GENOPUB Need to send in analysis file data path?  
-      if (this.getSecAdvisor().canRead(dataTrack)) {
-        Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), baseDir, analysisBaseDir);
-        this.appendRelatedNodes(this.getSecAdvisor(), sess, dataTrack, doc.getRootElement());
-        org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
-        this.xmlResult = out.outputString(doc);
-        setResponsePage(this.SUCCESS_JSP);
-        
+
+      // TODO: GENOPUB Need to send in analysis file data path?
+      if(dataTrack != null) {
+        if (this.getSecAdvisor().canRead(dataTrack)) {
+          Document doc = dataTrack.getXML(this.getSecAdvisor(), DictionaryHelper.getInstance(sess), baseDir, analysisBaseDir);
+          this.appendRelatedNodes(this.getSecAdvisor(), sess, dataTrack, doc.getRootElement());
+          org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
+          this.xmlResult = out.outputString(doc);
+          setResponsePage(this.SUCCESS_JSP);
+
+        } else {
+          this.addInvalidField("insufficient permission", "Insufficient permission to access data track");
+        }
       } else {
-        this.addInvalidField("insufficient permission", "Insufficient permission to access data track");
+        this.addInvalidField("Data Track does not exist", "Data Track does not exist");
       }
 
     }catch (NamingException e){
@@ -97,13 +102,13 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   public static DataTrack getDataTrackFromDataTrackNumber(Session sess, String  dataTrackNumber) {
     DataTrack dt = null;
 
@@ -114,24 +119,24 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     }
     return dt;
   }
-  
- /*
-  * Append related analysis and experiments.  Append parent topics (and contents).
-  */
+
+  /*
+   * Append related analysis and experiments.  Append parent topics (and contents).
+   */
   @SuppressWarnings("unchecked")
   private static void appendRelatedNodes(SecurityAdvisor secAdvisor, Session sess, DataTrack dataTrack, Element node) throws Exception {
     Element relatedNode = new Element("relatedObjects");
     relatedNode.setAttribute("label", "Related Items");
     node.addContent(relatedNode);
-    
+
     // Hash analysis and experiments
     TreeMap<Integer, Analysis> analysisMap = new TreeMap<Integer, Analysis>();  
     TreeMap<Integer, TreeMap<Integer, Request>> analysisToRequestMap = new TreeMap<Integer, TreeMap<Integer, Request>>();  
     for (DataTrackFile dtFile : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
-      
+
       Analysis a = dtFile.getAnalysisFile().getAnalysis();
       analysisMap.put(a.getIdAnalysis(), a);
-      
+
       TreeMap<Integer, Request> requestMap = analysisToRequestMap.get(a.getIdAnalysis());
       if (requestMap == null) {
         requestMap = new TreeMap<Integer, Request>();
@@ -153,21 +158,21 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     // Create analysis and experiment nodes.
     for (Integer idAnalysis : analysisMap.keySet()) {
       Analysis analysis  = analysisMap.get(idAnalysis);
-      
+
       Element analysisNode = analysis.appendBasicXML(secAdvisor, relatedNode);
-      
+
       TreeMap<Integer, Request> requestMap = analysisToRequestMap.get(idAnalysis);
       for (Integer idRequest : requestMap.keySet()) {
         Request request = requestMap.get(idRequest);
         request.appendBasicXML(secAdvisor, analysisNode);
       }
     }
- 
+
     // Append the parent topics (and the contents of the topic) XML 
     Element relatedTopicNode = new Element("relatedTopics");
     relatedTopicNode.setAttribute("label", "Related Topics");
     node.addContent(relatedTopicNode);
-    
+
     Topic.appendParentTopicsXML(secAdvisor, relatedTopicNode, dataTrack.getTopics());
   }
 
