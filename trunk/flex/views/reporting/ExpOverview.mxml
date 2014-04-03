@@ -60,11 +60,6 @@
 	<mx:Script>
 
 		<![CDATA[
-			import ext.com.Consts;
-			import ext.com.components.FieldMapper;
-			import ext.com.events.FieldMapperEvent;
-			import ext.com.utils.AdvancedDataGridUtils;
-			import ext.com.utils.StringUtils;
 			
 			import flash.net.navigateToURL;
 			
@@ -316,33 +311,6 @@
 				}
 			}
 			
-//			private function handleCopyClick():void
-//			{
-//				System.setClipboard( experimentOverview.getTextFromItems() );
-//			}
-			
-//			private function handleTextPaste( event:TextEvent ):void
-//			{
-//				var data:Array = AdvancedDataGridUtils.getItemsFromText( event.text );
-//				var dataAC:ArrayCollection = new ArrayCollection( data );				
-//				var obj:Object = dataAC.getItemAt(0);
-//				var cnt:int=0;
-//				
-//				// Count number of columns.
-//				for (var s:String in obj) cnt++;
-//				
-//				/*
-//				* Test amount of columns, if 1 column map without column mapper and paste in selected cell.
-//				* Else show fieldMapper.
-//				*/
-//				if(cnt > 1){
-//					showFieldMapper( dataAC );
-//				}else if(cnt == 1){
-//					singleColumnMapper( data );
-//				}
-//				
-//			}
-			
 			private function singleColumnMapper( data:Array ):void{
 				var dgIdx:Object = experimentCopy.selectedCells;
 				var zeroPointRow:int = dgIdx[0].rowIndex;
@@ -371,78 +339,6 @@
 				}
 			}
 			
-//			private function showFieldMapper( data:ArrayCollection = null ):void
-//			{
-//				var fieldMapper:FieldMapper = new FieldMapper();
-//				fieldMapper.objectClass = Object;
-//				var comboObject:Object = new Object();
-//				var dataFields:Array = new Array();
-//				
-//				// Add columns as datafields.				
-//				for each(var str:String in data.getItemAt(0))
-//				{
-//					dataFields.push(StringUtils.stripDownSpecial(str));
-//				}
-//				fieldMapper.fields = new ArrayCollection( dataFields );
-//				fieldMapper.data = data;
-//				fieldMapper.addEventListener( FieldMapperEvent.FIELDS_MAPPED, handleFieldsMapped );
-//				
-//				PopUpManager.addPopUp( fieldMapper, this );
-//				PopUpManager.centerPopUp( fieldMapper );			
-//				fieldMapper.setFocus();
-//			}
-			
-//			private function handleFieldsMapped( event:FieldMapperEvent ):void
-//			{
-//				var insertIdx:int = experimentCopy.selectedIndex;
-//				if(insertIdx == -1){		// First entry in datagrid, datagrid source is empty.
-//					insertIdx = 0;
-//				}else{
-//					var evtDataLen:int = event.data.length;
-//					var totalLen:int = evtDataLen+insertIdx;
-//					if(experimentOverview._mode == "row"){
-//						if(insertIdx != copyList.length-1){
-//							for(var idx:int = insertIdx; idx <= totalLen-1; idx++){
-//								copyList.removeItemAt(insertIdx);
-//							}
-//						}
-//					}else if(experimentOverview._mode == "col"){
-//						
-//					}
-//				}
-//				
-//				var id:int = insertIdx;		
-//				var evtar:Array = event.data.reverse();
-//				for each (var objData:Object in evtar)
-//				{
-//					copyList.addItemAt(objData, id);
-//					//copyList.addItem( objData );
-//				
-//					id++;
-//				}
-//				var sort:Sort = new Sort();
-//				sort.fields = [new SortField(null, true)];
-//				copyList.sort = sort;	// Sort dataprovider source
-//			}			
-
-//			protected function button1_clickHandler(event:MouseEvent):void
-//			{
-//				var lblTxt:String = modeLabel.text;
-//				if(lblTxt == "Single Cell Mode"){
-//					modeLabel.text = "Row Paste Mode";
-//					modeButton.label = "Row Paste Mode";
-//					experimentOverview._mode = "row";
-//					experimentCopy.editable = "false";
-//					experimentCopy.selectionMode="singleRow";
-//				}else{
-//					modeLabel.text = "Single Cell Mode";
-//					modeButton.label = "Single Cell Mode"
-//					experimentCopy.editable = "true";
-//					experimentCopy.selectionMode="singleCell";
-//					experimentOverview._mode = "col";
-//					experimentOverview._selectedCell = experimentCopy.selectedItem;
-//				}
-//			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
