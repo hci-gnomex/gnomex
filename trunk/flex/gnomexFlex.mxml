@@ -1144,6 +1144,9 @@
 			public var PROPERTY_ANALYSIS_ASSISTANCE_GROUP:String		  = "analysis_assistance_group";
 			public var PROPERTY_ANALYSIS_ASSISTANCE_HEADER:String		  = "analysis_assistance_header";
 			public var PROPERTY_CUSTOM_BILLING_MESSAGE:String		  	  = "custom_billing_message";
+			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_VENDOR:String	  = "experiment_platform_hide_vendor";
+			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_NOTES:String	  = "experiment_platform_hide_notes";
+			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_ORGANISM:String  = "experiment_platform_hide_organism";
 			public var SHOW_NEWS_DASHBOARD:String                         = "show_news_dashboard";
 			public var SHOW_METRIX_DASHBOARD:String                       = "show_metrix_dashboard";
 			public var SHOW_ACTIVITY_DASHBOARD:String                     = "show_activity_dashboard";

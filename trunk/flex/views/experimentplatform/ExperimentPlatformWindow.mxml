@@ -53,6 +53,8 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.experimentplatform.ExperimentPlatformSortOrderChangedEvent;
+			
 			[Bindable]
 			private var state:ExperimentPlatformState = null;
 			
@@ -229,8 +231,10 @@
 			
 			private function onSelectPlatform(event:ExperimentTypeChangedEvent = null):void {
 				this.systemManager.removeEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, onSelectPlatform);
+				this.systemManager.removeEventListener(ExperimentPlatformSortOrderChangedEvent.DATA_CHANGED, refreshPlatformList);
 				if (platformList.selectedItem != null) {
 					this.systemManager.addEventListener(ExperimentTypeChangedEvent.DATA_CHANGED, onSelectPlatform);
+					this.systemManager.addEventListener(ExperimentPlatformSortOrderChangedEvent.DATA_CHANGED, refreshPlatformList);
 					theViews.selectedIndex = 1;
 					
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
@@ -292,6 +296,13 @@
 				}
 				return v;
 			}
+			
+			private function refreshPlatformList(event:ExperimentPlatformSortOrderChangedEvent = null):void {
+				state=null;
+				this.platformList.selectedItem=null;
+				this.theViews.selectedIndex=0;
+				getExperimentPlatformList.send();
+			}
 		]]>
 	</mx:Script>
 	
@@ -305,7 +316,7 @@
 			<mx:LinkButton label="Add Platform" enabled="{parentApplication.isAdminState}" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
 			<mx:LinkButton label="Remove Platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" textDecoration="none" fontSize="11"/>
 			<mx:Spacer width="100%"/>
-			<mx:LinkButton label="Refresh" click="state=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="none" fontSize="11"/>
+			<mx:LinkButton label="Refresh" click="refreshPlatformList()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="none" fontSize="11"/>
 		</mx:HBox>
 		<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4" backgroundAlpha="0">
 			<mx:VBox height="100%" width="200" id="platformListBox" verticalGap="2" styleName="panelBox" paddingLeft="0" paddingRight="0">

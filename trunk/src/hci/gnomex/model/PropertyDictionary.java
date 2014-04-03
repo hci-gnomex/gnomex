@@ -108,6 +108,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS = "contact_email_bioinformatics_analysis_requests";
   public static final String        CUSTOM_BILLING_MESSAGE              = "custom_billing_message";
   public static final String        DISABLE_USER_SIGNUP                 = "disable_user_signup";
+  public static final String        EXPERIMENT_PLATFORM_HIDE_VENDOR     = "experiment_platform_hide_vendor";
+  public static final String        EXPERIMENT_PLATFORM_HIDE_NOTES      = "experiment_platform_hide_notes";
+  public static final String        EXPERIMENT_PLATFORM_HIDE_ORGANISM   = "experiment_platform_hide_organism";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
