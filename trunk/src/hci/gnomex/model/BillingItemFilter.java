@@ -337,9 +337,9 @@ public class BillingItemFilter extends DetailObject {
   private void addSecurityCriteria() {
     if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       return;
-    } else {
+    } else if(idCoreFacility == null) {
       this.addWhereOrAnd();
-      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, "bi");
+      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, "req");
     }
     return;
   
