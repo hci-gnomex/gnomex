@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:Canvas styleName="panelWelcomeBox"  xmlns:mx="http://www.adobe.com/2006/mxml"   
 		   xmlns:views="views.*"    
-			xmlns:db="views.dashboard.*"
-		    xmlns:util="views.util.*" 			
-			creationPolicy="all" width="100%" height="100%" horizontalScrollPolicy="off"
-			creationComplete="init()"
-			>
+		   xmlns:db="views.dashboard.*"
+		   xmlns:util="views.util.*" 			
+		   creationPolicy="all" width="100%" height="100%" horizontalScrollPolicy="off"
+		   creationComplete="init()"
+		   >
 	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
@@ -27,7 +27,7 @@
 		<mx:State name="UserState">
 			<mx:SetProperty target="{text5}" name="text" value=""/>
 		</mx:State>
-
+		
 		<mx:State name="UnivGuestState" basedOn="UserNonSubmitterState">
 			<mx:SetProperty target="{text3}" name="text" value="Restricted - For additional access, please sign up for a GNomEx user account "/>
 			<mx:SetProperty target="{text5}" name="text" value="University guest access"/>
@@ -35,7 +35,7 @@
 		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
 			<mx:SetProperty target="{text5}" name="text" value="Guess privileges only"/>
 		</mx:State>
-
+		
 		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
 			<mx:SetProperty target="{text5}" name="text" value="Super Admin privileges"/>
 		</mx:State>
@@ -57,7 +57,7 @@
 			import views.user.EditBillingAcctWindow;
 			
 			//Additional pixels to move dashboard boxes to the right of splash image.
-			private var dashBuffer:int = 360;
+			private var dashBuffer:int = 50;
 			
 			public function checkDirty():void {
 			}
@@ -68,7 +68,8 @@
 			}
 			
 			private function showSplashAndDash():void {
-				splashImageBox.visible = true;
+				//splashImageBox.visible = true;
+				splashImage.visible = true;
 				
 				if(parentApplication.getProperty(parentApplication.SHOW_NEWS_DASHBOARD) == 'Y'){
 					newsButtonBox.visible = true;
@@ -91,10 +92,10 @@
 						this.currentState = "GuestState";
 					}
 				} else if (parentApplication.isAdminState) {
-				    currentState = "AdminState";
+					currentState = "AdminState";
 				} else if (parentApplication.isBillingAdminState) {
 					currentState = "BillingAdminState";
-
+					
 				} else if (parentApplication.currentState == "UserNonSubmitterState")  {
 					currentState = "UserNonSubmitterState";						
 				} else {
@@ -203,30 +204,30 @@
 				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				wa.isEdit = false;
 				wa.ba = new XML("<BillingAccount " +
-					" idBillingAccount='BillingAccount0'" +
-					" accountName=''" +
-					" idCoreFacility=''" +
-					" expirationDateOther=''" + 
-					" startDateOther=''" +
-					" accountNumberBus=''" + 
-					" accountNumberOrg=''" + 
-					" accountNumberFund=''" + 
-					" accountNumberActivity=''" + 
-					" accountNumberProject=''" +  
-					" accountNumberAccount=''" + 
-					" accountNumberAu=''" + 
-					" accountNumberYear=''" +
-					" totalDollarAmountDisplay=''" +
-					" shortAcct=''" +
-					" custom1=''" +
-					" custom2=''" +
-					" custom3=''" +
-					" isDirty='Y'" +
-					" isPO='N'" +
-					" submitterEmail='" + parentApplication.getUserEmail() + "'" +
-					" isApproved='N'" +
-					" isSelectedPeerReviewedFunding='false'" + 
-					"/>");
+				" idBillingAccount='BillingAccount0'" +
+				" accountName=''" +
+				" idCoreFacility=''" +
+				" expirationDateOther=''" + 
+				" startDateOther=''" +
+				" accountNumberBus=''" + 
+				" accountNumberOrg=''" + 
+				" accountNumberFund=''" + 
+				" accountNumberActivity=''" + 
+				" accountNumberProject=''" +  
+				" accountNumberAccount=''" + 
+				" accountNumberAu=''" + 
+				" accountNumberYear=''" +
+				" totalDollarAmountDisplay=''" +
+				" shortAcct=''" +
+				" custom1=''" +
+				" custom2=''" +
+				" custom3=''" +
+				" isDirty='Y'" +
+				" isPO='N'" +
+				" submitterEmail='" + parentApplication.getUserEmail() + "'" +
+				" isApproved='N'" +
+				" isSelectedPeerReviewedFunding='false'" + 
+				"/>");
 				PopUpManager.centerPopUp(wa);*/
 			}			       
 			private function showDictionaries():void {
@@ -334,12 +335,12 @@
 	<mx:Move id="moveDashboard" xFrom="1700"/>
 	
 	<mx:VBox    backgroundColor="#FFFFFF"
-		width="100%" height="100%"  
-		verticalAlign="top" horizontalAlign="center"  
-		paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center" horizontalScrollPolicy="off">
+				width="100%" height="100%"  
+				verticalAlign="top" horizontalAlign="left" 
+				paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="6" id="vbox10"  textAlign="center" horizontalScrollPolicy="off">
 		<mx:Spacer height="30" />
-
-		<mx:HBox width="100%">
+		
+		<mx:HBox horizontalAlign="left">
 			<mx:VBox paddingTop="30">
 				<mx:VBox id="newsButtonBox" showEffect="{parentApplication.fadeInSlow}" show="{showSplashAndDash()}" visible="false" >
 					<mx:LinkButton label="News" fontSize="20" icon="@Embed(source='../../assets/newspaper.png')" click="{splashImage.visible = false; splashImage.includeInLayout = false; showNewsBox();}" />
@@ -353,9 +354,14 @@
 				</mx:VBox>
 				<mx:LinkButton label="Sequencing" id="sequencerButton" visible="false" showEffect="{parentApplication.fadeInSlow}" show="{showSplashAndDash()}" icon="@Embed(source='../../assets/sequencing_bars.png')" click="{splashImage.visible = false;splashImage.includeInLayout = false; showSequencerBox();}" fontSize="20" />
 			</mx:VBox>
-			<mx:HBox id="splashImageBox" showEffect="{parentApplication.fadeInSlow}" horizontalAlign="center" verticalAlign="middle" paddingLeft="360" paddingTop="33" visible="false">
-				<mx:Image id="splashImage" horizontalAlign="left" source="{parentApplication.welcomeSplash}"  show="{showSplashAndDash()}" showEffect="{parentApplication.fadeInSlow}"/>	
-			</mx:HBox>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox
+			 width="100%" height="100%"  
+			 horizontalAlign="center" 
+			 paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="20" id="vbox11"  textAlign="center" horizontalScrollPolicy="off">
+		<mx:HBox horizontalAlign="center" width="100%" paddingTop="20">
+			<mx:Image id="splashImage" horizontalAlign="center" source="{parentApplication.welcomeSplash}"  show="{showSplashAndDash()}" showEffect="{parentApplication.fadeInSlow}"/>	
 			<mx:VBox id="newsBox" paddingTop="30" verticalAlign="middle" width="100%" horizontalAlign="center" visible="false" includeInLayout="false">
 				<db:News id="newsHub"/>
 			</mx:VBox>
@@ -365,6 +371,7 @@
 			<mx:VBox id="sequencerBox" paddingTop="30" width="100%" verticalAlign="middle" horizontalAlign="center" visible="false" includeInLayout="false">
 				<db:RunStatusHub id="runStatusHub"/>
 			</mx:VBox>
+	
 		</mx:HBox>
 		<mx:HBox id="bugContact" verticalAlign="middle" horizontalAlign="center">
 			<mx:Text text="GNomEx support123"/>
@@ -372,7 +379,7 @@
 		</mx:HBox>
 		<mx:Spacer id="spacer2" height="100%"/>
 		<mx:VBox width="400" horizontalAlign="center" paddingBottom="2" paddingTop="2" id="vbox15" height="100%" paddingLeft="2" paddingRight="2">
-			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" id="vbox11" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
+			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
 				<mx:Text text="{parentApplication.bulletin}" fontSize="12" fontStyle="normal"  textAlign="left" height="100%"   id="text4" width="100%"/>  			
 			</mx:VBox>
 		</mx:VBox>
@@ -383,4 +390,5 @@
 			<mx:Text id="text5"/>
 		</mx:HBox>
 	</mx:VBox>
+		
 </mx:Canvas>
