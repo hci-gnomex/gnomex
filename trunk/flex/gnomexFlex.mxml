@@ -3694,7 +3694,7 @@
 					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, ManageQuickLinks, true));
 				} else if(menuItem.@url != null && menuItem.@url != ''){
 					navigateToURL(new URLRequest(menuItem.@url), '_blank');	
-				} else if (label== "Report Issue") {
+				} else if (label== "Report Problem") {
 					takeScreenshotForReportIssue(this.theBody);
 				}
 
