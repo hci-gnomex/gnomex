@@ -57,7 +57,7 @@
 			import views.user.EditBillingAcctWindow;
 			
 			//Additional pixels to move dashboard boxes to the right of splash image.
-			private var dashBuffer:int = 50;
+			private var dashBuffer:int = 30;
 			
 			public function checkDirty():void {
 			}
@@ -374,7 +374,7 @@
 	
 		</mx:HBox>
 		<mx:HBox id="bugContact" verticalAlign="middle" horizontalAlign="center">
-			<mx:Text text="GNomEx support123"/>
+			<mx:Text text="GNomEx support"/>
 			<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" />
 		</mx:HBox>
 		<mx:Spacer id="spacer2" height="100%"/>
