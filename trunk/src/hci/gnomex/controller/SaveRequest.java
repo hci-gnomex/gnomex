@@ -2442,8 +2442,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     } else {
       send = true;
       subject = subject + " (TEST)";
-      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "]<br><br>";
+      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       ccEmail = null;
     }    
 
