@@ -9,6 +9,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
+import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibProtocolApplication;
@@ -273,6 +274,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       st.setSampleType(node.getAttributeValue("display"));
       st.setIsActive(node.getAttributeValue("isActive"));
       st.setCodeNucleotideType(node.getAttributeValue("codeNucleotideType"));
+      if (node.getAttributeValue("sortOrder") == null || node.getAttributeValue("sortOrder").length() == 0) {
+        st.setSortOrder(null);
+      } else {
+        try {
+          st.setSortOrder(Integer.parseInt(node.getAttributeValue("sortOrder")));
+        } catch(NumberFormatException e) {
+          st.setSortOrder(null);
+        }
+      }
       sess.save(st);
 
       //
@@ -306,18 +316,33 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       SampleType sampleType = (SampleType)i.next();
       if (!sampleTypeMap.containsKey(sampleType.getIdSampleType())) {
         boolean deleteSampleType = true;
+        Integer count = 0;
         List samples = sess.createQuery("select count(*) from Sample s where s.idSampleType = " + sampleType.getIdSampleType()).list();
         if (samples.size() > 0) {
-          Integer count = (Integer)samples.get(0);
-          if (count.intValue() > 0) {
-            deleteSampleType = false;
-          }
+          count += (Integer)samples.get(0);
+        }
+        List categories = sess.createQuery("select count(*) from SampleTypeRequestCategory r where r.idSampleType = " + sampleType.getIdSampleType() + " AND r.codeRequestCategory != '" + rc.getCodeRequestCategory() + "'").list();
+        if (categories.size() > 0) {
+          count += (Integer)categories.get(0);
+        }
+        if (count.intValue() > 0) {
+          deleteSampleType = false;
         }
         
         if (deleteSampleType) {
+          List applications = sess.createQuery("select a from SampleTypeApplication a where a.idSampleType = " + sampleType.getIdSampleType()).list();
+          for (SampleTypeApplication a : (List<SampleTypeApplication>)applications) {
+            sess.delete(a);
+          }
+          List catToDelete = sess.createQuery("select r from SampleTypeRequestCategory r where r.idSampleType = " + sampleType.getIdSampleType()).list();
+          for (SampleTypeRequestCategory r : (List<SampleTypeRequestCategory>)catToDelete) {
+            sess.delete(r);
+          }
           sess.delete(sampleType);
         } else {
-          sampleType.setIsActive("N");
+          if (sampleType.getIsActive() != null && !sampleType.getIsActive().equals("N")) {
+            sampleType.setIsActive("N");
+          }
         }
       }
     }  
