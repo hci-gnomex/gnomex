@@ -37,6 +37,7 @@ import org.jdom.Element;
 public class RequestParser implements Serializable {
   
   private SecurityAdvisor secAdvisor;
+  private boolean        isImport = false;
   private Element        requestNode;
   private Request         request;
   private boolean        isNewRequest = false;
@@ -124,13 +125,22 @@ public class RequestParser implements Serializable {
     parse(sess, requestCategory);
   }
   
+  public void parseForImport(Session sess, RequestCategory requestCategory) throws Exception {
+    parse(sess, requestCategory, true);
+  }
+  
+  public void parse(Session sess, RequestCategory requestCategory) throws Exception{
+    parse(sess, requestCategory, false);
+  }
+  
   
   /*
    * Call this version of parse when coming from a batch java app instead of the web (servlet) interface.
    * In this case, we can't rely on DictionaryHelper since ManageDictionaries only works as a command, not
    * in a stand-alone java app.
    */
-  public void parse(Session sess, RequestCategory requestCategory) throws Exception{
+  private void parse(Session sess, RequestCategory requestCategory, boolean isImport) throws Exception{
+    this.isImport = isImport;
     
     this.initializeRequest(requestNode, sess, requestCategory);
     
@@ -167,6 +177,11 @@ public class RequestParser implements Serializable {
         request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
         request.setCodeVisibility(n.getAttributeValue("codeVisibility"));
         request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
+        
+        // We use the experiment ID in the XML if this is an import
+        if (isImport) {
+          request.setNumber(n.getAttributeValue("number"));
+        }
       
         if (n.getAttributeValue("idInstitution") != null && !n.getAttributeValue("idInstitution").equals("")) {
           request.setIdInstitution(new Integer(n.getAttributeValue("idInstitution")));
@@ -471,6 +486,11 @@ public class RequestParser implements Serializable {
     sample.setName(unEscape(n.getAttributeValue("name")));
     
     sample.setDescription(unEscape(n.getAttributeValue("description")));
+    
+    // We use the sample ID in the XML if this is an import
+    if (isImport) {
+      sample.setNumber(n.getAttributeValue("number"));
+    }
     
     if (n.getAttributeValue("idSampleType") != null && !n.getAttributeValue("idSampleType").equals("")) {
       sample.setIdSampleType(new Integer(n.getAttributeValue("idSampleType")));
@@ -989,6 +1009,11 @@ public class RequestParser implements Serializable {
       sequenceLaneInfo.setSample((Sample)sampleMap.get(idSampleString));
     }
     
+    
+    // We use the sample ID in the XML if this is an import
+    if (isImport) {
+      sequenceLaneInfo.setNumber(n.getAttributeValue("number"));
+    }    
    
     if (n.getAttributeValue("idNumberSequencingCycles") != null && !n.getAttributeValue("idNumberSequencingCycles").equals("")) {
       sequenceLaneInfo.setIdNumberSequencingCycles(new Integer(n.getAttributeValue("idNumberSequencingCycles")));
@@ -1497,6 +1522,8 @@ public class RequestParser implements Serializable {
   public static class SequenceLaneInfo implements Serializable {
     private String   idSequenceLane;
     private String   idSampleString;
+    private String   number;
+
     private Sample   sample;
     private Integer  idSeqRunType;
     private Integer  idNumberSequencingCycles;
@@ -1696,6 +1723,17 @@ public class RequestParser implements Serializable {
       this.seqRunPipelineFailed = seqRunPipelineFailed;
     }
     
+    public String getNumber() {
+      return number;
+    }
+
+
+    public void setNumber(String number) {
+      this.number = number;
+    }
+
+
+
     
   }
 

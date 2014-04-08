@@ -161,8 +161,9 @@ public class ImportExperiment {
       // Use RequestParser to parse the XML to create a request instance
       RequestCategory requestCategory = requestCategoryMap.get(requestNode.getAttributeValue("codeRequestCategory"));
       requestParser = new RequestParser(requestNode, secAdvisor);
-      requestParser.parse(sess, requestCategory);
+      requestParser.parseForImport(sess, requestCategory);
       request = requestParser.getRequest();
+      
       
       // Save the experiment
       SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"));
@@ -171,7 +172,7 @@ public class ImportExperiment {
       saveSamples();
       
       // Save the sequence lanes
-      SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
+      SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, true);
       
       // Commit the transaction     
       tx.commit();
@@ -380,7 +381,7 @@ public class ImportExperiment {
       // Blank out idOligoBarcode, barcodeSequence
       sampleNode.setAttribute("idOligoBarocde", "");
       sampleNode.setAttribute("barcodeSequence", "");
-;
+
     }
   }
   
@@ -593,7 +594,6 @@ public class ImportExperiment {
     sess.save(request);
     
     if (requestParser.isNewRequest()) {
-      request.setNumber(SaveRequest.getNextRequestNumber(requestParser, sess));
       sess.save(request);
       
       if (request.getName() == null || request.getName().trim().equals("")) {
@@ -630,7 +630,8 @@ public class ImportExperiment {
     
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 
-    nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
+    sample.setIdRequest(request.getIdRequest());
+    sess.save(sample);
     
     SaveRequest.setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map)requestParser.getSampleAnnotationMap().get(idSampleString), requestParser.getOtherCharacteristicLabel(), targetIdToPropertyMap);
     
@@ -648,20 +649,7 @@ public class ImportExperiment {
   }
   
   
-  
-  
-  public static Integer initSample(Session sess, Request request, Sample sample, Boolean isNewSample, Integer nextSampleNumber) {
-    sample.setIdRequest(request.getIdRequest());
-    sess.save(sample);
-    
-    if (isNewSample) {
-      sample.setNumber(Request.getRequestNumberNoR(request.getNumber()) + "X" + nextSampleNumber);
-      nextSampleNumber++;
-      sess.save(sample);
-    }  
-    
-    return nextSampleNumber;
-  }
+
   
   
   private void getStartingNextSampleNumber() {

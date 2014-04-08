@@ -1997,7 +1997,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
   
   public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, 
-      RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
+  RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
+    return saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, false);
+  }
+  
+  public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, 
+      RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
     
     HashMap sampleToLaneMap = new HashMap();
     HashMap existingLanesSaved = new HashMap();
@@ -2045,7 +2050,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
           SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, 
-              timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded);
+              timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded, isImport);
           
           if (!isNewLane) {
             existingLanesSaved.put(lane.getIdSequenceLane(), lane);
@@ -2080,10 +2085,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return existingLanesSaved;
     
   }
-  public static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, 
+  private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, 
       RequestParser.SequenceLaneInfo sequenceLaneInfo, 
       Session sess, int lastSampleSeqCount, Date theTime, 
-      Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded ) throws Exception {
+      Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
 
     
     SequenceLane sequenceLane = null;
@@ -2115,9 +2120,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     if (isNewSequenceLane) {
       Sample theSample = (Sample)sess.get(Sample.class, sequenceLane.getIdSample());
- 
+      
       String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER));
-      sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR) + (lastSampleSeqCount + 1));
+      
+      if (isImport) {
+        
+        // Use the sequence lane ID in the XML
+        sequenceLane.setNumber(sequenceLaneInfo.getNumber());
+
+      } else {
+        
+        // Generate a new sequence lane number
+        sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR) + (lastSampleSeqCount + 1));
+        
+      }
       sess.save(sequenceLane);
       sess.flush();
       
