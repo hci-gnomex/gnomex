@@ -922,9 +922,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String seqNumber1 = "";
       // Deal with old (ex. 6142L1) and new (ex. 6142F1_1) naming scheme
       if (itemNumber1.indexOf("F") >= 0) {
-        String[] tokens        = itemNumber1.split("F");
+        String[] tokens        = itemNumber1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER));
         String number1         = tokens[tokens.length - 1];
-        String[] numberTokens  = number1.split("_");
+        String[] numberTokens  = number1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         sampleNumber1          = numberTokens[0];
         seqNumber1             = numberTokens[1];        
       } else {
@@ -936,9 +936,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String sampleNumber2;
       String seqNumber2 = "";
       if (itemNumber2.indexOf("F") >= 0) {
-        String[] tokens        = itemNumber2.split("F");
+        String[] tokens        = itemNumber2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER));
         String number2         = tokens[tokens.length - 1];
-        String[] numberTokens  = number2.split("_");
+        String[] numberTokens  = number2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         sampleNumber2          = numberTokens[0];
         seqNumber2             = numberTokens[1];        
       } else {

@@ -4,12 +4,14 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
 import hci.gnomex.model.NumberSequencingCycles;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -399,14 +401,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "E";
       } else if (hybNumber1.indexOf("L") >= 0) {
         splitLetter = "L";
-      } else if (hybNumber1.indexOf("F") >= 0) {
-        splitLetter = "F";
+      } else if (hybNumber1.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
+        splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
       } 
       String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
       itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];     
       
-      if (splitLetter.equals("F")) {
-        String[] numberTokens  = itemNumber1.split("_");
+      if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
+        String[] numberTokens  = itemNumber1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         itemNumber1            = numberTokens[0];
         seq1                   = numberTokens[1];                
       } else {
@@ -421,14 +423,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "E";
       } else if (hybNumber2.indexOf("L") >= 0) {
         splitLetter = "L";
-      } else if (hybNumber2.indexOf("F") >= 0) {
-        splitLetter = "F";
+      } else if (hybNumber2.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
+        splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
       } 
 
       String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
       itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];     
-      if (splitLetter.equals("F")) {
-        String[] numberTokens  = itemNumber2.split("_");
+      if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
+        String[] numberTokens  = itemNumber2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         itemNumber2            = numberTokens[0];
         seq2                   = numberTokens[1];                
       } else {
