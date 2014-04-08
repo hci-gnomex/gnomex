@@ -2034,7 +2034,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
           if (!isNewLane) {
             SequenceLane lane = (SequenceLane)sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
-            String[] tokens = lane.getNumber().split("_");
+            String[] tokens = lane.getNumber().split(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
             if  (tokens.length == 2) {
               Integer lastSeqLaneNumber = Integer.valueOf(tokens[1]);
               if (lastSeqLaneNumber.intValue() > lastSampleSeqCount) {
