@@ -258,7 +258,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   }
   
   private void hashSupportingDictionaries(Session sess, DictionaryHelper dh) throws Exception {
-    sampleTypes = sess.createQuery("SELECT st from SampleType st order by st.sampleType").list();
+    sampleTypes = sess.createQuery("SELECT st from SampleType st where isActive is null OR isActive = 'Y' order by st.sampleType").list();
     List sampleTypeXrefs = sess.createQuery("SELECT x from SampleTypeRequestCategory x").list();
     for(Iterator i = sampleTypeXrefs.iterator(); i.hasNext();) {
       SampleTypeRequestCategory x = (SampleTypeRequestCategory)i.next();
