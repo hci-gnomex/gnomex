@@ -71,13 +71,13 @@
 				//splashImageBox.visible = true;
 				splashImage.visible = true;
 				
-				if(parentApplication.getProperty(parentApplication.SHOW_NEWS_DASHBOARD) == 'Y'){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_NEWS_DASHBOARD) == 'Y'){
 					newsButtonBox.visible = true;
 				}
-				if(parentApplication.getProperty(parentApplication.SHOW_ACTIVITY_DASHBOARD) == 'Y'){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y'){
 					activityBox.visible = true;
 				}
-				if(parentApplication.getProperty(parentApplication.SHOW_METRIX_DASHBOARD) == 'Y'){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
 					sequencerButton.visible = true;
 				}
 				
