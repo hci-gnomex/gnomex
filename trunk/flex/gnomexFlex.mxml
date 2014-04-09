@@ -1113,7 +1113,7 @@
 			public var PROPERTY_SITE_TITLE:String                         = "site_title";
 			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
-			public var DATASET_PRIVACY_EXPIRATION:String                  = "dataset_privacy_expiration";
+			public var PROPERTY_DATASET_PRIVACY_EXPIRATION:String         = "dataset_privacy_expiration";
 			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
 			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
@@ -1147,9 +1147,9 @@
 			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_VENDOR:String	  = "experiment_platform_hide_vendor";
 			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_NOTES:String	  = "experiment_platform_hide_notes";
 			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_ORGANISM:String  = "experiment_platform_hide_organism";
-			public var SHOW_NEWS_DASHBOARD:String                         = "show_news_dashboard";
-			public var SHOW_METRIX_DASHBOARD:String                       = "show_metrix_dashboard";
-			public var SHOW_ACTIVITY_DASHBOARD:String                     = "show_activity_dashboard";
+			public var PROPERTY_SHOW_NEWS_DASHBOARD:String                = "show_news_dashboard";
+			public var PROPERTY_SHOW_METRIX_DASHBOARD:String              = "show_metrix_dashboard";
+			public var PROPERTY_SHOW_ACTIVITY_DASHBOARD:String            = "show_activity_dashboard";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -2580,8 +2580,8 @@
 					this.isTopicsSupported = false;
 				}
 				
-				if (this.getProperty(this.DATASET_PRIVACY_EXPIRATION) != null && 
-					parseInt(this.getProperty(this.DATASET_PRIVACY_EXPIRATION)) > 0) {
+				if (this.getProperty(this.PROPERTY_DATASET_PRIVACY_EXPIRATION) != null && 
+					parseInt(this.getProperty(this.PROPERTY_DATASET_PRIVACY_EXPIRATION)) > 0) {
 					this.isPrivacyExpirationSupported = true;
 				} else {
 					this.isPrivacyExpirationSupported = false;
