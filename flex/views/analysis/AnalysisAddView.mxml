@@ -232,7 +232,7 @@
 				}
 			}
 			if(parentApplication.isPrivacyExpirationSupported) {
-				var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
+				var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.PROPERTY_DATASET_PRIVACY_EXPIRATION)), new Date());
 				params.privacyExpirationDate = parentApplication.formatDate(expireDate);
 			}			
 			params.hybsXMLString = "<hybs/>";
