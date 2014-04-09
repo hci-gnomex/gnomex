@@ -901,7 +901,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     String fileName;
-    if (!analysisFile.getQualifiedFilePath().equals("") && analysisFile.getQualifiedFilePath() != null) {
+    if (analysisFile.getQualifiedFilePath() != null && !analysisFile.getQualifiedFilePath().equals("")) {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();    
     } else {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getFileName();    
