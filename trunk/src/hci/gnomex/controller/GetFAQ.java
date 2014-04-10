@@ -41,7 +41,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
         Document doc = new Document(new Element("FaqCollection"));
         StringBuffer buf =  new StringBuffer();
         
-        buf.append("SELECT f.idFAQ, f.title, f.url, f.views");
+        buf.append("SELECT f.idFAQ, f.title, f.url, f.idCoreFacility");
         buf.append(" FROM  FAQ f ");
   	  	
   	  	List rows = (List) sess.createQuery(buf.toString()).list();
@@ -55,8 +55,8 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
              */
               n.setAttribute("idFAQ",              			row[0] == null ? "" :  ((Integer)row[0]).toString()); 
               n.setAttribute("title",              	 		row[1] == null ? "" :  ((String) row[1]));
-              n.setAttribute("url", 						row[2] == null ? "" :  ((String) row[2]));
-              n.setAttribute("views",	           	 		row[3] == null ? "0" :  ((Integer)row[3]).toString());
+              n.setAttribute("url", 						        row[2] == null ? "" :  ((String) row[2]));
+              n.setAttribute("idCoreFacility",	        row[3] == null ? "0" : ((Integer)row[3]).toString());
               
               // Add node content to rootElement XML output.
             doc.getRootElement().addContent(n);
