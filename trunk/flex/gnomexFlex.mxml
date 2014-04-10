@@ -2354,16 +2354,13 @@
 								if (coreFacilitiesICanManage.length() > 0) {
 									// Only hide a menu for a core facility admin when
 									// the menu_ property matches the core facility
-									// the admin manages and there is only ONE core
-									// facility the admin manages.
-									if (coreFacilitiesICanManage.length() < 2) {
+									// the admin manages.
 										for each (var cf:Object in coreFacilitiesICanManage) {
 											if (property.@idCoreFacility == cf.@idCoreFacility) {
 												menuToHide = property.@propertyName.toString().substr(5);
 												break;
 											}
 										}
-									}
 								} else {
 									
 									if (menuToHide == null) {
