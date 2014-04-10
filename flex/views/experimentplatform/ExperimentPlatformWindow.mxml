@@ -178,6 +178,7 @@
 					this.enabled = false;
 					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
 					parentApplication.dictionaryManager.reload();
+					dictionaryManager.reload();
 					getExperimentPlatformList.send();
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);

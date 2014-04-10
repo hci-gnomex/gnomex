@@ -46,7 +46,7 @@
 			[Bindable]
 			private var protocol:Object;
 			
-			public function init(parentWindow:views.experimentplatform.IlluminaExperimentTypeDetailWindow, protocolPassed:Object):void {
+			public function init(parentWindow:views.experimentplatform.IlluminaExperimentTypeDetailWindow, protocolPassed:Object = null, defaultName:String = ""):void {
 				topBox.enabled = false;
 				this.parentWindow = parentWindow;
 				protocolName.setFocus();
@@ -59,7 +59,8 @@
 				} else {
 					protocol = new Object();
 					protocol.id = "";
-					protocol.name = "";
+					protocol.name = defaultName;
+					protocolName.text = defaultName;  // not sure why bindable doesn't handle this, so kludge.
 					protocol.url = "";
 					protocol.adapterSequenceRead1 = "";
 					protocol.adapterSequenceRead2 = "";
