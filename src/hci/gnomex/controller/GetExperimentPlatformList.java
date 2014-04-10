@@ -9,6 +9,8 @@ import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationTheme;
 import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
@@ -18,6 +20,7 @@ import hci.gnomex.model.SeqLibProtocolApplication;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +54,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
   private Map<String, List<Element>> applicationToRequestCategoryMap = new HashMap<String, List<Element>>();
   
+  private final static String PRICE_INTERNAL            = "internal";
+  private final static String PRICE_EXTERNAL_ACADEMIC   = "academic";
+  private final static String PRICE_EXTERNAL_COMMERCIAL = "commercial";
+      
   
   public void validate() {
   }
@@ -80,11 +87,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       List platforms = sess.createQuery("SELECT rc from RequestCategory rc order by rc.requestCategory").list();
 
       List<ApplicationTheme> emptyThemes = this.getEmptyApplicationThemes(sess);
-      
+      Map<String, Integer> seqLibProtocolToBarcodeSchemeMap = this.getSeqLibProtocolBarCodeSchemeMap(sess);
+      Map<String, Price> applicationToLibPrepPriceMap = getApplicationToLibPrepPriceMap(sess);
+      Map<String, String> requestCategoryToPriceSheetMap = getRequestCategoryToPriceSheetMap(sess);
       for(Iterator i = platforms.iterator(); i.hasNext();) {
         RequestCategory rc = (RequestCategory)i.next();
         this.getSecAdvisor().flagPermissions(rc);
         Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+        node.setAttribute("hasPriceSheet", requestCategoryToPriceSheetMap.containsKey(rc.getCodeRequestCategory()) ? "Y" : "N");
         doc.getRootElement().addContent(node);
         
         Element listNode = new Element("sampleTypes");
@@ -142,6 +152,11 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("idScanProtocolDefault", x != null && x.getIdScanProtocolDefault() != null ? x.getIdScanProtocolDefault().toString() : "");
           applicationNode.setAttribute("idFeatureExtractionProtocolDefault", x != null && x.getIdFeatureExtractionProtocolDefault() != null ? x.getIdFeatureExtractionProtocolDefault().toString() : "");
           applicationNode.setAttribute("selectedInOtherCategory", "N");
+          applicationNode.setAttribute("idBarcodeSchemeA", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "A"));
+          applicationNode.setAttribute("idBarcodeSchemeB", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "B"));
+          applicationNode.setAttribute("unitPriceInternal", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_INTERNAL));
+          applicationNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_EXTERNAL_ACADEMIC));
+          applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_EXTERNAL_COMMERCIAL));
           
           List<Element> rcAppList = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
           if (rcAppList != null) {
@@ -255,6 +270,43 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
     }
     return buf;
+  }
+  
+  private String getIdBarcodeScheme(Map<String, Integer> map, Application a, String type) {
+    String idBarcodeScheme = "";
+    Map idMap = applicationXSeqLibProtocolMap.get(a.getCodeApplication());
+    if (idMap != null) {
+      for(Iterator i = idMap.keySet().iterator(); i.hasNext();) {
+        String key = ((Integer)i.next()).toString() + "\t" + type;
+        Integer id = map.get(key);
+        if (id != null) {
+          idBarcodeScheme = id.toString();
+          break;
+        }
+      }
+    }
+    return idBarcodeScheme;
+  }
+  
+  private String getUnitPrice(Map<String, Price> applicationToLibPrepPriceMap, Application a, RequestCategory rc, String priceType) {
+    String priceAsString = "";
+    String key = rc.getCodeRequestCategory() + "\t" + a.getCodeApplication();
+    Price p = applicationToLibPrepPriceMap.get(key);
+    if (p == null) {
+      priceAsString = "";
+    } else {
+      if (priceType.equals(this.PRICE_INTERNAL)) {
+        priceAsString = p.getUnitPrice().toString();
+      } else if (priceType.equals(this.PRICE_EXTERNAL_ACADEMIC)) {
+        priceAsString = p.getUnitPriceExternalAcademic().toString();
+      } else if (priceType.equals(this.PRICE_EXTERNAL_COMMERCIAL)) {
+        priceAsString = p.getUnitPriceExternalCommercial().toString();
+      } else {
+        priceAsString = "";
+      }
+    }
+    
+    return priceAsString;
   }
   
   private void hashSupportingDictionaries(Session sess, DictionaryHelper dh) throws Exception {
@@ -380,6 +432,71 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
     
     return arcMap;
+  }
+  
+  private Map<String, Integer> getSeqLibProtocolBarCodeSchemeMap(Session sess) {
+    String queryString = "select slp.idSeqLibProtocol, obsa.isIndexGroupB, MIN(obs.idOligoBarcodeScheme)"
+                         + "  from OligoBarcodeSchemeAllowed obsa"
+                         + "  join obsa.seqLibProtocol slp"
+                         + "  join obsa.oligoBarcodeScheme obs"
+                         + "  where slp.isActive = 'Y' and obs.isActive = 'Y'"
+                         + "  group by slp.idSeqLibProtocol, obsa.isIndexGroupB";
+    List l = sess.createQuery(queryString).list();
+    Map<String, Integer> map = new HashMap<String, Integer>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      Integer idSeqLibProtocol = (Integer)objects[0];
+      String isIndexGroupB = (String)objects[1];
+      Integer idOligoBarCodeScheme = (Integer)objects[2];
+      
+      String key = idSeqLibProtocol.toString() + "\t" + (isIndexGroupB.equals("Y") ? "B" : "A");
+      map.put(key, idOligoBarCodeScheme);
+    }
+    
+    return map;
+  }
+  
+  private Map<String, Price> getApplicationToLibPrepPriceMap(Session sess) {
+    String queryString = 
+        "select rc, p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+        "     and p.isActive='Y' and crit.filter1 is not null";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    Map<String, Price> map = new HashMap<String, Price>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      RequestCategory requestCategory = (RequestCategory)objects[0];
+      Price price = (Price)objects[1];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[2];
+      
+      String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
+      map.put(key, price);
+    }
+    
+    return map;
+  }
+  
+  private Map<String, String> getRequestCategoryToPriceSheetMap(Session sess) {
+    String queryString = 
+        "select rc " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " where ps.isActive = 'Y'";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    Map<String, String> map = new HashMap<String, String>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      RequestCategory rc = (RequestCategory)i.next();
+      map.put(rc.getCodeRequestCategory(), rc.getCodeRequestCategory());
+    }
+    
+    return map;
   }
   
   private class appComparator implements Comparator<Application>, Serializable {

@@ -111,6 +111,10 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_PLATFORM_HIDE_VENDOR     = "experiment_platform_hide_vendor";
   public static final String        EXPERIMENT_PLATFORM_HIDE_NOTES      = "experiment_platform_hide_notes";
   public static final String        EXPERIMENT_PLATFORM_HIDE_ORGANISM   = "experiment_platform_hide_organism";
+  public static final String        INTERNAL_PRICE_LABEL                = "internal_price_label";
+  public static final String        EXTERNAL_ACADEMIC_PRICE_LABEL       = "external_academic_price_label";
+  public static final String        EXTERNAL_COMMERCIAL_PRICE_LABEL     = "external_commercial_price_label";
+  public static final String        ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY = "illumina_libprep_default_price_category";
   
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
