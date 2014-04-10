@@ -4,8 +4,7 @@
 		   xmlns:db="views.dashboard.*"
 		   xmlns:util="views.util.*" 			
 		   creationPolicy="all" width="100%" height="100%" horizontalScrollPolicy="off"
-		   creationComplete="init()"
-		   >
+		   show="init()">
 	<mx:states> 
 		<mx:State name="GuestState">
 			<mx:SetProperty target="{text5}" name="text" value="Guest privileges only"/>
