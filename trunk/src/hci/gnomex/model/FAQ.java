@@ -9,7 +9,7 @@ public class FAQ extends HibernateDetailObject {
   private Integer			idFAQ;
   private String			url;
   private String 			title;
-  private Integer			views;
+  private Integer     idCoreFacility;
   
 	public Integer getIdFAQ() {
 		return idFAQ;
@@ -29,10 +29,10 @@ public class FAQ extends HibernateDetailObject {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public Integer getViews() {
-		return views;
-	}
-	public void setViews(Integer views) {
-		this.views = views;
-	}
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
 }
