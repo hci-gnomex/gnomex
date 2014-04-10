@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="950" height="219"  
+				layout="vertical" width="950" height="245"  
 				xmlns:views="views.*" 
 				initialize="init()"
 				showCloseButton="true" 
@@ -20,7 +20,7 @@
 			</mx:HBox>
 			<mx:HBox id="bionformaticsContact" horizontalGap="0" width="100%" verticalAlign="middle" >
 					<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text width="320" paddingRight="12" text="For bionformatics questions:"/>
+				<mx:Text width="320" paddingRight="12" text="For bioinformatics questions:"/>
 				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
 			</mx:HBox>
 			<mx:Repeater id="coreRepeater" dataProvider="{parentApplication.coreFacilityList}"> 
