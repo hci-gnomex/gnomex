@@ -75,8 +75,10 @@
 				selectedProtocols = new XMLListCollection();
 				var values:Array = ids.split(",");
 				for each (var id:String in values) {
-					// Apparently dictionaryManager has multiple entries for a single key so we need [0]
-					selectedProtocols.addItem(state.dictionaryManager.getEntry('hci.gnomex.model.SeqLibProtocol', id)[0]);
+					if (id.length > 0) {
+						// Apparently dictionaryManager has multiple entries for a single key so we need [0]
+						selectedProtocols.addItem(state.dictionaryManager.getEntry('hci.gnomex.model.SeqLibProtocol', id)[0]);
+					}
 				}
 			}
 
@@ -105,8 +107,16 @@
 			}
 			
 			private function editSeqLibProtocol():void {
+				if (experimentTypeName.text.length == 0) {
+					Alert.show("Please enter a name before editting the protocol");
+					return;
+				}
 				var w:SeqLibProtocolEditWindow  = SeqLibProtocolEditWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, SeqLibProtocolEditWindow, true));
-				w.init(this, this.selectedProtocols.getItemAt(0));
+				if (selectedProtocols.length > 0) {
+					w.init(this, this.selectedProtocols.getItemAt(0));
+				} else {
+					w.init(this, null, experimentTypeName.text);
+				}
 				PopUpManager.centerPopUp(w);
 			}
 
