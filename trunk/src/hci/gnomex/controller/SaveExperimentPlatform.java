@@ -5,6 +5,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
+import hci.gnomex.model.OligoBarcodeSchemeAllowed;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
@@ -17,9 +22,11 @@ import hci.gnomex.model.SeqRunType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +35,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -63,6 +71,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   
   private Map<String, String>            newCodeApplicationMap;
   
+  private Integer                        idBarcodeSchemeA;
+  private Integer                        idBarcodeSchemeB;
+  
+  private static final String PRICE_INTERNAL              = "internal";
+  private static final String PRICE_EXTERNAL_ACADEMIC     = "academic";
+  private static final String PRICE_EXTERNAL_COMMERCIAL   = "commercial";
   
   public void validate() {
   }
@@ -82,6 +96,28 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
     }
 
+    if (request.getParameter("idBarcodeSchemeA") != null && request.getParameter("idBarcodeSchemeA").length() > 0) {
+      try {
+        idBarcodeSchemeA = Integer.parseInt(request.getParameter("idBarcodeSchemeA"));
+      } catch(NumberFormatException e) {
+        log.error("idBarcodeSchemeA could not be parsed, value is " + request.getParameter("idBarcodeSchemeA"), e);
+        idBarcodeSchemeA = null;
+      }
+    } else {
+      idBarcodeSchemeA = null;
+    }
+
+    if (request.getParameter("idBarcodeSchemeB") != null && request.getParameter("idBarcodeSchemeB").length() > 0) {
+      try {
+        idBarcodeSchemeB = Integer.parseInt(request.getParameter("idBarcodeSchemeB"));
+      } catch(NumberFormatException e) {
+        log.error("idBarcodeSchemeB could not be parsed, value is " + request.getParameter("idBarcodeSchemeB"), e);
+        idBarcodeSchemeB = null;
+      }
+    } else {
+      idBarcodeSchemeB = null;
+    }
+    
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
       sampleTypesXMLString = request.getParameter("sampleTypesXMLString");
       StringReader reader = new StringReader(sampleTypesXMLString);
@@ -359,6 +395,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     
     newCodeApplicationMap = new HashMap<String, String>();
     
+    Map<String, Price> illuminaLibPrepPriceMap = getIlluminaLibPrepPriceMap(sess, rc);
+    Integer idPriceCategoryDefault = getDefaultLibPrepPriceCategoryId(sess, rc);
+    
     //
     // Save applications
     //
@@ -470,6 +509,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           protocolMap.put(Integer.valueOf(idSeqLibProtocolString), null);
         }
       }
+      
+      addDefaultProtocol(sess, app, protocolMap);
+      
       // Add associations
       for (Iterator i1 = protocolMap.keySet().iterator(); i1.hasNext();) {
         Integer idSeqLibProtocol = (Integer)i1.next();
@@ -490,8 +532,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
 
-
-
+      sess.flush();
+      
+      saveOligoBarcodeSchemesAllowed(sess, rc, app, node, protocolMap);
+      saveIlluminaLibPrepPrices(sess, rc, app, node, illuminaLibPrepPriceMap, idPriceCategoryDefault);
+      
       sess.flush();
     }
 
@@ -532,6 +577,231 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }    
     sess.flush();
 
+  }
+  
+  private void addDefaultProtocol(Session sess, Application app, HashMap<Integer, SeqLibProtocol> protocolMap) {
+    if (protocolMap.keySet().size() == 0) {
+      SeqLibProtocol protocol = new SeqLibProtocol();
+      protocol.setSeqLibProtocol(app.getApplication());
+      sess.save(protocol);
+      sess.flush();
+      protocolMap.put(protocol.getIdSeqLibProtocol(), null);
+    }
+  }
+  
+  private void saveOligoBarcodeSchemesAllowed(Session sess, RequestCategory rc, Application app, Element node, HashMap<Integer, SeqLibProtocol> protocolMap) {
+    // Only save barcode schemes for illumina request categories.
+    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory())) {
+      return;
+    }
+    
+    Integer idA = getIdOligoBarcodeScheme(node, "A");
+    Integer idB = getIdOligoBarcodeScheme(node, "B");
+
+    if (protocolMap.keySet().size() == 0) {
+      if (idA != null || idB != null) {
+        log.error("Unable to save oligo barcode scheme mapping for application " + app.getApplication() + " because no SeqLibProtocol is available.");
+        return;
+      }
+    }
+    
+    // Note that currently there should only be one protocol for each application
+    String queryString = "select obsa from OligoBarcodeSchemeAllowed obsa where idSeqLibProtocol in (:ids)";
+    Query query = sess.createQuery(queryString);
+    query.setParameterList("ids", protocolMap.keySet());
+    List<OligoBarcodeSchemeAllowed> existingSchemes = (List<OligoBarcodeSchemeAllowed>)query.list();
+    Boolean aFound = false;
+    Boolean bFound = false;
+    for (OligoBarcodeSchemeAllowed obsa : existingSchemes) {
+      Boolean delete = true;
+      if (idA != null && obsa.getIdOligoBarcodeScheme().equals(idA) && (obsa.getIsIndexGroupB() == null || !obsa.getIsIndexGroupB().equals("Y"))) {
+        aFound = true;
+        delete = false;
+      }
+      if (idB != null && obsa.getIdOligoBarcodeScheme().equals(idB) && obsa.getIsIndexGroupB() != null && obsa.getIsIndexGroupB().equals("Y")) {
+        bFound = true;
+        delete = false;
+      }
+      if (delete) {
+        sess.delete(obsa);
+      }
+    }
+    
+    if (!aFound && idA != null) {
+      OligoBarcodeSchemeAllowed obsaA = new OligoBarcodeSchemeAllowed();
+      obsaA.setIdOligoBarcodeScheme(idA);
+      obsaA.setIdSeqLibProtocol((Integer)protocolMap.keySet().toArray()[0]);
+      obsaA.setIsIndexGroupB("N");
+      sess.save(obsaA);
+    }
+    
+    if (!bFound && idB != null) {
+      OligoBarcodeSchemeAllowed obsaB = new OligoBarcodeSchemeAllowed();
+      obsaB.setIdOligoBarcodeScheme(idB);
+      obsaB.setIdSeqLibProtocol((Integer)protocolMap.keySet().toArray()[0]);
+      obsaB.setIsIndexGroupB("Y");
+      sess.save(obsaB);
+    }
+  }
+
+  private Integer getIdOligoBarcodeScheme(Element node, String aOrB) {
+    Integer id = null;
+    String key = "idBarcodeScheme" + aOrB;
+    String idAsString = node.getAttributeValue(key);
+    if (idAsString != null && idAsString.length() > 0) {
+      try {
+        id = Integer.parseInt(idAsString);
+      } catch(NumberFormatException e) {
+        log.error("Unable to parse oligo barcode scheme " + aOrB + " for app " + node.getAttributeValue("application"));
+      }
+    }
+    
+    return id;
+  }
+  
+  private Map<String, Price> getIlluminaLibPrepPriceMap(Session sess, RequestCategory rc) {
+    if (!hasPriceSheet(sess, rc)) {
+      return null;
+    }
+    
+    
+    Map<String, Price> map = new HashMap<String, Price>();
+    String queryString = 
+        "select p, crit " +
+        " from PriceSheet ps " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+        "     and p.isActive='Y' and crit.filter1 is not null";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      Price price = (Price)objects[0];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[1];
+      
+      String key = priceCriteria.getFilter1();
+      map.put(key, price);
+    }
+
+    return map;
+  }
+  
+  private Boolean hasPriceSheet(Session sess, RequestCategory rc) {
+    String queryString = 
+        "select rc " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " where rc.codeRequestCategory = :code AND ps.isActive = 'Y'";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
+    List l = query.list();
+    return (l.size() > 0);
+  }
+  
+  private Integer getDefaultLibPrepPriceCategoryId(Session sess, RequestCategory rc) {
+    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(rc.getIdCoreFacility(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY);
+    if (catName == null) {
+      return null;
+    } else {
+      Query query = sess.createQuery("select pc from PriceCategory pc where name = :name");
+      query.setParameter("name", catName);
+      try {
+        PriceCategory cat = (PriceCategory)query.uniqueResult();
+        return cat.getIdPriceCategory();
+      } catch(HibernateException e) {
+        log.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName, e);
+        return null;
+      }
+    }
+
+  }
+  
+  private void saveIlluminaLibPrepPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
+    // Only save lib prep prices for illumina request categories that have price sheet defined.
+    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) || map == null || !priceModified(node)) {
+      return;
+    }
+
+    Boolean modified = false;
+    Price price = map.get(app.getCodeApplication());
+    if (price == null) {
+      if (defaultCategoryId == null) {
+        // no default price category -- can't store new price.
+        return;
+      }
+      price = new Price();
+      price.setName(app.getApplication());
+      price.setDescription("");
+      price.setIdPriceCategory(defaultCategoryId);
+      price.setIsActive("Y");
+      price.setUnitPrice(BigDecimal.ZERO);
+      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
+      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      sess.save(price);
+      sess.flush();
+      PriceCriteria crit = new PriceCriteria();
+      crit.setIdPrice(price.getIdPrice());
+      crit.setFilter1(app.getCodeApplication());
+      sess.save(crit);
+      modified = true;
+    }
+
+    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
+      modified = true;
+    }
+    
+    if (modified) {
+      sess.flush();
+    }
+  }
+  
+  private Boolean priceModified(Element node) {
+    if (node.getAttributeValue("unitPriceInternal") != null && node.getAttributeValue("unitPriceInternal").length() > 0) {
+      return true;
+    }
+    if (node.getAttributeValue("unitPriceExternalAcademic") != null && node.getAttributeValue("unitPriceExternalAcademic").length() > 0) {
+      return true;
+    }
+    if (node.getAttributeValue("unitPriceExternalCommercial") != null && node.getAttributeValue("unitPriceExternalCommercial").length() > 0) {
+      return true;
+    }
+    return false;
+  }
+  
+  private Boolean setPrice(String attributeValue, BigDecimal existingPrice, Price price, String whichPrice) {
+    Boolean modified = false;
+    // If attribute not specified then don't set the value
+    if (attributeValue != null && attributeValue.length() > 0) {
+      try {
+        BigDecimal value = new BigDecimal(attributeValue);
+        if (existingPrice == null || !existingPrice.equals(value)) {
+          setPrice(value, price, whichPrice);
+          modified = true;
+        }
+      } catch(NumberFormatException e) {
+        log.error("Unable to parse internal price: " + attributeValue, e);
+      }
+    }
+    
+    return modified;
+  }
+  
+  private void setPrice(BigDecimal value, Price price, String whichPrice) {
+    if (whichPrice.equals(PRICE_INTERNAL)) {
+      price.setUnitPrice(value);
+    } else if (whichPrice.equals(PRICE_EXTERNAL_ACADEMIC)) {
+      price.setUnitPriceExternalAcademic(value);
+    } else if (whichPrice.equals(PRICE_EXTERNAL_COMMERCIAL)) {
+      price.setUnitPriceExternalCommercial(value);
+    }
   }
   
   private void saveRequestCategoryApplications(Session sess) {
