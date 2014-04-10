@@ -2257,7 +2257,7 @@
 		
 		<property name="title"						column="title"				type="string" />
 		<property name="url"						column="url"				type="string" />
-		<property name="views"						column="views"				type="integer" />
+		<property name="idCoreFacility"				column="idCoreFacility"		type="integer" />
 		
 	</class>  
     
