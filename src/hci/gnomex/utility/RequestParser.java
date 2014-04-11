@@ -308,6 +308,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("includeBisulfideConversion") != null && !n.getAttributeValue("includeBisulfideConversion").equals(""))
       request.setIncludeBisulfideConversion(n.getAttributeValue("includeBisulfideConversion"));
     
+    if (n.getAttributeValue("includeQubitConcentration") != null && !n.getAttributeValue("includeQubitConcentration").equals(""))
+      request.setIncludeQubitConcentration(n.getAttributeValue("includeQubitConcentration"));
+    
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest) {
@@ -526,6 +529,11 @@ public class RequestParser implements Serializable {
       sample.setCodeConcentrationUnit(unEscape(n.getAttributeValue("codeConcentrationUnit")));      
     } else {
       sample.setCodeConcentrationUnit(ConcentrationUnit.DEFAULT_SAMPLE_CONCENTRATION_UNIT);
+    }
+    if (n.getAttributeValue("qubitConcentration") != null && !n.getAttributeValue("qubitConcentration").equals("")) {
+      sample.setQubitConcentration(new BigDecimal(n.getAttributeValue("qubitConcentration")));      
+    } else {
+      sample.setQubitConcentration(null);
     }
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       sample.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      

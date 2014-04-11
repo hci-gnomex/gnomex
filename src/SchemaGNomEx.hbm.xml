@@ -765,6 +765,7 @@
     <property name="idIScanChip" column="idIScanChip" type="integer"/>
     <property name="coreToExtractDNA" column="coreToExtractDNA" type="string"/>
     <property name="includeBisulfideConversion" column="includeBisulfideConversion" type="string"/>
+    <property name="includeQubitConcentration" column="includeQubitConcentration" type="string"/>
     <property name="applicationNotes" column="applicationNotes" type="string"/>
     <property name="processingDate" column="processingDate" type="date"/>
     <property name="materialQuoteNumber" column="materialQuoteNumber" type="string"/>
@@ -892,6 +893,7 @@
 		<property name="meanLibSizeActual" column="meanLibSizeActual" type="integer"/>
 		<property name="idOligoBarcodeB" column="idOligoBarcodeB" type="integer"/>
 		<property name="barcodeSequenceB" column="barcodeSequenceB" type="string"/>
+    <property name="qubitConcentration" column="qubitConcentration" type="big_decimal"/>
 		<set name="propertyEntries" table="PropertyEntry" lazy="true" cascade="delete">
 			<key column="idSample"/>
 			<one-to-many class="hci.gnomex.model.PropertyEntry" />

@@ -782,7 +782,9 @@
 				reactionPlateCol.visible = false;
 				redoFlagCol.visible = false;
 				this.sampleNameColumn.visible = true;
+				qubitConcentrationCol.visible = (this.selectedExperiment.@includeQubitConcentration=="Y");
 				
+				this.concentrationCol.headerText = 'Conc.';
 				// can't do this in state stuff because of external stuff below.
 				this.noteToCoreFacilityBox.visible = true;
 				this.noteToCoreFacilityBox.includeInLayout = true;
@@ -1036,6 +1038,7 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = true;
 						
+						this.concentrationCol.headerText = 'NanoDrop Conc.';
 					}  else {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
@@ -1632,7 +1635,7 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					
-					
+					<mx:AdvancedDataGridColumn id="qubitConcentrationCol" headerText="Qubit Conc." width="65" visible="true"  dataField="@qubitConcentration"/>
 					<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 						<mx:itemRenderer>
 							<mx:Component>
@@ -2292,6 +2295,13 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{hbox1}"/>
+			<mx:RemoveChild target="{bisulfideConversionBox}"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="qubitConcentrationBox">
+					<mx:Label text="Qubit Concentration"  width="105" styleName="formLabel" textAlign="left" />
+					<mx:Text  text="{this.selectedExperiment.@includeQubitConcentration=='Y' ? 'Yes' : 'No'}" width="280"/>
+				</mx:HBox>
+			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	

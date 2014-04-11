@@ -2154,6 +2154,7 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`trimAdapter`  char(1)  NULL DEFAULT NULL
  ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
  ,`includeBisulfideConversion`  char(1)  NULL DEFAULT NULL
+ ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -2376,6 +2377,7 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeB`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequenceB`  varchar(20)  NULL DEFAULT NULL
+ ,`qubitConcentration`  decimal(8,3)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 

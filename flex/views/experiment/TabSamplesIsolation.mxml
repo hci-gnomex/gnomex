@@ -132,6 +132,7 @@
 					" idSample='" + sampleId + "'" +
 					" name='' description='' " +
 					" concentration=''" +
+					" qubitConcentration=''" +
 					" canChangeSampleName='Y'" +	
 					" idSampleSource='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@idSampleSource  : '')  + "'" +
 					"/>");
@@ -240,6 +241,8 @@
 				}
 				
 				// Edit columns shown
+				
+				qubitConcentrationCol.visible = parentDocument.isEditState() && parentDocument.request.@includeQubitConcentration == 'Y';
 				
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
@@ -395,6 +398,19 @@
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
 												  showEdit="{parentApplication.isAdminState}" label="NanoDrop       &#13;Conc (ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn headerText="Qubit Conc." id="qubitConcentrationCol" 
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100" dataField="@qubitConcentration" rendererIsEditor="false"
+										   itemRenderer="{hci.flex.controls.Label.create('@qubitConcentration')}"                 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQubtiConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Qubit Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Qubit Pico Green       &#13;Conc (ng/ul)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
