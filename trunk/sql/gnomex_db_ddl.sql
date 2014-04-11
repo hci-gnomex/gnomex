@@ -1597,6 +1597,7 @@ CREATE TABLE `gnomex`.`Request` (
   `trimAdapter` CHAR(1) null,
   `codeRNAPrepType` varchar(10) NULL,
   `includeBisulfideConversion` CHAR(1) NULL,
+  `includeQubitConcentration` CHAR(1) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1840,6 +1841,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 
+  `qubitConcentration` DECIMAL(8, 3) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)

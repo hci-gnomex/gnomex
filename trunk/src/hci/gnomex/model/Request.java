@@ -98,6 +98,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer         numPrePooledTubes;
   private String          trimAdapter;
   private String          includeBisulfideConversion;
+  private String          includeQubitConcentration;
   
   // permission field
   private boolean     canUpdateVisibility;
@@ -1423,5 +1424,13 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   
   public void setIncludeBisulfideConversion( String includeBisulfideConversion ) {
     this.includeBisulfideConversion = includeBisulfideConversion;
+  }
+  
+  public String getIncludeQubitConcentration() {
+    return includeQubitConcentration;
+  }
+  
+  public void setIncludeQubitConcentration( String includeQubitConcentration ) {
+    this.includeQubitConcentration = includeQubitConcentration;
   }
 }

@@ -76,6 +76,7 @@ public class Sample extends HibernateDetailObject {
   private String      barcodeSequenceB;
   private Set         sampleExperimentFiles;
   private Set         workItems;
+  private BigDecimal  qubitConcentration;
   
   private int         sequenceLaneCount; // a non-persistent variable used for XML
   
@@ -895,6 +896,16 @@ public class Sample extends HibernateDetailObject {
 
   public void setBarcodeSequenceB(String barcodeSequenceB) {
     this.barcodeSequenceB = barcodeSequenceB;
+  }
+
+  
+  public BigDecimal getQubitConcentration() {
+    return qubitConcentration;
+  }
+
+  
+  public void setQubitConcentration( BigDecimal qubitConcentration ) {
+    this.qubitConcentration = qubitConcentration;
   }
 
   public Set getSampleExperimentFiles() {
