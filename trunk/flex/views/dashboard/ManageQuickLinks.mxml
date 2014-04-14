@@ -3,7 +3,7 @@
 				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
 				layout="vertical" horizontalAlign="right" verticalGap="10" creationPolicy="all" 
 				title="Manage Quick Links" xmlns:util="views.util.*"
-				borderThickness="4" width="500" height="500" creationComplete="init()" >
+				borderThickness="4" width="720" height="500" creationComplete="init()" >
 	
 	<mx:HTTPService 
 		id="getFAQ" 
@@ -11,9 +11,12 @@
 		resultFormat="e4x"
 		destination="getFAQ"
 		showBusyCursor="true"
-		result="onGetFAQInterface(event)"
+		result="onGetFAQ(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to get items', event)"
 		useProxy="false">
+		<mx:request>
+			<isManageMode>Y</isManageMode>
+		</mx:request>
 	</mx:HTTPService>
 	
 	<mx:HTTPService
@@ -40,6 +43,8 @@
 	
 	<mx:Script>            
 		<![CDATA[
+			import hci.flex.controls.ComboBox;
+			
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
@@ -49,11 +54,18 @@
 			[Bindable]
 			private var faqList:XMLListCollection;
 			
+			[Bindable]
+			public var coreFacilitiesICanManage:XMLListCollection;
+			
 			private function init():void{
+				coreFacilitiesICanManage = new XMLListCollection(parentApplication.coreFacilitiesICanManage);
+				var allFacilitiesNode:XML = <coreFacility idCoreFacility='-1' facilityName='All Facilities' />;
+				coreFacilitiesICanManage.addItemAt(allFacilitiesNode, 0);
+				
 				getFAQ.send();
 			}
 			
-			private function onGetFAQInterface(event:ResultEvent):void {
+			private function onGetFAQ(event:ResultEvent):void {
 				if(event.result.name() == "FaqCollection"){
 					faqList = new XMLListCollection(getFAQ.lastResult.FAQ);
 					faqList.refresh();
@@ -79,7 +91,7 @@
 			}
 			
 			private function addNewsItem():void{
-				var newItem:XML = <FAQ idFAQ='' title='Insert title...' url='http://' />;
+				var newItem:XML = <FAQ idFAQ='' title='Insert title...' url='http://' idCoreFacility='-1' />;
 				faqList.addItemAt(newItem, faqList.length);
 				faqList.refresh();
 				newsItemGrid.selectedItem = newItem;
@@ -117,6 +129,22 @@
 				save();
 			}
 			
+			public function getCoreFacilityIndex(idCoreFacility:String):int{
+				if(idCoreFacility == "-1"){
+					return 0;
+				}
+				
+				var index:int = 0;
+				for each(var node:Object in parentApplication.coreFacilitiesICanManage){
+					if(node.@idCoreFacility == idCoreFacility){
+						break;
+					} else{
+						index++;
+					}
+				}
+				return index;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -130,6 +158,20 @@
 			<mx:columns>
 				<mx:DataGridColumn headerText="Title" dataField="@title" editable="true"/>
 				<mx:DataGridColumn id="url" headerText="URL" dataField="@url" editable="true"/>
+				<mx:DataGridColumn id="coreFacility" headerText="Core Facility" dataField="@idCoreFacility" editorDataField="idCoreFacility" editable="true" rendererIsEditor="true" >
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:VBox horizontalScrollPolicy="off">
+							<mx:Script>
+								<![CDATA[
+									public var idCoreFacility:String;
+								]]>
+							</mx:Script>
+							<mx:ComboBox id="coreFacilityCombo" dataProvider="{outerDocument.coreFacilitiesICanManage}" change="{idCoreFacility = coreFacilityCombo.selectedItem.@idCoreFacility}" labelField="@facilityName" selectedIndex="{outerDocument.getCoreFacilityIndex(data.@idCoreFacility)}" />
+							</mx:VBox>	
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
 			</mx:columns>	
 		</mx:DataGrid>
 		

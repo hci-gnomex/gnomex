@@ -309,8 +309,8 @@
 			import hci.flex.renderers.RendererFactory;
 			import hci.flex.util.DictionaryManager;
 			
-			import mx.collections.Sort;
 			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.dataGridClasses.DataGridColumn;
@@ -329,12 +329,12 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.admin.AlignmentProfileEvent;
-			import views.dashboard.ManageQuickLinks;
 			import views.admin.AlignmentProfileWindow;
 			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
+			import views.dashboard.ManageQuickLinks;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ProjectDetailWindow;
@@ -1854,9 +1854,49 @@
 			
 			private function addQuickLinks():void{
 				var quickLinkArray:ArrayCollection = new ArrayCollection;
-				for each(var item:XML in faqList){
-					var menuItem:XML = <menuItem label={item.@title} url={item.@url} />;
-					quickLinkArray.addItem(menuItem);
+				
+				if(showPurchaseSupplies && this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) != ''){
+					var purchaseLink:XML = <menuItem label='Purchase Supplies (DNA SEQ Core)' url={this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL)} />;
+					quickLinkArray.addItem(purchaseLink);
+				}
+				
+				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (property.@value == '') {
+						continue; 
+					}
+					var propertyMenu:XML = null;
+					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
+						if (property.@propertyValue != null && property.@propertyValue != '') {
+							if (property.@idCoreFacility != "") {
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								} else {
+									for each (var cf1:Object in  myCoreFacilities) {
+										if (property.@idCoreFacility == cf1.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								}
+							} else if (property.@idCoreFacility == "") {
+								propertyMenu = new XML("<menuitem/>");
+								propertyMenu.@label = "Pricing";
+								propertyMenu.@url = property.@propertyValue;
+							}							
+						}
+					}
+					if (propertyMenu != null) {
+						quickLinkArray.addItem(propertyMenu);
+					}
 				}
 				
 				for each(var mi:XML in topMenu){
@@ -1865,7 +1905,11 @@
 						for each(var quickLink:XML in quickLinkArray){
 							mi.appendChild(quickLink);
 						}
-						if(isSuperAdmin){
+						for each(var item:XML in faqList){
+							var menuItem:XML = <menuItem label={item.@title} url={item.@url} />;
+							mi.appendChild(menuItem);
+						}
+						if(isAdminState){
 							var manageLink:XML = <menuItem label='Manage...' />;
 							mi.appendChild(manageLink);
 						}
@@ -2215,72 +2259,9 @@
 				
 				hideMenusByProperties(navMenu);
 				
-				addPricingMenus(navMenu);
-				
 				addNewExperimentMenus(navMenu);
 			}
-			
-			private function addPricingMenus(navMenu:XMLList):void {
-				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
-					if (property.@value == '') {
-						continue; 
-					}
-					var propertyMenu:XML = null;
-					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
-						if (property.@propertyValue != null && property.@propertyValue != '') {
-							if (property.@idCoreFacility != "") {
-								if (coreFacilitiesICanManage.length() > 0) {
-									for each (var cf:Object in coreFacilitiesICanManage) {
-										if (property.@idCoreFacility == cf.@idCoreFacility) {
-											propertyMenu = new XML("<menuitem/>");
-											propertyMenu.@label = "Pricing for " + cf.@facilityName;
-											propertyMenu.@url = property.@propertyValue;
-											break;
-										}
-									}
-								} else {
-									for each (var cf1:Object in  myCoreFacilities) {
-										if (property.@idCoreFacility == cf1.@idCoreFacility) {
-											propertyMenu = new XML("<menuitem/>");
-											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
-											propertyMenu.@url = property.@propertyValue;
-											break;
-										}
-									}
-								}
-							} else if (property.@idCoreFacility == "") {
-								propertyMenu = new XML("<menuitem/>");
-								propertyMenu.@label = "Pricing";
-								propertyMenu.@url = property.@propertyValue;
-							}							
-						}
-					}
-					if (propertyMenu != null) {
-						// Find 'Links' or 'Useful Links' menu
-						var parentMenu:Object = null;
-						for (var i:int = 0; i < navMenu.length(); i++) {
-							if (navMenu[i].@context == "otherLinks") {
-								parentMenu = navMenu[i];
-								break;
-							} 
-						}
-						if (parentMenu == null) {
-							var linkMenu:Object = new XML("<menuitem/>");
-							linkMenu.@label = "Useful Links...";
-							
-							// Need to do this strange code to insert into the XMLList
-							var xmlList:XMLList = XMLList(navMenu);
-							xmlList[xmlList.length() - 1] += linkMenu; 
-							
-							parentMenu = linkMenu;
-						}
-						// Add pricing menu item to the menu
-						parentMenu.appendChild(propertyMenu);
-					}
-				}
-				
-			}
-			
+						
 			private function addNewExperimentMenus(navMenu:XMLList):void {
 				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
 					for(var i:int; i < navMenu.length(); i++) {
@@ -2453,6 +2434,11 @@
 				// Hide help edit unless admin
 				if (!isAdminState) {
 					hideMenusByContext(topMenu, 'helpEdit');
+				}
+				
+				if(!faqLoaded){
+					getFAQ.send();
+					faqLoaded = true;
 				}
 
 				// Let's remove Orders from admin menu for Microarray core
@@ -2752,11 +2738,6 @@
 					this.useConfigurableBillingAccounts = true;
 				} else {
 					this.useConfigurableBillingAccounts = false;
-				}
-				
-				if(!faqLoaded){
-					getFAQ.send();
-					faqLoaded = true;
 				}
 				
 
@@ -3101,7 +3082,8 @@
 					if (this.homeView != null) {
 						this.homeView.init();
 					}
-					launchStartWindow();	        		
+					launchStartWindow();
+					callLater(this.resizeMenuItems);
 				}
 			}
 			
@@ -3932,11 +3914,6 @@
 			
 		</menuitem>
 		
-		<menuitem label="Links..." icon="iconLinks" context="otherLinks" >
-			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
-		</menuitem>
-
-		
 	</mx:XMLList>
 	
 	<mx:XMLList id="billingAdminMenu">
@@ -4116,10 +4093,6 @@
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
-		<menuitem label="Links..." icon="iconLinks" context="otherLinks">
-			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
-		</menuitem>
-		
 	</mx:XMLList>
 	
 	<mx:XMLList id="userMenu">
@@ -4153,12 +4126,7 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
-		
-		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
-			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
-		</menuitem>
 
-		
 	</mx:XMLList>
 	
 	
@@ -4192,11 +4160,6 @@
 			<menuitem label="Annotation Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
-		
-		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
-			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
-		</menuitem>
-		
 		
 	</mx:XMLList>
 	
