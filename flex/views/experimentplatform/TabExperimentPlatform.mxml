@@ -43,20 +43,25 @@
 				
 				securityLabel.text = "";
 				if (state.requestCategory.@isClinicalResearch == 'Y') {
+					securityLabel.setStyle("styleName", "warningLabelSevere");
 					securityLabel.text = "Clinical Security enforced by cc number";
 				}
 				if (state.requestCategory.@isOwnerOnly == 'Y') {
+					securityLabel.setStyle("styleName", "warningLabelSevere");
 					if (securityLabel.text != "") {
 						securityLabel.text += ", ";
 					}
 					securityLabel.text += "Owner only visibility enforced for this category";
 				}
 				if (securityLabel.text == "") {
+					securityLabel.setStyle("styleName", "warningLabelMinor");
 					securityLabel.text = "Standard Research and Development Security";
 				}
 				securityLabel.text = "Security Note: " + securityLabel.text;
 				
 				hideCoreFacilityComponents();
+				
+				setChannelLabel();
 			}
 			
 			private function hideCoreFacilityComponents():void {
@@ -106,20 +111,24 @@
 				}
 				
 				setIconCombo(iconToCheck);
-				
+
+				setChannelLabel();
+
+				this.systemManager.dispatchEvent(new ExperimentTypeChangedEvent());
+			}
+
+			private function setChannelLabel():void {
 				if(state.isIllumina) {
 					channelLabel.width = 160;
-					channelLabel.text = "Number of flowcell channels";
+					channelLabel.text = "Number of Lanes on Flowcell";
 					numberOfChannelsStepper.maximum = 8;
 				} else {
 					channelLabel.width = 120;
 					channelLabel.text = "Number of channels";	
 					numberOfChannelsStepper.maximum = 2;
 				}
-
-				this.systemManager.dispatchEvent(new ExperimentTypeChangedEvent());
 			}
-
+			
 			private function setIconCombo(icon:String):void {
 				iconCombo.selectedIndex = 0;
 				if(icon.length > 0) {
