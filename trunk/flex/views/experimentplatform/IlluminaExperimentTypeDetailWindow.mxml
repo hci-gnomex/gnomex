@@ -172,8 +172,6 @@
 					selectedItem.@unitPriceExternalCommercial = this.priceExternalCommercialText.text;
 				}
 				
-				parentWindow.updateIlluminaExperimentTypeNode(XML(selectedItem), originalIdTheme);
-				
 				dirty.resetDirty();
 				mx.managers.PopUpManager.removePopUp(this);
 			}
