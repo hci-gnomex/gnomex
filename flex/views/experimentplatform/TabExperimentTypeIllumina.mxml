@@ -3,11 +3,12 @@
 		 verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	<mx:Script>
 		<![CDATA[
-			import hci.flex.util.FilteredTreeDataDescriptor;
-			import mx.collections.ICollectionView;
+			import hci.flex.controls.DropdownLabel;
+			
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
 			import mx.managers.PopUpManager;
 			
 			[Bindable]
@@ -18,51 +19,10 @@
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
 				nextNewAppNum = 0;
-				applicationTreeSource = state.requestCategory.applications;
-				appTree.validateNow();
-				appTree.invalidateList();
-				appTree.expandChildrenOf(applicationTreeSource[0], true);
 			}
 			
-			private function applicationListFilter(node:Object):ICollectionView {
-				var xNode:XML = XML(node);
-				var newList:XMLList = new XMLList();
-				for each (var child:XML in xNode.children()) {
-					if (child.name() == 'ApplicationTheme') {
-						newList += child;
-					} else if (child.name() == 'Application' && applicationIsVisible(child)) { 
-						newList += child;
-					} // note ignore RequestCategoryApplication children
-				}
-				
-				return new XMLListCollection(newList);
-			}
-			
-			private function applicationIsVisible(obj:Object):Boolean {
-				var node:XML = XML(obj);
-				var v:Boolean = false;
-				if (node.name() == 'Application') {
-					if (node.@isSelected == 'Y') {
-						v = true;
-					} else if (node.@isActive != 'Y' && showInActiveCheckbox.selected) {
-						// Note that if it is inactive it is never selected.
-						v = true;
-					} else if (node.@isActive == 'Y' && node.@isSelected != 'Y' && showOtherCheckbox.selected) {
-						v = true;
-					} // otherwise leave false
-				} else {
-					v = true;
-				}
-				
-				return v;
-			}
-			
-			private function editExperimentType():void {
-				if (XML(appTree.selectedItem).name().toString() == "ApplicationTheme") {
-					Alert.show("Please click on an experiment type instead of a theme.  (Choose 'Other' checkbox above to see unselected experiment types)");
-					return;
-				}
-				showEditExperimentTypeWindow(appTree.selectedItem);
+			public function editExperimentType():void {
+				showEditExperimentTypeWindow(appGrid.selectedItem);
 			}
 			
 			private function showEditExperimentTypeWindow(app:Object):void {
@@ -71,87 +31,55 @@
 				editWindow.init(this, state, app);
 			}
 			
-			public function updateIlluminaExperimentTypeNode(newNode:XML, oldThemeId:String):void {
-				appTree.dataProvider = null;
-				var themeList:XMLList = applicationTreeSource..ApplicationTheme;
-				var newSort:int = getSort(newNode);
-				for each(var theme:XML in themeList) {
-					if (oldThemeId != newNode.@idApplicationTheme && theme.@idApplicationTheme == oldThemeId) {
-						removeChildFromTheme(theme, newNode);
-					}
-					if (theme.@idApplicationTheme == newNode.@idApplicationTheme) {
-						// replace or add the new node in it's new theme.
-						var appended:Boolean = false;
-						var newList:XMLList = new XMLList();
-						for each (var child:XML in theme.children()) {
-							if (child.@codeApplication != newNode.@codeApplication) {
-								if (illuminaAppGreaterThan(child, newNode) && !appended) {
-									newList += newNode;
-									appended = true;
-								}
-								newList += child;
-							}
-						} 
-						if (!appended) {
-							newList += newNode;
-						}
-						theme.setChildren(newList);
-					}
-				}
-				
-				appTree.dataProvider = applicationTreeSource;
-				appTree.validateNow();
-				appTree.expandChildrenOf(applicationTreeSource[0], true);
-				
-				
-				setAppTreeSelectedItem(newNode, applicationTreeSource, -1);
-				
-				state.dirty.setDirty();
-			}
-			
-			private function illuminaAppGreaterThan(app1:XML, app2:XML):Boolean {
-				var greater:Boolean = false;
-				if (app1.@isActive == app2.@isActive) {
-					if (app1.@isSelected == app2.@isSelected) {
-						if (getSort(app1) == getSort(app2)) {
-							if (app1.@application > app2.@application) {
-								greater = true;
-							}
-						} else if (getSort(app1) > getSort(app2)) {
-							greater = true;
-						}
-					} else if (app1.@isSelected != 'Y' && app2.@isSelected == 'Y') {
-						greater = true;
-					}
-				} else if (app1.@isActive != 'Y' && app2.@isActive == 'Y') {
-					greater = true;
-				}
-				return greater;
-			}
-			
-			private function getSort(node:XML):int {
-				var sort:int = 0;
-				if (node.hasOwnProperty("@sortOrder") && node.@sortOrder != '') {
-					sort = int(node.@sortOrder);
-				}
-				return sort;
-			}
-			
-			private function setAppTreeSelectedItem(selectedNode:XML, list:XMLList, idx:int):int {
-				for each (var node:XML in list) {
-					idx++;
-					if (node.name() == 'Application' && node.@codeApplication == selectedNode.@codeApplication) {
-						appTree.selectedItem = node;
-						if (idx > 15) {
-							appTree.scrollToIndex(idx - 15);
+			private function compareApplications(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var a1:String = obj1.@isSelected;
+					var a2:String = obj2.@isSelected;
+					if (a1 == 'Y' && a2 != 'Y') {
+						return -1;
+					} else if (a1 != a2) {
+						return 1;
+					} else {
+						var t1:String = obj1.@applicationThemeDisplay;
+						var t2:String = obj2.@applicationThemeDisplay;
+						if (t1 < t2) {
+							return -1;
+						} else if (t1 > t2) {
+							return 1;
 						} else {
-							appTree.scrollToIndex(0);
+							var s1:int = getSortOrderAsInt(obj1.@sortOrder);
+							var s2:int = getSortOrderAsInt(obj2.@sortOrder);
+							if (s1 < s2) {
+								return -1;
+							} else if (s1 > s2) {
+								return 1;
+							} else {
+								var n1:String = obj1.@display;
+								var n2:String = obj2.@display;
+								if (n1 < n2) {
+									return -1;
+								} else if (n1 > n2) {
+									return 1;
+								} else {				
+									return 0;
+								}
+							}
 						}
 					}
-					idx = setAppTreeSelectedItem(selectedNode, node.children(), idx);
 				}
-				
-				return idx;
+			}
+			
+			private function getSortOrderAsInt(sortOrder:String):int {
+				if (sortOrder == null || sortOrder == "") {
+					sortOrder = "0";
+				}
+				return int(sortOrder);
 			}
 			
 			private function addExperimentType():void {
@@ -185,8 +113,8 @@
 			
 			private function removeExperimentType():void {
 				var item:Object = null;
-				if (appTree.selectedItem != null) {
-					item = appTree.selectedItem;
+				if (appGrid.selectedItem != null) {
+					item = appGrid.selectedItem;
 				} else {
 					return;
 				}
@@ -205,74 +133,82 @@
 			}
 			
 			private function removeExperimentTypeImpl():void {
-				if (appTree.selectedItem != null) {
-					var themeList:XMLList = applicationTreeSource..ApplicationTheme;
-					for each (var theme:XML in themeList) {
-						if (appTree.selectedItem.@idApplicationTheme == theme.@idApplicationTheme) {
-							removeChildFromTheme(theme, XML(appTree.selectedItem));
-							state.dirty.setDirty();
-							break;
-						}
-					}
-					appTree.invalidateList();
+				if (appGrid.selectedItem != null) {
+					this.applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
+					state.dirty.setDirty();
 				}
 			}
 			
-			private function filterApplications():void {
-				appTree.invalidateList();
-				appTree.expandChildrenOf(applicationTreeSource[0], true);
+			private function onAppGridItemEditEnd(event:DataGridEvent):void {
+				state.dirty.setDirty();
 			}
 			
-			private function removeChildFromTheme(root:XML, nodeToRemove:XML):void {
-				// Remove node from the old root by making a new list of everything but the node to remove.
-				var newList:XMLList = new XMLList();
-				for each(var child:XML in root.children()) {
-					if (child.@codeApplication != nodeToRemove.@codeApplication) {
-						newList += child;
-					}
+			private function filterApplications(item:Object):Boolean {
+				if (item.@isActive != 'Y') {
+					return false;
 				}
-				root.setChildren(newList);
-			}
-			
-			private function getAppTreeLabel(item:Object):String {
-				var retValue:String = "";
-				if (item.name() == "ApplicationTheme") { 
-					retValue = item.@applicationTheme;
-				} else if (item.name() == "Application") {
-					retValue = item.@application;
-				}
-				
-				return retValue;
-			}
+				return true;
+			}	
 		]]>
 	</mx:Script>
-	<mx:XMLList id="applicationTreeSource" />
-	
+	<mx:XMLListCollection id="applications" source="{state.requestCategory.applications..Application}" sort="{sortApplications}"  filterFunction="filterApplications"/>
+	<mx:Sort id="sortApplications" compareFunction="compareApplications" />
+
 	<mx:HBox verticalAlign="middle">
 		<mx:LinkButton label="Add" styleName="linkMenuButton" 
 					   enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" 
 					   icon="@Embed(source='../../assets/add.png')" 
 					   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
 		<mx:LinkButton label="Remove" styleName="linkMenuButton" 
-					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; appTree.selectedItem != null}"   
+					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem != null}"   
 					   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
 					   click="removeExperimentType()" fontSize="10"/>
-		<mx:Text text="Double click experiment type to edit." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6" fontWeight="normal"/>
-		<mx:HBox width="100%" icon="@Embed(source='../../assets/printer.png')">
-			<mx:CheckBox label="Show Other" id="showOtherCheckbox" change="{filterApplications()}" />
-			<mx:CheckBox label="Show Inactive" id="showInActiveCheckbox" change="{filterApplications()}" />
-		</mx:HBox>
 	</mx:HBox>
-	<mx:VBox width="100%" height="100%">
-		<mx:Tree width="100%" height="100%"
-				 dataProvider="{applicationTreeSource}" 
-				 showRoot="false" 
-				 id="appTree" 
-				 borderStyle="none"
-				 labelFunction="getAppTreeLabel" 
-				 doubleClickEnabled="true" doubleClick="{editExperimentType()}"
-				 itemRenderer="views.renderers.ExperimentPlatformApplicationTreeNodeRenderer"
-				 dataDescriptor="{new FilteredTreeDataDescriptor(applicationListFilter)}"
-				 backgroundAlpha="1" />
-	</mx:VBox>
+	<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
+				 dataProvider="{applications}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
+				 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Active"  
+							   width="55"  editable="false"                      	
+							   dataField="@isSelected" 
+							   editorDataField="selected"
+							   wordWrap="true"
+							   itemRenderer="{views.renderers.ExperimentPlatformIsSelectedCheckboxRenderer.create(state.dirty, true, null, null, state.requestCategory.@codeRequestCategory)}">			 
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Sort Order"  id="sortOrderCol"  dataField="@sortOrder" width="45" editable="true" editorDataField="text">
+				<mx:itemEditor>
+					<mx:Component>
+						<mx:TextInput restrict="0-9" maxChars="2" editable="true"/>
+					</mx:Component>
+				</mx:itemEditor>
+				<mx:headerRenderer>
+					<mx:Component>
+						<mx:VBox verticalGap="0" textAlign="center">
+							<mx:Label text="Sort"/>
+							<mx:Label text="Order"/>
+						</mx:VBox>
+					</mx:Component>
+				</mx:headerRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Library Category" id="applicationThemeCol" dataField="@idApplicationTheme"
+							   width="200"
+							   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
+							   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+							   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>
+			<mx:DataGridColumn headerText="Library Name"  
+							   itemRenderer="views.renderers.LabelActive"
+							   rendererIsEditor="false" width="{appGrid.width - 55 - 45 - 200 - 35 - 20}"
+							   editable="true" wordWrap="true" dataField="@display" >
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="" width="35" editable="false">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+							<mx:LinkButton label="Edit"  enabled="{data.@canUpdate == 'Y'}"  textDecoration="underline" fontSize="9" click="outerDocument.editExperimentType()" color="#0000FF"/>
+						</mx:HBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
 </mx:VBox>
