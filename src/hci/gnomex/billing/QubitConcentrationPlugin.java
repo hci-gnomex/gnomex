@@ -7,7 +7,6 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
