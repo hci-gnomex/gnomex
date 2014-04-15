@@ -132,7 +132,7 @@
 			}
 			
 			private function save():void {
-				if (themeCombo.selectedItem == null || experimentTypeName.text == null || experimentTypeName.text == '') {
+				if (themeCombo.selectedItem == null || !themeCombo.selectedItem.hasOwnProperty("@idApplicationTheme") || experimentTypeName.text == null || experimentTypeName.text == '') {
 					Alert.show("You must choose a theme and enter a name before saving");
 					return;
 				}
