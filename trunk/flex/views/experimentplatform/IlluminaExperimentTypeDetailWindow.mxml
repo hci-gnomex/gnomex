@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
 				layout="vertical" 
-				title="Edit Experiment Type" width="650" height="700" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				title="Edit Experiment Type" width="650" height="600" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	
 	<mx:Script>
@@ -286,7 +286,7 @@
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
 				<mx:Text text="Billing" styleName="formLabel" paddingBottom="0"/>
 				<mx:Text text="Please associate the experiment platform with a price sheet." paddingBottom="0" 
-						 styleName="warningLabelMinor"
+						 styleName="warningLabelSevere"
 						 visible="{state.requestCategory.@hasPriceSheet != 'Y'}" includeInLayout="{state.requestCategory.@hasPriceSheet != 'Y'}" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
@@ -314,17 +314,13 @@
 			</mx:HBox>
 		</mx:VBox>
 
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-			<mx:Button label="Edit Protocol" styleName="linkMenuButton" click="{editSeqLibProtocol()}" />
-			<mx:Spacer width="100" />
-			<mx:CheckBox id="captureLibDesign" label="Capture Lib Design" click="{dirty.setDirty()}" /> 
-			<mx:Spacer width="100" />
-			<mx:LinkButton label="Configure Lib Prep Steps" 
-						   click="configureStepsClick()" 
-						   textDecoration="underline" 
-						   id="configurePrepStepsButton" 
-						   paddingLeft="0" textAlign="left" paddingTop="0" />  	        
-		</mx:HBox>
+		<mx:Button label="Edit Protocol" styleName="linkMenuButton" click="{editSeqLibProtocol()}" />
+		<mx:CheckBox id="captureLibDesign" label="Capture Lib Design" click="{dirty.setDirty()}" /> 
+		<mx:LinkButton label="Configure Lib Prep Steps" 
+					   click="configureStepsClick()" 
+					   textDecoration="underline" 
+					   id="configurePrepStepsButton" 
+					   paddingLeft="0" textAlign="left" paddingTop="0" />  	        
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
 		<util:DirtyNote id="dirty" />

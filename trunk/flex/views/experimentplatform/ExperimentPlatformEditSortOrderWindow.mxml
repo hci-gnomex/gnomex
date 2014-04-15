@@ -180,6 +180,7 @@
 		</mx:DataGrid>
 		<mx:ControlBar width="100%" horizontalAlign="left" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
 			<mx:Button id="refreshButton" label="Refresh" click="refreshList()"/>
+			<mx:Spacer width="100%"/>
 			<util:DirtyNote id="dirty" />
 			<mx:Button id="saveButton" label="Save"
 					   click="{save()}"

@@ -67,14 +67,8 @@
 				getExperimentPlatformList.send();
 				
 				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
-				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 				dictionaryManager.call("load", "");
 			}
-			
-			public function onDictionariesLoaded(event:Event):void {	
-				
-			}		
-			
 			
 			private function closeWindow():void {
 				PopUpManager.removePopUp(this);
@@ -178,12 +172,19 @@
 					this.enabled = false;
 					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
 					parentApplication.dictionaryManager.reload();
+					// Must reload dictionary manager in case user changed seqlibprotocol.  Need to get platform list
+					// after reload complete so various dropdowns are ok.
 					dictionaryManager.reload();
-					getExperimentPlatformList.send();
+					dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
+			
+			public function onDictionariesLoadedAfterSave(event:Event):void {	
+				getExperimentPlatformList.send();
+				dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
+			}		
 			
 			private function addPlatform():void {
 				var addWindow:ExperimentPlatformAddWindow = ExperimentPlatformAddWindow(PopUpManager.createPopUp(mainBody, ExperimentPlatformAddWindow, true));
