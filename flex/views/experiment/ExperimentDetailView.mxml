@@ -995,6 +995,7 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
@@ -1012,6 +1013,7 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
+						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
@@ -1030,6 +1032,7 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = false;
 						wellNameCol.visible = false;
+						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
