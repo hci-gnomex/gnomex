@@ -419,16 +419,7 @@ package views.experiment
 			}
 			return true;
 		}
-		
-		public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
-		{
-			if (item is XML) {
-				return "";
-			} else {
-				return item.groupLabel;
-			}
-		}
-		
+				
 		public function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
