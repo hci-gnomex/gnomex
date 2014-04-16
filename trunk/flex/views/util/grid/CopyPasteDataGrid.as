@@ -1,5 +1,6 @@
 package views.util.grid
 {
+	import flash.display.Sprite;
 	import flash.events.ContextMenuEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -53,6 +54,7 @@ package views.util.grid
 		protected var _dataType:String;
 		protected var _ignoredColumns:Array;
 		protected var _importantFields:Array;
+		protected var _colorRowsByField:String;
 		
 		
 		public function CopyPasteDataGrid()
@@ -477,6 +479,13 @@ package views.util.grid
 			_importantFields = value;
 		}
 		
+		[Bindable]
+		public function get colorRowsByField():String { return _colorRowsByField; }
+		public function set colorRowsByField( value:String ):void
+		{
+			_colorRowsByField = value;
+		}
+		
 		override protected function initializationComplete():void
 		{
 			addEventListener( Event.CHANGE, handleChange );
@@ -487,14 +496,57 @@ package views.util.grid
 			systemManager.addEventListener( KeyboardEvent.KEY_UP, handleKeyReleased );
 			
 			createContextMenu();
+			addRowColorFields();
 		}
 		
 		override protected function commitProperties():void
 		{
 			super.commitProperties();
 			createContextMenu();
+			addRowColorFields();
 		}
 		
+		override protected function drawRowBackground(s:Sprite, rowIndex:int, 
+													  y:Number, height:Number, color:uint, dataIndex:int):void {
+			if ( this.colorRowsByField != null && this.colorRowsByField != '' ) {
+				if (dataProvider != null && dataProvider.length > 0 && !(dataProvider is HierarchicalCollectionView)) {
+					
+					var item:Object;
+					
+					if( dataIndex < dataProvider.length ) {
+						item = dataProvider[dataIndex];
+						if( item != null && item.@altColor != null && item.@altColor == "true" ) {
+							color = 0xEEEEE0;
+						} 
+					}
+				}
+			}
+			super.drawRowBackground(s,rowIndex,y,height,color,dataIndex);
+		}
+			
+		protected function addRowColorFields():void {
+			if ( this.colorRowsByField == null || this.colorRowsByField == '' ) {
+				return;
+			}
+			if (dataProvider != null && dataProvider.length > 0 && !(dataProvider is HierarchicalCollectionView)) {
+				
+				var ind:int;
+				var alt:Boolean = true; 
+				var prevVal:String = '';
+				var currVal:String = '';
+				
+				for ( ind = 0; ind < dataProvider.length; ind++ ) {
+					
+					currVal = dataProvider[ind].@[this.colorRowsByField];
+					
+					if (currVal != prevVal) {
+						alt = !alt;
+					}
+					dataProvider[ind].@altColor = new Boolean(alt).toString();
+					prevVal = currVal;
+				}
+			}
+		}
 		
 		/**
 		 * Row number column

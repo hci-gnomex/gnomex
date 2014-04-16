@@ -12,9 +12,6 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection;
-			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -46,9 +43,7 @@
 			import views.util.UploadSampleSheetView;
 			
 			private var saveInstructionToolTipText:String;
-			
-			public var sampleGroupingCollection:GroupingCollection = null;
-			
+						
 			[Bindable]
 			private var isExternal:Boolean = false;
 			
@@ -235,8 +230,24 @@
 			
 			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
-					parentDocument.samples.removeAll();
-					this.initializeSamplesGrid();
+					if ( parentDocument.isEditState() ) {
+						while (parentDocument.samples.length > 1) {
+							parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+						}
+						for each (var sample:Object in parentDocument.samples) {
+							
+							for each (var attribute:Object in sample.attributes()) {
+								var aName:String = attribute.name();
+								if ( aName != 'plateName' && aName != 'wellName' && aName != 'containerType') {
+									sample["@" + attribute.name()] = '';
+								}
+							}
+							sample.@canChangeSampleName = 'Y';
+						}						
+					} else {
+						parentDocument.samples.removeAll();
+						this.initializeSamplesGrid();
+					}
 						
 					checkSamplesCompleteness();
 					this.initializeBarcoding();
@@ -343,28 +354,16 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				if (hasPlates()) {
-					this.samplesGrid.dataProvider = null;
-					sampleGroupingCollection = new GroupingCollection();
-					sampleGroupingCollection.source = parentDocument.samples;
-					var groupCapSeq:Grouping = new Grouping();
-					var gfCapSeq:GroupingField = new GroupingField();
-					gfCapSeq.name = "@plateName";
-					groupCapSeq.fields = [gfCapSeq];
-					gfCapSeq.compareFunction = plateSampleCompareFunction;
-					sampleGroupingCollection.grouping  = groupCapSeq;
-					sampleGroupingCollection.refresh(); 
-					this.samplesGrid.dataProvider = sampleGroupingCollection;
-										
-					this.plateNameCol.visible = true;
-				} else {
-					this.samplesGrid.sortableColumns = false;
-					sampleGroupingCollection = null;
-					this.samplesGrid.dataProvider = parentDocument.samples;
-										
-					this.plateNameCol.visible = false;
-					
-				}
+				
+				this.samplesGrid.dataProvider = parentDocument.samples;
+				
+				this.samplesGrid.sortableColumns = false;
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+				
+				this.plateNameCol.visible = hasPlates();
+				
 			}
 			
 			
@@ -436,6 +435,7 @@
 				samplesGrid.addRowEnabled = !this.hasPlates() || parentDocument.isEditState();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
+				samplesGrid.colorRowsByField = this.hasPlates() ? 'plateName' : null;
 				
 				// Edit columns shown
 				wellNameCol.visible = hasPlates() ? true : false;
@@ -556,7 +556,7 @@
 								  showRowNumberCol="{!this.hasPlates()}"
 								  hasPlates="{this.hasPlates()}">
 			<grid:columns>
-				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" >
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 

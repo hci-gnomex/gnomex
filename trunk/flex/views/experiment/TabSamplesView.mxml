@@ -13,9 +13,6 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection;
-			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -49,7 +46,6 @@
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 			
-			public var sampleGroupingCollection:GroupingCollection = null;
 			
 			[Bindable]
 			private var isExternal:Boolean = false;
@@ -416,8 +412,13 @@
 				var plateName:String = "";
 				
 				var y:int = idx / 96;
-				y = y + 1;
-				plateName = parentDocument.sampleSetupView.getIScanPlateName(y);
+				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
+					plateName = parentDocument.samples.getItemAt( y*96 ).@plateName;
+				} else {
+					y = y + 1;
+					plateName = parentDocument.sampleSetupView.getIScanPlateName(y);
+				}
+				
 				
 				return plateName;
 			}
@@ -472,13 +473,14 @@
 				
 				return isValid;
 			}
-			
+					
 			override protected function deleteSingleSample(sample:Object):Boolean {
 				var ind:int = parentDocument.samples.getItemIndex(sample);
 				if ( parentDocument.isIScanState() ){
 					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
-					
-				}else {
+				} else if ( parentDocument.isCapSeqState() && this.hasPlates() ){
+					parentDocument.samples.setItemAt(getEmptyCapSeqNode(ind),ind);
+				} else {
 					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 				}
 				return true;
@@ -516,19 +518,7 @@
 				parentDocument.hybsView.checkHybsCompleteness();
 				samplesGrid.selectedIndex = idx;
 			}
-			
-			private function promptToDeleteSample():void{
-				if(samplesGrid.selectedItem != null){
-					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
-				}
-			}
-			
-			private function onPromptToDeleteSample(event:CloseEvent):void{
-				if(event.detail == Alert.YES){
-					deleteTheSample();
-				}
-			}
-			
+						
 			override public function initializeSamplesGrid():void {
 				if (parentDocument.requestToClone != null) {
 					return;
@@ -923,36 +913,16 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				if (hasPlates()) {
-					this.samplesGrid.dataProvider = null;
-					sampleGroupingCollection = new GroupingCollection();
-					sampleGroupingCollection.source = parentDocument.samples;
-					var groupCapSeq:Grouping = new Grouping();
-					var gfCapSeq:GroupingField = new GroupingField();
-					gfCapSeq.name = "@plateName";
-					groupCapSeq.fields = [gfCapSeq];
-					gfCapSeq.compareFunction = plateSampleCompareFunction;
-					sampleGroupingCollection.grouping  = groupCapSeq;
-					sampleGroupingCollection.refresh(); 
-					this.samplesGrid.dataProvider = sampleGroupingCollection;
-					
-					this.samplesGrid.dragMoveEnabled = false;
-					this.samplesGrid.dropEnabled = false;
-					this.samplesGrid.dragEnabled = false;
-					
-					this.plateNameCol.visible = true;
-				} else {
-					this.samplesGrid.sortableColumns = false;
-					sampleGroupingCollection = null;
-					this.samplesGrid.dataProvider = parentDocument.samples;
-					
-					this.samplesGrid.dragMoveEnabled = false;
-					this.samplesGrid.dropEnabled = false;
-					this.samplesGrid.dragEnabled = false;
-					
-					this.plateNameCol.visible = false;
-					
-				}
+				
+				this.samplesGrid.dataProvider = parentDocument.samples;
+				
+				this.samplesGrid.sortableColumns = false;
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+				
+				this.plateNameCol.visible = hasPlates();
+				
 			}
 			
 			private function manageFragAnalAssayColumns():void {
@@ -1088,7 +1058,8 @@
 				samplesGrid.addRowEnabled = !this.hasPlates();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
-				
+				samplesGrid.colorRowsByField = this.hasPlates() ? 'plateName' : null;
+								
 				// Edit columns shown
 				existingNumberSequencingLanesCol.visible = false;
 				additionalNumberSequencingLanesCol.visible = false;
@@ -1354,11 +1325,12 @@
 								  itemFocusOut="checkSamplesCompleteness()"
 								  addRowEnabled="{!this.hasPlates()}"
 								  addRowFunction="{addSample}"
+								  deleteRowFunction="deleteTheSample"
 								  clearAllFunction="promptToClearAllSamples"
 								  showRowNumberCol="{!this.hasPlates()}"
 								  hasPlates="{this.hasPlates()}">
 			<grid:columns>
-				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" >
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
