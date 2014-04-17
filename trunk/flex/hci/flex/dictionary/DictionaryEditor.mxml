@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow
+<util:ResizableTitleWindow
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:hci = "hci.components.*"
-	layout="absolute" 
-	left="0" right="0" top="0" bottom="0" 
+	xmlns:util="views.util.*"
+	layout="vertical"
 	
 	showCloseButton="true"
 	close="onClose()" 
@@ -97,6 +97,8 @@
 				
 				var initializedEvent:Event = new Event(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED);
 	        	dispatchEvent(initializedEvent);
+				
+				PopUpManager.centerPopUp(this);
 			}
 			
 			public function loadDictionaries():void {
@@ -764,4 +766,4 @@
 
 		
 
-</mx:TitleWindow>
+</util:ResizableTitleWindow>
