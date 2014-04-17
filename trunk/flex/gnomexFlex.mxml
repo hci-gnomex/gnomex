@@ -3511,7 +3511,7 @@
 				} else if (label == 'New Analysis') {
 					theViews.selectedChild = navAnalysisView;
 					navAnalysisView.showNewAnalysisWindow();
-				} else if (label == "Add Services to Experiment Order") {
+				} else if (label == "Add Illumina HiSeq/MiSeq Services") {
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
 				} else if (GNomExStringUtil.startsWith(label,"Upload Experiment data generated at third party facility") || GNomExStringUtil.startsWith(label,"Create New Experiment and Upload Files")) {
@@ -3820,7 +3820,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
-			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
@@ -4101,7 +4101,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
@@ -4134,7 +4134,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
+			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
