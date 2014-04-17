@@ -734,6 +734,7 @@
 				this.otherOrganismCol.visible = false;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
+				this.seqLibProtocolCol.visible = false;
 				
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
 				
@@ -754,6 +755,14 @@
 						numberSequencingLanesCol.editable = true;
 					}
 					
+					if (parentDocument.isEditState() ||
+						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
+						seqLibProtocolCol.visible = !isExternal;
+					} else {
+						seqLibProtocolCol.visible = false;
+					}
+
 					sampleOrganismColumn.editable = !isExternal;
 					chipTypeColumn.visible = false; 
 				}
@@ -1204,7 +1213,12 @@
 										   visible="false"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
 										   editorDataField="value"/> 
-				
+
+				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
+										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
+
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumn" 
 													 visible="true" 
