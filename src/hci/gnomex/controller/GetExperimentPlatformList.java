@@ -89,6 +89,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       List<ApplicationTheme> emptyThemes = this.getEmptyApplicationThemes(sess);
       Map<String, Integer> seqLibProtocolToBarcodeSchemeMap = this.getSeqLibProtocolBarCodeSchemeMap(sess);
       Map<String, Price> applicationToLibPrepPriceMap = getApplicationToLibPrepPriceMap(sess);
+      Map<String, Price> seqOptionsToPriceMap = getSeqOptionsToPriceMap(sess);
       Map<String, String> requestCategoryToPriceSheetMap = getRequestCategoryToPriceSheetMap(sess);
       for(Iterator i = platforms.iterator(); i.hasNext();) {
         RequestCategory rc = (RequestCategory)i.next();
@@ -191,6 +192,9 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           for(NumberSequencingCyclesAllowed c : allowedList) {
             this.getSecAdvisor().flagPermissions(c);
             Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            cycleNode.setAttribute("unitPriceInternal", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_INTERNAL));
+            cycleNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_ACADEMIC));
+            cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_COMMERCIAL));
             listNode.addContent(cycleNode);
           }
         }               
@@ -291,7 +295,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private String getUnitPrice(Map<String, Price> applicationToLibPrepPriceMap, Application a, RequestCategory rc, String priceType) {
     String priceAsString = "";
     String key = rc.getCodeRequestCategory() + "\t" + a.getCodeApplication();
-    Price p = applicationToLibPrepPriceMap.get(key);
+    return getUnitPrice(applicationToLibPrepPriceMap.get(key), priceType);
+  }
+  
+  private String getUnitPrice(Map<String, Price> seqOptionsToPriceMap, NumberSequencingCyclesAllowed n, RequestCategory rc, String priceType) {
+    String key = rc.getCodeRequestCategory() + "\t" + n.getIdSeqRunType().toString() + "\t" + n.getIdNumberSequencingCycles().toString();
+    return getUnitPrice(seqOptionsToPriceMap.get(key), priceType);
+  }
+
+  private String getUnitPrice(Price p, String priceType) {
+    String priceAsString = "";
     if (p == null) {
       priceAsString = "";
     } else {
@@ -439,7 +452,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
                          + "  from OligoBarcodeSchemeAllowed obsa"
                          + "  join obsa.seqLibProtocol slp"
                          + "  join obsa.oligoBarcodeScheme obs"
-                         + "  where slp.isActive = 'Y' and obs.isActive = 'Y'"
+                         + "  where case when slp.isActive is null then 'Y' else slp.isActive end = 'Y' "
+                         + "        and case when obs.isActive is null then 'Y' else obs.isActive end = 'Y' "
                          + "  group by slp.idSeqLibProtocol, obsa.isIndexGroupB";
     List l = sess.createQuery(queryString).list();
     Map<String, Integer> map = new HashMap<String, Integer>();
@@ -465,7 +479,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         " join pc.priceCategory.prices p " +
         " join p.priceCriterias crit " +
         " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
-        "     and p.isActive='Y' and crit.filter1 is not null";
+        "     and crit.filter1 is not null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, Price> map = new HashMap<String, Price>();
@@ -476,6 +490,32 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       PriceCriteria priceCriteria = (PriceCriteria)objects[2];
       
       String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
+      map.put(key, price);
+    }
+    
+    return map;
+  }
+  
+  private Map<String, Price> getSeqOptionsToPriceMap(Session sess) {
+    String queryString = 
+        "select rc, p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaSeqPlugin'" +
+        "     and crit.filter1 is not null and crit.filter2 is not null";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    Map<String, Price> map = new HashMap<String, Price>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      RequestCategory requestCategory = (RequestCategory)objects[0];
+      Price price = (Price)objects[1];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[2];
+      
+      String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1() + "\t" + priceCriteria.getFilter2();
       map.put(key, price);
     }
     

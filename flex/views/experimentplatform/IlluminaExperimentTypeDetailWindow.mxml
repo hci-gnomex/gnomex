@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
 				layout="vertical" 
-				title="Edit Experiment Type" width="650" height="600" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				title="Edit Experiment Type" width="650" height="600" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	
 	<mx:Script>
@@ -25,16 +25,12 @@
 			private var selectedProtocols:XMLListCollection;
 			
 			[Bindable]
-			private var parentWindow:views.experimentplatform.TabExperimentTypeIllumina = null;
-			
-			[Bindable]
 			private var state:ExperimentPlatformState = null;
 			
 			[Bindable]
 			private var selectedItem:Object;
 			
-			public function init(parentWindow:views.experimentplatform.TabExperimentTypeIllumina, state:ExperimentPlatformState, selectedItem:Object):void {
-				this.parentWindow = parentWindow;
+			public function init(state:ExperimentPlatformState, selectedItem:Object):void {
 				this.state = state;
 				themeCombo.setFocus();
 				this.selectedItem = selectedItem;
@@ -172,6 +168,9 @@
 					selectedItem.@unitPriceExternalCommercial = this.priceExternalCommercialText.text;
 				}
 				
+				if (dirty.isDirty()) {
+					state.dirty.setDirty();
+				}
 				dirty.resetDirty();
 				mx.managers.PopUpManager.removePopUp(this);
 			}
@@ -220,15 +219,15 @@
 
 	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-			<mx:Text text="Name" styleName="formLabel" width="55"/>
-			<mx:TextInput id="experimentTypeName" width="450" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
+			<mx:Text text="Name" styleName="formLabel" width="100"/>
+			<mx:TextInput id="experimentTypeName" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
 			<mx:Spacer width="100%" />
 			<mx:Text text="Sort Order" styleName="formLabel"/>
 			<mx:TextInput id='sortOrderText' restrict="0-9" maxChars="2" editable="true"/>
 		</mx:HBox>
 
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-			<mx:Text text="Theme" styleName="formLabel" width="55"/>
+			<mx:Text text="Theme" styleName="formLabel" width="100"/>
 			<mx:ComboBox id="themeCombo" width="200" dataProvider="{parentApplication.dictionaryManager.getEntries('hci.gnomex.model.ApplicationTheme')}"
 						 labelField="@display" close="{this.dirty.setDirty();}" />
 		</mx:HBox>
@@ -236,7 +235,7 @@
 		<mx:VBox width="100%" verticalGap="2" verticalAlign="top" paddingTop="0">
 			<mx:Text text="Experiment Platform Compatability" styleName="formLabel" paddingBottom="0"/>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-				<mx:Spacer width="20"/>
+				<mx:Spacer width="100"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
 					<mx:Repeater id="requestCategoryRepeater" dataProvider="{selectedItem..RequestCategoryApplication}">
 						<mx:CheckBox id="requestCategoryCheckbox" selected="{requestCategoryRepeater.currentItem.@isSelected=='Y'}"
@@ -250,28 +249,22 @@
 		</mx:VBox>
 		
 		<mx:VBox width="100%" verticalGap="0">
-			<mx:Text text="Index Families" styleName="formLabel" paddingBottom="0"/>
-			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-				<mx:Spacer width="20"/>
-				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
-					<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="Index A Family" />
-						<mx:ComboBox id="indexAFamilyComboBox" labelField="@display"
-									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
-					</mx:HBox>
-					<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="Index B Family" />
-						<mx:ComboBox id="indexBFamilyComboBox" labelField="@display"
-									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
-					</mx:HBox>
-				</mx:VBox>
+			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle">
+				<mx:Label text="Index A Family" width="100" styleName="formLabel" />
+				<mx:ComboBox id="indexAFamilyComboBox" labelField="@display"
+							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle">
+				<mx:Label text="Index B Family" width="100" styleName="formLabel" />
+				<mx:ComboBox id="indexBFamilyComboBox" labelField="@display"
+							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
 			</mx:HBox>
 		</mx:VBox>
 		
 		<mx:VBox width="100%" verticalGap="0">
 			<mx:Text text="Availability" styleName="formLabel" paddingBottom="0"/>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-				<mx:Spacer width="20"/>
+				<mx:Spacer width="100"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
 					<mx:RadioButtonGroup id="radioGroupLabPreppedSamples" />
 					<mx:RadioButton label="Always Available"  groupName="radioGroupLabPreppedSamples" value="N" click="{dirty.setDirty()}" paddingTop="0" paddingBottom="0" /> 
@@ -288,22 +281,21 @@
 						 visible="{state.requestCategory.@hasPriceSheet != 'Y'}" includeInLayout="{state.requestCategory.@hasPriceSheet != 'Y'}" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-				<mx:Spacer width="20"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
 						<mx:TextInput id="priceInternalText" text="{selectedItem.@unitPriceInternal == '' ? '0.00' : selectedItem.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceInternalLabel" text="Internal Pricing" />
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
 						<mx:TextInput id="priceExternalAcademicText" text="{selectedItem.@unitPriceExternalAcademic == '' ? '0.00' : selectedItem.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
 						<mx:TextInput id="priceExternalCommercialText" text="{selectedItem.@unitPriceExternalCommercial == '' ? '0.00' : selectedItem.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
@@ -321,6 +313,7 @@
 					   paddingLeft="0" textAlign="left" paddingTop="0" />  	        
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
+		<mx:Spacer width="100%" />
 		<util:DirtyNote id="dirty" />
 		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" 
 				   enabled="{themeCombo.selectedItem != null &amp;&amp; experimentTypeName.text.length > 0}" 

@@ -15,6 +15,8 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
   private NumberSequencingCycles numberSequencingCycles;
   private SeqRunType seqRunType;
   private String   isCustom;
+  private Integer  sortOrder;
+  private String   isActive;
   
   public String getDisplay() {
     return name != null && !name.equals("") ? 
@@ -109,6 +111,17 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
     return seqRunType != null ? seqRunType.getSortOrder().toString() : "";
   }
 
+  public String getIsActive() {
+    return isActive;
+  }
+  public void setIsActive(String isActive) {
+    this.isActive = isActive;
+  }
   
- 
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
 }

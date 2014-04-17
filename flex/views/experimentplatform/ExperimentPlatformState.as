@@ -10,6 +10,13 @@ package views.experimentplatform {
 		private var _dirty:DirtyNote = null;
 		private var _dictionaryManager:DictionaryManager = null;
 		private var _selectedType:Object = null;
+		
+		private var xml:XML = 
+			<data>
+			  <RunMode value="Y" display="Rapid Run Mode"/>
+			  <RunMode value="N" display="High Output Run Mode"/>
+			</data>;
+		private var _runModeOptions:XMLList = XMLList(xml..RunMode);
 
 		public function ExperimentPlatformState(requestCategory:Object, dirty:DirtyNote, dictionaryManager:DictionaryManager) {
 			this._requestCategory = requestCategory;
@@ -56,6 +63,10 @@ package views.experimentplatform {
 		
 		public function get isSequenom():Boolean {
 			return _selectedType != null && _selectedType.@value == 'SEQUENOM';
+		}
+		
+		public function get runModeOptions():XMLList {
+			return _runModeOptions;
 		}
 	}
 }

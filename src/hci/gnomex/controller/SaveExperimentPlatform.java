@@ -669,12 +669,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     String queryString = 
         "select p, crit " +
         " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
         " join ps.priceCategories pc " +
         " join pc.priceCategory.prices p " +
         " join p.priceCriterias crit " +
         " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
-        "     and p.isActive='Y' and crit.filter1 is not null";
+        "     and crit.filter1 is not null" +
+        "     and rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
     List l = query.list();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
       Object[] objects = (Object[])i.next();
@@ -701,21 +704,37 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   }
   
   private Integer getDefaultLibPrepPriceCategoryId(Session sess, RequestCategory rc) {
-    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(rc.getIdCoreFacility(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY);
+    Integer id = null;
+    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY);
     if (catName == null) {
-      return null;
+      id = null;
     } else {
-      Query query = sess.createQuery("select pc from PriceCategory pc where name = :name");
+      String queryString = 
+          "select pc " +
+          " from PriceSheet ps " +
+          " join ps.requestCategories rc " +
+          " join ps.priceCategories pspc " +
+          " join pspc.priceCategory pc " +
+          " where pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+          "     and rc.codeRequestCategory = :code and pc.name = :name";
+      Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
+      query.setParameter("code", rc.getCodeRequestCategory());
       try {
         PriceCategory cat = (PriceCategory)query.uniqueResult();
-        return cat.getIdPriceCategory();
+        if (cat != null) {
+          id = cat.getIdPriceCategory();
+        } else {
+          log.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName);
+          return null;
+        }
       } catch(HibernateException e) {
         log.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName, e);
         return null;
       }
     }
 
+    return id;
   }
   
   private void saveIlluminaLibPrepPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
@@ -729,6 +748,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
+        log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();
@@ -888,6 +908,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     // Save numberSequencingCycles
     //
     HashMap<Integer, Integer> numberSequencingCyclesAllowedMap = new HashMap<Integer, Integer>();
+    Map<String, Price> illuminaSeqOptionPriceMap = getIlluminaSeqOptionPriceMap(sess, rc);
+    Integer idPriceCategoryDefault = getDefaultSeqOptionPriceCategoryId(sess, rc);
     for(Iterator i = this.sequencingOptionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
       NumberSequencingCyclesAllowed cyclesAllowed =  null;
@@ -911,9 +933,21 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         cyclesAllowed.setIsCustom("Y");
       }
       cyclesAllowed.setName(node.getAttributeValue("name"));
+      cyclesAllowed.setIsActive(node.getAttributeValue("isActive"));
+      Integer sortOrder = null;
+      if (node.getAttributeValue("sortOrder") != null && node.getAttributeValue("sortOrder").length() > 0) {
+        try {
+          sortOrder = Integer.parseInt(node.getAttributeValue("sortOrder"));
+        } catch(NumberFormatException ex) {
+          sortOrder = null;
+        }
+      }
+      cyclesAllowed.setSortOrder(sortOrder);
       sess.save(cyclesAllowed);
       
       numberSequencingCyclesAllowedMap.put(cyclesAllowed.getIdNumberSequencingCyclesAllowed(), cyclesAllowed.getIdNumberSequencingCyclesAllowed());
+      
+      saveIlluminaSeqOptionPrices(sess, rc, cyclesAllowed, node, illuminaSeqOptionPriceMap, idPriceCategoryDefault);
     }
     sess.flush();
     
@@ -929,8 +963,120 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }    
     sess.flush();
   }
-
   
+  private Integer getDefaultSeqOptionPriceCategoryId(Session sess, RequestCategory rc) {
+    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY);
+    Integer id = null;
+    if (catName == null) {
+      id = null;
+    } else {
+      String queryString =
+          "select pc " +
+              " from PriceSheet ps " +
+              " join ps.requestCategories rc " +
+              " join ps.priceCategories pspc " +
+              " join pspc.priceCategory pc " +
+              " where pc.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
+              "     and rc.codeRequestCategory = :code and pc.name = :name";
+      Query query = sess.createQuery(queryString);
+      query.setParameter("name", catName);
+      query.setParameter("code", rc.getCodeRequestCategory());
+      try {
+        PriceCategory cat = (PriceCategory)query.uniqueResult();
+        if (cat != null) {
+          id = cat.getIdPriceCategory();
+        } else {
+          log.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName);
+          id = null;
+        }
+      } catch(HibernateException e) {
+        log.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName, e);
+        id = null;
+      }
+    }
+
+    return id;
+  }
+
+  private Map<String, Price> getIlluminaSeqOptionPriceMap(Session sess, RequestCategory rc) {
+    if (!hasPriceSheet(sess, rc)) {
+      return null;
+    }
+    
+    
+    Map<String, Price> map = new HashMap<String, Price>();
+    String queryString = 
+        "select p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
+        "     and crit.filter1 is not null and crit.filter2 is not null" +
+        "     and rc.codeRequestCategory = :code";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
+    List l = query.list();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      Price price = (Price)objects[0];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[1];
+      
+      String key = priceCriteria.getFilter1() + '\t' + priceCriteria.getFilter2();
+      map.put(key, price);
+    }
+
+    return map;
+  }
+
+  private void saveIlluminaSeqOptionPrices(Session sess, RequestCategory rc, NumberSequencingCyclesAllowed cyclesAllowed, Element node, Map<String, Price> map, Integer defaultCategoryId) {
+    // Only save lib prep prices for illumina request categories that have price sheet defined.
+    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) || map == null || !priceModified(node)) {
+      return;
+    }
+
+    Boolean modified = false;
+    
+    Price price = map.get(cyclesAllowed.getIdSeqRunType().toString() + "\t" + cyclesAllowed.getIdNumberSequencingCycles().toString());
+    if (price == null) {
+      if (defaultCategoryId == null) {
+        // no default price category -- can't store new price.
+        log.error("SaveExperimentPlatform: Unable to store new seq option price due to no default category for " + rc.getCodeRequestCategory());
+        return;
+      }
+      price = new Price();
+      price.setName(cyclesAllowed.getName());
+      price.setDescription("");
+      price.setIdPriceCategory(defaultCategoryId);
+      price.setIsActive("Y");
+      price.setUnitPrice(BigDecimal.ZERO);
+      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
+      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      sess.save(price);
+      sess.flush();
+      PriceCriteria crit = new PriceCriteria();
+      crit.setIdPrice(price.getIdPrice());
+      crit.setFilter1(cyclesAllowed.getIdSeqRunType().toString());
+      crit.setFilter2(cyclesAllowed.getIdNumberSequencingCycles().toString());
+      sess.save(crit);
+      modified = true;
+    }
+
+    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
+      modified = true;
+    }
+    
+    if (modified) {
+      sess.flush();
+    }
+  }
   
   private Integer getNextAssignedAppNumber(Session sess) {
     int lastNumber = 0;

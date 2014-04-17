@@ -28,7 +28,7 @@
 			private function showEditExperimentTypeWindow(app:Object):void {
 				var editWindow:IlluminaExperimentTypeDetailWindow = IlluminaExperimentTypeDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, IlluminaExperimentTypeDetailWindow, true));
 				PopUpManager.centerPopUp(editWindow);
-				editWindow.init(this, state, app);
+				editWindow.init(state, app);
 			}
 			
 			private function compareApplications(obj1:Object, obj2:Object, fields:Array=null):int {
