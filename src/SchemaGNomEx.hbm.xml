@@ -1523,6 +1523,7 @@
 		<property name="isCustom" column="isCustom" type="string"/>
     <property name="sortOrder" column="sortOrder" type="integer"/>
     <property name="isActive" column="isActive" type="string"/>
+    <property name="protocolDescription" column="protocolDescription" type="string"/>
 		<many-to-one name="numberSequencingCycles"  column="idNumberSequencingCycles" class="hci.gnomex.model.NumberSequencingCycles" cascade="none" insert="false" update="false" />
 		<many-to-one name="seqRunType"  column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />
 		

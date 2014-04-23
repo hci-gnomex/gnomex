@@ -28,8 +28,10 @@ call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_
 alter table BillingItem MODIFY invoicePrice DECIMAL(9,2) NULL;
 call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit MODIFY invoicePrice DECIMAL(9,2) NULL');
 
--- add sort order and isactive to NumberSequencingCyclesAllowed
+-- add sort order, isactive and protocolDescription to NumberSequencingCyclesAllowed
 alter table NumberSequencingCyclesAllowed add sortOrder INT(10) null;
 call ExecuteIfTableExists('gnomex','NumberSequencingCyclesAllowed_Audit','alter table NumberSequencingCyclesAllowed_Audit add sortOrder INT(10) null');
 alter table NumberSequencingCyclesAllowed add isActive char(1) not null default 'Y';
 call ExecuteIfTableExists('gnomex','NumberSequencingCyclesAllowed_Audit','alter table NumberSequencingCyclesAllowed_Audit add isActive char(1) null');
+alter table NumberSequencingCyclesAllowed add protocolDescription LONGTEXT NULL;
+call ExecuteIfTableExists('gnomex','NumberSequencingCyclesAllowed_Audit','alter table NumberSequencingCyclesAllowed_Audit add protocolDescription LONGTEXT NULL');

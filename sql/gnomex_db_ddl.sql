@@ -1307,6 +1307,7 @@ CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
   `isCustom` CHAR(1) NOT NULL DEFAULT 'N',
    sortOrder INT(10) null,
    isActive char(1) not null default 'Y',
+   protocolDescription LONGTEXT NULL,
   PRIMARY KEY (`idNumberSequencingCyclesAllowed`),
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)

@@ -43,6 +43,7 @@
 						seqRunTypeCombo.selectedItem = rt;
 					}
 				}
+				protocolDescription.text = selectedItem.@protocolDescription;
 			}
 			
 			private function save():void {
@@ -77,6 +78,7 @@
 				selectedItem.@sortOrder = sortOrderText.text;
 				selectedItem.@idSeqRunType = seqRunTypeCombo.selectedItem.@value;
 				selectedItem.@idNumberSequencingCycles = numberCyclesCombo.selectedItem.@value;
+				selectedItem.@protocolDescription = protocolDescription.text;
 				
 				if (state.requestCategory.@hasPriceSheet == 'Y') {
 					selectedItem.@unitPriceInternal = this.priceInternalText.text;
@@ -153,6 +155,10 @@
 			<mx:ComboBox dataProvider="{state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry}" id="seqRunTypeCombo"
 						 width="200" labelField="@display" change="dirty.setDirty()" />					    		
 		</mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalGap="0" paddingTop="4">
+			<mx:Text text="Protocol Description" styleName="formLabel" />
+			<util:TextAreaWorkaround id="protocolDescription" width="100%" change="dirty.setDirty()" height="100%"/>
+		</mx:VBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Spacer width="100%" />
