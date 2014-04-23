@@ -17,6 +17,7 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
   private String   isCustom;
   private Integer  sortOrder;
   private String   isActive;
+  private String   protocolDescription;
   
   public String getDisplay() {
     return name != null && !name.equals("") ? 
@@ -123,5 +124,12 @@ public class NumberSequencingCyclesAllowed extends DictionaryEntry implements Se
   }
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  public String getProtocolDescription() {
+    return protocolDescription;
+  }
+  public void setProtocolDescription(String protocolDescription) {
+    this.protocolDescription = protocolDescription;
   }
 }

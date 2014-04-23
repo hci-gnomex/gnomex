@@ -943,6 +943,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
       }
       cyclesAllowed.setSortOrder(sortOrder);
+      cyclesAllowed.setProtocolDescription(node.getAttributeValue("protocolDescription"));
       sess.save(cyclesAllowed);
       
       numberSequencingCyclesAllowedMap.put(cyclesAllowed.getIdNumberSequencingCyclesAllowed(), cyclesAllowed.getIdNumberSequencingCyclesAllowed());
