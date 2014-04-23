@@ -182,7 +182,7 @@
 			<mx:Button id="refreshButton" label="Refresh" click="refreshList()"/>
 			<mx:Spacer width="100%"/>
 			<util:DirtyNote id="dirty" />
-			<mx:Button id="saveButton" label="Save"
+			<mx:Button id="saveButton" label="Apply"
 					   click="{save()}"
 					   icon="@Embed('../../assets/action_save.gif')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
 			</mx:Button>

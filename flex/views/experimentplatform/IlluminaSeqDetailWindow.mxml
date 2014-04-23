@@ -157,7 +157,7 @@
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Spacer width="100%" />
 		<util:DirtyNote id="dirty" />
-		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" 
+		<mx:Button label="Apply" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" 
 				   disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
