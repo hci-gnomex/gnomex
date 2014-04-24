@@ -1027,6 +1027,10 @@ public class RequestParser implements Serializable {
       sequenceLaneInfo.setIdNumberSequencingCycles(new Integer(n.getAttributeValue("idNumberSequencingCycles")));
     }
     
+    if (n.getAttributeValue("idNumberSequencingCyclesAllowed") != null && !n.getAttributeValue("idNumberSequencingCyclesAllowed").equals("")) {
+      sequenceLaneInfo.setIdNumberSequencingCyclesAllowed(new Integer(n.getAttributeValue("idNumberSequencingCyclesAllowed")));
+    }
+    
 
     if (n.getAttributeValue("idSeqRunType") != null && !n.getAttributeValue("idSeqRunType").equals("")) {
       sequenceLaneInfo.setIdSeqRunType(new Integer(n.getAttributeValue("idSeqRunType")));
@@ -1535,6 +1539,7 @@ public class RequestParser implements Serializable {
     private Sample   sample;
     private Integer  idSeqRunType;
     private Integer  idNumberSequencingCycles;
+    private Integer  idNumberSequencingCyclesAllowed;
     private Integer  idGenomeBuildAlignTo;
     private String   analysisInstructions;
     private Integer  numberSequencingCyclesActual;
@@ -1570,6 +1575,16 @@ public class RequestParser implements Serializable {
     }
 
     
+    public Integer getIdNumberSequencingCyclesAllowed() {
+      return idNumberSequencingCyclesAllowed;
+    }
+
+    
+    public void setIdNumberSequencingCyclesAllowed(Integer idNumberSequencingCyclesAllowed) {
+      this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
+    }
+
+
     public String getIdSampleString() {
       return idSampleString;
     }

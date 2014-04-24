@@ -985,6 +985,7 @@
 		<property name="idGenomeBuildAlignTo" column="idGenomeBuildAlignTo" type="integer"/>
 		<property name="analysisInstructions" column="analysisInstructions" type="string"/>
 		<property name="idFlowCellChannel" column="idFlowCellChannel" type="integer"/>
+    <property name="idNumberSequencingCyclesAllowed" column="idNumberSequencingCyclesAllowed" type="integer"/>
 		<many-to-one name="flowCellChannel" column="idFlowCellChannel" class="hci.gnomex.model.FlowCellChannel" cascade="none" insert="false" update="false" />
 		<many-to-one name="numberSeqCycles" column="idNumberSequencingCycles" class="hci.gnomex.model.NumberSequencingCycles" cascade="none" insert="false" update="false" />
 		<many-to-one name="seqRunType" column="idSeqRunType" class="hci.gnomex.model.SeqRunType" cascade="none" insert="false" update="false" />

@@ -34,6 +34,7 @@ public class SequenceLane extends HibernateDetailObject {
   private Request         request;
   private Integer         idSeqRunType;
   private Integer         idNumberSequencingCycles;
+  private Integer         idNumberSequencingCyclesAllowed;
   private Integer         idGenomeBuildAlignTo;
   private String          analysisInstructions;
   private Integer         idFlowCellChannel;
@@ -115,6 +116,16 @@ public class SequenceLane extends HibernateDetailObject {
   
   public void setIdNumberSequencingCycles(Integer idNumberSequencingCycles) {
     this.idNumberSequencingCycles = idNumberSequencingCycles;
+  }
+
+  
+  public Integer getIdNumberSequencingCyclesAllowed() {
+    return idNumberSequencingCyclesAllowed;
+  }
+
+  
+  public void setIdNumberSequencingCyclesAllowed(Integer idNumberSequencingCyclesAllowed) {
+    this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
   }
 
   

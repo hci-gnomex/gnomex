@@ -35,3 +35,20 @@ alter table NumberSequencingCyclesAllowed add isActive char(1) not null default 
 call ExecuteIfTableExists('gnomex','NumberSequencingCyclesAllowed_Audit','alter table NumberSequencingCyclesAllowed_Audit add isActive char(1) null');
 alter table NumberSequencingCyclesAllowed add protocolDescription LONGTEXT NULL;
 call ExecuteIfTableExists('gnomex','NumberSequencingCyclesAllowed_Audit','alter table NumberSequencingCyclesAllowed_Audit add protocolDescription LONGTEXT NULL');
+
+-- SequenceLane now has idNumberSequencingCyclesAllowed
+alter table SequenceLane add idNumberSequencingCyclesAllowed INT(10) null;
+call ExecuteIfTableExists('gnomex','SequenceLane_Audit','alter table SequenceLane_Audit add idNumberSequencingCyclesAllowed INT(10) null');
+alter table SequenceLane add 
+  CONSTRAINT `FK_SequenceLane_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_SequenceLane_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
+    REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+update SequenceLane
+  join Request on Request.idRequest=SequenceLane.idRequest
+  join NumberSequencingCyclesAllowed on NumberSequencingCyclesAllowed.idNumberSequencingCycles = SequenceLane.idNumberSequencingCycles
+      and NumberSequencingCyclesAllowed.idSeqRunType=SequenceLane.idSeqRunType
+      and NumberSequencingCyclesAllowed.codeRequestCategory=Request.codeRequestCategory
+ set SequenceLane.idNumberSequencingCyclesAllowed=NumberSequencingCyclesAllowed.idNumberSequencingCyclesAllowed
+ where SequenceLane.idNumberSequencingCyclesAllowed is null;
+    
