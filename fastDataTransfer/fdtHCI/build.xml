@@ -158,6 +158,10 @@
 	  	<signjar jar="${dist.dir}/${client.jar.name}" alias="${jar.sign.alias}" storepass="${jar.sign.keystore.pass}" keystore="${jar.sign.keystore}" keypass="${jar.sign.alias.pass}">
         </signjar>
 		
+    <echo>+                                                                                                                          +</echo>
+    <echo>+   If deploying to production you must resign this jar using comodo pfx file.                                             +</echo>
+    <echo>+      instructons and PFX file at x:\Informatics\dev\Shared\ssl\certificates\codesigning                                  +</echo>
+    <echo>+                                                                                                                          +</echo>
 		
     	<jar jarfile="${dist.dir}/${filedaemon.jar.name}" basedir="${build.class.dir}" excludes="**">
     		  
