@@ -2113,6 +2113,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
     sequenceLane.setIdSeqRunType(sequenceLaneInfo.getIdSeqRunType());      
     sequenceLane.setIdNumberSequencingCycles(sequenceLaneInfo.getIdNumberSequencingCycles());      
+    sequenceLane.setIdNumberSequencingCyclesAllowed(sequenceLaneInfo.getIdNumberSequencingCyclesAllowed());
     sequenceLane.setIdGenomeBuildAlignTo(sequenceLaneInfo.getIdGenomeBuildAlignTo());      
     sequenceLane.setAnalysisInstructions(sequenceLaneInfo.getAnalysisInstructions());      
      

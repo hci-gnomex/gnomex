@@ -139,6 +139,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
           if (lane.getIdSequenceLane() == null) {
             lane.setIdSequenceLane(new Integer(x++));
             lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
+            lane.setIdNumberSequencingCyclesAllowed(laneInfo.getIdNumberSequencingCyclesAllowed());
             lane.setIdGenomeBuildAlignTo(laneInfo.getIdGenomeBuildAlignTo());
           }
           lane.setIdSeqRunType(laneInfo.getIdSeqRunType());

@@ -288,6 +288,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             if (lane.getIdSequenceLane() == null) {
               lane.setIdSequenceLane(new Integer(x++));
               lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());            
+              lane.setIdNumberSequencingCyclesAllowed(laneInfo.getIdNumberSequencingCyclesAllowed());
             }
             lane.setIdSeqRunType(laneInfo.getIdSeqRunType());
             Sample sample = (Sample)requestParser.getSampleMap().get(laneInfo.getIdSampleString());

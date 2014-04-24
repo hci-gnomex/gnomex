@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequence Lanes" enabled="true" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequence Lanes" enabled="true" width="100%" height="100%" show="{init();}">
 <mx:Script>	
 	<![CDATA[
 		import hci.flex.controls.DropdownLabel;
 		
+		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.core.DragSource;
@@ -12,11 +13,91 @@
 		import mx.managers.DragManager;
 		
 		import views.renderers.ComboBox;
+		import views.renderers.ComboBoxNumberSequencingCyclesAllowed;
 		import views.renderers.ComboBoxWorkflowStatus;
 
-        
+		[Bindable]
+		private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
+
         private var lanesToDelete:XMLListCollection = null;
-        		
+		private var configuredCodeRequestCategory:String = "";
+        
+		private function init():void {
+			if (parentDocument.request.@codeRequestCategory != configuredCodeRequestCategory) {
+				var numberSequencingCyclesAllowedSorter:Sort = new Sort();
+				numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;
+				
+				filteredNumberSequencingCyclesAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
+				filteredNumberSequencingCyclesAllowedList.sort = numberSequencingCyclesAllowedSorter; 
+				filteredNumberSequencingCyclesAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
+				filteredNumberSequencingCyclesAllowedList.refresh();
+
+				configuredCodeRequestCategory = parentDocument.request.@codeRequestCategory;
+			}
+		}
+		
+		private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					var isCustom1:String = obj1.@isCustom;
+					var isCustom2:String = obj2.@isCustom
+					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
+					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
+					var sortOrder1:Number = obj1.@sortOrder == '' ? -1 : obj1.@sortOrder;
+					var sortOrder2:Number = obj2.@sortOrder == '' ? -1 : obj2.@sortOrder;
+					
+					if (isCustom1 < isCustom2) {
+						return -1;
+					} else if (isCustom1 > isCustom2) {
+						return 1;
+					} else {
+						if (sortOrder1 < sortOrder2) {
+							return -1;
+						} else if (sortOrder1 > sortOrder2) {
+							return 1;
+						} else {
+							if (numberCycles1 < numberCycles2) {
+								return -1;
+							} else if (numberCycles1 > numberCycles2) {
+								return 1;
+							} else {
+								return 0;
+							}
+						} 
+					} 
+				}
+			}			
+		}			
+		
+		private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
+			if (parentDocument == null) {
+				return true;
+			}
+			
+			if (item.@value == "") {
+				return true;
+			} 
+			
+			var codeRequestCategory:String = parentDocument.request.@codeRequestCategory;
+			var doesMatch:Boolean = false;
+			if (item.@codeRequestCategory.toString() == codeRequestCategory && item.@isActive.toString() == 'Y') {
+				doesMatch = true;
+			}
+			
+			return doesMatch;
+		}
+
 		private function addLane():void {
 			
 			// Use the selected lane as a template; otherwise, grab
@@ -32,6 +113,7 @@
 			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
 					" idSeqRunType='" + (template != null ? template.@idSeqRunType : "") + "'" +			
 					" idNumberSequencingCycles='" +  (template != null ? template.@idNumberSequencingCycles : "") + "'" +			
+					" idNumberSequencingCyclesAllowed='" +  (template != null ? template.@idNumberSequencingCyclesAllowed : "") + "'" +			
 					" idGenomeBuildAlignTo='" +  (template != null ? template.@idGenomeBuildAlignTo : "") + "'" +		
 					" canChangeSampleDesignations='Y'"	+
 				" idSample='0'" +
@@ -50,6 +132,7 @@
 					" idSample='" + laneToCopy.@idSample + "'" +
 					" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +			
 					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
+					" idNumberSequencingCyclesAllowed='" +  laneToCopy.@idNumberSequencingCyclesAllowed + "'" +			
 					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +		
 					" canChangeSampleDesignations='Y'"		+
 					"/>");
@@ -313,26 +396,12 @@
 					    	 sortable="false"
                             editorDataField="text" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
                             itemRenderer="views.renderers.LabelLaneSample" />                 
-			             <mx:DataGridColumn  width="120" headerText="Single vs Paired"  editable="true" dataField="@idSeqRunType"
-			             	editorDataField="value"   
-			             	rendererIsEditor="false" 
-			             	itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', true)}"                 
-	 	                    itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', '@canChangeSeqRunType', true)}">
-							 <mx:headerRenderer > 
-								 <mx:Component>
-									 <mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
-										 <mx:Label text="Sequence Lane"/>
-										 <mx:Label text="Type"/>
-									 </mx:VBox>
-								 </mx:Component>
-							 </mx:headerRenderer>
-						 </mx:DataGridColumn>
-			             <mx:DataGridColumn width="65"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCycles" 						             						             
-			             	  editorDataField="value"  
-			             	  rendererIsEditor="false"  
-           	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value','@idNumberSequencingCycles', true)}"                 
-       	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', '@canChangeNumberSequencingCycles', true)}">
-						 </mx:DataGridColumn>							 
+						<mx:DataGridColumn width="250"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCyclesAllowed" 					             						             
+										   editorDataField="value"  
+										   rendererIsEditor="false"  
+										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value','@idNumberSequencingCyclesAllowed', true)}"                 
+										   itemEditor="{ComboBoxNumberSequencingCyclesAllowed.create(this.filteredNumberSequencingCyclesAllowedList)}">
+						</mx:DataGridColumn>							 
 			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
 			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
            	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', false)}"                 

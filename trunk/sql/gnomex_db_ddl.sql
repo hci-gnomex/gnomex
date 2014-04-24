@@ -2235,6 +2235,7 @@ CREATE TABLE `gnomex`.`SequenceLane` (
   `idFlowCellChannel` INT(10) NULL,
   `readCount` INT(10) NULL,
   `pipelineVersion` VARCHAR(10) NULL,
+  `idNumberSequencingCyclesAllowed` INT(10) NULL,
   PRIMARY KEY (`idSequenceLane`),
   CONSTRAINT `FK_SequenceLane_GenomeBuild` FOREIGN KEY `FK_SequenceLane_GenomeBuild` (`idGenomeBuildAlignTo`)
     REFERENCES `gnomex`.`GenomeBuild` (`idGenomeBuild`)
@@ -2258,6 +2259,10 @@ CREATE TABLE `gnomex`.`SequenceLane` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_SequenceLane_SeqRunType` FOREIGN KEY `FK_SequenceLane_SeqRunType` (`idSeqRunType`)
     REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT `FK_SequenceLane_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_SequenceLane_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
+    REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
