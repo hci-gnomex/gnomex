@@ -53,7 +53,6 @@
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
-  	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
   	     <Filter className="hci.gnomex.model.RequestCategoryType" filterField="type" />
          <Filter className="YN" filterField="isIlluminaType"/>
 	</Dictionary>

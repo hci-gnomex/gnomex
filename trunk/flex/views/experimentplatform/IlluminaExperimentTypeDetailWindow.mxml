@@ -302,7 +302,7 @@
 		</mx:VBox>
 
 		<mx:Button label="Edit Protocol" styleName="linkMenuButton" click="{editSeqLibProtocol()}" />
-		<mx:CheckBox id="captureLibDesign" label="Capture Lib Design" click="{dirty.setDirty()}" /> 
+		<mx:CheckBox id="captureLibDesign" label="Custom Design Id?" click="{dirty.setDirty()}" /> 
 		<mx:LinkButton label="Configure Lib Prep Steps" 
 					   click="configureStepsClick()" 
 					   textDecoration="underline" 

@@ -51,4 +51,7 @@ update SequenceLane
       and NumberSequencingCyclesAllowed.codeRequestCategory=Request.codeRequestCategory
  set SequenceLane.idNumberSequencingCyclesAllowed=NumberSequencingCyclesAllowed.idNumberSequencingCyclesAllowed
  where SequenceLane.idNumberSequencingCyclesAllowed is null;
-    
+
+-- Remove isSampleBarcodingOptional
+alter table gnomex.RequestCategory drop column isSampleBarcodingOptional;
+call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit drop column isSampleBarcodingOptional');

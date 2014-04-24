@@ -160,7 +160,7 @@
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
 					libDesignAndInsertBox.visible = true;
 					libDesignAndInsertBox.includeInLayout = true;
-					designAndInsertLabel.text = "Cap Lib Design";
+					designAndInsertLabel.text = "Custom Design Id";
 					designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 				}
 				else{
@@ -1409,6 +1409,12 @@
 						<mx:Label width="105"  id="label5"/>
 						<mx:Text   text="{experimentCategoryName}" width="280"/>
 					</mx:HBox>
+					<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text id="designAndInsertLabel" width="105" styleName="formLabel" />
+							<mx:Text  id="designAndInsertText" width="280" />
+						</mx:HBox>
+					</mx:HBox>
 					<mx:HBox id="prePoolBox"
 							 visible="{this.selectedExperiment.@seqPrepByCore == 'N'}"
 							 includeInLayout="{this.selectedExperiment.@seqPrepByCore == 'N'}"
@@ -1436,12 +1442,6 @@
 							 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
 						<mx:Label width="105" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 						<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
-					</mx:HBox>
-					<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Text id="designAndInsertLabel" width="105" styleName="formLabel" />
-							<mx:Text  id="designAndInsertText" width="280" />
-						</mx:HBox>
 					</mx:HBox>
 					
 				</mx:VBox>

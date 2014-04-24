@@ -1682,7 +1682,6 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `sortOrder` INT(10) NULL,
   `idOrganism` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
-  `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
