@@ -602,7 +602,7 @@
 						</mx:DataGrid>
 						
 					</mx:Canvas>
-					<mx:Canvas label="{'Illumina Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%">
+					<mx:Canvas label="{'Illumina Sequencing Lanes (' +  lanesGrid.dataProvider.length + ')'}" width="100%" height="100%" horizontalScrollPolicy="auto">
 						<mx:DataGrid width="100%" height="100%" 
 									 dataProvider="{analysis..AnalysisExperimentItem..SequenceLane}" 
 									 id="lanesGrid"
@@ -614,10 +614,8 @@
 								<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 								<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 								<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-								<mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
-													itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
-								<mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-												   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"/>                 											
+								<mx:DataGridColumn width="200" id="numberOfSequencingCyclesCol" headerText="Seq Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
+												   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
 								<mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 								<mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 								<mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
