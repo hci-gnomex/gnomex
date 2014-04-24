@@ -5482,6 +5482,13 @@
 					    <mx:Spacer width="100"/>
 					    <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="500"/>
 					 </mx:HBox>
+					
+					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" 
+							 visible="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"
+							 includeInLayout="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}">
+						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Custom Design Id" styleName="formLabel"/>
+						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="300" text="{this.request.@captureLibDesignId}"/>
+					</mx:HBox>
 										
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
 						<mx:Text text="Organism" width="100" id="labelOrg" styleName="formLabel"/>
@@ -5542,13 +5549,6 @@
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
 				   
-					
-					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" 
-							 visible="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"
-							 includeInLayout="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}">
-						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Cap Lib Design" styleName="formLabel"/>
-						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="100" text="{this.request.@captureLibDesignId}"/>
-					</mx:HBox>
 					
 				</mx:VBox>
 			</mx:AddChild>

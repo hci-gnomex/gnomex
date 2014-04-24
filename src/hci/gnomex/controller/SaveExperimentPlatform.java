@@ -280,7 +280,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setIcon(rcScreen.getIcon());
     rc.setIdOrganism(rcScreen.getIdOrganism());
     rc.setNumberOfChannels(rcScreen.getNumberOfChannels());
-    rc.setIsSampleBarcodingOptional(rcScreen.getIsSampleBarcodingOptional());
     rc.setIsClinicalResearch(rcScreen.getIsClinicalResearch());
     rc.setIsOwnerOnly(rcScreen.getIsOwnerOnly());
   }

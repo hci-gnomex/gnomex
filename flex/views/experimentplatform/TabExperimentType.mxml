@@ -142,7 +142,7 @@
 								   wordWrap="true"
 								   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
 								   dataField="@idSeqLibProtocols"/>
-				<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty)}"
+				<mx:DataGridColumn headerWordWrap="true" headerText="Custom Design Id?" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty)}"
 								   wordWrap="true" width="60"
 								   visible="{state != null &amp;&amp; state.isIllumina}" editorDataField="selected" editable="false"/>
 				<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{state != null &amp;&amp; state.isMicroarray}" dataField="@idLabelingProtocol"  

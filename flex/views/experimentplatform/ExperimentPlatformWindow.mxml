@@ -137,7 +137,6 @@
 				
 				params.idOrganism = state.requestCategory.@idOrganism;
 				params.numberOfChannels = state.requestCategory.@numberOfChannels;
-				params.isSampleBarcodingOptional = state.requestCategory.@isSampleBarcodingOptional;
 				
 				var sampleTypes:XMLListCollection = new XMLListCollection(state.requestCategory.sampleTypes.SampleType);
 				params.sampleTypesXMLString = "<sampleTypes>" + sampleTypes.toXMLString() + "</sampleTypes>";

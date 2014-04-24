@@ -47,8 +47,6 @@
 				hideCoreFacilityComponents();
 				
 				setChannelLabel();
-				
-				setBarcodingVisibility();
 			}
 			
 			private function setSecurityText():void {
@@ -121,19 +119,7 @@
 
 				setChannelLabel();
 
-				setBarcodingVisibility();
-				
 				this.systemManager.dispatchEvent(new ExperimentTypeChangedEvent());
-			}
-
-			private function setBarcodingVisibility():void {
-				if (state.isIllumina) {
-					barcodingHBox.visible = true;
-					barcodingHBox.includeInLayout = true;
-				} else {
-					barcodingHBox.visible = false;
-					barcodingHBox.includeInLayout = false;
-				}
 			}
 			
 			private function setChannelLabel():void {
@@ -196,11 +182,6 @@
 					sortWindow.init(state.requestCategory.@idCoreFacility);
 				}
 			}
-			
-			private function selectBarcodingOptional():void {
-				state.dirty.setDirty();
-				state.requestCategory.@isSampleBarcodingOptional = barcodingRadioGroup.selectedValue.toString();
-			}
 		]]>
 	</mx:Script>
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -247,7 +228,7 @@
 	</mx:HBox>
 
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
-		<mx:Label text="Used for" width="100" styleName="formLabel"/>
+		<mx:Label text="Available for" width="100" styleName="formLabel"/>
 		<mx:VBox width="100%" verticalGap="0">
 			<mx:CheckBox id="isInternalCheckbox" label="Internal Experiment Orders" click="{state.requestCategory.@isInternal = isInternalCheckbox.selected ? 'Y' : 'N';state.dirty.setDirty()}" selected="{state.requestCategory.@isInternal == 'Y' ? true : false}" />
 			<mx:CheckBox id="isExternalCheckbox" label="Upload of Experiment Data Generated at a Third Party Facility" click="{state.requestCategory.@isExternal = isExternalCheckbox.selected ? 'Y' : 'N';state.dirty.setDirty()}" selected="{state.requestCategory.@isExternal == 'Y' ? true : false}"/>
@@ -272,14 +253,6 @@
 		<mx:ComboBox width="300" id="organismCombo"
 					 dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 					 labelField="@display" visible="{isInternalCheckbox.selected}" close="{state.requestCategory.@idOrganism = organismCombo.selectedItem != null ? organismCombo.selectedItem.@value : '';state.dirty.setDirty();}"/>
-	</mx:HBox>
-	<mx:HBox id="barcodingHBox" width="100%" verticalAlign="middle" horizontalGap="0" >
-		<mx:Label text="Sample Index Tags" width="100" styleName="formLabel"/>
-		<mx:HBox>
-			<mx:RadioButtonGroup id="barcodingRadioGroup" change="{selectBarcodingOptional()}"/>
-			<mx:RadioButton label="Optional"  value="Y" groupName="barcodingRadioGroup" selected="{state.requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
-			<mx:RadioButton label="Required" value="N" groupName="barcodingRadioGroup" selected="{state.requestCategory.@isSampleBarcodingOptional == 'Y' ? false : true}"/>
-		</mx:HBox>
 	</mx:HBox>
 
 	<mx:Label text="" styleName="warningLabelMinor" width="100%" id="securityLabel"/>

@@ -276,7 +276,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             if (request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
               Element capLibDesign = new Element("H5");
-              capLibDesign.addContent("Capture Lib Design: " + request.getCaptureLibDesignId());
+              capLibDesign.addContent("Custom Design Id: " + request.getCaptureLibDesignId());
               capLibDesign.setAttribute("style", "text-align:center; color:black");
               maindiv.addContent(capLibDesign);
             }
