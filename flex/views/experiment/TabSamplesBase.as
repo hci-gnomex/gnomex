@@ -123,6 +123,10 @@ package views.experiment
 			
 		}
 		
+		public function insertSample():Boolean {
+			return true;
+		}
+		
 		public function addSample():Boolean {
 			return true;
 		}

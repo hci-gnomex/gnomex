@@ -95,6 +95,25 @@
 				return false;
 			}
 
+			override public function insertSample():Boolean {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				var index:int = samplesGrid.selectedIndex;
+				
+				emptyNode = this.getEmptySequenomNode(index);
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItemAt(emptyNode, index);
+				}
+				
+				if ( parentDocument.samples.length > 96 && parentDocument.samples.length % 96 != 0 ) {
+					parentDocument.samples.removeItemAt(parentDocument.samples.length-1);
+				}
+				
+				samplesGrid.updateWellNames();
+				
+				return isValid;
+			}
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
@@ -551,6 +570,7 @@
 								  itemFocusOut="checkSamplesCompleteness()" 
 								  deleteRowFunction="deleteTheSample"
 								  addRowEnabled="{!this.hasPlates()||parentDocument.isEditState()}"
+								  insertRowFunction="insertSample"
 								  addRowFunction="addSample"
 								  clearAllFunction="promptToClearAllSamples"
 								  showRowNumberCol="{!this.hasPlates()}"
