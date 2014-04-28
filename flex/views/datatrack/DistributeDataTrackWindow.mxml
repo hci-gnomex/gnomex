@@ -1247,7 +1247,7 @@
 		else if (dragItemCount >= 2 && dropNode.name() == 'DataTrack' && isUSEQOrphanDuoTrioOrQuad(dragParams)){
 			var params2:Object = new Object();
 			params2.idDataTrack = dropNode.@idDataTrack;
-			getDataTrackForFilePair.send(params2);
+			getDataTrack.send(params2);
 			
 		}
 		// If more than one file is dragged onto a data track, duplicate the data track to create a 
@@ -1282,7 +1282,7 @@
 				"Confirm Add",
 				(Alert.YES | Alert.NO),
 				this,
-				onPromptToAddAndLink);
+				onPromptToAddAndLinkFilePair);
 			
 		}
 		else if ((dragItemCount > 1 && isUSEQOrphanDuoTrioOrQuad(dragParams)) && (dropNode.name() == 'DataTrackFolder' || dropNode.name() == 'GenomeBuild')) {
@@ -1359,7 +1359,7 @@
 					"Confirm",
 					(Alert.YES | Alert.NO),
 					this,
-					onPromptToLink);				
+					onPromptToLinkFilePair);				
 				
 			}
 			
@@ -1429,6 +1429,8 @@
 			params.idDataTrack = dropNode.@idDataTrack;
 			params.idGenomeBuild = dropNode.@idGenomeBuild;
 			params.idAnalysisFile = dragParams[0].idAnalysisFile;
+			params.idAnalysisFileOther = dragParams[1].idAnalysisFile
+			params.idLab = dragParams[0].idLab;
 			
 			linkDataTrackFileMultiple.send(params);
 		}
