@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FAQ;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -69,7 +70,7 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
         Session sess = HibernateSession.currentSession(this.getUsername());
 
         StringBuffer query = new StringBuffer("SELECT f from FAQ f ");
-        if(!this.getSecAdvisor().hasPermission(this.getSecAdvisor().CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        if(!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
           query.append(" where f.idCoreFacility is null or f.idCoreFacility in(-1, ");
           for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();) {
             CoreFacility cf = (CoreFacility)i.next();

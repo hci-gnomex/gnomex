@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
@@ -52,7 +53,7 @@ public class GetFAQ extends GNomExCommand implements Serializable {
       buf.append("SELECT f.idFAQ, f.title, f.url, f.idCoreFacility");
       buf.append(" FROM  FAQ f ");
 
-      if(!this.getSecAdvisor().hasPermission(this.getSecAdvisor().CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      if(!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         if(!isManageMode.equals("Y")) {
           coreFacilities = this.getSecAdvisor().getCoreFacilitiesForMyLab(); 
         }
