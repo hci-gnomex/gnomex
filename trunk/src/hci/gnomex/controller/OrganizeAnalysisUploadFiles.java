@@ -229,7 +229,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   AnalysisFile af = new AnalysisFile();
                   if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                     af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
-                  } else if(idFileString.startsWith("AnalysisFile") && new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()){
+                  } else if(idFileString.startsWith("AnalysisFile")){ //new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()  WHY DO WE NEED THIS?  MAYBE WE DON"T
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -338,7 +338,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 List transferLogs = sess.createQuery(queryBuf).list();
 
                 // Go ahead and delete the transfer log if there is just one row.
-                // If there are multiple transfer log rows for this filename, just
+                // If there are multiple transfer log rows for this filename, just;
                 // bypass deleting the transfer log since it is not possible
                 // to tell which entry should be deleted.
                 if (transferLogs.size() == 1) {

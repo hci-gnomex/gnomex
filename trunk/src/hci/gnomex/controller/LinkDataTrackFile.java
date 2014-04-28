@@ -211,7 +211,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         boolean lookForVCFTBI = false;
         boolean lookForBigWigOrphan = false;
 
-        String baseFileName = fetchBaseName(analysisFile.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
+        String baseFileName = fetchBaseName(analysisFile.getFullPathName(), Constants.DATATRACK_FILE_EXTENSIONS);
+        baseFileName = baseFileName.replace("\\", "/");
+
         if(baseFileName.toUpperCase().contains("_PLUS")) {
           baseFileName = baseFileName.toUpperCase().substring(0, baseFileName.toUpperCase().indexOf("_PLUS"));
         } else if(baseFileName.toUpperCase().contains("_MINUS")) {
@@ -230,7 +232,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
           idAnalysisFileOther = null;
           AnalysisFile af = (AnalysisFile)i.next();
-          String afBaseFileName = fetchBaseName(af.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
+          String afBaseFileName = fetchBaseName(af.getFullPathName(), Constants.DATATRACK_FILE_EXTENSIONS);
+          afBaseFileName = afBaseFileName.replace("\\", "/");
 
           if(afBaseFileName.toUpperCase().contains("_PLUS")) {
             afBaseFileName = afBaseFileName.toUpperCase().substring(0, afBaseFileName.toUpperCase().indexOf("_PLUS"));
@@ -261,13 +264,15 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
             pairedFileNames.add(idAnalysisFileOther);
           }
         }
-      } 
+      } else {
+        pairedFileNames.add(idAnalysisFileOther);
+      }
 
       //is it a paired file set? then must have other
       String afFileNameUpper = analysisFile.getFileName().toUpperCase(); 
       boolean saveDataTrack = true;
       if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
-        if (idAnalysisFileOther == null){
+        if (pairedFileNames.size() == 0){
           //not sure if this makes this invalid so using boolean
           addInvalidField("bamv", "Missing indexed file or file index?!  Please add either a matching xxx.bam or xxx.bai; or add a xxx.vcf.gz or xxx.vcf.gz.tbi.");
           saveDataTrack = false;
