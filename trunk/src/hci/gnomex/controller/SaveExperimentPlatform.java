@@ -1013,7 +1013,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         " join pc.priceCategory.prices p " +
         " join p.priceCriterias crit " +
         " where pc.priceCategory.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
-        "     and crit.filter1 is not null and crit.filter2 is not null" +
+        "     and crit.filter1 is not null" +
         "     and rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
@@ -1023,7 +1023,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       Price price = (Price)objects[0];
       PriceCriteria priceCriteria = (PriceCriteria)objects[1];
       
-      String key = priceCriteria.getFilter1() + '\t' + priceCriteria.getFilter2();
+      String key = priceCriteria.getFilter1();
       map.put(key, price);
     }
 
@@ -1038,7 +1038,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     Boolean modified = false;
     
-    Price price = map.get(cyclesAllowed.getIdSeqRunType().toString() + "\t" + cyclesAllowed.getIdNumberSequencingCycles().toString());
+    Price price = map.get(cyclesAllowed.getIdNumberSequencingCyclesAllowed().toString());
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
@@ -1057,8 +1057,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       sess.flush();
       PriceCriteria crit = new PriceCriteria();
       crit.setIdPrice(price.getIdPrice());
-      crit.setFilter1(cyclesAllowed.getIdSeqRunType().toString());
-      crit.setFilter2(cyclesAllowed.getIdNumberSequencingCycles().toString());
+      crit.setFilter1(cyclesAllowed.getIdNumberSequencingCyclesAllowed().toString());
       sess.save(crit);
       modified = true;
     }
