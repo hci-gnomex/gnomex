@@ -290,6 +290,7 @@
 						" idSequenceLane ='" + item.@idSequenceLane + "'" +
 						" idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
 						" idSeqRunType ='" + item.@idSeqRunType + "'" +
+						" idNumberSequencingCyclesAllowed = '" + item.@idNumberSequencingCyclesAllowed + "'" +
 						" sampleNumber ='" + item.@sampleNumber1 + "'" +
 						" flowCellNumber ='" + item.@flowCellNumber + "'" +
 						" flowCellChannelNumber ='" + item.@flowCellChannelNumber  + "'" +
@@ -1264,10 +1265,8 @@
 										<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 										<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 										<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-										<mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
-															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}"/>                 											
-										<mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}"/>                 											
+										<mx:DataGridColumn  width="215" id="numberSequencingCyclesAllowedCol" headerText="Seq. Protocol"  editable="false" dataField="@NumberSequencingCyclesAllowed" 						             						             
+															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry,'@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
 										<mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 										<mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 										<mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
@@ -1300,7 +1299,7 @@
 						<mx:VBox verticalGap="0" width="140">
 							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
 											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
-											toolTip="Visbile to the submitter and the lab PI"/>
+											toolTip="Visible to the submitter and the lab PI"/>
 							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
 											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 											toolTip="Visible to all members of the lab group"/>
