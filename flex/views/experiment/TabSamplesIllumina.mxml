@@ -564,6 +564,9 @@
 			}
 			
 			private function areLaneNumbersSequential():Boolean {
+				if (!parentApplication.submitInternalExperiment()) {
+					return true;
+				}
 				var numsUsed:Object = new Object();
 				var prevSample:Object = null;
 				for each (var theSample:Object in parentDocument.samples) {
