@@ -1056,6 +1056,7 @@
 				}
 				
 				samplesGrid.addRowEnabled = !this.hasPlates();
+				samplesGrid.insertRowEnabled = this.hasPlates();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
 				samplesGrid.colorRowsByField = this.hasPlates() ? 'plateName' : null;

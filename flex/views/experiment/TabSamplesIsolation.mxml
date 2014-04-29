@@ -233,6 +233,7 @@
 				
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
+				samplesGrid.insertRowEnabled = false;
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
 				if (isEditState && !parentApplication.isAdminState && !isExternal ) {
