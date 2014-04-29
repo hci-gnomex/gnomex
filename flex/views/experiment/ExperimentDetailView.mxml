@@ -2098,10 +2098,8 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
-														itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
-							<mx:AdvancedDataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"/>                 											
+							<mx:AdvancedDataGridColumn width="215" id="numberOfSequencingCyclesCol" headerText="Sequencing Option"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
 							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 							<mx:AdvancedDataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 							<mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
@@ -2111,16 +2109,6 @@
 										<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
 											<mx:Label text="Channel Sample"/>
 											<mx:Label text="conc. pM"/>
-										</mx:VBox>
-									</mx:Component>
-								</mx:headerRenderer>
-							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
-								<mx:headerRenderer > 
-									<mx:Component>
-										<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
-											<mx:Label text="# Seq Cycles"/>
-											<mx:Label text="(actual)"/>
 										</mx:VBox>
 									</mx:Component>
 								</mx:headerRenderer>
