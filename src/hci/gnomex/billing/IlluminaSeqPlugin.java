@@ -54,7 +54,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
       
       if (nsca.getCodeRequestCategory().equals(request.getCodeRequestCategory()) && nsca.getIsCustom() != null && nsca.getIsCustom().equals("Y")) {
-        String key = nsca.getIdNumberSequencingCycles().toString() + "-" + nsca.getIdSeqRunType().toString();
+        String key = nsca.getIdNumberSequencingCyclesAllowed().toString();
         customNumberSequencingCyclesAllowed.put(key, nsca);
       }
     }
@@ -64,7 +64,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       SequenceLane seqLane = (SequenceLane)i.next();
       
       
-      String key = seqLane.getIdNumberSequencingCycles() + "-" + seqLane.getIdSeqRunType();
+      String key = seqLane.getIdNumberSequencingCyclesAllowed().toString();
       
       // Keep track of the lanes for # cycles/seq run type
       List theLanes = (List)seqLaneMap.get(key);
@@ -88,12 +88,9 @@ public class IlluminaSeqPlugin implements BillingPlugin {
     
     // Now generate a billing item for each seq lane number sequencing cycles  / seq run type
     for(Iterator i = seqLaneMap.keySet().iterator(); i.hasNext();) {
-      String  key = (String)i.next();
-      String[] tokens = key.split("-");
-      String idNumberSequencingCycles = tokens[0];
-      String idSeqRunType             = tokens[1];
+      String idNumberSequencingCyclesAllowed = (String)i.next();
       
-      List theLanes = (List)seqLaneMap.get(key);
+      List theLanes = (List)seqLaneMap.get(idNumberSequencingCyclesAllowed);
       
       Integer maxLanesForSample = 0;
       Map<Integer, Integer>numSeqLanesPerSample = new HashMap<Integer, Integer>();
@@ -112,7 +109,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       }
       
       int qty = SequenceLane.getMultiplexLaneCount(theLanes, request.getCreateDate());
-      String notes = (String)seqLaneNoteMap.get(key);
+      String notes = (String)seqLaneNoteMap.get(idNumberSequencingCyclesAllowed);
       
       // Find the billing price 
       Price price = null;
@@ -121,17 +118,15 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
           for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
             PriceCriteria criteria = (PriceCriteria)i2.next();
-            if (criteria.getFilter1().equals(idSeqRunType)) {
-              if (criteria.getFilter2().equals(idNumberSequencingCycles)) {
-                price = p;
-                break;            
-              }
+            if (criteria.getFilter1().equals(idNumberSequencingCyclesAllowed)) {
+              price = p;
+              break;            
             }
           }
         }
       }
       
-      if (customNumberSequencingCyclesAllowed.containsKey(key)) {
+      if (customNumberSequencingCyclesAllowed.containsKey(idNumberSequencingCyclesAllowed)) {
         // Custom NumberSequencingCyclesAllowed bill for the whole cell in a single charge.
         RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
         qty = maxLanesForSample;

@@ -61,7 +61,7 @@
 		}
 		
 		private function makePriceKey(obj:Object):String {
-			var key:String = obj.@idSeqRunType.toString() + ":" + obj.@idNumberSequencingCycles.toString();
+			var key:String = obj.@idNumberSequencingCyclesAllowed.toString();
 			return key;
 		}
 		
