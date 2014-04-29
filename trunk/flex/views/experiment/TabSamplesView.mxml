@@ -881,6 +881,7 @@
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
 						lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
+						lane.@idNumberSequencingCyclesAllowed = theSample.@idNumberSequencingCyclesAllowed;
 					}
 				}
 			}		
