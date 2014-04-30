@@ -879,8 +879,6 @@ INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`
  (71,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
  (72,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y'),
  (73,'datatrack_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),
- (75,'sequence_alignment_server_url','','Location of web service for submitting files for sequence alignment.', 'N'),
- (76,'sequence_alignment_supported','N','True if sequence alignment feature supported.', 'N'),
  (77,'lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y'),
  (78, 'datatrack_supported','Y','Indicates if data track feature is supported', 'N'),
  (79, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N'),

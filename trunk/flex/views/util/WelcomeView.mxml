@@ -49,7 +49,6 @@
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
-			import views.admin.AlignmentProfileWindow;
 			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.PropertyWindow;
 			import views.experiment.ExperimentEditView;
@@ -258,11 +257,6 @@
 				var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(parentApplication.theBody, IScanChipWindow, true));
 				PopUpManager.centerPopUp(configWindow);
 				
-			}
-			
-			private function showAlignmentProfileWindow():void {
-				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(parentApplication.theBody, AlignmentProfileWindow, true));
-				PopUpManager.centerPopUp(apWindow);				
 			}
 			
 			private function showUsageWindow():void {
