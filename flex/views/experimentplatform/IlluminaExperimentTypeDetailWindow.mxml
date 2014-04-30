@@ -133,7 +133,7 @@
 					return;
 				}
 				
-				if (state.requestCategory.@hasPriceSheet == 'Y') {
+				if (state.requestCategory.@canEnterPrices == 'Y') {
 					var evt:ValidationResultEvent = priceInternalValidator.validate(null, true);
 					if (evt.type == ValidationResultEvent.INVALID) {
 						Alert.show(evt.message, "Error On " + priceInternalLabel.text, Alert.OK, null, null, parentApplication.iconError);
@@ -162,7 +162,7 @@
 				selectedItem.@idSeqLibProtocols = buildProtocolsString();
 				selectedItem.@idBarcodeSchemeA = indexAFamilyComboBox.selectedItem.@value;
 				selectedItem.@idBarcodeSchemeB = indexBFamilyComboBox.selectedItem.@value;
-				if (state.requestCategory.@hasPriceSheet == 'Y') {
+				if (state.requestCategory.@canEnterPrices == 'Y') {
 					selectedItem.@unitPriceInternal = this.priceInternalText.text;
 					selectedItem.@unitPriceExternalAcademic = this.priceExternalAcademicText.text;
 					selectedItem.@unitPriceExternalCommercial = this.priceExternalCommercialText.text;
@@ -271,12 +271,13 @@
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="0" horizontalGap="0">
-			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0" visible="{state.requestCategory.@hasPriceSheet != 'Y'}" includeInLayout="{state.requestCategory.@hasPriceSheet != 'Y'}">
-				<mx:Text text="Please associate the experiment platform with a price sheet." paddingBottom="0" 
+			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0" visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}">
+				<mx:Text text="You must associate the experiment platform with a price sheet, a default price seq. option category property(illumina_seqoption_default_price_category) and a default price seq lib category property(illumina_libprep_default_price_category) to enter prices on this screen." 
+						 paddingBottom="0" width="100%"
 						 styleName="warningLabelSevere"
-						 visible="{state.requestCategory.@hasPriceSheet != 'Y'}" includeInLayout="{state.requestCategory.@hasPriceSheet != 'Y'}" />
+						 visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}" />
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="0" enabled="{state.requestCategory.@hasPriceSheet == 'Y'}">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="0" enabled="{state.requestCategory.@canEnterPrices == 'Y'}">
 				<mx:Text text="Billing" styleName="formLabel" paddingBottom="0" width="80"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0" paddingLeft="0">
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0" paddingLeft="0">

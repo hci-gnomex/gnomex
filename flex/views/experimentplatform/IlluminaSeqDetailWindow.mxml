@@ -54,7 +54,7 @@
 					Alert.show("Please enter name, run mode, number of cycles and Seq Run Type before saving.");
 					return;
 				}
-				if (state.requestCategory.@hasPriceSheet == 'Y') {
+				if (state.requestCategory.@canEnterPrices == 'Y') {
 					var evt:ValidationResultEvent = priceInternalValidator.validate(null, true);
 					if (evt.type == ValidationResultEvent.INVALID) {
 						Alert.show(evt.message, "Error On " + priceInternalLabel.text, Alert.OK, null, null, parentApplication.iconError);
@@ -80,7 +80,7 @@
 				selectedItem.@idNumberSequencingCycles = numberCyclesCombo.selectedItem.@value;
 				selectedItem.@protocolDescription = protocolDescription.text;
 				
-				if (state.requestCategory.@hasPriceSheet == 'Y') {
+				if (state.requestCategory.@canEnterPrices == 'Y') {
 					selectedItem.@unitPriceInternal = this.priceInternalText.text;
 					selectedItem.@unitPriceExternalAcademic = this.priceExternalAcademicText.text;
 					selectedItem.@unitPriceExternalCommercial = this.priceExternalCommercialText.text;
@@ -110,29 +110,30 @@
 			<mx:ComboBox dataProvider="{state.runModeOptions}" id="runModeCombo" width="200" change="dirty.setDirty()" labelField="@display" />					    		
 		</mx:HBox>
 		
-		<mx:VBox width="100%" verticalGap="0" enabled="{state.requestCategory.@hasPriceSheet == 'Y'}">
-			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
-				<mx:Text text="Billing" styleName="formLabel" paddingBottom="0"/>
-				<mx:Text text="Please associate the experiment platform with a price sheet." paddingBottom="0" 
+		<mx:VBox width="100%" verticalGap="0">
+			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0" visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}">
+				<mx:Text text="You must associate the experiment platform with a price sheet, a default price seq. option category property(illumina_seqoption_default_price_category) and a default price seq lib category property(illumina_libprep_default_price_category) to enter prices on this screen." 
+						 paddingBottom="0" width="100%"
 						 styleName="warningLabelSevere"
-						 visible="{state.requestCategory.@hasPriceSheet != 'Y'}" includeInLayout="{state.requestCategory.@hasPriceSheet != 'Y'}" />
+						 visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}" />
 			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
+			<mx:HBox width="100%" horizontalGap="2" verticalAlign="top" paddingTop="0" enabled="{state.requestCategory.@canEnterPrices == 'Y'}">
+				<mx:Text text="Billing" styleName="formLabel" paddingBottom="0" width="80"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 						<mx:TextInput id="priceInternalText" text="{selectedItem.@unitPriceInternal == '' ? '0.00' : selectedItem.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceInternalLabel" text="Internal Pricing" />
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 						<mx:TextInput id="priceExternalAcademicText" text="{selectedItem.@unitPriceExternalAcademic == '' ? '0.00' : selectedItem.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-						<mx:Label text="$" paddingRight="0" textAlign="right" width="100" />
+						<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 						<mx:TextInput id="priceExternalCommercialText" text="{selectedItem.@unitPriceExternalCommercial == '' ? '0.00' : selectedItem.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="dirty.setDirty()" />
 						<mx:Spacer width="5" />
 						<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
