@@ -8,6 +8,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationTheme;
 import hci.gnomex.model.ApplicationType;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
@@ -17,6 +18,7 @@ import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocolApplication;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
@@ -423,8 +425,18 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       selectedCategories.put(key, key);
     }
     
-    String rcQueryString = "from RequestCategory";
+    String rcQueryString = "from RequestCategory rc";
+    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      rcQueryString += " where idCoreFacility in (:ids)";
+    }
     Query rcQuery = sess.createQuery(rcQueryString);
+    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      ArrayList ids = new ArrayList();
+      for(Object cf : this.getSecAdvisor().getCoreFacilitiesIManage()) {
+        ids.add(((CoreFacility)cf).getIdCoreFacility());
+      }
+      rcQuery.setParameterList("ids", ids);
+    }
     List rcList = rcQuery.list();
     for (RequestCategory rc : (List<RequestCategory>)rcList) {
       Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
