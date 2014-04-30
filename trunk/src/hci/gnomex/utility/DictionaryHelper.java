@@ -478,6 +478,14 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getNumberSequencingCyclesAllowed(Integer id) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (id != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.NumberSequencingCyclesAllowed", id.toString());
+    }
+    return name;
+  }
   
   public String getGenomeBuild(Integer id) {
     lazyLoadManagedDictionaries();

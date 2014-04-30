@@ -1169,8 +1169,7 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "#" );
     this.addHeaderCell(rowh, "Sample name"    );
     this.addHeaderCell(rowh, "Status"    );
-    this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "# Seq Cycles");
+    this.addHeaderCell(rowh, "Seq Protocol");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     if (showColInstructions) {
       this.addHeaderCell(rowh, "Analysis instructions");            
@@ -1220,8 +1219,7 @@ public class RequestHTMLFormatter {
 
         this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
         this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
-        this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-        this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+        this.addCell(row, lane.getIdNumberSequencingCyclesAllowed() != null ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
         this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
         if (showColInstructions) {
           this.addInstructionsCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
@@ -1257,8 +1255,7 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
-    this.addHeaderCell(rowh, "Seq Run Type");
-    this.addHeaderCell(rowh, "# Seq Cycles");
+    this.addHeaderCell(rowh, "Seq Protocol");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
 
@@ -1279,8 +1276,7 @@ public class RequestHTMLFormatter {
           SequenceLane lane = (SequenceLane)i1.next();
 
           this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-          this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
-          this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
+          this.addCell(row, lane.getIdNumberSequencingCyclesAllowed() != null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
           this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
           this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
           
