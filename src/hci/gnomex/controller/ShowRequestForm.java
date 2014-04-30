@@ -226,8 +226,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
 	            Element seqType = new Element("H4");
 	            SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-	            seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
-	            seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+	            seqType.addContent(lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
 	            maindiv.addContent(seqType);
             }
             // Sample Type
@@ -414,8 +413,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	              if (request.getSequenceLanes().iterator().hasNext()) {
 	                Element seqType = new Element("H4");
 	                SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-	                seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
-	                seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+	                seqType.addContent(lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
 	                maindiv.addContent(seqType);
 	                
 	              }
