@@ -55,3 +55,7 @@ update SequenceLane
 -- Remove isSampleBarcodingOptional
 alter table gnomex.RequestCategory drop column isSampleBarcodingOptional;
 call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit drop column isSampleBarcodingOptional');
+
+-- Remove unused properties for sequence alignment
+delete from PropertyDictionary where propertyName='sequence_alignment_supported';
+delete from PropertyDictionary where propertyName='sequence_alignment_server_url';     

@@ -36,7 +36,6 @@
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.util.CollaboratorWindow;
 			import views.util.FileUtil;
-			import views.util.RunAlignmentWindow;
 			import views.util.WebLinksView;
 			
 			[Bindable]
@@ -244,57 +243,6 @@
 			private function showExperimentForSelectedLane():void {
 				parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
 			}
-			
-			
-			public function alignSelectedFiles():void {
-				var selectedFiles:XMLList = new XMLList();
-				for(var i:int = 0; i < filesView.downloadTree.selectedItems.length; i++) {
-					var item:XML = XML(filesView.downloadTree.selectedItems[i]);
-					selectedFiles += item;
-				}
-				selectedFileList = new XMLListCollection(selectedFiles);	
-				
-				var folderPath:String = "";
-				var filesStr:String = "";
-				
-				for each(var file:XML in selectedFileList) {
-					var fileName:String = file.@fileName;
-					var number:String = file.@number;
-					
-					if(number == null || number.length == 0) {
-						Alert.show("Error: Number parameter undefined in selectedFileList entry.");					
-						return;						
-					}
-					
-					var splitIndx:int = fileName.indexOf(number) + number.length;					
-					if(splitIndx < 0) {
-						Alert.show("Cannot proceed because file '" + file.@displayName + "' is not physically present.");					
-						return;
-					}
-					var currentFolderPath:String = fileName.substr(0, splitIndx);
-					fileName = fileName.substr(splitIndx, 0x7fffffff);
-					if(folderPath.length == 0) {
-						folderPath = currentFolderPath;
-						filesStr = fileName;
-					} else {
-						filesStr = filesStr + "," + fileName;
-					}				
-				}
-				
-				
-				if (selectedFileList.length == 0) {
-					mx.controls.Alert.show("Please select the file(s).");
-				} else {
-					var alignFilesWindow:RunAlignmentWindow = RunAlignmentWindow(PopUpManager.createPopUp(this, RunAlignmentWindow, true));
-					if(parentDocument.selectedAnalysis != null) {
-						alignFilesWindow.setOrganismDropdown(parentDocument.selectedAnalysis.@idOrganism);
-					}
-					alignFilesWindow.setFolderPathAndFilesStr(folderPath, filesStr);
-					PopUpManager.centerPopUp(alignFilesWindow);
-				}
-			}			
-			
-			
 						
 			public function setFileCount():void {
 				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
@@ -675,25 +623,6 @@
 			
 			
 		</mx:TabNavigator>
-		
-	
-	<mx:ControlBar>
-		<mx:HBox width="100%">
-			<mx:HBox  verticalAlign="middle" 
-					  width="100%" horizontalAlign="left" includeInLayout="true" visible="true"
-					  id="hideButtonsBox">
-				<mx:Button id="alignSelectedFilesButton" 
-						   click="this.alignSelectedFiles()" 
-						   icon="@Embed('../../assets/align.png')" 
-						   toolTip="Run automated alignment on selected files"
-						   visible="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported &amp;&amp; parentApplication.isAdminState}"
-						   includeInLayout="{theTab.selectedChild == filesView &amp;&amp; parentApplication.isSequenceAlignmentSupported  &amp;&amp; parentApplication.isAdminState}"
-						   label="Run Alignment"/>	
-			</mx:HBox>	
-			
-		</mx:HBox>
-		
-	</mx:ControlBar>
 	
 	
 </mx:VBox>

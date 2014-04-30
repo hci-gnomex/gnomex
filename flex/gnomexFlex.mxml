@@ -120,19 +120,6 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
-		id="getAlignmentProfileList" 
-		url="GetAlignmentProfileList.gx"
-		resultFormat="e4x"
-		showBusyCursor="false"
-		destination="getAlignmentProfileList"
-		result="onGetAlignmentProfileList(event)"
-		fault="onFailHttpRequest('Failed to get genome index list', event)"
-		useProxy="false">
-		<mx:request>
-		</mx:request>
-	</mx:HTTPService >
-	
-	<mx:HTTPService 
 		id="getOrganismList" 
 		url="GetOrganismList.gx"
 		resultFormat="e4x"
@@ -328,8 +315,6 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.admin.AlignmentProfileEvent;
-			import views.admin.AlignmentProfileWindow;
 			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
@@ -956,9 +941,6 @@
 			public var isBSTLinkageSupported:Boolean = false;
 			
 			[Bindable]
-			public var isSequenceAlignmentSupported:Boolean = false;
-			
-			[Bindable]
 			public var isFDTSupported:Boolean = false;
 			
 			[Bindable]
@@ -1038,8 +1020,6 @@
 			[Bindable]
 			public var genomeIndexList:XMLListCollection;
 			[Bindable]
-			public var alignmentProfileList:XMLListCollection;			
-			[Bindable]
 			public var organismList:XMLListCollection;
 			[Bindable]
 			public var activeOrganismList:XMLListCollection;
@@ -1115,8 +1095,6 @@
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
 			public var PROPERTY_DATASET_PRIVACY_EXPIRATION:String         = "dataset_privacy_expiration";
 			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
-			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
-			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
@@ -2538,13 +2516,6 @@
 					this.isBSTLinkageSupported = false;
 				}
 				
-				if (this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) != null && 
-					this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) == 'Y') {
-					this.isSequenceAlignmentSupported = true;
-				} else {
-					this.isSequenceAlignmentSupported = false;
-				}
-				
 				if (this.getProperty(this.PROPERTY_FDT_SUPPORTED) != null && 
 					this.getProperty(this.PROPERTY_FDT_SUPPORTED) == 'Y') {
 					this.isFDTSupported = true;
@@ -2962,7 +2933,6 @@
 			
 			private function onGetProjectList(event:ResultEvent):void {
 				getGenomeIndexList.send();
-				getAlignmentProfileList.send();
 				getOrganismList.send();
 				getPropertyList.send();
 				getIScanChipList.send();
@@ -2986,11 +2956,6 @@
 			private function onGetGenomeIndexList(event:ResultEvent):void {
 				genomeIndexList = new XMLListCollection(getGenomeIndexList.lastResult.GenomeIndex);
 				this.dispatchEvent(new GenomeIndexEvent(GenomeIndexEvent.DATA_REFRESHED));
-			}
-			
-			private function onGetAlignmentProfileList(event:ResultEvent):void {
-				alignmentProfileList = new XMLListCollection(getAlignmentProfileList.lastResult.AlignmentProfile);
-				this.dispatchEvent(new Event(AlignmentProfileEvent.DATA_REFRESHED));
 			}
 			
 			private function onGetOrganismList(event:ResultEvent):void {
@@ -3751,12 +3716,6 @@
 				}
 				
 			}
-			
-			private function showAlignmentProfileWindow():void {
-				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(this.theBody, AlignmentProfileWindow, true));
-				PopUpManager.centerPopUp(apWindow);				
-			}
-			
 			
 			private function showBroadcastEmailWindow():void {
 				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this.theBody, BroadcastEmailWindow, true));
