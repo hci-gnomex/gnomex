@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
-import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
@@ -39,7 +38,6 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   private HashMap                        slideDesignMap = new HashMap();
   private HashMap<Integer, String>       numberSequencingCyclesAllowedMap = new HashMap<Integer, String>();
   private HashMap                        sampleTypeMap = new HashMap();
-  private HashMap                        numberSeqCyclesMap = new HashMap();
   
   private HashMap                        requestSampleTypeMap = new HashMap();
   private HashMap<String, Object>        requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
@@ -89,11 +87,6 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         SampleType st = (SampleType)i.next();
         sampleTypeMap.put(st.getIdSampleType(), st.getSampleType());
       }
-      List numberSeqCycles = sess.createQuery("SELECT sc from NumberSequencingCycles sc ").list();
-      for(Iterator i = numberSeqCycles.iterator(); i.hasNext();) {
-        NumberSequencingCycles sc = (NumberSequencingCycles)i.next();
-        numberSeqCyclesMap.put(sc.getIdNumberSequencingCycles(), sc.getNumberSequencingCycles());
-      }      
       
       TreeMap projectMap = new TreeMap();
       
@@ -279,15 +272,6 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
     }
     
-    
-    Integer idNumberSequencingCycles = (Integer)row[12];
-    if (idNumberSequencingCycles != null && idNumberSequencingCycles.intValue() != -1) {
-      Integer numberSeqCycles = (Integer)this.numberSeqCyclesMap.get(idNumberSequencingCycles);
-      itemNode.setAttribute("numberSequencingCycles", numberSeqCycles.toString());      
-    } else {
-      itemNode.setAttribute("numberSequencingCycles", "?");      
-    }
-
     Integer idNumberSequencingCyclesAllowed = -1;
     if (row.length > 27) {
       idNumberSequencingCyclesAllowed = (Integer)row[27];
