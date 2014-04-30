@@ -1197,6 +1197,7 @@
 						dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
 					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
 							 showRoot="false" 
+							 showDataTips="true"
 							 dataTipFunction="getExperimentTreeLabel"
 							 dragEnabled="true"
 							 dropEnabled="false"
