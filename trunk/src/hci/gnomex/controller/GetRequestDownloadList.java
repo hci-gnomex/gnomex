@@ -9,7 +9,6 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestDownloadFilter;
-import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -50,7 +49,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private RequestDownloadFilter          filter;
   private String                         includeUploadStagingDir = "Y";
   private HashMap                        slideDesignMap = new HashMap();
-  private HashMap                        seqRunTypeMap = new HashMap();
   private static final String            DUMMY_DIRECTORY = "DUMMY_DIRECTORY";
   private static final String            QUALITY_CONTROL_DIRECTORY = "bioanalysis";
   
@@ -106,13 +104,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         SlideDesign sd = (SlideDesign)i.next();
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
-      
-      List seqRunTypes = sess.createQuery("SELECT fct from SeqRunType fct ").list();
-      for(Iterator i = seqRunTypes.iterator(); i.hasNext();) {
-        SeqRunType fct = (SeqRunType)i.next();
-        seqRunTypeMap.put(fct.getIdSeqRunType(), fct.getSeqRunType());
-      }
-      
     
       StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (1): " + buf.toString());
