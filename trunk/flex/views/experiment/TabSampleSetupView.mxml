@@ -675,14 +675,6 @@
 			
 		}
 		
-		private function pickSeqLibProtocol():void {
-			parentDocument.samplesView.initializeSamplesGrid();
-			propagateSeqLibProtocol();
-			
-			parentDocument.filteredSeqRunTypeList.refresh();	
-			
-		}
-		
 		private function clearBarcodingFields():void {
 			if (parentDocument.isEditState() || parentDocument.isAmendState()) {
 				return;

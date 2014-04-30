@@ -3971,42 +3971,6 @@
 				}
 			}			
 		}			
-
-        private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				
-				if (obj1.@value == '') {
-					return -1;
-				} else if (obj2.@value == '') {
-					return 1;
-				} else {
-					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
-					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
-					var sortOrder1:Number = obj1.@seqRunTypeSortOrder == '' ? -1 : obj1.@seqRunTypeSortOrder;
-					var sortOrder2:Number = obj2.@seqRunTypeSortOrder == '' ? -1 : obj2.@seqRunTypeSortOrder;
-					
-					if (numberCycles1 < numberCycles2) {
-						return -1;
-					} else if (numberCycles1 > numberCycles2) {
-						return 1;
-					} else {
-						if (sortOrder1 < sortOrder2) {
-							return -1;
-						} else if (sortOrder1 > sortOrder2) {
-							return 1;
-						} else {
-							return 0;
-						} 
-					} 
-				}
-			}			
-		}			
 		
 		// Sort application by sortOrder field
         private function sortApplication(obj1:Object, obj2:Object, fields:Array=null):int {
