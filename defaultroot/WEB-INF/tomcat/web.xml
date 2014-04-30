@@ -26,13 +26,6 @@
 		<servlet-name>CheckSessionStatus</servlet-name>
 	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
 	</servlet>
-	
-	<servlet>
-		<servlet-name>ExperimentQueue</servlet-name>
-	    <display-name>ExperimentQueue</display-name>
-	    <description>The ExperimentQueue to check experiment status</description>
-	    <servlet-class>hci.gnomex.controller.ExperimentQueue</servlet-class>
-	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -334,11 +327,6 @@
 	<servlet-mapping>
 		<servlet-name>CheckSessionStatus</servlet-name>
 		<url-pattern>/CheckSessionStatus.gx</url-pattern>
-	</servlet-mapping>	
-	
-	<servlet-mapping>
-		<servlet-name>ExperimentQueue</servlet-name>
-		<url-pattern>/ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
 
 	<servlet-mapping>
