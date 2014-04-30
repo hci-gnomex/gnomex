@@ -12,6 +12,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
@@ -20,6 +21,7 @@ import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocolApplication;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -97,7 +99,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         RequestCategory rc = (RequestCategory)i.next();
         this.getSecAdvisor().flagPermissions(rc);
         Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        node.setAttribute("hasPriceSheet", requestCategoryToPriceSheetMap.containsKey(rc.getCodeRequestCategory()) ? "Y" : "N");
+        node.setAttribute("canEnterPrices", requestCategoryToPriceSheetMap.containsKey(rc.getCodeRequestCategory()) ? "Y" : "N");
         doc.getRootElement().addContent(node);
         
         Element listNode = new Element("sampleTypes");
@@ -545,7 +547,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     Map<String, String> map = new HashMap<String, String>();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
       RequestCategory rc = (RequestCategory)i.next();
-      map.put(rc.getCodeRequestCategory(), rc.getCodeRequestCategory());
+      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY) != null
+          && PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY) != null) {
+        map.put(rc.getCodeRequestCategory(), rc.getCodeRequestCategory());
+      }
     }
     
     return map;
