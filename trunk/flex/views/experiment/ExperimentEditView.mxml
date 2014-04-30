@@ -285,8 +285,6 @@
 		[Bindable]
 		public var filteredSampleDropOffLocationList:XMLListCollection;
 		[Bindable]
-		public var filteredSeqRunTypeList:XMLListCollection;
-		[Bindable]
 		public var filteredGenomeBuildList:XMLListCollection;
 		[Bindable]
 		public var filteredMicroarrayAppList:XMLListCollection;
@@ -306,7 +304,6 @@
 
 		private var dictionarySorter:Sort;
 		private var sampleTypeSorter:Sort;
-		private var seqRunTypeSorter:Sort;
 		private var filteredAppListSorter:Sort;
 
 		[Bindable]
@@ -501,13 +498,6 @@
 			filteredSampleDropOffLocationList.sort = dictionarySorter;     	
 			filteredSampleDropOffLocationList.refresh();
 			
-        	
-	        filteredSeqRunTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqRunType'));
-        	seqRunTypeSorter = new Sort();
-        	seqRunTypeSorter.compareFunction = this.sortSeqRunType;	   
-        	filteredSeqRunTypeList.sort = seqRunTypeSorter;     	
-        	filteredSeqRunTypeList.refresh();
-        	
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
         	      
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
@@ -558,9 +548,6 @@
 
 			seqLibProtocolList.filterFunction = filterSeqLibProtocol;
 			seqLibProtocolList.refresh();
-			
-			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
-			filteredSeqRunTypeList.refresh();
 
 			filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 			filteredGenomeBuildList.refresh();
@@ -580,9 +567,6 @@
 			
 			filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 			filteredSampleDropOffLocationList.refresh();
-			
-			filteredSeqRunTypeList.filterFunction = filterSeqRunType;
-			filteredSeqRunTypeList.refresh();
 
 		}
 		
@@ -1863,18 +1847,6 @@
         		
         	}
     	   	return doesMatch;
-    	}
-
-        private function filterSeqRunType(item:Object):Boolean {
-    	   	var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
-			if (item.@value == "") {
-    	    	return false;
-			} 
-        	
-			if (!isEditState() && item.@isActive == 'N') {
-				return false;	
-			}
-        	return true;
     	}
        
         private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
@@ -4032,34 +4004,6 @@
 							return 0;
 						} 
 					} 
-				}
-			}			
-		}			
-		
-		// Sort seq run type by sortOrder field
-        private function sortSeqRunType(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				var order1:int = obj1.@sortOrder;
-				var order2:int = obj2.@sortOrder;
-				
-				if (obj1.@value == '') {
-					return -1;
-				} else if (obj2.@value == '') {
-					return 1;
-				} else {
-					if (order1 < order2) {
-						return -1;
-					} else if (order1 > order2) {
-						return 1;
-					} else {
-						return 0;
-					}
 				}
 			}			
 		}			
