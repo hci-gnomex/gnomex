@@ -112,7 +112,8 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        lane.idSequenceLane, ");
     queryBuf.append("        '', ");
     queryBuf.append("        req.name, ");
-    queryBuf.append("        s.barcodeSequence ");
+    queryBuf.append("        s.barcodeSequence, ");
+    queryBuf.append("        lane.idNumberSequencingCyclesAllowed ");
 
     getNextGenSeqQueryBody(queryBuf);
     

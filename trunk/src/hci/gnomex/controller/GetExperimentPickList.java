@@ -4,10 +4,10 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
 import hci.gnomex.model.NumberSequencingCycles;
+import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.utility.DictionaryHelper;
@@ -37,12 +37,12 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   
   private ExperimentPickListFilter       filter;
   private HashMap                        slideDesignMap = new HashMap();
-  private HashMap                        seqRunTypeMap = new HashMap();
+  private HashMap<Integer, String>       numberSequencingCyclesAllowedMap = new HashMap<Integer, String>();
   private HashMap                        sampleTypeMap = new HashMap();
   private HashMap                        numberSeqCyclesMap = new HashMap();
   
-  private HashMap                        requestSeqRunTypeMap = new HashMap();
   private HashMap                        requestSampleTypeMap = new HashMap();
+  private HashMap<String, Object>        requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
 
   private Element                        rootNode = null;
   private Element                        projectNode = null;
@@ -78,11 +78,11 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         SlideDesign sd = (SlideDesign)i.next();
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
-      
-      List seqRunTypes = sess.createQuery("SELECT fct from SeqRunType fct ").list();
-      for(Iterator i = seqRunTypes.iterator(); i.hasNext();) {
-        SeqRunType fct = (SeqRunType)i.next();
-        seqRunTypeMap.put(fct.getIdSeqRunType(), fct.getSeqRunType());
+
+      List numberSequencingCyclesAlloweds = sess.createQuery("SELECT ncsa from NumberSequencingCyclesAllowed ncsa ").list();
+      for(Iterator i = numberSequencingCyclesAlloweds.iterator(); i.hasNext();) {
+        NumberSequencingCyclesAllowed ncsa = (NumberSequencingCyclesAllowed)i.next();
+        numberSequencingCyclesAllowedMap.put(ncsa.getIdNumberSequencingCyclesAllowed(), ncsa.getName());
       }
       List sampleTypes = sess.createQuery("SELECT st from SampleType st ").list();
       for(Iterator i = sampleTypes.iterator(); i.hasNext();) {
@@ -253,7 +253,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
     projectNode.addContent(requestNode);
     
-    this.requestSeqRunTypeMap = new HashMap();
+    this.requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
     this.requestSampleTypeMap = new HashMap();
   }
 
@@ -263,7 +263,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
     itemNode.setAttribute("idSlideDesign",            row[11] == null ? ""  : ((Integer)row[11]).toString());
     itemNode.setAttribute("idNumberSequencingCycles", row[12] == null ? ""  : ((Integer)row[12]).toString());
-    itemNode.setAttribute("idSeqRunType",           row[13] == null ? ""  : ((Integer)row[13]).toString());
+    itemNode.setAttribute("idSeqRunType",             row[13] == null ? ""  : ((Integer)row[13]).toString());
     itemNode.setAttribute("sampleNumber1",            row[14] == null ? ""  : (String)row[14]);
     itemNode.setAttribute("sampleName1",              row[15] == null ? ""  : (String)row[15]);
     itemNode.setAttribute("sampleNumber2",            row[16] == null ? ""  : (String)row[16]);
@@ -275,6 +275,9 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if(row.length > 26){
       itemNode.setAttribute("sampleBarcodeSequence",    row[26] == null ? ""  : (String)row[26]);
     }
+    if (row.length > 27) {
+      itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
+    }
     
     
     Integer idNumberSequencingCycles = (Integer)row[12];
@@ -285,13 +288,16 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       itemNode.setAttribute("numberSequencingCycles", "?");      
     }
 
-    Integer idSeqRunType = (Integer)row[13];
-    if (idSeqRunType != null && idSeqRunType.intValue() != -1) {
-      String seqRunType = (String)this.seqRunTypeMap.get(idSeqRunType);
-      itemNode.setAttribute("seqRunType", seqRunType);      
-      this.requestSeqRunTypeMap.put(seqRunType, null);
+    Integer idNumberSequencingCyclesAllowed = -1;
+    if (row.length > 27) {
+      idNumberSequencingCyclesAllowed = (Integer)row[27];
+    }
+    if (idNumberSequencingCyclesAllowed != null && idNumberSequencingCyclesAllowed.intValue() != -1) {
+      String numberSequencingCyclesAllowed = (String)this.numberSequencingCyclesAllowedMap.get(idNumberSequencingCyclesAllowed);
+      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);      
+      this.requestNumberSequencingCyclesAllowedMap.put(numberSequencingCyclesAllowed, null);
     } else {
-      itemNode.setAttribute("seqRunType", "?");      
+      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");      
     }
 
     Integer idSampleType = (Integer)row[18];
@@ -307,7 +313,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
-       requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
+      requestNode.setAttribute("numberSequencingCyclesAllowed", itemNode.getAttributeValue("numberSequencingCyclesAllowed"));
     } else {
       label.append(" - ");
       label.append(itemNode.getAttributeValue("sampleName1"));
@@ -327,7 +333,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
     if (requestCategory.isNextGenSeqRequestCategory()) {
       StringBuffer buf = new StringBuffer();
-      for (Iterator i = requestSeqRunTypeMap.keySet().iterator(); i.hasNext();) {
+      for (Iterator i = requestNumberSequencingCyclesAllowedMap.keySet().iterator(); i.hasNext();) {
         buf.append(i.next());
         if (i.hasNext()) {
           buf.append(", ");
