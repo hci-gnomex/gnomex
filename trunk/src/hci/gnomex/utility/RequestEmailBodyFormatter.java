@@ -196,8 +196,7 @@ public class RequestEmailBodyFormatter extends DetailObject{
     if (request.getSequenceLanes().iterator().hasNext()) {
         Element seqType = new Element("H4");
         SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-        seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
-        seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+        seqType.addContent(lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
         center1.addContent(seqType);
     }
     
