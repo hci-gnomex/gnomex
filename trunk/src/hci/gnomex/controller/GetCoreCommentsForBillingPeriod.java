@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 
@@ -71,7 +72,10 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
         String name                     = (String)row[1];
         String codeBillingStatus        = (String)row[2];
         String corePrepInstructions     = (String)row[3];
-
+        String labLastName              = (String)row[4];
+        String labFirstName             = (String)row[5];
+        
+        String labName = Lab.formatLabName(toString(labLastName), toString(labFirstName));
         
         Element node = new Element("Request");
 
@@ -80,6 +84,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
         node.setAttribute("corePrepInstructions", toString(corePrepInstructions));
         node.setAttribute("billingPeriod", toString(billingPeriod));
         node.setAttribute("billingStatus", dh.getBillingStatus(codeBillingStatus));
+        node.setAttribute("lab", labName);
 
         doc.getRootElement().addContent(node);
 
