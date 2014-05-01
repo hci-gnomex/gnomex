@@ -101,8 +101,7 @@
 		
 		private function onSaveExperimentPlatform(event:ResultEvent):void {
 			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
-				parentWindow.codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
-				parentWindow.getExperimentPlatformList.send();
+				parentWindow.afterSuccessfulSave(saveExperimentPlatform.lastResult.@codeRequestCategory);
 				PopUpManager.removePopUp(this);
 			} else {
 				Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
