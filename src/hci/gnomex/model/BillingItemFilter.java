@@ -317,10 +317,13 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        req.number, ");
     queryBuf.append("        req.name, ");
     queryBuf.append("        bi.codeBillingStatus, ");
-    queryBuf.append("        req.corePrepInstructions ");
+    queryBuf.append("        req.corePrepInstructions, ");
+    queryBuf.append("        lab.lastName, ");
+    queryBuf.append("        lab.firstName ");
     
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.billingItems as bi ");
+    queryBuf.append(" JOIN        req.lab as lab ");
     
     addRequestCriteria();
     addBillingItemCriteria();

@@ -3,7 +3,7 @@
 				xmlns:util="views.util.*"
 				layout="vertical" 
 				title="Billing Item Notes to Core" 
-				width="720" 
+				width="800" 
 				showCloseButton="true" close="mx.managers.PopUpManager.removePopUp(this)"
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/note_edit.png')">
@@ -95,6 +95,7 @@
 						     allowMultipleSelection="true"
 						     width="100%"
 						     height="100%"
+							 fontSize="10"
 						     dataProvider="{requestsWithComments}"
 							 itemClick="scrollToRequest(event)"
 							 sortArrowSkin="mx.skins.ProgrammaticSkin"
@@ -102,8 +103,11 @@
 			<mx:columns> 
 				
 				<mx:DataGridColumn dataField="@number"
-								   headerText="Req"
+								   headerText="Req #"
 								   width="60" minWidth="20" />
+				<mx:DataGridColumn dataField="@lab"
+								   headerText="Group"
+								   width="80" minWidth="20" />
 				<mx:DataGridColumn dataField="@name"
 								   dataTipField="@name"
 								   showDataTips="true"
