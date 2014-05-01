@@ -168,17 +168,22 @@
 			
 			private function onSaveExperimentPlatform(event:ResultEvent): void {
 				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
-					this.enabled = false;
-					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
-					parentApplication.dictionaryManager.reload();
-					// Must reload dictionary manager in case user changed seqlibprotocol.  Need to get platform list
-					// after reload complete so various dropdowns are ok.
-					dictionaryManager.reload();
-					dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
+					afterSuccessfulSave(saveExperimentPlatform.lastResult.@codeRequestCategory);
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
+
+			// called from onSaveExperimentPlatform here and in ExperimentPlatformAddWindow
+			public function afterSuccessfulSave(savedCodeRequestCategory:String):void {
+				this.enabled = false;
+				codeRequestCategorySelected = savedCodeRequestCategory;
+				parentApplication.dictionaryManager.reload();
+				// Must reload dictionary manager in case user changed seqlibprotocol.  Need to get platform list
+				// after reload complete so various dropdowns are ok.
+				dictionaryManager.reload();
+				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
+			}
 			
 			public function onDictionariesLoadedAfterSave(event:Event):void {	
 				getExperimentPlatformList.send();
