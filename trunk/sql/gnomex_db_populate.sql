@@ -1212,8 +1212,6 @@ VALUES  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sampl
 
 INSERT INTO `gnomex`.`SeqLibProtocolApplication`(`idSeqLibProtocol`, `codeApplication`)
 VALUES (31, 'DNASEQ'),
-  (32, 'MRNASEQ'),
-  (33, 'MRNASEQ'),
   (34,'CHIPSEQ'),
   (35, 'SMRNASEQ'),
   (39, 'MRNASEQ'),
