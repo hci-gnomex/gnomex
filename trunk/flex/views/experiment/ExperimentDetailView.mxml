@@ -1588,7 +1588,6 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					
-					<mx:AdvancedDataGridColumn id="qubitConcentrationCol" headerText="Qubit Conc." width="65" visible="true"  dataField="@qubitConcentration"/>
 					<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
 						<mx:itemRenderer>
 							<mx:Component>
@@ -1662,6 +1661,7 @@
 					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 					<mx:AdvancedDataGridColumn id="qc260Col" visible="false" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 					<mx:AdvancedDataGridColumn id="qc260280Col" visible="false" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
+					<mx:AdvancedDataGridColumn id="qubitConcentrationCol" headerText="Qubit Conc." width="65" visible="true"  dataField="@qubitConcentration"/>
 					<mx:AdvancedDataGridColumn id="qcRINCol" visible="false" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
