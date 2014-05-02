@@ -145,9 +145,11 @@
 			if (parentApplication.useConfigurableBillingAccounts) {
 				if (isEdit) {
 					currentState = "openSourceEditState";
+					changeCoreComboVis(true);
 				} else {
 					currentState = "openSourceWorkAuthState";
 					initWorkAuthState();
+					changeCoreComboVis(false);
 				}
 				var lastUsedOrd:int = -1;
 				for(var i:int=1; i<6; i++) {
@@ -171,9 +173,11 @@
 			} else {
 				if (isEdit) {
 					currentState = "internalEditState";
+					changeCoreComboVis(true);
 				} else {
 					currentState = "internalWorkAuthState";
 					initWorkAuthState();
+					changeCoreComboVis(false);
 				}
 			}
 			originalBa = ba.copy();
@@ -215,8 +219,16 @@
 			}
 		}
 		
+		private function changeCoreComboVis(vis:Boolean):void {
+			coreCombo.visible = vis;
+			coreCombo.includeInLayout = vis;
+			coreCheckboxBox.visible = !vis;
+			coreCheckboxBox.includeInLayout = !vis;
+			coreLabel.text = vis ? 'Core Facility' : 'Core Facility(ies)';
+		}
+		
 		private function initWorkAuthState():void {
-			this.title = "Submit Campus billing account";
+			this.title = "Submit Campus Billing Bccount";
 			if (!parentApplication.useConfigurableBillingAccounts) {
 				
 				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
@@ -387,7 +399,7 @@
 				params.startDate = ba.@startDateOther;
 				params.expirationDate = ba.@expirationDateOther;
 				params.idLab = this.labCombo.selectedItem.@idLab;
-				params.idCoreFacility = ba.@idCoreFacility;
+//				params.idCoreFacility = ba.@idCoreFacility;
 				params.accountNumberBus = ba.@accountNumberBus;
 				params.accountNumberOrg = ba.@accountNumberOrg;
 				params.accountNumberFund = ba.@accountNumberFund;
@@ -404,8 +416,26 @@
 				params.submitterEmail = ba.@submitterEmail;
 				params.totalDollarAmountDisplay = ba.@totalDollarAmountDisplay;
 				
+				params.coreFacilitiesXMLString = "<coreFacilities>" + getSelectedCoreFacilities().toXMLString() + "</coreFacilities>";
+				
+				
 				submitWorkAuthForm.send(params);
 			}
+		}
+		
+		private function getSelectedCoreFacilities():XMLListCollection {
+			var facilities:XMLListCollection = new XMLListCollection();
+			for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+				if (coreFacilityCheckbox[x].selected) {
+					var facility:Object = coreFacilities.getItemAt(x);
+					var node:XML = new XML("<CoreFacility " +
+						" idCoreFacility='" + facility.@value + "'" +
+						" facilityName='" + facility.@display + "'" +
+						"/>");
+					facilities.addItem(node);
+				}
+			}
+			return facilities;
 		}
 		
 		private function cancel():void {
@@ -424,12 +454,17 @@
 			
 			if(labCombo.selectedIndex == -1)
 				errorMessage += "- Please select a lab\n";
-			
-			if(ba.@idCoreFacility == '')
-				errorMessage += "- Please select a core facility\n";
-			
+						
 			if(ba.@accountName == "")
 				errorMessage += "- Please provide a name for your account.\n";
+			
+			if (isEdit) {
+				if(ba.@idCoreFacility == '')
+					errorMessage += "- Please select a core facility\n";
+			} else {
+				if(getSelectedCoreFacilities() == null || getSelectedCoreFacilities().length == 0)
+					errorMessage += "- Please select at least 1 core facility\n";
+			}
 			
 			emailValidator.validate(ba.@submitterEmail.toString());
 			if(validEmail == false)
@@ -636,7 +671,7 @@
 			if (coreCombo.visible) {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
 				coreCombo.dropdown.dataProvider = coreFacilities;
-				
+								
 				if (coreFacilities.length > 1) {
 					var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
 					coreFacilities.addItemAt(blankNode, 0);
@@ -660,6 +695,15 @@
 					ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
 					coreCombo.selectedIndex = 0;
 				} else {
+					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+					PopUpManager.removePopUp(this);
+				}
+			} else {
+				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+				coreFacilityRepeater.dataProvider = coreFacilities;
+				coreFacilities.refresh();
+				
+				if (coreFacilities.length == 0) {
 					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
 					PopUpManager.removePopUp(this);
 				}
@@ -784,9 +828,16 @@
 		</mx:HBox>
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox">
-			<mx:Label text="Core Facility" width="120" styleName="formLabel"/>
+			<mx:Label text="Core Facility" width="120" styleName="formLabel" id="coreLabel"/>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
+			<mx:VBox id="coreCheckboxBox">
+				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
+					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
+								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11">
+					</mx:CheckBox> 
+				</mx:Repeater>
+			</mx:VBox>
 		</mx:HBox>
 		
 		

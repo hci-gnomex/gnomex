@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
@@ -11,13 +12,17 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabCoreFacilityParser;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -25,6 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 
@@ -36,26 +44,44 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubmitWorkAuthForm.class);
 
+  private BillingAccount                 billingAccountScreen;
   private BillingAccount                 billingAccount;
   private String                         serverName;
   private String                         launchAppURL;
   private Lab                            lab;
   private CoreFacility                   facility;
+  private LabCoreFacilityParser             coreFacilityParser;
   
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
-    billingAccount = new BillingAccount();
-    HashMap errors = this.loadDetailObject(request, billingAccount);
+    billingAccountScreen = new BillingAccount();
+    HashMap errors = this.loadDetailObject(request, billingAccountScreen);
     this.addInvalidFields(errors);
     
     if (request.getParameter("totalDollarAmountDisplay") != null && !request.getParameter("totalDollarAmountDisplay").equals("")) {
       String tda = request.getParameter("totalDollarAmountDisplay");
       tda = tda.replaceAll("\\$", "");
       tda = tda.replaceAll(",", "");
-      billingAccount.setTotalDollarAmount(new BigDecimal(tda));
+      billingAccountScreen.setTotalDollarAmount(new BigDecimal(tda));
+    }
+    
+    String coreFacilitiesXMLString = "";
+    if (request.getParameter("coreFacilitiesXMLString") != null && !request.getParameter("coreFacilitiesXMLString").equals("")) {
+      coreFacilitiesXMLString = request.getParameter("coreFacilitiesXMLString");
+
+      StringReader reader = new StringReader(coreFacilitiesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        Document coreFacilitiesDoc = sax.build(reader);
+        coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
+  
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse coreFacilitiesXMLString", je );
+        this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
+      }
     }
     
     try {
@@ -74,20 +100,20 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       
-      lab = (Lab)sess.load(Lab.class, billingAccount.getIdLab());
+      lab = (Lab)sess.load(Lab.class, billingAccountScreen.getIdLab());
       
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       String configurable = pdh.getProperty(PropertyDictionary.CONFIGURABLE_BILLING_ACCOUNTS);
-      boolean hasActivity = (billingAccount.getAccountNumberActivity() != null && billingAccount.getAccountNumberActivity().length() > 0);
+      boolean hasActivity = (billingAccountScreen.getAccountNumberActivity() != null && billingAccountScreen.getAccountNumberActivity().length() > 0);
       if (configurable == null || configurable.equals("N")) {
-        if(billingAccount.getAccountNumberBus() == null || billingAccount.getAccountNumberBus().length() != 2 || 
-            billingAccount.getAccountNumberOrg() == null || billingAccount.getAccountNumberOrg().length() != 5 ||
-            billingAccount.getAccountNumberFund() == null || billingAccount.getAccountNumberFund().length() != 4 || 
-            billingAccount.getAccountNumberAccount() == null || billingAccount.getAccountNumberAccount().length() != 5 ||
-            (hasActivity && (billingAccount.getAccountNumberAu() == null || billingAccount.getAccountNumberAu().length() != 1)) || 
-            ((billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().equals("")) && (billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().length() !=5)) ||
-            ((billingAccount.getAccountNumberActivity() == null || billingAccount.getAccountNumberActivity().equals("")) && (billingAccount.getAccountNumberProject() == null || billingAccount.getAccountNumberProject().length() !=8)) ||
-            billingAccount.getExpirationDate() == null || billingAccount.getStartDate() == null) {
+        if(billingAccountScreen.getAccountNumberBus() == null || billingAccountScreen.getAccountNumberBus().length() != 2 || 
+            billingAccountScreen.getAccountNumberOrg() == null || billingAccountScreen.getAccountNumberOrg().length() != 5 ||
+            billingAccountScreen.getAccountNumberFund() == null || billingAccountScreen.getAccountNumberFund().length() != 4 || 
+            billingAccountScreen.getAccountNumberAccount() == null || billingAccountScreen.getAccountNumberAccount().length() != 5 ||
+            (hasActivity && (billingAccountScreen.getAccountNumberAu() == null || billingAccountScreen.getAccountNumberAu().length() != 1)) || 
+            ((billingAccountScreen.getAccountNumberProject() == null || billingAccountScreen.getAccountNumberProject().equals("")) && (billingAccountScreen.getAccountNumberActivity() == null || billingAccountScreen.getAccountNumberActivity().length() !=5)) ||
+            ((billingAccountScreen.getAccountNumberActivity() == null || billingAccountScreen.getAccountNumberActivity().equals("")) && (billingAccountScreen.getAccountNumberProject() == null || billingAccountScreen.getAccountNumberProject().length() !=8)) ||
+            billingAccountScreen.getExpirationDate() == null || billingAccountScreen.getStartDate() == null) {
           
           this.addInvalidField("Work Authorization Error", "Please make sure all fields are entered and that the correct number of digits are used for each account number field.");
           this.setResponsePage(this.ERROR_JSP);
@@ -97,25 +123,42 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       if (this.isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_WORK_AUTH_FORMS)) {
   
-          billingAccount.setSubmitterUID(this.getSecAdvisor().getUID());
-          billingAccount.setIsApproved("N");
-          billingAccount.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+          billingAccountScreen.setSubmitterUID(this.getSecAdvisor().getUID());
+          billingAccountScreen.setIsApproved("N");
+          billingAccountScreen.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
           
-          sess.save(billingAccount);
-           
-          sess.flush();
           
-          facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
-  
-          String emailWarning = "";
-          try {
-            this.sendConfirmationEmail(sess);
-          } catch (MessagingException me) {
-            emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
+          if (coreFacilityParser != null) {
+            coreFacilityParser.parse(sess);
           }
-  
-          this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
-        
+          this.xmlResult = "";
+          for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
+            Integer idCoreFacility = (Integer)i.next();
+            facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
+          
+            billingAccount = new BillingAccount();
+            billingAccount.copyFieldsFrom( billingAccountScreen );
+            
+            billingAccount.setIdBillingAccount( null );
+            billingAccount.setIdCoreFacility( idCoreFacility );
+            
+            sess.save(billingAccount);
+            
+            sess.flush();
+    
+            String emailWarning = "";
+            try {
+              this.sendConfirmationEmail(sess, facility);
+            } catch (MessagingException me) {
+              emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
+            }
+    
+            this.xmlResult += "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
+          
+            
+          }
+          
+          
           
           setResponsePage(this.SUCCESS_JSP);
         } else {
@@ -141,7 +184,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   }
   
 
-  private void sendConfirmationEmail(Session sess) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, CoreFacility facility) throws NamingException, MessagingException {
     StringBuffer invalidEmails = new StringBuffer();
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
