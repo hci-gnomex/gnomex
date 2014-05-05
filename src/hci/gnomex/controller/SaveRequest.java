@@ -911,14 +911,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     
   }
   
-  
   public static String saveRequest(Session sess, RequestParser requestParser, String description) throws Exception {
+    boolean isImport = false;
+    return saveRequest(sess, requestParser, description, isImport);
+  }
+  
+  
+  public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
     
     Request request = requestParser.getRequest();
     request.setDescription(description);
     sess.save(request);
     
-    if (requestParser.isNewRequest()) {
+    if (requestParser.isNewRequest() && !isImport) {
       request.setNumber(getNextRequestNumber(requestParser, sess));
       sess.save(request);
       
