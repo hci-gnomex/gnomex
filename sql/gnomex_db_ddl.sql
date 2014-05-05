@@ -2259,7 +2259,7 @@ CREATE TABLE `gnomex`.`SequenceLane` (
   CONSTRAINT `FK_SequenceLane_SeqRunType` FOREIGN KEY `FK_SequenceLane_SeqRunType` (`idSeqRunType`)
     REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_SequenceLane_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_SequenceLane_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
     REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
     ON DELETE NO ACTION
@@ -2999,6 +2999,59 @@ CREATE TABLE `gnomex`.`InternalAccountFieldsConfiguration` (
   maxLength INT(10) NULL,
   PRIMARY KEY (`idInternalAccountFieldsConfiguration`),
   UNIQUE KEY `UN_InternalAccountFieldsConfiguration` (fieldName)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`NewsItem`;
+CREATE TABLE `gnomex`.`NewsItem` (
+	`idNewsItem` INT(10) NOT NULL AUTO_INCREMENT,
+	`idSubmitter` INT(10) NOT NULL,
+	`idCoreSender` INT(10) NOT NULL,
+	`idCoreTarget` INT(10) NULL,
+	`title` VARCHAR(200) NOT NULL,
+	`message` VARCHAR(4000) NOT NULL,
+	`date` DATETIME NULL,
+	CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
+       REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+       ON DELETE NO ACTION
+       ON UPDATE NO ACTION,
+    PRIMARY KEY (`idNewsItem`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`FAQ`;
+CREATE TABLE `gnomex`.`FAQ` (
+  `idFAQ` INT(10) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(300) NOT NULL,
+  `url` VARCHAR(500) NOT NULL,
+  `views` INT(10) NULL,
+  PRIMARY KEY (`idFAQ`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`Notification`;
+CREATE TABLE `gnomex`.`Notification` (
+	`idNotification` INT(10) NOT NULL AUTO_INCREMENT,
+	`idUserTarget` INT(10) NOT NULL,
+	`idLabTarget` INT(10) NULL,
+	`sourceType` VARCHAR(20) NOT NULL,
+	`message` VARCHAR(250) NULL,
+	`date` DATETIME NULL,
+	`expID` INT(10) NULL,
+	`type`	VARCHAR(25) NULL,
+	`fullNameUser`	VARCHAR(100) NULL,
+	`imageSource` VARCHAR(50), 
+	PRIMARY KEY (`idNotification`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`MetrixObject`;
+CREATE TABLE `gnomex`.`MetrixObject` (
+  `id` INT(10) NOT NULL AUTO_INCREMENT,
+  `run_id` VARCHAR(512) NULL,
+  `object_value` VARBINARY(8000),
+  `state` INT(10) NULL,
+  PRIMARY KEY (`id`)
 )
 ENGINE = INNODB;
 
