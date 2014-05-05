@@ -80,6 +80,7 @@ delete from PropertyDictionary where propertyName='sequence_alignment_server_url
 CREATE TABLE `gnomex`.`NewsItem` (
 	`idNewsItem` INT(10) NOT NULL AUTO_INCREMENT,
 	`idSubmitter` INT(10) NOT NULL,
+	`idCoreFacility` INT(10) NULL,
 	`idCoreSender` INT(10) NOT NULL,
 	`idCoreTarget` INT(10) NULL,
 	`title` VARCHAR(200) NOT NULL,
@@ -98,6 +99,7 @@ CREATE TABLE `gnomex`.`FAQ` (
   `title` VARCHAR(300) NOT NULL,
   `url` VARCHAR(500) NOT NULL,
   `views` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`idFAQ`)
 )
 ENGINE = INNODB;
@@ -112,7 +114,8 @@ CREATE TABLE `gnomex`.`Notification` (
 	`expID` INT(10) NULL,
 	`type`	VARCHAR(25) NULL,
 	`fullNameUser`	VARCHAR(100) NULL,
-	`imageSource` VARCHAR(50), 
+	`imageSource` VARCHAR(50),
+	`idCoreFacility` INT(10) NULL,	
 	PRIMARY KEY (`idNotification`)
 )
 ENGINE = INNODB;
