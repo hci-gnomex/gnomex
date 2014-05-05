@@ -166,7 +166,7 @@ public class ImportExperiment {
       
       
       // Save the experiment
-      SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"));
+      SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"), true);
      
       // Save the samples
       saveSamples();
