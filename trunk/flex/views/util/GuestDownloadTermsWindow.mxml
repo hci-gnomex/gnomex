@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="420" 
 				xmlns:util="views.util.*"
-				height="200" creationPolicy="all"
+				height="360" creationPolicy="all"
 				title="Download Terms"  xmlns:controls="hci.flex.controls.*" initialize="titlewindow1_initializeHandler(event)">
 	<mx:Script>
 		<![CDATA[
