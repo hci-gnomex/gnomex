@@ -366,10 +366,6 @@
 			</mx:VBox>
 	
 		</mx:HBox>
-		<mx:HBox id="bugContact" verticalAlign="middle" horizontalAlign="center">
-			<mx:Text text="GNomEx support"/>
-			<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" />
-		</mx:HBox>
 		<mx:Spacer id="spacer2" height="100%"/>
 		<mx:VBox width="400" horizontalAlign="center" paddingBottom="2" paddingTop="2" id="vbox15" height="100%" paddingLeft="2" paddingRight="2">
 			<mx:VBox   visible="{parentApplication.bulletin != ''}" backgroundColor="#FDFCA6" backgroundAlpha=".2" width="100%" height="100%" borderStyle="outset" fontSize="11" textDecoration="none" fontStyle="normal" verticalAlign="middle"  horizontalAlign="center" borderColor="#000000" borderThickness="4" paddingTop="0" paddingRight="4" paddingLeft="4" paddingBottom="0">
