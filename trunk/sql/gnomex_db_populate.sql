@@ -920,7 +920,16 @@ Test City, UT 12345',
  (108,'experiment_file_sample_linking_enabled','Y','Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N'),
  (109, 'contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N'),
  (110, 'analysis_assistance_group', '', 'Name of the group that oversees analysis assistance on new requests', 'N'),
- (111, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N'); 
+ (111, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N'),
+ (112,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
+ (113,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
+ (114,'seq_lane_number_separator', '-', 'The default separator character for sequence lane numbers','Y'),
+ (115,'seq_lane_letter', 'F', 'The default letter used in Sequence Lane naming','Y'),
+ (116,'status_to_start_workflow', 'SUBMITTED', 'What request status is required before work items are shown for that request','Y'),
+ (117,'show_activity_dashboard','N','Should the activity feed be shown on the dashboard','N'),
+ (118,'show_metrix_dashboard','N','Should the metrix server feed be shown on the dashboard','N'),
+ (119,'show_news_dashboard','N','Should the news feed be shown on the dashboard','N');
+ 
  
  
  
