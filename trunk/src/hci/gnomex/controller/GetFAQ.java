@@ -58,7 +58,10 @@ public class GetFAQ extends GNomExCommand implements Serializable {
           coreFacilities = this.getSecAdvisor().getCoreFacilitiesForMyLab(); 
         }
         coreFacilities.addAll(this.getSecAdvisor().getCoreFacilitiesIManage());
-        buf.append(" where f.idCoreFacility is null or f.idCoreFacility in (-1,  ");
+        buf.append(" where f.idCoreFacility is null or f.idCoreFacility in (-1  ");
+        if(coreFacilities.size() != 0) {
+          buf.append(", ");
+        }
         for(Iterator i = coreFacilities.iterator(); i.hasNext();) {
           CoreFacility cf = (CoreFacility)i.next();
           buf.append(cf.getIdCoreFacility());
