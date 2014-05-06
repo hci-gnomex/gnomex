@@ -77,7 +77,7 @@
 					}
 				}
 				
-				if (!parentApplication.usesKindOfRequestCategory("MISEQ") || !parentApplication.usesExperimentType("HISEQ")) {
+				if (!parentApplication.usesExperimentType("MISEQ")) {
 					if (navBar.contains(miSeqTab)) {
 						navBar.removeChild(miSeqTab);
 						removeFromQCTabItems("miseq");
