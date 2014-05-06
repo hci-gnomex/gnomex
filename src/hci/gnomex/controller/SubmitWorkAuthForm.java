@@ -131,7 +131,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
           if (coreFacilityParser != null) {
             coreFacilityParser.parse(sess);
           }
-          this.xmlResult = "";
+          
           for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
             Integer idCoreFacility = (Integer)i.next();
             facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
@@ -153,11 +153,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
               emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
             }
     
-            this.xmlResult += "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
-          
-            
+            this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
+                    
           }
-          
           
           
           setResponsePage(this.SUCCESS_JSP);
