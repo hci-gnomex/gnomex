@@ -242,7 +242,8 @@
 				}
 				
 				// Edit columns shown
-				
+				concentrationCol.visible = parentDocument.isEditState();
+				qc_260_280Column.visible = parentDocument.isEditState();
 				qubitConcentrationCol.visible = parentDocument.isEditState() && parentDocument.request.@includeQubitConcentration == 'Y';
 				
 				sampleNumberCol.visible = parentDocument.isEditState();
