@@ -435,7 +435,7 @@
 
 			for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
 				if (theTab.getChildAt(tabIdx) == this.samplesView) {
-					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategoryType, isEditState, isAmendState);
+					var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
 					if (newSamplesView != this.samplesView) {
 						this.samplesView = newSamplesView;
 						theTab.removeChildAt(tabIdx);
@@ -4921,11 +4921,17 @@
 			private function pickApplication():void {
 				if (this.requestApplicationComboBox != null && this.requestApplicationComboBox.selectedItem != null) {
 					request.@codeApplication =  this.requestApplicationComboBox.selectedItem.@value;
+					var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(request.@codeApplication);
+					var id:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+					for each (var sample:Object in this.samples) {
+						sample.@idSeqLibProtocol = id;
+					}
 				} else {
 					// should never happen
 					request.@codeApplication = "";
 				}
-			} 
+			}
+
 			
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;

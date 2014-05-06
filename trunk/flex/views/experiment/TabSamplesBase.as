@@ -32,8 +32,14 @@ package views.experiment
 
 		public var filteredSampleTypeList:XMLListCollection;
 
-		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
-			if (requestCategoryType.@isIllumina == 'Y') {
+		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategory:Object, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
+			if (requestCategory.@codeRequestCategory == 'MDMISEQ') {
+				if (existingTab is TabSamplesMDMiSeq) {
+					return existingTab;
+				} else {
+					return new TabSamplesMDMiSeq();
+				}
+			} else if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
 				} else {
