@@ -68,6 +68,25 @@ update SequenceLane
  set SequenceLane.idNumberSequencingCyclesAllowed=NumberSequencingCyclesAllowed.idNumberSequencingCyclesAllowed
  where SequenceLane.idNumberSequencingCyclesAllowed is null;
 
+-- FlowCell now has idNumberSequencingCyclesAllowed
+alter table FlowCell add idNumberSequencingCyclesAllowed INT(10) null;
+call ExecuteIfTableExists('gnomex','FlowCell_Audit','alter table FlowCell_Audit add idNumberSequencingCyclesAllowed INT(10) null');
+alter table FlowCell add 
+  CONSTRAINT `FK_FlowCell_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_FlowCell_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
+    REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+update FlowCell 
+  join (select distinct idFlowCell, codeRequestCategory 
+      from FlowCellChannel 
+      join SequenceLane on SequenceLane.idFlowCellChannel = FlowCellChannel.idFlowCellChannel
+      join Request on Request.idRequest = SequenceLane.idRequest) t1 on t1.idFlowCell = FlowCell.idFlowCell
+  join NumberSequencingCyclesAllowed on NumberSequencingCyclesAllowed.idNumberSequencingCycles = FlowCell.idNumberSequencingCycles
+      and NumberSequencingCyclesAllowed.idSeqRunType = FlowCell.idSeqRunType
+      and NumberSequencingCyclesAllowed.codeRequestCategory = t1.codeRequestCategory
+  set FlowCell.idNumberSequencingCyclesAllowed=NumberSequencingCyclesAllowed.idNumberSequencingCyclesAllowed
+  where FlowCell.idNumberSequencingCyclesAllowed is null;
+
 -- Remove isSampleBarcodingOptional
 alter table gnomex.RequestCategory drop column isSampleBarcodingOptional;
 call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit drop column isSampleBarcodingOptional');
