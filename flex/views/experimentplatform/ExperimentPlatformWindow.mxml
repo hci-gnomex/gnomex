@@ -90,7 +90,7 @@
 				if (codeRequestCategorySelected != null) {
 					var found:Boolean = false;
 					for each(var ep:Object in getExperimentPlatformList.lastResult.RequestCategory) {
-						if (ep.@codeRequestCategory == codeRequestCategorySelected) {
+						if (ep.@codeRequestCategory == codeRequestCategorySelected && isPlatformVisible(ep)) {
 							this.platformList.selectedItem = ep;
 							this.platformList.scrollToIndex(this.platformList.selectedIndex);
 							this.onSelectPlatform();
@@ -311,6 +311,10 @@
 				this.theViews.selectedIndex=0;
 				getExperimentPlatformList.send();
 			}
+			
+			private function toggleShowInactivePlatforms():void {
+				platforms.refresh();
+			}
 		]]>
 	</mx:Script>
 	
@@ -328,7 +332,7 @@
 		</mx:HBox>
 		<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4" backgroundAlpha="0">
 			<mx:VBox height="100%" width="200" id="platformListBox" verticalGap="2" styleName="panelBox" paddingLeft="0" paddingRight="0">
-				<mx:CheckBox id="inactivePlatformsCheckbox" label="Show Inactive Platforms" paddingLeft="4" change="{platforms.refresh()}" />
+				<mx:CheckBox id="inactivePlatformsCheckbox" label="Show Inactive Platforms" paddingLeft="4" change="{toggleShowInactivePlatforms()}" />
 				<util:DisabledItemsList id="platformList" width="100%" height="100%" labelField="@requestCategory" dataProvider="{platforms}"  iconFunction="parentApplication.getTreeIcon"
 										itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()"
 										itemRenderer="views.renderers.ExperimentPlatformListNodeRenderer">
