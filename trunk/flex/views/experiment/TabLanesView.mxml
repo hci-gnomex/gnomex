@@ -396,7 +396,7 @@
 					    	 sortable="false"
                             editorDataField="text" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
                             itemRenderer="views.renderers.LabelLaneSample" />                 
-						<mx:DataGridColumn width="250"  headerText="# Cycles"   editable="true" dataField="@idNumberSequencingCyclesAllowed" 					             						             
+						<mx:DataGridColumn width="250"  headerText="Sequencing Protocol"   editable="true" dataField="@idNumberSequencingCyclesAllowed" 					             						             
 										   editorDataField="value"  
 										   rendererIsEditor="false"  
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value','@idNumberSequencingCyclesAllowed', true)}"                 

@@ -328,8 +328,8 @@
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<util:ContextHelp context1="seqOptionsSequencingOption" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequencing Option Help"
-								  label="(1)  Select a Sequencing Option." labelPlacement="left" id="label10" width="314"/>
+				<util:ContextHelp context1="seqOptionsSequencingOption" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequencing Protocol Help"
+								  label="(1)  Select a Sequencing Protocol." labelPlacement="left" id="label10" width="314"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
