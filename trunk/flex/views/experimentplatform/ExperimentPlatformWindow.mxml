@@ -295,10 +295,12 @@
 			
 			private function isPlatformVisible(obj:Object):Boolean {
 				var v:Boolean = true;
-				if (!parentApplication.isCoreFacilityIManage(obj.@idCoreFacility)) {
-					v = false;
-				} else if (!inactivePlatformsCheckbox.selected && obj.@isActive != 'Y') {
-					v = false;
+				if (obj != platformList.selectedItem) {
+					if (!parentApplication.isCoreFacilityIManage(obj.@idCoreFacility)) {
+						v = false;
+					} else if (!inactivePlatformsCheckbox.selected && obj.@isActive != 'Y') {
+						v = false;
+					}
 				}
 				return v;
 			}
