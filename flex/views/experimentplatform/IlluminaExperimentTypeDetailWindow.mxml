@@ -153,6 +153,7 @@
 				
 				var originalIdTheme:String = selectedItem.@idApplicationTheme;
 				selectedItem.@idApplicationTheme = themeCombo.selectedItem.@idApplicationTheme;
+				selectedItem.@applicationThemeDisplay = themeCombo.selectedItem.@applicationTheme;
 				selectedItem.@isActive = 'Y';
 				selectedItem.@application = experimentTypeName.text;
 				selectedItem.@display = experimentTypeName.text;
