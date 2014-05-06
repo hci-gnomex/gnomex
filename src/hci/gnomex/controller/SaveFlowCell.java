@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.DictionaryHelper;
@@ -197,11 +198,11 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         }
 
         if(isNewFlowCell){
-          sendNotification(flowCell, sess, "NEW", "USER", "FLOWCELL");
-          sendNotification(flowCell, sess, "NEW", "ADMIN", "FLOWCELL");
+          sendNotification(flowCell, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
         } else{
-          sendNotification(flowCell, sess, "EXIST", "USER", "FLOWCELL");
-          sendNotification(flowCell, sess, "EXIST", "ADMIN", "FLOWCELL");
+          sendNotification(flowCell, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
         }
         sess.flush();
 

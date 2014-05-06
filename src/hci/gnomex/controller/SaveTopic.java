@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Topic;
 import hci.gnomex.model.Visibility;
@@ -95,11 +96,11 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         sess.flush();
         
         if(isNewTopic){
-          sendNotification(topic, sess, "NEW", "USER", "TOPIC");
-          sendNotification(topic, sess, "NEW", "ADMIN", "TOPIC");
+          sendNotification(topic, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
         } else{
-          sendNotification(topic, sess, "EXIST ", "USER", "TOPIC");
-          sendNotification(topic, sess, "EXIST", "ADMIN", "TOPIC");
+          sendNotification(topic, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
         }
         
         this.xmlResult = "<SUCCESS idTopic=\"" + topic.getIdTopic() 
