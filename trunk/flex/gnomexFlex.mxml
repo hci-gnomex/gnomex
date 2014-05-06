@@ -2219,13 +2219,13 @@
 				if (!showPurchaseSupplies) {
 					hideMenusByContext(navMenu, "purchaseSuppliesLink");
 				}
-				if (!usesKindOfRequestCategory("MISEQ")) {
+				if (!usesExperimentType("MISEQ")) {
 					hideMenusByContext(navMenu, "MISEQ");
 				}
 				if (!usesExperimentType("HISEQ")) {
 					hideMenusByContext(navMenu, "HISEQ");
 				}
-				if (!usesExperimentType("QC")) {
+				if (!usesExperimentType("QC")&&!usesExperimentType("MISEQ")&&!usesExperimentType("HISEQ")) {
 					hideMenusByContext(navMenu, "QC");
 				}
 				if (!usesExperimentType("MICROARRAY")) {
