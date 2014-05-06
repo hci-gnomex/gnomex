@@ -6,6 +6,19 @@ public class Notification extends HibernateDetailObject {
   
   private static final long serialVersionUID = 42L;
   
+  public static final String SOURCE_TYPE_ADMIN = "ADMIN";
+  public static final String SOURCE_TYPE_BILLING = "BILLING";
+  public static final String SOURCE_TYPE_USER = "USER";
+  public static final String TYPE_REQUEST = "REQUEST";
+  public static final String TYPE_TOPIC = "TOPIC";
+  public static final String TYPE_ANALYSIS = "ANALYSIS";
+  public static final String TYPE_DATATRACK = "DATATRACK";
+  public static final String TYPE_FLOWCELL = "FLOWCELL";
+  public static final String TYPE_INVOICE = "INVOICE";
+  public static final String NEW_NOTIFICATION = "NEW";
+  public static final String EXISTING_NOTIFICATION = "EXIST";
+  
+  
   private Integer			idNotification;
   private String			sourceType;
   private String			message;

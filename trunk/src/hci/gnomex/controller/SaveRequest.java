@@ -16,6 +16,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
@@ -321,8 +322,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               
         // save request
         originalRequestNumber = saveRequest(sess, requestParser, description);
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? "NEW" : "EXIST", "ADMIN", "REQUEST");
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? "NEW" : "EXIST", "USER", "REQUEST");
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_NOTIFICATION : Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_NOTIFICATION : Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
 
         // Remove files from file system
         if (filesToRemoveParser != null) {
@@ -829,7 +830,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
      // Add to BILLING Notification to table.
-     sendNotification(requestParser.getRequest(), sess, "NEW", "BILLING", "REQUEST");             
+     sendNotification(requestParser.getRequest(), sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_BILLING, Notification.TYPE_REQUEST);             
 
     }                
     

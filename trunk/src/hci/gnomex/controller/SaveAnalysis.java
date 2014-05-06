@@ -14,6 +14,7 @@ import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Notification;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
@@ -592,12 +593,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         this.saveAnalysisProperties(sess, analysis);
         
-        String state = "EXIST";
+        String state = Notification.EXISTING_NOTIFICATION;
         if(isNewAnalysis){
-          state = "NEW";
+          state = Notification.NEW_NOTIFICATION;
         }
-        sendNotification(analysis, sess, state, "ADMIN", "ANALYSIS");
-        sendNotification(analysis, sess, state, "USER", "ANALYSIS");
+        sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_ANALYSIS);
+        sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_USER, Notification.TYPE_ANALYSIS);
         
         // Create the analysis directory
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
