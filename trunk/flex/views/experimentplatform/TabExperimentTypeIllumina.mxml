@@ -87,6 +87,7 @@
 					" idScanProtocolDefault=''" +
 					" idFeatureExtractionProtocolDefault=''" +
 					" isActive='Y'" +
+					" canUpdate='Y'" +
 					" />");
 				// Illumina window needs list of all illumina request categories.
 				var rcApps:XMLList = new XMLList();
@@ -100,6 +101,9 @@
 					}
 				}
 				newNode.setChildren(rcApps);
+				applications.addItemAt(newNode, 0);
+				appGrid.selectedItem = newNode;
+				appGrid.scrollToIndex(0);
 				showEditExperimentTypeWindow(newNode);
 			}
 			
