@@ -625,12 +625,10 @@
 		
 		private function getCoreFacilityName():String {
 			var name:String = "";
-			for each(var c:Object in this.coreFacilities) {
-				if (c.@idCoreFacility == ba.@idCoreFacility) {
-					name = c.@facilityName;
-					break;
-				}
+			for each(var c:Object in getSelectedCoreFacilities()) {
+				name += c.@facilityName + ", ";
 			}
+			name = name.substring(0, name.length-2);
 			return name;
 		}
 		
