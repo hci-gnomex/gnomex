@@ -23,6 +23,7 @@ public class FlowCell extends HibernateDetailObject {
   private Integer  idInstrument;
   private String   side;
   private Integer  idCoreFacility;
+  private Integer  idNumberSequencingCyclesAllowed;
   private Set      flowCellChannels = new TreeSet();
   
   private Instrument instrument;
@@ -199,5 +200,13 @@ public class FlowCell extends HibernateDetailObject {
   public void setInstrument(Instrument instrument) {
     this.instrument = instrument;
   }
+
+public Integer getIdNumberSequencingCyclesAllowed() {
+	return idNumberSequencingCyclesAllowed;
+}
+
+public void setIdNumberSequencingCyclesAllowed(Integer idNumberSequencingCyclesAllowed) {
+	this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
+}
     
 }

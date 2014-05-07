@@ -40,6 +40,11 @@
 					this.detailViews.selectedChild = this.hiSeqViews;
 					this.hiSeqViews.selectedChild = this.workflowHiSeqAssembleView;
 					callLater(onHiSeqWorklistChange);
+				} else if (codeStep == 'HSEQFINFC') {
+					this.navBar.selectedChild = this.hiSeqTab;
+					this.detailViews.selectedChild = this.hiSeqViews;
+					this.hiSeqViews.selectedChild = this.workflowHiSeqFlowCellFinalizeView;
+					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'HSEQPIPE') {
 					this.navBar.selectedChild = this.hiSeqTab;
 					this.detailViews.selectedChild = this.hiSeqViews;
@@ -54,6 +59,11 @@
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
 					this.miSeqViews.selectedChild = this.workflowMiSeqAssembleView;
+					callLater(onMiSeqWorklistChange);
+				} else if (codeStep == 'MISEQFINFC') {
+					this.navBar.selectedChild = this.miSeqTab;
+					this.detailViews.selectedChild = this.miSeqViews;
+					this.miSeqViews.selectedChild = this.workflowMiSeqFlowCellFinalizeView;
 					callLater(onMiSeqWorklistChange);
 				} else if (codeStep == 'MISEQPIPE') {
 					this.navBar.selectedChild = this.miSeqTab;
@@ -236,7 +246,7 @@
 	        		workflowSolexaAssembleView.codeStepNext = "SEQASSEM";
 	        		workflowSolexaAssembleView.initializeData(solexaFlowCellChannels);
 	        		workflowSolexaAssembleView.getWorkList.send();
-	        		workflowSolexaAssembleView.getNextWorkList.send();
+	        		//workflowSolexaAssembleView.getNextWorkList.send();
 	        	} else if (solexaViews.selectedChild == workflowSolexaPipelineView) {
 	        		workflowSolexaPipelineView.codeStepNext = "SEQPIPE";
 					workflowSolexaPipelineView.initTitle();
@@ -302,8 +312,13 @@
 	        		workflowHiSeqAssembleView.codeStepNext = "HSEQASSEM";
 	        		workflowHiSeqAssembleView.initializeData(hiSeqFlowCellChannels);
 	        		workflowHiSeqAssembleView.getWorkList.send();
-	        		workflowHiSeqAssembleView.getNextWorkList.send();
-	        	} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
+	        		//workflowHiSeqAssembleView.getNextWorkList.send();
+	        	} else if (hiSeqViews.selectedChild == workflowHiSeqFlowCellFinalizeView) {
+					workflowHiSeqFlowCellFinalizeView.codeStepNext = "HSEQFINFC";
+					workflowHiSeqFlowCellFinalizeView.initTitle();
+					workflowHiSeqFlowCellFinalizeView.codeSequencingPlatform = "HISEQ";
+					workflowHiSeqFlowCellFinalizeView.getFlowCellList.send();
+				} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
 	        		workflowHiSeqPipelineView.codeStepNext = "HSEQPIPE";
 					workflowHiSeqPipelineView.initTitle();
 	        		workflowHiSeqPipelineView.getWorkList.send();
@@ -323,7 +338,12 @@
 					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";		
 					workflowMiSeqAssembleView.initializeData(miSeqFlowCellChannels);
 					workflowMiSeqAssembleView.getWorkList.send();
-					workflowMiSeqAssembleView.getNextWorkList.send();
+					//workflowMiSeqAssembleView.getNextWorkList.send();
+				} else if (miSeqViews.selectedChild == workflowMiSeqFlowCellFinalizeView) {
+					workflowMiSeqFlowCellFinalizeView.codeStepNext = "MISEQFINFC";
+					workflowMiSeqFlowCellFinalizeView.initTitle();
+					workflowMiSeqFlowCellFinalizeView.codeSequencingPlatform = "MISEQ";
+					workflowMiSeqFlowCellFinalizeView.getFlowCellList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqPipelineView) {
 					workflowMiSeqPipelineView.codeStepNext = "MISEQPIPE";
 					workflowMiSeqPipelineView.initTitle();
@@ -503,7 +523,9 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
+			   
+			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize FlowCell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
@@ -514,7 +536,9 @@
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
 				
-				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
+				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
+				
+				<workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize FlowCell" id="workflowMiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
 				
 				<workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowMiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 				

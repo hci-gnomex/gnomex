@@ -17,6 +17,7 @@ public class FlowCellFilter extends DetailObject {
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
+  private String				codeStepNext;
   
   
   private StringBuffer          queryBuf;
@@ -38,14 +39,17 @@ public class FlowCellFilter extends DetailObject {
   
   public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
     
-    queryBuf.append(" FROM        FlowCell as fc ");
+	  queryBuf.append(" FROM WorkItem as wi ");
+	  queryBuf.append(" JOIN wi.flowCellChannel as ch ");
+	  queryBuf.append(" JOIN ch.flowCell as fc ");
     if (this.hasRequestCriteria()) {
-      queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
+      //queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
       queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
       queryBuf.append(" JOIN   lane.request as req ");      
     }
+    queryBuf.append(" WHERE wi.codeStepNext = '" + codeStepNext + "' " );
     
-    addWhere = true;
+    addWhere = false;
     addFlowCellCriteria();
     addRequestCriteria();
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -226,7 +230,13 @@ public class FlowCellFilter extends DetailObject {
     this.codeSequencingPlatform = codeSequencingPlatform;
   }
 
+  public String getCodeStepNext() {
+	  return codeStepNext;
+  }
   
+  public void setCodeStepNext(String codeStepNext) {
+	  this.codeStepNext = codeStepNext;
+  }
 
 
   

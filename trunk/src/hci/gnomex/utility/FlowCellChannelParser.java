@@ -90,7 +90,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       }
 
       //
-      // Remove lanes
+      // Remove lanes which have been deleted by the user
       //
       if (channel.getSequenceLanes() != null
           || !channel.getSequenceLanes().isEmpty()) {
@@ -99,7 +99,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
         for (Iterator i2 = channel.getSequenceLanes().iterator(); i2.hasNext();) {
           SequenceLane existingLane = (SequenceLane) i2.next();
           if (!sequenceLaneMap.containsKey(existingLane.getIdSequenceLane().toString())) {
-            lanesToDelete.add(existingLane);
+            lanesToDelete.add(existingLane); // delete lane if it was stored in this channel but was not sent in the request (meaning the user deleted it from the channel)
           }
         }
         for (Iterator i2 = lanesToDelete.iterator(); i2.hasNext();) {
@@ -110,7 +110,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       }
 
       //
-      // Save lanes
+      // Save newly added lanes to channel
       //
       for (Iterator i2 = sequenceLaneMap.keySet().iterator(); i2.hasNext();) {
         String idLaneString = (String) i2.next();
