@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="510" height="400" backgroundAlpha="1"
-		   cornerRadius="12" preinitialize="init()" xmlns:renderers="views.renderers.*">   
+		   width="510" height="100%" backgroundAlpha="1"
+		   cornerRadius="12" preinitialize="init()" xmlns:renderers="views.renderers.*" horizontalScrollPolicy="off" verticalScrollPolicy="off">   
 
 	<mx:HTTPService 
 		id="getNewsItem" 
