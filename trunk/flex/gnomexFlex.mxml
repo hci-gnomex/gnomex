@@ -1131,7 +1131,8 @@
 			public var PROPERTY_INTERNAL_PRICE_LABEL:String               = "internal_price_label";
 			public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String      = "external_academic_price_label";
 			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
-
+			public var PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES:String      = "allow_add_sequencing_services";
+			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
 			public var USAGE_VISIBILITY_MASKED:String                     = "masked";

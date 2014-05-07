@@ -5015,7 +5015,10 @@
 							// filter by the lab's core facility
 							for each(var cf:Object in lab..CoreFacility) {
 								if (cf.@idCoreFacility == item.@idCoreFacility) {
-									keep = true;
+									if ( parentApplication.getCoreFacilityProperty(item.@idCoreFacility, parentApplication.PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES) == null || 
+										 parentApplication.getCoreFacilityProperty(item.@idCoreFacility, parentApplication.PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES) != 'N' ) {
+										keep = true;
+									}
 									break;
 								}
 							}
