@@ -322,8 +322,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               
         // save request
         originalRequestNumber = saveRequest(sess, requestParser, description);
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_NOTIFICATION : Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_NOTIFICATION : Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
+        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
 
         // Remove files from file system
         if (filesToRemoveParser != null) {
@@ -830,7 +830,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       
      // Add to BILLING Notification to table.
-     sendNotification(requestParser.getRequest(), sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_BILLING, Notification.TYPE_REQUEST);             
+     sendNotification(requestParser.getRequest(), sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_BILLING, Notification.TYPE_REQUEST);             
 
     }                
     

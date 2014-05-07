@@ -96,11 +96,11 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         sess.flush();
         
         if(isNewTopic){
-          sendNotification(topic, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
-          sendNotification(topic, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
         } else{
-          sendNotification(topic, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
-          sendNotification(topic, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_TOPIC);
+          sendNotification(topic, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_TOPIC);
         }
         
         this.xmlResult = "<SUCCESS idTopic=\"" + topic.getIdTopic() 
