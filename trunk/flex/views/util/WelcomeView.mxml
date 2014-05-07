@@ -275,7 +275,10 @@
 				this.notificationHub.workflowTab.notificationInterface.send();
 				this.notificationHub.adminTab.notificationInterface.send();
 				this.notificationHub.billingTab.notificationInterface.send();
-				this.runStatusHub.metrixInterface.send();
+				
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+					this.runStatusHub.metrixInterface.send();	
+				}
 			}
 			
 			private function showNewsBox():void{
