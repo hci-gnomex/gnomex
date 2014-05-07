@@ -294,6 +294,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setIdInstrument(fc.getIdInstrument());
     flowCell.setSide(fc.getSide());
     flowCell.setIdCoreFacility(fc.getIdCoreFacility());
+    flowCell.setIdNumberSequencingCyclesAllowed(fc.getIdNumberSequencingCyclesAllowed());
     
     for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.NumberSequencingCyclesAllowed").iterator(); i.hasNext();) {
         DictionaryEntry de = (DictionaryEntry)i.next();

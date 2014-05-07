@@ -159,11 +159,8 @@
 		private function getOrganism(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', item.@idOrganism);
 		}
-		private function getNumberSequencingCycles(item:Object, col:DataGridColumn):String {
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
-		}
-		private function getSeqRunType(item:Object, col:DataGridColumn):String {
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
+		private function getSequencingProtocol(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCyclesAllowed', item.@idNumberSequencingCyclesAllowed);
 		}
 		
 		public function toggleDateCheckboxes(checkBoxNumber:int):void {
@@ -255,8 +252,8 @@
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
 				 			<mx:DataGridColumn  dataField="@createDate" headerText="Cluster Gen Date" width="110"/>
-							<mx:DataGridColumn  dataField="@idSeqRunType" headerText="Single vs Paired end" width="100"
-								labelFunction="getSeqRunType"/>
+							<mx:DataGridColumn  dataField="@idNumberSequencingCyclesAllowed" headerText="Sequencing Protocol" width="100"
+								labelFunction="getSequencingProtocol"/>
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" width="300"  />
 						</mx:columns>				
 					</mx:DataGrid>		
