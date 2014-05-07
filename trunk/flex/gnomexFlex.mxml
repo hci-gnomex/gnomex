@@ -2413,6 +2413,10 @@
 				if (!isAdminState) {
 					hideMenusByContext(topMenu, 'helpEdit');
 				}
+
+				if(isGuestMode()){
+					hideMenusByContext(topMenu, 'quickLinks');
+				}
 				
 				if(!faqLoaded){
 					getFAQ.send();
@@ -3785,9 +3789,6 @@
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
-			<menuitem label="Experiment Overview" icon="iconFlask" />
-			<menuitem label="Sequencer Overview" icon="iconFlask" />
-			<menuitem label="Overview" icon="iconFlask" />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -4162,7 +4163,7 @@
 	<mx:XMLList id="topMenu">
 		<menuitem label="Home"/>
 		<menuitem label="My Account"  />
-		<menuitem label="Quick Links" />
+		<menuitem label="Quick Links" context="quickLinks" />
 		<menuitem label="Help..."  >
 			<menuitem label="Enable Help Edit" icon="iconEmptyInformation" context="helpEdit"/>
 			<menuitem label="User Guide"  />
