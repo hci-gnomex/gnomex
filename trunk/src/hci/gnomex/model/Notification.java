@@ -15,8 +15,9 @@ public class Notification extends HibernateDetailObject {
   public static final String TYPE_DATATRACK = "DATATRACK";
   public static final String TYPE_FLOWCELL = "FLOWCELL";
   public static final String TYPE_INVOICE = "INVOICE";
-  public static final String NEW_NOTIFICATION = "NEW";
-  public static final String EXISTING_NOTIFICATION = "EXIST";
+  public static final String NEW_STATE = "NEW";
+  public static final String EXISTING_STATE = "EXIST";
+  public static final String DELETED_STATE = "DELETE";
   
   
   private Integer			idNotification;
