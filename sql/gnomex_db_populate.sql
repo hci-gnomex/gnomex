@@ -514,10 +514,10 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
 
 
 INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`)
-VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/µl', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
-  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/µl', '10mM TE', 7.00, 12, 'Y', 'ng/ul'),
-  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/µl', '10 mM TE', 8.00, 11, 'Y', 'pg/ul'),
-  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/µl', NULL, NULL, 11, 'Y', 'pg/ul');
+VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/ul', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
+  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/ul', '10mM TE', 7.00, 12, 'Y', 'ng/ul'),
+  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/ul', '10 mM TE', 8.00, 11, 'Y', 'pg/ul'),
+  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/ul', NULL, NULL, 11, 'Y', 'pg/ul');
 
 INSERT INTO `gnomex`.`ConcentrationUnit`(`codeConcentrationUnit`, `concentrationUnit`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`)
 VALUES ('ng/ul', 'ng/ul', NULL, NULL, 'Y'),
