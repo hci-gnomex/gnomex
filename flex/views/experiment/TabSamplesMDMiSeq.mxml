@@ -122,7 +122,7 @@
 					(parentDocument.request.@idSampleTypeDefault != null ? parentDocument.request.@idSampleTypeDefault : '');
 				var otherSamplePrepMethod:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
 					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';				
-				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState() && parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem != null ? 
 					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
 					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');;				
 				var otherOrganism:String =  parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
@@ -271,15 +271,9 @@
 				for each(var sample:Object in parentDocument.samples) {
 					
 							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@idSampleType") &&	        		
-//								isEntered(sample, "@idSeqLibProtocol") &&	        		
-//								isEntered(sample, "@concentration") &&
+								(parentDocument.sampleSetupView.coreToExtractDNACheckBox==null || parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected || (!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected && isEntered(sample, "@idSampleType"))) &&	
 								isEntered(sample, "@idOrganism") &&
-//								isEntered(sample, "@idSeqRunType") &&
-//								isEntered(sample, "@multiplexGroupNumber") &&
-								reqdAnnotationsEntered(sample))  
-//								isEntered(sample, "@idNumberSequencingCycles") &&  
-//								isEntered(sample, "@idNumberSequencingCyclesAllowed")) 
+								reqdAnnotationsEntered(sample))   
 								{
 								
 								if (!parentDocument.isEditState()) {
@@ -309,16 +303,7 @@
 				} else if (parentDocument.isEditState()) {
 					isComplete = true;
 				}
-				
-				// Make sure that sample concentration is valid
-				/* for each (var s1:Object in parentDocument.samples) {
-					var vr:ValidationResultEvent = parentDocument.concentrationValidator.validate(s1.@concentration);
-					if (vr.type == ValidationResultEvent.INVALID) {
-						parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
-						isComplete = false;
-					}
-				} */
-				
+							
 				// Make sure lane #'s are grouped
 				if (isComplete && !areLaneNumbersSequential()) {
 					parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
@@ -588,22 +573,15 @@
 					samplesGrid.rowOperationsAllowed = false;
 				} 
 				
-				
 				// Edit columns shown
 				
-				existingNumberSequencingLanesCol.visible = false;
-				additionalNumberSequencingLanesCol.visible = false;
-				this.sampleTypeCol.visible = true;
-				
 				seqPrepStatus.visible = isEditState && !isExternal;
-				
-				this.qc_260_280Column.visible = false;
-				this.sampleNameCol.visible = true;
-				
+								
 				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 				
-				this.concentrationCol.visible = !isExternal;
-				this.otherOrganismCol.visible = false;
+				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
+				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+				
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
 				this.seqLibProtocolCol.visible = false;
@@ -616,17 +594,7 @@
 					this.qual260_230Col.visible = false;
 					
 					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState() && !isExternal;
-					
-					if (parentDocument.currentState == "SolexaLaneAmendState") {
-						numberSequencingLanesCol.editable = false;
-						additionalNumberSequencingLanesCol.visible = true;
-						existingNumberSequencingLanesCol.visible = true;
-					} else if (parentDocument.currentState == "SolexaBaseAmendState") {
-						numberSequencingLanesCol.editable = false;
-						numberSequencingLanesCol.visible = parentDocument.request.@isRapidMode != 'Y';
-						numberSequencingLanesCol.editable = true;
-					}
-					
+								
 					if (parentDocument.isEditState() ||
 						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
 						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
@@ -636,7 +604,6 @@
 					}
 
 					sampleOrganismColumn.editable = !isExternal;
-					chipTypeColumn.visible = false; 
 				}
 				
 				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
@@ -960,21 +927,6 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="qc_260_280Column"
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC 260/280" width="80" 
-										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
-												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="80"
@@ -994,21 +946,6 @@
 				<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
 				
 				
-				<mx:AdvancedDataGridColumn id="existingNumberSequencingLanesCol" 
-										   headerText="# Lanes to Sequence" width="88" 
-										   dataField="@sequenceLaneCount" 
-										   editable="false">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleExistingSeqLanes" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Existing Seq Lanes Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Existing #&#13;Seq Lanes" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
-				
-				
 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" 
 										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
 										   rendererIsEditor="false" labelFunction="defaultToZero"
@@ -1023,25 +960,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
-				
-				
-				<mx:AdvancedDataGridColumn id="additionalNumberSequencingLanesCol" 
-										   headerText="# Lanes to Sequence" width="88" 
-										   dataField="@numberSequencingLanes" 
-										   editable="true" labelFunction="defaultToZero"
-										   rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value" >
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleAdditionalSequencingLanes" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Addtl # Seq Help" showEdit="{parentApplication.isAdminState}"
-												  label="Addtl #&#13;Seq Lanes" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
-				
+								
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
@@ -1068,12 +987,7 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
-				<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" 
-										   width="140" dataField="@otherOrganism"
-										   visible="false"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/> 
-
+				
 				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
@@ -1187,20 +1101,6 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				
-				
-				<mx:AdvancedDataGridColumn id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
-										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
-										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
-												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Conc. ng/uL" 

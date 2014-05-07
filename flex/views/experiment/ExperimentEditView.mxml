@@ -1103,12 +1103,14 @@
 				if (parentApplication.submitInternalExperiment()) {
 					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
+				if ( requestCategory.@codeRequestCategory == 'MDMISEQ' ) {
+					this.sampleSetupView.currentState = 'MDMiSeqState';
+				}
 				this.samplesView.currentState = 'SolexaSamplesState';
 
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();		
-				
-				this.samplesView.currentState = 'SolexaSamplesState';	
+					
 				if (parentApplication.submitInternalExperiment()) {
 					this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
 				}
