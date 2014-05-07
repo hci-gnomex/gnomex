@@ -67,7 +67,7 @@
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
 			checkSecurity();
 			// Only retrieve data when user is a superAdmin.
-			if(currentState == "AdminState"){
+			if(currentState == "AdminState" && parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
 				metrixInterface.send();
 						
 				// Set Connection status default
@@ -165,10 +165,10 @@
 			<mx:HBox id="RSTbox" verticalGap="0" visible="false" includeInLayout="{!emptyNote.includeInLayout}" horizontalGap="0" verticalAlign="middle">
 				<db:RunStatusTab id="runStatusTab" filterState="0" />
 			</mx:HBox>
-			<mx:VBox id="emptyNote"  height="200" width="351" visible="true" includeInLayout="{!RSTbox.includeInLayout}" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold">
+			<mx:VBox id="emptyNote"  height="200" width="351" visible="true" includeInLayout="{!RSTbox.includeInLayout}" verticalAlign="middle" fontSize="12" fontWeight="bold">
 				<mx:Spacer id="emptySpace" width="100%" />
-				<mx:Text id="emptyText" selectable="false" visible="false" text="No Active Runs" color="0xFF8000" paddingLeft="180"/>
-				<mx:Text id="failText" selectable="false" visible="false" text="Error Connecting to server" fontStyle="italic" color="0xE10000" paddingLeft="160"/>
+				<mx:Text id="emptyText" selectable="false" visible="false" text="No Active Runs" paddingLeft="180"/>
+				<mx:Text id="failText" selectable="false" visible="false" text="Error Connecting to server" fontStyle="italic" paddingLeft="160"/>
 			</mx:VBox>
 		</mx:VBox>
 	</mx:VBox>

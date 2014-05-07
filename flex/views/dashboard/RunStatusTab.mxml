@@ -51,7 +51,10 @@
 		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
-			metrixInterface.send();
+			if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+				metrixInterface.send();
+			}
+			
 		}
 		
 		public function refreshData(e:TimerEvent):void{

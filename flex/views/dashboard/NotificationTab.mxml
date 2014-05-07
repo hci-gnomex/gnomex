@@ -64,6 +64,9 @@
 			
 			private var requestCategories:XMLList = new XMLList;
 			
+			[Bindable]
+			private var pageNumberCount:int = 1;
+			
 			public function init():void {
 				var params:Object = new Object();
 				if(parentApplication.isAdminState && !parentApplication.isSuperAdmin){
@@ -156,8 +159,7 @@
 			}
 			
 			// Stringbuilder for notifications based on the tab-type (sourceType) and field values.
-			public function repeatHandler(rep:Object):String
-			{
+			public function repeatHandler(rep:Object):String {
 				var notification:String;
 				var sourceType:String = rep.currentItem.@sourceType;
 				var state:String = rep.currentItem.@state;
@@ -290,6 +292,8 @@
 			private function getMoreItems(startingIndex:int):void{
 				if(noteData.length > startingIndex + 8){
 					repStatus.startingIndex = startingIndex + 8;
+					pageNumberCount++;
+					pageNumber.text = "Page " + pageNumberCount;
 				}
 				
 				if(noteData.length <= repStatus.startingIndex + repStatus.count){
@@ -326,13 +330,17 @@
 			</mx:Repeater>
 		</mx:VBox>
 		
-		<mx:VBox id="emptyNote"  height="150" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" color="red" fontWeight="bold" paddingLeft="110">
+		<mx:VBox id="emptyNote"  height="150" width="351" visible="false" includeInLayout="false" verticalAlign="middle" fontSize="12" fontWeight="italic" paddingLeft="110">
 			<mx:Spacer height="100" />
 			<mx:HBox id="emptyNoteBox" horizontalAlign="center" visible="false" includeInLayout="false">
 				<mx:Label id="emptyString" text="No available notifications." />
 			</mx:HBox>
 		</mx:VBox>
-		<mx:LinkButton id="moreButton" label="More..." fontStyle="italic" visible="{noteData.length > 8}" includeInLayout="{noteData.length > 8}" click="getMoreItems(repStatus.startingIndex)"/>
-		<mx:LinkButton id="topButton" label="Top..." visible="false" fontStyle="italic" includeInLayout="false" click="{this.repStatus.startingIndex = 0; moreButton.visible = true; moreButton.includeInLayout = true; topButton.visible = false; topButton.includeInLayout = false;}"/>
+		<mx:HBox width="94%">
+			<mx:LinkButton id="moreButton" label="More..." fontStyle="italic" visible="{noteData.length > 8}" includeInLayout="{noteData.length > 8}" click="getMoreItems(repStatus.startingIndex)"/>
+			<mx:LinkButton id="topButton" label="Top..." visible="false" fontStyle="italic" includeInLayout="false" click="{this.repStatus.startingIndex = 0; this.pageNumberCount = 1; moreButton.visible = true; moreButton.includeInLayout = true; topButton.visible = false; topButton.includeInLayout = false;}"/>
+			<mx:Spacer width="100%"/>
+			<mx:Text id="pageNumber" fontSize="11" text="{'Page ' + this.pageNumberCount}" fontStyle="italic" />	
+		</mx:HBox>
 	</mx:VBox>
 </mx:Canvas>
