@@ -1374,6 +1374,15 @@
 						<mx:Text width="280"
 								 text="{'Library Prep. By Client' + (this.selectedExperiment.@hasPrePooledLibraries == 'Y' ? ', ' + this.selectedExperiment.@numPrePooledTubes.toString() + ' Pre-Pooled Tubes' : '')}" />
 					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}">
+						<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
+						<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
+					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}">
+						<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
+						<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
+								 width="280"/>
+					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName != ''}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName  != ''}" id="hbox3">
 						<mx:Label text="Organism"  width="105"  styleName="formLabel" textAlign="left" id="label6"/>
 						<mx:Text  text="{this.selectedExperiment.@organismName}" width="280"/>
@@ -2180,19 +2189,6 @@
 			<mx:RemoveChild target="{prePoolBox}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
-					<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
-					<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
-				</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA=='Y'}">
-					<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
-					<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
-							 width="280"/>
-				</mx:HBox>
-			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="bisulfideConversionBox">
 					<mx:Label text="Bisulfide conversion"  width="105" styleName="formLabel" textAlign="left" />
