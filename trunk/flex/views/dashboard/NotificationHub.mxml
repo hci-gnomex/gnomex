@@ -31,7 +31,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			[Bindable]
-			private var comboLabels:ArrayCollection = new ArrayCollection([{label:'User'} , {label:'Admin'}, {label:'Workflow'}, {label:'Billing'}]);
+			private var comboLabels:ArrayCollection = new ArrayCollection([{label:'My Activity'} , {label:'All Activity'}, {label:'Workflow'}, {label:'Billing'}]);
 			
 			[Bindable]
 			private var coreFacilities:XMLListCollection = new XMLListCollection();
@@ -57,7 +57,7 @@
 			}
 			
 			private function selectState():void{
-				if(stateCombo.selectedLabel == 'Admin'){
+				if(stateCombo.selectedLabel == 'All Activity'){
 					adminBox.visible = true;
 					adminBox.includeInLayout = true;
 					userBox.visible = false;
@@ -67,7 +67,7 @@
 					billingBox.visible = false;
 					billingBox.includeInLayout = false;
 					coreFacilityCombo.selectedIndex = 0;
-				} else if(stateCombo.selectedLabel == 'User'){
+				} else if(stateCombo.selectedLabel == 'My Activity'){
 					adminBox.visible = false;
 					adminBox.includeInLayout = false;
 					userBox.visible = true;
@@ -100,7 +100,7 @@
 			}
 			
 			private function selectCoreFacility():void{
-				if(stateCombo.selectedLabel == 'Admin'){
+				if(stateCombo.selectedLabel == 'All Activity'){
 					adminTab.noteData.filterFunction = filterByCoreFacility;
 					adminTab.noteData.refresh();
 				} else if(stateCombo.selectedLabel == 'Billing'){
@@ -123,8 +123,8 @@
 	</mx:Script>
 	
 	<mx:XMLList id="stateMenu">
-		<menuitem label="User"  >
-			<menuitem label="Admin"  />
+		<menuitem label="My Activity"  >
+			<menuitem label="All Activity"  />
 			<menuitem label="Workflow"   />
 			<menuitem label="Billing" />
 		</menuitem>

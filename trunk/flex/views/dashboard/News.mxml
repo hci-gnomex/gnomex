@@ -115,14 +115,14 @@
 
 		private function sortAndFilter():void {
 			
-			var mySort:Sort = new Sort();
-			var sortField:SortField = new SortField("@idNewsItem"); // Set sort properties
-			sortField.descending = true;							// Reverse the sort list
-			sortField.numeric = true;
-			
-			mySort.fields = [sortField];
-			newsItemList.sort = mySort;
-			newsItemList.refresh();										// Refresh datasource
+//			var mySort:Sort = new Sort();
+//			var sortField:SortField = new SortField("@idNewsItem"); // Set sort properties
+//			sortField.descending = true;							// Reverse the sort list
+//			sortField.numeric = true;
+//			
+//			mySort.fields = [sortField];
+//			newsItemList.sort = mySort;
+//			newsItemList.refresh();										// Refresh datasource
 			
 			newsItemList.filterFunction = filterByCoreFacility;
 			newsItemList.refresh();
@@ -250,7 +250,7 @@
 					</mx:VBox>
 				</mx:Repeater>
 				<mx:HBox id="newsNote" horizontalAlign="center" width="100%" height="200" verticalAlign="middle">
-					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>
+					<mx:Label text="No items available" fontSize="12" fontWeight="italic"/>
 				</mx:HBox>
 			</mx:VBox>
 	</mx:VBox>
