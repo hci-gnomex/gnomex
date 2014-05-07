@@ -84,12 +84,17 @@
 							break;
 						}
 					}
+					for each(var nsca:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry) {
+						if (nsca.@value == selectedFC.@idNumberSequencingCyclesAllowed) {
+							this.comboSequencingProtocol.selectedItem = nsca;
+							break;
+						}
+					}
 					if (selectedFC.@side == "A") {
 						this.radioSideA.selected = true;
 					} else if (selectedFC.@side == "B") {
 						this.radioSideB.selected = true;
 					}
-					radiogroupSeqRunType.selectedValue = selectedFC.@idSeqRunType;
 
 					origGenDate = selectedFC.@createDate;
 					origInstrument = selectedFC.@idInstrument;
@@ -158,14 +163,12 @@
 				params.createDate = this.dateInput.text;
 				params.notes = selectedFC.@notes;
 				params.idFlowCell = selectedFC.@idFlowCell;
-				params.idNumberSequencingCycles = selectedFC.@idNumberSequencingCycles;
 				params.barcode = this.barcodeInput.text;
 				params.codeSequencingPlatform = selectedFC.@codeSequencingPlatform;
 				params.runNumber = this.runNumberInput.text;
 				params.idInstrument = this.comboInstrument.selectedItem.@value;
 				params.side = this.radiogroupSide.selectedValue;
-				params.numberSequencingCyclesActual = this.numberOfCycles.text;
-				params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
+				params.idNumberSequencingCyclesAllowed = comboSequencingProtocol.selectedItem.@value;
 				params.channelsXMLString =  "<fcChannels>" + this.fcChannels.toXMLString() + "</fcChannels>";
 				params.lastCycleDate = this.lastCycleDateInput.text;
 				params.idCoreFacility = selectedFC.@idCoreFacility;
@@ -388,23 +391,10 @@
 								</mx:RadioButton>
 							</mx:HBox>
 							
-							<mx:Label text="# Cycles"/>
-							<mx:TextInput id="numberOfCycles" width="40" restrict="0-9" text="{fcChannels.length > 0 ? fcChannels.getItemAt(0).@numberSequencingCyclesActual : null}" change="hasChanged=true"/>
-
-							<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
-								<mx:RadioButtonGroup id="radiogroupSeqRunType"/>
-								<mx:Repeater id="seqRunTypeRepeater" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @display != '')}">
-									<mx:RadioButton groupName="radiogroupSeqRunType" 
-													id="seqRunType"
-													label="{seqRunTypeRepeater.currentItem.@display}" 
-													styleName="labelSmall" 
-													value="{seqRunTypeRepeater.currentItem.@value}" 
-													paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" 
-													textAlign="left" horizontalGap="0" verticalGap="0"
-													click="hasChanged=true">
-									</mx:RadioButton>
-								</mx:Repeater>
-							</mx:HBox>
+							<mx:Label text="Sequencing Protocol"/>
+							<mx:ComboBox id="comboSequencingProtocol" width="380" labelField="@display" 
+										  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry.(@isActive=='Y')}"
+										  change="hasChanged=true"/>
 						</mx:HBox>
 
 					</mx:VBox>

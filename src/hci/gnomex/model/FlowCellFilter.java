@@ -47,9 +47,11 @@ public class FlowCellFilter extends DetailObject {
       queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
       queryBuf.append(" JOIN   lane.request as req ");      
     }
-    queryBuf.append(" WHERE wi.codeStepNext = '" + codeStepNext + "' " );
+    if (codeStepNext != null) {
+      queryBuf.append(" WHERE wi.codeStepNext = '" + codeStepNext + "' " );
+      addWhere = false;
+    }
     
-    addWhere = false;
     addFlowCellCriteria();
     addRequestCriteria();
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
