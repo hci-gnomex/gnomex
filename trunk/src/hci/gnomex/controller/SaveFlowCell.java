@@ -249,11 +249,11 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         }        
 
         if(isNewFlowCell){
-          sendNotification(flowCell, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
-          sendNotification(flowCell, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
         } else{
-          sendNotification(flowCell, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
-          sendNotification(flowCell, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_FLOWCELL);
+          sendNotification(flowCell, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_FLOWCELL);
         }
         sess.flush();
 

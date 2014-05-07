@@ -593,9 +593,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         this.saveAnalysisProperties(sess, analysis);
         
-        String state = Notification.EXISTING_NOTIFICATION;
+        String state = Notification.EXISTING_STATE;
         if(isNewAnalysis){
-          state = Notification.NEW_NOTIFICATION;
+          state = Notification.NEW_STATE;
         }
         sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_ANALYSIS);
         sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_USER, Notification.TYPE_ANALYSIS);

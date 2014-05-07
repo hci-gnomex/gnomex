@@ -330,8 +330,8 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     
     if (load.getIdDataTrack() == null || load.getIdDataTrack().intValue() == 0) {
       createNewDataTrack(sess, load, idDataTrackFolder);
-      sendNotification(dataTrack, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_DATATRACK);
-      sendNotification(dataTrack, sess, Notification.NEW_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_DATATRACK);
+      sendNotification(dataTrack, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_DATATRACK);
+      sendNotification(dataTrack, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_DATATRACK);
       isNewDataTrack = true;
     } else {
       dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, load.getIdDataTrack()));
@@ -347,8 +347,8 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
       dataTrack.setIdLab(load.getIdLab());
       dataTrack.setIdAppUser(load.getIdAppUser());
       sess.flush();
-      sendNotification(dataTrack, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_USER, Notification.TYPE_DATATRACK);
-      sendNotification(dataTrack, sess, Notification.EXISTING_NOTIFICATION, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_DATATRACK);
+      sendNotification(dataTrack, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_DATATRACK);
+      sendNotification(dataTrack, sess, Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_DATATRACK);
     }
   }  
   private DataTrack createNewDataTrack(Session sess, DataTrack load, Integer idDataTrackFolder) throws Exception {
