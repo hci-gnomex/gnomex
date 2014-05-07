@@ -112,10 +112,8 @@
 		
 		<mx:VBox width="100%" verticalGap="0">
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0" visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}">
-				<mx:Text text="You must associate the experiment platform with a price sheet, a default price seq. option category property(illumina_seqoption_default_price_category) and a default price seq lib category property(illumina_libprep_default_price_category) to enter prices on this screen." 
-						 paddingBottom="0" width="100%"
-						 styleName="warningLabelSevere"
-						 visible="{state.requestCategory.@canEnterPrices != 'Y'}" includeInLayout="{state.requestCategory.@canEnterPrices != 'Y'}" />
+				<util:ContextHelp context1="ExperimentPlatformPricingHelp" showEdit="{parentApplication.isSuperAdmin}" title="Pricing Help"
+								  label="Why can't I edit Prices?" labelPlacement="right" id="coreFacilityNoteLabel"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="top" paddingTop="0" enabled="{state.requestCategory.@canEnterPrices == 'Y'}">
 				<mx:Text text="Billing" styleName="formLabel" paddingBottom="0" width="80"/>
