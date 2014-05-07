@@ -106,7 +106,7 @@
 		}
 		public function propagateSeqPrepByCore():void {
        		for each (var sample:Object in parentDocument.samples) {
-				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue ==  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
+				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
 			}
 		}
 		private function propagateSampleSource():void {
@@ -139,7 +139,7 @@
 		}
        	private function propagateSeqLibProtocol():void {
 			for each (var sample:Object in parentDocument.samples) {
-				if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState' || (seqPrepRadioGroup.selectedValue ==  null && seqPrepRadioGroup.selectedValue == 'N') ) {
+				if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'N') ) {
 					sample.@seqPrepByCore = "N";
 				} else {
 					sample.@seqPrepByCore = "Y";
