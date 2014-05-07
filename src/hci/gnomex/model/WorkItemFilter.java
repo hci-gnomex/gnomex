@@ -96,6 +96,15 @@ public class WorkItemFilter extends DetailObject {
     
   }
   
+  /**
+   * A Sample can be split/replicated into several copies which we call "Sequence Lanes"
+   * These Sequence Lanes are grouped and placed into Channels in a Flow Cell for sequencing.
+   * This method will return a query which finds Sequence Lanes which already belong to a
+   * Channel in a Flow Cell given a set of Samples.
+   * 
+   * @param idSampleList
+   * @return StringBuffer queryBuf
+   */
   public StringBuffer getRelatedFlowCellQuery(Set idSampleList) {
     queryBuf = new StringBuffer();
     addWhere = true;
@@ -246,9 +255,10 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.multiplexGroupNumber, ");
       queryBuf.append("    lab.lastName, ");
       queryBuf.append("    lab.firstName, ");
-      queryBuf.append("    l, ");
+      queryBuf.append("    l, "); // ???
       queryBuf.append("    s.idOligoBarcodeB, ");
-      queryBuf.append("    s.barcodeSequenceB ");
+      queryBuf.append("    s.barcodeSequenceB, ");
+      queryBuf.append("	   l.idNumberSequencingCyclesAllowed ");
     } else if (this.codeStepNext.equals(Step.SEQ_RUN) ||
                 this.codeStepNext.equals(Step.HISEQ_RUN)) {
       queryBuf.append("      , ");

@@ -53,6 +53,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
   private TreeMap<String, List<Element>> clusterGenNodeMap = null;
   private TreeMap<String, List<SequenceLane>> clusterGenLaneMap = null;
   private String clusterGenKey = "";
+  private TreeMap<String, String> numberSequencingCyclesAllowedMap = null;
 
 
   
@@ -225,7 +226,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         clusterGenNodeMap = new TreeMap<String, List<Element>>(new ClusterGenComparator());
         clusterGenLaneMap = new TreeMap<String, List<SequenceLane>>(new ClusterGenComparator());
        
-        
+        // Need NumberSequencingCyclesAllowed for WorkItems 
+        numberSequencingCyclesAllowedMap = getNumberSequencingCyclesAllowedMap(sess);
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
           String key = (String)i.next();
@@ -275,7 +277,9 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
             
           }
-            
+
+          
+          
           // Create a WorkItem XML node.
           Element n = createWorkItemNode(row, key, alt);
           
@@ -401,8 +405,37 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     
     return this;
   }
-  
-  private Element createWorkItemNode(Object[] row, String key, boolean alt) {
+  /**
+   * 	Soon after April, 2014 we will switch from allowing the user to choose separately: number of sequencing cycles, code request category and seq run type.
+   * Instead they will be combined, along with a version number into protocols identified in the NumberSequencingCyclesAllowed table.
+   * We will use this TreeMap to identify to which protocol a Work Item belongs by using the following attributes from the Work Item:
+   * 1. the Sequence Lane's number of sequencing cycles
+   * 2. the Request's code request category
+   * 3. the Sequence Lane's Seq Run Type
+   * 
+   * These three will uniquely identify a protocol in NumberSequencingCyclesAllowed
+   * 
+   * @param sess
+   * @return TreeMap<String, String>
+   */  
+  private TreeMap<String, String> getNumberSequencingCyclesAllowedMap(Session sess) {
+	  StringBuffer buf = new StringBuffer();
+	  buf.append(" SELECT idNumberSequencingCyclesAllowed, idNumberSequencingCycles, codeRequestCategory, idSeqRunType ");
+	  buf.append(" FROM NumberSequencingCyclesAllowed ");
+	  buf.append(" WHERE isActive = 'Y' ");
+	  TreeMap<String,String> numberSequencingCyclesAllowedMap = new TreeMap<String, String>();	  
+	  List rows = sess.createQuery(buf.toString()).list();
+	  for(Iterator i = rows.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          String key = row[1] + "\t" + row[2] + "\t" + row[3];
+          String value = "" + row[0];
+          numberSequencingCyclesAllowedMap.put(key, value);
+	  }
+	  
+	  return numberSequencingCyclesAllowedMap;
+}
+
+private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     Element n = new Element("WorkItem");
     n.setAttribute("key",                    key);
     n.setAttribute("isSelected",             "N");
@@ -649,7 +682,13 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
     n.setAttribute("idOligoBarcodeB",               row[26] == null ? "" :  ((Integer)row[26]).toString());
     n.setAttribute("barcodeSequenceB",              row[27] == null ? "" :  ((String)row[27]));
+    n.setAttribute("idNumberSequencingCyclesAllowed", row[28] == null ? "" : ((Integer)row[28]).toString());
     
+    if(row[28] == null) {
+	    String numberSequencingCyclesAllowedKey = n.getAttributeValue("idNumberSequencingCycles") + "\t" + codeRequestCategory + "\t" +  n.getAttributeValue("idSeqRunType");
+	    String numberSequencingCyclesAllowed = numberSequencingCyclesAllowedMap.get(numberSequencingCyclesAllowedKey);
+	    n.setAttribute("idNumberSequencingCyclesAllowed", numberSequencingCyclesAllowed);
+    }
     
     n.setAttribute("labName", theLabName);
     n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
@@ -694,6 +733,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
     n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType() != null ? fc.getIdSeqRunType().toString() : "");
     n.setAttribute("idNumberSequencingCycles",     fc.getIdNumberSequencingCycles() != null ? fc.getIdNumberSequencingCycles().toString() : "");
+    n.setAttribute("idNumberSequencingCyclesAllowed", fc.getIdNumberSequencingCyclesAllowed() != null ? fc.getIdNumberSequencingCyclesAllowed().toString() : "");
     n.setAttribute("number",                       ch.getContentNumbers());
     n.setAttribute("channelNumber",                ch.getNumber().toString());
     n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
@@ -822,7 +862,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               break;
             }
           }
-          if (matchingNode != null) {
+          if (matchingNode != null) {        	  
             multiplexLaneNode.addContent(matchingNode);
           }
         

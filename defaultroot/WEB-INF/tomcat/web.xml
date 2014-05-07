@@ -589,6 +589,7 @@
 			<url-pattern>/SaveDataTrackList.gx</url-pattern>
 			<url-pattern>/SaveExperimentPlatform.gx</url-pattern>
 			<url-pattern>/SaveFlowCell.gx</url-pattern>
+			<url-pattern>/DeleteFlowCell.gx</url-pattern>
 			<url-pattern>/SaveGenomeBuild.gx</url-pattern>
 			<url-pattern>/SaveGroupMembership.gx</url-pattern>
 			<url-pattern>/SaveInstitution.gx</url-pattern>
