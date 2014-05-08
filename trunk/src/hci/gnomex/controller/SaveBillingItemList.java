@@ -268,7 +268,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         }
 
       }
-    } else {
+    } else if(this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
       try {
         sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, false);        
       } catch (Exception e) {
