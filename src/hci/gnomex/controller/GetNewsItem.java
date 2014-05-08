@@ -43,8 +43,6 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
   public Command execute() throws RollBackCommandException {
     
     try {
-    	//if(isValid()){
-    //  if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DASHBOARD)) {
 
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
@@ -63,11 +61,11 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
              * Add values to Element n
              */
               n.setAttribute("idNewsItem",              	row[0] == null ? "" :  ((Integer)row[0]).toString()); 
-              n.setAttribute("title",              	 		row[1] == null ? "" :  ((String) row[1]));
-              n.setAttribute("message", 					row[2] == null ? "" :  ((String) row[2]));
-              n.setAttribute("date",              	 		row[3] == null ? "" :  this.formatDate((java.util.Date)row[3]));
+              n.setAttribute("title",              	 		  row[1] == null ? "" :  ((String) row[1]));
+              n.setAttribute("message", 					        row[2] == null ? "" :  ((String) row[2]));
+              n.setAttribute("date",              	 		  row[3] == null ? "" :  this.formatDate((java.util.Date)row[3]));
               n.setAttribute("idSubmitter",              	row[4] == null ? "" :  ((Integer)row[4]).toString());
-              n.setAttribute("idCoreFacility",              	row[5] == null ? "" :  ((Integer)row[5]).toString());
+              n.setAttribute("idCoreFacility",            row[5] == null ? "" :  ((Integer)row[5]).toString());
          
               // Add node content to rootElement XML output.
             doc.getRootElement().addContent(n);

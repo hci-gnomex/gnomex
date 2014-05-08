@@ -55,9 +55,11 @@
 			
 			public function init():void {
 				coreFacilities = new XMLListCollection(new XMLList(parentApplication.coreFacilitiesICanManage));
-				var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
-				coreFacilities.addItemAt(allFacilities, 0);
-				coreFacilities.refresh();
+				if(parentApplication.isSuperAdmin){
+					var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
+					coreFacilities.addItemAt(allFacilities, 0);
+					coreFacilities.refresh();
+				}
 				cfSelector.selectedIndex = 0;
 				
 			}
