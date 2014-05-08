@@ -178,8 +178,8 @@
 			for(var i:int = 0; i < total; i++){
 				if(i == index){
 					if(newsItemRemove[i].visible == false){
-						newsItemRemove[i].visible = parentApplication.isSuperAdmin;
-						newsItemEdit[i].visible = parentApplication.isSuperAdmin;
+						newsItemRemove[i].visible = parentApplication.isAdminState;
+						newsItemEdit[i].visible = parentApplication.isAdminState;
 					} else{
 						newsItemRemove[i].visible = false;
 						newsItemEdit[i].visible = false;
@@ -211,8 +211,8 @@
 			<mx:HBox horizontalAlign="right" width="50%">
 				<mx:LinkButton id="addNewsItem" click="showAddNewsItem()" 
 							   icon="@Embed(source='../../assets/bullet_green.png')" label="Add..." 
-							   includeInLayout="{parentApplication.isSuperAdmin}"
-							   visible="{parentApplication.isSuperAdmin}"
+							   includeInLayout="{parentApplication.isAdminState}"
+							   visible="{parentApplication.isAdminState}"
 							   toolTip="Add Newsitem"
 							   paddingTop="6" paddingRight="0" width="105"/>
 			</mx:HBox>
@@ -238,11 +238,11 @@
 							<mx:LinkButton id="newsItemRemove"
 										   icon="@Embed(source='../../assets/bullet_red.png')"
 										   click="newsItemRemove_clickHandler(event.currentTarget.getRepeaterItem());"
-										   includeInLayout="{parentApplication.isSuperAdmin}" visible="false"/>
+										   includeInLayout="{parentApplication.isAdminState}" visible="false"/>
 							<mx:LinkButton id="newsItemEdit"
 										   icon="@Embed(source='../../assets/tag_blue_edit.png')"
 										   click="newsItemEdit_clickHandler(event.currentTarget.getRepeaterItem());"
-										   includeInLayout="{parentApplication.isSuperAdmin}" visible="false"/>
+										   includeInLayout="{parentApplication.isAdminState}" visible="false"/>
 						</mx:HBox>
 						<mx:HBox width="100%" id="descriptionBox" includeInLayout="false" visible="false" horizontalAlign="left" paddingLeft="90" paddingRight="2">
 							<mx:Text id="newsDescription" width="100%" text="{newsRep.currentItem.@message}" fontSize="10" textAlign="left" />
