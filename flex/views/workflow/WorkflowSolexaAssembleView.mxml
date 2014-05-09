@@ -11,10 +11,12 @@
 		<mx:Spacer width="100%"/>
 		
 		<mx:HBox  horizontalAlign="center">
-			<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Instructions" click="{showHideInstructions()}"/>
+			<!--<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Instructions" click="{showHideInstructions()}"/>
 			<mx:TextArea styleName="instructionBox" visible="false" includeInLayout="false" id="instructionText" wordWrap="false" height="20" paddingLeft="4" paddingRight="4" width="600">
 				<mx:htmlText><![CDATA[To assemble flow cell, drag ctrl or seq. req. onto flow cell.  To drag multiple, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
-			</mx:TextArea>	
+			</mx:TextArea>	-->
+			<util:ContextHelp context1="assembleFlowCellHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Assemble Flow Cell Help"
+							  label="Help" labelPlacement="left" id="text1" width="300"/>
 		</mx:HBox>  
 		<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
 					   click="refresh();" toolTip="Refresh worklist"/>
@@ -63,6 +65,7 @@
 	<mx:XMLListCollection id="sequenceProtocolsList"			 									 filterFunction="filterSequenceProtocolsList"	 					 /> <!-- active protocols -->
 	<mx:XMLListCollection id="flowCellChannelsCountList" />
 	<mx:Sort id="sortRHSList" compareFunction="sortRHS" />
+	<mx:ArrayCollection id="controlChannelsArray" />
 	<!-- <mx:Binding source="flowCellChannelsCountList" destination="{channelChooserColumn.itemEditor.}" /> -->
 	
 	<mx:Script>
@@ -94,6 +97,7 @@
 			private var flowCellChannelsCount:int = 0
 			private var isValid:Boolean = true;			
 			private var warningMessage:String = "";
+			
 		]]>
 	</mx:Script>
 	<!--							Initialize and Refresh Functions				-->
@@ -129,13 +133,20 @@
 					flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display="' + i + '" value="' + i + '" />'));
 				}
 				
-			}			
+			}
+			private function initializeControlChannelsArray():void {
+				for(var i:int = 0; i < flowCellChannelsCount; i++) {
+					controlChannelsArray.addItemAt(false,i);
+				}
+			}
 			private function initializeMasterWorkList():void {
 				var source:XMLListCollection  = new XMLListCollection(getWorkList.lastResult.Request.MultiplexLane.WorkItem.copy());
 				
 				// add idRequestAndMultiplexGroup for grouping in pendingSequenceLanesGrid
 				for each(var wi:XML in source) {
 					wi.@idRequestAndMultiplexGroup = wi.@idRequest + "-" + wi.@multiplexGroupNumber;
+					wi.@editable = "false";
+					wi.@isControl = "false";
 				}				
 				// add controls to masterWorkList
 				for each(var control:XML in parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SequencingControl') ) {
@@ -149,6 +160,7 @@
 
 				//channelChooserColumn.itemEditor=views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(flowCellChannelsCountList,'@display', '@value', '@flowCellChannelNumber', null, true).newInstance(), 'idRequestAndMultiplexGroup');
 			}
+			
 			
 			
 			private function refresh():void {
@@ -166,23 +178,20 @@
 				this.flowCellProtocolChooser.selectedIndex = 0;
 				
 				initializeFlowCellChannelsCountList();
+				initializeControlChannelsArray();
 				initializeSequenceProtocolsList();
 				getWorkList.send();
 			}
 			private function onGetWorkList(event:ResultEvent):void {
 				if (event.result.name() == "WorkItemList") {					
 					masterWorkList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
-					initializeMasterWorkList();		
-					
-					
+					initializeMasterWorkList();						
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
 				}
 			}
-			private function refreshWorkList():void {
-				
-				getWorkList.send();
-				
+			private function refreshWorkList():void {			
+				getWorkList.send();				
 			}
 			
 		]]>
@@ -258,66 +267,77 @@
 			
 			
 			private function underlyingWorkItemDataChange(event:CollectionEvent):void {
-				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+				if (event.kind == CollectionEventKind.RESET || 
+					event.kind == CollectionEventKind.REFRESH || 
+					["@isControl","@isDirty","@editable"].indexOf(event.items[0].property) > -1) {
 					// ignore refresh and resets to work list
+					return;
 				} else if( (["@flowCellChannelNumber"].indexOf(event.items[0].property) > -1) && (event.items[0].source.@flowCellChannelNumber != '') ) {
-					// we are adding to the assembleFlowCellGrid
-					if(flowCellProtocolChooser.selectedIndex == 0) {
-						for each(var protocol:XML in sequenceProtocolsList) {
-							if(protocol.@idNumberSequencingCyclesAllowed == event.items[0].source.@idNumberSequencingCyclesAllowed) {
-								flowCellProtocolChooser.selectedItem = protocol;
-								break;
-							}
-						}						
-					}					
-					if(flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed.toString() != event.items[0].source.@idNumberSequencingCyclesAllowed.toString() ) {
-						Alert.show("This sample has a different sequence protocol than the flow cell","Warning!");
-					}
-					for each(var sl:XML in assembleFlowCellWorkList) {
-						if(sl.@flowCellChannelNumber == event.items[0].source.@flowCellChannelNumber) {
-							if( (sl.@number.toString() != event.items[0].source.@number.toString()) 
-								&& (sl.@idOligoBarcode.toString() == event.items[0].source.@idOligoBarcode.toString()) 
-								&& (sl.@idOligoBarcodeB.toString() == event.items[0].source.@idOligoBarcodeB.toString()) ) {
-								Alert.show("This sample has the same barcode as another sample in channel " + sl.@flowCellChannelNumber.toString(), "Warning");
-							}
-						}
-					}
-					if(assembleFlowCellWorkList.length == 0) {
-						event.items[0].source.@editable = 'true'; // this is the first to be added
-					}
-					var identifier:String = '';
-					for each(sl in assembleFlowCellWorkList) {
-						if(sl.@flowCellChannelNumber.toString() != identifier) {
-							identifier = sl.@flowCellChannelNumber.toString();
-							if(sl.@editable == 'true') { 
-								continue; // leave this the lane with the isControl checkbox
-							} else {
-								sl.@editable = 'true'
-							}								
-						}
-						else {
-							sl.@editable = 'false';
-						}
-					}
+					addingToFlowCell(event);
 
 				} else if( (["@flowCellChannelNumber"].indexOf(event.items[0].property) > -1) && (event.items[0].source.@flowCellChannelNumber == '') ) {
-					// we are removing from the assembleFlowCell side
-					// if this is the first sequence lane in the channel and it is marked as a control we need to mark the next sequence lane, if there is one
-					if(event.items[0].source.hasOwnProperty("@editable") && event.items[0].source.@editable == "true") { // is this the first in the channel?
-						event.items[0].source.@editable = "false";
-						// find the next sequence lane in this channel, if one exists.
-						for each(sl in assembleFlowCellWorkList) {
-							if(sl.@flowCellChannelNumber == event.items[0].oldValue) {
-								sl.@editable = "true";
-								if(event.items[0].source.hasOwnProperty("@isControl") && event.items[0].source.@isControl == "true") {
-									event.items[0].source.@isControl = "false";
-									sl.@isControl = "true";
-								}
-							}
-						}
-					}
+					removingFromFlowCell(event);
 				} else  {
 					//dirty.setDirty();
+				}
+			}
+			
+			private function addingToFlowCell(event:CollectionEvent):void {
+				
+				// we are adding to the assembleFlowCellGrid
+				if(flowCellProtocolChooser.selectedIndex == 0) {
+					for each(var protocol:XML in sequenceProtocolsList) {
+						if(protocol.@idNumberSequencingCyclesAllowed == event.items[0].source.@idNumberSequencingCyclesAllowed) {
+							flowCellProtocolChooser.selectedItem = protocol;
+							break;
+						}
+					}						
+				}					
+				if(flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed.toString() != event.items[0].source.@idNumberSequencingCyclesAllowed.toString() ) {
+					//Alert.show("This sample has a different sequence protocol than the flow cell","Warning");
+				}
+				for each(var sl:XML in assembleFlowCellWorkList) {
+					if(sl.@flowCellChannelNumber == event.items[0].source.@flowCellChannelNumber) {
+						if( (sl.@number.toString() != event.items[0].source.@number.toString()) 
+							&& (sl.@idOligoBarcode.toString() == event.items[0].source.@idOligoBarcode.toString()) 
+							&& (sl.@idOligoBarcodeB.toString() == event.items[0].source.@idOligoBarcodeB.toString()) ) {
+							Alert.show("This sample has the same barcode as another sample in channel " + sl.@flowCellChannelNumber.toString() + ".", "Warning");
+							break;
+						}
+					}
+				}
+				addControlBoxes();
+			}
+			private function removingFromFlowCell(event:CollectionEvent):void {
+				event.items[0].source.@editable = "false";
+				event.items[0].source.@isControl = "false";
+				addControlBoxes();
+			}
+			private function addControlBoxes():void {				
+				var j:int = 0;
+				for(var i:int = 0; i < controlChannelsArray.length; i++) {	
+					var cc:Boolean = controlChannelsArray.getItemAt(i);					
+					var isFirst:Boolean = true;
+					var isControl:Boolean = true;
+					for(j; j < assembleFlowCellWorkList.length; j++) {
+						var sl:XML = assembleFlowCellWorkList.getItemAt(j) as XML;
+						if(sl.@flowCellChannelNumber == i + 1) {
+							if(isFirst) {
+								sl.@editable = "true";
+								isFirst = false;
+							} else {
+								sl.@editable = "false";
+							}
+							if(cc == true && isControl) {
+								sl.@isControl = "true";
+								isControl = false;
+							} else {
+								sl.@isControl = "false";
+							}							
+						} else {
+							break;
+						}
+					}
 				}
 			}
 	]]>
@@ -399,17 +419,17 @@
 						break;
 					}
 				}
-				for each(wi in assembleFlowCellWorkList) {
-					if(wi.name() == "DictionaryEntry") {
-						continue;
-					} else if(wi.@idNumberSequencingCyclesAllowed == firstProtocol) {
-						continue;
-					} else {
-						warningMessage += "The samples do not all have the same protocol.\n\n";
-						isValid = false;
-						break;
-					}
-				}
+//				for each(wi in assembleFlowCellWorkList) {
+//					if(wi.name() == "DictionaryEntry") {
+//						continue;
+//					} else if(wi.@idNumberSequencingCyclesAllowed == firstProtocol) {
+//						continue;
+//					} else {
+//						warningMessage += "The samples do not all have the same protocol.\n\n";
+//						isValid = false;
+//						break;
+//					}
+//				}
 			}
 			// Warn if not all lanes have same protocol as flow cell
 			private function validateProtocolAndLanes():void {
@@ -418,7 +438,7 @@
 						continue;
 					}
 					if(wi.@idNumberSequencingCyclesAllowed != flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed) {
-						warningMessage += "One or more samples have different protocols from the flow cell\n\n";
+						warningMessage += "One or more samples have different protocols from the flow cell.\n\n";
 						isValid = false;
 						break;
 					}
@@ -575,31 +595,34 @@
 	<!--							END Grid Labeling Functions						-->
 	<mx:Script>
 		<![CDATA[			
+			import mx.events.ListEvent;
 
 			
-			private function showHideInstructions():void {
-				if (instructionText.visible) {
-					instructionText.visible = false;
-					instructionText.includeInLayout = false;
-					instructions.label = "Instructions";
-				} else {
-					instructionText.visible = true;
-					instructionText.includeInLayout = true;
-					instructions.label = "Hide instructions";
-				}
-			}
+//			private function showHideInstructions():void {
+//				if (instructionText.visible) {
+//					instructionText.visible = false;
+//					instructionText.includeInLayout = false;
+//					instructions.label = "Instructions";
+//				} else {
+//					instructionText.visible = true;
+//					instructionText.includeInLayout = true;
+//					instructions.label = "Hide instructions";
+//				}
+//			}
 			public function updateIsControl(event:Event):void {
 				if(event.currentTarget.parentDocument.data.hasOwnProperty("@isControl") && event.currentTarget.parentDocument.data.@isControl == "true") {
 					event.currentTarget.parentDocument.data.@isControl = "false";
+					controlChannelsArray.setItemAt(false, (int(event.currentTarget.parentDocument.data.@flowCellChannelNumber) - 1));
 				} else {
 					event.currentTarget.parentDocument.data.@isControl = "true";
+					controlChannelsArray.setItemAt(true,(int(event.currentTarget.parentDocument.data.@flowCellChannelNumber) - 1));
 				}				
 			}
 			
 			public function sortRHS(a:Object, b:Object, fields:Array = null ):int {
 				var result:int = 0;
 				var i:int = 0;
-				var propList:Array = fields ? fields : ['@flowCellChannelNumber'];
+				var propList:Array = fields ? fields : ['@flowCellChannelNumber','@number'];
 				var len:int = propList.length;
 				var propName:String;
 				while (result == 0 && (i < len)) {
@@ -607,16 +630,17 @@
 					result = compareValues(a[propName], b[propName]);					
 					i++;
 				}
-				// there was a tie, but if one is editable it needs to go UP
-				if(result == 0 && (a.hasOwnProperty('@editable') || b.hasOwnProperty('@editable'))){
-					if(a.@editable == 'true') {
-						return -1;
-					} else {
-						return 1;
-					}
-				}else {
-					return result;					
-				}
+				return result;
+//				// there was a tie, but if one is editable it needs to go UP
+//				if(result == 0 && (a.hasOwnProperty('@editable') || b.hasOwnProperty('@editable'))){
+//					if(a.@editable == 'true') {
+//						return -1;
+//					} else {
+//						return 1;
+//					}
+//				}else {
+//					return result;					
+//				}
 				
 			}
 			public function compareValues(a:Object, b:Object):int {
@@ -631,7 +655,10 @@
 				if (a > b)
 					return 1;
 				return 0;
-			}			
+			}
+			public function flowCellProtocolChangeHandler(event:ListEvent):void {
+				Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
+			}
 			
 		]]>
 	</mx:Script>
@@ -674,11 +701,11 @@
 							</renderers:FilterComboBox>
 						</mx:HBox>
 					</mx:VBox>
-					<mx:Spacer width="100%"/>
-					<mx:VBox paddingRight="20">
-						<mx:AdvancedDataGrid id="controlsGrid" width="145" height="75"
+					<mx:Spacer width="90%"/>
+					<mx:VBox height="100%" width="100%">
+						<mx:AdvancedDataGrid id="controlsGrid" width="145" height="90"
 											 fontSize="10" resizableColumns="false" sortableColumns="false"
-											 visible="{controlsCount == 0 ? false : true}" borderStyle="none"
+											 visible="{controlsCount == 0 ? false : true}"
 											 dataProvider="{controlsList}"
 											 alternatingItemColors="{[ 0xEEEEE0, 0xFFFFFF]}"
 											 >
@@ -714,6 +741,7 @@
 							</mx:columns>				
 						</mx:AdvancedDataGrid>					
 					</mx:VBox>
+					<mx:Spacer width="90%"/>
 				</mx:HBox>
 			</mx:VBox>
 			<mx:VBox width="100%" height="90%">
@@ -721,15 +749,15 @@
 					id="pendingSequenceLanesGrid" width="100%" height="100%" 
 					sortableColumns="false" 				
 					fontSize="10"
-					resizableColumns="false"
+					resizableColumns="true"
 					dataProvider="{pendingSequenceLanesWorkList}"
 					allowMultipleSelection="true"
 					editable="true">
 					<util:columns>
-						<mx:AdvancedDataGridColumn dataField="@number" editable="false" headerText="Experiment" width="75" >
+						<mx:AdvancedDataGridColumn dataField="@number" editable="false" width="75" >
 							<mx:headerRenderer>
 								<mx:Component>
-									<mx:VBox width="75" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 										<mx:Label text="Experiment"/>
 									</mx:VBox>
 								</mx:Component>
@@ -750,7 +778,7 @@
 							</mx:itemEditor> 
 							<mx:headerRenderer>
 								<mx:Component>
-									<mx:VBox width="55" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 										<mx:Label text="Channel"/>
 									</mx:VBox>
 								</mx:Component>
@@ -759,7 +787,7 @@
 						<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" labelFunction="lookupOligoBarcode" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
-									<mx:VBox width="120" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 										<mx:Label text="Index Tag A"/>										
 									</mx:VBox>
 								</mx:Component>
@@ -768,7 +796,7 @@
 						<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" labelFunction="lookupOligoBarcodeB" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
-									<mx:VBox width="120" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 										<mx:Label text="Index Tag B"/>
 									</mx:VBox>
 								</mx:Component>
@@ -782,7 +810,7 @@
 												   editorDataField="value" >
 							<mx:headerRenderer>
 								<mx:Component>
-									<mx:VBox width="120" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 										<mx:Label text="Sequencing Protocol"/>
 									</mx:VBox>
 								</mx:Component>
@@ -814,7 +842,7 @@
 
 				<mx:Label text="Flow Cell to Assemble" styleName="formLabel" fontSize="12"/>
 				<mx:HBox width="100%" verticalAlign="middle">
-					<mx:Label text="Barcode" styleName="formLabel" width="70"/>
+					<mx:Label text="Barcode" styleName="formLabel" width="60"/>
 					<mx:TextInput id="flowCellBarcode" width="130" fontSize="10"/>
 					<mx:Label text="Run #" styleName="formLabel"/>
 					<mx:TextInput id="flowCellRunNumber" width="40" restrict="0-9" fontSize="10"/>
@@ -822,7 +850,7 @@
 					<mx:DateField id="flowCellCreateDate" showToday="true" fontSize="10"/>
 				</mx:HBox>
 				<mx:HBox width="100%" verticalAlign="middle">
-					<mx:Label text="Instrument" styleName="formLabel" width="70"/>
+					<mx:Label text="Instrument" styleName="formLabel" width="60"/>
 					<mx:ComboBox width="130" id="flowCellInstrument"
 								 labelField="@display"
 								 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}" fontSize="11">
@@ -834,9 +862,9 @@
 						<mx:RadioButton groupName="flowCellSide" label="Side B" styleName="labelSmall" id="radioSideB" paddingLeft="0" paddingBottom="0" paddingRight="4" paddingTop="0" horizontalGap="0" verticalGap="0" value="B">
 						</mx:RadioButton>
 					</mx:HBox>
-					<mx:HBox horizontalGap="20" verticalAlign="middle">
+					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:Label text="Protocol" styleName="formLabel" width="45"/>
-						<mx:ComboBox width="200" id="flowCellProtocolChooser" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" visible="{true}" includeInLayout="{true}"/>
+						<mx:ComboBox width="300" id="flowCellProtocolChooser" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)"/>
 					</mx:HBox>					
 				</mx:HBox>							
 			</mx:VBox>
@@ -844,21 +872,22 @@
 			<util:AdvancedDataGridGroupedRowColorsFlowCellChannelNumber  id="assembleFlowCellGrid" width="100%" height="100%" displayItemsExpanded="true"
 								 sortableColumns="false" 
 								 dataProvider="{assembleFlowCellWorkList}"
-								 fontSize="10" resizableColumns="false">
+								 fontSize="10" resizableColumns="true"
+								 >
 				<util:columns>
-					<mx:AdvancedDataGridColumn dataField="@number" editable="false" headerText="Experiment" width="75" >
+					<mx:AdvancedDataGridColumn dataField="@number" editable="false" headerText="Experiment" width="90" >
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox width="75" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 									<mx:Label text="Experiment"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn width="50">
+					<mx:AdvancedDataGridColumn width="60">
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 									<mx:Label text="Control"/>
 								</mx:VBox>
 							</mx:Component>
@@ -871,11 +900,11 @@
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber" width="45">			
+					<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber" width="50">			
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox width="45" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-									<mx:Label width="45" text="Channel"/>
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Channel"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>	
@@ -883,7 +912,7 @@
 					<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" labelFunction="lookupOligoBarcode" width="120" >
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox width="120" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 									<mx:Label text="Index Tag A"/>
 								</mx:VBox>
 							</mx:Component>
@@ -892,7 +921,7 @@
 					<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" labelFunction="lookupOligoBarcodeB" width="120" >
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox width="120" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 									<mx:Label text="Index Tag B"/>
 								</mx:VBox>
 							</mx:Component>
@@ -901,7 +930,7 @@
 					<mx:AdvancedDataGridColumn width="300" dataField="@idNumberSequencingCyclesAllowed" labelFunction="lookupNumberSequencingCyclesAllowed"   >
 						<mx:headerRenderer>
 							<mx:Component>
-								<mx:VBox width="300" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 									<mx:Label text="Sequencing Protocol"/>
 								</mx:VBox>
 							</mx:Component>
