@@ -439,7 +439,7 @@
 		<property name="side" column="side" type="string"/>
 		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
 		<property name="idNumberSequencingCyclesAllowed" column="idNumberSequencingCyclesAllowed" type="integer"/>
-		<set name="flowCellChannels" table="flowCellChannels" lazy="false" cascade="all" sort="hci.gnomex.utility.FlowCellChannelComparator">
+		<set name="flowCellChannels" table="flowCellChannels" lazy="false" cascade="none" sort="hci.gnomex.utility.FlowCellChannelComparator">
 			<key column="idFlowCell"/>
 			<one-to-many class="hci.gnomex.model.FlowCellChannel" />
 		</set>
@@ -454,7 +454,7 @@
 		<property name="number" column="number" type="int"/>
 		<property name="idFlowCell" column="idFlowCell" type="integer"/>
 		<many-to-one name="flowCell" column="idFlowCell" class="hci.gnomex.model.FlowCell" cascade="none" insert="false" update="false" />
-		<set name="sequenceLanes" table="SequenceLane" lazy="false" cascade="all" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
+		<set name="sequenceLanes" table="SequenceLane" lazy="false" cascade="none" sort="hci.gnomex.utility.SequenceLaneNumberComparator" >
 			<key column="idFlowCellChannel"/>
 			<one-to-many class="hci.gnomex.model.SequenceLane" />
 		</set>

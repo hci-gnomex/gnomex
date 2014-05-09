@@ -12,6 +12,7 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().canUpdate(fc)) {
     	     FlowCell flowCell = null;
              flowCell = (FlowCell) sess.get(FlowCell.class, fc.getIdFlowCell());
-             initializeFlowCell(flowCell);
+             //initializeFlowCell(flowCell);
              
              for(Iterator i1 = flowCell.getFlowCellChannels().iterator(); i1.hasNext();) {
                  FlowCellChannel channel = (FlowCellChannel)i1.next();
@@ -73,7 +74,15 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
                 	 WorkItem wi = new WorkItem();
 					wi.setIdRequest(sl.getIdRequest());
 					wi.setSequenceLane(sl);
-					wi.setCodeStepNext("HSEQASSEM");
+					wi.setCreateDate(new Date(System.currentTimeMillis()));
+					wi.setIdCoreFacility(flowCell.getIdCoreFacility());
+					if(flowCell.getCodeSequencingPlatform().equals("HISEQ")) {
+						wi.setCodeStepNext("HSEQASSEM");
+					} else if(flowCell.getCodeSequencingPlatform().equals("MISEQ")) {
+						wi.setCodeStepNext("MISEQASSEM");
+					} else {
+						throw new RollBackCommandException();
+					}					
 					sess.save(wi);
 					sess.flush();
                  }
@@ -118,17 +127,17 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
     return this;
   }
 
-  private void initializeFlowCell(FlowCell flowCell) {
-    flowCell.setNumber(fc.getNumber());
-    flowCell.setCreateDate(fc.getCreateDate());
-    flowCell.setNotes(fc.getNotes());
-    flowCell.setIdSeqRunType(fc.getIdSeqRunType());
-    flowCell.setIdNumberSequencingCycles(fc.getIdNumberSequencingCycles());
-    flowCell.setBarcode(fc.getBarcode());
-    flowCell.setCodeSequencingPlatform(fc.getCodeSequencingPlatform());
-    flowCell.setRunNumber(fc.getRunNumber());
-    flowCell.setIdInstrument(fc.getIdInstrument());
-    flowCell.setSide(fc.getSide());
-    flowCell.setIdCoreFacility(fc.getIdCoreFacility());
-  }
+//  private void initializeFlowCell(FlowCell flowCell) {
+//    flowCell.setNumber(fc.getNumber());
+//    flowCell.setCreateDate(fc.getCreateDate());
+//    flowCell.setNotes(fc.getNotes());
+//    flowCell.setIdSeqRunType(fc.getIdSeqRunType());
+//    flowCell.setIdNumberSequencingCycles(fc.getIdNumberSequencingCycles());
+//    flowCell.setBarcode(fc.getBarcode());
+//    flowCell.setCodeSequencingPlatform(fc.getCodeSequencingPlatform());
+//    flowCell.setRunNumber(fc.getRunNumber());
+//    flowCell.setIdInstrument(fc.getIdInstrument());
+//    flowCell.setSide(fc.getSide());
+//    flowCell.setIdCoreFacility(fc.getIdCoreFacility());
+//  }
 }

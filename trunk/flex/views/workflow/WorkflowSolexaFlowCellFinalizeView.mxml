@@ -132,6 +132,7 @@
 		}
 		private function onDeleteFlowCell(event:ResultEvent):void {
 			if (deleteFlowCell.lastResult.name() == "SUCCESS") {
+				clearAndRefreshList();
 			} else  {
 				Alert.show(event.result..ERROR.@message.toString(), "Error deleting flow cell");
 			}
