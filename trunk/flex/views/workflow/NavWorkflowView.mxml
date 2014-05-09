@@ -512,7 +512,7 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
@@ -523,9 +523,9 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
+			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 			   
-			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize FlowCell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
+			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
@@ -536,9 +536,9 @@
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
 				
-				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
+				<workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 				
-				<workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize FlowCell" id="workflowMiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
+				<workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowMiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
 				
 				<workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowMiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 				
