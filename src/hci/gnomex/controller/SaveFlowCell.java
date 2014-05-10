@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -100,6 +101,22 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         } else {
           flowCell = (FlowCell) sess.get(FlowCell.class, fc.getIdFlowCell());
           initializeFlowCell(flowCell);
+        }
+        // Update Sequencing Protocol for Sequence Lanes if they were forced into a Flow Cell with a different protocol 
+        for(Object key : channelParser.getChannelMap().keySet()) {
+        	FlowCellChannel fcc = (FlowCellChannel) channelParser.getChannelMap().get(key);
+        	Set seqLanes = fcc.getSequenceLanes();
+        	for(Object temp : seqLanes) {
+        		SequenceLane sl = (SequenceLane)temp; 
+        		if(sl.getIdNumberSequencingCyclesAllowed() != flowCell.getIdNumberSequencingCyclesAllowed()) {
+        			sl.setIdNumberSequencingCyclesAllowed(flowCell.getIdNumberSequencingCyclesAllowed());
+        			sl.setIdSeqRunType(flowCell.getIdSeqRunType());
+        			sl.setIdNumberSequencingCycles(flowCell.getIdNumberSequencingCycles());
+        			sess.save(sl);
+        	}
+        		
+        		
+        	}
         }
 
         //

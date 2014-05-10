@@ -125,7 +125,7 @@
 			private function initializeSequenceProtocolsList():void {
 				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').copy();
 				sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
-				flowCellProtocolChooser.selectedIndex = 0;
+				flowCellProtocol.selectedIndex = 0;
 			}			
 			private function initializeFlowCellChannelsCountList():void {
 				flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display=""  value=""  />'));
@@ -175,7 +175,7 @@
 				this.flowCellCreateDate.selectedDate = null; 
 				this.flowCellInstrument.selectedIndex = 0; 
 				this.flowCellSide.selectedValue = null; 
-				this.flowCellProtocolChooser.selectedIndex = 0;
+				this.flowCellProtocol.selectedIndex = 0;
 				
 				initializeFlowCellChannelsCountList();
 				initializeControlChannelsArray();
@@ -285,15 +285,15 @@
 			private function addingToFlowCell(event:CollectionEvent):void {
 				
 				// we are adding to the assembleFlowCellGrid
-				if(flowCellProtocolChooser.selectedIndex == 0) {
+				if(flowCellProtocol.selectedIndex == 0) {
 					for each(var protocol:XML in sequenceProtocolsList) {
 						if(protocol.@idNumberSequencingCyclesAllowed == event.items[0].source.@idNumberSequencingCyclesAllowed) {
-							flowCellProtocolChooser.selectedItem = protocol;
+							flowCellProtocol.selectedItem = protocol;
 							break;
 						}
 					}						
 				}					
-				if(flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed.toString() != event.items[0].source.@idNumberSequencingCyclesAllowed.toString() ) {
+				if(flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed.toString() != event.items[0].source.@idNumberSequencingCyclesAllowed.toString() ) {
 					//Alert.show("This sample has a different sequence protocol than the flow cell","Warning");
 				}
 				for each(var sl:XML in assembleFlowCellWorkList) {
@@ -348,7 +348,7 @@
 			private function save():void {								
 				warningMessage = "";
 				isValid = true;
-				if(flowCellProtocolChooser.selectedIndex == 0) {
+				if(flowCellProtocol.selectedIndex == 0) {
 					isValid = false;
 					warningMessage += "Please choose a sequencing protocol for the flow cell.\n\n";
 					Alert.show(warningMessage, "Warning");
@@ -437,7 +437,7 @@
 					if(wi.name() == "DictionaryEntry") {
 						continue;
 					}
-					if(wi.@idNumberSequencingCyclesAllowed != flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed) {
+					if(wi.@idNumberSequencingCyclesAllowed != flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed) {
 						warningMessage += "One or more samples have different protocols from the flow cell.\n\n";
 						isValid = false;
 						break;
@@ -489,7 +489,7 @@
 					params.codeStepNext = 'MISEQFINFC';
 				}
 				params.runNumber = this.flowCellRunNumber.text;
-				params.idNumberSequencingCyclesAllowed = this.flowCellProtocolChooser.selectedItem.@idNumberSequencingCyclesAllowed
+				params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed
 				params.side = this.flowCellSide.selectedValue;
 				
 				if (this.flowCellInstrument.selectedItem != null && this.flowCellInstrument.selectedItem.@value != '') {
@@ -864,7 +864,7 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:Label text="Protocol" styleName="formLabel" width="45"/>
-						<mx:ComboBox width="300" id="flowCellProtocolChooser" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)"/>
+						<mx:ComboBox width="300" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)"/>
 					</mx:HBox>					
 				</mx:HBox>							
 			</mx:VBox>
