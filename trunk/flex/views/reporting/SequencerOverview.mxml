@@ -46,7 +46,9 @@
 			private var _dateformatter:DateFormatter = new DateFormatter();
 			
 			public function init():void {
-				metrixInterface.send();
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+					metrixInterface.send();	
+				}
 			}
 			
 			private function sortXLC():void {
