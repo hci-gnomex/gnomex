@@ -298,20 +298,23 @@
 				}
 				for each(var sl:XML in assembleFlowCellWorkList) {
 					if(sl.@flowCellChannelNumber == event.items[0].source.@flowCellChannelNumber) {
-						if( (sl.@number.toString() != event.items[0].source.@number.toString()) 
-							&& (sl.@idOligoBarcode.toString() == event.items[0].source.@idOligoBarcode.toString()) 
-							&& (sl.@idOligoBarcodeB.toString() == event.items[0].source.@idOligoBarcodeB.toString()) ) {
-							Alert.show("This sample has the same barcode as another sample in channel " + sl.@flowCellChannelNumber.toString() + ".", "Warning");
-							break;
+						if( sl.@number.toString() != event.items[0].source.@number.toString() ) {
+
+
+							if(sl.@barcodeSequence == event.items[0].source.@barcodeSequence && sl.@barcodeSequenceB == event.items[0].source.@barcodeSequenceB) {
+								Alert.show("This sample has the same barcode sequence as another sample in channel " + sl.@flowCellChannelNumber + ".");
+								break;
+							}
 						}
 					}
+
 				}
-				addControlBoxes();
+				callLater(addControlBoxes);
 			}
 			private function removingFromFlowCell(event:CollectionEvent):void {
 				event.items[0].source.@editable = "false";
 				event.items[0].source.@isControl = "false";
-				addControlBoxes();
+				callLater(addControlBoxes);
 			}
 			private function addControlBoxes():void {				
 				var j:int = 0;
@@ -357,7 +360,7 @@
 				if (assembleFlowCellWorkList.length > 0) {
 					validateNumberOfLanes();
 					validateSequencingControl();
-					validateProtocol();
+//					validateProtocol();
 					validateProtocolAndLanes();
 					validateIndexTags();
 					//validateSeqRunType();
@@ -445,37 +448,35 @@
 				}
 			}
 			private function validateIndexTags():void {
-				for each(var i:int in flowCellChannelsCountList) {
-					if(!areIndexTagsUnique(i)) {
-						warningMessage += "Two or more samples in channel " + i + " have the same index tags. This should only occur when samples (and their sequence reads) are meant to be pooled.\n\n";
-						isValid=false;
+				for each(var channelNumber:XML in flowCellChannelsCountList) {
+
+					var i:String = channelNumber.@value;
+					if(!areBarcodeSequenceTagsUnique(i)) {
+						warningMessage += "Two or more samples in channel " + i + " have the same barcode tags. This should only occur when samples (and their sequence reads) are meant to be pooled.\n\n";
+						isValid = false;
 					}
 				}
 			}
-			private function areIndexTagsUnique(flowCellChannelNumber:Object):Boolean {
+			private function areBarcodeSequenceTagsUnique(flowCellChannelNumber:String):Boolean {
 				var workItemCount:int = 0;
-				var sequenceTagMap:Object = new Object();
+				var barcodeSequenceMap:Object = new Object();
 				for each(var wi:Object in assembleFlowCellWorkList) {
 					if (wi.@flowCellChannelNumber == flowCellChannelNumber) {
 						var tag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
-						sequenceTagMap[tag] = tag;					// if two tags are the same the second will overwrite the first
+						barcodeSequenceMap[tag] = tag;					// if two tags are the same the second will overwrite the first
 						workItemCount++;							// number of workItems in the multiplexGroupNumber group of interest
 					}
 				}
-				var uniqueTagCount:int = 0;
-				for (var sequenceTag:Object in sequenceTagMap) {
-					uniqueTagCount++;								// the map has stored only unique tags
-				}
-				
-				return uniqueTagCount == workItemCount;			// if two tags were identical these will not match
+
+				var uniqueBarcodeSequenceTagCount:int = 0;
+				for (var barcodeSequenceTag:Object in barcodeSequenceMap) {
+					uniqueBarcodeSequenceTagCount++;								// the map has stored only unique tags
+				}				
+
+				return uniqueBarcodeSequenceTagCount == workItemCount;			// if two tags were identical these will not match
 			}
 			
 			private function saveWorkItems():void {
-				//    		var dirtyStatusWorkItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
-				//    		if ( this.dirtyChannelWorkList.length == 0 && dirtyStatusWorkItems.length == 0) {
-				//    			Alert.show("No changes have been made.");
-				//    			return;
-				//    		}
 				
 				var params:Object = new Object();
 				params.flowCellBarcode = this.flowCellBarcode.text;
@@ -763,7 +764,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="60"
+						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="70"
 												   dataField="@flowCellChannelNumber" editable="true"
 												   rendererIsEditor="false"												    
 												   editorDataField="value"  >
