@@ -144,7 +144,7 @@
 		private function filterXLC():void {
 			MIList.filterFunction = state_filterFunc;
 			var dateSort:Sort = new Sort();
-			dateSort.fields = [new SortField('lastUpdated', true, false, true)];	// Set sort properties
+			dateSort.fields = [new SortField('lastUpdated', true, false)];	// Set sort properties
 			dateSort.reverse();											// Reverse the sort list
 			MIList.sort = dateSort;										// Apply sort
 			MIList.refresh();

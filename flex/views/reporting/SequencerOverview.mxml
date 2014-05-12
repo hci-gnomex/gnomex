@@ -52,14 +52,10 @@
 			}
 			
 			private function sortXLC():void {
-				
-				var mySort:Sort = new Sort();
-				var sortField:SortField = new SortField("@lastUpdated"); // Set sort properties
-				sortField.descending = false;							// Reverse the sort list
-				sortField.numeric = true;
-				
-				mySort.fields = [sortField];
-				MIList.sort = mySort;
+				var dateSort:Sort = new Sort();
+				dateSort.fields = [new SortField('lastUpdated', true, false)];	// Set sort properties
+				dateSort.reverse();											// Reverse the sort list
+				MIList.sort = dateSort;										// Apply sort
 				MIList.refresh();										// Refresh datasource
 			}		
 			
@@ -141,7 +137,7 @@
 				<mx:AdvancedDataGridColumn  dataField="runState" editable="false" labelFunction="formatState" headerText="Run State" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn headerText="Date" dataField="runDate" labelFunction="formatDate" editable="false" width="60"/>
-				<mx:AdvancedDataGridColumn  dataField="lastUpdated" editable="false" labelFunction="formatLastUpdate" headerText="Last Updated"   width="32" />
+				<mx:AdvancedDataGridColumn  dataField="lastUpdated" editable="false" headerText="Last Updated"   width="32" />
 				<mx:AdvancedDataGridColumn  dataField="currentCycle" editable="false" headerText="Current Cycle" width="60">
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn  dataField="totalCycle" editable="false" headerText="Total Cycle" width="60">
