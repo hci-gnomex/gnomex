@@ -193,15 +193,15 @@
 			return date;
 		}
 		
-		private function formatLastUpdate(item:String):String{
-			var dateArray:Array = item.substr(0, item.lastIndexOf(" ")).split("/");
-			var year:String = dateArray[2];
-			var month:String = dateArray[1];
-			var day:String = dateArray[0];
-			
-			return month + "/" + day + "/" + year;
-			
-		}
+//		private function formatLastUpdate(item:String):String{
+//			var dateArray:Array = item.substr(0, item.lastIndexOf(" ")).split("/");
+//			var year:String = dateArray[2];
+//			var month:String = dateArray[1];
+//			var day:String = dateArray[0];
+//			
+//			return month + "/" + day + "/" + year;
+//			
+//		}
 		
 	]]>
 </mx:Script>
@@ -232,7 +232,7 @@
 					<mx:Label id="runDateVal" text="{formatDate(repStatus.currentItem.runDate)}"/> <!-- Start date of run -->
 					<mx:VRule height="6" />
 					<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
-					<mx:Label id="lastUpdateVal" text="{formatLastUpdate(repStatus.currentItem.lastUpdated)}"/>   <!-- Last update of run --> 
+					<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
 					<!--<mx:Spacer width="20%" /> 
 					<mx:LinkButton id="runDetailsPopup" fontWeight="bold" label="Details" enabled="true" click="showRunDetails()"/>-->
 				</mx:HBox>
