@@ -147,3 +147,9 @@ CREATE TABLE `gnomex`.`MetrixObject` (
   PRIMARY KEY (`id`)
 )
 ENGINE = INNODB;
+
+insert into FAQ (title, url, idCoreFacility) values ('Pricing For Genomics Core', 'http://www.cores.utah.edu/?page_id=3891', 5);
+insert into FAQ (title, url, idCoreFacility) values ('Pricing For DNA Sequencing', 'http://www.cores.utah.edu/?page_id=3891', 2);
+insert into FAQ (title, url, idCoreFacility) values ('Pricing For High Throughput Genomics', 'http://www.hci.utah.edu/internal/microarrayOrdering.html#services', 1);
+insert into FAQ (title, url, idCoreFacility) values ('Purchase Supplies For DNA Sequencing', 'http://resource.cores.utah.edu/', 2);
+
