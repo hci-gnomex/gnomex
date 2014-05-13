@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
-		   label="Analysis" width="100%" height="100%" 
+		   label="Analysis"  height="100%" width="100%"		   
 		   xmlns:views="views.*"
 		   xmlns:analysis="views.analysis.*" 
 		   xmlns:util="views.util.*"
@@ -1109,7 +1109,7 @@
 			} 			
 			
 			private function toggleAllAnalysis():void {
-				this.searchLabel.enabled = !this.showAllAnalysisCheckbox.selected;
+				//this.searchLabel.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.searchTextField.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.lookupButton.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.lastWeekCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
@@ -1137,9 +1137,9 @@
 	<mx:VBox   width="100%" height="100%" verticalGap="2">
 		<mx:VBox styleName="panelBox" width="100%" id="vbox1"  paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
 			<mx:VBox id="analysisNavFilterBox"  verticalGap="0" width="100%">
-				<mx:HBox id="firstRowBox" >				
-					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="10"  width="70"/>					
-					<mx:HBox id="timeFilterBox">						
+				<mx:HBox id="firstRowBox" width="100%" horizontalScrollPolicy="off">				
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="0"  width="60"/>					
+					<mx:HBox id="timeFilterBox" paddingLeft="0" paddingRight="0">						
 						<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
 							<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
 						</mx:CheckBox>
@@ -1153,34 +1153,35 @@
 							<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
 						</mx:CheckBox>
 					</mx:HBox>
-					<mx:HBox verticalAlign="middle" paddingBottom="5" id="OrganismAndGenomeFiltersBox" >
-						<mx:Label text="Organism:" styleName="labelSmall" width="60" />
+					<mx:HBox verticalAlign="middle" paddingBottom="5" paddingLeft="0" paddingRight="0" id="OrganismAndGenomeFiltersBox" >
+						<!--<mx:Label text="Organism:" styleName="labelSmall" width="55" />-->
 						<renderers:FilterComboBox labelField="@display"
 												  prompt="Organism..."
 												  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
 												  id="organismCombo"
 												  dataProvider="{organisms.source}"
-												  width="281">
+												  width="180">
 						</renderers:FilterComboBox>
-						<mx:Label text="Genome Build:" styleName="labelSmall" width="80" />
-						<mx:ComboBox width="281" 
-									 id="genomeBuildCombo" 
-									 labelField="@display"
-									 change="refreshAnalysis();"
-									 dataProvider="{filteredGenomeBuildList}">							
-						</mx:ComboBox>
+						<!--<mx:Label text="Genome: " styleName="labelSmall" width="55" />-->
+						<renderers:FilterComboBox labelField="@display"
+												  prompt="Genome Build..."
+												  close="refreshAnalysis();"
+												  id="genomeBuildCombo"
+												  dataProvider="{filteredGenomeBuildList.source}"
+												  width="180">
+						</renderers:FilterComboBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
-						<mx:Label text="Search" id="searchLabel" paddingLeft="6" width="50"/>
-						<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF"/>     
+						<!--<mx:Label text="Search" id="searchLabel" paddingLeft="6" width="50"/>-->
+						<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF" text="Search..." click="{if(searchTextField.text == 'Search...') searchTextField.text = ''}"/>     
 						<mx:Button id="lookupButton"  
 								   fontFamily="Arial"  height="18" width="30"
-								   color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+								   color="#400040" click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
 					</mx:HBox>
 					<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
 				</mx:HBox>
 				<mx:HBox id="secondRowBox">
-					<mx:Spacer width="70" id="secondRowSpacer" />
+					<mx:Spacer width="60" id="secondRowSpacer" />
 					<mx:HBox id="userFilters">
 						<mx:HBox id="analysisRadioGroupBox">
 							<mx:RadioButtonGroup id="analysisRadioGroup"/>
