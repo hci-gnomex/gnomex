@@ -12,7 +12,7 @@
 		id="notificationInterface" 
 		url="GetNotification.gx"
 		resultFormat="e4x"
-		destination="NotificationInterface"
+		destination="notificationInterface"
 		showBusyCursor="true"
 		result="onGetNotificationInterface(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to get notification interface result', event)"
@@ -48,6 +48,19 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.workflow.NavWorkflowView;
+			
+			//Notification variables
+			private var REQUEST_TYPE:String = 'REQUEST';
+			private var ANALYSIS_TYPE:String = 'ANALYSIS';
+			private var DT_TYPE:String = 'DATATRACK';
+			private var FLOWCELL_TYPE:String = 'FLOWCELL';
+			private var TOPIC_TYPE:String = 'TOPIC';
+			private var WORKFLOW_TYPE:String = 'WORKFLOW';
+			private var NEW_STATE:String = 'NEW';
+			private var EXISTING_STATE:String = 'EXIST';
+			private var ADMIN_ROLE:String = 'ADMIN';
+			private var USER_ROLE:String = 'USER';
+			private var BILLING_TYPE:String = 'BILLING';
 			
 			// Variables
 			[Bindable]
@@ -167,82 +180,82 @@
 				var expID:String = rep.currentItem.@expId;
 				var fullname:String = rep.currentItem.@fullNameUser;
 				
-				if(sourceType == "USER"){
+				if(sourceType == this.USER_ROLE){
 					notification = "Your";
-					
-					if(type == "REQUEST"){
-						if(state == "NEW"){
+
+					if(type == this.REQUEST_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " experiment (" + expID + ") has been created.";
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " existing experiment (" + expID + ") has been edited.";
 						}
-					}else if(type == "ANALYSIS"){
-						if(state == "NEW"){
+					}else if(type == this.ANALYSIS_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " analysis (" + expID + ") has been created.";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " analysis (" + expID + ") has been edited.";
 						}
-					} else if(type == "DATATRACK"){
-						if(state == "NEW"){
+					} else if(type == this.DT_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " Data Track (" + expID + ") has been created.";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " Data Track (" + expID + ") has been edited.";
 						}
-					} else if(type == "TOPIC"){
-						if(state == "NEW"){
+					} else if(type == this.TOPIC_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " Topic (" + expID + ") has been created.";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " Topic (" + expID + ") has been edited.";
 						}
-					} else if(type == "FLOWCELL"){
-						if(state == "NEW"){
+					} else if(type == this.FLOWCELL_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " Flow Cell (" + expID + ") has been created.";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " Flow Cell (" + expID + ") has been edited.";
 						}
-					} else if(type == "WORKFLOW"){
+					} else if(type == this.WORKFLOW_TYPE){
 						notification = " Sample " + rep.@sampleNumber + " for Request " + rep.@requestNumber + " has entered " + rep.@codeStepName;							
 					}
-				}else if(sourceType == "WORKFLOW"){
+				}else if(sourceType == this.WORKFLOW_TYPE){
 					
-				}else if(sourceType == "ADMIN"){
+				}else if(sourceType == this.ADMIN_ROLE){
 					notification = fullname;
 					
-					if(type == "REQUEST"){
-						if(state == "NEW"){
+					if(type == this.REQUEST_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " has submitted a new request (" + expID + ").";
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " has edited an existing request (" + expID + ").";
 						}
-					}else if(type == "ANALYSIS"){
-						if(state == "NEW"){
+					}else if(type == this.ANALYSIS_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " has submitted a new analysis (" + expID + ").";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " has edited an existing analysis (" + expID + ").";;
 						}
-					} else if(type == "DATATRACK"){
-						if(state == "NEW"){
+					} else if(type == this.DT_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " has submitted a new Data Track (" + expID + ").";;							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " has edited a Data Track (" + expID + ").";;
 						}
-					} else if(type == "TOPIC"){
-						if(state == "NEW"){
+					} else if(type == this.TOPIC_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " has submitted a new Topic (" + expID + ").";;							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " has edited an existing Topic (" + expID + ").";;
 						}
-					} else if(type == "FLOWCELL"){
-						if(state == "NEW"){
+					} else if(type == this.FLOWCELL_TYPE){
+						if(state == this.NEW_STATE){
 							notification += " Flow Cell (" + expID + ") has been created.";							
-						}else if(state == "EXIST"){
+						}else if(state == this.EXISTING_STATE){
 							notification += " Flow Cell (" + expID + ") has been edited.";
 						}
 					}					
-				} else if(sourceType == "BILLING"){
-					if(state == "NEW"){
+				} else if(sourceType == this.BILLING_TYPE){
+					if(state == this.NEW_STATE){
 						notification = "The invoice for request " + expID + " has been created.";
-					}else if(state == "EXIST"){
+					}else if(state == this.EXISTING_STATE){
 						notification = "The invoice for " + expID + " has been edited.";
 					}					
 				}
@@ -337,7 +350,7 @@
 			</mx:HBox>
 		</mx:VBox>
 		<mx:HBox width="94%">
-			<mx:LinkButton id="moreButton" label="More..." fontStyle="italic" visible="{noteData.length > 8}" includeInLayout="{noteData.length > 8}" click="getMoreItems(repStatus.startingIndex)"/>
+			<mx:LinkButton id="moreButton" label="More..." fontStyle="italic" visible="{noteData.length > 8}" includeInLayout="{noteData.length > 8}" click="{getMoreItems(repStatus.startingIndex); topButton.visible = true; topButton.includeInLayout = true;}"/>
 			<mx:LinkButton id="topButton" label="Top..." visible="false" fontStyle="italic" includeInLayout="false" click="{this.repStatus.startingIndex = 0; this.pageNumberCount = 1; moreButton.visible = true; moreButton.includeInLayout = true; topButton.visible = false; topButton.includeInLayout = false;}"/>
 			<mx:Spacer width="100%"/>
 			<mx:Text id="pageNumber" fontSize="11" text="{'Page ' + this.pageNumberCount}" fontStyle="italic" />	
