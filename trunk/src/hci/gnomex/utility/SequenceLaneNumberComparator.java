@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Comparator;
 
  public class SequenceLaneNumberComparator implements Comparator, Serializable {
+   private String seqLaneNumberSeparatorDefault = "-";
+   private String seqLaneLetterDefault = "F";
    private String seqLaneNumberSeparator = "";
    private String seqLaneLetter = "";
     public int compare(Object o1, Object o2) {
@@ -14,8 +16,13 @@ import java.util.Comparator;
       SequenceLane l2 = (SequenceLane)o2;
       
       seqLaneNumberSeparator = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR);
+      if (seqLaneNumberSeparator == null) {
+    	  seqLaneNumberSeparator = seqLaneNumberSeparatorDefault;
+      }
       seqLaneLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
-      
+      if (seqLaneLetter == null) {
+    	  seqLaneLetter = seqLaneLetterDefault;
+      }
       if (l1.getNumber() == null && l2.getNumber() == null) {
         return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
       } else if (l1.getNumber() == null) {
