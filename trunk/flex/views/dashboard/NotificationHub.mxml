@@ -157,7 +157,7 @@
 			</mx:HBox>
 			<mx:HBox width="100%">
 				<mx:HBox width="50%" horizontalAlign="left" visible="{currentState != 'UserState'}" includeInLayout="{currentState != 'UserState'}">
-					<mx:ComboBox id="stateCombo" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{comboLabels}" change="selectState()"/>
+					<mx:ComboBox id="stateCombo" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{comboLabels}" selectedIndex="{parentApplication.isAdminState ? 1 : 0}" change="selectState()"/>
 				</mx:HBox>
 				<mx:HBox width="50%" horizontalAlign="left" visible="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}" includeInLayout="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}">
 					<mx:ComboBox id="coreFacilityCombo" selectedIndex="0" toolTip="Filter by Core Facility" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{coreFacilities}" labelField="@display" change="selectCoreFacility()"/>
