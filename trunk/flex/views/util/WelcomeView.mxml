@@ -72,10 +72,10 @@
 				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_NEWS_DASHBOARD) == 'Y'){
 					newsButtonBox.visible = true;
 				}
-				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y'){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y' && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false ){
 					activityBox.visible = true;
 				}
-				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y' && parentApplication.isAdminState == true && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false){
 					sequencerButton.visible = true;
 				}
 				
