@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
-<mx:HBox verticalAlign="middle" width="100%">
-	<mx:Image source="{parentApplication.iconFlowCell}"/>
-	<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
-	<mx:ControlBar horizontalAlign="right" width="100%">
-		<mx:HBox width="100%" horizontalAlign="left">
-			<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
-						   toolTip="Refresh worklist" click="refresh()"/>
-		</mx:HBox>
-	</mx:ControlBar>
-</mx:HBox>
+	xmlns:util="views.util.*"  show="init()" xmlns:util1="util.*" ><!-- defaultButton="{lookupButton}" -->
+
 	
 	<mx:HTTPService  
 		id="saveFlowCell" 
@@ -46,12 +37,12 @@
     useProxy="false">
     <mx:request xmlns="">
     	<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
-    	<flowCellNumber>{lookupField.text.toUpperCase().indexOf('FC') > -1 ? lookupField.text : ''}</flowCellNumber>
+ <!--  	<flowCellNumber>{lookupField.text.toUpperCase().indexOf('FC') > -1 ? lookupField.text : ''}</flowCellNumber>
     	<requestNumber>{lookupField.text.toUpperCase().indexOf('R') > -1 ? lookupField.text : ''}</requestNumber>
         <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
         <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
         <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
-        <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
+        <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear> -->
 		<codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
   </mx:HTTPService> 
@@ -73,7 +64,7 @@
 	
 	<mx:XMLListCollection id="flowCellChannelsList" />
 	<mx:XMLListCollection id="flowCellsList" source="{getFlowCellList.lastResult.FlowCell}" sort="{sortFlowCellsList}" />
-	<mx:XMLListCollection id="sequenceProtocolsList"  /> <!-- active protocols -->
+	<mx:XMLListCollection id="sequenceProtocolsList" filterFunction="filterSequenceProtocolsList"  /> <!-- active protocols -->
 	<mx:Sort id="sortFlowCellsList" compareFunction="compareFlowCellsList" />
 <mx:Script> 
 	<![CDATA[
@@ -89,8 +80,9 @@
 		import mx.events.PropertyChangeEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+		import mx.events.ListEvent;
 		
-		import views.workflow.EditFlowCellWindow;
+//		import views.workflow.EditFlowCellWindow;
 		
 		[Bindable]
 		public var selectedFlowCell:Object;
@@ -106,20 +98,14 @@
 		[Bindable]
 		public var codeStepNext:String;
 		
-		public function compareFlowCellsList(a:Object, b:Object, fields:Array = null ):int {
-			var result:int = 0;
-			var i:int = 0;
-			var propList:Array = fields ? fields : ['@number'];
-			var len:int = propList.length;
-			var propName:String;
-			while (result == 0 && (i < len)) {
-				propName = propList[i];
-				result = compareValues(a[propName], b[propName]);					
-				i++;
-			}
-			return result;			
+		[Bindable]
+		private var flowCellRunFolder:String = '';
+		
+		public function filterSequenceProtocolsList(item:Object):Boolean {
+			return item.@codeRequestCategory == codeSequencingPlatform || item.@name == "Choose a protocol...";
 		}
-		public function compareValues(a:Object, b:Object):int {
+		
+		public function compareFlowCellsList(a:Object, b:Object, fields:Array = null ):int {
 			if(a == null && b == null)
 				return 0;
 			if(a == null)
@@ -131,8 +117,7 @@
 			if (a > b)
 				return -1;
 			return 0;
-		}
-		
+		}		
 		private function deleteFC():void {
 			var params:Object = new Object();
 			params.idFlowCell = selectedFlowCell.@idFlowCell;
@@ -197,6 +182,7 @@
 			params.idSeqRunType = this.selectedFlowCell.@idSeqRunType;
 			params.idCoreFacility = selectedFlowCell.@idCoreFacility;
 			params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed;
+			params.runFolder = this.flowCellRunFolder;
 			//params.numberSequencingCyclesActual = this.numberOfCycles.text;
 			//params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
 			params.channelsXMLString =  "<fcChannels>" + this.selectedFlowCell.flowCellChannels.FlowCellChannel.toXMLString() + "</fcChannels>";
@@ -244,13 +230,38 @@
 			sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
 			flowCellProtocol.selectedIndex = 0;
 		}
+		private function createFlowCellFileName():void {
+			var runFolder:String = '';
+			if(this.flowCellBarcode.text.length > 0 && this.flowCellRunNumber.text.length > 0
+				&& this.flowCellDate.selectedDate != null && this.flowCellSide.selectedValue != null
+				&& this.flowCellInstrument.selectedItem != null && this.flowCellProtocol.selectedIndex != 0
+				&& this.codeSequencingPlatform == 'HISEQ') 
+			{				 
+				var year:String = (flowCellDate.selectedDate.fullYear.toString()).substr(2,3);
+				var month:String = (flowCellDate.selectedDate.month + 1).toString();
+				if(month.length == 1) { month = "0" + month; }
+				var date:String =  flowCellDate.selectedDate.date.toString();
+				if(date.length == 1) { date = "0" + date; }
+				runFolder += year + month + date;
+				runFolder += "_";
+				runFolder += this.flowCellInstrument.selectedItem.@instrument;
+				runFolder += "_";
+				var runNumberPlus:Number = Number(this.flowCellRunNumber.text) + 10000;
+				runFolder += runNumberPlus.toString().substring(1,5);
+				runFolder += "_";
+				runFolder += this.flowCellSide.selectedValue;
+				runFolder += this.flowCellBarcode.text;
+				
+			}
+			flowCellRunFolder = runFolder;
+		}
 		
 
 		private function refresh():void{
 			this.selectedFlowCell = null;
-			this.flowCellBarcode.text = '';
+			this.flowCellBarcode.text = ''; this.flowCellRunNumber.text = '';
 			this.flowCellDate.selectedDate = null;
-			this.flowCellSide.selectedValue = null;
+			this.flowCellSide.selectedValue = null; this.flowCellSide.selection = null;
 			this.flowCellInstrument.selectedItem = null;
 			this.flowCellProtocol.selectedIndex = 0;
 			flowCellChannelsList.source = null;
@@ -265,7 +276,32 @@
         		Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell list.");
         	}
         }
-
+		public function flowCellSelected():void {
+			selectedFlowCell = flowCellsGrid.selectedItem;
+			selectedIdFlowCell = selectedFlowCell.@idFlowCell; // needed for servlet
+			if(selectedIdFlowCell < 0) {
+				
+			} else {
+				flowCellChannelsGrid.dataProvider = null;
+				flowCellChannelsList.source = null;
+				
+				getFlowCell.send();
+			}
+		}
+		private function onGetFlowCell(event:ResultEvent):void {
+			if (event.result.name() == "FlowCell") {
+				populateChannels();
+				populateFlowCellInfo();
+				createFlowCellFileName();
+			} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell.");
+			}
+		}
+		private function prepareToEdit():void {
+			if (selectedFlowCell != null) {
+				showEdit();
+			}
+		}
 
 		
 		private function populateChannels():void {
@@ -284,6 +320,7 @@
 					destination += sequencingControl;
 				}
 				for each( var sequenceLane:XML in flowCellChannel..SequenceLane ) {
+					sequenceLane.@oldFileName = sequenceLane.@fileName;
 					if(isFirst) {
 						sequenceLane.@isControl = flowCellChannel.@isControl;
 						sequenceLane.@editable = "true";
@@ -292,7 +329,8 @@
 					destination += sequenceLane;
 				}				
 			}
-			flowCellChannelsList.source = destination;		
+			flowCellChannelsList.source = destination;
+			flowCellChannelsGrid.dataProvider = flowCellChannelsList;
 		}
 		private function populateFlowCellInfo():void {
 			var flowCell:XMLList = getFlowCell.lastResult.FlowCell;
@@ -332,28 +370,6 @@
 			navigateToURL(url, '_blank');			
 		}
 		
-		public function flowCellSelected():void {
-			selectedFlowCell = flowCellsGrid.selectedItem;
-			selectedIdFlowCell = selectedFlowCell.@idFlowCell; // needed for servlet
-			if(selectedIdFlowCell < 0) {
-				
-			} else {
-				getFlowCell.send();
-			}
-		}
-		private function onGetFlowCell(event:ResultEvent):void {
-			if (event.result.name() == "FlowCell") {
-				populateChannels();
-				populateFlowCellInfo();
-			} else {
-				Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell.");
-			}
-		}
-		private function prepareToEdit():void {
-			if (selectedFlowCell != null) {
-				showEdit();
-			}
-		}
 		public function showEdit():void {
 			var number:String = getFlowCell.lastResult.FlowCell.@number;
 			if (number != "") {
@@ -369,35 +385,35 @@
 
 		}
 		
-		public function toggleDateCheckboxes(checkBoxNumber:int):void {
-			this.lookupField.text = "";
-			if (checkBoxNumber == 1) {
-				this.lastMonthCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected  = false;
-			} else if (checkBoxNumber == 2) {
-				this.lastWeekCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected  = false;
-			} else if (checkBoxNumber == 3) {
-				this.lastWeekCheckbox.selected  = false;
-				this.lastMonthCheckbox.selected = false; 
-				this.lastYearCheckbox.selected  = false;
-			}  else if (checkBoxNumber == 4) {
-				this.lastWeekCheckbox.selected  = false;
-				this.lastMonthCheckbox.selected = false; 
-				this.lastThreeMonthsCheckbox.selected = false;
-			}   
-		} 			
-		
-		private function setDefaultButton():void {
-			if (this.lookupField.text != '') {
-				this.lastWeekCheckbox.selected = false;
-				this.lastMonthCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected = false;
-			} 		
-		}
+//		public function toggleDateCheckboxes(checkBoxNumber:int):void {
+//			this.lookupField.text = "";
+//			if (checkBoxNumber == 1) {
+//				this.lastMonthCheckbox.selected = false;
+//				this.lastThreeMonthsCheckbox.selected = false;
+//				this.lastYearCheckbox.selected  = false;
+//			} else if (checkBoxNumber == 2) {
+//				this.lastWeekCheckbox.selected = false;
+//				this.lastThreeMonthsCheckbox.selected = false;
+//				this.lastYearCheckbox.selected  = false;
+//			} else if (checkBoxNumber == 3) {
+//				this.lastWeekCheckbox.selected  = false;
+//				this.lastMonthCheckbox.selected = false; 
+//				this.lastYearCheckbox.selected  = false;
+//			}  else if (checkBoxNumber == 4) {
+//				this.lastWeekCheckbox.selected  = false;
+//				this.lastMonthCheckbox.selected = false; 
+//				this.lastThreeMonthsCheckbox.selected = false;
+//			}   
+//		} 			
+//		
+//		private function setDefaultButton():void {
+//			if (this.lookupField.text != '') {
+//				this.lastWeekCheckbox.selected = false;
+//				this.lastMonthCheckbox.selected = false;
+//				this.lastThreeMonthsCheckbox.selected = false;
+//				this.lastYearCheckbox.selected = false;
+//			} 		
+//		}
 		
 		private function lookupNumberSequencingCyclesAllowed(item:Object, col:Object):String {			
 			if (item != null  && item.hasOwnProperty("@idNumberSequencingCyclesAllowed")) {
@@ -450,77 +466,86 @@
 //			}
 //			return result;
 //		}
-	
+		public function flowCellProtocolChangeHandler(event:ListEvent):void {
+			Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
+		}	
 	]]>
 </mx:Script>    	
 
 	<mx:HDividedBox width="100%" height="100%">
 		<mx:VBox id="LHS" width="50%" height="100%" horizontalScrollPolicy="off">
-			<mx:VBox id="flowCellControls">
-				<mx:HBox width="100%">
-					<mx:Label text="Assembled Flow Cells" fontWeight="normal" styleName="formLabel" fontSize="12"/>
-					<mx:Spacer width="100%" />
-					<mx:Label text="{'(' + this.flowCellsList.length + ' flow cells)'}" fontWeight="normal" textAlign="right" />
+			<mx:VBox width="100%" height="110">
+				<mx:HBox verticalAlign="middle" width="100%">
+					<mx:Image source="{parentApplication.iconFlowCell}"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
+					<util:ContextHelp context1="finalizeFlowCellHelp" />
 				</mx:HBox>
-				<mx:HBox id="filterBox" horizontalGap="20" verticalAlign="middle">
-					<mx:Label text="Filter by" />
-					<mx:HBox horizontalGap="0" verticalAlign="middle">
-						<mx:Label text="Flow Cell # or Experiment #" id="label1" />
-						<mx:TextInput id="lookupField" width="60"
-									  change="{setDefaultButton()}" />
-						<mx:Button id="lookupButton" fontFamily="Arial" height="18"
-								   width="30" color="#400040"
-								   click="{if (lookupField.text.toUpperCase().indexOf('R') &gt; -1 || lookupField.text.toUpperCase().indexOf('FC') &gt; -1 ) this.getFlowCellList.send();}"
-								   visible="true" icon="@Embed('../../assets/arrow_right.png')" />
-						<mx:TextInput id="lookupField2" width="10" visible="false" />
+				<mx:Spacer height="100%" />
+				<mx:VBox id="flowCellControls" width="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="Assembled Flow Cells" fontWeight="normal" styleName="formLabel" fontSize="12"/>
+						<mx:Label text="{'(' + this.flowCellsList.length + ' flow cells)'}" fontWeight="normal" textAlign="right" />
 					</mx:HBox>
-					<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0"
-							 horizontalAlign="right" paddingRight="0" id="hbox3">
-						<mx:CheckBox id="lastWeekCheckbox" label="In last week"
-									 paddingRight="0" paddingLeft="0" horizontalGap="0"
-									 selected="false">
-							<mx:click>toggleDateCheckboxes(1);</mx:click>
-						</mx:CheckBox>
-						<mx:CheckBox id="lastMonthCheckbox" label="month"
-									 paddingRight="0" paddingLeft="2" horizontalGap="0"
-									 selected="false">
-							<mx:click>toggleDateCheckboxes(2);</mx:click>
-						</mx:CheckBox>
-						<mx:CheckBox id="lastThreeMonthsCheckbox" label="3 months"
-									 paddingRight="0" paddingLeft="2" horizontalGap="0"
-									 selected="false">
-							<mx:click>toggleDateCheckboxes(3);</mx:click>
-						</mx:CheckBox>
-						<mx:CheckBox id="lastYearCheckbox" label="year"
-									 paddingRight="0" paddingLeft="2" horizontalGap="0"
-									 selected="false">
-							<mx:click>toggleDateCheckboxes(4);</mx:click>
-						</mx:CheckBox>
+				<!--<mx:HBox id="filterBox" horizontalGap="20" verticalAlign="middle">
+						<mx:Label text="Filter by" />
+						<mx:HBox horizontalGap="0" verticalAlign="middle">
+							<mx:Label text="Flow Cell # or Experiment #" id="label1" />
+							<mx:TextInput id="lookupField" width="60"
+										  change="{setDefaultButton()}" />
+							<mx:Button id="lookupButton" fontFamily="Arial" height="18"
+									   width="30" color="#400040"
+									   click="{if (lookupField.text.toUpperCase().indexOf('R') &gt; -1 || lookupField.text.toUpperCase().indexOf('FC') &gt; -1 ) this.getFlowCellList.send();}"
+									   visible="true" icon="@Embed('../../assets/arrow_right.png')" />
+							<mx:TextInput id="lookupField2" width="10" visible="false" />
+						</mx:HBox>
+						<mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0"
+								 horizontalAlign="right" paddingRight="0" id="hbox3">
+							<mx:CheckBox id="lastWeekCheckbox" label="In last week"
+										 paddingRight="0" paddingLeft="0" horizontalGap="0"
+										 selected="false">
+								<mx:click>toggleDateCheckboxes(1);</mx:click>
+							</mx:CheckBox>
+							<mx:CheckBox id="lastMonthCheckbox" label="month"
+										 paddingRight="0" paddingLeft="2" horizontalGap="0"
+										 selected="false">
+								<mx:click>toggleDateCheckboxes(2);</mx:click>
+							</mx:CheckBox>
+							<mx:CheckBox id="lastThreeMonthsCheckbox" label="3 months"
+										 paddingRight="0" paddingLeft="2" horizontalGap="0"
+										 selected="false">
+								<mx:click>toggleDateCheckboxes(3);</mx:click>
+							</mx:CheckBox>
+							<mx:CheckBox id="lastYearCheckbox" label="year"
+										 paddingRight="0" paddingLeft="2" horizontalGap="0"
+										 selected="false">
+								<mx:click>toggleDateCheckboxes(4);</mx:click>
+							</mx:CheckBox>
+						</mx:HBox>
+						<mx:VBox height="100%" verticalAlign="middle">
+							<mx:LinkButton id="findButton" height="25" label="Find"
+										   toolTip="Run Search" click="{this.getFlowCellList.send();}"
+										   icon="@Embed('../../assets/magnifier.png')" />
+						</mx:VBox>
 					</mx:HBox>
-					<mx:VBox height="100%" verticalAlign="middle">
-						<mx:LinkButton id="findButton" height="25" label="Find"
-									   toolTip="Run Search" click="{this.getFlowCellList.send();}"
-									   icon="@Embed('../../assets/magnifier.png')" />
-					</mx:VBox>
-				</mx:HBox>
-				<mx:HBox width="100%" verticalAlign="bottom">
-					<mx:HBox width="100%" verticalAlign="middle"
-							 paddingTop="8">
-						
-						<mx:LinkButton label="Preparation report"
-									   fontStyle="normal" textDecoration="underline"
-									   color="#2017D8" click="showPrintablePrepForm()"
-									   enabled="{flowCellsGrid.selectedItem != null}" />
-						<mx:LinkButton label="Run report" fontStyle="normal"
-									   textDecoration="underline" color="#2017D8"
-									   click="showPrintableForm()"
-									   enabled="{flowCellsGrid.selectedItem != null}" />
-						<mx:LinkButton label="Edit flow cell"
-									   fontStyle="normal" textDecoration="underline"
-									   color="#2017D8" click="prepareToEdit();"
-									   enabled="{this.selectedFlowCell != null}" />
-					</mx:HBox>
-				</mx:HBox>
+					<mx:HBox width="100%" verticalAlign="bottom">
+						<mx:HBox width="100%" verticalAlign="middle"
+								 paddingTop="8">
+							
+							<mx:LinkButton label="Preparation report"
+										   fontStyle="normal" textDecoration="underline"
+										   color="#2017D8" click="showPrintablePrepForm()"
+										   enabled="{flowCellsGrid.selectedItem != null}" />
+							<mx:LinkButton label="Run report" fontStyle="normal"
+										   textDecoration="underline" color="#2017D8"
+										   click="showPrintableForm()"
+										   enabled="{flowCellsGrid.selectedItem != null}" />
+							<mx:LinkButton label="Edit flow cell"
+										   fontStyle="normal" textDecoration="underline"
+										   color="#2017D8" click="prepareToEdit();"
+										   enabled="{this.selectedFlowCell != null}" />
+						</mx:HBox>
+					</mx:HBox>-->
+				</mx:VBox>
 			</mx:VBox>
 			<mx:VBox width="100%" height="90%">
 				<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" fontSize="10"
@@ -542,34 +567,41 @@
 		</mx:VBox>
 <!--													END LHS								-->
 <!--													RHS									-->
-		<mx:VBox id="RHS" width="50%" height="100%">
-			<mx:VBox id="flowCellChannelsControls" width="100%" height="10%">
-				<mx:Label text="Flow Cell to Finalize {flowCellsGrid.selectedItem.@number}"
-						  styleName="formLabel" fontSize="12" />
+		<mx:VBox id="RHS" width="50%" height="100%" horizontalScrollPolicy="off">
+			<mx:VBox id="flowCellChannelsControls" width="100%" height="110">
+				<mx:HBox width="100%">
+					<mx:Label text="Flow Cell to Finalize"
+							  styleName="formLabel" fontSize="12" />
+					<mx:Label text="{flowCellsGrid.selectedItem.@number}"
+							  styleName="formLabel" fontSize="12" />
+					<mx:Spacer width="100%" />
+					<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
+								   toolTip="Refresh worklist" click="refresh()"/>
+				</mx:HBox>
 				<mx:HBox width="100%" verticalAlign="middle">
 					<mx:Label text="Barcode" styleName="formLabel"
 							  width="70" />
-					<mx:TextInput id="flowCellBarcode" width="130"
+					<mx:TextInput id="flowCellBarcode" width="130" change="createFlowCellFileName()"
 								  fontSize="10" />
 					<mx:Label text="Run #" styleName="formLabel" />
-					<mx:TextInput id="flowCellRunNumber" width="40" restrict="0-9"
+					<mx:TextInput id="flowCellRunNumber" width="40" restrict="0-9" change="createFlowCellFileName()"
 								  fontSize="10" />
 					<mx:Label text="Create Date" styleName="formLabel"
 							  width="83" textAlign="right" />
-					<mx:DateField id="flowCellDate" showToday="true"
+					<mx:DateField id="flowCellDate" showToday="true" change="createFlowCellFileName()"
 								  fontSize="10" />
 				</mx:HBox>
 				<mx:HBox width="100%" verticalAlign="middle">
 					<mx:Label text="Instrument" styleName="formLabel"
 							  width="70" />
-					<mx:ComboBox width="130" id="flowCellInstrument"
+					<mx:ComboBox width="130" id="flowCellInstrument" change="createFlowCellFileName()"
 								 labelField="@display"
 								 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}"
 								 fontSize="11"></mx:ComboBox>
 					<mx:HBox id="hboxGroupSide" paddingTop="0"
 							 paddingBottom="0" borderStyle="none" cornerRadius="10"
 							 borderColor="#466D88" paddingLeft="0" paddingRight="0">
-						<mx:RadioButtonGroup id="flowCellSide" />
+						<mx:RadioButtonGroup id="flowCellSide" change="createFlowCellFileName()" />
 						<mx:RadioButton groupName="flowCellSide"
 										label="Side A" styleName="labelSmall" id="radioSideA"
 										paddingBottom="0" paddingLeft="4" paddingRight="0"
@@ -581,17 +613,21 @@
 										paddingTop="0" horizontalGap="0" verticalGap="0"
 										value="B"></mx:RadioButton>
 					</mx:HBox>
+					<mx:Label text="Protocol" styleName="formLabel" width="50"/>
+					<mx:ComboBox width="250" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" visible="{true}" includeInLayout="{true}"
+								 change="createFlowCellFileName();flowCellProtocolChangeHandler(event);"/>
 				</mx:HBox>
-				<mx:HBox horizontalGap="20" verticalAlign="middle">
-					<mx:Label text="Protocol" styleName="formLabel" width="60"/>
-					<mx:ComboBox width="300" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" visible="{true}" includeInLayout="{true}"
-								 />	
+				<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%">
+						
+					<mx:Label text="File Name" styleName="formLabel" width="60"/>
+					<mx:Label text="{flowCellRunFolder}" width="100%" includeInLayout="{this.codeSequencingPlatform == 'HISEQ'}" visible="{this.codeSequencingPlatform == 'HISEQ'}" />
 				</mx:HBox>
 			</mx:VBox>
 			<mx:VBox  width="100%" height="90%">
 				<util:AdvancedDataGridGroupedRowColorsFlowCellChannelNumber id="flowCellChannelsGrid" width="100%"
 													   height="100%" sortableColumns="true" draggableColumns="false"
-													   dataProvider="{flowCellChannelsList}" fontSize="10" resizableColumns="true">
+													   dataProvider="{flowCellChannelsList}" fontSize="10" resizableColumns="true"
+													   updateComplete="{}">
 					<util:columns>
 						<mx:AdvancedDataGridColumn dataField="@number" editable="false"
 												   headerText="Experiment" width="75">
@@ -626,8 +662,8 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber"
-												   headerText="Channel" width="50">
+						<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber" textAlign="center"
+												   width="50">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0"
@@ -675,25 +711,6 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn width="200"
-												   dataField="@fileName" >
-						<mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0"
-										 horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
-									<mx:Label text="File Directory" />
-								</mx:VBox>
-							</mx:Component>
-						</mx:headerRenderer>
-						<mx:itemRenderer>
-							<mx:Component>
-								<mx:Box verticalGap="0" horizontalScrollPolicy="off"
-										horizontalAlign="center" verticalAlign="middle">
-									<mx:TextInput text="{data.@fileName}" />
-								</mx:Box>
-							</mx:Component>
-						</mx:itemRenderer>						
-					</mx:AdvancedDataGridColumn>
 				</util:columns>
 			</util:AdvancedDataGridGroupedRowColorsFlowCellChannelNumber>
 		</mx:VBox>			
