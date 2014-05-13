@@ -1879,7 +1879,7 @@
 				}
 				
 				for each(var mi:XML in topMenu){
-					if(mi.@label == "Quick Links"){
+					if(mi.@label == "Links..."){
 						mi.setChildren(new XMLList);
 						for each(var quickLink:XML in quickLinkArray){
 							mi.appendChild(quickLink);
@@ -1902,7 +1902,7 @@
 					faqList = new XMLListCollection(getFAQ.lastResult.FAQ);
 					addQuickLinks();
 				} else{
-					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Quick Links.");
+					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Links.");
 				}
 			}
 			
@@ -4162,16 +4162,18 @@
 	
 	
 	<mx:XMLList id="topMenu">
-		<menuitem label="Home"/>
-		<menuitem label="My Account"  />
-		<menuitem label="Quick Links" context="quickLinks" />
+		<menuitem label="Links..." context="quickLinks" />
 		<menuitem label="Help..."  >
 			<menuitem label="Enable Help Edit" icon="iconEmptyInformation" context="helpEdit"/>
 			<menuitem label="User Guide"  />
 			<menuitem label="About" />
+			<menuitem label="Contact Us"   />
 		</menuitem>
-		<menuitem label="Contact Us"   />
-		<menuitem label="Sign out"  />
+		<menuitem label="Account..."  >
+			<menuitem label="My Account"  />
+			<menuitem label="Sign out"  />
+		</menuitem>
+		
 	</mx:XMLList>
 	
 	<mx:VBox id="theBody"
