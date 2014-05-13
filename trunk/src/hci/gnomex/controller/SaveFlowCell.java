@@ -49,6 +49,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
 	private String						launchAppURL;
 	private String            lastCycleDateStr;
 	private String            numberSequencingCyclesActualStr;
+	private String						runFolder = null;
 	
 	public void validate() {}
 
@@ -59,6 +60,9 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("numberSequencingCyclesActual") != null && !request.getParameter("numberSequencingCyclesActual").equals("")) {
       numberSequencingCyclesActualStr = request.getParameter("numberSequencingCyclesActual");
+    }
+    if (request.getParameter("runFolder") != null && !request.getParameter("runFolder").equals("")) {
+    	runFolder = request.getParameter("runFolder");
     }
 
     fc = new FlowCell();
@@ -196,7 +200,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         // are not filled in.  That is a flag to NOT update the
         // folder name.
         //
-        String runFolder = flowCell.getRunFolderName(dh);
+        //String runFolder = flowCell.getRunFolderName(dh);
         java.sql.Date lastCycleDate = null;
         if (lastCycleDateStr != null) {
           lastCycleDate = this.parseDate(lastCycleDateStr);
