@@ -1079,7 +1079,6 @@
 			public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
 			public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
 			public var PROPERTY_HELP_URL:String                           = "help_url";
-			public var PROPERTY_PRICING_URL:String                        = "pricing_url";
 			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String     = "university_user_authentication";  
 			public var PROPERTY_GENERATE_GL_INTERFACE:String              = "generate_general_ledger_interface";
 			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
@@ -1102,7 +1101,6 @@
 			public var PROPERTY_DEFAULT_VISIBILITY_ANALYSIS :String       =	"default_visibility_analysis";
 			public var PROPERTY_DEFAULT_VISIBILITY_TOPIC :String          = "default_visibility_topic";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
-			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";
 			public var PROPERTY_ID_DEFAULT_INSTITUTION	:String			  = "id_default_institution";
 			public var PROPERTY_FISCAL_YEAR_BREAK_MONTH :String           = "fiscal_year_break_month";
@@ -1832,58 +1830,9 @@
 			}
 			
 			private function addQuickLinks():void{
-				var quickLinkArray:ArrayCollection = new ArrayCollection;
-				
-				if(showPurchaseSupplies && this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) != ''){
-					var purchaseLink:XML = <menuItem label='Purchase Supplies (DNA SEQ Core)' url={this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL)} />;
-					quickLinkArray.addItem(purchaseLink);
-				}
-				
-				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
-					if (property.@value == '') {
-						continue; 
-					}
-					var propertyMenu:XML = null;
-					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
-						if (property.@propertyValue != null && property.@propertyValue != '') {
-							if (property.@idCoreFacility != "") {
-								if (coreFacilitiesICanManage.length() > 0) {
-									for each (var cf:Object in coreFacilitiesICanManage) {
-										if (property.@idCoreFacility == cf.@idCoreFacility) {
-											propertyMenu = new XML("<menuitem/>");
-											propertyMenu.@label = "Pricing for " + cf.@facilityName;
-											propertyMenu.@url = property.@propertyValue;
-											break;
-										}
-									}
-								} else {
-									for each (var cf1:Object in  myCoreFacilities) {
-										if (property.@idCoreFacility == cf1.@idCoreFacility) {
-											propertyMenu = new XML("<menuitem/>");
-											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
-											propertyMenu.@url = property.@propertyValue;
-											break;
-										}
-									}
-								}
-							} else if (property.@idCoreFacility == "") {
-								propertyMenu = new XML("<menuitem/>");
-								propertyMenu.@label = "Pricing";
-								propertyMenu.@url = property.@propertyValue;
-							}							
-						}
-					}
-					if (propertyMenu != null) {
-						quickLinkArray.addItem(propertyMenu);
-					}
-				}
-				
 				for each(var mi:XML in topMenu){
 					if(mi.@label == "Links..."){
 						mi.setChildren(new XMLList);
-						for each(var quickLink:XML in quickLinkArray){
-							mi.appendChild(quickLink);
-						}
 						for each(var item:XML in faqList){
 							var menuItem:XML = <menuItem label={item.@title} url={item.@url} />;
 							mi.appendChild(menuItem);
@@ -1893,6 +1842,9 @@
 							mi.appendChild(manageLink);
 						}
 						break;
+					}
+					if(mi.children().length() == 0){
+						hideMenusByContext(topMenu, 'quickLinks')
 					}
 				}
 			}
@@ -2217,9 +2169,6 @@
 				if (!showUsage) {
 					hideMenusByContext(navMenu, "usage");
 				}
-				if (!showPurchaseSupplies) {
-					hideMenusByContext(navMenu, "purchaseSuppliesLink");
-				}
 				if (!usesExperimentType("MISEQ")) {
 					hideMenusByContext(navMenu, "MISEQ");
 				}
@@ -2419,6 +2368,11 @@
 					hideMenusByContext(topMenu, 'quickLinks');
 				}
 				
+				if(isGuestMode()){
+					hideMenusByContext(topMenu, 'quickLinks');
+				}
+				
+				
 				if(!faqLoaded){
 					getFAQ.send();
 					faqLoaded = true;
@@ -2511,7 +2465,6 @@
 					}
 					properties[qualName] = prop.@propertyValue;
 				}
-				pricingURL = getProperty(PROPERTY_PRICING_URL);
 				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
 				
 				if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
@@ -2581,12 +2534,6 @@
 					this.showUsage = !this.isGuestMode();
 				} else {
 					this.showUsage = this.hasPermission("canAccessAnyObject");
-				}
-				
-				if (this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) == '') {
-					showPurchaseSupplies = false;
-				} else {
-					showPurchaseSupplies = true;
 				}
 				
 				if (this.getProperty(this.PROPERTY_DATATRACK_SUPPORTED) == 'Y') {
@@ -3572,9 +3519,7 @@
 					showProtocols();
 				} else if (label == "Upload and Download Help") {
 					this.showUploadDownloadHints();
-				} else if (label == "Purchase Supplies (DNA Seq Core)") {
-					this.showPurchaseSuppliesLink();
-				} else if (label == "Configure iScan Chips") {
+				}else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
 				} else if (label == "Bulk Sample Sheet Import") {
 					var multiUploadWindow:UploadMultiRequestSampleSheetView = UploadMultiRequestSampleSheetView(PopUpManager.createPopUp(this.theBody, UploadMultiRequestSampleSheetView, false));
@@ -3700,17 +3645,6 @@
 			private function showProtocols():void {
 				this.theViews.selectedChild = this.protocolsView;
 			}	
-			
-			private function showPurchaseSuppliesLink():void{
-				if (showPurchaseSupplies) {
-					var url:URLRequest = new URLRequest(getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL));
-					url.method = URLRequestMethod.POST;
-					navigateToURL(url, '_blank');
-				} else {
-					Alert.show("You do not have permissions to open this window.");
-				}
-			}
-			
 			
 			private function showIScanChipWindow():void {
 				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
