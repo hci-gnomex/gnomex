@@ -468,6 +468,9 @@
 							 editable="false" wordWrap="true"  
 							 text="Drag files or folders that you want to download. Hold CTRL or SHIFT key to select multiple files." 
 							 toolTip="Drag the files you wish to download to the right panel.  Drag files you do not want to download back to the left."/>
+				<mx:LinkButton label="Upload and Download Help" 
+							   click="parentApplication.showUploadDownloadHints()" 
+							   id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>												
 				
 				
 			</mx:HBox>
@@ -528,11 +531,6 @@
 	</mx:Canvas>
 	<mx:ControlBar width="100%">
 		<mx:Spacer width="100%"/>
-		<mx:LinkButton label="Troubleshooting Guide, Important info about Chrome Browser!"
-					   click="{showDownloadHelp()}"
-					   color="#1453E2" fontStyle="italic" fontWeight="bold"
-					   textDecoration="underline"/>
-		
 		<mx:HBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="right">
 			<mx:Spacer width="100%"/>
 			<mx:Button id="downloadExpandedFilesButton" 
