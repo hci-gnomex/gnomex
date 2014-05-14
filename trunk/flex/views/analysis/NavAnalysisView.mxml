@@ -834,7 +834,9 @@
 					
 					
 					params.labKeys = labKeys;
-					params.searchText = searchTextField.text;
+					if(searchTextField.text != 'Search...') {
+						params.searchText = searchTextField.text;
+					}
 					params.lastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
 					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
 					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
