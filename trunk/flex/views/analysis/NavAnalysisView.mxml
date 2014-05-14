@@ -1169,7 +1169,7 @@
 												  prompt="Genome Build..."
 												  close="refreshAnalysis();"
 												  id="genomeBuildCombo"
-												  dataProvider="{filteredGenomeBuildList.source}"
+												  dataProvider="{filteredGenomeBuildList}"
 												  width="180">
 						</renderers:FilterComboBox>
 					</mx:HBox>
