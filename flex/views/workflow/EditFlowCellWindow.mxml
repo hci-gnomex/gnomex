@@ -174,7 +174,8 @@
 				params.idCoreFacility = selectedFC.@idCoreFacility;
 				
 				saveFlowCell.send(params);
-				
+				var ed:EventDispatcher = new EventDispatcher();
+				ed.dispatchEvent(new Event("changed",true,false));
 				PopUpManager.removePopUp(this);
 			}
 			
