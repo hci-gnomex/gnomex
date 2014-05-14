@@ -1314,11 +1314,10 @@
 							<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
 							<mx:HBox width="100%"  horizontalAlign="right">
 								<mx:VRule height="20"/>
-								<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
-								
-								<mx:LinkButton label="Upload and Download Help" 
-											   click="parentApplication.showUploadDownloadHints()" 
-											   id="buttondownloadhint"  icon="@Embed(source='../../assets/information.png')"/>							
+								<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>								
+								<util:ContextHelp context1="uploadhelp" 
+												  showEdit="{parentApplication.isAdminState}" title="Upload Help"
+												  label="Upload Help" labelPlacement="right" id="labelApplication0"/>								
 							</mx:HBox>			          
 						</mx:HBox>
 						<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%">				
