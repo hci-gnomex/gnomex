@@ -8,7 +8,7 @@
 	close="{PopUpManager.removePopUp(this)}"
 	title="Advanced Search"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
-	width="850" height="450" icon="@Embed('../../assets/magnifier.png')">
+	width="850" height="460" icon="@Embed('../../assets/magnifier.png')">
 
     <mx:HTTPService 
     id="getSlideProductList" 
