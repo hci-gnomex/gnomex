@@ -4,12 +4,15 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -30,7 +33,10 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
   public void init() {
     channelMap = new HashMap();
   }
-
+// this method depends on all of the Flow Cell's channel being sent in the doc, if an entire channel was deleted, this will not work! 
+//  It depends on hibernate's cacade=all to delete the channel and all sequence lanes in SaveFlowCell
+// now that we no longer use cascade=all, and in order to allow sequence lanes to move backward in the workflow
+// we need to manage their work items individually and not just delete the sequence lanes when they are removed from a channel
   public void parse(Session sess) throws Exception {
     FlowCellChannel channel = new FlowCellChannel();
     Element root = this.doc.getRootElement();
@@ -41,7 +47,18 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       Element node = (Element) i.next();
 
       String idFlowCellChannelString = node.getAttributeValue("idFlowCellChannel");
-
+      // Is this HISEQ or MISEQ?
+      String codeStepNext = "";
+      // What is the core?
+      Integer idCoreFacility = -1;
+      List workItems = sess.createQuery("SELECT wi from WorkItem wi where idFlowCellChannel = " + idFlowCellChannelString).list();
+          for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
+            WorkItem wi = (WorkItem)i1.next();
+            codeStepNext = wi.getCodeStepNext();
+            idCoreFacility = wi.getIdCoreFacility();
+            break;
+          }
+      
       if (idFlowCellChannelString.startsWith("FlowCellChannel")
           || idFlowCellChannelString.equals("")) {
         
@@ -106,6 +123,20 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
           SequenceLane laneToDelete = (SequenceLane) i2.next();
           channel.getSequenceLanes().remove(laneToDelete);
           laneToDelete.setIdFlowCellChannel(null);
+          // create a work item to move the sequence lane back to the assembly stage
+          WorkItem wi = new WorkItem();
+		  wi.setIdRequest(laneToDelete.getIdRequest());
+		  wi.setSequenceLane(laneToDelete);
+		  wi.setCreateDate(new Date(System.currentTimeMillis()));
+		  if(idCoreFacility > 0) {
+			  wi.setIdCoreFacility(idCoreFacility);
+		  }
+		  if(codeStepNext.equals("HSEQFINFC") || codeStepNext.equals("HSEQPIPE")) {
+			  wi.setCodeStepNext("HSEQASSEM");  
+		  } else if (codeStepNext.equals("MISEQFINFC") || codeStepNext.equals("MISEQPIPE")) {
+			  wi.setCodeStepNext("MISEQASSEM");
+			  }
+		  sess.save(wi);         
         }
       }
 
@@ -135,6 +166,14 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
         // New sequence lane -- add it to the list
         if (!exists) {
           channel.getSequenceLanes().add(sl);
+          // delete the work item for the sequence lane
+          workItems = sess.createQuery("SELECT wi from WorkItem wi where idSequenceLane = " + sl.getIdSequenceLane()).list();
+          for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
+            WorkItem wi = (WorkItem)i1.next();
+            sess.delete(wi);
+            break;
+          }
+          
         }
       }
 
