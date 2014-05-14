@@ -3177,6 +3177,24 @@ BEGIN
 END;
 //
 
+-- Procedure to update sequence lane letter and sequence lane number separator
+drop procedure if exists update_sequencelane//
+CREATE PROCEDURE update_sequencelane(
+  IN oldSLletter tinytext, 
+  IN oldSLnumbersep tinytext, 
+  IN newSLletter tinytext, 
+  IN newSLnumbersep tinytext)
+BEGIN
+  IF oldSLletter = '' OR oldSLnumbersep = '' OR newSLletter = '' OR newSLnumbersep = '' 
+  THEN
+    SELECT "update_sequencelane (old seq lane letter, old seq number separator, new seq lane letter, new seq number separator" as 'parameters'; 
+    SELECT "call update_sequencelane ('F','-','X','_');" as 'example usage';
+  ELSE
+    update sequencelane set number=REPLACE(number,oldSLletter,newSLletter);
+    update sequencelane set number=REPLACE(number,oldSLnumbersep,newSLnumbersep); 
+  END IF;
+END;
+//
 delimiter ';'
 
 -- ----------------------------------------------------------------------
