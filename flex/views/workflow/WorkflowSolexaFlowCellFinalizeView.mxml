@@ -88,7 +88,7 @@
 		public var selectedFlowCell:Object;
 		
 		[Bindable]
-		public var codeSequencingPlatform:String = "HISEQ";
+		public var codeSequencingPlatform:String;
 		private var addWindow:EditFlowCellWindow;
 		
 		public var selectedFlowCellNumber:String = null;
@@ -200,14 +200,7 @@
 				Alert.show(event.result..ERROR.@message.toString(), "Error saving flow cell");
 			}
 		}
-		public function initTitle():void {
-			if(codeStepNext == 'HSEQFINFC') {
-				titleLabel.text = 'Illumina HiSeq Finalize Flow Cell';
-			} else if (codeStepNext == 'MISEQFINFC') {
-				titleLabel.text = 'Illumina MiSeq Finalize Flow Cell';
-			} 
-			
-		}
+
 		
 //		public function clearAndRefreshList():void {
 //			flowCellChannelsList.source = null;
@@ -223,10 +216,17 @@
 //			getFlowCell.send();
 //		}
 		
-		private function init():void {
+		public function init():void {
 			//this.getFlowCellList.send();
 			//this.addEventListener("changed",refresh);
-			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed');
+			if(codeStepNext == 'HSEQFINFC') {
+				titleLabel.text = 'Illumina HiSeq Finalize Flow Cell';
+				codeSequencingPlatform = 'HISEQ';
+			} else if (codeStepNext == 'MISEQFINFC') {
+				titleLabel.text = 'Illumina MiSeq Finalize Flow Cell';
+				codeSequencingPlatform = 'MISEQ';
+			} 
+			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y')
 			sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
 			flowCellProtocol.selectedIndex = 0;
 		}
