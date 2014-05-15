@@ -8,19 +8,19 @@
 		<mx:Image source="{parentApplication.iconSolexa}"/>
 		<mx:Label id="titleLabel" styleName="titleLabel" 
 				  text="" />
-		<mx:Spacer width="100%"/>
-		
 		<mx:HBox  horizontalAlign="center">
 			<!--<mx:LinkButton id="instructions" icon="@Embed(source='../../assets/information.png')" label="Instructions" click="{showHideInstructions()}"/>
 			<mx:TextArea styleName="instructionBox" visible="false" includeInLayout="false" id="instructionText" wordWrap="false" height="20" paddingLeft="4" paddingRight="4" width="600">
-				<mx:htmlText><![CDATA[To assemble flow cell, drag ctrl or seq. req. onto flow cell.  To drag multiple, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
+			<mx:htmlText><![CDATA[To assemble flow cell, drag ctrl or seq. req. onto flow cell.  To drag multiple, hold SHIFT or CTRL key while selecting.]]></mx:htmlText>
 			</mx:TextArea>	-->
-			<util:ContextHelp context1="assembleFlowCellHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Assemble Flow Cell Help"
-							  label="Help" labelPlacement="left" id="text1" width="300"/>
-		</mx:HBox>  
-		<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
-					   click="refresh();" toolTip="Refresh worklist"/>
+			<util:ContextHelp context1="assembleFlowCellHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}"
+							  labelPlacement="left" id="assembleFlowCellContextHelp" />
+		</mx:HBox>
+		<mx:Spacer width="100%"/>
 		
+		 
+		<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
+					   click="refresh();" toolTip="Refresh worklist"/>	
 	</mx:HBox>
 	
 	<mx:HTTPService 
@@ -123,9 +123,7 @@
 				}
 			}
 			private function initializeSequenceProtocolsList():void {
-				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').copy();
-				sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
-				flowCellProtocol.selectedIndex = 0;
+				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y').copy();
 			}			
 			private function initializeFlowCellChannelsCountList():void {
 				flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display=""  value=""  />'));
@@ -166,16 +164,17 @@
 			private function refresh():void {
 				// reset user filters
 				this.labCombo.selectedItem = null;
-				this.numberOfCyclesFilter.text = "";
-				this.seqRunTypeFilterCombo.selectedItem = null;
+//				this.numberOfCyclesFilter.text = "";
+//				this.seqRunTypeFilterCombo.selectedItem = null;
 				this.lookupExperimentNumber.text = "";
+				this.sequenceProtocolFilter.selectedItem = null;
 				// reset flow cell info
 				this.flowCellBarcode.text = ""; 
 				this.flowCellRunNumber.text = ""; 
 				this.flowCellCreateDate.selectedDate = null; 
 				this.flowCellInstrument.selectedIndex = 0; 
 				this.flowCellSide.selectedValue = null; 
-				this.flowCellProtocol.selectedIndex = 0;
+				this.flowCellProtocol.selectedItem = null;
 				
 				initializeFlowCellChannelsCountList();
 				initializeControlChannelsArray();
@@ -202,47 +201,75 @@
 		<![CDATA[
 			
 			public function filterSequenceProtocolsList(item:Object):Boolean {
-				return item.@codeRequestCategory == codeSequencingPlatform || item.@name == "Choose a protocol...";
+				return item.@codeRequestCategory == codeSequencingPlatform;
 			}
 			
 			public function filterPendingSequenceLanesWorkList(item:Object):Boolean {
-				// if there are no user selected filters, include all <WorkItem>s
-				if ((this.labCombo.selectedItem == null || this.labCombo.selectedItem.@idLab == '') &&
-					this.numberOfCyclesFilter.text == '' && 
-					this.lookupExperimentNumber.text == '' &&
-					(this.seqRunTypeFilterCombo.selectedItem == null || 
-						this.seqRunTypeFilterCombo.selectedItem.@idSeqRunType == '')) {
-					if(item.name() == 'WorkItem') {
-						return true;
-					} else {
-						return false;
-					}					
-				}
-				// if a specific experiment number is entered, return only that experiment
-				if (this.lookupExperimentNumber.text != '') {
-					return item.@number.toString().match(new RegExp(this.lookupExperimentNumber.text + ".*", "i"));
-				}
+//				// if there are no user selected filters, include all <WorkItem>s
+//				if ((this.labCombo.selectedItem == null || this.labCombo.selectedItem.@idLab == '') &&
+//					//this.numberOfCyclesFilter.text == '' && 
+//					this.lookupExperimentNumber.text == '' &&
+//					//(this.seqRunTypeFilterCombo.selectedItem == null || 
+//						//this.seqRunTypeFilterCombo.selectedItem.@idSeqRunType == '')) {
+//					if(item.name() == 'WorkItem') {
+//						return true;
+//					} else {
+//						return false;
+//					}					
+//				}
+				// if the item is not a WorkItem don't show it (i.e. DictionaryEntry for Sequence Controls)
+				if(item.name() != 'WorkItem') { return false; }
 				
-				// for number of cycles, seqruntype and lab, include the item unless it fails one of the remaining user selected filters
-				var matchesCycles:Boolean = true;
-				var matchesSeqRunType:Boolean = true;
-				var matchesLab:Boolean = true;
-				if(numberOfCyclesFilter.text != '') {
-					if(item.@numberSequencingCycles != numberOfCyclesFilter.text) {
-						matchesCycles = false;
-					}
-				}
-				if (this.seqRunTypeFilterCombo.selectedItem != null && this.seqRunTypeFilterCombo.selectedItem.@idSeqRunType != '') {
-					if (item.@idSeqRunType != seqRunTypeFilterCombo.selectedItem.@idSeqRunType) {
-						matchesSeqRunType = false;
-					}
-				}
-				if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != '') {
-					if (item.@idLab != labCombo.selectedItem.@idLab) {
+				// if no filters are selected return all WorkItems
+				if( (this.labCombo.selectedItem == null || this.labCombo.selectedItem.@idLab == '') &&
+				this.lookupExperimentNumber.text == '' &&
+				(this.sequenceProtocolFilter.selectedItem == null || this.sequenceProtocolFilter.selectedItem.@idNumberSequencingCyclesAllowed == '')){
+					return true;
+				}				
+				
+				var matchesLab:Boolean				= true;
+				var matchesExperimentNumber:Boolean = true;
+				var matchesSequenceProtocol:Boolean = true;
+				if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab !='') {
+					if(item.@idLab != this.labCombo.selectedItem.@idLab) {
 						matchesLab = false;
 					}
 				}
-				return matchesCycles && matchesSeqRunType && matchesLab;
+				
+				if (this.lookupExperimentNumber.text != '') {
+					if(!item.@number.toString().match(new RegExp(this.lookupExperimentNumber.text + ".*", "i"))) {
+						matchesExperimentNumber = false;
+					}
+				}
+				if (this.sequenceProtocolFilter.selectedItem != null && this.sequenceProtocolFilter.selectedItem.@idNumberSequencingCyclesAllowed != '') {
+					if(item.@idNumberSequencingCyclesAllowed != this.sequenceProtocolFilter.selectedItem.@idNumberSequencingCyclesAllowed) {
+						matchesSequenceProtocol = false;
+					}
+				}
+				
+				// all for compounding of filters
+				return matchesLab && matchesExperimentNumber && matchesSequenceProtocol;
+				
+				// for number of cycles, seqruntype and lab, include the item unless it fails one of the remaining user selected filters
+//				var matchesCycles:Boolean = true;
+//				var matchesSeqRunType:Boolean = true;
+//				var matchesLab:Boolean = true;
+//				if(numberOfCyclesFilter.text != '') {
+//					if(item.@numberSequencingCycles != numberOfCyclesFilter.text) {
+//						matchesCycles = false;
+//					}
+//				}
+//				if (this.seqRunTypeFilterCombo.selectedItem != null && this.seqRunTypeFilterCombo.selectedItem.@idSeqRunType != '') {
+//					if (item.@idSeqRunType != seqRunTypeFilterCombo.selectedItem.@idSeqRunType) {
+//						matchesSeqRunType = false;
+//					}
+//				}
+//				if (labCombo.selectedItem != null && labCombo.selectedItem.@idLab != '') {
+//					if (item.@idLab != labCombo.selectedItem.@idLab) {
+//						matchesLab = false;
+//					}
+//				}
+//				return matchesCycles && matchesSeqRunType && matchesLab;
 			}			
 			public function filterAssembleFlowCellWorkList(item:Object):Boolean {
 				if(item.hasOwnProperty("@flowCellChannelNumber") && item.@flowCellChannelNumber != '') {
@@ -285,7 +312,7 @@
 			private function addingToFlowCell(event:CollectionEvent):void {
 				
 				// we are adding to the assembleFlowCellGrid
-				if(flowCellProtocol.selectedIndex == 0) {
+				if(flowCellProtocol.selectedItem == null) {
 					for each(var protocol:XML in sequenceProtocolsList) {
 						if(protocol.@idNumberSequencingCyclesAllowed == event.items[0].source.@idNumberSequencingCyclesAllowed) {
 							flowCellProtocol.selectedItem = protocol;
@@ -676,7 +703,12 @@
 							<mx:Label text="{'(' + pendingSequenceLanesWorkList.length + ' experiments)'}" fontWeight="normal" fontSize="11" fontStyle="italic"/>
 						</mx:HBox>
 						<mx:HBox paddingTop="0" width="100%" verticalAlign="middle" paddingBottom="1" horizontalGap="8">
-							<mx:HBox verticalAlign="middle"  horizontalGap="0">
+							<mx:Label text="Protocol" styleName="labelSmall" width="69"/>
+							<renderers:FilterComboBox dataProvider="{sequenceProtocolsList}" labelField="@name" fontSize="11"
+													  prompt=" " width="310" close="{pendingSequenceLanesWorkList.refresh();}"
+													  id="sequenceProtocolFilter">								
+							</renderers:FilterComboBox>
+<!--						<mx:HBox verticalAlign="middle"  horizontalGap="0">
 								<mx:Label text="# Cycles" styleName="labelSmall" width="70"/>
 								<mx:TextInput width="60" id="numberOfCyclesFilter" change="{lookupExperimentNumber.text='';pendingSequenceLanesWorkList.refresh()}" enter="{lookupExperimentNumber.text='';pendingSequenceLanesWorkList.refresh();}"  fontSize="10"/>
 							</mx:HBox>
@@ -687,16 +719,18 @@
 														  width="200"
 														  id="seqRunTypeFilterCombo" >
 								</renderers:FilterComboBox>
-							</mx:HBox>
+							</mx:HBox>-->
 						</mx:HBox>
 						<mx:HBox width="100%"  horizontalGap="8" paddingBottom="2" paddingTop="2">
-							<mx:HBox verticalAlign="middle"   horizontalGap="0">
-								<mx:Label text="Experiment #" styleName="labelSmall" width="70"/>
-								<mx:TextInput width="60" id="lookupExperimentNumber" change="{pendingSequenceLanesWorkList.refresh()}" enter="{pendingSequenceLanesWorkList.refresh()}"  fontSize="10"/>
-							</mx:HBox>					
-							<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+							<!--<mx:HBox verticalAlign="middle"   horizontalGap="0">
+								
+							</mx:HBox>-->
+							<mx:Label text="Experiment #" styleName="labelSmall" width="70"/>
+							<mx:TextInput width="60" id="lookupExperimentNumber" change="{pendingSequenceLanesWorkList.refresh()}" enter="{pendingSequenceLanesWorkList.refresh()}"  fontSize="10"/>
+							<mx:Label text="Lab" styleName="labelSmall" width="30"/>
+							<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList}" 
 													  labelField="@name" fontSize="11"
-													  prompt="Select a lab..." close="{lookupExperimentNumber.text='';pendingSequenceLanesWorkList.refresh();}" 
+													  prompt=" " close="{pendingSequenceLanesWorkList.refresh();}" 
 													  width="200"
 													  id="labCombo" >
 							</renderers:FilterComboBox>
@@ -865,7 +899,10 @@
 					</mx:HBox>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:Label text="Protocol" styleName="formLabel" width="45"/>
-						<mx:ComboBox width="300" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)"/>
+						<renderers:FilterComboBox id="flowCellProtocol" labelField="@name" width="300" prompt=" "
+												  dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)">							
+						</renderers:FilterComboBox>
+					<!--<mx:ComboBox width="300" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" change="flowCellProtocolChangeHandler(event)"/>-->
 					</mx:HBox>					
 				</mx:HBox>							
 			</mx:VBox>
