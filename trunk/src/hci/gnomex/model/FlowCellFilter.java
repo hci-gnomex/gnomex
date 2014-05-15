@@ -48,7 +48,14 @@ public class FlowCellFilter extends DetailObject {
       queryBuf.append(" JOIN   lane.request as req ");      
     }
     if (codeStepNext != null) {
-      queryBuf.append(" WHERE wi.codeStepNext = '" + codeStepNext + "' " );
+    	String[] codeStepNextArr = codeStepNext.split(",");
+    	codeStepNext = "";
+    	for(String s : codeStepNextArr) {
+    		codeStepNext += "'" + s + "',";
+    	}
+    	codeStepNext = codeStepNext.substring(0, codeStepNext.length()-1);
+    	
+      queryBuf.append(" WHERE wi.codeStepNext IN (" + codeStepNext + ") " );
       addWhere = false;
     }
     

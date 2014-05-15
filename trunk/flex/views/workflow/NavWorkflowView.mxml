@@ -244,7 +244,7 @@
 	        		workflowSolexaPrepView.getWorkList.send();
 	        	} else if (solexaViews.selectedChild == workflowSolexaAssembleView) {
 	        		workflowSolexaAssembleView.codeStepNext = "SEQASSEM";
-	        		workflowSolexaAssembleView.initializeData(solexaFlowCellChannels);
+	        		workflowSolexaAssembleView.init(solexaFlowCellChannels);
 	        		workflowSolexaAssembleView.getWorkList.send();
 	        		//workflowSolexaAssembleView.getNextWorkList.send();
 	        	} else if (solexaViews.selectedChild == workflowSolexaPipelineView) {
@@ -310,12 +310,12 @@
 	        		workflowHiSeqPrepView.getWorkList.send();
 	        	} else if (hiSeqViews.selectedChild == workflowHiSeqAssembleView) {
 	        		workflowHiSeqAssembleView.codeStepNext = "HSEQASSEM";
-	        		workflowHiSeqAssembleView.initializeData(hiSeqFlowCellChannels);
+	        		workflowHiSeqAssembleView.init(hiSeqFlowCellChannels);
 
 	        		//workflowHiSeqAssembleView.getWorkList.send();
 	        	} else if (hiSeqViews.selectedChild == workflowHiSeqFlowCellFinalizeView) {
 					workflowHiSeqFlowCellFinalizeView.codeStepNext = "HSEQFINFC";
-					workflowHiSeqFlowCellFinalizeView.initTitle();
+					workflowHiSeqFlowCellFinalizeView.init();
 					workflowHiSeqFlowCellFinalizeView.codeSequencingPlatform = "HISEQ";
 					workflowHiSeqFlowCellFinalizeView.getFlowCellList.send();
 				} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
@@ -337,11 +337,11 @@
 				} else if (miSeqViews.selectedChild == workflowMiSeqAssembleView) {
 					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";
 					
-					workflowMiSeqAssembleView.initializeData(miSeqFlowCellChannels);
+					workflowMiSeqAssembleView.init(miSeqFlowCellChannels);
 					//workflowMiSeqAssembleView.getWorkList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqFlowCellFinalizeView) {
 					workflowMiSeqFlowCellFinalizeView.codeStepNext = "MISEQFINFC";
-					workflowMiSeqFlowCellFinalizeView.initTitle();
+					workflowMiSeqFlowCellFinalizeView.init();
 					workflowMiSeqFlowCellFinalizeView.codeSequencingPlatform = "MISEQ";
 					workflowMiSeqFlowCellFinalizeView.getFlowCellList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqPipelineView) {

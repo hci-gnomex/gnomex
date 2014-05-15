@@ -105,7 +105,7 @@
 		<![CDATA[
 			
 			// called by NavWorkflowView/onHiSeqWorklistChange
-			public function initializeData(maxFlowCells:int):void {
+			public function init(maxFlowCells:int):void {
 				flowCellChannelsCount = maxFlowCells;				
 				if(codeStepNext == 'HSEQASSEM'){
 					titleLabel.text = 'Illumina HiSeq Flow Cell Assembly';
@@ -123,9 +123,10 @@
 				}
 			}
 			private function initializeSequenceProtocolsList():void {
-				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y').copy();
+				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y');
 			}			
 			private function initializeFlowCellChannelsCountList():void {
+				flowCellChannelsCountList = new XMLListCollection();
 				flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display=""  value=""  />'));
 				for(var i:int = 1; i <= flowCellChannelsCount; i++) {
 					flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display="' + i + '" value="' + i + '" />'));
@@ -378,7 +379,7 @@
 			private function save():void {								
 				warningMessage = "";
 				isValid = true;
-				if(flowCellProtocol.selectedIndex == 0) {
+				if(flowCellProtocol.selectedItem == null) {
 					isValid = false;
 					warningMessage += "Please choose a sequencing protocol for the flow cell.\n\n";
 					Alert.show(warningMessage, "Warning");
@@ -519,6 +520,7 @@
 				params.runNumber = this.flowCellRunNumber.text;
 				params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed
 				params.side = this.flowCellSide.selectedValue;
+//				params.idCoreFacility = parentDocument.getSpecifiedIdCoreFacility();
 				
 				if (this.flowCellInstrument.selectedItem != null && this.flowCellInstrument.selectedItem.@value != '') {
 					params.idInstrument = this.flowCellInstrument.selectedItem.@value;
