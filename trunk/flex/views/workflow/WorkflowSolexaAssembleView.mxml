@@ -687,7 +687,7 @@
 				return 0;
 			}
 			public function flowCellProtocolChangeHandler(event:ListEvent):void {
-				Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
+				//Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
 			}
 			
 		]]>
