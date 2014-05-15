@@ -77,10 +77,10 @@
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
 		import mx.events.ItemClickEvent;
+		import mx.events.ListEvent;
 		import mx.events.PropertyChangeEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		import mx.events.ListEvent;
 		
 //		import views.workflow.EditFlowCellWindow;
 		
@@ -134,6 +134,7 @@
 		
 		private function save():void {
 			var isValid:Boolean = true;
+			var protocolMismatch:Boolean = false;
 			var errorMessage:String = '';
 			if(flowCellBarcode.text == '') {
 				isValid = false;
@@ -159,10 +160,26 @@
 				isValid = false;
 				errorMessage += '\n\t You must choose a sequencing protocol.\n';
 			}
-			if(isValid){
-				saveFC();
-			} else {
+			for each(var sl:XML in flowCellChannelsList) {
+				if(sl.@idNumberSequencingCyclesAllowed != flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed) {
+					protocolMismatch = true;
+				}
+			}
+			if(!isValid) {
 				Alert.show(errorMessage,"Cannot save flow cell");
+			} else if(protocolMismatch) {				
+				Alert.show("One or more sequence lanes have a different sequencing protocol from the flow cell.\n\nThe sequence lanes will have their protocols changed to match the flow cell."
+					+ "\n\n\t\t\t     Continue Saving?"
+					,"Protocol Mismatch Warning"
+					,(Alert.YES|Alert.NO),this,onProtocolMistmatch,null,Alert.NO);
+			} else {
+				saveFC();
+			}
+		}
+		
+		public function onProtocolMistmatch(event:CloseEvent):void {
+			if(event.detail == Alert.YES) {
+				saveFC();
 			}
 		}
 		
