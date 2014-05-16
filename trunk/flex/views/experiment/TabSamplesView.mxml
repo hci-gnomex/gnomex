@@ -1074,7 +1074,7 @@
 					samplesGrid.rowOperationsAllowed = false;
 				}
 				
-				samplesGrid.addRowEnabled = !this.hasPlates();
+				samplesGrid.addRowEnabled = !this.hasPlates() && !parentDocument.isAmendState();
 				samplesGrid.insertRowEnabled = this.hasPlates();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
