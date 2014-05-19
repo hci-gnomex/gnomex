@@ -51,8 +51,11 @@
 		
 		public function init():void {
 			// Retrieve initial SummaryCollection from MetrixServer using controller.
-			if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
-				metrixInterface.send();
+			for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
+				if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+					metrixInterface.send();
+					break;
+				}
 			}
 			
 		}
