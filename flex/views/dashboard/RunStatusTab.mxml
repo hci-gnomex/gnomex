@@ -2,7 +2,7 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="500" height="440" backgroundAlpha="1"
+		   width="500" height="500" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off">   
 
@@ -207,7 +207,7 @@
 </mx:Script>
 	
 	<mx:VBox id="main" width="100%" height="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="3" >
-		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="3">
+		<mx:Repeater id="repStatus" dataProvider="{MIList}" count="4">
 			<mx:VBox cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="4" paddingLeft="2" paddingRight="2" paddingTop="6" width="100%" backgroundColor="#FFFFFF" verticalGap="11">
 				<mx:HBox id="runProgress" width="100%" fontSize="10"  height="18">
 					<mx:Label id="seqMachine" fontWeight="bold" text="Instrument: " />

@@ -2,10 +2,10 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="510" height="450" backgroundAlpha="1"
+		   width="550" height="440" backgroundAlpha="1"
 		   cornerRadius="12" initialize="init()"
 		   horizontalScrollPolicy="off"
-		   verticalScrollPolicy="off">   
+		   verticalScrollPolicy="auto">   
 
 	<mx:HTTPService 
 		id="metrixInterface" 
@@ -108,8 +108,10 @@
 					emptyText.includeInLayout = true;
 					refreshTimer.delay = 60000;
 				}else{
-					emptyNote.visible = true;
-					emptyText.visible = true;
+					emptyNote.visible = false;
+					emptyText.visible = false;
+					emptyNote.includeInLayout = false;
+					emptyText.includeInLayout = false;
 					refreshTimer.delay = 600000;
 				}
 				
@@ -141,7 +143,7 @@
 				RSTbox.includeInLayout = false;
 				RSTbox.visible = false;
 				emptyText.visible = false;
-				emptyNote.visible = true;
+				emptyNote.visible = false;
 				failText.visible = true;
 			}
 		}
