@@ -75,8 +75,13 @@
 				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y' && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false ){
 					activityBox.visible = true;
 				}
-				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y' && parentApplication.isAdminState == true && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false){
-					sequencerButton.visible = true;
+				if(parentApplication.isAdminState == true && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false){
+					for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
+						if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+							sequencerButton.visible = true;
+							break;
+						}
+					}
 				}
 				
 				
@@ -276,8 +281,11 @@
 				this.notificationHub.adminTab.notificationInterface.send();
 				this.notificationHub.billingTab.notificationInterface.send();
 				
-				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
-					this.runStatusHub.metrixInterface.send();	
+				for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
+					if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
+						this.runStatusHub.metrixInterface.send();
+						break;
+					}
 				}
 			}
 			
