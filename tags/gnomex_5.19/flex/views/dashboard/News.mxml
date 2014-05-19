@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*"
+		   width="510" height="100%" backgroundAlpha="1"
+		   cornerRadius="12" preinitialize="init()" xmlns:renderers="views.renderers.*" horizontalScrollPolicy="off" verticalScrollPolicy="off">   
+
+	<mx:HTTPService 
+		id="getNewsItem" 
+		url="GetNewsItem.gx"
+		resultFormat="e4x"
+		destination="getNewsItem"
+		showBusyCursor="true"
+		result="onGetNewsInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get Newsitem list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="deleteNewsItem" 
+		url="DeleteNewsItem.gx"
+		resultFormat="e4x"
+		destination="deleteNewsItem"
+		showBusyCursor="true"
+		result="onDeleteNewsInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to delete Newsitem ', event)"
+		useProxy="false">
+	</mx:HTTPService>
+	
+<mx:Script>
+	<![CDATA[
+		
+		// Imports
+		import flash.events.TimerEvent;
+		import flash.utils.Timer;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.ProgressBar;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		
+		[Bindable]
+		private var paramDelete:Object = new Object();
+		
+		[Bindable]
+		private var newsItemList:XMLListCollection;
+		
+		// Init method
+		public function init():void {
+			getNewsItem.send();
+		} 
+		
+		private function onDeleteNewsInterface(event:ResultEvent):void {
+			if (deleteNewsItem.lastResult.name() == "SUCCESS") {
+				this.getNewsItem.send();
+			}else{
+				Alert.show("Error in deleting newsitem.");
+			}
+		}
+		
+		private function onGetNewsInterface(event:ResultEvent):void {
+			if(event.result.name() == "NewsItemList"){
+				newsItemList = new XMLListCollection(getNewsItem.lastResult.NewsItem);
+				newsItemList.source = getNewsItem.lastResult.NewsItem;
+				if(newsItemList.length < 1){
+					newsRep.includeInLayout = false;
+					newsNote.includeInLayout = true;
+					newsNote.visible = true;
+				}else{
+					newsRep.includeInLayout = true;
+					newsRep.visible = true;
+					newsNote.includeInLayout = false;
+					newsNote.visible = false;
+				}
+				sortAndFilter();
+			} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error setting up News Interface.");
+			}
+		}
+		
+		protected function newsItemEdit_clickHandler(ci:Object):void{
+			// Call edit popup.
+			var EditNewsItemWindow:AddNewsItem = AddNewsItem(PopUpManager.createPopUp(parentApplication.theBody, AddNewsItem, true));
+			EditNewsItemWindow.itemTitle = ci.@title;
+			EditNewsItemWindow.message = ci.@message;
+			EditNewsItemWindow.idNewsItem = ci.@idNewsItem;
+			EditNewsItemWindow.title = "News Item Manager - Edit Item";
+			EditNewsItemWindow.newsParent = this;
+			PopUpManager.centerPopUp(EditNewsItemWindow);
+		}
+
+		
+		protected function newsItemRemove_clickHandler(ci:Object):void{
+			// Call remove HTTPService after confirm in onPromptToDelete.
+			paramDelete.idNewsItem = ci.@idNewsItem;
+			
+			Alert.show("Are you sure you wish to delete this news item?", 
+				"Confirm", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToDelete);
+		}
+
+		private function sortAndFilter():void {
+			
+//			var mySort:Sort = new Sort();
+//			var sortField:SortField = new SortField("@idNewsItem"); // Set sort properties
+//			sortField.descending = true;							// Reverse the sort list
+//			sortField.numeric = true;
+//			
+//			mySort.fields = [sortField];
+//			newsItemList.sort = mySort;
+//			newsItemList.refresh();										// Refresh datasource
+			
+			newsItemList.filterFunction = filterByCoreFacility;
+			newsItemList.refresh();
+			newsRep.dataProvider = newsItemList;
+		}		
+		
+		private function filterByCoreFacility(newsItem:Object):Boolean{
+			if(newsItem.@idCoreFacility == -1){
+				return true;
+			}
+			
+			for each(var coreFacility:Object in parentApplication.myCoreFacilities){
+				if(coreFacility.@idCoreFacility == newsItem.@idCoreFacility){
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		private function onPromptToDelete(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+				deleteNewsItem.send(paramDelete);
+			}
+		}
+		
+		public function showNewsItem(ci:Object):void {
+			// Show detailed newsitem in popup.
+			var DetailNewsItemWindow:DetailNewsItem = DetailNewsItem(PopUpManager.createPopUp(parentApplication.theBody, DetailNewsItem, true));
+			DetailNewsItemWindow.itemTitle = ci.@title;
+			DetailNewsItemWindow.date = ci.@date;
+			DetailNewsItemWindow.msg = ci.@message;
+			PopUpManager.centerPopUp(DetailNewsItemWindow);
+		}
+		
+		public function showAddNewsItem():void {
+			var AddNewsItemWindow:AddNewsItem = AddNewsItem(PopUpManager.createPopUp(parentApplication.theBody, AddNewsItem, true));
+			AddNewsItemWindow.newsParent = this;
+			PopUpManager.centerPopUp(AddNewsItemWindow);
+		}
+		
+		private function showEditButtons(target:Object):void{
+			var index:int = newsItemList.getItemIndex(target);
+			var total:int = 0;
+			
+			if(newsRep.count > newsItemList.length){
+				total = newsItemList.length;
+			} else{
+				total = newsRep.count;
+			}
+			
+			
+			for(var i:int = 0; i < total; i++){
+				if(i == index){
+					if(newsItemRemove[i].visible == false){
+						newsItemRemove[i].visible = parentApplication.isAdminState;
+						newsItemEdit[i].visible = parentApplication.isAdminState;
+					} else{
+						newsItemRemove[i].visible = false;
+						newsItemEdit[i].visible = false;
+					}
+					if(descriptionBox[i].visible == false){
+						descriptionBox[i].includeInLayout = true;
+						descriptionBox[i].visible = true;
+					} else{
+						descriptionBox[i].includeInLayout = false;
+						descriptionBox[i].visible = false;
+					}
+				} else{
+					newsItemRemove[i].visible = false;
+					newsItemEdit[i].visible = false;
+					descriptionBox[i].includeInLayout = false;
+					descriptionBox[i].visible = false;
+				}
+			}
+		}
+
+	]]>
+</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%"  paddingTop="5" paddingRight="0">
+			<mx:HBox horizontalAlign="right" width="50%">
+				<mx:Label id="mainTitle" text="News" fontSize="18" />
+			</mx:HBox>
+			<mx:HBox horizontalAlign="right" width="50%">
+				<mx:LinkButton id="addNewsItem" click="showAddNewsItem()" 
+							   icon="@Embed(source='../../assets/bullet_green.png')" label="Add..." 
+							   includeInLayout="{parentApplication.isAdminState}"
+							   visible="{parentApplication.isAdminState}"
+							   toolTip="Add Newsitem"
+							   paddingTop="6" paddingRight="0" width="105"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HRule width="100%"/> 
+		
+			<mx:VBox id="main" width="100%" paddingTop="10" verticalGap="5">
+				<mx:Repeater id="newsRep" dataProvider="{newsItemList}" count="10">
+					<mx:VBox>
+						<mx:HBox id="newsItem" width="100%" height="25" 
+								 cornerRadius="7" borderThickness="0"
+								 paddingTop="2" paddingLeft="2" paddingRight="2" alpha="1.0">
+							<mx:Label id="newsItemDate" height="20"
+									  fontWeight="bold"
+									  fontSize="12"
+									  text="{newsRep.currentItem.@date}"/>
+							<mx:LinkButton id="newsItemTitle" width="325" height="20"
+										   fontWeight="bold"
+										   textAlign="left"
+										   fontSize="10"
+										   label="{newsRep.currentItem.@title}"
+										   click="showEditButtons(event.currentTarget.getRepeaterItem());"/>
+							<mx:LinkButton id="newsItemRemove"
+										   icon="@Embed(source='../../assets/bullet_red.png')"
+										   click="newsItemRemove_clickHandler(event.currentTarget.getRepeaterItem());"
+										   includeInLayout="{parentApplication.isAdminState}" visible="false"/>
+							<mx:LinkButton id="newsItemEdit"
+										   icon="@Embed(source='../../assets/tag_blue_edit.png')"
+										   click="newsItemEdit_clickHandler(event.currentTarget.getRepeaterItem());"
+										   includeInLayout="{parentApplication.isAdminState}" visible="false"/>
+						</mx:HBox>
+						<mx:HBox width="100%" id="descriptionBox" includeInLayout="false" visible="false" horizontalAlign="left" paddingLeft="90" paddingRight="2">
+							<mx:Text id="newsDescription" width="100%" text="{newsRep.currentItem.@message}" fontSize="10" textAlign="left" />
+						</mx:HBox>
+					</mx:VBox>
+				</mx:Repeater>
+				<mx:HBox id="newsNote" horizontalAlign="center" width="100%" height="200" verticalAlign="middle">
+					<mx:Label text="No items available" fontSize="12" fontWeight="italic"/>
+				</mx:HBox>
+			</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>
