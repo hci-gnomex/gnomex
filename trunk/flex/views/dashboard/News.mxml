@@ -97,6 +97,7 @@
 			EditNewsItemWindow.itemTitle = ci.@title;
 			EditNewsItemWindow.message = ci.@message;
 			EditNewsItemWindow.idNewsItem = ci.@idNewsItem;
+			EditNewsItemWindow.newsItemCoreFacilityId = ci.@idCoreFacility
 			EditNewsItemWindow.title = "News Item Manager - Edit Item";
 			EditNewsItemWindow.newsParent = this;
 			PopUpManager.centerPopUp(EditNewsItemWindow);

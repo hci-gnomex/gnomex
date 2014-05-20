@@ -3,7 +3,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
 		   xmlns:util="views.util.*"
-		   width="510" height="400" backgroundAlpha="1"
+		   width="630" height="400" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off"
 		   verticalScrollPolicy="off">   
@@ -323,7 +323,7 @@
 		<mx:VBox includeInLayout="{notificationState != 2 ? true : false}">
 			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="8" startingIndex="0" >
 				<mx:VBox  cornerRadius="7"  paddingBottom="4" paddingLeft="2" borderStyle="solid" borderThickness="1" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
-					<mx:HBox id="notificationItem" width="465" verticalAlign="middle" paddingLeft="5" horizontalScrollPolicy="off">
+					<mx:HBox id="notificationItem" width="620" verticalAlign="middle" paddingLeft="5" horizontalScrollPolicy="off">
 						<mx:Image id="itemImage"  source="{getImageSource(repStatus.currentItem)}" />
 						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" />
 						<mx:Label id="noteTime" text="{repStatus.currentItem.@time}" />
@@ -334,7 +334,7 @@
 		</mx:VBox>
 		<mx:VBox includeInLayout="{notificationState == 2 ? true : false}">
 			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}" count="8" startingIndex="0" includeInLayout="{notificationState == 2 ? true : false}" >
-				<mx:HBox id="workflowItem" includeInLayout="{notificationState == 2 ? true : false}" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
+				<mx:HBox id="workflowItem" includeInLayout="{notificationState == 2 ? true : false}" width="620"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
 					<mx:Label id="workflowDate" text="{repWorkflow.currentItem.@date}" />
 					<mx:LinkButton id="wfStep" click="Application.application.showView(genXMLTag(event.currentTarget.getRepeaterItem()));" textDecoration="underline" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
 					<mx:Spacer width="100%" />

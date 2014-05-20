@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
 		   xmlns:db="views.dashboard.*"  
-		   width="510" height="430" backgroundAlpha="1" cornerRadius="12"
+		   width="630" height="430" backgroundAlpha="1" cornerRadius="12"
 		   preinitialize="checkSecurity()" creationComplete="init()"
 		   horizontalScrollPolicy="off" verticalScrollPolicy="off">   
 
@@ -161,15 +161,16 @@
 	</mx:states>
 	
 	<mx:VBox width="100%" height="100%">
-		<mx:VBox width="90%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0">
+		<mx:VBox width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="0">
 			<mx:HBox width="100%" verticalAlign="center" horizontalAlign="center">
 					<mx:Label id="mainTitle" text="Activity" textAlign="center" fontSize="18" />
 			</mx:HBox>
 			<mx:HBox width="100%">
-				<mx:HBox width="50%" horizontalAlign="left" visible="{currentState != 'UserState'}" includeInLayout="{currentState != 'UserState'}">
+				<mx:HBox horizontalAlign="left" visible="{currentState != 'UserState'}" includeInLayout="{currentState != 'UserState'}">
 					<mx:ComboBox id="stateCombo" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{comboLabels}" selectedIndex="{parentApplication.isAdminState ? 1 : 0}" change="selectState()"/>
 				</mx:HBox>
-				<mx:HBox width="50%" horizontalAlign="left" visible="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}" includeInLayout="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}">
+				<mx:Spacer width="100%"/>
+				<mx:HBox horizontalAlign="left" visible="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}" includeInLayout="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}">
 					<mx:ComboBox id="coreFacilityCombo" selectedIndex="0" toolTip="Filter by Core Facility" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{coreFacilities}" labelField="@display" change="selectCoreFacility()"/>
 				</mx:HBox>
 			</mx:HBox>
