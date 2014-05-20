@@ -2,7 +2,7 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="500" height="500" backgroundAlpha="1"
+		   width="500" height="100%" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off">   
 
