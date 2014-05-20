@@ -56,6 +56,16 @@
 				coreFacilityCombo.selectedIndex = 0;
 			}
 			
+			public function setStartView():void{
+				if(parentApplication.isAdminState){
+					adminBox.visible = true;
+					adminBox.includeInLayout = true;
+				} else{
+					userBox.visible = true;
+					userBox.includeInLayout = true;
+				}
+			}
+			
 			private function selectState():void{
 				if(stateCombo.selectedLabel == 'All Activity'){
 					adminBox.visible = true;
@@ -166,7 +176,7 @@
 		</mx:VBox>
 		<mx:HRule width="100%" />
 		<mx:VBox>
-			<mx:HBox id="userBox" visible="{true}" includeInLayout="{true}">
+			<mx:HBox id="userBox" visible="{false}" includeInLayout="{false}">
 				<db:NotificationTab id="userTab" notificationState="1" />
 			</mx:HBox>
 			<mx:HBox id="workflowBox" visible="{false}" includeInLayout="{false}">

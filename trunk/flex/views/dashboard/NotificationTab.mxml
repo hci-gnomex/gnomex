@@ -327,7 +327,7 @@
 						<mx:Image id="itemImage"  source="{getImageSource(repStatus.currentItem)}" />
 						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" />
 						<mx:Label id="noteTime" text="{repStatus.currentItem.@time}" />
-						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" fontWeight="bold" click="showItem(event.currentTarget.getRepeaterItem().@expId);" />
+						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" textDecoration="underline" fontWeight="bold" click="showItem(event.currentTarget.getRepeaterItem().@expId);" />
 					</mx:HBox>
 				</mx:VBox>
 			</mx:Repeater>
@@ -336,7 +336,7 @@
 			<mx:Repeater id="repWorkflow" dataProvider="{workflowData}" count="8" startingIndex="0" includeInLayout="{notificationState == 2 ? true : false}" >
 				<mx:HBox id="workflowItem" includeInLayout="{notificationState == 2 ? true : false}" width="475"  cornerRadius="7" borderStyle="solid" borderThickness="1" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
 					<mx:Label id="workflowDate" text="{repWorkflow.currentItem.@date}" />
-					<mx:LinkButton id="wfStep" click="Application.application.showView(genXMLTag(event.currentTarget.getRepeaterItem()));" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
+					<mx:LinkButton id="wfStep" click="Application.application.showView(genXMLTag(event.currentTarget.getRepeaterItem()));" textDecoration="underline" label="{repWorkflow.currentItem.@codeStepName}" fontWeight="bold" />
 					<mx:Spacer width="100%" />
 					<mx:Label id="wfCount" text="Current items: {repWorkflow.currentItem.@count}" />
 				</mx:HBox>

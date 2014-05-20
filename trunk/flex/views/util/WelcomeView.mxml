@@ -309,6 +309,7 @@
 					moveDashboard.xTo = dashBuffer;
 					notificationBox.includeInLayout = true;
 					notificationBox.visible = true;
+					notificationHub.setStartView();
 					newsBox.includeInLayout = false;
 					newsBox.visible = false;
 					sequencerBox.includeInLayout = false;
