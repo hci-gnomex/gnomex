@@ -153,3 +153,15 @@ insert into FAQ (title, url, idCoreFacility) values ('Pricing For DNA Sequencing
 insert into FAQ (title, url, idCoreFacility) values ('Pricing For High Throughput Genomics', 'http://www.hci.utah.edu/internal/microarrayOrdering.html#services', 1);
 insert into FAQ (title, url, idCoreFacility) values ('Purchase Supplies For DNA Sequencing', 'http://resource.cores.utah.edu/', 2);
 
+-- Update name of numberSequencingCyclesAllowed for display
+UPDATE nsca
+   SET nsca.name = LEFT(nsca.codeRequestCategory,1) + LOWER(SUBSTRING(nsca.codeRequestCategory,2,10)) +' '+ CAST(nsc.numberSequencingCycles AS VARCHAR)
+       +' Cycle '+ srt.seqRunType
+FROM NumberSequencingCyclesAllowed AS nsca
+JOIN SeqRunType AS srt ON nsca.idSeqRunType = srt.idSeqRunType
+JOIN NumberSequencingCycles as nsc ON nsca.idNumberSequencingCycles = nsc.idNumberSequencingCycles
+WHERE nsca.isActive='Y';
+
+-- Insert new workflow steps for finalize flow cell
+INSERT INTO Step (codeStep, step, isActive, sortOrder) VALUES ('HSEQFINFC', 'Illumina HiSeq Finalize Flow Cell', 'Y', NULL); 
+INSERT INTO Step (codeStep, step, isActive, sortOrder) VALUES ('MISEQFINFC', 'Illumina MiSeq Finalize Flow Cell', 'Y', NULL); 
