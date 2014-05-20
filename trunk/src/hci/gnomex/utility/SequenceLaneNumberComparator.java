@@ -16,11 +16,11 @@ import java.util.Comparator;
       SequenceLane l2 = (SequenceLane)o2;
       
       seqLaneNumberSeparator = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR);
-      if (seqLaneNumberSeparator == null) {
+      if (seqLaneNumberSeparator == null || seqLaneNumberSeparator.equals("")) {
     	  seqLaneNumberSeparator = seqLaneNumberSeparatorDefault;
       }
       seqLaneLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
-      if (seqLaneLetter == null) {
+      if (seqLaneLetter == null || seqLaneLetter.equals("")) {
     	  seqLaneLetter = seqLaneLetterDefault;
       }
       if (l1.getNumber() == null && l2.getNumber() == null) {
