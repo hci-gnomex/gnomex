@@ -51,6 +51,8 @@
 			[Bindable]
 			private var coreFacilities:XMLListCollection = new XMLListCollection();
 			
+			public var newsItemCoreFacilityId:String;
+			
 			public var newsParent:News;
 			
 			public function init():void {
@@ -60,7 +62,16 @@
 					coreFacilities.addItemAt(allFacilities, 0);
 					coreFacilities.refresh();
 				}
-				cfSelector.selectedIndex = 0;
+				
+				if(newsItemCoreFacilityId != null && newsItemCoreFacilityId != ''){
+					for each(var cf:XML in coreFacilities){
+						if(cf.@idCoreFacility == newsItemCoreFacilityId){
+							cfSelector.selectedItem = cf;
+						}
+					}
+				} else{
+					cfSelector.selectedIndex = 0;
+				}
 				
 			}
 			
@@ -101,7 +112,7 @@
 		</mx:HBox>
 		<mx:HBox includeInLayout="true" visible="true">
 			<mx:Label fontWeight="bold" text="Intended For: "/>
-			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" selectedIndex="0" /> 
+			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" /> 
 		</mx:HBox>
 		
 		<mx:Label fontWeight="bold" text="Message: "/>
