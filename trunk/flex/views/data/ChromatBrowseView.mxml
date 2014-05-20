@@ -225,6 +225,8 @@
 			private function submitActionButtonClick():void {
 				if ( selectedChromats.length > 384 ) {
 					Alert.show( "You have selected more than 384 chromatograms.  Are you sure?", "Confirm Action", ( Alert.YES | Alert.NO ), this, onPromptToGo, iconWarning );
+				}  else if ( comboBox.selectedItem.@value == "REQUEUE" && selectedChromats.length > 50 ) {
+					Alert.show( "You have selected to requeue more than 50 chromatograms.  Are you sure?", "Confirm Action", ( Alert.YES | Alert.NO ), this, onPromptToGo, iconWarning );
 				} else {
 					submitAction();
 				}
