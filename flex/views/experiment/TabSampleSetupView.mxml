@@ -1552,13 +1552,12 @@
 				<util:ContextHelp context1="sampleDetailsIsolationMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Isolation Method Help"
 								  label="(3) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="455"/>
 			   	<mx:RadioButtonGroup id = "isolationTypeRadioGroup" />       	
-			   	<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox">
+			   	<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox"  width="100%">
 			   	 <mx:Repeater id="isolationTypeRepeater" dataProvider="{parentDocument.isolationTypeList}">
 			   	  <mx:RadioButton id="isolationTypeBtn" groupName="isolationTypeRadioGroup" 
 			   	  	   label="{isolationTypeRepeater.currentItem.@display}" 
 			   	  	   value="{isolationTypeRepeater.currentItem.@value}" 
-			   	  	   click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"
-			   	  	   width="250" />							
+			   	  	   click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"/>							
 			   	 </mx:Repeater>
 			   	 <mx:RadioButton id="isolationTypeNull" groupName="isolationTypeRadioGroup" 
 			   	 	   label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
