@@ -146,6 +146,7 @@ package views.util.grid
 		
 		protected function handleAddRowSelect( event:Event ):void
 		{
+			saveDataProvider();
 			this.addRow();
 		}
 		
@@ -310,7 +311,6 @@ package views.util.grid
 		
 		// Adds an empty row to the dataprovider
 		public function addRow():void {
-			saveDataProvider();
 			if (_addRowFunction != null)
 			{
 				_addRowFunction();
