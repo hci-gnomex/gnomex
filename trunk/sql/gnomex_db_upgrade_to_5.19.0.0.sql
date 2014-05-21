@@ -1,7 +1,7 @@
 use gnomex;
 
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
-	VALUES ('seq_lane_number_separator', '-', 'The default separator character for sequence lane numbers.  If you change this value you will have to run the update_sequencelane stored procedure or parsing errors will occur.', 'Y', null, null);
+	VALUES ('seq_lane_number_separator', '_', 'The default separator character for sequence lane numbers.  If you change this value you will have to run the update_sequencelane stored procedure or parsing errors will occur.', 'Y', null, null);
 	
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
 	VALUES ('seq_lane_letter', 'F', 'The default letter used in Sequence Lane naming.  If you change this value you will have to run the update_sequencelane stored procedure or parsing errors will occur.', 'Y', null, null);
@@ -16,13 +16,13 @@ insert into PropertyDictionary (propertyName, propertyValue, propertyDescription
 	VALUES ('metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y', null, null);
 	
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
-	VALUES ('show_activity_dashboard','N','Should the activity feed be shown on the dashboard','N', null, null);
+	VALUES ('show_activity_dashboard','Y','Should the activity feed be shown on the dashboard','N', null, null);
 	
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
 	VALUES ('show_metrix_dashboard','N','Should the metrix server feed be shown on the dashboard','N', null, null);
 	
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory) 
-	VALUES ('show_news_dashboard','N','Should the news feed be shown on the dashboard','N', null, null);
+	VALUES ('show_news_dashboard','Y','Should the news feed be shown on the dashboard','N', null, null);
 
  
 alter table Request add includeQubitConcentration CHAR(1) null;  
@@ -88,8 +88,8 @@ update FlowCell
   where FlowCell.idNumberSequencingCyclesAllowed is null;
 
 -- Remove isSampleBarcodingOptional
-alter table gnomex.RequestCategory drop column isSampleBarcodingOptional;
-call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit drop column isSampleBarcodingOptional');
+-- alter table gnomex.RequestCategory drop column isSampleBarcodingOptional;
+-- call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit drop column isSampleBarcodingOptional');
 
 -- Remove unused properties for sequence alignment
 delete from PropertyDictionary where propertyName='sequence_alignment_supported';
@@ -148,10 +148,6 @@ CREATE TABLE `gnomex`.`MetrixObject` (
 )
 ENGINE = INNODB;
 
-insert into FAQ (title, url, idCoreFacility) values ('Pricing For Genomics Core', 'http://www.cores.utah.edu/?page_id=3891', 5);
-insert into FAQ (title, url, idCoreFacility) values ('Pricing For DNA Sequencing', 'http://www.cores.utah.edu/?page_id=3891', 2);
-insert into FAQ (title, url, idCoreFacility) values ('Pricing For High Throughput Genomics', 'http://www.hci.utah.edu/internal/microarrayOrdering.html#services', 1);
-insert into FAQ (title, url, idCoreFacility) values ('Purchase Supplies For DNA Sequencing', 'http://resource.cores.utah.edu/', 2);
 
 -- Update name of numberSequencingCyclesAllowed for display
 UPDATE NumberSequencingCyclesAllowed AS nsca
