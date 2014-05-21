@@ -777,7 +777,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         firstName = tokens[0];
         lastName = tokens[1];
       } else if (tokens != null && tokens.length == 1) {
-        lastName = tokens[1];
+        lastName = tokens[0];
       } else {
         lastName = labName;
       }
