@@ -703,7 +703,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("state", "unchecked");
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
-        fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(requestNumber))));
+        fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
         
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
