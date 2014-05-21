@@ -154,12 +154,16 @@ insert into FAQ (title, url, idCoreFacility) values ('Pricing For High Throughpu
 insert into FAQ (title, url, idCoreFacility) values ('Purchase Supplies For DNA Sequencing', 'http://resource.cores.utah.edu/', 2);
 
 -- Update name of numberSequencingCyclesAllowed for display
-UPDATE nsca
-   SET nsca.name = LEFT(nsca.codeRequestCategory,1) + LOWER(SUBSTRING(nsca.codeRequestCategory,2,10)) +' '+ CAST(nsc.numberSequencingCycles AS VARCHAR)
-       +' Cycle '+ srt.seqRunType
-FROM NumberSequencingCyclesAllowed AS nsca
-JOIN SeqRunType AS srt ON nsca.idSeqRunType = srt.idSeqRunType
-JOIN NumberSequencingCycles as nsc ON nsca.idNumberSequencingCycles = nsc.idNumberSequencingCycles
+UPDATE NumberSequencingCyclesAllowed AS nsca
+	JOIN SeqRunType AS srt ON nsca.idSeqRunType = srt.idSeqRunType
+	JOIN NumberSequencingCycles as nsc ON nsca.idNumberSequencingCycles = nsc.idNumberSequencingCycles
+   SET nsca.name = CONCAT(
+   CAST(LEFT(nsca.codeRequestCategory,1) AS CHAR CHARACTER SET latin1),
+   CAST(LOWER(SUBSTRING(nsca.codeRequestCategory,2,10)) AS CHAR CHARACTER SET latin1),
+   CAST(' '  AS CHAR CHARACTER SET latin1),
+   CAST(CAST(nsc.numberSequencingCycles AS char)  AS CHAR CHARACTER SET latin1),
+   CAST(' Cycle ' AS CHAR CHARACTER SET latin1),
+   CAST(srt.seqRunType AS CHAR CHARACTER SET latin1))
 WHERE nsca.isActive='Y';
 
 -- Insert new workflow steps for finalize flow cell
