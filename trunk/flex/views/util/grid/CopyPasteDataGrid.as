@@ -63,7 +63,6 @@ package views.util.grid
 		public function CopyPasteDataGrid()
 		{
 			super();
-			
 		}
 		
 		
@@ -75,12 +74,10 @@ package views.util.grid
 			_expTSVMenuItem = new ContextMenuItem( "Copy grid to clipboard" );
 			_expTSVMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleExpGridSelect );
 			
-			_insertLineMenuItem = new ContextMenuItem( "Insert row (shift rows down)", true );
+			_insertLineMenuItem = new ContextMenuItem( "Insert row (shift rows down)", true, _insertRowEnabled, _insertRowEnabled );
 			_insertLineMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleInsertRowSelect );
-			_insertLineMenuItem.visible = _insertLineMenuItem.enabled = _insertRowEnabled;
-			_addLineMenuItem = new ContextMenuItem( "Add row" );
+			_addLineMenuItem = new ContextMenuItem( "Add row", !_insertRowEnabled, _addRowEnabled, _addRowEnabled );
 			_addLineMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleAddRowSelect );
-			_addLineMenuItem.visible = _addLineMenuItem.enabled = _addRowEnabled;
 			_dupMenuItem = new ContextMenuItem( "Duplicate row" );
 			_dupMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleDupSelect );
 			
@@ -119,7 +116,7 @@ package views.util.grid
 		// Adjust text of context menus depending on if 1 or more items are selected in grid
 		protected function handleChange( event:Event ):void
 		{
-			_insertLineMenuItem.visible = _insertRowEnabled && selectedIndex != -1;
+			_insertLineMenuItem.enabled = _insertRowEnabled && selectedIndex >= 0;
 			
 			_copyMenuItem.caption = selectedItems.length > 1 ? "Copy rows to clipboard" : "Copy row to clipboard";
 			_dupMenuItem.caption = selectedItems.length > 1 ? "Duplicate rows" : "Duplicate row";
@@ -299,6 +296,7 @@ package views.util.grid
 		
 		// Adds an empty row to the dataprovider
 		public function insertRow():void {
+			saveDataProvider();
 			if (_insertRowFunction != null)
 			{
 				_insertRowFunction();
@@ -312,6 +310,7 @@ package views.util.grid
 		
 		// Adds an empty row to the dataprovider
 		public function addRow():void {
+			saveDataProvider();
 			if (_addRowFunction != null)
 			{
 				_addRowFunction();
