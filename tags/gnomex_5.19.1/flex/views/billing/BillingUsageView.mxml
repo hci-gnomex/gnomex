@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+	title="Lab Usage Report" 
+	width="630" height="120" defaultButton="{runButton}">
+ 
+
+<mx:Script>
+	<![CDATA[
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import mx.collections.XMLListCollection;
+
+		[Bindable]
+		public var billingPeriods:XMLListCollection;
+		
+		private function run():void {
+			var url:URLRequest = new URLRequest('ShowBillingUsageReport.gx' +
+						'?startDate=' + billingPeriodStartCombo.selectedItem.@startDate + 
+						'&endDate=' + billingPeriodEndCombo.selectedItem.@endDate +
+					 	'&isExternal=' + (isExternal.selected ? 'Y' : 'N') ); 
+			navigateToURL(url, '_blank');	
+			mx.managers.PopUpManager.removePopUp(this);		
+		}				
+		 
+	]]>
+</mx:Script>
+
+	<mx:HBox width="100%" paddingTop="2" paddingBottom="2">
+		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
+			<mx:Label text="For billing periods:  "/>
+			<mx:ComboBox id="billingPeriodStartCombo" 
+				dataProvider="{billingPeriods}"
+				labelField="@display"
+				visible="true"  
+				width="170">
+			</mx:ComboBox>
+			<mx:Label text="through"/>
+			<mx:ComboBox id="billingPeriodEndCombo" 
+				dataProvider="{billingPeriods}"
+				labelField="@display"
+				visible="true"  
+				width="170">
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:VBox verticalGap="0">
+			<mx:RadioButtonGroup id="pricingModel"/>
+			<mx:RadioButton id="isInternal" label="Internal" value="Internal" groupName="pricingModel" 
+							selected="true" 
+							fontStyle="{this.isInternal.selected ? 'bold' : 'normal'}"
+							horizontalGap="0" paddingTop="1" paddingBottom="0"  fontSize="11"/>
+			<mx:RadioButton id="isExternal" label="External" value="Internal" groupName="pricingModel" 
+							selected="false" 
+							fontStyle="{this.isExternal.selected ? 'bold' : 'normal'}"
+							horizontalGap="0" paddingTop="1" paddingBottom="0"  fontSize="11"/>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="OK" id="runButton" click="run()" enabled="{billingPeriodEndCombo.selectedItem != null &amp;&amp; billingPeriodEndCombo.selectedItem.@value != '' &amp;&amp; billingPeriodStartCombo.selectedItem != null &amp;&amp; billingPeriodStartCombo.selectedItem.@value != ''}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

@@ -1,0 +1,48 @@
+  BODY {
+
+      font-family:  Trebuchet MS;
+      font-size: 10pt;
+      padding-top: 0;
+      padding-right: 8;
+      padding-bottom: 0;
+  }
+
+  H3 {
+
+      font-family:  Trebuchet MS;
+      font-size: 10pt;
+      padding-top: 0;
+      padding-right: 8;
+      padding-bottom: 0;
+  }
+
+
+  H4 {
+
+      font-family:  Arial;
+      font-size: 10pt;
+      padding-top: 0;
+      padding-right: 2;
+      padding-left: 4;
+      padding-bottom: 0;
+  }
+
+  H5 {
+	
+	font-family: Trebuchet MS;
+	font-size: 9pt;
+	padding-top: 0;
+	padding-right: 2;
+	padding-left: 4;
+	padding-bottom: 0;
+	color: green;
+}
+  
+  P.warning {
+      font-size: 9pt;
+  }
+  
+  p.credit {
+      font-size: 8pt;
+  }
+
