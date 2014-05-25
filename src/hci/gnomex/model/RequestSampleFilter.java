@@ -39,6 +39,7 @@ public class RequestSampleFilter extends DetailObject {
   public static final int       COL_SAMPLE_NAME = 9;
   public static final int       COL_SAMPLE_DESCRIPTION = 10;
   public static final int       COL_SAMPLE_ID_ORGANISM = 11;
+  public static final int       COL_CODE_APPLICATION = 12;
 
   public static final int       PROPCOL_ID_SAMPLE = 2;
   public static final int       COL_ID_PROPERTY = 3;
@@ -70,7 +71,8 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" sample.number, ");
     queryBuf.append(" sample.name, ");
     queryBuf.append(" sample.description, ");
-    queryBuf.append(" sample.idOrganism ");
+    queryBuf.append(" sample.idOrganism, ");
+    queryBuf.append(" req.codeApplication ");
     
     if(isCreateReport){
       this.isCreateReport = true;

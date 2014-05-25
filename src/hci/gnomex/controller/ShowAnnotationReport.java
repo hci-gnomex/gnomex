@@ -57,9 +57,9 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
   private TreeMap<Integer, Map>     propertyEntryAnnotationMap = new TreeMap<Integer, Map>();
   private TreeMap<String, String>  propertyColumnMap = new TreeMap<String, String>();
   
-  private static final String       TARGET_SAMPLE = "SAMPLE";
-  private static final String       TARGET_ANALYSIS = "ANALYSIS";
-  private static final String       TARGET_DATATRACK = "DATATRACK";
+  public static final String        TARGET_SAMPLE = "SAMPLE";
+  public static final String        TARGET_ANALYSIS = "ANALYSIS";
+  public static final String        TARGET_DATATRACK = "DATATRACK";
   
   private static final Boolean      IS_CREATE_REPORT = true;
   
@@ -151,7 +151,8 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         }  else if (target.equals(TARGET_DATATRACK)) {
           queryBuf = dataTrackQuery.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
         }      
-        hashAnnotations(sess, dh, queryBuf);
+        
+        hashAnnotations(sess, dh, queryBuf, target, this.propertyEntryAnnotationMap);
         
 
         Map<Integer, Integer> idsToSkip = new HashMap<Integer, Integer>();
@@ -354,10 +355,9 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
     
   }
   
-  private void hashAnnotations(Session sess, DictionaryHelper dh, StringBuffer queryBuf) {
+  public static void hashAnnotations(Session sess, DictionaryHelper dh, StringBuffer queryBuf, String target, TreeMap<Integer, Map> propertyEntryAnnotationMap) {
     
     List annotations = (List)sess.createQuery(queryBuf.toString()).list();
-    propertyEntryAnnotationMap = new TreeMap<Integer, Map>();
     for (Iterator i = annotations.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer theId = null;
