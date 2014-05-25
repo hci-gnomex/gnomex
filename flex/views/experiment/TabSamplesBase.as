@@ -416,6 +416,7 @@ package views.experiment
 		}
 		
 		protected function reqdAnnotationsEntered(sample:Object):Boolean {
+		/*
 			for each(var col:AdvancedDataGridColumn in getSamplesGrid().columns) {
 				if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
 					if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
@@ -427,6 +428,7 @@ package views.experiment
 					}					
 				}
 			}
+			*/
 			return true;
 		}
 				
