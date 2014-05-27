@@ -59,7 +59,8 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   
   public  ReportTrayList                    reportTrayList = new ReportTrayList();
   private static String                     REPORT_SUMMARY = "summary";
-  private static String                     REPORT_DETAIL  = "detail";
+  private static String                     REPORT_DETAIL_INCOMPLETE  = "incomplete";
+  private static String                     REPORT_DETAIL_COMPLETE    = "complete";
   
   
   // Hash of each sample and its annotation values (map). Contains all sample annotations 
@@ -283,14 +284,21 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       // annotations.
 
       // Create the report and define the columns
-      createReportTray(sess, dh, REPORT_DETAIL, requiredProperties);
+      createReportTray(sess, dh, REPORT_DETAIL_INCOMPLETE, "Experiments Missing Annotations", requiredProperties);
       for (String labName : labInfoMap.keySet()) {
         
         LabInfo theLabInfo = labInfoMap.get(labName);
-        generateDetailRowsForLab(dh, theLabInfo);
+        generateIncompleteExperimentReportRows(dh, theLabInfo);
                     
       }
-      createReportTray(sess, dh, REPORT_SUMMARY, null);
+      createReportTray(sess, dh, REPORT_DETAIL_COMPLETE, "Experiments Fully Annotated", requiredProperties);
+      for (String labName : labInfoMap.keySet()) {
+        
+        LabInfo theLabInfo = labInfoMap.get(labName);
+        generateCompleteExperimentReportRows(dh, theLabInfo);
+                    
+      }
+      createReportTray(sess, dh, REPORT_SUMMARY, "Summary", null);
       for (String labName : labInfoMap.keySet()) {
         
         LabInfo theLabInfo = labInfoMap.get(labName);
@@ -450,10 +458,9 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
    
   }
   
-  private void createReportTray(Session sess, DictionaryHelper dh, String reportType, List<Property> requiredProperties) {
+  private void createReportTray(Session sess, DictionaryHelper dh, String reportType, String title, List<Property> requiredProperties) {
    
     
-    String title = reportType.equals(REPORT_SUMMARY) ? "Summary" : "Detail";    
     
     // set up the ReportTray
     tray = new ReportTray();
@@ -475,16 +482,20 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       
     } else {
       columns.add(makeReportColumn("Lab", 1));
-      columns.add(makeReportColumn("", 2));
-      columns.add(makeReportColumn("Experiment #", 3));
+      columns.add(makeReportColumn("Experiment #", 2));
+      columns.add(makeReportColumn("Samples", 3));
       columns.add(makeReportColumn("Experiment Type", 4));
       columns.add(makeReportColumn("Organism", 5));
       columns.add(makeReportColumn("Sample Source", 6));
-      columns.add(makeReportColumn("Samples", 7));
-      int colNbr = 8;
       
-      for (Property prop: requiredProperties) {
-        columns.add(makeReportColumn(prop.getName(), colNbr++));
+      // Show missing annotation columns
+      if (reportType.equals(REPORT_DETAIL_INCOMPLETE)) {
+        int colNbr = 7;
+        
+        for (Property prop: requiredProperties) {
+          columns.add(makeReportColumn(prop.getName(), colNbr++));
+        }
+        
       }
       
     }
@@ -517,81 +528,75 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     
   }
   
-  private void generateDetailRowsForLab(DictionaryHelper dh, LabInfo labInfo) {
-    // Print lab name followed by all complete experiment ids, followed by experiment ids for missing
+  private void generateIncompleteExperimentReportRows(DictionaryHelper dh, LabInfo labInfo) {
+    // Print lab name followed by experiment ids for missing
     // annotations as well as comma separated list of missing annotations
     ReportRow reportRow = new ReportRow();
     List<String> values  = new ArrayList<String>();
     
     values.add(labInfo.labName);
-    
-    if (labInfo.completeExperimentMap.size() > 0) {
-      values.add("Fully annotated");
-      boolean firstTime = true;
-      for (Integer theIdRequest : labInfo.completeExperimentMap.keySet()) {
-        if (!firstTime) {
-          reportRow = new ReportRow();
-          values  = new ArrayList<String>();
-          values.add("");
-          values.add("");
-        }
-        ExperimentInfo expInfo = labInfo.completeExperimentMap.get(theIdRequest);
-        values.add(expInfo.requestNumber);
-        values.add(dh.getApplication(expInfo.codeApplication));
-        values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
-        values.add(expInfo.sampleSource);
-        values.add(Integer.valueOf(expInfo.sampleCount).toString());
-        
-        values.add("");  // blank for fully annotated experiment (shows missing annotation names)
-        
-        reportRow.setValues(values);
-        tray.addRow(reportRow);
-        firstTime = false;
+
+    boolean firstTime = true;
+    for (Integer theIdRequest : labInfo.incompleteExperimentMap.keySet()) {
+      if (!firstTime) {
+        reportRow = new ReportRow();
+        values  = new ArrayList<String>();
+        values.add("");
       }
+      ExperimentInfo expInfo = labInfo.incompleteExperimentMap.get(theIdRequest);
+      values.add(expInfo.requestNumber);
+      values.add(Integer.valueOf(expInfo.sampleCount).toString());
+      values.add(expInfo.sampleSource);
+      values.add(dh.getApplication(expInfo.codeApplication));
+      values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+     
+      // Show either "X" (for missing) or "" for each required property
+      for (Property prop : requiredProperties) {
+        if (expInfo.missingAnnotationMapForExperiment.containsKey(prop.getName())) {
+          values.add("X");
+        } else {
+          values.add(" ");
+        }
+      }
+      
+      reportRow.setValues(values);
+      tray.addRow(reportRow);
+      
+      firstTime = false;
     }
-    if (labInfo.incompleteExperimentMap.size() > 0) {
-      // Start a new row if we have already listed compelete experiments;
-      // otherwise, if there are no complete experiments, stay
-      // on the current row (the lab name row)
-      if (labInfo.completeExperimentMap.size() > 0) {
-          reportRow = new ReportRow();
-          values  = new ArrayList<String>();
-          values.add("");
+  }
+  
+
+  
+  private void generateCompleteExperimentReportRows(DictionaryHelper dh, LabInfo labInfo) {
+    // Print lab name followed by all complete experiment ids
+    ReportRow reportRow = new ReportRow();
+    List<String> values  = new ArrayList<String>();
+    
+    values.add(labInfo.labName);
+    
+    boolean firstTime = true;
+    for (Integer theIdRequest : labInfo.completeExperimentMap.keySet()) {
+      if (!firstTime) {
+        reportRow = new ReportRow();
+        values  = new ArrayList<String>();
+        values.add("");
       }
-      values.add("Missing annotations");
-      boolean firstTime = true;
-      for (Integer theIdRequest : labInfo.incompleteExperimentMap.keySet()) {
-        if (!firstTime) {
-          reportRow = new ReportRow();
-          values  = new ArrayList<String>();
-          values.add("");
-          values.add("");
-        }
-        ExperimentInfo expInfo = labInfo.incompleteExperimentMap.get(theIdRequest);
-        values.add(expInfo.requestNumber);
-        values.add(dh.getApplication(expInfo.codeApplication));
-        values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
-        values.add(expInfo.sampleSource);
-        values.add(Integer.valueOf(expInfo.sampleCount).toString());
-       
-        // Show either "X" (for missing) or "" for each required property
-        for (Property prop : requiredProperties) {
-          if (expInfo.missingAnnotationMapForExperiment.containsKey(prop.getName())) {
-            values.add("X");
-          } else {
-            values.add(" ");
-          }
-        }
-        
-        reportRow.setValues(values);
-        tray.addRow(reportRow);
-        
-        firstTime = false;
-      }
+      ExperimentInfo expInfo = labInfo.completeExperimentMap.get(theIdRequest);
+      values.add(expInfo.requestNumber);
+      values.add(Integer.valueOf(expInfo.sampleCount).toString());
+      values.add(dh.getApplication(expInfo.codeApplication));
+      values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+      values.add(expInfo.sampleSource);
+      
+      values.add("");  // blank for fully annotated experiment (shows missing annotation names)
+      
+      reportRow.setValues(values);
+      tray.addRow(reportRow);
+      firstTime = false;
     }
     
   }
-  
 
 
   
