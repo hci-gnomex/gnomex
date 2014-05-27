@@ -254,6 +254,7 @@
 						} else {
 							isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
 						}
+						parentDocument.seqLibProtocolList.refresh();
 					}					
 				} else {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -690,6 +691,9 @@
 			if (parentDocument.isEditState() || parentDocument.isAmendState()) {
 				return;
 			}
+			if (currentState == 'MDMiSeqState') {
+				return;
+			}
 			for each(var s:Object in parentDocument.samples) {
 				s.@idOligoBarocode = '';
 				s.@multiplexGroupNumber = '';
@@ -1068,10 +1072,13 @@
 		private function onCoreToExtractDNACheckBoxChanged():void {
 			parentDocument.request.@coreToExtractDNA = coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 			parentDocument.request.@codeDNAPrepType = coreToExtractDNACheckBox.selected ? (dnaPrepTypeCombo.selectedIndex > 0 ? dnaPrepTypeCombo.selectedItem.@codeDNAPrepType : '') : '';
-			this.sampleTypeRadioGroup.enabled = !coreToExtractDNACheckBox.selected;
 			if ( coreToExtractDNACheckBox.selected ) {	
 				this.sampleTypeRadioGroup.selectedValue = null;
-			} 
+				sampleTypeDNARNAHBox.styleName = '';
+			} else {
+				this.dnaPrepTypeCombo.selectedItem = null;
+				sampleTypeDNARNAHBox.styleName = 'requiredBox';
+			}
 			this.propagateSampleType();
 			if ( this.checkSampleSetupCompleteness() ) {
 				parentDocument.samplesView.initializeSamplesGrid();
@@ -1247,23 +1254,26 @@
 					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
 				</mx:TextInput>							
 			</mx:HBox>
-			<mx:HBox horizontalGap="0" id="hbox10" verticalAlign="middle" visible="false" includeInLayout="false">
-				<util:ContextHelp context1="SampleDetailsSequenomDNAExtract" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="DNA Extraction Help"
-								  label="(2) Would you like the core facility to isolate the DNA?" labelPlacement="left" id="sequenomDNAExtractLabel" width="334"/>
-				<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9"/>		
-				<mx:Label text="DNA prep type?" paddingRight="9"
-						  visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}" id="label1"/>	
-				<mx:ComboBox labelField="@display" width="245" id="dnaPrepTypeCombo"
-							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
-							 change="{onDNAPrepTypeChanged()}"
-							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}"/>		
-			</mx:HBox>
+			<mx:VBox width="100%" verticalGap="0" id="dnaPrepBox">
+				<mx:HBox horizontalGap="0" verticalAlign="middle" > 
+					<util:ContextHelp context1="SampleDetailsSequenomDNAExtract" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="DNA Extraction Help"
+									  label="(2) Would you like the core facility to isolate the DNA?" labelPlacement="left" id="sequenomDNAExtractLabel" width="334"/>
+					<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9"/>		
+				</mx:HBox>
+				<mx:HBox horizontalGap="0" verticalAlign="middle" 
+						 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}" > 
+					<mx:Label text="DNA prep type?" paddingRight="45" width="334" textAlign="right" id="label1"/>	
+					<mx:ComboBox labelField="@display" id="dnaPrepTypeCombo"
+								 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
+								 change="{onDNAPrepTypeChanged()}"/>		
+				</mx:HBox>
+			</mx:VBox>
 			<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
 				<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}" 
 								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
 								  showEdit="{parentApplication.isAdminState}" title="Sample Category Help"
 								  label="(2) Which category best describes your samples?" labelPlacement="left" id="label8" width="334"/>
-				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />
+				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" enabled="{coreToExtractDNACheckBox.visible &amp;&amp; !coreToExtractDNACheckBox.selected}"/>
 				<mx:HBox verticalGap="0" paddingTop="0" paddingBottom="0" styleName="requiredBox" id="sampleTypeDNARNAHBox">				
 					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
 						<mx:Label text="DNA" visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
@@ -1368,8 +1378,8 @@
         		    
         		</mx:HBox>
         	</mx:AddChild>
-			<mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
         	
         </mx:State>
         <mx:State name="SolexaSetupState">
@@ -1382,8 +1392,7 @@
 						<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
 	                		<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
 						    <mx:HBox id="hbox2" width="100%">
-								<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true"
-	 click="{pickSeqPrepState()}">
+								<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true" click="{pickSeqPrepState()}">
 								</mx:RadioButton>									    	
 						    </mx:HBox>
 						    
@@ -1421,8 +1430,8 @@
             <mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
             <mx:SetProperty target="{label2}" name="width" value="305"/>
             <mx:SetProperty target="{label7}" name="width" value="305"/>
-			<mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 			
         </mx:State>
         <mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
@@ -1462,8 +1471,8 @@
              <mx:SetProperty target="{label8}" name="label" value="(1) Which category best describes your samples?"/>
              <mx:SetProperty target="{label2}" name="label" value="(3) Specify the nucleic acid extraction method. (required)."/>
              <mx:SetStyle target="{sampleSetupContainer}" name="paddingTop"/>
-			<mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
         </mx:State>
         <mx:State name="SolexaAmendState" basedOn="SolexaSetupState">
              <mx:RemoveChild target="{hbox3}"/>
@@ -1521,6 +1530,8 @@
                   	</mx:ComboBox>
                   </mx:HBox>
              </mx:AddChild>
+             <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
+             <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
         </mx:State>
 	   <mx:State name="FragAnalState">
 		   <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
@@ -1540,8 +1551,8 @@
 				   </mx:Tile>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 	   </mx:State>
 	   <mx:State name="IsolationState" basedOn="SequenomState">
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
@@ -1594,8 +1605,8 @@
 		  </mx:AddChild>
 		  <mx:RemoveChild target="{bisulfideConversionBox}"/>
 		  <mx:SetProperty target="{label5}" name="width" value="455"/>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 	   </mx:State>
 	   <mx:State name="MitSeqState">
 		   <mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
@@ -1652,8 +1663,8 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 	   </mx:State>
 	   <mx:State name="CherryPickState">
 		   <mx:RemoveChild target="{sampleOrganismContainer}"/>
@@ -1748,8 +1759,8 @@
 				   </mx:HBox>
 			   </mx:VBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 	   </mx:State>
 	   <mx:State name="IScanState">
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
@@ -1904,8 +1915,8 @@
 			   	 </mx:TextInput>							
 		   	</mx:HBox>
 		   </mx:AddChild>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="false"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="false"/>
 	   </mx:State>
 	   <mx:State name="SequenomState">
 		   <mx:RemoveChild target="{samplePrepContainer}"/>
@@ -1939,13 +1950,13 @@
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{hbox3}"/>
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild" target="{hbox3}"/>
-		   <mx:SetProperty target="{hbox10}" name="visible" value="true"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="true"/>
-		   <mx:SetProperty target="{label5}" name="label" value="(4) How many samples will you be submitting?"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="true"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="true"/>
+		   <mx:SetProperty target="{label5}" name="label" value="(5) How many samples will you be submitting?"/>
 		   <mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 			   <mx:HBox width="100%" horizontalGap="0" id="hbox8">
 				   <util:ContextHelp context1="SampleDetailsSequenomContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
-									 label="(5) The samples will be delivered in what container?" labelPlacement="left" id="seqContLabel" width="334"/>
+									 label="(6) The samples will be delivered in what container?" labelPlacement="left" id="seqContLabel" width="334"/>
 				   <mx:RadioButtonGroup id="sequenomContainerTypeRadioGrp" selectedValue="TUBE" change="{callLater(onSequenomContainerTypeChange)}"/>
 				   <mx:RadioButton id="sequenomContainerTypeTube" label="Tubes" value="TUBE" groupName="sequenomContainerTypeRadioGrp"/>
 				   <mx:RadioButton id="sequenomContainerTypePlate" label="Plates" value="PLATE" groupName="sequenomContainerTypeRadioGrp" paddingLeft="20"/>
@@ -1956,7 +1967,7 @@
 						includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
 				   <util:ContextHelp context1="SampleDetailsSequenomNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Source Plates Help"
-									 label="(6) How many source plates will you be submitting?" labelPlacement="left" id="sequenomNumSourcePlatesLabel" width="334"/>
+									 label="(7) How many source plates will you be submitting?" labelPlacement="left" id="sequenomNumSourcePlatesLabel" width="334"/>
 				   <mx:TextInput width="40" id="sequenomNumSourcePlates" 
 								 change="onSequenomNumSourcePlatesChanged()" 
 								 focusOut="onNumberOfSamplesChanged()">
@@ -1968,7 +1979,7 @@
 						visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
 				   <util:ContextHelp context1="SampleDetailsSequenomPlateNames" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Plate Name Help"
-									 label="(7) Name your plates." labelPlacement="left" id="sequenomPlateNameLabel" width="334"/>
+									 label="(8) Name your plates." labelPlacement="left" id="sequenomPlateNameLabel" width="334"/>
 				   <mx:HBox horizontalGap="10" verticalAlign="middle">
 					   <mx:HBox horizontalGap="0" verticalAlign="middle" id="sequenomPlate1Box" visible="false">
 						   <mx:Label text="Plate 1:"/>
@@ -2038,21 +2049,21 @@
 		   <mx:AddChild relativeTo="{hbox3}" position="before">
 			   <mx:HBox horizontalGap="0"  verticalAlign="middle" id="bisulfideConversionBox">
 				   <util:ContextHelp context1="SampleDetailsSequenomBisulfideConversion" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bisulfide Conversion Help"
-									 label="     Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="334"/>
+									 label="(3) Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="334"/>
 				   <mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
 			   </mx:HBox>
 		   </mx:AddChild>
 		   <mx:RemoveChild target="{sampleTypeHBox}"/>
 		   <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
-		   <mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
+		   <mx:SetProperty target="{label8}" name="label" value="(4) Which category best describes your samples?"/>
 		   <mx:AddChild relativeTo="{hbox3}" position="lastChild">
 		   	<mx:HBox width="100%" id="hbox9">
 				<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 		   	</mx:HBox>
 		   </mx:AddChild>
 		   <mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="5"/>
-		   <mx:RemoveChild target="{hbox10}"/>
-		   <mx:AddChild relativeTo="{bisulfideConversionBox}" position="before" target="{hbox10}"/>
+		   <mx:RemoveChild target="{dnaPrepBox}"/>
+		   <mx:AddChild relativeTo="{bisulfideConversionBox}" position="before" target="{dnaPrepBox}"/>
 		   
 	   </mx:State>
 	   <mx:State name="ClinicalSequenomState" basedOn="SequenomState">
@@ -2070,13 +2081,20 @@
 		   
 	   </mx:State>
 	   <mx:State name="MDMiSeqState" basedOn="SolexaSetupState">
-		   <mx:SetProperty target="{hbox10}" name="visible" value="true"/>
-		   <mx:SetProperty target="{hbox10}" name="includeInLayout" value="true"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="visible" value="true"/>
+		   <mx:SetProperty target="{dnaPrepBox}" name="includeInLayout" value="true"/>
 		   <mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
 		   <mx:SetProperty target="{label7}" name="label" value="(4) Which organism is the source for these samples?"/>
 		   <mx:SetProperty target="{label2}" name="label" value="(5) Specify the nucleic acid extraction method. (required)."/>
 		   <mx:SetProperty target="{text1}" name="label" value="(6) Do you want the Core Facility to perform library preparation on the samples?"/>
 		   <mx:SetProperty target="{samplePoolingLabel}" name="label" value="(7) How are the samples pooled?"/>
+		   <mx:SetProperty target="{label5}" name="width" value="334"/>
+		   <mx:SetProperty target="{label8}" name="width" value="334"/>
+		   <mx:SetProperty target="{label7}" name="width" value="334"/>
+		   <mx:SetProperty target="{label2}" name="width" value="334"/>
+		   <mx:SetProperty target="{text1}" name="width" value="334"/>
+		   <mx:SetProperty target="{samplePoolingLabel}" name="width" value="334"/>
+		   <mx:SetProperty target="{samplesToBePreppedCheckbox}" name="selected" value="false"/>
 		  
 	   </mx:State>
    </mx:states>

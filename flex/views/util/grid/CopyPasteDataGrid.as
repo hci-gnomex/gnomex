@@ -131,6 +131,7 @@ package views.util.grid
 		
 		protected function handleDupSelect( event:Event ):void
 		{
+			saveDataProvider();
 			duplicateSelectedRows();
 		}
 		
@@ -141,6 +142,7 @@ package views.util.grid
 		
 		protected function handleInsertRowSelect( event:Event ):void
 		{
+			saveDataProvider();
 			this.insertRow();
 		}
 		
@@ -152,11 +154,13 @@ package views.util.grid
 		
 		protected function handleDelSelect( event:Event ):void
 		{
+			saveDataProvider();
 			this.deleteRows();
 		}
 		
 		protected function handleClearSelect( event:Event ):void
 		{
+			saveDataProvider();
 			this.clearAll();
 		}
 		
@@ -288,7 +292,6 @@ package views.util.grid
 		// Duplicates selected rows and adds them to the dataprovider
 		public function duplicateSelectedRows():void
 		{
-			saveDataProvider();
 			var selectedItems:XMLListCollection = DataGridUtil.getSelectedRows( this,  _dataType, _ignoredColumns );
 			for each ( var item:XML in selectedItems ) {
 				addItemToDataProvider(item);
@@ -297,7 +300,6 @@ package views.util.grid
 		
 		// Adds an empty row to the dataprovider
 		public function insertRow():void {
-			saveDataProvider();
 			if (_insertRowFunction != null)
 			{
 				_insertRowFunction();
