@@ -161,7 +161,7 @@
 						" idOrganism='"  + idOrganism + "'" +				
 						" otherOrganism='" + otherOrganism + "'" 	+
 						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
-						" multiplexGroupNumber='1'" +
+						" multiplexGroupNumber='" + (parentDocument.samples.length + 1) + "'" +
 						"/>"
 					emptyNode = new XML(xmlString);
 				
@@ -505,7 +505,7 @@
 				
 			}
 			
-			override public function propagateBarcode():void {
+			/* override public function propagateBarcode():void {
 				if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
 					var lastMultiplexGroupNumber:String = '';
 					for each (var sample:Object in parentDocument.samples) {
@@ -519,7 +519,7 @@
 						}
 					} 
 				}
-			}
+			} */
 			
 			override public function setShowCCNumber(show:Boolean):void {
 				if (showCCNumberCheckbox != null) {

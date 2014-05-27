@@ -10,6 +10,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.TreatmentEntry;
@@ -465,6 +466,8 @@ public class RequestParser implements Serializable {
     Boolean isExternal = (requestNode.getAttributeValue("isExternal") != null && requestNode.getAttributeValue("isExternal").equals("Y"));
     
     if (requestCategory.getCategoryType() != null && requestCategory.getCategoryType().getIsIllumina().equals("Y") && !isExternal)  {
+      initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
+    } else if (requestCategory.getCategoryType() != null && requestCategory.getType().equals( RequestCategoryType.TYPE_MISEQ ) && !isExternal)  {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, true);
     } else {
       initializeSample(n, sample, idSampleString, isNewSample, propertyHelper, false);

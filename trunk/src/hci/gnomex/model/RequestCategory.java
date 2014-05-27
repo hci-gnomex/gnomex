@@ -33,6 +33,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   SEQUENOM_REQUEST_CATEGORY = "SEQUENOM";
   public static final String   DNA_ISOLATION_REQUEST_CATEGORY = "DNAISOL";
   public static final String   RNA_ISOLATION_REQUEST_CATEGORY = "RNAISOL";
+  public static final String   MD_MISEQ_REQUEST_CATEGORY = "MDMISEQ";
   
   private String                codeRequestCategory;
   private String                requestCategory;
@@ -136,7 +137,8 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
         ( RequestCategory.isSequenom( codeRequestCategory ) || 
           RequestCategory.isSequenomType( codeRequestCategory ) ||
           codeRequestCategory.equals( DNA_ISOLATION_REQUEST_CATEGORY ) || 
-          codeRequestCategory.equals( RNA_ISOLATION_REQUEST_CATEGORY ))) {
+          codeRequestCategory.equals( RNA_ISOLATION_REQUEST_CATEGORY ) || 
+          codeRequestCategory.equals( MD_MISEQ_REQUEST_CATEGORY ))) {
       return true;
     } 
     return false;
