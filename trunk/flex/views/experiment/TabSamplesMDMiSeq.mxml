@@ -504,23 +504,7 @@
 				callLater(this.checkSamplesCompleteness);
 				
 			}
-			
-			/* override public function propagateBarcode():void {
-				if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
-					var lastMultiplexGroupNumber:String = '';
-					for each (var sample:Object in parentDocument.samples) {
-						if (sample.@multiplexGroupNumber == null || sample.@multiplexGroupNumber.toString().length == 0) {
-							sample.@multiplexGroupNumber = lastMultiplexGroupNumber;
-						} else {
-							lastMultiplexGroupNumber = sample.@multiplexGroupNumber;
-						}
-						if (parentDocument.request.@isRapidMode == 'Y') {
-							sample.@numberSequencingLanes = '2';
-						}
-					} 
-				}
-			} */
-			
+						
 			override public function setShowCCNumber(show:Boolean):void {
 				if (showCCNumberCheckbox != null) {
 					this.showCCNumberCheckbox.selected = show;
