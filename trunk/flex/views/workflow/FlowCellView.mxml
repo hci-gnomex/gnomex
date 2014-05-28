@@ -24,7 +24,6 @@
         <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
         <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
         <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-		<codeStepNext>{workflowStepFilterStr}</codeStepNext>
     </mx:request>
   </mx:HTTPService> 
 
@@ -70,31 +69,6 @@
 		private var addWindow:EditFlowCellWindow;
 		
 		public var selectedFlowCellNumber:String = null;
-		[Bindable]
-		private var workflowStepFilterStr:String = "";
-		
-		private function updateWorkflowStepFilter(event:Event):void {
-			var finalize:String = "";
-			var pipeline:String = "";
-			if (codeSequencingPlatform == 'HISEQ') {
-				finalize="HSEQFINFC";
-				pipeline="HSEQPIPE";				
-			} else if (codeSequencingPlatform == 'MISEQ') {
-				finalize="MISEQFINFC";
-				pipeline="MISEQPIPE";
-			} else {
-				workflowStepFilterStr = ""; // edge case
-			}
-			if (workflowStepFilter.selection == allWorkflowSteps) {
-				workflowStepFilterStr = finalize + "," + pipeline;
-			} else if (workflowStepFilter.selection == finalizeStep) {
-				workflowStepFilterStr = finalize;
-			} else if (workflowStepFilter.selection == pipelineStep) {
-				workflowStepFilterStr = pipeline;
-			} else {
-				workflowStepFilterStr = ""; // edge case
-			}
-		}
 		
 		public function clearAndRefreshList():void {
 			//if(getFlowCellList.lastResult != null) {
@@ -247,16 +221,7 @@
 	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
 	    		<mx:click>toggleDateCheckboxes(4);</mx:click>
 	    	</mx:CheckBox>
-		  </mx:HBox>
-		  <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox4">
-			  <mx:RadioButtonGroup id="workflowStepFilter"  change="updateWorkflowStepFilter(event)" />
-			  <mx:RadioButton id="finalizeStep" group="{workflowStepFilter}" label="In Finalize" />
-			  <mx:RadioButton id="pipelineStep" group="{workflowStepFilter}" label="In Pipeline" />
-			  <mx:RadioButton id="allWorkflowSteps" group="{workflowStepFilter}" label="All" selected="true" />
-			  <!--<mx:CheckBox id="flowCellFinalize" label="In Finalize" paddingRight="0" paddingLeft="0" horizontalGap="0" selected="true" />
-			  <mx:CheckBox id="flowCellPipeline"     label="In Data Pipeline" paddingRight="0" paddingLeft="0" horizontalGap="0" selected="true" />-->
-		  </mx:HBox>
-			  
+		  </mx:HBox>			  
 		  <mx:VBox height="100%" verticalAlign="middle">
 			  <mx:LinkButton id="findButton" 
 							 height="25"
