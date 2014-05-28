@@ -149,7 +149,7 @@ package views.experiment
 			
 		}
 		
-		protected function areIndexTagsUnique():Boolean {
+		public function areIndexTagsUnique():Boolean {
 			return true;
 		}
 		
