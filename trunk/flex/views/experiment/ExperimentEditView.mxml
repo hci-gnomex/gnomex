@@ -964,9 +964,9 @@
 		}
 
 		private function nextTab():void {
-			if(theTab.selectedChild == this.samplesView) {
+			if(theTab.selectedChild == this.samplesView && isSolexaState()) {
 				if (!theTab.getTabAt(theTab.selectedIndex).document.samplesView.areIndexTagsUnique()) {
-					Alert.show("WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled.", "WARNING");
+					Alert.show("WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled.", "Warning");
 				}				
 			}
 			theTab.selectedIndex++;
