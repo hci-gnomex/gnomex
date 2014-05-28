@@ -826,7 +826,7 @@
 				
 			}
 			
-			public function areIndexTagsUnique():Boolean {
+			override protected function areIndexTagsUnique():Boolean {
 				var isValid:Boolean = true;
 				var barcodeField:String = "";
 				var barcodeFieldB:String = "";

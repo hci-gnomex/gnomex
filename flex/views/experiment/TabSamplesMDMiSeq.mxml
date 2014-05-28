@@ -636,51 +636,7 @@
 				return isValid;
 				
 			}
-			
-			private function areIndexTagsUnique():Boolean {
-				var isValid:Boolean = true;
-				var barcodeField:String = "";
-				var barcodeFieldB:String = "";
-				if (parentDocument.showSampleCustomBarcodes()) {
-					barcodeField = "@barcodeSequence";
-					barcodeFieldB = "@barcodeSequenceB";
-				} else if (parentDocument.showSampleBarcodes()) {
-					barcodeField = "@idOligoBarcode";
-					barcodeFieldB = "@idOligoBarcodeB";
-				} else {
-					return isValid;
-				}
-				
-				var sampleMap:Object = new Object();
-				for each(var s:Object in parentDocument.samples) {
-					var samplesForIndexGroup:XMLListCollection = sampleMap[s.@multiplexGroupNumber];
-					if (samplesForIndexGroup == null) {
-						samplesForIndexGroup = new XMLListCollection();
-					}
-					samplesForIndexGroup.addItem(s);
-					sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
-				}
-				
-				for (var multiplexGroupNumber:Object in sampleMap) {
-					var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
-					var tagMap:Object = new Object();
-					for each(var s1:Object in samplesInGroup) {
-						var barcode:Object = s1[barcodeField];
-						barcode += "-" + s1[barcodeFieldB];
-						tagMap[barcode] = barcode;
-					}
-					var uniqueTagCount:int = 0;
-					for (var tm:Object in tagMap) {
-						uniqueTagCount++;
-					}
-					if (uniqueTagCount < samplesInGroup.length) {
-						isValid = false;
-						break;
-					}
-				}
-				return isValid;
-			}
-			
+						
 			private function onDragDropSample(event:DragEvent) : void
 			{
 				var dropNode:Object = null;

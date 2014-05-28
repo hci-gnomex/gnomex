@@ -149,6 +149,10 @@ package views.experiment
 			
 		}
 		
+		protected function areIndexTagsUnique():Boolean {
+			return true;
+		}
+		
 		protected function rebuildSamplesGrid():void {
 			var grid:AdvancedDataGrid = getSamplesGrid();
 			var columns:Array = grid.columns;
