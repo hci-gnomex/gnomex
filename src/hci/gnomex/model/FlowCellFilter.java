@@ -38,37 +38,25 @@ public class FlowCellFilter extends DetailObject {
   }
   
   public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
-    
-	  queryBuf.append(" FROM WorkItem as wi ");
-	  queryBuf.append(" JOIN wi.flowCellChannel as ch ");
-	  queryBuf.append(" JOIN ch.flowCell as fc ");
-    if (this.hasRequestCriteria()) {
-      //queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
-      queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
-      queryBuf.append(" JOIN   lane.request as req ");      
-    }
-    if (codeStepNext != null) {
-    	String[] codeStepNextArr = codeStepNext.split(",");
-    	codeStepNext = "";
-    	for(String s : codeStepNextArr) {
-    		codeStepNext += "'" + s + "',";
-    	}
-    	codeStepNext = codeStepNext.substring(0, codeStepNext.length()-1);
-    	
-      queryBuf.append(" WHERE wi.codeStepNext IN (" + codeStepNext + ") " );
-      addWhere = false;
-    }
-    
-    addFlowCellCriteria();
-    addRequestCriteria();
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      queryBuf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
-      queryBuf.append(" ");
-    }
+	    
+	    queryBuf.append(" FROM        FlowCell as fc ");
+	    if (this.hasRequestCriteria()) {
+	      queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
+	      queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
+	      queryBuf.append(" JOIN   lane.request as req ");      
+	    }
+	    
+	    addWhere = true;
+	    addFlowCellCriteria();
+	    addRequestCriteria();
+	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+	      queryBuf.append(" AND ");
+	      secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
+	      queryBuf.append(" ");
+	    }
 
-    queryBuf.append(" order by fc.createDate desc, fc.number");
-  }
+	    queryBuf.append(" order by fc.createDate desc, fc.number");
+	  }
   
   private boolean hasRequestCriteria() {
     if (this.requestNumber != null && !this.requestNumber.equals("")) {
