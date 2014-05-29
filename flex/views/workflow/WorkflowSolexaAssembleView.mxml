@@ -521,10 +521,10 @@
 				params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed
 				params.side = this.flowCellSide.selectedValue;
 //				params.idCoreFacility = parentDocument.getSpecifiedIdCoreFacility();
-				
-				if (this.flowCellInstrument.selectedItem != null && this.flowCellInstrument.selectedItem.@value != '') {
-					params.idInstrument = this.flowCellInstrument.selectedItem.@value;
-				}				
+				params.numberSequencingCyclesActual = this.flowCellProtocol.selectedItem.@numberSequencingCyclesDisplay;
+				params.idSeqRunType = this.flowCellProtocol.selectedItem.@idSeqRunType;
+				params.idInstrument = this.flowCellInstrument.selectedItem.@value;
+			
 				saveWorkItem.send(params);
 			}	
 			

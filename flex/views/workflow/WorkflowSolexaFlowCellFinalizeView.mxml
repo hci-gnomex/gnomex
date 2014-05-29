@@ -200,8 +200,8 @@
 			params.idCoreFacility = selectedFlowCell.@idCoreFacility;
 			params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed;
 			params.runFolder = this.flowCellRunFolder;
-			//params.numberSequencingCyclesActual = this.numberOfCycles.text;
-			//params.idSeqRunType = this.radiogroupSeqRunType.selectedValue;
+			params.numberSequencingCyclesActual = this.flowCellProtocol.selectedItem.@numberSequencingCyclesDisplay;
+			params.idSeqRunType = this.flowCellProtocol.selectedItem.@idSeqRunType;
 			params.channelsXMLString =  "<fcChannels>" + this.selectedFlowCell.flowCellChannels.FlowCellChannel.toXMLString() + "</fcChannels>";
 			//params.lastCycleDate = this.lastCycleDateInput.text;
 			
@@ -249,10 +249,7 @@
 		}
 		private function createFlowCellFileName():void {
 			var runFolder:String = '';
-			if(this.flowCellBarcode.text.length > 0 && this.flowCellRunNumber.text.length > 0
-				&& this.flowCellDate.selectedDate != null && this.flowCellSide.selectedValue != null
-				&& this.flowCellInstrument.selectedItem != null && this.flowCellProtocol.selectedIndex != 0
-				&& this.codeSequencingPlatform == 'HISEQ') 
+			if(this.flowCellBarcode.text.length > 0 && this.flowCellRunNumber.text.length > 0 && this.flowCellDate.selectedDate != null && this.flowCellSide.selectedValue != null && this.flowCellInstrument.selectedIndex != 0 && this.flowCellProtocol.selectedIndex != 0 && this.codeSequencingPlatform == 'HISEQ') 
 			{				 
 				var year:String = (flowCellDate.selectedDate.fullYear.toString()).substr(2,3);
 				var month:String = (flowCellDate.selectedDate.month + 1).toString();
