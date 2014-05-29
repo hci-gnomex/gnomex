@@ -213,8 +213,6 @@
 			if (parentApplication.myCoreFacilities.length() == 1) {
 				coreCombo.visible = false;
 				coreCombo.includeInLayout = false;
-				coreComboHBox.visible = false;
-				coreComboHBox.includeInLayout = false;
 				ba.@idCoreFacility = parentApplication.myCoreFacilities[0].@idCoreFacility;
 			}
 		}
@@ -399,7 +397,6 @@
 				params.startDate = ba.@startDateOther;
 				params.expirationDate = ba.@expirationDateOther;
 				params.idLab = this.labCombo.selectedItem.@idLab;
-//				params.idCoreFacility = ba.@idCoreFacility;
 				params.accountNumberBus = ba.@accountNumberBus;
 				params.accountNumberOrg = ba.@accountNumberOrg;
 				params.accountNumberFund = ba.@accountNumberFund;
