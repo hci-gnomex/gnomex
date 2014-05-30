@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PlateType;
@@ -306,8 +307,9 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + req.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, req.getIdCoreFacility());
     
-    introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+    introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + cf.getFacilityName() + 
       ".  You will receive email notification when the experiment is complete.");   
     
     // Special notes for iScan requests
@@ -387,6 +389,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     String requestNumber = req.getNumber();
     IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, req.getIdCoreFacility());
 
     if ( chip == null || req.getNumberIScanChips()==0 ) {
       return false;
@@ -403,7 +406,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     String uploadQuoteURL = appURL + "/" + Constants.UPLOAD_QUOTE_JSP + "?requestUuid=" + uuidStr ;
 
     emailBody.append("A request for iScan chips has been submitted from the " + 
-                      PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) +
+                      cf.getFacilityName() +
                       ".");
     emailBody.append("<br><br><table border='0' width = '600'><tr><td>Experiment:</td><td>" + requestNumber );
     emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
