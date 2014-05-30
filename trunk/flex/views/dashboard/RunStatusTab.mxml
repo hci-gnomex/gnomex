@@ -2,7 +2,7 @@
 <!-- <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" -->
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="500" height="100%" backgroundAlpha="1"
+		   width="600" height="100%" backgroundAlpha="1"
 		   cornerRadius="12" creationComplete="init()"
 		   horizontalScrollPolicy="off">   
 
@@ -41,6 +41,8 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+		import mx.controls.DateField;
+		import mx.utils.ObjectUtil;
 		
 		// Variables
 		[Bindable]
@@ -147,10 +149,16 @@
 		private function filterXLC():void {
 			MIList.filterFunction = state_filterFunc;
 			var dateSort:Sort = new Sort();
-			dateSort.fields = [new SortField('lastUpdated', true, false)];	// Set sort properties
-			dateSort.reverse();											// Reverse the sort list
-			MIList.sort = dateSort;										// Apply sort
+			dateSort.compareFunction = sortByDate;
+			MIList.sort = dateSort;
 			MIList.refresh();
+		}
+		
+		private function sortByDate(a:Object, b:Object, fields:Array = null):int{
+			var dateOne:Date = DateField.stringToDate(a.runDate, "MM/DD/YYYY");
+			var dateTwo:Date = DateField.stringToDate(b.runDate, "MM/DD/YYYY");
+			
+			return ObjectUtil.dateCompare(dateTwo, dateOne);
 		}
 		
 		// Filter to show which run states need to be shown in the control / XMLListCollection 
@@ -184,12 +192,17 @@
 		}
 		
 		private function formatDate(item:String):String {
-			var rawDate:String = item;
-			var year:String = rawDate.substr(0,2);
-			var month:String = rawDate.substr(2,2);
-			var day:String = rawDate.substr(4,2);
+//			var rawDate:String = item;
+//			var year:String = rawDate.substr(0,2);
+//			var month:String = rawDate.substr(2,2);
+//			var day:String = rawDate.substr(4,2);
+//			
+//			year = "20"+year;
 			
-			year = "20"+year;
+			var rawDate:String = item;
+			var month:String = rawDate.substr(0,2);
+			var day:String = rawDate.substr(2,2);
+			var year:String = rawDate.substr(4);
 			
 			var date:String = month+"/"+day+"/"+year;
 			
@@ -232,7 +245,7 @@
 				</mx:HBox>
 				<mx:HBox width="100%" fontSize="10"  height="16">
 					<mx:Label id="runDate" fontWeight="bold" text="Start date: " />
-					<mx:Label id="runDateVal" text="{formatDate(repStatus.currentItem.runDate)}"/> <!-- Start date of run -->
+					<mx:Label id="runDateVal" text="{repStatus.currentItem.runDate}"/> <!-- Start date of run -->
 					<mx:VRule height="6" />
 					<mx:Label id="lastUpdate" fontWeight="bold" text="Last Update: " /> 
 					<mx:Label id="lastUpdateVal" text="{repStatus.currentItem.lastUpdated}"/>   <!-- Last update of run --> 
