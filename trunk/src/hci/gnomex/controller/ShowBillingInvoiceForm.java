@@ -395,8 +395,9 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
 
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
+        cf.getFacilityName(),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
@@ -534,6 +535,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private void makeInvoiceReports(Session sess, String[] labs, String[] billingAccounts) throws Exception {
     Element root = new Element("HTML");
     Document doc = new Document(root);
+    
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
 
     Element head = new Element("HEAD");
     root.addContent(head);
@@ -572,7 +575,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
 
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
+        cf.getFacilityName(),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
