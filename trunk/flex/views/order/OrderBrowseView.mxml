@@ -700,8 +700,8 @@
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "55" />
 					
 					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="65"
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
-									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; (coreFacilityCombo.selectedItem.@value == '2'||coreFacilityCombo.selectedItem.@value == '4') )||
+									   parentApplication.isCoreFacilityIManage(2) || parentApplication.isCoreFacilityIManage(4)}"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
