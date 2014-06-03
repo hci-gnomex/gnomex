@@ -10,7 +10,6 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
@@ -19,7 +18,6 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
@@ -95,7 +93,6 @@ public class ImportExperiment {
   private HashMap<String, SampleType>     sampleTypeMap = new HashMap<String, SampleType>();
   private HashMap<String, GenomeBuild>    genomeBuildMap = new HashMap<String, GenomeBuild>();
   
-  private HashMap<Integer, Integer>       idPropertyMap = new HashMap<Integer,Integer>();
   
   public ImportExperiment(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -373,7 +370,7 @@ public class ImportExperiment {
       String sampleTypeName = sampleNode.getAttributeValue("sampleType");
       if (sampleTypeName != null && !sampleTypeName.equals("")) {
         SampleType sampleType = sampleTypeMap.get(sampleTypeName);
-        if (sampleType == null) {
+        if (sampleTypeName == null) {
           throw new Exception("Cannot find sample type " + sampleTypeName + ".");
         }
         sampleNode.setAttribute("idSampleType", sampleType.getIdSampleType().toString());
@@ -436,7 +433,7 @@ public class ImportExperiment {
     // XML for PropertyEntry.
     for (Iterator i = requestNode.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i.hasNext();) {
       Element propertyNode = (Element)i.next();
-          
+      
       // Only map the attributes that are selected. In other words, only deal with the annotations that are actually
       // present on the sample.
       if (!propertyNode.getAttributeValue("isSelected").equals("true")) {
@@ -444,56 +441,26 @@ public class ImportExperiment {
       }
       
       String propertyName  = propertyNode.getAttributeValue("name");
-      
       Integer idPropertySource    = Integer.parseInt(propertyNode.getAttributeValue("idProperty"));
       
       Property prop = targetPropertyMap.get(propertyName);
       if (prop == null) {
-    	     	  
-    	  // we don't have this annotation, make it
-    	  prop = new Property();
-    	  
-          // and copy over values from source
-    	  prop.setName(propertyName);
-    	  prop.setIsActive("Y");
-    	  prop.setIsRequired("N");
-    	  prop.setForSample("Y");
-    	  prop.setForAnalysis("N");
-    	  prop.setForDataTrack("N");
-    	  prop.setCodePropertyType("TEXT");
-
-          //save it and flush it to assign the DB id
-          sess.save(prop);
-          sess.flush();
-
-          // remember it
-          targetPropertyMap.put(prop.getName(),prop);
-          targetIdToPropertyMap.put(prop.getIdProperty(), prop);
-                    
+        throw new Exception("Sample annotation " + propertyName + " needs to be added to GNomEx before this experiment can be imported.");
       }
-      
-      // keep track of incoming / current idProperty's
-      idPropertyMap.put(idPropertySource, prop.getIdProperty());
-
       propertyNode.setAttribute("idProperty", prop.getIdProperty().toString());
       
       // Map to source idProperty to the target property so that we can change the 'ANNOT' attributes
       // according to the ids in the target gnomex db.
-      sourceToTargetPropertyMap.put(prop.getIdProperty(), prop);      
+      sourceToTargetPropertyMap.put(idPropertySource, prop);      
     }
     
     // For each sample, change the ANNOT### attributes to use the target db's idProperty.  Also, for
     // single and multi-option annotations, use the target db's idPropertyOption as the value.
     for (Iterator i1 = requestNode.getChild("samples").getChildren("Sample").iterator(); i1.hasNext();) {
       Element sampleNode = (Element)i1.next();
-      
-      Element mysampleNode = (Element)sampleNode.clone();
-      
-      List<Attribute> theattributes = mysampleNode.getAttributes();
-      for (Iterator<Attribute> i2 = theattributes.iterator(); i2.hasNext();) {
+      for (Iterator i2 = sampleNode.getAttributes().iterator(); i2.hasNext();) {
         Attribute a = (Attribute)i2.next();
         String attributeName = a.getName();
-        
         String value = a.getValue();
         
         //Strip off "ANNOT" from attribute name
@@ -504,10 +471,7 @@ public class ImportExperiment {
           continue;
         }
         
-        
-        Integer mappedIdProperty = idPropertyMap.get(idPropertySource);
-        
-        Property prop = sourceToTargetPropertyMap.get(mappedIdProperty);
+        Property prop = sourceToTargetPropertyMap.get(idPropertySource);
         if (prop == null) {
           throw new Exception("Cannot find target db property for " + attributeName);
         }
@@ -726,9 +690,8 @@ public class ImportExperiment {
     
     System.err.println(errorMessageString);
     
-    if (tx != null) {
     tx.rollback();    
-    }
+    
 
   }
 

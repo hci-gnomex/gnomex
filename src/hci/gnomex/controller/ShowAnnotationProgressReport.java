@@ -85,7 +85,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   private TreeMap<Integer, ExperimentInfo>  incompleteExperimentMapForLab = new TreeMap<Integer, ExperimentInfo>();
   
   // The final hash that we will use to generate the report.  Hash of each lab
-  // with its AnnotInfo, which contains the completeExperimentMap and incompleteExperimentMap
+  // with its LabInfo, which contains the completeExperimentMap and incompleteExperimentMap
   private TreeMap<String, LabInfo>          labInfoMap = new TreeMap<String, LabInfo>();  
   
   

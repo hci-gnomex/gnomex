@@ -20,6 +20,7 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
+				xmlns:reporting="views.reporting.*"
 				xmlns:dashboard="views.dashboard.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
 				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" >
@@ -4189,11 +4190,11 @@
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>
 					
-					<dashboard:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
+					<reporting:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
 					
-					<dashboard:ExpOverview id="expOverview" label="Overview" />
+					<reporting:ExpOverview id="expOverview" label="Overview" />
 					
-					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
+					<reporting:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
 
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 

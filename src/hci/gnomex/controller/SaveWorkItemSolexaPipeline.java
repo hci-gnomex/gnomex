@@ -333,7 +333,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
 
     String analysisInstruction = null;
     String genomeAlignTo = null;
@@ -371,7 +370,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     StringBuffer introNote = new StringBuffer();
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + cf.getFacilityName() + ".");
+    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     if(request.getIsExternal().equals("N") && request.getIdCoreFacility().equals(CoreFacility.CORE_FACILITY_GENOMICS_ID)){
       introNote.append("<br><br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(CoreFacility.CORE_FACILITY_GENOMICS_ID, PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
