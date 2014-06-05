@@ -12,16 +12,8 @@
 		   cornerRadius="10" >
 	<mx:states>
 		<mx:State name="AdminState">
-			<mx:SetProperty target="{vbox3}" name="styleName"/>
-			<mx:SetProperty target="{vbox2}" name="styleName"/>
 		</mx:State>
 		<mx:State name="UserState">			
-			
-			<mx:AddChild relativeTo="{label1}" position="before" target="{image1}"/>
-			<mx:SetStyle target="{label1}" name="fontWeight" value="normal"/>
-			<mx:SetStyle target="{label1}" name="fontStyle" value="italic"/>
-			<mx:SetStyle target="{label1}" name="color" value="#12740E"/>
-			<mx:SetProperty name="styleName" value="panelBox"/>
 		</mx:State>
 		<mx:State name="GuestState"/>
 	</mx:states>
@@ -55,6 +47,8 @@
 			callLater(showAnnotationReport);
 		} else if (reportName == "Project/Experiment Report") {
 			callLater(showProjectExperimentReport);
+		} else if (reportName == "Annotation Progress Report") {
+			callLater(showAnnotProgressReport);
 		}
 		
 		isInitialized = true;
@@ -66,6 +60,10 @@
 	
 	public function showProjectExperimentReport():void {
 		theViews.selectedChild = projectExperimentReportView;		
+	}
+	
+	public function showAnnotProgressReport():void {
+		theViews.selectedChild = this.annotProgressReportView;		
 	}
 	
 	private function initData():void {
@@ -227,6 +225,35 @@
 		navigateToURL(showUrl, '_blank');
 		
 	}
+	
+	
+
+	private function runAnnotProgressReport():void {
+		if (annotProgressLabCombo.selectedItem == null || annotProgressLabCombo.selectedItem.@idLab == '' ) {
+			Alert.show( "Run annotation progress report for all lab groups?",
+				"Warning",
+				(Alert.YES | Alert.NO), this, 
+				onAnnotProgressPromptToContinue,						
+				parentApplication.iconWarning);	
+		} else {
+			runAnnotProgressReportImpl();
+		}
+	}
+	private function onAnnotProgressPromptToContinue(event:CloseEvent):void {
+		if (event.detail==Alert.YES) {
+			runAnnotProgressReportImpl();
+		}
+	}	
+	
+	private function runAnnotProgressReportImpl():void {
+		
+		
+		// Call the backend servlet that generates the excel spreadsheet
+		var showUrl:URLRequest = new URLRequest('ShowAnnotationProgressReport.gx' +			
+			'?idLab=' +  (this.annotProgressLabCombo.selectedItem != null ? this.annotProgressLabCombo.selectedItem.@idLab : ""));
+		navigateToURL(showUrl, '_blank');
+		
+	}
 
 ]]>
 </mx:Script>
@@ -257,7 +284,7 @@
 				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox3">
 					<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 						<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" styleName="formLabel" paddingLeft="2" width="100"/>
-						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 												  labelField="@name" 
 												  prompt="Select a lab..."
 												  width="200" 
@@ -344,7 +371,7 @@
 				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox2">
 					<mx:HBox width="100%">
 						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel"/>
-						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 												  labelField="@name" 
 												  prompt="All Labs..."
 												  width="200" 
@@ -355,6 +382,30 @@
 					<mx:HBox>
 							<mx:Image source="assets/excel_wrap_text.png" id="image1"/>
 							<mx:Label text="In Excel, Select the Description column and then click on the 'Wrap Text' so that line breaks are shown." id="label1" fontStyle="italic" color="#167A1B"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+			
+			<mx:VBox styleName="panelBox"  id="annotProgressReportView" width="100%" height="100%"   paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2">
+				<mx:HBox width="400">
+					<mx:Text styleName="titleLabel" text="Annotation Progress Report"/>
+					<mx:Spacer width="100%"/>
+					<mx:Button label="Run" 
+							   click="{runAnnotProgressReport()}"
+							   enabled="true" 
+							   icon="@Embed(source='../../assets/accept.png')" 
+							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
+				</mx:HBox>
+				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox4">
+					<mx:HBox width="100%">
+						<mx:Label  visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel"/>
+						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+												  labelField="@name" 
+												  prompt="All Labs..."
+												  width="200" 
+												  id="annotProgressLabCombo">
+						</renderers:FilterComboBox>
+						
 					</mx:HBox>
 				</mx:VBox>
 			</mx:VBox>
