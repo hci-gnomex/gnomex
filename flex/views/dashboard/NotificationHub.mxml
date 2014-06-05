@@ -50,26 +50,10 @@
 			
 			private function init():void{
 				coreFacilities = new XMLListCollection(new XMLList(parentApplication.coreFacilitiesICanManage));
-				
-				if(coreFacilities.length == 1){
-					this.coreFacilityBox.visible = false;
-					this.coreFacilityBox.includeInLayout = false;
-				} else{
-					var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
-					coreFacilities.addItemAt(allFacilities, 0);
-					coreFacilities.refresh();
-					coreFacilityCombo.selectedIndex = 0;
-				}
-				
-				if(parentApplication.getProperty(parentApplication.PROPERTY_EXTERNAL_DATA_SHARING_SITE) == 'Y'){
-					for(var i:int = 0; i < comboLabels.length; i++){
-						var label:Object = comboLabels.getItemAt(i);
-						if(label.label == "Workflow" || label.label == "Billing"){
-							comboLabels.removeItemAt(comboLabels.getItemIndex(label));
-							i--;
-						}
-					}
-				}
+				var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
+				coreFacilities.addItemAt(allFacilities, 0);
+				coreFacilities.refresh();
+				coreFacilityCombo.selectedIndex = 0;
 			}
 			
 			public function setStartView():void{
@@ -186,7 +170,7 @@
 					<mx:ComboBox id="stateCombo" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{comboLabels}" selectedIndex="{parentApplication.isAdminState ? 1 : 0}" change="selectState()"/>
 				</mx:HBox>
 				<mx:Spacer width="100%"/>
-				<mx:HBox horizontalAlign="left" id="coreFacilityBox" visible="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}" includeInLayout="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}">
+				<mx:HBox horizontalAlign="left" visible="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}" includeInLayout="{currentState != 'UserState' &amp;&amp; (adminBox.visible || billingBox.visible) &amp;&amp; parentApplication.isSuperAdmin}">
 					<mx:ComboBox id="coreFacilityCombo" selectedIndex="0" toolTip="Filter by Core Facility" textAlign="left" fillColors="[#FFFFFF, #FFFFFF]" dataProvider="{coreFacilities}" labelField="@display" change="selectCoreFacility()"/>
 				</mx:HBox>
 			</mx:HBox>

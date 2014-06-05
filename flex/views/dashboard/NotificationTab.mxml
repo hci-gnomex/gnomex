@@ -323,11 +323,11 @@
 		<mx:VBox includeInLayout="{notificationState != 2 ? true : false}">
 			<mx:Repeater id="repStatus" dataProvider="{noteData}" count="8" startingIndex="0" >
 				<mx:VBox  cornerRadius="7"  paddingBottom="4" paddingLeft="2" borderStyle="solid" borderThickness="1" paddingRight="2" paddingTop="4" backgroundColor="#FFFFFF">
-					<mx:HBox id="notificationItem" width="620" verticalAlign="middle" paddingLeft="5" horizontalAlign="left" horizontalScrollPolicy="off">
+					<mx:HBox id="notificationItem" width="620" verticalAlign="middle" paddingLeft="5" horizontalScrollPolicy="off">
 						<mx:Image id="itemImage"  source="{getImageSource(repStatus.currentItem)}" />
 						<mx:Label id="noteDate" text="{repStatus.currentItem.@date}" />
 						<mx:Label id="noteTime" text="{repStatus.currentItem.@time}" />
-						<mx:LinkButton id="noteButton" textAlign="left" label="{repeatHandler(repStatus)}" textDecoration="underline" fontWeight="bold" click="showItem(event.currentTarget.getRepeaterItem().@expId);" />
+						<mx:LinkButton id="noteButton" label="{repeatHandler(repStatus)}" textDecoration="underline" fontWeight="bold" click="showItem(event.currentTarget.getRepeaterItem().@expId);" />
 					</mx:HBox>
 				</mx:VBox>
 			</mx:Repeater>

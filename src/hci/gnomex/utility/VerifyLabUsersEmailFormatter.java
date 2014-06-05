@@ -142,7 +142,7 @@ public class VerifyLabUsersEmailFormatter extends DetailObject{
         if (!coreNames.equals("")) {
           coreNames += ", ";
         }
-        coreNames += facility.getFacilityName();
+        coreNames += dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
       }
       emailFooter.append("<br>");
       emailFooter.append(coreNames);

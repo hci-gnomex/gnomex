@@ -8,8 +8,8 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.RequestSampleFilter;
 import hci.gnomex.model.ReportTrayList;
+import hci.gnomex.model.RequestSampleFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.report.constants.ReportFormats;
@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +33,6 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-
-
 
 import org.hibernate.Session;
 
@@ -62,10 +60,17 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   private static String                     REPORT_DETAIL_INCOMPLETE  = "incomplete";
   private static String                     REPORT_DETAIL_COMPLETE    = "complete";
   
+  private static String                     SAMPLE_FILE_LINK = "Link Samples to Files";
+      
+
+  
   
   // Hash of each sample and its annotation values (map). Contains all sample annotations 
   // for entire result set.
   private TreeMap<Integer, Map>             propertyEntryAnnotationMap = new TreeMap<Integer, Map>();
+  
+  // Hash of each sample that is linked to at least one SampleExperimentFile (read1 or read2)
+  private HashMap<Integer, Object>          sampleLinkedToFileMap = new HashMap<Integer, Object>();
 
   // List of required properties
   private ArrayList<Property>               requiredProperties = new ArrayList<Property>();
@@ -74,7 +79,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   private ArrayList<Property>               requiredPropertiesForExperiment = new ArrayList<Property>();
   
   // Hash of each property name (annotation) missing for a given experiment
-  private TreeMap<String, String>           missingAnnotationMapForExperiment = new TreeMap<String, String>();
+  private TreeMap<String, List<String>>     missingAnnotationMapForExperiment = new TreeMap<String, List<String>>();
 
   // Hash of each complete (fully annotated) experiment.  
   // Contains experiments for a given lab.
@@ -85,7 +90,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   private TreeMap<Integer, ExperimentInfo>  incompleteExperimentMapForLab = new TreeMap<Integer, ExperimentInfo>();
   
   // The final hash that we will use to generate the report.  Hash of each lab
-  // with its AnnotInfo, which contains the completeExperimentMap and incompleteExperimentMap
+  // with its LabInfo, which contains the completeExperimentMap and incompleteExperimentMap
   private TreeMap<String, LabInfo>          labInfoMap = new TreeMap<String, LabInfo>();  
   
   
@@ -168,6 +173,13 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
           ShowAnnotationReport.TARGET_SAMPLE, 
           propertyEntryAnnotationMap);
       
+      // Run a query to get all samples that are linked to ExperimentSampleFiles
+      queryBuf = sampleFilter.getSampleFileLinkQuery(secAdvisor, IS_CREATE_REPORT);
+      List<Object[]> sampleFileRows = (List<Object[]>)sess.createQuery(queryBuf.toString()).list();
+      for (Object[] sampleFileRow : sampleFileRows) {
+        this.sampleLinkedToFileMap.put((Integer)sampleFileRow[RequestSampleFilter.COL_ID_SAMPLE], null);
+      }
+      
       
       // For every sample row
       Integer prevIdRequest = new Integer(-1);
@@ -189,6 +201,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         String codeRequestCategory = (String)row[RequestSampleFilter.COL_CODE_REQUEST_CATEGORY];
         String codeApplication = (String)row[RequestSampleFilter.COL_CODE_APPLICATION];
         String labName = Lab.formatLabName(labLastName, labFirstName);
+        String sampleNumber = (String)row[RequestSampleFilter.COL_SAMPLE_NUMBER];
         
         
         // Get sample source
@@ -254,13 +267,13 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
           }
           
           // Get the required set of annotations for this experiment
-          missingAnnotationMapForExperiment = new TreeMap<String, String>(); 
+          missingAnnotationMapForExperiment = new TreeMap<String, List<String>>(); 
           requiredPropertiesForExperiment = new ArrayList<Property>();
           this.getRequiredProperties(dh, experimentInfo, requiredPropertiesForExperiment);
         }
         
         // Hash missing annotations for sample
-        hashMissingAnnotations(idSample, experimentInfo);
+        hashMissingAnnotations(idSample, sampleNumber, experimentInfo);
         
 
         prevIdRequest = idRequest;
@@ -400,7 +413,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   }
   
   @SuppressWarnings("unchecked")
-  private void hashMissingAnnotations(Integer idSample, ExperimentInfo experimentInfo) {
+  private void hashMissingAnnotations(Integer idSample, String sampleNumber, ExperimentInfo experimentInfo) {
     Map<String, String>annotationMap = this.propertyEntryAnnotationMap.get(idSample);
     String sampleSource = annotationMap != null ? annotationMap.get("SAMPLE SOURCE") : "";
     
@@ -445,17 +458,33 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         if (prop.getName().startsWith("Stage")) {
           
         } else {
-          // Annotation is missing or blank
-          this.missingAnnotationMapForExperiment.put(prop.getName(), null);
+          addMissingAnnotation(prop.getName(), sampleNumber);
         }
       }
     }
     
     if (!stageAnnotationFound) {
-      missingAnnotationMapForExperiment.put("Stage", null);
+      addMissingAnnotation("Stage", sampleNumber);
+    }
+    
+    // Find out if files are linked to this sample.  If not, we treat this as a missing annotation
+    if (!this.sampleLinkedToFileMap.containsKey(idSample)) {
+      addMissingAnnotation(this.SAMPLE_FILE_LINK, sampleNumber);
     }
     
    
+  }
+  
+  private void addMissingAnnotation(String propertyName, String sampleNumber) {
+    List<String> sampleNumbers = missingAnnotationMapForExperiment.get(propertyName);
+    if (sampleNumbers == null) {
+      sampleNumbers = new ArrayList<String>();
+    }
+    sampleNumbers.add(sampleNumber);
+    
+    missingAnnotationMapForExperiment.put(propertyName, sampleNumbers);
+
+    
   }
   
   private void createReportTray(Session sess, DictionaryHelper dh, String reportType, String title, List<Property> requiredProperties) {
@@ -495,6 +524,9 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         for (Property prop: requiredProperties) {
           columns.add(makeReportColumn(prop.getName(), colNbr++));
         }
+        
+        // Last column will indicate if any samples are not linked to file(s)
+        columns.add(makeReportColumn(SAMPLE_FILE_LINK, colNbr++));
         
       }
       
@@ -546,17 +578,38 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       ExperimentInfo expInfo = labInfo.incompleteExperimentMap.get(theIdRequest);
       values.add(expInfo.requestNumber);
       values.add(Integer.valueOf(expInfo.sampleCount).toString());
-      values.add(expInfo.sampleSource);
       values.add(dh.getApplication(expInfo.codeApplication));
       values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+      values.add(expInfo.sampleSource);
      
-      // Show either "X" (for missing) or "" for each required property
+      // Show either a sample count (for those missing annotation) or "" for each required property
       for (Property prop : requiredProperties) {
         if (expInfo.missingAnnotationMapForExperiment.containsKey(prop.getName())) {
-          values.add("X");
+          List<String> sampleNumbers = expInfo.missingAnnotationMapForExperiment.get(prop.getName());
+          // If only some of the samples are missing the annotation, show the count of the samples missing annot;
+          // otherwise, show an "X";
+          if (sampleNumbers.size() < expInfo.sampleCount) {
+            values.add(Integer.valueOf(sampleNumbers.size()).toString());            
+          } else {
+            values.add("X");
+          }
         } else {
           values.add(" ");
         }
+      }
+      
+      // Last annotation column will indicate if any sample is missing link to files
+      if (expInfo.missingAnnotationMapForExperiment.containsKey(SAMPLE_FILE_LINK)) {
+        List<String> sampleNumbers = expInfo.missingAnnotationMapForExperiment.get(SAMPLE_FILE_LINK);
+        // If only some of the samples are missing the annotation, show the count of the samples missing annot;
+        // otherwise, show an "X";
+        if (sampleNumbers.size() < expInfo.sampleCount) {
+          values.add(Integer.valueOf(sampleNumbers.size()).toString());            
+        } else {
+          values.add("X");
+        }
+      } else {
+        values.add(" ");
       }
       
       reportRow.setValues(values);
@@ -654,7 +707,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     public String      codeApplication;
     public String      sampleSource;
     public int         sampleCount;
-    public Map<String, String> missingAnnotationMapForExperiment;
+    public Map<String, List<String>> missingAnnotationMapForExperiment;
     
   }
   

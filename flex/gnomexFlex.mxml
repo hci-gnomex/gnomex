@@ -20,6 +20,7 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
+				xmlns:reporting="views.reporting.*"
 				xmlns:dashboard="views.dashboard.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
 				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" >
@@ -3467,6 +3468,12 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
+				} else if (label == "Annotation Progress Report") {
+					navReportView.reportName = "Annotation Progress Report";
+					theViews.selectedChild = navReportView;
+					if (navReportView.isInitialized) {
+						navReportView.init();
+					}
 				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
@@ -3808,6 +3815,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
@@ -3828,6 +3836,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3862,6 +3871,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 		</menuitem>
@@ -3894,6 +3904,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3921,6 +3932,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3991,6 +4003,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4025,6 +4038,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
 
@@ -4059,6 +4073,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4189,11 +4204,11 @@
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>
 					
-					<dashboard:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
+					<reporting:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
 					
-					<dashboard:ExpOverview id="expOverview" label="Overview" />
+					<reporting:ExpOverview id="expOverview" label="Overview" />
 					
-					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
+					<reporting:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
 
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 

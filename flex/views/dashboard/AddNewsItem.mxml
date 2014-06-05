@@ -57,25 +57,20 @@
 			
 			public function init():void {
 				coreFacilities = new XMLListCollection(new XMLList(parentApplication.coreFacilitiesICanManage));
-				if(coreFacilities.length == 1){
-					coreFacilityBox.visible = false;
-					coreFacilityBox.includeInLayout = false;
-				} else{
-					if(parentApplication.isSuperAdmin){
-						var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
-						coreFacilities.addItemAt(allFacilities, 0);
-						coreFacilities.refresh();
-					}
-					
-					if(newsItemCoreFacilityId != null && newsItemCoreFacilityId != ''){
-						for each(var cf:XML in coreFacilities){
-							if(cf.@idCoreFacility == newsItemCoreFacilityId){
-								cfSelector.selectedItem = cf;
-							}
+				if(parentApplication.isSuperAdmin){
+					var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
+					coreFacilities.addItemAt(allFacilities, 0);
+					coreFacilities.refresh();
+				}
+				
+				if(newsItemCoreFacilityId != null && newsItemCoreFacilityId != ''){
+					for each(var cf:XML in coreFacilities){
+						if(cf.@idCoreFacility == newsItemCoreFacilityId){
+							cfSelector.selectedItem = cf;
 						}
-					} else{
-						cfSelector.selectedIndex = 0;
 					}
+				} else{
+					cfSelector.selectedIndex = 0;
 				}
 				
 			}
@@ -115,7 +110,7 @@
 			<mx:Label fontWeight="bold" text="Title: " paddingRight="45"/>
 			<mx:TextInput id="titleInput" text="{itemTitle}" width="{cfSelector.width}"/>
 		</mx:HBox>
-		<mx:HBox includeInLayout="true" id="coreFacilityBox" visible="true">
+		<mx:HBox includeInLayout="true" visible="true">
 			<mx:Label fontWeight="bold" text="Intended For: "/>
 			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" /> 
 		</mx:HBox>
