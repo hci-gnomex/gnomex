@@ -82,7 +82,7 @@ public class BillingItemFilter extends DetailObject {
     
     addRequestCriteria();
    
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("req");
 
     return queryBuf;
     
@@ -121,7 +121,7 @@ public class BillingItemFilter extends DetailObject {
     addRequestCriteria();
     addBillingItemCriteria();
     
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("req");
     
     queryBuf.append(" order by bi.codeBillingStatus, req.number, lab.lastName, lab.firstName, ba.accountName ");
     
@@ -156,7 +156,7 @@ public class BillingItemFilter extends DetailObject {
     addDiskUsageCriteria();
     addBillingItemCriteria();
     
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("dsk");
     
     queryBuf.append(" order by bi.codeBillingStatus, dsk.idDiskUsageByMonth, lab.lastName, lab.firstName, ba.accountName ");
     
@@ -250,7 +250,7 @@ public class BillingItemFilter extends DetailObject {
     addRequestCriteria();
     addBillingItemCriteria();
     
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("req");
     
     queryBuf.append(" order by inv.idInvoice ");
     
@@ -273,7 +273,7 @@ public class BillingItemFilter extends DetailObject {
     addDiskUsageCriteria();
     addBillingItemCriteria();
     
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("dsk");
     
     queryBuf.append(" order by inv.idInvoice ");
     
@@ -329,7 +329,7 @@ public class BillingItemFilter extends DetailObject {
     addBillingItemCriteria();
     addCommentsCriteria();
     
-    this.addSecurityCriteria();
+    this.addSecurityCriteria("req");
     
     queryBuf.append(" order by bi.codeBillingStatus, req.number ");
     
@@ -337,12 +337,12 @@ public class BillingItemFilter extends DetailObject {
     
   }
   
-  private void addSecurityCriteria() {
+  private void addSecurityCriteria(String classShortName) {
     if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       return;
     } else if(idCoreFacility == null) {
       this.addWhereOrAnd();
-      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, "req");
+      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, classShortName);
     }
     return;
   
