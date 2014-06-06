@@ -123,12 +123,11 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
-        if (view.equals("Y")) {
-          String mimeType = req.getSession().getServletContext().getMimeType(fileName);
-          if (mimeType == null && fileName.toLowerCase().endsWith("png")) {
-            mimeType = "image/png";
-          }
+    	  String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+        if (view.equals("Y") && mimeType != null) {          
           response.setContentType(mimeType);
+          response.setHeader("Content-Disposition", "filename=" + "\"" + fileName + "\"");          
+          response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         } else {
           response.setContentType("application/x-download");
           response.setHeader("Content-Disposition", "attachment;filename=" + "\"" + fileName + "\"");          
