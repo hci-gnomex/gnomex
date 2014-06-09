@@ -2914,9 +2914,9 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
-				das2OrganismList.addItem(emptyNode);
-				activeOrganismList.addItem(emptyNode.copy());
+//				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
+//				das2OrganismList.addItem(emptyNode);
+//				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());

@@ -14,7 +14,7 @@
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
 		import views.util.OrganismAddEvent;
-		import views.util.OrganismEvent; 
+		import views.util.OrganismEvent;
 
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
@@ -46,6 +46,20 @@
 			}
 			
 			this.pickSequenomType();
+			
+			parentApplication.activeOrganismList.sort = new Sort();
+			parentApplication.activeOrganismList.sort.compareFunction = sortActiveOrganismList;
+			parentApplication.activeOrganismList.refresh();
+		}
+		
+		public function sortActiveOrganismList(a:Object, b:Object, fields:Array = null ):int {
+			if(a.@idOrganism == parentDocument.getRequestCategory().@idOrganism) return -1;
+			if(b.@idOrganism == parentDocument.getRequestCategory().@idOrganism) return 1;
+			if(a.@combinedName == "Other") return -1;
+			if(b.@combinedName == "Other") return 1;
+			if(a.@combinedName < b.@combinedName) return -1;
+			if(a.@combinedName > b.@combinedName) return 1;
+			return 0;
 		}
 		
 		private function initIllumina():void {
@@ -1191,7 +1205,7 @@
 		}
 		
 		private function onOrganismRefreshed(event:OrganismAddEvent):void {
-			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
+			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList;
 			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
 			
 			for each (var o:Object in sampleOrganismCombo.dataProvider) {
@@ -1308,7 +1322,7 @@
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
-										  dataProvider="{parentApplication.activeOrganismList.source}"
+										  dataProvider="{parentApplication.activeOrganismList}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
 				<mx:Label text="Please specify" paddingLeft="6">
