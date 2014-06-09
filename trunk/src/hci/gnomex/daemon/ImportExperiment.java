@@ -217,6 +217,7 @@ public class ImportExperiment {
         Element optionNode = (Element)i1.next();
         String key = propertyNode.getAttributeValue("idProperty") + "-" + optionNode.getAttributeValue("idPropertyOption");
         sourcePropertyOptionMap.put(key, optionNode.getAttributeValue("option"));
+                
       }
     }
     
@@ -282,7 +283,9 @@ public class ImportExperiment {
     requestNode.setAttribute("idRequest", "0");
     requestNode.setAttribute("isExternal", isExternal);
     
-    requestNode.setAttribute("name", requestNode.getAttributeValue("name") + " (" + requestNode.getAttributeValue("number") + ")");
+//    requestNode.setAttribute("name", requestNode.getAttributeValue("name") + " (" + requestNode.getAttributeValue("number") + ")");
+    //  remove the code that is appending the source experiment ID (request number) to the experiment name
+    requestNode.setAttribute("name", requestNode.getAttributeValue("name"));
     
     // We only handle Illumina request types for importing at this time
     String codeRequestCategory = requestNode.getAttributeValue("codeRequestCategory");
@@ -525,7 +528,10 @@ public class ImportExperiment {
             
             String sourceOptionName = sourcePropertyOptionMap.get(idPropertySource + "-" + valueToken);
             if (sourceOptionName == null) {
-              throw new Exception("Cannot find source option with the idPropertyOption = " + valueToken + " for property " + attributeName);
+            	sourceOptionName = sourcePropertyOptionMap.get(mappedIdProperty + "-" + valueToken);
+            	if (sourceOptionName == null) {
+            		throw new Exception("Cannot find source option with the idPropertyOption = " + valueToken + " for property " + attributeName);
+            	}
             }
             Integer targetIdPropertyOption = null;
             for (PropertyOption option : (Set<PropertyOption>)prop.getOptions()) {
