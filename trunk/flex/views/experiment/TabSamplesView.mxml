@@ -493,14 +493,19 @@
 			}
 					
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				var ind:int = parentDocument.samples.getItemIndex(sample);
-				if ( parentDocument.isIScanState() ){
-					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
-				} else if ( parentDocument.isCapSeqState() && this.hasPlates() ){
-					parentDocument.samples.setItemAt(getEmptyCapSeqNode(ind),ind);
-				} else {
-					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-				}
+				
+				 parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+						
+				 if ( this.hasPlates() ){
+					 
+					 if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
+						 
+						 parentDocument.samples.addItem(getEmptyCapSeqNode(95));
+					 }
+					 
+					 samplesGrid.updateWellNames();
+					 
+				 }
 				return true;
 			}
 			

@@ -161,11 +161,17 @@
 			
 			
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				var ind:int = parentDocument.samples.getItemIndex(sample);
-				if ( this.hasPlates() && ind >= 0) {
-					parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
-				} else {
-					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+				parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+				
+				if ( this.hasPlates() ){
+					
+					if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
+						
+						parentDocument.samples.addItem(getEmptyCapSeqNode(95));
+					}
+					
+					samplesGrid.updateWellNames();
+					
 				}
 				return true;
 			}
