@@ -1,5 +1,4 @@
 package hci.gnomex.security.tomcat;
-import hci.gnomex.controller.CheckDataTrackPermission;
 import hci.gnomex.utility.TomcatCatalinaProperties;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.XADataSource;
 
 public class EncryptedDataSourceFactory extends DataSourceFactory {       
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CheckDataTrackPermission.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EncryptedDataSourceFactory.class);
   
   private static TomcatCatalinaProperties catalinaProperties = null;
   
