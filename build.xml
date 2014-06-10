@@ -607,6 +607,7 @@
 			 <lib dir="${lib.env.dir}">
 			   <include name="*.jar"/>
 			   <exclude name="mail.jar"/>
+			   <exclude name="log4j-1.2.11.jar"/>
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
        <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
