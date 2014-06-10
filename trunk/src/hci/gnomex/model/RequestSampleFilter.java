@@ -138,6 +138,29 @@ public class RequestSampleFilter extends DetailObject {
     return queryBuf;
     
   }
+  
+  public StringBuffer getExperimentFileQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
+    addWhere = true;
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+    
+    queryBuf.append(" SELECT DISTINCT ");
+    queryBuf.append(" lab.lastName, ");
+    queryBuf.append(" lab.firstName, ");
+    queryBuf.append(" submitter.lastName, ");
+    queryBuf.append(" submitter.firstName, ");
+    queryBuf.append(" req.idRequest, ");
+    queryBuf.append(" req.number ");
+
+    
+    if(isCreateReport){
+      this.isCreateReport = true;
+    }
+    getExperimentFileQueryBody(queryBuf);
+    
+    return queryBuf;
+    
+  }
 
   
   public void getQueryBody(StringBuffer queryBuf) {
@@ -154,6 +177,23 @@ public class RequestSampleFilter extends DetailObject {
     }
     addSecurityCriteria();
     
+  }
+  
+  public void getExperimentFileQueryBody(StringBuffer queryBuf) {
+    
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.samples as sample ");
+    queryBuf.append(" JOIN        req.submitter as submitter ");
+    queryBuf.append(" JOIN        req.lab as lab ");
+    queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
+    queryBuf.append(" JOIN        req.files as f ");
+    
+    addRequestCriteria();
+    if(isCreateReport){
+      filterByExcludeUsage();
+    }
+    addExperimentFileCriteria();
+    addSecurityCriteria();
   }
   
 
@@ -292,6 +332,10 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append("  (sf.idExpFileRead1 != NULL or sf.idExpFileRead2 != NULL)");
   }
   
+  private void addExperimentFileCriteria() {
+    this.addWhereOrAnd();
+    queryBuf.append("  (f.fileName != NULL and f.fileSize > 0)");
+  }
   
   private void addSecurityCriteria() {
     this.addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
