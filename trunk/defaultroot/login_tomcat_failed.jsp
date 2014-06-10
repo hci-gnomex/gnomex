@@ -20,8 +20,7 @@
 <div id="content" align="center" bgcolor="white">
 
 <div class="header-bar" >
-    <div class="rightMenu" >
-      <a href="change_password.jsp">Change password</a> |    
+    <div class="rightMenu" >    
       <a href="reset_password.jsp">Reset password</a>  |    
       <a href="select_core.jsp">Sign up for an account</a> 
   </div>
