@@ -167,7 +167,7 @@
 					
 					if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
 						
-						parentDocument.samples.addItem(getSequenomPlateName(95));
+						parentDocument.samples.addItem(parentDocument.sampleSetupView.getSequenomPlateName(95));
 					}
 					
 					samplesGrid.updateWellNames();
