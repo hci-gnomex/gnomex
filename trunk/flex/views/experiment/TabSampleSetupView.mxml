@@ -46,20 +46,6 @@
 			}
 			
 			this.pickSequenomType();
-			
-			parentApplication.activeOrganismList.sort = new Sort();
-			parentApplication.activeOrganismList.sort.compareFunction = sortActiveOrganismList;
-			parentApplication.activeOrganismList.refresh();
-		}
-		
-		public function sortActiveOrganismList(a:Object, b:Object, fields:Array = null ):int {
-			if(a.@idOrganism == parentDocument.getRequestCategory().@idOrganism) return -1;
-			if(b.@idOrganism == parentDocument.getRequestCategory().@idOrganism) return 1;
-			if(a.@combinedName == "Other") return -1;
-			if(b.@combinedName == "Other") return 1;
-			if(a.@combinedName < b.@combinedName) return -1;
-			if(a.@combinedName > b.@combinedName) return 1;
-			return 0;
 		}
 		
 		private function initIllumina():void {
