@@ -389,7 +389,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());
