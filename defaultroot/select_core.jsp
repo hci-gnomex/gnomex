@@ -85,8 +85,7 @@ try {
         <img src="<%=siteLogo%>"/>
     </div>
     <div class="rightMenu" >
-        <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |    
-        <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |       
+        <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |         
         <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
     </div>
   </div>
