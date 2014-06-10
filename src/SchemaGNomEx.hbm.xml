@@ -140,6 +140,9 @@
 		<property name="userNameExternal" column="userNameExternal" type="string"/>
 		<property name="passwordExternal" column="passwordExternal" type="string"/>
 		<property name="ucscUrl" column="ucscUrl" type="string"/>
+		<property name="salt" column="salt" type="string"/>
+		<property name="guid" column="guid" type="string"/>
+		<property name="guidExpiration" column="guidExpiration" type="timestamp"/>
 		<set name="labs" table="LabUser" lazy="true" cascade="none">
 			<key column="idAppUser"/>
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
@@ -153,6 +156,10 @@
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
 		</set>
     <set name="managingCoreFacilities" table="CoreFacilityManager" lazy="true">
+      <key column="idAppUser"/>
+      <many-to-many column="idCoreFacility" class="hci.gnomex.model.CoreFacility"/>
+    </set>
+    <set name="coreFacilitiesICanSubmitTo" table="CoreFacilitySubmitter" lazy="true">
       <key column="idAppUser"/>
       <many-to-many column="idCoreFacility" class="hci.gnomex.model.CoreFacility"/>
     </set>
