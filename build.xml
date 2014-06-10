@@ -384,6 +384,7 @@
             	<include name="hci/gnomex/utility/TomcatCatalinaProperties.class" />
             	<include name="hci/gnomex/security/ActiveDirectory.class" />
             	<include name="hci/gnomex/security/EncrypterService.class" />
+            	<include name="hci/gnomex/security/EncryptionUtility.class" />
             	<include name="hci/gnomex/security/tomcat/*.class" />
             </fileset>
 
