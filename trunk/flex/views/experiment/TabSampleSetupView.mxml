@@ -680,7 +680,8 @@
 			if (this.currentState == 'SolexaSetupState' ||
 			    this.currentState == 'SolexaSetupPreppedState' ||
 			    this.currentState == 'SolexaAmendState' ||
-			    this.currentState == 'SolexaAmendPreppedState') { 
+			    this.currentState == 'SolexaAmendPreppedState' ||
+				this.currentState == 'MDMiSeqState') { 
 				parentDocument.filteredGenomeBuildList.refresh();
 				selectDefaultGenomeBuild();			
 			}
