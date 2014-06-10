@@ -147,6 +147,9 @@
 	
 	private function runAnnotationReport():void {
 		if (browseLabCombo.selectedItem == null || browseLabCombo.selectedItem.@idLab == '' ) {
+			if (currentState != 'AdminState') {
+				Alert.show("Please select a lab group");
+			}
 			Alert.show( "Run annotation report for all lab groups?",
 				"Warning",
 				(Alert.YES | Alert.NO), this, 
@@ -192,6 +195,10 @@
 	
 	private function runProjectExperimentReport():void {
 		if (browseProjectExperimentLabCombo.selectedItem == null || browseProjectExperimentLabCombo.selectedItem.@idLab == '' ) {
+			if (currentState != 'AdminState') {
+				Alert.show("Please select a lab group");
+			}
+		
 			Alert.show( "Run project/experiment report for all lab groups?",
 				"Warning",
 				(Alert.YES | Alert.NO), this, 
@@ -230,6 +237,10 @@
 
 	private function runAnnotProgressReport():void {
 		if (annotProgressLabCombo.selectedItem == null || annotProgressLabCombo.selectedItem.@idLab == '' ) {
+			if (currentState != 'AdminState') {
+				Alert.show("Please select a lab group");
+			}
+			
 			Alert.show( "Run annotation progress report for all lab groups?",
 				"Warning",
 				(Alert.YES | Alert.NO), this, 
