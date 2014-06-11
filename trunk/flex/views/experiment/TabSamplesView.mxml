@@ -342,6 +342,7 @@
 			
 			private function getEmptyCapSeqNode(idx:int):XML {
 				var plateName:String = getPlateName(idx);
+				var idPlate:String = getIdPlate(idx);
 				var wellName:String = getWellName(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
@@ -366,6 +367,7 @@
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +	
 					" plateName='" + plateName + "'" +
+					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					" isControl=''" +
 					"/>");
@@ -375,6 +377,7 @@
 			private function getEmptyIScanNode(idx:int):XML {
 				var plateName:String = getIScanPlateName(idx);
 				var wellName:String = getWellName(idx);
+				var idPlate:String = getIdPlate(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
@@ -382,6 +385,7 @@
 					" containerType='Plate'" +
 					" canChangeSampleName='Y'" +	
 					" plateName='" + plateName + "'" +
+					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					"/>");
 				return emptyNode;
@@ -424,6 +428,17 @@
 					plateName = "Plate " + String(y);
 				}
 				return plateName;
+			}
+			
+			override public function getIdPlate(idx:int):String {
+				var idPlate:String = "";
+				
+				var y:int = idx / 96;
+				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
+					idPlate = parentDocument.samples.getItemAt( y*96 ).@idPlate;
+				} 
+				
+				return idPlate;
 			}
 			
 			private function getIScanPlateName(idx:int):String {
