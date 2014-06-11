@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.security.EncrypterService;
+import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -35,6 +36,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
   private AppUser     appUserScreen;
   private Document    userNotificationLabsDoc;
+  private EncryptionUtility passwordEncrypter;
   
   public void validate() {
   }
@@ -69,6 +71,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());
+      passwordEncrypter = new EncryptionUtility();
       
       AppUser appUser = (AppUser)sess.load(AppUser.class, appUserScreen.getIdAppUser());
       initializeAppUser(appUser);            
@@ -144,8 +147,11 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
         appUser.setuNID(null);
       }
       if (appUserScreen.getPasswordExternal() != null && !appUserScreen.getPasswordExternal().equals("") && !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-        String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
-        appUser.setPasswordExternal(encryptedPassword);      
+        String salt = passwordEncrypter.createSalt();
+        String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
+        appUser.setSalt(salt);
+        appUser.setPasswordExternal(encryptedPassword); 
+        
       }
       
     }
