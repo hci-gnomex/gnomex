@@ -20,6 +20,7 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
+				xmlns:reporting="views.reporting.*"
 				xmlns:dashboard="views.dashboard.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
 				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" >
@@ -1130,6 +1131,7 @@
 			public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String      = "external_academic_price_label";
 			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
 			public var PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES:String      = "allow_add_sequencing_services";
+			public var PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT:String  = "hide_sampletype_on_external_experiment";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -2914,9 +2916,9 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-//				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
-//				das2OrganismList.addItem(emptyNode);
-//				activeOrganismList.addItem(emptyNode.copy());
+				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
+				das2OrganismList.addItem(emptyNode);
+				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());
@@ -2925,10 +2927,6 @@
 						activeOrganismList.addItem(organism.copy());
 					}
 				}
-				activeOrganismList.sort = new Sort();
-				activeOrganismList.sort.compareFunction = sortActiveOrganismList;
-				activeOrganismList.refresh();
-				
 				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
 				
 				if(submitRequestView != null && submitRequestView.sampleSetupView != null) {
@@ -2947,19 +2945,6 @@
 					showProgress(10);
 					enableApp();
 				}
-			}
-			
-			public function sortActiveOrganismList(a:Object, b:Object, fields:Array = null ):int {
-				if( a.@sortOrder != "" || b.@sortOrder != "" ) {
-					if(a.@sortOrder == "") return 1;
-					if(b.@sortOrder == "") return -1;
-					if(a.@sortOrder < b.@sortOrder) return -1;
-					if(a.@sortOrder > b.@sortOrder) return 1;
-					return 0;
-				}
-				if(a.@combinedName < b.@combinedName) return -1;
-				if(a.@combinedName > b.@combinedName) return 1;
-				return 0;
 			}
 			
 			private function onGetIScanChipList(event:ResultEvent):void {
@@ -3484,6 +3469,12 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
+				} else if (label == "Annotation Progress Report") {
+					navReportView.reportName = "Annotation Progress Report";
+					theViews.selectedChild = navReportView;
+					if (navReportView.isInitialized) {
+						navReportView.init();
+					}
 				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
@@ -3825,6 +3816,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
@@ -3845,6 +3837,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3879,6 +3872,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 		</menuitem>
@@ -3911,6 +3905,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3938,6 +3933,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4008,6 +4004,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4042,6 +4039,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
 
@@ -4076,6 +4074,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4206,11 +4205,11 @@
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
 					</util:WelcomeView>
 					
-					<dashboard:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
+					<reporting:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
 					
-					<dashboard:ExpOverview id="expOverview" label="Overview" />
+					<reporting:ExpOverview id="expOverview" label="Overview" />
 					
-					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
+					<reporting:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
 
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 

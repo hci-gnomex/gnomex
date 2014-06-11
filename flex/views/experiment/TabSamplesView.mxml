@@ -342,7 +342,6 @@
 			
 			private function getEmptyCapSeqNode(idx:int):XML {
 				var plateName:String = getPlateName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var wellName:String = getWellName(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
@@ -367,7 +366,6 @@
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +	
 					" plateName='" + plateName + "'" +
-					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					" isControl=''" +
 					"/>");
@@ -377,7 +375,6 @@
 			private function getEmptyIScanNode(idx:int):XML {
 				var plateName:String = getIScanPlateName(idx);
 				var wellName:String = getWellName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
@@ -385,7 +382,6 @@
 					" containerType='Plate'" +
 					" canChangeSampleName='Y'" +	
 					" plateName='" + plateName + "'" +
-					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					"/>");
 				return emptyNode;
@@ -428,17 +424,6 @@
 					plateName = "Plate " + String(y);
 				}
 				return plateName;
-			}
-			
-			override public function getIdPlate(idx:int):String {
-				var idPlate:String = "";
-				
-				var y:int = idx / 96;
-				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
-					idPlate = parentDocument.samples.getItemAt( y*96 ).@idPlate;
-				} 
-				
-				return idPlate;
 			}
 			
 			private function getIScanPlateName(idx:int):String {
@@ -508,19 +493,14 @@
 			}
 					
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				
-				 parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-						
-				 if ( this.hasPlates() ){
-					 
-					 if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
-						 
-						 parentDocument.samples.addItem(getEmptyCapSeqNode(95));
-					 }
-					 
-					 samplesGrid.updateWellNames();
-					 
-				 }
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				if ( parentDocument.isIScanState() ){
+					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
+				} else if ( parentDocument.isCapSeqState() && this.hasPlates() ){
+					parentDocument.samples.setItemAt(getEmptyCapSeqNode(ind),ind);
+				} else {
+					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+				}
 				return true;
 			}
 			
@@ -1076,6 +1056,10 @@
 			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
+				var hideSampleTypeOnExternalExperiment:Boolean = false;
+				if (isExternal && parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT).equals("Y")) {
+					hideSampleTypeOnExternalExperiment = true;
+				}
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
@@ -1103,7 +1087,10 @@
 				// Edit columns shown
 				existingNumberSequencingLanesCol.visible = false;
 				additionalNumberSequencingLanesCol.visible = false;
-				this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
+				
+				// Show the sample type column on if it isn't explicitly excluded based on a property for external experiment
+				// or is an iScan, Cherry Picking, Mit Seq, or Frag analysis.
+				this.sampleTypeCol.visible = !hideSampleTypeOnExternalExperiment && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 					&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				
 				seqPrepStatus.visible = false;

@@ -583,10 +583,6 @@ package views.experiment
 			return "";
 		}
 		
-		public function getIdPlate(idx:int):String {
-			return "";
-		}
-		
 		protected function getWellName(idx:int):String {
 			var wellName:String = "";
 			if (parentDocument.isFragAnalState()) {

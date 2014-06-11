@@ -384,7 +384,6 @@
             	<include name="hci/gnomex/utility/TomcatCatalinaProperties.class" />
             	<include name="hci/gnomex/security/ActiveDirectory.class" />
             	<include name="hci/gnomex/security/EncrypterService.class" />
-            	<include name="hci/gnomex/security/EncryptionUtility.class" />
             	<include name="hci/gnomex/security/tomcat/*.class" />
             </fileset>
 
@@ -607,7 +606,6 @@
 			 <lib dir="${lib.env.dir}">
 			   <include name="*.jar"/>
 			   <exclude name="mail.jar"/>
-			   <exclude name="log4j-1.2.11.jar"/>
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
        <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>

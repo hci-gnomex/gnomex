@@ -239,13 +239,32 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public String getViewURL() {
     String viewURL = "";
-    String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
-    dirParm.replace("/", "&#47;");
-    if (this.fileSize < Math.pow(2, 20) * 50) {   // Only allow viewing for files under 50 MB     
+    // Only allow viewing on supported browser mime types
+    // TODO:  Use standard way of supported mime types instead of hardcoded list
+    if (fileName.toLowerCase().endsWith(".pdf") ||
+        fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".png") ||
+        fileName.toLowerCase().endsWith(".gif") ||
+        fileName.toLowerCase().endsWith(".rtf") ||
+        fileName.toLowerCase().endsWith(".txt") ||
+        fileName.toLowerCase().endsWith(".html") ||
+        fileName.toLowerCase().endsWith(".htm")) {
+      // Only allow viewing for files under 50 MB
+      if (this.fileSize < Math.pow(2, 20) * 50) {
+        String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+        dirParm.replace("/", "&#47;");
         viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
-      } else {
-    	  viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
       }
+      //Browsers don't know how to open the following file types so download them instead of showing in browser
+    } else if(fileName.toLowerCase().endsWith(".csv") ||
+        fileName.toLowerCase().endsWith(".ppt") ||
+        fileName.toLowerCase().endsWith(".pptx") ||
+        fileName.toLowerCase().endsWith(".xls")) {
+      String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+      dirParm.replace("/", "&#47;");
+      viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
+
+    }
     return viewURL;
   }
 

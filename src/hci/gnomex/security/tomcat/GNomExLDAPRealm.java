@@ -1,7 +1,7 @@
 package hci.gnomex.security.tomcat;
 
 import hci.gnomex.security.ActiveDirectory;
-import hci.gnomex.security.EncryptionUtility;
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.utility.Util;
 
 import java.security.Principal;
@@ -408,11 +408,10 @@ public class GNomExLDAPRealm extends RealmBase {
     Connection con = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
-    EncryptionUtility passwordEncrypter = new EncryptionUtility();
 
     try {
       con = this.getConnection();
-      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal, salt FROM AppUser WHERE userNameExternal = ?");
+      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal FROM AppUser WHERE userNameExternal = ?");
       stmt.setString(1, username);
 
       rs = stmt.executeQuery();
@@ -420,10 +419,9 @@ public class GNomExLDAPRealm extends RealmBase {
       while (rs.next()) {
         String isActive = rs.getString("isActive");
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
-        String salt = rs.getString("salt");
         
         if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          String thePasswordEncrypted = passwordEncrypter.createPassword(password, salt);
+          String thePasswordEncrypted = EncrypterService.getInstance().encrypt(password);
           if (thePasswordEncrypted.equals(gnomexPasswordEncrypted)) {
             isAuthenticated = true;
           }

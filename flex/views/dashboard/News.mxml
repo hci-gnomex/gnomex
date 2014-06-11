@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   width="630" height="100%" backgroundAlpha="1"
+		   width="510" height="100%" backgroundAlpha="1"
 		   cornerRadius="12" preinitialize="init()" xmlns:renderers="views.renderers.*" horizontalScrollPolicy="off" verticalScrollPolicy="off">   
 
 	<mx:HTTPService 
@@ -236,7 +236,6 @@
 										   fontSize="10"
 										   label="{newsRep.currentItem.@title}"
 										   click="showEditButtons(event.currentTarget.getRepeaterItem());"/>
-							<mx:Spacer width="120"/>
 							<mx:LinkButton id="newsItemRemove"
 										   icon="@Embed(source='../../assets/bullet_red.png')"
 										   click="newsItemRemove_clickHandler(event.currentTarget.getRepeaterItem());"
