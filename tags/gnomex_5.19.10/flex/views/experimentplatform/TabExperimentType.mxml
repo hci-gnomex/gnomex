@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Library Prep" 
+		  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
+			
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			
+			private var nextNewAppNum:int = 0;
+			
+			public function init(state:ExperimentPlatformState):void {
+				this.state = state;
+				nextNewAppNum = 0;
+				applications.refresh();
+				showHideAppColumns();
+			}
+			
+			private function showHideAppColumns():void {
+				labelingProtocolCol.visible = state.isMicroarray; 
+				hybProtocolCol.visible = state.isMicroarray; 
+				scanProtocolCol.visible = state.isMicroarray; 
+				feProtocolCol.visible = state.isMicroarray; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+				applicationThemeCol.visible = state.isIllumina;
+				seqLibProtocolCol.visible = state.isIllumina; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+			}
+			
+			private function addExperimentType():void {
+				this.nextNewAppNum++;
+				var appCode:String = 'Application' + this.nextNewAppNum.toString();
+				var newNode:XML = new XML("<Application " +
+					" isSelected='Y'" +
+					" codeApplication='" + appCode + "'" +
+					" display='" + 'enter experiment type here...' + "'" +
+					" idSeqLibProtocols=''" +
+					" idLabelingProtocolDefault=''" +
+					" idHybProtocolDefault=''" +
+					" idScanProtocolDefault=''" +
+					" idFeatureExtractionProtocolDefault=''" +
+					" isActive='Y'" +
+					" />");
+				applications.addItemAt(newNode, 0);
+				appGrid.selectedItem = newNode;
+				appGrid.scrollToIndex(0);
+				state.dirty.setDirty();
+			}
+			
+			private function removeExperimentType():void {
+				var item:Object = null;
+				if (appGrid.selectedItem != null) {
+					item = appGrid.selectedItem;
+				} else {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment type " + item.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveExperimentType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveExperimentType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeExperimentTypeImpl();
+				}
+			}
+			
+			private function removeExperimentTypeImpl():void {
+				if (appGrid.selectedItem != null) {
+					applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
+					state.dirty.setDirty();
+				}
+			}
+			
+			private function onAppGridItemEditEnd(event:DataGridEvent):void {
+				state.dirty.setDirty();
+				if (event.dataField == '@isSelected') {
+					var it:Object = event.currentTarget.selectedItem;
+				}
+			}
+			
+			private function appIsActiveEnabled(obj:Object):Boolean {
+				var enabled:Boolean = false;
+				if (obj.@isSelected == 'Y' || obj.@selectedInOtherCategory == 'Y') {
+					enabled = false;
+				} else {
+					enabled = true;
+				}
+				return enabled;
+			}
+		]]>
+	</mx:Script>
+	<mx:XMLListCollection id="applications" source="{state.requestCategory.applications..Application}"/>
+
+	<mx:HBox verticalAlign="middle">
+		<mx:LinkButton label="Add" styleName="linkMenuButton" 
+					   enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" 
+					   icon="@Embed(source='../../assets/add.png')" 
+					   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
+		<mx:LinkButton label="Remove" styleName="linkMenuButton" 
+					   enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; appGrid.selectedItem}"   
+					   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+					   click="removeExperimentType()" fontSize="10"/>
+	</mx:HBox>
+	<mx:VBox width="100%" height="100%">
+		<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
+					 dataProvider="{applications}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
+					 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
+			<mx:columns>
+				<mx:DataGridColumn headerText=" "  
+								   width="20"  editable="false"                      	
+								   dataField="@isSelected" 
+								   editorDataField="selected"
+								   wordWrap="true"
+								   itemRenderer="{views.renderers.ExperimentPlatformIsSelectedCheckboxRenderer.create(state.dirty, true, null, null)}">			 
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Experiment Type"  
+								   itemRenderer="views.renderers.LabelActive"
+								   rendererIsEditor="false"  width="350"
+								   editable="true" wordWrap="true" dataField="@display" >
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
+								   width="80"
+								   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
+				<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="110"
+								   wordWrap="true"
+								   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+								   dataField="@idSeqLibProtocols"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Custom Design Id?" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty)}"
+								   wordWrap="true" width="60"
+								   visible="{state != null &amp;&amp; state.isIllumina}" editorDataField="selected" editable="false"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{state != null &amp;&amp; state.isMicroarray}" dataField="@idLabelingProtocol"  
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="@idHybProtocol" 
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="@idScanProtocol"  
+								   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+								   wordWrap="true" width="80"
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
+				<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="@idFeatureExtractionProtocol"  
+								   editorDataField="value"  
+								   wordWrap="true" width="80"
+								   sortable="false" editable="true" rendererIsEditor="false"  
+								   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
+								   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
+				<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
+								   visible="{state != null &amp;&amp; state.isSequenom}" 
+								   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
+				<mx:DataGridColumn headerText="Active"  
+								   width="25"   
+								   editable="false"                      	
+								   dataField="@isActive" 
+								   editorDataField="selected" textAlign="center"
+								   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, appIsActiveEnabled)}">			 
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+</mx:VBox>
