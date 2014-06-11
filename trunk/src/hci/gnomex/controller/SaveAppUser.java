@@ -404,7 +404,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             !appUserScreen.getPasswordExternal().trim().equals("") && 
             !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
           String salt = passwordEncrypter.createSalt();
-          String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
+          String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
           appUser.setPasswordExternal(encryptedPassword);
           appUser.setSalt(salt);
         }
