@@ -866,7 +866,9 @@
 			public function selectLab():void {
 				// Unselect all labs firt
 				for each(var lab:Object in labList) {
-					lab.@isSelected = 'false';
+					if (lab.hasOwnProperty("@isSelected") && lab.@isSelected == 'true') {
+						lab.@isSelected = 'false';
+					}
 				}
 				if(browseLabCombo.selectedItem == null){
 					return;
