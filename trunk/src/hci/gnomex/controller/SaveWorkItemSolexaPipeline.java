@@ -246,6 +246,9 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String application = "";
     String subject = "Bioinformatics analysis for " + user.getFirstLastDisplayName() + ", sequencing request number " + r.getNumber();
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    if (MailUtil.isValidEmail(user.getEmail())) {
+      fromAddress = user.getEmail();
+    }
     String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS);
     String ccAddress = "";
     
