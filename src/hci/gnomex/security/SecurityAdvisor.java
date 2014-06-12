@@ -1584,7 +1584,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
   
   public Boolean canDeleteSample(Request req) throws UnknownPermissionException {
-    if (req.isDNASeqExperiment().equals("Y")) {
+    if ((req.isDNASeqExperiment() != null && req.isDNASeqExperiment().equals("Y")) || 
+        (req.getIsExternal() != null && req.getIsExternal().equals("Y"))) {
       return canDelete(req);
     }
     return hasPermission(CAN_WRITE_ANY_OBJECT);
