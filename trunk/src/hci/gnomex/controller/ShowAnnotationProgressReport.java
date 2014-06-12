@@ -533,6 +533,9 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         int colNbr = 7;
         
         for (Property prop: requiredProperties) {
+          if (prop.getName().equals("Sample Source")) {
+            continue;
+          }
           columns.add(makeReportColumn(prop.getName(), colNbr++));
         }
         
@@ -606,6 +609,9 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
      
       // Show either a sample count (for those missing annotation) or "" for each required property
       for (Property prop : requiredProperties) {
+        if (prop.getName().equals("Sample Source")) {
+          continue;
+        }
         if (expInfo.missingAnnotationMapForExperiment.containsKey(prop.getName())) {
           List<String> sampleNumbers = expInfo.missingAnnotationMapForExperiment.get(prop.getName());
           if (!this.experimentWithFileMap.containsKey(expInfo.idRequest)) {
