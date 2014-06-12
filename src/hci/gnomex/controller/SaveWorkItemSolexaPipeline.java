@@ -246,9 +246,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String application = "";
     String subject = "Bioinformatics analysis for " + user.getFirstLastDisplayName() + ", sequencing request number " + r.getNumber();
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    if (MailUtil.isValidEmail(user.getEmail())) {
-      fromAddress = user.getEmail();
-    }
     String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS);
     String ccAddress = "";
     
@@ -336,7 +333,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
 
     String analysisInstruction = null;
     String genomeAlignTo = null;
@@ -374,7 +370,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     StringBuffer introNote = new StringBuffer();
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + cf.getFacilityName() + ".");
+    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
     if(request.getIsExternal().equals("N") && request.getIdCoreFacility().equals(CoreFacility.CORE_FACILITY_GENOMICS_ID)){
       introNote.append("<br><br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(CoreFacility.CORE_FACILITY_GENOMICS_ID, PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
@@ -392,7 +388,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());

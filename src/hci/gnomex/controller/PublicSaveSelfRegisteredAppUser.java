@@ -9,7 +9,6 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncrypterService;
-import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -163,7 +162,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      EncryptionUtility passwordEncrypter = new EncryptionUtility();
       
       String disableSignup = propertyHelper.getProperty(PropertyDictionary.DISABLE_USER_SIGNUP);
       if (disableSignup != null && disableSignup.equals("Y")) {
@@ -238,9 +236,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
             appUser.setuNID(null);
           }
           if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-            String salt = passwordEncrypter.createSalt();
-            String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
-            appUser.setSalt(salt);
+            String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
             appUser.setPasswordExternal(encryptedPassword);      
           }
 

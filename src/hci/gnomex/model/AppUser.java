@@ -4,7 +4,6 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Set;
 
 
@@ -25,14 +24,10 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private String  userNameExternal;
   private String  passwordExternal;
   private String  ucscUrl;
-  private String  salt;
-  private String  guid;
-  private Timestamp  guidExpiration;
   private Set     labs;
   private Set     collaboratingLabs;
   private Set     managingLabs;
   private Set     managingCoreFacilities;
-  private Set     coreFacilitiesICanSubmitTo;
   
   
   public static String formatName(String lastName, String firstName) {
@@ -172,30 +167,6 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   }
 
   
-  public String getSalt() {
-    return salt;
-  }
-
-  public void setSalt(String salt) {
-    this.salt = salt;
-  }
-
-  public String getGuid() {
-    return guid;
-  }
-
-  public void setGuid(String guid) {
-    this.guid = guid;
-  }
-
-  public Timestamp getGuidExpiration() {
-    return guidExpiration;
-  }
-
-  public void setGuidExpiration(Timestamp guidExpiration) {
-    this.guidExpiration = guidExpiration;
-  }
-
   public String getUserNameExternal() {
     return userNameExternal;
   }
@@ -240,14 +211,6 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     managingCoreFacilities = facilities;
   }
   
-  public Set getCoreFacilitiesICanSubmitTo() {
-    return coreFacilitiesICanSubmitTo;
-  }
-
-  public void setCoreFacilitiesICanSubmitTo(Set coreFacilitiesICanSubmitTo) {
-    this.coreFacilitiesICanSubmitTo = coreFacilitiesICanSubmitTo;
-  }
-
   public String getIsExternalUser() {
     String isExternal = "N";
     if (uNID == null || uNID.equals("")) {

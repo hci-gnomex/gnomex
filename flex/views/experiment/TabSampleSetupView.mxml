@@ -14,7 +14,7 @@
 		
 		import views.renderers.CheckBoxIsSelectedChipType;
 		import views.util.OrganismAddEvent;
-		import views.util.OrganismEvent;
+		import views.util.OrganismEvent; 
 
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
@@ -680,8 +680,7 @@
 			if (this.currentState == 'SolexaSetupState' ||
 			    this.currentState == 'SolexaSetupPreppedState' ||
 			    this.currentState == 'SolexaAmendState' ||
-			    this.currentState == 'SolexaAmendPreppedState' ||
-				this.currentState == 'MDMiSeqState') { 
+			    this.currentState == 'SolexaAmendPreppedState') { 
 				parentDocument.filteredGenomeBuildList.refresh();
 				selectDefaultGenomeBuild();			
 			}
@@ -1192,7 +1191,7 @@
 		}
 		
 		private function onOrganismRefreshed(event:OrganismAddEvent):void {
-			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList;
+			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList.source;
 			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
 			
 			for each (var o:Object in sampleOrganismCombo.dataProvider) {
@@ -1309,7 +1308,7 @@
 										  prompt="Organism..."
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
-										  dataProvider="{parentApplication.activeOrganismList}"
+										  dataProvider="{parentApplication.activeOrganismList.source}"
 										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
 				</renderers:FilterComboBox>
 				<mx:Label text="Please specify" paddingLeft="6">

@@ -134,11 +134,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
         
         // Set the content type and content disposition based on whether we
         // want to serve the file to the browser or download it.
-    	String mimeType = req.getSession().getServletContext().getMimeType(fileName); // recognized mime types are defined in Tomcat's web.xml
-        if (view.equals("Y") && mimeType != null) {         
+        if (view.equals("Y")) {
+          String mimeType = req.getSession().getServletContext().getMimeType(fileName);
+          if (mimeType == null && fileName.toLowerCase().endsWith("png")) {
+            mimeType = "image/png";
+          }
           response.setContentType(mimeType);
-          response.setHeader("Content-Disposition", "filename=" + "\"" + fileName + "\"");
-          response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         } else {
           response.setContentType("application/x-download");
           response.setHeader("Content-Disposition", "attachment;filename=" + "\"" + fileName + "\"");          

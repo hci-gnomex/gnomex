@@ -170,7 +170,8 @@ try {
             <img src="<%=siteLogo%>"/>
        </div>
        <div class="rightMenu" >    
-          <a href="reset_password.jsp">Reset password</a>
+         <a href="change_password.jsp">Change password</a> 
+          |    <a href="reset_password.jsp">Reset password</a>
           <%if( showUserSignup ) {%>
            |    <a href="select_core.jsp">Sign up for an account</a>
           <%}%> 

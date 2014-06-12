@@ -42,7 +42,7 @@ session.invalidate();
 
  <div class="containerMessage">
     <h3>Password reset.</h3>
-    Instructions on how to change your password have been emailed to you.
+    Your new password has been emailed to you.
  </div> 
 </div>
 </body>

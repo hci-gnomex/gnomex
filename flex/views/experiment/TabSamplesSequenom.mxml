@@ -132,7 +132,6 @@
 			private function getEmptySequenomNode(idx:int):XML {
 				var plateName:String = getPlateName(idx);
 				var wellName:String = getWellName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
@@ -141,7 +140,6 @@
 					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +	
 					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
-					" idPlate='" + (parentDocument.request.@containerType == 'PLATE' ? idPlate : '') + "'" +
 					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
 					"/>");
@@ -161,29 +159,13 @@
 				return plateName;
 			}
 			
-			override public function getIdPlate(idx:int):String {
-				var idPlate:String = "";
-				
-				var y:int = idx / 96;
-				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
-					idPlate = parentDocument.samples.getItemAt( y*96 ).@idPlate;
-				} 
-				
-				return idPlate;
-			}
 			
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-				
-				if ( this.hasPlates() ){
-					
-					if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
-						
-						parentDocument.samples.addItem(getEmptySequenomNode(95));
-					}
-					
-					samplesGrid.updateWellNames();
-					
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				if ( this.hasPlates() && ind >= 0) {
+					parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+				} else {
+					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 				}
 				return true;
 			}

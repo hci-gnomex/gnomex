@@ -60,12 +60,11 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
     Connection con = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
-    EncryptionUtility passwordEncrypter = new EncryptionUtility();
 
     try {
       con = this.getConnection();
 
-      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal, salt FROM AppUser WHERE userNameExternal = ?");
+      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal FROM AppUser WHERE userNameExternal = ?");
 
       stmt.setString(1, uid);
 
@@ -74,10 +73,9 @@ public class SecurityManagerGNomEx extends SimpleUserManager  {
       while (rs.next()) {
         String isActive = rs.getString("isActive");
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
-        String salt = rs.getString("salt");
         
         if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          String thePasswordEncrypted = passwordEncrypter.createPassword(password, salt);
+          String thePasswordEncrypted = EncrypterService.getInstance().encrypt(password);
           if (thePasswordEncrypted.equals(gnomexPasswordEncrypted)) {
             result = true;
           }
