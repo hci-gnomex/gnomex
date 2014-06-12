@@ -385,6 +385,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Only admins should be deleting samples unless dna sequencing then based on status.
         if (this.samplesDeleted.size() > 0) {
           if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
+            this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
             throw new RollBackCommandException("Insufficient permission to delete samples.");
           }
         }
