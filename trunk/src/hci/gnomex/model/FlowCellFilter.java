@@ -17,7 +17,7 @@ public class FlowCellFilter extends DetailObject {
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
-  private String				codeStepNext;
+  private String				        codeStepNext;
   
   
   private StringBuffer          queryBuf;
@@ -36,43 +36,45 @@ public class FlowCellFilter extends DetailObject {
     return queryBuf;
     
   }
-  
-  public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
-	if(codeStepNext != null && codeStepNext != "") {
-		  queryBuf.append(" FROM WorkItem as wi ");
-		  queryBuf.append(" JOIN wi.flowCellChannel as ch ");
-		  queryBuf.append(" JOIN ch.flowCell as fc ");
-	    if (this.hasRequestCriteria()) {
-	      queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
-	      queryBuf.append(" JOIN   lane.request as req ");      
-	    }	    
-    	String[] codeStepNextArr = codeStepNext.split(",");
-    	codeStepNext = "";
-    	for(String s : codeStepNextArr) {
-    		codeStepNext += "'" + s + "',";
-    	}
-    	codeStepNext = codeStepNext.substring(0, codeStepNext.length()-1);
-    	queryBuf.append(" WHERE wi.codeStepNext IN (" + codeStepNext + ") " );
-    	addWhere = false;		
-	} else {
-	    queryBuf.append(" FROM        FlowCell as fc ");
-	    if (this.hasRequestCriteria()) {
-	      queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
-	      queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
-	      queryBuf.append(" JOIN   lane.request as req ");      
-	    }	    
-	    addWhere = true;
-	    addFlowCellCriteria();
-	    addRequestCriteria();
-	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-	      queryBuf.append(" AND ");
-	      secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
-	      queryBuf.append(" ");
-	    }
-  }
 
-	    queryBuf.append(" order by fc.createDate desc, fc.number");
-	  }
+  public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
+    if(codeStepNext != null && codeStepNext != "") {
+      queryBuf.append(" FROM WorkItem as wi ");
+      queryBuf.append(" JOIN wi.flowCellChannel as ch ");
+      queryBuf.append(" JOIN ch.flowCell as fc ");
+      if (this.hasRequestCriteria()) {
+        queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
+        queryBuf.append(" JOIN   lane.request as req ");      
+      }	    
+      String[] codeStepNextArr = codeStepNext.split(",");
+      codeStepNext = "";
+      for(String s : codeStepNextArr) {
+        codeStepNext += "'" + s + "',";
+      }
+      codeStepNext = codeStepNext.substring(0, codeStepNext.length()-1);
+      queryBuf.append(" WHERE wi.codeStepNext IN (" + codeStepNext + ") " );
+      
+      addWhere = false;		
+    } else {
+      queryBuf.append(" FROM        FlowCell as fc ");
+      if (this.hasRequestCriteria()) {
+        queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
+        queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
+        queryBuf.append(" JOIN   lane.request as req ");      
+      }	    
+      addWhere = true;
+      addFlowCellCriteria();
+      addRequestCriteria();
+    }
+
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      queryBuf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
+      queryBuf.append(" ");
+    }
+    
+    queryBuf.append(" order by fc.createDate desc, fc.number");
+  }
   
   private boolean hasRequestCriteria() {
     if (this.requestNumber != null && !this.requestNumber.equals("")) {
