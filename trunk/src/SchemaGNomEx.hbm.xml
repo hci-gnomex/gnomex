@@ -143,6 +143,7 @@
 		<property name="salt" column="salt" type="string"/>
 		<property name="guid" column="guid" type="string"/>
 		<property name="guidExpiration" column="guidExpiration" type="timestamp"/>
+		<property name="passwordExpired" column="passwordExpired" type="string"/>
 		<set name="labs" table="LabUser" lazy="true" cascade="none">
 			<key column="idAppUser"/>
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab"/>
