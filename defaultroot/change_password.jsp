@@ -6,7 +6,6 @@
 <%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <%@ page import="hci.gnomex.model.AppUser" %>
-<%@ page import="hci.gnomex.security.Dummy" %>
 <%@ page import="java.sql.Timestamp" %>;
 <html>
 
