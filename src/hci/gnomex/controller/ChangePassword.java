@@ -2,7 +2,6 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
@@ -36,7 +35,6 @@ public class ChangePassword extends GNomExCommand implements Serializable {
   public String ERROR_JSP = "/change_password.jsp";
 
   private String userName;
-  private String oldPassword;
   private String newPassword;
   private String newPasswordConfirm;
   private String guid;
@@ -140,6 +138,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
           appUser.setSalt(salt);
           appUser.setGuid(null);
           appUser.setGuidExpiration(null);
+          appUser.setPasswordExpired("N");
           sess.update(appUser);
           sess.flush();
         }

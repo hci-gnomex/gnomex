@@ -28,6 +28,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private String  salt;
   private String  guid;
   private Timestamp  guidExpiration;
+  private String  passwordExpired;
   private Set     labs;
   private Set     collaboratingLabs;
   private Set     managingLabs;
@@ -186,6 +187,14 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
 
   public void setGuid(String guid) {
     this.guid = guid;
+  }
+
+  public String getPasswordExpired() {
+    return passwordExpired;
+  }
+
+  public void setPasswordExpired(String passwordExpired) {
+    this.passwordExpired = passwordExpired;
   }
 
   public Timestamp getGuidExpiration() {
