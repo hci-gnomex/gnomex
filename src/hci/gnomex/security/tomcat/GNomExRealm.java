@@ -1,5 +1,6 @@
 package hci.gnomex.security.tomcat;
 
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.EncryptionUtility;
 
 import java.security.Principal;
@@ -96,8 +97,11 @@ System.out.println("In authenticate -- usrname=" + username);
         String salt = rs.getString("salt");
         
         if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          String thePasswordEncrypted = passwordEncrypter.createPassword(password, salt);
-          if (thePasswordEncrypted.equals(gnomexPasswordEncrypted)) {
+          String thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
+          String thePasswordEncryptedOld = EncrypterService.getInstance().encrypt(password);
+          if (thePasswordEncryptedNew.equals(gnomexPasswordEncrypted)) {
+            isAuthenticated = true;
+          } else if(thePasswordEncryptedOld.equals(gnomexPasswordEncrypted)) {
             isAuthenticated = true;
           }
         }
