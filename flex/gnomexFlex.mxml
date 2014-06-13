@@ -2056,11 +2056,11 @@
 				}
 			}
 			
-			public function getUNID():Object {
+			public function getUID():Object {
 				if (isGuestMode()) {
 					return "";
 				} else {
-					return createSecurityAdvisor.lastResult.@uNID;
+					return createSecurityAdvisor.lastResult.@uID;
 				}
 			}
 			
