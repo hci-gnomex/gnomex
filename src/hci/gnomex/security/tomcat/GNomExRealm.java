@@ -95,9 +95,12 @@ System.out.println("In authenticate -- usrname=" + username);
         String isActive = rs.getString("isActive");
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
         String salt = rs.getString("salt");
+        String thePasswordEncryptedNew = "";
         
         if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          String thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
+          if(salt != null) {
+            thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
+          }
           String thePasswordEncryptedOld = EncrypterService.getInstance().encrypt(password);
           if (thePasswordEncryptedNew.equals(gnomexPasswordEncrypted)) {
             isAuthenticated = true;
