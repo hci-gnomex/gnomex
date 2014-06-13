@@ -188,6 +188,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 String salt = passwordEncrypter.createSalt();
                 String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
                 appUser.setSalt(salt);
+                appUser.setPasswordExpired("N");
                 appUser.setPasswordExternal(encryptedPassword);      
               }
               
@@ -406,6 +407,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           String salt = passwordEncrypter.createSalt();
           String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
           appUser.setPasswordExternal(encryptedPassword);
+          appUser.setPasswordExpired("N");
           appUser.setSalt(salt);
         }
       }
