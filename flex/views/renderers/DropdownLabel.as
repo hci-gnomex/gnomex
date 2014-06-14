@@ -14,14 +14,16 @@ package views.renderers
 										  valueField:String,
 										  dataField:String,
 										  isRequired:Boolean=false,
-										  isEditable:Boolean=false
+										  isEditable:Boolean=false,
+										  missingRequiredFieldBackground:uint = 0xeaeaea
 								          ):IFactory {
 			return RendererFactory.create(views.renderers.DropdownLabel, {dataProvider: dataProvider, 
 																		 labelField: labelField,
 																		 valueField: valueField,
 																		 dataField: dataField,
 																		 isRequired:isRequired,
-																		 isEditable:isEditable
+																		 isEditable:isEditable,
+																		 missingRequiredFieldBackground: missingRequiredFieldBackground
 																		 });			
 		}
 			
