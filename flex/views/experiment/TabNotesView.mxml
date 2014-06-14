@@ -36,6 +36,9 @@
 			parentDocument.annotationView.enabled = hasNameAndDef();
 		}
 		parentDocument.samplesView.enabled = hasNameAndDef();
+		if (hasNameAndDef()) {
+			parentDocument.samplesView.initializeSamplesGrid();
+		}
 		parentDocument.enableNextButtons();
 	}
 		
