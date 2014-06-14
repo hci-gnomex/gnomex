@@ -68,7 +68,7 @@
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
 					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
 								      label="Organism" labelPlacement="left" id="labelOrg" width="200"/>
-					<mx:ComboBox labelField="@display" selectedIndex="-1"  id="sampleOrganismCombo" change="pickOrganism()">							
+					<mx:ComboBox labelField="@display" selectedIndex="-1"  id="sampleOrganismCombo" close="pickOrganism()" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 					</mx:ComboBox>
@@ -128,7 +128,7 @@
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg1" verticalAlign="top">
 					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
 									  label="Organism" labelPlacement="left" id="labelOrg1" width="160"/>
-					<mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" selectedIndex="-1" change="pickOrganism()">							
+					<mx:ComboBox labelField="@display"  id="sampleOrganismCombo1" selectedIndex="-1" close="pickOrganism()" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo1.selectedItem != null &amp;&amp; sampleOrganismCombo1.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
 					</mx:ComboBox>
@@ -762,6 +762,10 @@
 						if(parentDocument.notesView.currentState != "ExternalExperimentState") {
 							parentDocument.samplesView.enabled = isComplete;
 						} else {
+							// TDS - Obsolete code?  Experiment name and notes moved from TabSetupView
+							// to TabNotes view....  We need to do some cleanup on this
+							// code or revamp this design to have separate classes
+							// for the major types of experiments.
 							if(parentDocument.notesView.experimentName.text != "" && parentDocument.notesView.overallDescript.text != "" && isComplete){
 								parentDocument.samplesView.enabled = true;
 							}
@@ -770,6 +774,14 @@
 							}
 						}						
 						parentDocument.notesView.enabled = isComplete;
+						
+						// TDS - This appears to be dead code.  parentApplication.submitInternalExperiment
+						// can't be true because the outer 'else' statement is invoked when 
+						// parent.submitInternalExperiment is false.  I don't have the nerve
+						// to remove it right now, so I will just do the least courageous thing
+						// and comment on it here.  This is yet another example of 
+						// why it is time to break apart these different experiment types
+						// into entirely separate classes.
 						if (isComplete && parentApplication.submitInternalExperiment()) {
 							parentDocument.samplesView.initializeSamplesGrid();
 							parentDocument.notesView.enabled = isComplete;
