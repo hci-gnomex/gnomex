@@ -275,7 +275,8 @@ package views.experiment
 					'@idPropertyOption', 
 					fieldName,
 					propertyNode.@isRequired == 'true',
-					true);                
+					true,
+				    parentApplication.annotationColor);                
 				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions),
 					"@option",
