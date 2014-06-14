@@ -21,11 +21,7 @@ package views.renderers
           	} else {
           		this.selected = false;
           	}
-			if (o != null && o.hasOwnProperty("@isRequired") && o.@isRequired != null && o.@isRequired == "true") {
-				this.enabled = false;
-			} else {
-				this.enabled = true;
-			}			
+			
           }
           override protected function initializationComplete():void {
           	this.addEventListener(Event.CHANGE, change);
