@@ -121,6 +121,7 @@
 					this.styleName = "contextHelpNoContentIcon";
 					if (hideLabelIfNoHelp) {
 						this.visible = false;
+						this.includeInLayout = false;
 					}
 					if (noIconSpaceIfNoHelp) {
 						this.styleName = "contextHelpNoIcon";
