@@ -980,8 +980,8 @@
 			public var useConfigurableBillingAccounts:Boolean = false;
 			
 			public var nonReqAnnotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
-			public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
-			public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
+			public var annotationColor:uint       = 0xE9FFD9;
+			public var annotationColorBorder:uint = 0xCBFCA7;
 			
 			public var cy3Color:uint = 0xccffaa;
 			public var cy3ColorBold:uint = 0x77dd55;
@@ -1130,6 +1130,7 @@
 			public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String      = "external_academic_price_label";
 			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
 			public var PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES:String      = "allow_add_sequencing_services";
+			public var PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT:String  = "hide_sampletype_on_external_experiment";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -3484,6 +3485,12 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
+				} else if (label == "Annotation Progress Report") {
+					navReportView.reportName = "Annotation Progress Report";
+					theViews.selectedChild = navReportView;
+					if (navReportView.isInitialized) {
+						navReportView.init();
+					}
 				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
@@ -3825,6 +3832,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
@@ -3845,6 +3853,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3879,6 +3888,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 		</menuitem>
@@ -3911,6 +3921,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -3938,6 +3949,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4008,6 +4020,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4042,6 +4055,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
 
@@ -4076,6 +4090,7 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
