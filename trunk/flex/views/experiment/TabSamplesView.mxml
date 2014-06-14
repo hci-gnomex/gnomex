@@ -1076,6 +1076,10 @@
 			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
+				var hideSampleTypeOnExternalExperiment:Boolean = false;
+				if (isExternal && parentApplication.getProperty(parentApplication.PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT) == "Y") {
+					hideSampleTypeOnExternalExperiment = true;
+				}
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
@@ -1103,7 +1107,10 @@
 				// Edit columns shown
 				existingNumberSequencingLanesCol.visible = false;
 				additionalNumberSequencingLanesCol.visible = false;
-				this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
+				
+				// Show the sample type column on if it isn't explicitly excluded based on a property for external experiment
+				// or is an iScan, Cherry Picking, Mit Seq, or Frag analysis.
+				this.sampleTypeCol.visible = !hideSampleTypeOnExternalExperiment && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 					&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				
 				seqPrepStatus.visible = false;
