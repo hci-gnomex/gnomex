@@ -355,7 +355,7 @@
 									<mx:itemRenderer>
 										<mx:Component >
 											<mx:HBox horizontalScrollPolicy="off">
-												<mx:Label text="{data.@name}">			                           	
+												<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}">			                           	
 												</mx:Label>
 												<mx:TextInput id="scOtherLabel" fontSize="9"
 															  text="{data.@otherLabel}"
