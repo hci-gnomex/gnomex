@@ -22,8 +22,8 @@ VALUES (1, 'ChIP-Seq analysis', 'Y', NULL),
   (10, 'Cap-Seq', 'Y', 566),
   (11, 'SNP/INDEL', 'Y', 566);
 
-INSERT INTO `gnomex`.`AppUser`(`idAppUser`, `lastName`, `firstName`, `uNID`, `email`, `phone`, `department`, `institute`, `jobTitle`, `isActive`, `codeUserPermissionKind`, `userNameExternal`, `passwordExternal`)
-VALUES (1, '', 'admin', null, null, null, NULL, NULL, NULL, 'Y', 'SUPER', 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=');
+INSERT INTO `gnomex`.`AppUser`(`idAppUser`, `lastName`, `firstName`, `uNID`, `email`, `phone`, `department`, `institute`, `jobTitle`, `isActive`, `codeUserPermissionKind`, `userNameExternal`, `passwordExternal`, `ucscUrl`, `salt`, `guid`, `guidExpiration`, `passwordExpired`)
+VALUES (1, '', 'admin', null, null, null, NULL, NULL, NULL, 'Y', 'SUPER', 'admin', '-446f018f07117636316c70c46b0c594248e81887018e5b0d', null, '-3015cc4680d7f2bbcd4aaee6dde2314c3eaf87435e592c6e9f15dd374f208b86d423f8f76d65d6e6b7dd85c8df7e1aa5e73e5018b431e232bbe9f8f38ece7330', null, null, 'N');
 
 
 INSERT INTO `gnomex`.`ArrayCoordinate`(`idArrayCoordinate`, `name`, `x`, `y`, `idSlideDesign`)

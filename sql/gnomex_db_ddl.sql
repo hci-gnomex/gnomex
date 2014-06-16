@@ -251,6 +251,10 @@ CREATE TABLE `gnomex`.`AppUser` (
   `userNameExternal` VARCHAR(100) NULL,
   `passwordExternal` VARCHAR(100) NULL,
    `ucscUrl` VARCHAR(200) null,
+   `salt` VARCHAR(300) null,
+   `guid` VARCHAR(100) null,
+   `guidExpiration` DATETIME null,
+   `passwordExpired` CHAR(1) null,
   PRIMARY KEY (`idAppUser`)
 )
 ENGINE = INNODB;
