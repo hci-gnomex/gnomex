@@ -3109,6 +3109,10 @@ CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
  ,`userNameExternal`  varchar(100)  NULL DEFAULT NULL
  ,`passwordExternal`  varchar(100)  NULL DEFAULT NULL
  ,`ucscUrl`  varchar(250)  NULL DEFAULT NULL
+ ,`salt` varchar(300) NULL DEFAULT NULL
+ ,`guid` varchar(100) NULL DEFAULT NULL
+ ,`guidExpiration` datetime NULL DEFAULT NULL
+ ,`passwordExpired` char(1) NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
