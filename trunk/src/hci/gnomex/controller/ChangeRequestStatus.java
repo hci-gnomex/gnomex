@@ -175,7 +175,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         
         // If this is a DNA Seq core request, we need to create the billing items and send confirmation email 
         // when the status changes to submitted
-        if (codeRequestStatus.equals(RequestStatus.SUBMITTED) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
+        if ( (codeRequestStatus.equals(RequestStatus.SUBMITTED)||codeRequestStatus.equals(RequestStatus.PROCESSING)) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
           if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
             createBillingItems(sess, req);
             sess.flush();
