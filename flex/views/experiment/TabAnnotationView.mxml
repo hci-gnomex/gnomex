@@ -133,6 +133,7 @@
 			
 			
 			public function onPropertyRefreshed(event:Event):void{
+
 				parentDocument.propertyEntries.refresh();
 				
 				this.checkForRemovedAnnotations();   

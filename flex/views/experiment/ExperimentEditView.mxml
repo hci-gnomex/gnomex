@@ -593,6 +593,14 @@
 			}
 		}
 			
+		public function isGenericState():Boolean {
+			if (currentState == 'GenericState' || currentState == 'GenericEditState' || currentState == 'GenericExternalState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+			
 		public function isCapSeqState():Boolean {
 			if (currentState == 'CapSeqState' || currentState == 'CapSeqAmendState' || currentState == 'CapSeqEditState') {
 				return true;
@@ -673,6 +681,7 @@
 		
 		public function isEditState():Boolean {
 			if (currentState == 'EditState' ||
+				currentState == 'GenericEditState' ||
 				currentState == 'SolexaEditState' ||
 				currentState == 'SeqExternalEditState' ||
 			    currentState == 'QCEditState' ||
@@ -1146,6 +1155,16 @@
 					
 					
 
+			} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
+				this.currentState = parentApplication.submitInternalExperiment() ? "GenericState" : 'GenericExternalState';
+				this.sampleSetupView.currentState = 'GenericState';
+							
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+				
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+				
 			} else if (requestCategory.@type == parentApplication.TYPE_CAP_SEQ) {
 				this.currentState = "CapSeqState";
 				this.sampleSetupView.currentState = 'CapSeqState';
@@ -2253,6 +2272,10 @@
 				}
 				samplesView.showHideColumns(); 
 
+			} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
+				this.currentState = "GenericEditState";
+				this.sampleSetupView.currentState = 'GenericState';
+				
 			} else if (requestCategory.@type == parentApplication.TYPE_CAP_SEQ) {
 				this.currentState = "CapSeqEditState";
 				this.sampleSetupView.currentState = 'CapSeqState';
@@ -2909,7 +2932,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState()) {
+				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState() && !isGenericState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -5534,6 +5557,35 @@
 		<mx:State name="SequencingChromaEditState" basedOn="SequencingEditState">
 			<mx:RemoveChild target="{downloadView}"/>
 			<mx:RemoveChild target="{downloadsLink}"/>
+		</mx:State>
+		<mx:State name="GenericState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
+			<mx:RemoveChild target="{visibilityView}"/>
+			<mx:RemoveChild target="{notesView}"/>
+		</mx:State>
+		<mx:State name="GenericEditState" basedOn="EditState">
+			<mx:RemoveChild target="{setupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{annotationView}"/>
+			<mx:RemoveChild target="{confirmView}"/>
+			<mx:RemoveChild target="{sampleSetupView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
+		</mx:State>
+		<mx:State name="GenericExternalState" >
+			<mx:RemoveChild target="{sampleSetupView}"/>
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{seqSetupView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:RemoveChild target="{bioinformaticsView}"/>
 		</mx:State>
 		<mx:State name="CapSeqState">
 			<mx:RemoveChild target="{hybSetupView}"/>
