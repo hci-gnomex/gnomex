@@ -161,7 +161,7 @@
 						" idOrganism='"  + idOrganism + "'" +				
 						" otherOrganism='" + otherOrganism + "'" 	+
 						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
-						" multiplexGroupNumber='" + (parentDocument.samples.length + 1) + "'" +
+						" multiplexGroupNumber='1'" +
 						"/>"
 					emptyNode = new XML(xmlString);
 				
