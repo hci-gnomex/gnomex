@@ -132,6 +132,14 @@
 				}
 			}
 			
+			public function isGenericState():Boolean {
+				if (currentState == 'GenericState') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
 			public function checkSecurity():void {
 				
 				if (parentApplication.isGuestMode()) {
@@ -279,6 +287,11 @@
 					this.currentState = "IsolationState";
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
+					}	
+				} else if (requestCategory.@type == 'GENERIC') {
+					this.currentState = "GenericState";
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
 					}	
 				}
 				
@@ -725,11 +738,11 @@
 					parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				}
 				
-				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE")  ) {
+				if (this.isIScanState() || (this.isSequenomState() && this.selectedExperiment.@containerType == "PLATE") ) {
 					parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 				}
 				
-				var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
+				var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ') + this.selectedExperiment.@number;
 				
 				parentDocument.parentDocument.experimentEditView.removeDataListeners();
 				parentDocument.parentDocument.experimentEditView.initializeData();
@@ -1041,6 +1054,25 @@
 						this.sampleSourceCol.visible = true;
 						
 						this.concentrationCol.headerText = 'NanoDrop Conc.';
+					} else if (isGenericState()) {
+						concentrationCol.visible = false; 
+						sampleTypeCol.visible = true;
+						organismCol.visible = true;
+						preppedByLabCol.visible = false;
+						otherSamplePrepMethodCol.visible = false;
+						chipTypeCol.visible = false
+						concentrationUnitCol.visible = false;
+						plateNameCol.visible = false;
+						wellNameCol.visible = false;
+						isControlCol.visible = false;
+						this.qc260Col.visible = false;
+						this.qc260280Col.visible = false;
+						this.qcConcCol.visible = false;
+						this.qcRINCol.visible = false;
+						this.qcStatusCol.visible = false;
+						this.descriptionCol.visible = false;
+						this.sampleSourceCol.visible = false;
+						
 					}  else {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
@@ -1378,7 +1410,7 @@
 						<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
 						<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}">
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" id="hbox8">
 						<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
 						<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
 								 width="280"/>
@@ -2229,6 +2261,13 @@
 					<mx:Text  text="{this.selectedExperiment.@includeQubitConcentration=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
+		</mx:State>
+		<mx:State name="GenericState">
+			<mx:RemoveChild target="{prePoolBox}"/>
+			<mx:RemoveChild target="{hbox5}"/>
+			<mx:RemoveChild target="{hbox8}"/>
+			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{adaptersBox}"/>
 		</mx:State>
 	</mx:states>
 	

@@ -42,10 +42,11 @@
 			<mx:SetStyle target="{label1}" name="paddingTop"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
+					<mx:visible>{parentDocument.filteredAppList.length>0}</mx:visible>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox1" verticalAlign="top">
 						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" context3="{parentDocument.requestType}" 
 										  showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-										  label="Experiment type" labelPlacement="left" id="labelApplication" width="200"/>
+										  label="Experiment Type" labelPlacement="left" id="labelApplication" width="200"/>
 						<mx:RadioButtonGroup id = "radioGroupApp">       	
 						</mx:RadioButtonGroup>
 						<mx:Tile  verticalGap="0"  width="100%">
@@ -97,10 +98,11 @@
 			<mx:SetStyle target="{appUserContainer}" name="verticalAlign" value="middle"/>
 			<mx:AddChild relativeTo="{vbox1}" position="lastChild">
 				<mx:VBox>
+					<mx:visible>{parentDocument.filteredAppList.length>0}</mx:visible>
 					<mx:HBox width="100%" horizontalGap="0" id="hbox0" verticalAlign="top">
 						<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" context3="{parentDocument.requestType}" 
 										  showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-										  label="Experiment type" labelPlacement="left" id="labelApplication0" width="160"/>
+										  label="Experiment Type" labelPlacement="left" id="labelApplication0" width="160"/>
 						<mx:RadioButtonGroup id = "radioGroupAppAdmin">       	
 						</mx:RadioButtonGroup>
 						<mx:Tile height="100%" direction="vertical" verticalGap="0" width="100%"  >
@@ -726,7 +728,7 @@
 						} 	    
 					} else {
 						// For external experiments, check the app radio button group and optionally the microarray slide
-						if (this.getApp() != '' && getApp() != null) {
+						if (parentDocument.filteredAppList.length == 0 || (this.getApp() != '' && getApp() != null)){
 							if (hasOrganism()) {
 								if (currentState.indexOf("Microarray") > 0) {
 									if (getSlideProductCombo().selectedItem != null && getSlideProductCombo().selectedItem.@idSlideProduct != '') {

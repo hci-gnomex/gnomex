@@ -57,6 +57,12 @@ package views.experiment
 				} else {
 					return new TabSamplesIsolation();
 				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
+				if (existingTab is TabSamplesGeneric) {
+					return existingTab;
+				} else {
+					return new TabSamplesGeneric();
+				}
 			} else {
 				if (existingTab is TabSamplesView) {
 					return existingTab;

@@ -25,7 +25,13 @@ package views.experiment
 	{
 		
 		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
-			if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
+			if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
+				if (existingTab is TabConfirmGeneric) {
+					return existingTab;
+				} else {
+					return new TabConfirmGeneric();
+				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
 				if (existingTab is TabConfirmIScan) {
 					return existingTab;
 				} else {
