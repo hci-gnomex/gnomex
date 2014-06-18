@@ -268,7 +268,7 @@ package views.experiment
 			dc.editable = false;
 			dc.propertyType = property.@codePropertyType;
 			if (property.@codePropertyType == 'MOPTION') {
-				dc.itemRenderer =  MultiselectRenderer.create(true,propertyNode.@isRequired == 'true');
+				dc.itemRenderer =  MultiselectRenderer.create(true,propertyNode.@isRequired == 'true',true);
 			} else if (property.@codePropertyType == 'URL') {
 				dc.itemRenderer = URLRenderer.create(true,propertyNode.@isRequired == 'true');
 			} else if (property.@codePropertyType == 'CHECK') {

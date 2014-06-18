@@ -32,10 +32,13 @@
 			[Bindable]
 			public var _enabledFunction:Function;
 			
+			[Bindable]
+			public var _visibleField:String;
+			
 			public var dirty:DirtyNote
 			
-			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true, _enabledField:String=null, _enabledFunction:Function=null):IFactory {
-				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice, _enabledField:_enabledField, _enabledFunction:_enabledFunction});
+			public static function create(dirty:DirtyNote=null, allowMultipleChoice:Boolean=true, _enabledField:String=null, _enabledFunction:Function=null, _visibleField:String=null):IFactory {
+				return RendererFactory.create(CheckBoxRenderer, {dirty:dirty, allowMultipleChoice:allowMultipleChoice, _enabledField:_enabledField, _enabledFunction:_enabledFunction, _visibleField:_visibleField});
 			}		
 			
 			override public function set data(value:Object):void {
@@ -98,6 +101,12 @@
 					return;
 				}
 				
+				if (this._visibleField != null) {
+					if (data[_visibleField] != 'Y') {
+						this.visible = false;
+						return;
+					}
+				}
 				
 				
 				if (this._enabledField != null) {
