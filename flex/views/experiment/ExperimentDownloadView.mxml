@@ -43,7 +43,18 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get request download list', event)"
 		method="POST"
 		useProxy="false">
-	</mx:HTTPService >	
+	</mx:HTTPService >
+	
+	<mx:HTTPService  
+		id="fdtUploadStart" 
+		url="FastDataTransferUploadStart.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadStart(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
 	
 	
 	<mx:Script>
@@ -95,6 +106,8 @@
 			
 			private var estimatedDownloadSize:Number;
 			
+			public var showFdtCommand:Boolean = false;
+			
 			private const DOWNLOAD_FILES_URL:String    = "DownloadFileServlet.gx"; 
 			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-data";  
 			
@@ -106,6 +119,8 @@
 			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
 			
 			private var dateFormatter:DateFormatter = new DateFormatter();
+			
+			public var showCommandLineInstructions:Boolean = false;
 			
 			public function set request(value:Object):void {
 				_request = value;
@@ -311,8 +326,14 @@
 				if (parentApplication.guestEmailAddress != null) {
 					parms.emailAddress = parentApplication.guestEmailAddress;
 				}
+				parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
 				url.data = parms;
-				navigateToURL(url, '_self');						
+				if(showCommandLineInstructions){
+					navigateToURL(url, '_blank');
+					showCommandLineInstructions = false;
+				} else{
+					navigateToURL(url, '_self');
+				}
 			}
 			
 			public function showAlternateDownloadPage(selectedFiles:XMLList):void {
@@ -343,6 +364,33 @@
 					navigateToURL(url1, '_blank');	
 				}
 				
+			}
+			
+			public function startFDTUpload():void {			
+				var params:Object = new Object();		
+				params.idRequest = getRequestDownloadList.lastResult..Request[0].@idRequest;
+				showCommandLineInstructions = true;
+				
+				fdtUploadStart.send(params);
+			}
+			
+			private function onFdtUploadStart(event:ResultEvent):void {
+				if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+					var uuid:String = fdtUploadStart.lastResult.@uuid;
+					
+					var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+					var uv:URLVariables = new URLVariables();
+					uv.uuid = uuid;
+					uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					url.data = uv;
+					url.method = URLRequestMethod.POST;		
+					if(showCommandLineInstructions){
+						navigateToURL(url, '_blank');
+						showCommandLineInstructions = false;
+					} else{
+						navigateToURL(url, '_self');
+					}
+				}
 			}
 			
 			
@@ -443,6 +491,11 @@
 							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
 							   click="showExperimentFDTUploadWindow()" 
 							   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+				<mx:LinkButton label="FDT Upload Command Line" 
+							   visible="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
+							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
+							   click="startFDTUpload()" 
+							   id="fdtUploadCommandLine" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
 				<mx:LinkButton label="Manage files"  
 							   click="showExperimentOrganizeWindow()" 
 							   toolTip="Add, delete, rename files and folders."
