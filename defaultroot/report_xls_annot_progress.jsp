@@ -38,6 +38,7 @@ int     PALLETE_LIGHT_GREY_INDEX = 44;
 int     PALLETE_DARK_GREY_INDEX = 45;
 int     PALLETE_WHITE_INDEX = 46;
 int     PALLETE_CELL_BORDER_INDEX = 47;
+int     PALLETE_GREEN_INDEX = 48;
 
 
 // Column numbers of significance (requires special logic)
@@ -57,6 +58,7 @@ palette.setColorAtIndex(new Byte((byte) PALLETE_LIGHT_GREY_INDEX),new Byte((byte
 palette.setColorAtIndex(new Byte((byte) PALLETE_DARK_GREY_INDEX), new Byte((byte) 115),  new Byte((byte) 110), new Byte((byte) 111));
 palette.setColorAtIndex(new Byte((byte) PALLETE_WHITE_INDEX),     new Byte((byte) 255),   new Byte((byte) 255),   new Byte((byte) 255));
 palette.setColorAtIndex(new Byte((byte) PALLETE_CELL_BORDER_INDEX),  new Byte((byte) 115),  new Byte((byte) 110), new Byte((byte) 111));
+palette.setColorAtIndex(new Byte((byte) PALLETE_GREEN_INDEX),     new Byte((byte) 138),   new Byte((byte) 230),   new Byte((byte) 138));
 
 // Fonts		
 short fontHeightTitle = 16;
@@ -227,6 +229,36 @@ warningTopBorderStyle.setLeftBorderColor(palette.getColor(PALLETE_CELL_BORDER_IN
 warningTopBorderStyle.setRightBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
 
 
+// Success cell  (green)
+HSSFCellStyle successStyle = workbook.createCellStyle();
+successStyle.setFillForegroundColor(palette.getColor(PALLETE_GREEN_INDEX).getIndex());
+successStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+successStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
+successStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+successStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+successStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+successStyle.setTopBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successStyle.setBottomBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successStyle.setLeftBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successStyle.setRightBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+
+HSSFCellStyle successLegendStyle = workbook.createCellStyle();
+successLegendStyle.setFillForegroundColor(palette.getColor(PALLETE_GREEN_INDEX).getIndex());
+successLegendStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+successLegendStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+
+HSSFCellStyle successTopBorderStyle = workbook.createCellStyle();
+successTopBorderStyle.setFillForegroundColor(palette.getColor(PALLETE_GREEN_INDEX).getIndex());
+successTopBorderStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+successTopBorderStyle.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
+successTopBorderStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+successTopBorderStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+successTopBorderStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+successTopBorderStyle.setBottomBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successTopBorderStyle.setLeftBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successTopBorderStyle.setRightBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+
+
 // Blank row style
 HSSFCellStyle blankStyle = workbook.createCellStyle();
 blankStyle.setFillForegroundColor(palette.getColor(PALLETE_WHITE_INDEX).getIndex());
@@ -374,7 +406,7 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 5).setCellStyle(bottomBorderStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 6).setCellStyle(bottomBorderStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 7).setCellStyle(bottomBorderStyle);
-		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightBottomBorderStyle);
+		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightBorderStyle);
 		for (int x = 0; x < FIRST_COL_FOR_ANNOTS; x++) {
 			titleRow4.createCell(x).setCellStyle(blankStyle);
 		}
@@ -385,10 +417,34 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 
 
 
+
+		HSSFRow titleRow5 = sheet.createRow(rowNumber++);
+		cell = titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 1);
+		cell.setCellValue("");
+		cell.setCellStyle(successLegendStyle);
+		cell = titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 2);
+		cell.setCellValue("Complete Annotation (annotation is filled in for every sample)");
+		cell.setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 3).setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 4).setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 5).setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 6).setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 7).setCellStyle(bottomBorderStyle);
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightBottomBorderStyle);
+		for (int x = 0; x < FIRST_COL_FOR_ANNOTS; x++) {
+			titleRow5.createCell(x).setCellStyle(blankStyle);
+		}
+		for (int x = FIRST_COL_FOR_ANNOTS + 9; x < tray.getColumns().size(); x++) {
+			titleRow5.createCell(x).setCellStyle(blankStyle);
+		}
+		sheet.addMergedRegion(new CellRangeAddress( 6, 6, FIRST_COL_FOR_ANNOTS + 2, FIRST_COL_FOR_ANNOTS + 8));
+
+
 		// Rest of the Legend, need border before merging cells
 		titleRow3.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBorderStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBottomBorderStyle);
-		sheet.addMergedRegion(new CellRangeAddress( 3, 5, FIRST_COL_FOR_ANNOTS, FIRST_COL_FOR_ANNOTS));
+		titleRow5.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBottomBorderStyle);
+		sheet.addMergedRegion(new CellRangeAddress( 3, 6, FIRST_COL_FOR_ANNOTS, FIRST_COL_FOR_ANNOTS));
 
 		
 		// Blank Row
@@ -444,7 +500,7 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 			
 			// Is this cell numeric?
 			boolean isNumeric = false;
-			if (isStandardAnnotCell && !val.equals("") && !val.equals(" ") && !val.equals("X") && !val.equals("n/a")) {
+			if (isStandardAnnotCell && !val.equals("missing") && !val.equals("missingNew") && !val.equals("complete") && !val.equals("n/a")) {
 			 	// If this is a non-blank annot cell that doesn't have an "X" or "n/a", it has a sample count
 			 	// and is therefore numeric
 				 isNumeric = true;
@@ -481,19 +537,30 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 			// Style the annot cell with a fill color if annotation is missing
 			if (isStandardAnnotCell) {
 				
-				// Standard annot cell - "X" is filled red, "n/a" is filled grey, sample count is filled light red
-				if (val.equals("X")) {
-					// Blank out the "X", show as error cell (red) 
+				// Standard annot cell - "missing" is filled red, "missingNew" is filled grey, sample count is filled light red
+				if (val.equals("missing")) {
+					// Blank out the "missing", show as error cell (red) 
  					cell.setCellValue("");
 			  		cell.setCellStyle(isLabBreak ? errorTopBorderStyle : errorStyle);
-				} else if (val.equals("n/a")) {
-			  		// Grey out "n/a" for missing annotations on experiments w/o files 
+				} else if (val.equals("missingNew")) {
+			  		// Grey out "missingNew" for missing annotations on experiments w/o files 
 			  		cell.setCellValue("");
 			  		cell.setCellStyle(isLabBreak ? warningTopBorderStyle : warningStyle);		  
+			 	} else if (val.equals("n/a")) {
+			  		// Blank out "n/a".  This annotation is not applicable for experiment. 
+			  		// Show as blank cell. 
+			  		cell.setCellValue("");
+			 		cell.setCellStyle(isLabBreak ? labBreakAnnotStyle : defaultAnnotStyle);
+			 	} else if (val.equals("complete")) {
+			  		// Blank out "complete" annotations and show as green cell 
+			  		cell.setCellValue("");
+			  		cell.setCellStyle(isLabBreak ? successTopBorderStyle : successStyle);		  
 			 	} else if (isNumeric && !val.equals("")) {
 			  		// Show sample count as partial error (light red)
 			  		cell.setCellStyle(isLabBreak? partialErrorTopBorderStyle : partialErrorStyle);
 			 	} else {
+			 		// We should never get to this condition.  If we do, just show
+			 		// it as a cell with the value to help troubleshoot the problem.
 			 		cell.setCellStyle(isLabBreak ? labBreakAnnotStyle : defaultAnnotStyle);
 			 	}
 			
@@ -501,12 +568,8 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 			 	// Sample source annot cell - Blank is filled red, "n/a" is filled grey
 			 	if (val.equals("") || val.equals(" ")) {
 					cell.setCellStyle(isLabBreak ? errorTopBorderStyle : errorStyle);
-			 	} else if (val.equals("n/a")) {
-			  		// Grey out "n/a" for missing annotations on experiments w/o files 
-			  		cell.setCellValue("");
-			  		cell.setCellStyle(isLabBreak ? warningTopBorderStyle : warningStyle);		  
-			 	} else {
-			 		cell.setCellStyle(isLabBreak ? labBreakAnnotStyle : defaultAnnotStyle);
+			 	}  else {
+			 		cell.setCellStyle(isLabBreak ? successTopBorderStyle : successStyle);
 			 	}
 			}
 		  
