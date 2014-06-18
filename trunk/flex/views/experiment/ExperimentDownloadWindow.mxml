@@ -540,6 +540,14 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
+			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownloadCommand" 
+					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" 
+					   enabled="{filesToDownload.length>0}"
+					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))" 
+					   label="FDT Command Line"  
+					   toolTip="Download large files using FDT"
+					   disabledIcon="@Embed('../../assets/download_disable.png')"
+					   icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownload" 
 					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" 
 					   enabled="{filesToDownload.length>0}"

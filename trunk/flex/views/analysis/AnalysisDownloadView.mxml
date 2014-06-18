@@ -45,6 +45,17 @@
 		useProxy="false">
 	</mx:HTTPService >	
 	
+	<mx:HTTPService  
+		id="fdtUploadStart" 
+		url="FastDataTransferUploadStart.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadStart(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -95,6 +106,10 @@
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
+			
+			public var showCommandLineInstructions:Boolean = false;
+			
+			public var idAnalysis:String = "";
 			
 			private var estimatedDownloadSize:Number;
 			
@@ -194,8 +209,42 @@
 				if (parentApplication.guestEmailAddress != null) {
 					parms.emailAddress = parentApplication.guestEmailAddress;
 				}
+				parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
 				url.data = parms;
-				navigateToURL(url, '_self');					
+				if(showCommandLineInstructions){
+					navigateToURL(url, '_blank');
+					showCommandLineInstructions = false;
+				} else{
+					navigateToURL(url, '_self');
+				}					
+			}
+			
+			public function startFDTUpload():void {			
+				var params:Object = new Object();		
+				params.idAnalysis = idAnalysis;
+				showCommandLineInstructions = true;
+				
+				fdtUploadStart.send(params);
+			}
+			
+			private function onFdtUploadStart(event:ResultEvent):void {
+				if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+					var uuid:String = fdtUploadStart.lastResult.@uuid;
+					
+					var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+					var uv:URLVariables = new URLVariables();
+					uv.uuid = uuid;
+					uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					url.data = uv;
+					url.method = URLRequestMethod.POST;
+					if(showCommandLineInstructions){
+						navigateToURL(url, '_blank');
+						showCommandLineInstructions = false;
+					} else{
+						navigateToURL(url, '_self');
+					}
+					
+				}
 			}
 			
 			private function onCacheAnalysisFileDownloadList(event:ResultEvent):void {
@@ -519,6 +568,11 @@
 							   id="linkbutton1" textDecoration="underline" 
 							   icon="@Embed(source='../../assets/upload.png')" 
 							   textAlign="left"/>
+				<mx:LinkButton label="FDT Upload Command Line" 
+							   visible="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
+							   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
+							   click="this.startFDTUpload()" 
+							   id="fdtUploadCommandLine" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
 				<mx:LinkButton label="FDT Upload files" 
 							   visible="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
 							   includeInLayout="{this.uploadButtonsVisible &amp;&amp; parentApplication.isFDTSupported}"
