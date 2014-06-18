@@ -26,6 +26,8 @@ package views.renderers
 	import mx.events.ListEvent;
 	import mx.managers.IFocusManagerComponent;
 	
+	import views.renderers.FilterComboBoxAnnotation;
+	
 	import views.util.DataGridAlternatingGroup;
 	import views.util.FillButtonClickEvent;
 	
@@ -77,6 +79,10 @@ package views.renderers
 				hci.flex.controls.ComboBox(edtComponent).value = value[_listData.dataField];				
 				hci.flex.controls.ComboBox(edtComponent).data = value;				
 			}
+			if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
+				views.renderers.FilterComboBoxAnnotation(edtComponent).value = value[_listData.dataField];				
+				views.renderers.FilterComboBoxAnnotation(edtComponent).data = value;				
+			}
 			if(edtComponent is mx.controls.TextInput) {
 				mx.controls.TextInput(edtComponent).text = value[_listData.dataField];
 				mx.controls.TextInput(edtComponent).data = value;
@@ -106,6 +112,9 @@ package views.renderers
 			if(edtComponent is hci.flex.controls.ComboBox) {
 				edtComponent.addEventListener(ListEvent.CHANGE, edtComboChanged);
 				//hci.flex.controls.ComboBox(edtComponent).editable = true;
+			}
+			if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
+				edtComponent.addEventListener(ListEvent.CHANGE, edtComboChanged);
 			}
 			if(edtComponent is mx.controls.TextInput) {
 				edtComponent.addEventListener(Event.CHANGE, txtInputChanged);
@@ -179,6 +188,9 @@ package views.renderers
 				if(edtComponent is hci.flex.controls.ComboBox) {
 					thisValue = String(hci.flex.controls.ComboBox(edtComponent).value);				
 				}
+				if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
+					thisValue = String(views.renderers.FilterComboBoxAnnotation(edtComponent).value);				
+				}
 				if(edtComponent is mx.controls.TextInput) {
 					thisValue = mx.controls.TextInput(edtComponent).text;
 				}
@@ -225,6 +237,9 @@ package views.renderers
 			
 			if(edtComponent is hci.flex.controls.ComboBox) {
 				value = hci.flex.controls.ComboBox(edtComponent).value;				
+			}
+			if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
+				value = views.renderers.FilterComboBoxAnnotation(edtComponent).value;				
 			}
 			if(edtComponent is mx.controls.TextInput) {
 				value = mx.controls.TextInput(edtComponent).text;
