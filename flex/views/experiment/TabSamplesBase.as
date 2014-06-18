@@ -16,6 +16,7 @@ package views.experiment
 	import mx.utils.ObjectUtil;
 	
 	import views.renderers.CheckBoxRenderer;
+	import views.renderers.DropdownLabelAnnotation;
 	import views.renderers.MultiselectRenderer;
 	import views.renderers.URLRenderer;
 	import views.util.AnnotationAdvancedDataGridColumn;
@@ -275,6 +276,7 @@ package views.experiment
 			} else if (property.@codePropertyType == 'OPTION') {
 				dc.editable = true;
 				dc.editorDataField = "value"
+					/*
 				dc.itemRenderer = views.renderers.DropdownLabel.create(
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions), 
 					'@option', 
@@ -282,8 +284,18 @@ package views.experiment
 					fieldName,
 					propertyNode.@isRequired == 'true',
 					true,
-				    parentApplication.annotationColor);                
-				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
+				    parentApplication.annotationColor);
+					*/
+				dc.itemRenderer = views.renderers.DropdownLabelAnnotation.create(
+					"@option",
+					"@idPropertyOption",
+					fieldName,
+					propertyNode.@idProperty.toString(),
+					parentApplication,
+					propertyNode.@isRequired == 'true',
+					true,
+					parentApplication.annotationColor);
+				/*dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions),
 					"@option",
 					"@idPropertyOption",
@@ -292,6 +304,13 @@ package views.experiment
 					true,
 					true,
 					false,
+					true).newInstance(), '');		*/				
+				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.FilterComboBoxAnnotation.create(
+					"@option",
+					"@idPropertyOption",
+					fieldName,
+					propertyNode.@idProperty.toString(),
+					includeInactiveOptions,
 					true).newInstance(), '');						
 			} else  {
 				// Assume text
