@@ -127,7 +127,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   @SuppressWarnings("unchecked")
   public Command execute() throws RollBackCommandException {
     
-    this.SUCCESS_JSP_XLS = "/report_xls_native.jsp";
+    this.SUCCESS_JSP_XLS = "/report_xls_annot_progress.jsp";
     this.ERROR_JSP = "/message.jsp";
     
     
@@ -138,13 +138,13 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       
       // Check permissions
       if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-    	  // No restrictions for admins
+        // No restrictions for admins
       } else {
           if (idLab != null) {
-        	  if (!this.secAdvisor.isGroupIAmMemberOrManagerOf(idLab)) {
-        		  throw new RuntimeException("Insufficient permissions to access experiments for lab " + idLab );
-        	  }
-          }    	  
+            if (!this.secAdvisor.isGroupIAmMemberOrManagerOf(idLab)) {
+              throw new RuntimeException("Insufficient permissions to access experiments for lab " + idLab );
+            }
+          }       
       }
       
       // Get the lab if one was provided as a parameter.  we will use this
@@ -257,6 +257,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
               // Put the missing annotations in a list so we can reference them with the experiment
               // when we generate the detail report
               prevExperimentInfo.missingAnnotationMapForExperiment = missingAnnotationMapForExperiment;
+              prevExperimentInfo.requiredPropertiesForExperiment = requiredPropertiesForExperiment;
               this.incompleteExperimentMapForLab.put(prevIdRequest, prevExperimentInfo);
             }
             
@@ -612,35 +613,53 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         if (prop.getName().equals("Sample Source")) {
           continue;
         }
+        //
+        //  For each property, the cell will contain one of these values:
+        //     "missing"     - annotation is blank on this experiment's samples
+        //     "missingNew"  - same as "missing", but this is for a new experiment
+        //     [an integer]  - partially missing. annotation is blank on some of the experiment's samples 
+        //     "complete"    - annotation is filled in on all of the samples for the experiment
+        //     "n/a"         - this annotation isn't applicable for this experiment
         if (expInfo.missingAnnotationMapForExperiment.containsKey(prop.getName())) {
           List<String> sampleNumbers = expInfo.missingAnnotationMapForExperiment.get(prop.getName());
           if (!this.experimentWithFileMap.containsKey(expInfo.idRequest)) {
-            // If the experiment doesn't have any files, we will mark the missing annotation in grey
-            values.add("n/a");
+            // If the experiment doesn't have any files, we will mark the as missing/new experiment.
+            values.add("missingNew");
           } else if (sampleNumbers.size() < expInfo.sampleCount) {
             // If only some of the samples are missing the annotation, show the count of the samples missing annot;
-            // otherwise, show an "X";
             values.add(Integer.valueOf(sampleNumbers.size()).toString());            
           } else {
-            values.add("X");
+            values.add("missing");
           }
         } else {
-          values.add(" ");
+          // There are 2 cases where required property is not in missingAnnotationMap for experiment.
+          // 1. All annotations were present ("present")
+          // 2. The annotation is not applicable  ("n/a")
+          boolean found = false;
+          for (Property requiredProperty : expInfo.requiredPropertiesForExperiment) {
+            if (requiredProperty.getName().equals(prop.getName())) {
+              found = true;
+              break;
+            }
+          }         
+          // 
+          values.add(found ? "complete" : "n/a");
         }
       }
       
       // Last annotation column will indicate if any sample is missing link to files
       if (expInfo.missingAnnotationMapForExperiment.containsKey(SAMPLE_FILE_LINK)) {
         List<String> sampleNumbers = expInfo.missingAnnotationMapForExperiment.get(SAMPLE_FILE_LINK);
-        // If only some of the samples are missing the annotation, show the count of the samples missing annot;
-        // otherwise, show an "X";
+        // If all of the samples have links to files, show "complete" in the cell.
+        // If only some of the samples are missing link to the files, show the count of the samples 
+        // that are missing the link; otherwise mark the cell as "missing".
         if (sampleNumbers.size() < expInfo.sampleCount) {
           values.add(Integer.valueOf(sampleNumbers.size()).toString());            
         } else {
-          values.add("X");
+          values.add("missing");
         }
       } else {
-        values.add(" ");
+        values.add("complete");
       }
       
       reportRow.setValues(values);
@@ -730,16 +749,17 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
   }
   
   private static class ExperimentInfo {
-    public String      labName;
-    public String      requestNumber;
-    public Integer     idRequest;
-    public String      submitter;
-    public Integer     idOrganism;
-    public String      codeRequestCategory;
-    public String      codeApplication;
-    public String      sampleSource;
-    public int         sampleCount;
-    public Map<String, List<String>> missingAnnotationMapForExperiment;
+    public String         labName;
+    public String         requestNumber;
+    public Integer        idRequest;
+    public String         submitter;
+    public Integer        idOrganism;
+    public String         codeRequestCategory;
+    public String         codeApplication;
+    public String         sampleSource;
+    public int            sampleCount;
+    public Map<String,    List<String>> missingAnnotationMapForExperiment;
+    public List<Property> requiredPropertiesForExperiment;
     
   }
   
