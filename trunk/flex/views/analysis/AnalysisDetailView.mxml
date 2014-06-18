@@ -84,6 +84,8 @@
 					}
 					
 				}
+				
+				this.filesView.idAnalysis = this.analysis.@idAnalysis
 
 				
 				getAnalysisTypeName();
