@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="440" height="100" 
+				width="393" height="100" 
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				title="Add New Annotation Option">
@@ -132,8 +132,8 @@
 	</mx:Script>
 	
 	<mx:VBox width="100%" height="100%" verticalGap="10">
-		<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-			<mx:Label text="Option Name:"  width="80" />
+		<mx:HBox width="100%" verticalGap="0" verticalAlign="middle" horizontalGap="0" paddingRight="0">
+			<mx:Label text="Option Name:" />
 			<mx:TextInput width="293" id="oName" maxChars="100" />
 		</mx:HBox>		 
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
