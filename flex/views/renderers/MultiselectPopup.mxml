@@ -179,7 +179,13 @@
 							   dataField="@isSelected" 
 							   editorDataField="selected"
 							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true, null, null, '@isCheckboxVisible')}" />
-			<mx:DataGridColumn headerText="Option"  dataField="@display" />
+			<mx:DataGridColumn headerText="Option">
+				<mx:itemRenderer >
+					<mx:Component>
+						<mx:Label text="{data.@display}" styleName="{data.@value == -1 ? 'formLinkButton' : 'TextInput'}" />
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>
 	
