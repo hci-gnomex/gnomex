@@ -2130,7 +2130,9 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`NucleotideType`;
 create table gnomex.NucleotideType (
   codeNucleotideType varchar(50), 
-  PRIMARY KEY(codeNucleotideType)) ;
+  PRIMARY KEY(codeNucleotideType)
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
 CREATE TABLE `gnomex`.`SampleTypeApplication` (
