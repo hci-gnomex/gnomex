@@ -353,6 +353,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     prop.setForDataTrack(propertyScreen.getForDataTrack());
     prop.setForAnalysis(propertyScreen.getForAnalysis());
     prop.setIsRequired(propertyScreen.getIsRequired());
+    prop.setSortOrder(propertyScreen.getSortOrder());
     prop.setCodePropertyType(propertyScreen.getCodePropertyType());
     prop.setIdAppUser(propertyScreen.getIdAppUser());
     prop.setDescription(propertyScreen.getDescription());

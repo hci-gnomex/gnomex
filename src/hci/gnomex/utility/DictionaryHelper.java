@@ -119,7 +119,7 @@ public class DictionaryHelper implements Serializable {
     
     
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT p from Property as p order by p.name");
+    queryBuf.append("SELECT p from Property as p order by case when sortOrder is null then 999999 else sortOrder end, p.name");
     List properties = sess.createQuery(queryBuf.toString()).list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
       Property prop = (Property)i.next();
