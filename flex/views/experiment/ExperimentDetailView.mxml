@@ -1209,32 +1209,32 @@
 						}
 						
 						// We already have this column.  Just set the header and visible and move on.
-						if (exists) {
-							continue;
-						}
 						var newCol:AdvancedDataGridColumnWithType = new AdvancedDataGridColumnWithType();
-						newCol.dataField  = "@ANNOT" + annotation.@idProperty;
-						newCol.headerText = headerName;
-						newCol.visible    = (annotation.@isSelected == "true" ? true : false);
-						newCol.propertyType = property.@codePropertyType;
-						
-						if (property.@codePropertyType == 'MOPTION') {
-							newCol.itemRenderer =  MultiselectRenderer.create(false);
-						} else if (property.@codePropertyType == 'URL') {
-							newCol.itemRenderer = URLRenderer.create(false);
-						} else if (property.@codePropertyType == 'CHECK') {
-							// checkbox is just normal label renderer
-						} else if (property.@codePropertyType == 'OPTION') {             
-							newCol.itemRenderer = views.renderers.DropdownLabel.create(
-								parentApplication.getPropertyOptions(annotation.@idProperty), 
-								'@option', 
-								'@idPropertyOption', 
-								"@ANNOT" + annotation.@idProperty,
-								false);                
-						} else{
-							newCol.wordWrap = true;
-						}
-						
+						if (exists) {
+							newCol = AdvancedDataGridColumnWithType(col);
+						} else {
+							newCol.dataField  = "@ANNOT" + annotation.@idProperty;
+							newCol.headerText = headerName;
+							newCol.visible    = (annotation.@isSelected == "true" ? true : false);
+							newCol.propertyType = property.@codePropertyType;
+							
+							if (property.@codePropertyType == 'MOPTION') {
+								newCol.itemRenderer =  MultiselectRenderer.create(false);
+							} else if (property.@codePropertyType == 'URL') {
+								newCol.itemRenderer = URLRenderer.create(false);
+							} else if (property.@codePropertyType == 'CHECK') {
+								// checkbox is just normal label renderer
+							} else if (property.@codePropertyType == 'OPTION') {             
+								newCol.itemRenderer = views.renderers.DropdownLabel.create(
+									parentApplication.getPropertyOptions(annotation.@idProperty), 
+									'@option', 
+									'@idPropertyOption', 
+									"@ANNOT" + annotation.@idProperty,
+									false);                
+							} else{
+								newCol.wordWrap = true;
+							}
+						}						
 						
 						// Place the new column right after the description column
 						var columns:Array = samplesGridConfirm.columns;
@@ -1243,7 +1243,9 @@
 							if (column.dataField == "@description") {
 								newColumns.push(newCol);
 							}
-							newColumns.push(column);
+							if (column != newCol) {
+								newColumns.push(column);
+							}
 						}
 						samplesGridConfirm.columns = newColumns;
 						
