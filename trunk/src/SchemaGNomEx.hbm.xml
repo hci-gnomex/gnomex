@@ -1704,7 +1704,7 @@
 	</class>	
 	
 	
-  <!-- hci.gnomex.model.Property -->
+  <!-- hci.gnomex.model.PropertyDictionary -->
 	<class name="hci.gnomex.model.PropertyDictionary" table="PropertyDictionary">
 		<id name="idPropertyDictionary" column="idPropertyDictionary" type="integer">
 			<generator class="native"/>
@@ -1791,6 +1791,7 @@
 		<property name="forSample" column="forSample" type="string"/>
 		<property name="forAnalysis" column="forAnalysis" type="string"/>
 		<property name="forDataTrack" column="forDataTrack" type="string"/>
+    <property name="sortOrder"           column="sortOrder" type="integer"/>
 
 		<set name="options" table="PropertyOption" lazy="false" cascade="delete" order-by="sortOrder" inverse="true">
 			<key column="idProperty"/>

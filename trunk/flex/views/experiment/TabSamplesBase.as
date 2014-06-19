@@ -570,7 +570,11 @@ package views.experiment
 		
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
-			return parentApplication.getPropertyOptions(idProperty, parentDocument.isEditState());
+			var includeInactive:Boolean = true;
+			if (parentDocument != null) {
+				includeInactive = parentDocument.isEditState();
+			}
+			return parentApplication.getPropertyOptions(idProperty, includeInactive);
 		}
 		
 		protected function addOrganism():void {

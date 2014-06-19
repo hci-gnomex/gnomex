@@ -1909,6 +1909,7 @@ CREATE TABLE `gnomex`.`Property` (
   `forAnalysis` CHAR(1) NULL default 'N',
   `forDataTrack` CHAR(1) NULL default 'N',
   codePropertyType VARCHAR(10) not null,
+  `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idProperty`),
   CONSTRAINT `FK_Property_AppUser` FOREIGN KEY `FK_Property_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
