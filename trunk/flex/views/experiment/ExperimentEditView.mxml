@@ -973,11 +973,6 @@
 		}
 
 		private function nextTab():void {
-			if(theTab.selectedChild == this.samplesView && isSolexaState()) {
-				if (!theTab.getTabAt(theTab.selectedIndex).document.samplesView.areIndexTagsUnique()) {
-					Alert.show("WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled.", "Warning");
-				}				
-			}
 			theTab.selectedIndex++;
 			while (!theTab.getTabAt(theTab.selectedIndex).visible) {
 				theTab.selectedIndex++;
@@ -2855,6 +2850,10 @@
 						errorMessage += "Please fill in missing multiplex group numbers.\n\n";
 						break;
 					}
+				}
+				
+				if(!this.samplesView.areIndexTagsUnique()){
+					warningMessage += "Two or more samples in the same multiplex group do not differ by at least 3 base pairs.\n\n";
 				}
 			}
 			
