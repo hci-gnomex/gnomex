@@ -161,26 +161,63 @@
         }
 			
 		private function areAandBTagsUnique():void{
-			var barcodeField:String = "";
-			var barcodeFieldB:String = "";
 			var areUnique:Boolean = true;
-
-			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
-			dirtyWorkItems = new XMLListCollection(dirtyItems);
-			for each(var workItem:Object in dirtyWorkItems){
-				if(workItem.@idOligoBarcode != "" && workItem.@idOligoBarcodeB != ""){
-					if(workItem.@idOligoBarcode == workItem.@idOligoBarcodeB){
+			var idRequest:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@idRequest : "";;
+			var requestNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@requestNumber : "";
+			var multiplexGroupNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@multiplexGroupNumber : "";
+			var barcodes:ArrayCollection = new ArrayCollection();
+			for each(var workItem:Object in workList){
+				if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
+					var barcodeSequence:String = workItem.@barcodeSequence + workItem.@barcodeSequenceB;
+					if(barcodeSequence != null && barcodeSequence != ""){
+						barcodes.addItem(barcodeSequence);
+					}
+				} else{
+					if(!checkBasePairs(barcodes)){
 						areUnique = false;
 						break;
 					}
-					
+					idRequest = workItem.@idRequest;
+					multiplexGroupNumber = workItem.@multiplexGroupNumber;
+					requestNumber = workItem.@requestNumber;
+					barcodes = new ArrayCollection();
 				}
 			}
 			
 			if(areUnique == false){
-				Alert.show("Some work items have the same tag specified for both Index Tag A and B. Continue?", "Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
+				Alert.show("Request " + requestNumber + 
+							" has samples in the same multiplex group whose barcodes do not differ by at least 3 base pairs. Continue?", 
+							"Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
 			} else{
 				save();
+			}
+		}
+			
+		private function checkBasePairs(barcodes:ArrayCollection):Boolean{
+			for(var i:int = 0; i < barcodes.length; i++){
+				var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+				for(var j:int = i+1; j < barcodes.length; j++){
+					var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+					if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+			
+		private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
+			var uniqueBaseCount:int = 0;
+			for(var i:int = 0; i < sequenceOne.length; i++){
+				if(sequenceOne[i] != sequenceTwo[i]){
+					uniqueBaseCount++;
+				}
+			}
+			
+			if(uniqueBaseCount >= 3){
+				return true;
+			} else{
+				return false;
 			}
 		}
 		
