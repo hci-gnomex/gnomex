@@ -321,22 +321,7 @@
 						}
 					}						
 				}					
-				if(flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed.toString() != event.items[0].source.@idNumberSequencingCyclesAllowed.toString() ) {
-					//Alert.show("This sample has a different sequence protocol than the flow cell","Warning");
-				}
-				for each(var sl:XML in assembleFlowCellWorkList) {
-					if(sl.@flowCellChannelNumber == event.items[0].source.@flowCellChannelNumber) {
-						if( sl.@number.toString() != event.items[0].source.@number.toString() ) {
 
-
-							if(sl.@barcodeSequence == event.items[0].source.@barcodeSequence && sl.@barcodeSequenceB == event.items[0].source.@barcodeSequenceB) {
-								Alert.show("This sample has the same barcode sequence as another sample in channel " + sl.@flowCellChannelNumber + ".");
-								break;
-							}
-						}
-					}
-
-				}
 				callLater(addControlBoxes);
 			}
 			private function removingFromFlowCell(event:CollectionEvent):void {
@@ -376,6 +361,7 @@
 	<!--					Save Functions							-->
 <mx:Script>
 	<![CDATA[			
+		import mx.controls.List;
 			private function save():void {								
 				warningMessage = "";
 				isValid = true;
@@ -480,28 +466,54 @@
 
 					var i:String = channelNumber.@value;
 					if(!areBarcodeSequenceTagsUnique(i)) {
-						warningMessage += "Two or more samples in channel " + i + " have the same barcode tags. This should only occur when samples (and their sequence reads) are meant to be pooled.\n\n";
+						warningMessage += "Two or more samples in channel " + i + " do not differ by at least 3 base pairs.\n\n";
 						isValid = false;
 					}
 				}
 			}
 			private function areBarcodeSequenceTagsUnique(flowCellChannelNumber:String):Boolean {
-				var workItemCount:int = 0;
-				var barcodeSequenceMap:Object = new Object();
+
+				var barcodes:ArrayCollection = new ArrayCollection();
+				
 				for each(var wi:Object in assembleFlowCellWorkList) {
 					if (wi.@flowCellChannelNumber == flowCellChannelNumber) {
-						var tag:Object = wi.@barcodeSequence + "-" + wi.@barcodeSequenceB;
-						barcodeSequenceMap[tag] = tag;					// if two tags are the same the second will overwrite the first
-						workItemCount++;							// number of workItems in the multiplexGroupNumber group of interest
+						var tag:Object = wi.@barcodeSequence + wi.@barcodeSequenceB;
+						//barcodeSequenceMap[tag] = tag;
+						if(tag != null && tag != ""){
+							barcodes.addItem(tag);
+						}
+						//workItemCount++;
 					}
 				}
+				
+				for(var i:int = 0; i < barcodes.length; i++){
+					var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+					for(var j:int = i+1; j < barcodes.length; j++){
+						var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+						if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
+							return false;
+						}
+					}
+				}
+				
 
-				var uniqueBarcodeSequenceTagCount:int = 0;
-				for (var barcodeSequenceTag:Object in barcodeSequenceMap) {
-					uniqueBarcodeSequenceTagCount++;								// the map has stored only unique tags
-				}				
-
-				return uniqueBarcodeSequenceTagCount == workItemCount;			// if two tags were identical these will not match
+			
+				return true;
+			}
+		
+			private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
+				var uniqueBaseCount:int = 0;
+				for(var i:int = 0; i < sequenceOne.length; i++){
+					if(sequenceOne[i] != sequenceTwo[i]){
+						uniqueBaseCount++;
+					}
+				}
+				
+				if(uniqueBaseCount >= 3){
+					return true;
+				} else{
+					return false;
+				}
 			}
 			
 			private function saveWorkItems():void {

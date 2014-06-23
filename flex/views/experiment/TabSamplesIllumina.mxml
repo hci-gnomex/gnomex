@@ -15,6 +15,7 @@
 			
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
+			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -460,7 +461,7 @@
 				// Make sure the sample index tags are unique
 				if (isComplete) {
 					if (!areIndexTagsUnique()) {
-						parentDocument.userWarningsSamples += "WARNING: Duplicate index tags have been specified.  This should only occur when samples (and their reads) are meant to be pooled."; 
+						parentDocument.userWarningsSamples += "WARNING: Two or more samples in the same multiplex group do not differ by at least 3 base pairs."; 
 					}
 				}
 				
@@ -824,7 +825,6 @@
 			}
 			
 			override public function areIndexTagsUnique():Boolean {
-				var isValid:Boolean = true;
 				var barcodeField:String = "";
 				var barcodeFieldB:String = "";
 				if (parentDocument.showSampleCustomBarcodes()) {
@@ -834,7 +834,7 @@
 					barcodeField = "@idOligoBarcode";
 					barcodeFieldB = "@idOligoBarcodeB";
 				} else {
-					return isValid;
+					return true;
 				}
 				
 				var sampleMap:Object = new Object();
@@ -847,24 +847,44 @@
 					sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
 				}
 				
+				var barcodes:ArrayCollection = new ArrayCollection();
+				
 				for (var multiplexGroupNumber:Object in sampleMap) {
 					var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
-					var tagMap:Object = new Object();
 					for each(var s1:Object in samplesInGroup) {
 						var barcode:Object = s1[barcodeField];
-						barcode += "-" + s1[barcodeFieldB];
-						tagMap[barcode] = barcode;
-					}
-					var uniqueTagCount:int = 0;
-					for (var tm:Object in tagMap) {
-						uniqueTagCount++;
-					}
-					if (uniqueTagCount < samplesInGroup.length) {
-						isValid = false;
-						break;
+						barcode += s1[barcodeFieldB];
+						if(barcode != null && barcode != ""){
+							barcodes.addItem(barcode);
+						}
 					}
 				}
-				return isValid;
+				
+				for(var i:int = 0; i < barcodes.length; i++){
+					var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+					for(var j:int = i+1; j < barcodes.length; j++){
+						var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+						if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
+			private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
+				var uniqueBaseCount:int = 0;
+				for(var i:int = 0; i < sequenceOne.length; i++){
+					if(sequenceOne[i] != sequenceTwo[i]){
+						uniqueBaseCount++;
+					}
+				}
+				
+				if(uniqueBaseCount >= 3){
+					return true;
+				} else{
+					return false;
+				}
 			}
 			
 			private function onDragDropSample(event:DragEvent) : void
