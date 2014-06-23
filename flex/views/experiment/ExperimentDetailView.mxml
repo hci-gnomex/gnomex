@@ -170,7 +170,7 @@
 					designAndInsertLabel.text = "Custom Design Id";
 					designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 				}
-				else{
+				else if ( libDesignAndInsertBox != null ) {
 					libDesignAndInsertBox.visible = false;
 					libDesignAndInsertBox.includeInLayout = false;
 				}
@@ -1535,7 +1535,7 @@
 					</mx:HBox>							
 				</mx:Tile>							
 			</mx:HBox>				          
-			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">
+			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
 				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 					<mx:HBox width="100%" >
 						<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="right"/>
@@ -2120,18 +2120,25 @@
 			<mx:SetProperty target="{tile1}" name="tileWidth"/>
 		</mx:State>
 		<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
-			<mx:RemoveChild target="{tile1}"/>
-			<mx:RemoveChild target="{label1}"/>
-			<mx:RemoveChild target="{headerBox}"/>
+			<mx:SetProperty target="{tile1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{tile1}" name="visible" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{label1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{label1}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="ExternalSeqState">
 			<mx:SetProperty target="{samplesTab}" name="label" value="Samples"/>
 		</mx:State>
 		<mx:State name="BaseSeqState">
-			<mx:RemoveChild target="{prePoolBox}"/>
-			<mx:RemoveChild target="{headerBox}"/>
-			<mx:RemoveChild target="{adaptersBox}"/>
-			<mx:RemoveChild target="{controlbar1}"/>
+			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox0">
 					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label11"/>
@@ -2152,7 +2159,8 @@
 					<mx:Text  text="{this.selectedExperiment.@requestStatus}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{hbox6}"/>
+			<mx:SetProperty target="{hbox6}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox6}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="BaseSeqChromoState" basedOn="BaseSeqState">
 			<mx:AddChild relativeTo="{theTab}" position="lastChild">
@@ -2217,10 +2225,14 @@
 					<mx:Text text="{this.selectedExperiment.@quoteReceivedDate}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{adaptersBox}"/>
-			<mx:RemoveChild target="{headerBox}"/>
-			<mx:RemoveChild target="{controlbar1}"/>
-			<mx:RemoveChild target="{prePoolBox}"/>
+			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:AddChild relativeTo="{hbox3}" position="before">
@@ -2229,23 +2241,30 @@
 					<mx:Text  text="{this.selectedExperiment.@includeBisulfideConversion=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{adaptersBox}"/>
-			<mx:RemoveChild target="{headerBox}"/>
-			<mx:RemoveChild target="{controlbar1}"/>
-			<mx:RemoveChild target="{prePoolBox}"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox1">
 					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label12"/>
 					<mx:Text  text="{this.selectedExperiment.@containerType}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="ClinicalSeqState" basedOn="SequenomState">
-			<mx:RemoveChild target="{hbox1}"/>
+			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="IsolationState" basedOn="SequenomState">
-			<mx:RemoveChild target="{hbox5}"/>
-			<mx:RemoveChild target="{hbox6}"/>
+			<mx:SetProperty target="{hbox5}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
+			<mx:SetProperty target="{hbox6}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox6}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
 						 includeInLayout="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}" 
@@ -2255,8 +2274,10 @@
 							 width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{hbox1}"/>
-			<mx:RemoveChild target="{bisulfideConversionBox}"/>
+			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
+			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{bisulfideConversionBox}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="qubitConcentrationBox">
 					<mx:Label text="Qubit Concentration"  width="105" styleName="formLabel" textAlign="left" />
@@ -2265,11 +2286,16 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="GenericState">
-			<mx:RemoveChild target="{prePoolBox}"/>
-			<mx:RemoveChild target="{hbox5}"/>
-			<mx:RemoveChild target="{hbox8}"/>
-			<mx:RemoveChild target="{headerBox}"/>
-			<mx:RemoveChild target="{adaptersBox}"/>
+			<mx:SetProperty target="{hbox5}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
+			<mx:SetProperty target="{hbox8}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox8}" name="visible" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{adaptersBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 		</mx:State>
 	</mx:states>
 	
