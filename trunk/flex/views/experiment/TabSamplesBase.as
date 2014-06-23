@@ -40,6 +40,12 @@ package views.experiment
 				} else {
 					return new TabSamplesMDMiSeq();
 				}
+			} else if (requestCategory.@codeRequestCategory == 'IONTOR') {
+				if (existingTab is TabSamplesIonTorrent) {
+					return existingTab;
+				} else {
+					return new TabSamplesIonTorrent();
+				}
 			} else if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
