@@ -683,7 +683,7 @@
 									<mx:VBox verticalGap="0"
 											 horizontalScrollPolicy="off" horizontalAlign="center"
 											 verticalAlign="middle">
-										<mx:Label text="Channel" />
+										<mx:Label text="Lane" />
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>
