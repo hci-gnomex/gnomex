@@ -132,6 +132,14 @@
 				}
 			}
 			
+			public function isIonTorrentState():Boolean {
+				if (currentState == 'IonTorrentState') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
 			public function isGenericState():Boolean {
 				if (currentState == 'GenericState') {
 					return true;
@@ -287,6 +295,11 @@
 					this.currentState = "IsolationState";
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
+					}	
+				}  else if (this.selectedExperiment.@codeRequestCategory == 'IONTOR') {
+					this.currentState = "IonTorrentState";
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
 					}	
 				} else if (requestCategory.@type == 'GENERIC') {
 					this.currentState = "GenericState";
@@ -1054,7 +1067,26 @@
 						this.sampleSourceCol.visible = true;
 						
 						this.concentrationCol.headerText = 'NanoDrop Conc.';
-					} else if (isGenericState()) {
+					} else if (isIonTorrentState()) {
+						concentrationCol.visible = true; 
+						sampleTypeCol.visible = true;
+						organismCol.visible = true;
+						preppedByLabCol.visible = false;
+						otherSamplePrepMethodCol.visible = true;
+						chipTypeCol.visible = false
+						concentrationUnitCol.visible = false;
+						plateNameCol.visible = false;
+						wellNameCol.visible = false;
+						isControlCol.visible = false;
+						this.qc260Col.visible = true;
+						this.qc260280Col.visible = false;
+						this.qcConcCol.visible = false;
+						this.qcRINCol.visible = true;
+						this.qcStatusCol.visible = false;
+						this.descriptionCol.visible = false;
+						this.sampleSourceCol.visible = false;
+						
+					}  else if (isGenericState()) {
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
@@ -2297,6 +2329,7 @@
 			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 		</mx:State>
+		<mx:State name="IonTorrentState" basedOn="GenericState"/>
 	</mx:states>
 	
 </mx:VBox>
