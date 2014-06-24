@@ -251,7 +251,14 @@
 				// Edit columns shown
 				
 				sampleNumberCol.visible = parentDocument.isEditState();
-				//qualRINCol.visible = parentDocument.isEditState() || parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedItem.@codeNucleotideType == "RNA";
+				
+				if ( parentDocument.isEditState() ){
+					qualRINCol.visible = true;
+				} else if ( parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ) {
+					var st:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue);
+					qualRINCol.visible = st != null ? st.@codeNucleotideType == "RNA" : false;
+				}
+				
 				
 				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
