@@ -1434,8 +1434,8 @@
 			<mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
 			<mx:SetProperty target="{label5}" name="width" value="305"/>
 			<mx:SetProperty target="{label8}" name="width" value="305"/>
-			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
-			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePrepContainer}"/>
+			<mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
 			<mx:SetProperty target="{label2}" name="width" value="305"/>
 			<mx:SetProperty target="{label7}" name="width" value="305"/>
 			<mx:SetProperty target="{dnaPrepBox}" name="visible" value="false"/>
