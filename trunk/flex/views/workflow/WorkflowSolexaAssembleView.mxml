@@ -820,7 +820,8 @@
 								<mx:Component id ="channelChooserColumnItemEditor">
 									<renderers:GridColumnFillButton fillColumnKey="idRequestAndMultiplexGroup">
 										<renderers:edtComponent>
-											<renderers:ComboBox id="channelChooserComboBox" dataProvider="{outerDocument.flowCellChannelsCountList}" labelField="@display" valueField="@value" dataField="@flowCellChannelNumber" />	
+											<renderers:ComboBox id="channelChooserComboBox" dataProvider="{outerDocument.flowCellChannelsCountList}" 
+																labelField="@display" valueField="@value" dataField="@flowCellChannelNumber" />	
 										</renderers:edtComponent>										
 									</renderers:GridColumnFillButton>
 								</mx:Component>
@@ -828,7 +829,7 @@
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-										<mx:Label text="Channel"/>
+										<mx:Label text="Channel" color="Blue" fontSize="11" fontStyle="bold"/>
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>
