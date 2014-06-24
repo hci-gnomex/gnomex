@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*"  show="init()" xmlns:util1="util.*" ><!-- defaultButton="{lookupButton}" -->
+	xmlns:util="views.util.*" xmlns:util1="util.*" ><!-- defaultButton="{lookupButton}" -->
 
 	
 	<mx:HTTPService  
@@ -152,7 +152,7 @@
 				isValid = false;
 				errorMessage += '\n\t You must choose an instrument.\n';
 			}
-			if(flowCellSide.selectedValue == null) {
+			if(this.codeSequencingPlatform=='HISEQ' && flowCellSide.selectedValue == null) {
 				isValid = false;
 				errorMessage += '\n\t Choose side A or B.\n';
 			}
@@ -238,9 +238,13 @@
 			//this.addEventListener("changed",refresh);
 			if(codeStepNext == 'HSEQFINFC') {
 				titleLabel.text = 'Illumina HiSeq Finalize Flow Cell';
+				hboxGroupSide.visible = true;
+				hboxGroupSide.includeInLayout = true;
 				codeSequencingPlatform = 'HISEQ';
 			} else if (codeStepNext == 'MISEQFINFC') {
 				titleLabel.text = 'Illumina MiSeq Finalize Flow Cell';
+				hboxGroupSide.visible = false;
+				hboxGroupSide.includeInLayout = false;
 				codeSequencingPlatform = 'MISEQ';
 			} 
 			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y')
@@ -593,8 +597,8 @@
 								   toolTip="Refresh worklist" click="refresh()"/>
 				</mx:HBox>
 				<mx:HBox width="100%" verticalAlign="middle">
-					<mx:Label text="Barcode" styleName="formLabel"
-							  width="70" />
+					<mx:Label text="{this.codeSequencingPlatform == 'MISEQ' ? 'Reagent Cartridge Barcode' : 'Flowcell Barcode'}" styleName="formLabel" 
+							  width="{this.codeSequencingPlatform == 'MISEQ' ? 140 : 80}"/>
 					<mx:TextInput id="flowCellBarcode" width="130" change="createFlowCellFileName()"
 								  fontSize="10" />
 					<mx:Label text="Run #" styleName="formLabel" />
@@ -631,10 +635,10 @@
 					<mx:ComboBox width="250" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" visible="{true}" includeInLayout="{true}"
 								 change="createFlowCellFileName();flowCellProtocolChangeHandler(event);"/>
 				</mx:HBox>
-				<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%">
+				<mx:HBox horizontalGap="20" verticalAlign="middle" width="100%" includeInLayout="{this.codeSequencingPlatform == 'HISEQ'}" visible="{this.codeSequencingPlatform == 'HISEQ'}">
 						
 					<mx:Label text="File Name" styleName="formLabel" width="60"/>
-					<mx:Label text="{flowCellRunFolder}" width="100%" includeInLayout="{this.codeSequencingPlatform == 'HISEQ'}" visible="{this.codeSequencingPlatform == 'HISEQ'}" />
+					<mx:Label text="{flowCellRunFolder}" width="100%" />
 				</mx:HBox>
 			</mx:VBox>
 			<mx:VBox  width="100%" height="90%">

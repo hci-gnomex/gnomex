@@ -892,7 +892,8 @@
 
 				<mx:Label text="Flow Cell to Assemble" styleName="formLabel" fontSize="12"/>
 				<mx:HBox width="100%" verticalAlign="middle">
-					<mx:Label text="Barcode" styleName="formLabel" width="60"/>
+					<mx:Label text="{this.codeSequencingPlatform == 'MISEQ' ? 'Reagent Cartridge Barcode' : 'Flowcell Barcode'}" styleName="formLabel" 
+							  width="{this.codeSequencingPlatform == 'MISEQ' ? 140 : 80}"/>
 					<mx:TextInput id="flowCellBarcode" width="130" fontSize="10"/>
 					<mx:Label text="Run #" styleName="formLabel"/>
 					<mx:TextInput id="flowCellRunNumber" width="40" restrict="0-9" fontSize="10"/>
