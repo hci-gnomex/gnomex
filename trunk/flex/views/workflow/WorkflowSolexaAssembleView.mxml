@@ -772,7 +772,7 @@
 									<mx:headerRenderer>
 										<mx:Component>
 											<mx:VBox width="55" verticalGap="0"    horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle" height="20"  maxWidth="60">
-												<mx:Label width="55" text="Channel" />
+												<mx:Label width="55" text="Lane" />
 											</mx:VBox>
 										</mx:Component>
 									</mx:headerRenderer>
@@ -829,7 +829,7 @@
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-										<mx:Label text="Channel" color="Blue" fontSize="11" fontStyle="bold"/>
+										<mx:Label text="Lane" color="Blue" fontSize="11" fontStyle="bold"/>
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>
@@ -957,7 +957,7 @@
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-									<mx:Label text="Channel"/>
+									<mx:Label text="Lane"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer>	
