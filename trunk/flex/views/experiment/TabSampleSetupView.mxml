@@ -1434,7 +1434,6 @@
 			<mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
 			<mx:SetProperty target="{label5}" name="width" value="305"/>
 			<mx:SetProperty target="{label8}" name="width" value="305"/>
-			<mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{label2}" name="width" value="305"/>
