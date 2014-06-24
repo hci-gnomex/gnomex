@@ -1109,12 +1109,12 @@
 
 			if (requestCategory.@isIlluminaType == 'Y') {
 				this.currentState = parentApplication.submitInternalExperiment() ? 'SolexaBaseState' : 'SolexaBaseExternalState';
-				if (parentApplication.submitInternalExperiment()) {
-					this.sampleSetupView.currentState = 'SolexaSetupState';
-				}
 				if ( requestCategory.@codeRequestCategory == 'MDMISEQ' ) {
 					this.sampleSetupView.currentState = 'MDMiSeqState';
+				} else if (parentApplication.submitInternalExperiment()) {
+					this.sampleSetupView.currentState = 'SolexaSetupState';
 				}
+
 				this.samplesView.currentState = 'SolexaSamplesState';
 
 				filteredAppList.filterFunction = filterApplication;
