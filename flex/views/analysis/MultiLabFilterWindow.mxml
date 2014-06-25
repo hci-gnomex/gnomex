@@ -56,7 +56,9 @@
 		
 		private function unselectAllLabs():void {
 			for each(var lab:Object in parentApplication.navAnalysisView.labList) {
-				lab.@isSelected = 'false';
+				if (lab.hasOwnProperty("@isSelected") && lab.@isSelected == 'true') {
+					lab.@isSelected = 'false';
+				}
 			}
 		}
 		
