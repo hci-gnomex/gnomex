@@ -128,14 +128,16 @@
 			
 			private function getEmptySampleNode(idx:int):XML {
 				var sampleId:String = "Sample" + idx;
-				var idOrganism:String = parentDocument.setupView.getIdOrganism();
+				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
+					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');		
 				
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
 					" name='' description='' " +
 					" concentration=''" +
 					" canChangeSampleName='Y'" +	
-					" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +	
+					" idOrganism='"  + idOrganism + "'" +	
 					"/>");
 				return emptyNode;
 			}
