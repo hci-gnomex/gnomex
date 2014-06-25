@@ -20,5 +20,5 @@ call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit 
 -- CoreFacility Submitter table for new security role
 CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
   `idCoreFacility` INT(10) NOT NULL,
-  `idAppUser` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL
 );
