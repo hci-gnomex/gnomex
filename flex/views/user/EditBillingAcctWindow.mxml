@@ -113,6 +113,8 @@
 	<![CDATA[
 		import hci.flex.controls.DropdownLabel;
 		
+		import mx.collections.SortField;
+		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.core.Container;
@@ -665,6 +667,12 @@
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			if (coreCombo.visible) {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+				
+				var sortDisplay:Sort = new Sort();
+				sortDisplay.fields=[new SortField("@display")];
+				coreFacilities.sort = sortDisplay;
+				coreFacilities.refresh(); 
+				
 				coreCombo.dropdown.dataProvider = coreFacilities;
 								
 				if (coreFacilities.length > 1) {
@@ -695,8 +703,13 @@
 				}
 			} else {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
-				coreFacilityRepeater.dataProvider = coreFacilities;
+				
+				var sortDisplay:Sort = new Sort();
+				sortDisplay.fields=[new SortField("@display")];
+				coreFacilities.sort = sortDisplay;
 				coreFacilities.refresh();
+				
+				coreFacilityRepeater.dataProvider = coreFacilities;
 				
 				if (coreFacilities.length == 0) {
 					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
