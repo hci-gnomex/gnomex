@@ -16,3 +16,9 @@ call ExecuteIfTableExists('gnomex','AppUser_Audit','alter table AppUser_Audit ad
 -- Sort order for annotations
 ALTER TABLE Property ADD sortOrder INT(10) NULL;
 call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit add sortOrder INT(10) null');
+
+-- CoreFacility Submitter table for new security role
+CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
+  `idCoreFacility` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+);
