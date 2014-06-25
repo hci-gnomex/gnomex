@@ -665,11 +665,13 @@
 				return;
 			}
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			
+			var sortDisplay:Sort = new Sort();
+			sortDisplay.fields=[new SortField("@display")];
+			
 			if (coreCombo.visible) {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
-				
-				var sortDisplay:Sort = new Sort();
-				sortDisplay.fields=[new SortField("@display")];
+							
 				coreFacilities.sort = sortDisplay;
 				coreFacilities.refresh(); 
 				
@@ -704,8 +706,6 @@
 			} else {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
 				
-				var sortDisplay:Sort = new Sort();
-				sortDisplay.fields=[new SortField("@display")];
 				coreFacilities.sort = sortDisplay;
 				coreFacilities.refresh();
 				
