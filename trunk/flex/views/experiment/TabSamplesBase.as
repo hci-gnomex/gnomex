@@ -40,12 +40,6 @@ package views.experiment
 				} else {
 					return new TabSamplesMDMiSeq();
 				}
-			} else if (requestCategory.@codeRequestCategory == 'IONTOR') {
-				if (existingTab is TabSamplesIonTorrent) {
-					return existingTab;
-				} else {
-					return new TabSamplesIonTorrent();
-				}
 			} else if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
@@ -63,6 +57,12 @@ package views.experiment
 					return existingTab;
 				} else {
 					return new TabSamplesIsolation();
+				}
+			} else if (requestCategory.@codeRequestCategory == 'IONTOR') {
+				if (existingTab is TabSamplesIonTorrent) {
+					return existingTab;
+				} else {
+					return new TabSamplesIonTorrent();
 				}
 			} else if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
 				if (existingTab is TabSamplesGeneric) {
