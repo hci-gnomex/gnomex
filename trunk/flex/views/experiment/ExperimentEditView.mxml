@@ -2192,6 +2192,7 @@
 			samplesView.currentState = '';
 			
 			setTabsVisible();
+			this.initializeData();
 			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
