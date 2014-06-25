@@ -3073,6 +3073,15 @@ CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`CoreFacilitySubmitter`;
+CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
+  `idCoreFacility` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL,
+)
+ENGINE = INNODB;
+
+
+
 DROP TABLE IF EXISTS `gnomex`.`PriceCategoryStep`;
 CREATE TABLE `gnomex`.`PriceCategoryStep` (
   idPriceCategory INT(10),
