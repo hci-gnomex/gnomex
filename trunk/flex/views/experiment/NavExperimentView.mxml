@@ -604,11 +604,6 @@
 				experimentDetailView.navBackButton.visible = false;
 				experimentDetailView.navBackButton.includeInLayout = false;
 
-				var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
-				if (experimentEditView != null && experimentEditView.titleLabel != null) {
-					experimentEditView.titleLabel.text = editTitle;
-				}
-
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = selectedIdRequest;

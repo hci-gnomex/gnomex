@@ -4449,25 +4449,32 @@
 		}
 		
 		private function setAmendTitle():void {
-			this.titleLabel.text = "";
-			if (this.currentState == "SolexaBaseAmendState" ) {
-				this.titleLabel.text = "Adding Illumina sequencing services to Sample Quality Experiment ";		
-			} else if (this.currentState == "MicroarrayAmendState") {
-				this.titleLabel.text = "Adding Microarray services to Sample Quality Experiment ";	
-			} else if (this.currentState == "SolexaLaneAmendState") {
-				this.titleLabel.text = "Adding Illumina sequence lanes to Experiment ";			
-			} else if (this.currentState == "CapSeqAmendState") {
-				this.titleLabel.text = "Adding Capillary Sequencing services to Experiment ";
-			}
-			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
-				this.titleLabel.text += this.browseTree.selectedItem.@requestNumber;
-			}			
+			titleLabel.text = getAmendTitleText();
 			var codeRequestCategory:String = getAmendRequestCategory();
 			if (codeRequestCategory != '') {
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', codeRequestCategory);
 				this.requestIcon = requestCategory.@icon;
 			}
+		}
+			
+		private function getAmendTitleText():String {
+			var text:String = "";
+			if (this.currentState == "SolexaBaseAmendState" ) {
+				text = "Adding Illumina sequencing services to Sample Quality Experiment ";		
+			} else if (this.currentState == "MicroarrayAmendState") {
+				text = "Adding Microarray services to Sample Quality Experiment ";	
+			} else if (this.currentState == "SolexaLaneAmendState") {
+				text = "Adding Illumina sequence lanes to Experiment ";			
+			} else if (this.currentState == "CapSeqAmendState") {
+				text = "Adding Capillary Sequencing services to Experiment ";
+			} else {
+				text = "Add Illumina HiSeq/MiSeq Services";
+			}
+			if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
+				text += this.browseTree.selectedItem.@requestNumber;
+			}			
 
+			return text;
 		}
 
 		public function setupAmendForm(theRequest:Object):void {
@@ -5064,6 +5071,30 @@
 				return keep;
 				
 			}
+			
+			private function getTitle(currentState:String, requestCategoryName:String, coreFacility:Object):String {
+				var title:String  = "";
+				var catName:String = requestCategoryName != '' && requestCategoryName != null ? " " + requestCategoryName : '';
+				var coreName:String = coreFacility != null ? ' For ' + coreFacility.@facilityName : '';
+				if (parentApplication.isInternalExperimentSubmission) {
+					if (isEditState()) {
+						title = "Edit" + catName + " Experiment";
+					} else if (isAmendState()) {
+						title = getAmendTitleText();
+					} else {
+						title = "New" + catName + " Experiment";
+						title += coreName;
+					}
+				} else {
+					if (isEditState()) {
+						title = "Edit External " + catName + " Experiment";
+					} else {
+						title = "Upload" + catName + " experiment data from a third party facility";
+						title += coreName;
+					}
+				}
+				return title;
+			}
 		]]>
 	</mx:Script>
 	
@@ -5209,7 +5240,7 @@
 		<mx:HBox id="hbox7" verticalAlign="middle" width="100%" horizontalGap="1">
 			<mx:Image source="{requestIcon}" id="image1"/>
 			<mx:Label id="titleLabel" styleName="titleLabel" 
-					  text="{(parentApplication.isInternalExperimentSubmission ? currentState == 'AmendState' ? 'Add Illumina HiSeq/MiSeq Services' : 'New ' + ( requestCategoryName != '' ? requestCategoryName : 'Experiment') + ' Order' : 'Upload experiment data from a third party facility') + (coreFacility != null ? ' For ' + coreFacility.@facilityName : '')}" 
+					  text="{getTitle(currentState, requestCategoryName, coreFacility)}" 
 					  fontWeight="normal" paddingRight="50"/>
 		</mx:HBox>		
 	</mx:VBox>
