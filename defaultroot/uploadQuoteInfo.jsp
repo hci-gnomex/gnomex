@@ -1,6 +1,7 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession"%>
 <%@ page import="org.hibernate.Session"%>
 <%@ page import="hci.gnomex.controller.GNomExFrontController"%>
+<%@ page import="hci.gnomex.model.CoreFacility"%>
 <%@ page import="hci.gnomex.model.Request"%>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
@@ -32,7 +33,8 @@
         if( req == null ) {
           message = "Quote information has already been submitted for the experiement.";
         } else {
-          coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
+          CoreFacility cf = ( CoreFacility ) sess.createQuery( "from CoreFacility where idCoreFacility = " + req.getIdCoreFacility().toString() ).uniqueResult();
+          coreFacilityName = cf.getFacilityName();
         }
 
       } catch( Exception e ) {
