@@ -3721,6 +3721,11 @@
 			private function refreshNotificationHub():void{
 				homeView.refreshDashboard();
 			}
+			
+			public function getCoreFacilityName(idCoreFacility:String):String {
+				var coreFacility:Object = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', idCoreFacility);
+				return coreFacility.@facilityName.toString();
+			}
 		]]>
 	</mx:Script>
 	
