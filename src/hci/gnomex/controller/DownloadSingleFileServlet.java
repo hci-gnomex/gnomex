@@ -474,7 +474,14 @@ private boolean processIMG (String imgline, OutputStream out) {
 	}
 
 	String fileName = imgline.substring(ipos+9,epos);
-
+	
+	// figure out what type of image it is
+	String imageType = "png";
+	ipos = fileName.lastIndexOf('.');
+	if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+		imageType = fileName.substring(ipos+1);
+	}
+	
 	// get the directory
 	ipos = imgline.indexOf("&dir=");
 	if (ipos == -1) {
@@ -515,7 +522,11 @@ private boolean processIMG (String imgline, OutputStream out) {
 
 	// now build the <img tag
 	StringBuilder imgtag = new StringBuilder (1024000);
-	imgtag.append("<img src=\"data:image/png;base64,");
+	//imgtag.append("<img src=\"data:image/png;base64,");
+	imgtag.append("<img src=\"data:image/");
+	imgtag.append(imageType);
+	imgtag.append(";base64,"); 
+			
 	imgtag.append(new String(encodedBytes));
 	imgtag.append("\" />");
 
