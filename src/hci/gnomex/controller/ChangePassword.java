@@ -57,7 +57,10 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       this.launchAppURL = this.getLaunchAppURL(request);
       this.appURL = this.getAppURL(request);
 
-      changingPassword = request.getRequestURL().toString().contains("change_password.jsp");
+      changingPassword = false;
+      if (request.getParameter("changingPassword") != null && request.getParameter("changingPassword").equals("Y")) {
+        changingPassword = true;
+      }
 
       if (request.getParameter("userName") != null && ! request.getParameter("userName").equals("")) {
         this.userName = request.getParameter("userName");
