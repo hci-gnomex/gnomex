@@ -140,6 +140,7 @@ If you have registered using your uNID (u00000000), your password is tied to the
     <input type="hidden" name="responsePageError" value="/change_password.jsp<%=idCoreParm%>"/>
     <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
     <input type="hidden" name="guid" value="<%=guid%>"/>
+    <input type="hidden" name="changingPassword" value="Y"/>
     </form>
 
 
