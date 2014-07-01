@@ -219,8 +219,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           
           AppUser user = null;
-          if(request.getIdSubmitter() != null  && request.getIdSubmitter() != 0){
-            user = (AppUser) sess.load(AppUser.class, request.getIdSubmitter());
+          if(request.getIdAppUser() != null  && request.getIdAppUser() != 0){
+            user = (AppUser) sess.load(AppUser.class, request.getIdAppUser());
           }
           
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
