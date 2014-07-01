@@ -67,10 +67,11 @@
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			if (this.showInactiveAccountsCheckBox.selected) {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y'));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
 			} else {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
 			}
 			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);

@@ -85,32 +85,37 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
             BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, idBillingAccountOld);
             Request request = (Request)sess.load(Request.class, idRequest);
             
-            boolean found = false;
-            for(Iterator i1 = request.getBillingItems().iterator(); i1.hasNext();) {
-              BillingItem bi = (BillingItem)i1.next();
-              
-              // Only reassign billing account for billing items in specified period.
-              if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
-                continue;
+            if (ba.getIdCoreFacility().equals(request.getIdCoreFacility())) {
+              boolean found = false;
+              for(Iterator i1 = request.getBillingItems().iterator(); i1.hasNext();) {
+                BillingItem bi = (BillingItem)i1.next();
+                
+                // Only reassign billing account for billing items in specified period.
+                if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
+                  continue;
+                }
+                
+                // Reassign the billing account and lab on the billing items matching 
+                // the old billing account.
+                if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
+                  bi.setIdLab(idLab);
+                  bi.setIdBillingAccount(idBillingAccount);
+                  bi.resetInvoiceForBillingItem(sess);
+                }
+                
               }
-              
-              // Reassign the billing account and lab on the billing items matching 
-              // the old billing account.
-              if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
-                bi.setIdLab(idLab);
-                bi.setIdBillingAccount(idBillingAccount);
-                bi.resetInvoiceForBillingItem(sess);
-              }
-              
-            }
-     
-          
-          sess.flush();
-          
-          
-          this.xmlResult = "<SUCCESS/>";
-          
-          setResponsePage(this.SUCCESS_JSP);          
+       
+            
+            sess.flush();
+            
+            
+            this.xmlResult = "<SUCCESS/>";
+            
+            setResponsePage(this.SUCCESS_JSP);
+          } else {
+            this.addInvalidField("Invalid Core", "Core facility for the billing account does not match that of the request");
+            setResponsePage(this.ERROR_JSP);
+          }
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to manage billing");
           setResponsePage(this.ERROR_JSP);
