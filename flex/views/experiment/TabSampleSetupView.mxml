@@ -1936,7 +1936,7 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{numberOfSamples}" name="editable" value="false"/>
 			<mx:SetProperty target="{numberOfSamples}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{iScanNumSourcePlatesBox}" position="before">
+			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}" 
 						 visible="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}">
 					<util:ContextHelp context1="SampleDetailsIScanQuoteNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Quote Number Help"
@@ -2086,7 +2086,8 @@
 					<mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{sampleTypeHBox}"/>
+			<mx:SetProperty target="{sampleTypeHBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
 		    <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
 			<mx:SetProperty target="{label8}" name="label" value="(4) Which category best describes your samples?"/>
 			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
