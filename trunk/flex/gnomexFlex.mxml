@@ -22,7 +22,7 @@
 				xmlns:report="views.report.*"
 				xmlns:dashboard="views.dashboard.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true" >
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" visible="true">
 	
 	
 	<mx:Fade id="fadeOut" duration="100"/>
@@ -323,6 +323,7 @@
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ProjectDetailWindow;
 			import views.experimentplatform.ExperimentPlatformWindow;
+			import views.login.ChangePassword;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.EditBillingAcctWindow;
@@ -923,6 +924,9 @@
 			public var coreFacilitiesICanManage:XMLList = null;
 			
 			[Bindable]
+			public var coreFacilitiesICanSubmitTo:XMLList = null;
+			
+			[Bindable]
 			public var isSuperAdmin:Boolean = false;
 			
 			[Bindable]
@@ -957,9 +961,6 @@
 			
 			[Bindable]
 			public var showUsage:Boolean = false;
-			
-			[Bindable]
-			public var showPurchaseSupplies:Boolean = false;
 			
 			[Bindable]
 			public var isExternalDataSharingSite:Boolean = false;
@@ -1072,7 +1073,7 @@
 			public var PROPERTY_WORKAUTH2_URL:String                      = "workauth2_url";
 			public var PROPERTY_WORKAUTH2_NAME:String                     = "workauth2_name";
 			public var PROPERTY_QC_INSTRUCTIONS:String                    = "qc_instructions";
-			public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
+			//public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
 			public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
 			public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
 			public var PROPERTY_CONTACT_EMAIL_BIOINFORMATICS:String       = "contact_email_bioinformatics";
@@ -2329,6 +2330,7 @@
 				customizeMenus(this.managerESMenu);
 				customizeMenus(this.adminESMenu);
 				customizeMenus(billingAdminMenu);
+				customizeMenus(this.billingAdminSubmitterMenu);
 				
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
@@ -2348,13 +2350,15 @@
 							currentState = "AdminESState";
 						} else if (this.managesPlateBasedWorkflow &&  !isSuperAdmin) {
 							currentState = "BillingAdminDNASeqState";
+						} else if(this.hasPermission("canSubmitForOtherCores")){
+							currentState = "BillingAdminSubmitterState";
 						} else {
 							currentState = "BillingAdminState";
 						}
 					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
-				} else if (hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) {
+				} else if ((hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) || hasPermission("canSubmitForOtherCores")) {
 					currentState = this.isExternalDataSharingSite ? "UserESState" : "UserState";
 				} else {
 					currentState = "UserNonSubmitterState";
@@ -2364,15 +2368,10 @@
 				if (!isAdminState) {
 					hideMenusByContext(topMenu, 'helpEdit');
 				}
-
-				if(isGuestMode()){
-					hideMenusByContext(topMenu, 'quickLinks');
-				}
 				
 				if(isGuestMode()){
 					hideMenusByContext(topMenu, 'quickLinks');
 				}
-				
 				
 				if(!faqLoaded){
 					getFAQ.send();
@@ -2414,10 +2413,6 @@
 				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 				dictionaryManager.call("load", "");
-				
-				
-				
-				
 				
 			}
 			
@@ -2592,6 +2587,16 @@
 						for each (var entry1:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
 							if (entry.@value == entry1.@value) {
 								coreFacilitiesICanManage[coreFacilitiesICanManage.length()] = entry;
+								break;
+							}
+						}
+					}
+					
+					coreFacilitiesICanSubmitTo = new XMLList();
+					for each(var entry2:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
+						for each (var entry3:Object in createSecurityAdvisor.lastResult.coreFacilitiesICanSubmitTo.CoreFacility) {
+							if (entry2.@value == entry3.@value) {
+								coreFacilitiesICanSubmitTo[coreFacilitiesICanSubmitTo.length()] = entry2;
 								break;
 							}
 						}
@@ -2856,7 +2861,7 @@
 				var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 				labList = new XMLListCollection(getLabList.lastResult.Lab);
 				promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
-				submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
+				submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y'));
 				promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 				promptedSubmitRequestLabList.refresh();
 				manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
@@ -3008,6 +3013,11 @@
 					PopUpManager.removePopUp(appProgressBar);
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
+					
+					if(createSecurityAdvisor.lastResult.@passwordExpired == 'Y'){
+						var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
+						PopUpManager.centerPopUp(changePasswordWindow);	
+					}
 
 				}
 				
@@ -3866,6 +3876,27 @@
 		
 	</mx:XMLList>
 	
+	<mx:XMLList id="billingAdminSubmitterMenu">
+		<menuitem label="Experiments..."  icon="iconFlask" >
+			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
+		</menuitem>
+		
+		<menuitem label="Billing" icon="iconBilling"   />
+		
+		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
+		
+		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		
+		<menuitem label="Reports..."  icon="iconPage" >
+			<menuitem label="Track Usage"  icon="iconUsage"/>
+			<menuitem label="Annotation Report" icon="iconPage" />
+			<menuitem label="Annotation Progress Report" icon="iconPage" />
+			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+		</menuitem>
+		
+	</mx:XMLList>
+	
 	<mx:XMLList id="adminESMenu">
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
@@ -4324,6 +4355,10 @@
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminMenu}"/>
+		</mx:State>
+		
+		<mx:State name="BillingAdminSubmitterState" basedOn="enabledState">
+			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminSubmitterMenu}"/>
 		</mx:State>
 		
 		<mx:State name="UserState" basedOn="enabledState">
