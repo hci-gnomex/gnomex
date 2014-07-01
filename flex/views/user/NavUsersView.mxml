@@ -117,6 +117,7 @@
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
 	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
+	<mx:XMLListCollection id="coreFacilitiesICanSubmitTo" source="{getAppUser.lastResult.coreFacilitiesICanSubmitTo.coreFacility}"/>
 	
 
 

@@ -283,7 +283,7 @@
 			if (this.browseView != null) {
 				this.browseView.checkSecurity();
 			}
-			if (parentApplication.hasPermission("canAccessAnyObject")) {
+			if (parentApplication.hasPermission("canAccessAnyObject") || parentApplication.hasPermission("canSubmitForOtherCores")) {
 				currentState = "AdminState";
 			} else if (parentApplication.currentState == "GuestState") {
 				currentState = "GuestState"; 
@@ -361,7 +361,8 @@
         	}
 
         	
-        	
+        	browseTree.dataProvider.source = new XMLList(getProjectRequestList.lastResult);
+			browseTree.dataProvider.refresh();
         	callLater(expandAndReselectTree);    	
         	
 	    }
@@ -1111,7 +1112,7 @@
 
 		}
 		public function initializeExperiments():void {
-			if (parentApplication.hasPermission('canAccessAnyObject')) {
+			if (parentApplication.hasPermission('canAccessAnyObject') || parentApplication.hasPermission('canSubmitForOtherCores')) {
 			} else {
 				if (getProjectRequestList.lastResult == null ||
 				    selectedRequestNumber != null) {
@@ -1726,7 +1727,7 @@
 				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();" />
 				<mx:Spacer width="14"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall"/>
-				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+				<renderers:FilterComboBox dataProvider="{parentApplication.hasPermission('canSubmitForOtherCores') &amp;&amp; !parentApplication.isBillingAdminState ? parentApplication.submitRequestLabList.source : parentApplication.labList.source}" 
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="160" 
@@ -1738,7 +1739,7 @@
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
-				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
+				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6" visible="{!parentApplication.hasPermission('canSubmitForOtherCores')}" includeInLayout="{!parentApplication.hasPermission('canSubmitForOtherCores')}">
 					<mx:Label id="userLabel" visible="true" text="Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
 					<mx:ComboBox id="browseUserCombo" 
 						labelField="@displayName"
