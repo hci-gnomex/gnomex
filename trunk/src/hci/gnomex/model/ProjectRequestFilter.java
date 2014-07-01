@@ -108,7 +108,7 @@ public class ProjectRequestFilter extends DetailObject {
     
     // Require limiting criteria for admins since they are not scoped by labs 
     // automatically
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.hasPermission(secAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
       return hasLimitingCriteria;
     }
     // Non-admins are always scoped by either lab, own experiments,
@@ -168,8 +168,8 @@ public class ProjectRequestFilter extends DetailObject {
     addProjectCriteria();
     addRequestCriteria();
     addSampleCriteria();
-    
     addSecurityCriteria();
+    
     if (hasSlideProductCriteria()) {
       addSlideProductCriteria();
     }
@@ -347,10 +347,10 @@ public class ProjectRequestFilter extends DetailObject {
     } else if (idAppUser != null){
       // Search by user
       this.addWhereOrAnd();
-      queryBuf.append(" ( req.idSubmitter = ");
-      queryBuf.append(idAppUser);
-   
-      queryBuf.append(" OR ");
+//      queryBuf.append(" ( req.idSubmitter = ");
+//      queryBuf.append(idAppUser);
+//   
+//      queryBuf.append(" OR ");
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
       queryBuf.append(" ) ");
