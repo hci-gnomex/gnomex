@@ -163,7 +163,7 @@
 				} else {
 					// Not okay for non-admin to delete.
 					Alert.show("Insufficient permissions to delete lane " + lane.@number + 
-					  ".  Please contact the " + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + 
+					  ".  Please contact the " + parentDocument.coreFacilityName + 
 					  " to assist in modifying this experiment.");
 					return; 
 				}

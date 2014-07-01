@@ -239,6 +239,8 @@
         [Bindable]
         private var submittedRequestNumber:String;
 
+		[Bindable]
+		public var coreFacilityName:String = "";
 
 		[Bindable]
 		public var requestType:String = "";
@@ -2038,7 +2040,7 @@
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
-			request.@idSubmitter= setupView.idAppUser;
+			request.@idSubmitter= parentApplication.getIdAppUser();
 			request.@idAppUser = setupView.idAppUser;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
@@ -2459,7 +2461,7 @@
 				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
-			request.@idSubmitter = setupView.idAppUser;
+			request.@idSubmitter = parentApplication.getIdAppUser();
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
@@ -3252,22 +3254,6 @@
 			}			
 		}
 		
-		private function getIdAppUserSubmitter():Object {
-			var idAppUserSubmitter:Object = null;
-			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
-				// If a non-admin user is converting a QC request
-				// to a microarray or sequencing request, make the user the 
-				//  submitter of
-				// the request, as he/she may be amending a request
-				// originally submitted by someone else.
-				idAppUserSubmitter = parentApplication.getIdAppUser();				
-			} else if (!this.isAmendState()) {
-				idAppUserSubmitter = this.setupView.idAppUser;
-			} else {
-				idAppUserSubmitter = request.@idSubmitter;
-			}
-			return idAppUserSubmitter;
-		}
 		
 		public function getSubmitterName():String {
 			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
@@ -3310,7 +3296,7 @@
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
 			if (!this.isEditState()) {
-				request.@idSubmitter = this.getIdAppUserSubmitter();
+				request.@idSubmitter = parentApplication.getIdAppUser();
 				request.@idAppUser = this.getIdAppUserOwner();
 			}
 			
@@ -3646,6 +3632,7 @@
 			if (saveNewRequest.lastResult.name() == "SUCCESS") {
 				submittedIdRequest = saveNewRequest.lastResult.@idRequest;
 				submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
+				coreFacilityName = parentApplication.getCoreFacilityName(submittedIdRequest);
 
 				confirmButtonStack.selectedIndex = 2;
 
@@ -3692,7 +3679,7 @@
 				var message:String = '';
 				var title:String = ""; 
 				if (this.isAmendState()) {
-					message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + parentApplication.getProperty(parentApplication.PROPERTY_CORE_FACILITY_NAME) + '.';	
+					message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + coreFacilityName + '.';	
 					title = "Services added to Request";			
 				} else {
 					if (this.isExternalExperimentSubmission()) {
@@ -4980,10 +4967,24 @@
 			
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;
-				if (defaultCodeRequestCategory == null) {
+
+				if(item.@idLab == 1278){
+					trace("Debugging");
+				}
+
+				if(parentApplication.hasPermission('canSubmitForOtherCores') && coreFacility != null && parentApplication.coreFacilitiesICanSubmitTo.contains(coreFacility)){
+					for each(var coreFac:XML in parentApplication.coreFacilitiesICanSubmitTo){
+						for each(var labCF:XML in item..CoreFacility){
+							if(coreFacility.@idCoreFacility == coreFac.@idCoreFacility && labCF.@idCoreFacility == coreFacility.@idCoreFacility){
+								keep = true;
+								break;
+							}
+						}
+					}
+				} else if (defaultCodeRequestCategory == null) {
 					if (coreFacility != null) {
 						for each(var core:XML in item..CoreFacility) {
-							if (core.@idCoreFacility == coreFacility.@idCoreFacility) {
+							if (core.@idCoreFacility == coreFacility.@idCoreFacility && item.@canSubmitRequests == 'Y') {
 								keep = true;
 								break;
 							}

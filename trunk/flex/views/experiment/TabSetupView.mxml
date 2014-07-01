@@ -320,6 +320,9 @@
 						}
 					}
 					idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != '' ? this.appUserCombo.selectedItem.@idAppUser : '';
+				} else if(parentApplication.hasPermission('canSubmitForOtherCores')){
+					this.currentState = "AdminState";
+					idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != '' ? this.appUserCombo.selectedItem.@idAppUser : '';
 				} else {
 					if (parentApplication.submitInternalExperiment()) {
 						this.currentState = "";				
@@ -350,6 +353,8 @@
 					parentDocument.sampleSetupView.configuredCodeRequestCategory = ""; 
 					parentDocument.sampleSetupView.loadedCodeRequestCategory = "";
 				}
+				
+				parentDocument.filteredLabList.refresh();
 			}
 			
 			private function refreshRequestCategories():void {
