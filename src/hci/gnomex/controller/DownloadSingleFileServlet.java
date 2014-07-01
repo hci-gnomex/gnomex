@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -303,6 +304,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
               size += numRead;
             }
           }
+          
+          // Save transfer log 
+          xferLog.setFileSize(new BigDecimal(size));
+          xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
+          sess.save(xferLog);
+          
           in.close();
 
           if (needToPreprocess) {
@@ -317,7 +324,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
           out = null;
         }
 
-
+        sess.flush();
+        
       } else {
         response.setContentType("text/html");
         response.getOutputStream().println(
