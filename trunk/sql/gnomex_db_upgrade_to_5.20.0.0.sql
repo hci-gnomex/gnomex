@@ -22,3 +22,8 @@ CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
   `idCoreFacility` INT(10) NOT NULL,
   `idAppUser` INT(10) NOT NULL
 );
+
+-- specify maximum viewable size in property
+insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly)
+  values('file_max_viewable_size', '50', 'Maximum size of file in mb that can be viewed via "view" link in the file download tab', 'N');
+  

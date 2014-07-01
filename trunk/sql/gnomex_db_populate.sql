@@ -929,7 +929,7 @@ Test City, UT 12345',
  (117,'show_activity_dashboard','N','Should the activity feed be shown on the dashboard','N'),
  (118,'show_metrix_dashboard','N','Should the metrix server feed be shown on the dashboard','N'),
  (119,'show_news_dashboard','N','Should the news feed be shown on the dashboard','N');
- 
+ (120,'file_max_viewable_size','50','Maximum size of file in mb that can be viewed via "view" link in the file download tab','N');
  
  
  
