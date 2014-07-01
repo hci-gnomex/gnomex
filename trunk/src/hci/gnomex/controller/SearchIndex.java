@@ -1636,7 +1636,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     GlobalIndexHelper.ID_LAB_FOLDER, 
                                                                     GlobalIndexHelper.ID + ":unknown",
-                                                                    true);
+                                                                    true,
+                                                                    null);
 
    
     if (addedFilter) {
@@ -1668,7 +1669,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     ExperimentIndexHelper.ID_LAB_PROJECT, 
                                                                     ExperimentIndexHelper.ID_REQUEST + ":unknown",
-                                                                    false);
+                                                                    false,
+                                                                    ExperimentIndexHelper.ID_SUBMITTER);
 
    
     if (addedFilter) {
@@ -1699,7 +1701,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, 
                                                                     AnalysisIndexHelper.ID_ANALYSIS + ":unknown",
-                                                                    false);
+                                                                    false,
+                                                                    null);
 
     
     if (addedFilter) {
@@ -1730,7 +1733,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, 
                                                                     DataTrackIndexHelper.ID_DATATRACK + ":unknown",
-                                                                    false);
+                                                                    false,
+                                                                    null);
 
     
     if (addedFilter) {
@@ -1761,7 +1765,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
                                                                     scopeToGroup,
                                                                     null, 
                                                                     TopicIndexHelper.ID_TOPIC + ":unknown",
-                                                                    false);
+                                                                    false,
+                                                                    null);
 
     
     if (addedFilter) {

@@ -8,6 +8,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Hybridization;
@@ -47,6 +48,7 @@ import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
+import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
@@ -245,7 +247,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
     
-    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
+    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS) && !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
       log.error("Insufficient permissions to submit requests for " + this.getSecAdvisor().getUserFirstName() + " " + this.getSecAdvisor().getUserLastName());
       this.addInvalidField("PermissionError", "Insufficient permissions to submit request");
     }
@@ -285,7 +287,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   
       if (requestParser.isNewRequest()) {
-        if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab())) {
+        Lab l = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+        if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
           this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");                  
         }
       } else {
@@ -738,7 +741,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
              "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
              "\" deleteHybCount=\"" + this.hybsDeleted.size() +
              "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +             
-             "\" billingAccountMessage = \"" + billingAccountMessage +             
+             "\" billingAccountMessage = \"" + billingAccountMessage +
              "\" emailErrorMessage = \"" + emailErrorMessage +
              "\"/>";
       
@@ -2273,8 +2276,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    
-    
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, this.requestParser.getRequest().getIdCoreFacility());
+
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
     if (requestParser.isExternalExperiment()) {
@@ -2288,10 +2291,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       
     } else {
       if (requestParser.isNewRequest()) {
-        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() + 
         ".  You will receive email notification when the experiment is complete.");   
       } else {
-        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() + 
         ".  You will receive email notification when the experiment is complete.");   
         
       }
@@ -2371,6 +2374,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()); 
     String requestNumber = requestParser.getRequest().getNumber();
     String requestCategoryMsg = "";
+    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
 
     String submitterName = requestParser.getRequest().getSubmitterName();
     String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
@@ -2394,10 +2398,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
 
     if (requestParser.isNewRequest()) {
-      emailBody.append("An experiment request has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+      emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() + 
       ".");
     } else {
-      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME) + 
+      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() + 
       ".");
     }
    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");

@@ -99,7 +99,8 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       // Admins and users authorized to submit requests can view estimated
       // charges            
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) &&
-          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab())) {
+          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && 
+          !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
         throw new RollBackCommandException("Insufficient permission to view estimated charges");
       }
 
