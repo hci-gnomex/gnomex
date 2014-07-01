@@ -149,15 +149,6 @@
 				sort.fields = [new SortField("@displayName", true)];
 				theList.sort = sort;
 				theList.refresh();
-				for each(var child:XML in theList){
-					if(child.children().length() > 0){
-						var childList:XMLListCollection = new XMLListCollection(child.children());
-						sortDownloadList(childList);
-						child.setChildren(childList.copy());
-					}
-					
-				}
-				theList.refresh();
 			}
 			 
 			private function expandNodes():void {
