@@ -117,6 +117,22 @@ public class Constants {
     ".useq",
   };
   
+  public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] {
+    ".pdf",
+    ".jpg",
+    ".png",
+    ".gif",
+    ".rtf",
+    ".txt",
+    ".html",
+    ".htm",
+    ".csv",
+    ".ppt",
+    ".pptx",
+    ".xls",
+    ".xlsx",
+   };
+  
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS = new String[] 
                                                               {
