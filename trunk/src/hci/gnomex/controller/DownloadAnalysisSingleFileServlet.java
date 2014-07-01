@@ -8,10 +8,13 @@ import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.hibernate.Session;
 
 
@@ -40,6 +44,9 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
   private String                          view = "N";
   private String                          emailAddress = "";
   
+  private boolean                         needToPreprocess = false;
+  private String						  analysisDir = null;
+  private StringBuilder                   htmlText = new StringBuilder(1024000);
   
   public void init() {
   
@@ -53,6 +60,11 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     fileName = null;
     dir = "";
     emailAddress = "";
+    
+    view = "N";
+    needToPreprocess = false;
+    htmlText = new StringBuilder(1024000);
+    analysisDir = null;
     
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -134,6 +146,16 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           response.setHeader("Cache-Control", "max-age=0, must-revalidate");
         }
         
+    	needToPreprocess = false;
+        if (view.equals("Y")) {
+          needToPreprocess = true;
+          if (!(fileName.toLowerCase().endsWith("html") || fileName.toLowerCase().endsWith("htm"))) {
+        	  needToPreprocess = false;
+          }
+	  }
+
+        
+        
         Session sess = secAdvisor.getWritableHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
         
@@ -209,17 +231,25 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           xferLog.setIpAddress(GNomExCommand.getRemoteIP(req));
           xferLog.setIdAppUser(secAdvisor.getIdAppUser());
 
-          
-          
+          analysisDir = analysisFd.getFileName().substring(0,analysisFd.getFileName().lastIndexOf('/')+1);
+                    
           in = new FileInputStream(analysisFd.getFileName());
           OutputStream out = response.getOutputStream();
           byte b[] = new byte[102400];
           int numRead = 0;
           int size = 0;
           while (numRead != -1) {
-            numRead = in.read(b);
-            if (numRead != -1) {
-              out.write(b, 0, numRead);                                    
+              numRead = in.read(b);
+              if (numRead != -1) {
+                if (!needToPreprocess) {
+                    out.write(b, 0, numRead);
+                }
+                else {
+              	  // we are going to preprocess this, save it for now
+              	  byte b1[] = new byte[numRead];
+              	  System.arraycopy(b, 0, b1, 0, numRead);
+              	  htmlText.append(new String (b1,"UTF-8"));
+                }
               size += numRead;
             }
           }
@@ -230,9 +260,17 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           sess.save(xferLog);
           
           in.close();
-          out.close();
+          
+          if (needToPreprocess) {
+        	  // remember htmlText is global
+        	  preProcessIMGTags (out);
+          }
+
           out.flush();
+          out.close();
+
           in = null;
+          out = null;
         }
 
         sess.flush();
@@ -305,5 +343,150 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     }
   }
  
+  private void preProcessIMGTags (OutputStream out) {
+		int 					ipos = -1; 			// start of <img tag
+		int						epos = -1; 			// > end of tag
+		int						nxtpos = 0;			// next position in htmlText to search
+		int						lenhtmlText = -1;	// size of htmlText
+
+		lenhtmlText = htmlText.length();
+
+		while (nxtpos < lenhtmlText) {
+			// find the start of the <img tag
+			ipos = htmlText.indexOf("<img",nxtpos);
+
+			if (ipos == -1) {
+				// we are done, put the rest out
+				epos = lenhtmlText - 1;
+				outString (htmlText,nxtpos,epos,out);
+				break;
+			}
+
+			epos = htmlText.indexOf(">",ipos+4);
+			if (epos == -1) {
+				// assume it was the last characer
+				epos = lenhtmlText - 1;
+			}
+
+			// put out everything up to the image tag
+			outString (htmlText,nxtpos,ipos,out);
+
+			// get the line
+			String imgline = htmlText.substring (ipos, epos);
+
+			// process it
+			if (!processIMG (imgline,out)) {
+				// not the kind of img we are interested in, output the original text here
+				outString (htmlText,ipos,epos+1,out);
+			}
+
+			nxtpos = epos + 1;
+
+		} // end of while
+
+	}
+
+	private void outString (StringBuilder theText, int startpos, int endpos, OutputStream out) {
+
+		String theBytes = theText.substring(startpos,endpos);
+		byte[] asBytes = null;
+
+		try {
+			asBytes = theBytes.getBytes("UTF-8");
+			out.write(asBytes);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private boolean processIMG (String imgline, OutputStream out) {
+		boolean processed = false;
+
+		// we are only interested in images being handled by downloadsingleservlet
+		int ipos = imgline.indexOf("DownloadSingleFileServlet");
+		if (ipos == -1) {
+			return processed;
+		}
+
+		// get the image filename, here's an example of what the html looks like
+		// <img src="https://b2b.hci.utah.edu/gnomex/DownloadSingleFileServlet.gx?requestNumber=103R&fileName=per_base_quality.png&view=Y&dir=Images">
+		ipos = imgline.indexOf("fileName=");
+		if (ipos == -1) {
+			// not a format we can deal with
+			return processed;
+		}
+
+		int epos = imgline.indexOf("&",ipos+9);
+		if (epos == -1) {
+			return processed;
+		}
+
+		String fileName = imgline.substring(ipos+9,epos);
+		
+		// figure out what type of image it is
+		String imageType = "png";
+		ipos = fileName.lastIndexOf('.');
+		if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+			imageType = fileName.substring(ipos+1);
+		}
+		
+		// get the directory
+		ipos = imgline.indexOf("&dir=");
+		if (ipos == -1) {
+			return processed;
+		}
+
+		epos = imgline.indexOf('"',ipos+5);
+		if (epos == -1) {
+			return processed;
+		}
+
+		String dir = imgline.substring(ipos+5,epos);
+
+		// get the file
+		String pathname = analysisDir + dir + "/" + fileName;
+		File imageFd = new File(pathname);
+
+		// read it in
+		long filesize = imageFd.length();
+		byte thefile[] = new byte[(int)filesize];
+
+	    FileInputStream inf;
+		try {
+			inf = new FileInputStream(pathname);
+			int numRead = 0;
+	        numRead = inf.read(thefile);
+	        inf.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// convert it to base64
+		byte[] encodedBytes = Base64.encodeBase64(thefile);
+
+		// now build the <img tag
+		StringBuilder imgtag = new StringBuilder (1024000);
+		//imgtag.append("<img src=\"data:image/png;base64,");
+		imgtag.append("<img src=\"data:image/");
+		imgtag.append(imageType);
+		imgtag.append(";base64,"); 
+				
+		imgtag.append(new String(encodedBytes));
+		imgtag.append("\" />");
+
+		// write it out
+		outString (imgtag,0,imgtag.length(),out);
+		processed = true;
+
+		return processed;
+	}
  
 }
