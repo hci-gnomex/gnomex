@@ -118,6 +118,9 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
           
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
+            if (!ba.getIdCoreFacility().equals(parser.getRequest().getIdCoreFacility())) {
+              throw new Exception("Cannot split billing item -- Billing Account " + ba.getIdBillingAccount().toString() + " has different core facility than request " + parser.getRequest().getIdRequest().toString());
+            }
             BigDecimal percentage = parser.getPercentage(ba.getIdBillingAccount());
             BigDecimal invoicePrice = parser.getInvoicePrice(ba.getIdBillingAccount());
             BigDecimal summedInvoicePrice = new BigDecimal(0);
