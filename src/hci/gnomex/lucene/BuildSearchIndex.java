@@ -386,7 +386,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.name, ");
     buf.append("       s1.otherOrganism, ");
     buf.append("       s2.otherOrganism, ");
-    buf.append("       req.idCoreFacility ");
+    buf.append("       req.idCoreFacility, ");
+    buf.append("       req.idSubmitter ");
     
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -465,7 +466,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.name, ");
     buf.append("       '', ");
     buf.append("       '',  ");
-    buf.append("       req.idCoreFacility ");
+    buf.append("       req.idCoreFacility, ");
+    buf.append("       req.idSubmitter ");
    
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -539,7 +541,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.name, ");
     buf.append("       s1.otherOrganism, ");
     buf.append("       '', ");
-    buf.append("       req.idCoreFacility ");
+    buf.append("       req.idCoreFacility, ");
+    buf.append("       req.idSubmitter ");
         
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -617,7 +620,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       '', ");
     buf.append("       '', ");
     buf.append("       '', ");
-    buf.append("       req.idCoreFacility ");
+    buf.append("       req.idCoreFacility, ");
+    buf.append("       req.idSubmitter ");
            
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -1217,6 +1221,7 @@ public class BuildSearchIndex extends DetailObject {
     String       experimentName = null;
     Integer      idCoreFacility = null;
     String       idProjectCoreFacility = null;
+    Integer      idSubmitter = null;
 
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
       Object[] row = (Object[])i1.next();
@@ -1307,6 +1312,7 @@ public class BuildSearchIndex extends DetailObject {
       idInstitution            = (Integer)row[36];
       experimentName           = (String) row[37];
       idCoreFacility           = (Integer)row[40];
+      idSubmitter              = (Integer)row[41];
       
       // Don't index rows with no labs.
       if (idLabProject == null &&  (idLabRequest == null || idLabRequest.equals(-99))) {
@@ -1634,6 +1640,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_DESIGNS, codeExperimentDesigns.toString());
     indexedFieldMap.put(ExperimentIndexHelper.CODE_EXPERIMENT_FACTORS, codeExperimentFactors.toString());
     indexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT_CORE_FACILITY, idProjectCoreFacility);
+    indexedFieldMap.put(ExperimentIndexHelper.ID_SUBMITTER, idSubmitter != null ? idSubmitter.toString() : null);
     
     // Output the annotation properties.
     for(Iterator i = sampleAnnotationsByProperty.keySet().iterator(); i.hasNext();) {

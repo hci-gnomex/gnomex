@@ -173,9 +173,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         sess.clear();
         
         // Admins and users authorized to submit requests can view estimated
-        // charges            
+        // charges
+        Lab l = (Lab)sess.load(Lab.class, request.getIdLab());
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING) &&
-            !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab())) {
+            !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
           throw new RollBackCommandException("Insufficient permission to view estimated charges");
         }
 

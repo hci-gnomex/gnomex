@@ -41,6 +41,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   private boolean canSubmitRequests = false;
   private boolean canManage = false;
   private boolean isMyLab = false;
+  private boolean canGuestSubmit = false;
   
   
   public String getContactAddress() {
@@ -223,8 +224,21 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       return "N";
     }
   }
+  
+  public String getCanGuestSubmit() {
+    if (this.canGuestSubmit) {
+      return "Y";
+    } else {
+      return "N";
+    }
+  }
+  
   public void canSubmitRequests(boolean canDo) {
     canSubmitRequests = canDo;
+  }
+  
+  public void canGuestSubmit(boolean canDo) {
+    canGuestSubmit = canDo;
   }
   
   public String getCanManage() {

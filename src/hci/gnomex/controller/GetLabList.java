@@ -101,7 +101,30 @@ public class GetLabList extends GNomExCommand implements Serializable {
         for (Iterator i = allLabs.iterator(); i.hasNext();) {
           Integer idLab = (Integer)i.next();
           activeLabMap.put(idLab, idLab);        
-        }        
+        }         
+      }
+      
+      Map labsToSubmitOnBehalfOf = new HashMap(); 
+      if(this.getSecAdvisor().getAppUser().getCoreFacilitiesICanSubmitTo() != null && this.getSecAdvisor().getAppUser().getCoreFacilitiesICanSubmitTo().size() > 0 ) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("SELECT l.idLab  ");
+        buf.append(" FROM  Lab l ");
+        buf.append(" JOIN l.coreFacilities as cf ");
+        buf.append(" WHERE l.isActive = 'Y' ");
+        buf.append(" AND cf.idCoreFacility in (");
+        for(Iterator i = this.getSecAdvisor().getAppUser().getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+          CoreFacility cf = (CoreFacility)i.next();
+          buf.append(cf.getIdCoreFacility());
+          if(i.hasNext()) {
+            buf.append(", ");
+          }
+        }
+        buf.append(")");
+        List allLabs = (List)sess.createQuery(buf.toString()).list();
+        for (Iterator i = allLabs.iterator(); i.hasNext();) {
+          Integer idLab = (Integer)i.next();
+          labsToSubmitOnBehalfOf.put(idLab, idLab);        
+        } 
         
       }
       
@@ -123,7 +146,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
           updateLists(inst, cf, institutions, coreFacilities);
         }
         if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
-          if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()))) {
+          if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab()))) {
             processLab(doc, prevLab, institutions, coreFacilities);
           }
           institutions = new ArrayList<Institution>();
@@ -134,7 +157,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
         updateLists(inst, cf, institutions, coreFacilities);
       }
       
-      if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()))) {
+      if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab()) )) {
         processLab(doc, prevLab, institutions, coreFacilities);
       }
     }
@@ -185,6 +208,12 @@ public class GetLabList extends GNomExCommand implements Serializable {
       lab.canSubmitRequests(true);
     } else {
       lab.canSubmitRequests(false);
+    }
+    
+    if(this.getSecAdvisor().isLabICanSubmitTo(lab)) {
+      lab.canGuestSubmit(true);
+    } else {
+      lab.canGuestSubmit(false);
     }
     
     if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {

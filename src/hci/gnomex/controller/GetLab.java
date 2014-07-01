@@ -101,7 +101,7 @@ public class GetLab extends GNomExCommand implements Serializable {
     
     
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) ||
-        this.getSecAdvisor().canUpdate(lab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)) {
+        this.getSecAdvisor().canUpdate(theLab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)) {
       
       Hibernate.initialize(theLab.getMembers());
       Hibernate.initialize(theLab.getCollaborators());
@@ -151,7 +151,8 @@ public class GetLab extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
       
     } else if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab()) || 
-                this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab())) {
+                this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab()) ||
+                this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
       
       // For adding services to lab, lab member needs to be able to select
       // from list of other lab members.
