@@ -179,12 +179,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           
           if(idRequest != -2){
             Request req = (Request)sess.load(Request.class, idRequest);
-            hasQcWorkItems = false;
-            for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
-              WorkItem wi = (WorkItem)j.next();
-              if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
-                hasQcWorkItems = true;
-                break;
+            if (!this.getSecAdvisor().canRead(req)) {
+              continue;
+            } else {
+              hasQcWorkItems = false;
+              for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
+                WorkItem wi = (WorkItem)j.next();
+                if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
+                  hasQcWorkItems = true;
+                  break;
+                }
               }
             }
           }
