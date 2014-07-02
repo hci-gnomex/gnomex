@@ -2194,7 +2194,6 @@
 			samplesView.currentState = '';
 			
 			setTabsVisible();
-			this.initializeData();
 			
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			requestCategoryName = requestCategory.@display.toString();
@@ -2356,6 +2355,8 @@
 				this.propertyEntries.refresh();
 
 			}
+
+			this.initializeData();
 			
 			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem") && this.analysisButton!=null) {
 				this.analysisButton.enabled = true;
