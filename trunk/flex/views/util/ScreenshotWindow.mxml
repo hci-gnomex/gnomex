@@ -79,7 +79,7 @@
 					parameters.body = feedbackTextArea.text;
 					parameters.IdAppUser = parentApplication.getIdAppUser();
 					parameters.AppUserName = parentApplication.getAppUserName();
-					parameters.UNID = parentApplication.getUNID();			
+					parameters.UNID = parentApplication.getUID();			
 		
 					
 					var urlRequest:URLRequest = new URLRequest();
