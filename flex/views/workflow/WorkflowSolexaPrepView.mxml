@@ -161,28 +161,44 @@
         }
 			
 		private function areAandBTagsUnique():void{
-			var areUnique:Boolean = true;
-			var idRequest:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@idRequest : "";;
-			var requestNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@requestNumber : "";
-			var multiplexGroupNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@multiplexGroupNumber : "";
-			var barcodes:ArrayCollection = new ArrayCollection();
 			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
 			dirtyWorkItems = new XMLListCollection(dirtyItems);
-			for each(var workItem:Object in dirtyWorkItems){
-				if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
-					var barcodeSequence:String = workItem.@barcodeSequence + workItem.@barcodeSequenceB;
-					if(barcodeSequence != null && barcodeSequence != ""){
-						barcodes.addItem(barcodeSequence);
+			var sort:Sort = new Sort();
+			sort.compareFunction = this.sortSampleNumber;
+			dirtyWorkItems.sort = sort;
+			dirtyWorkItems.refresh();
+			var requestsToCheck:Object = new Object();
+			for each(var item:Object in dirtyWorkItems){
+				requestsToCheck[item.@idRequest] = item;
+			}
+			var areUnique:Boolean = true;
+			var idRequest:String = "";
+			var requestNumber:String = "";
+			var multiplexGroupNumber:String = "";
+			var barcodes:ArrayCollection = new ArrayCollection();
+			
+			for(var idRequestToCheck:String in requestsToCheck){
+				if(!areUnique){
+					break;
+				}
+				idRequest = idRequestToCheck;
+				requestNumber = requestsToCheck[idRequestToCheck].@requestNumber;
+				multiplexGroupNumber = requestsToCheck[idRequestToCheck].@multiplexGroupNumber;
+				barcodes = new ArrayCollection();
+				for each(var workItem:Object in workList){
+					if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
+						addBarcodes(workItem, barcodes);
+					} else{
+						if(!checkBasePairs(barcodes)){
+							areUnique = false;
+							break;
+						}
+						if(idRequest == workItem.@idRequest && multiplexGroupNumber != workItem.@multiplexGroupNumber){
+							barcodes = new ArrayCollection();
+							multiplexGroupNumber = workItem.@multiplexGroupNumber;
+							addBarcodes(workItem, barcodes);
+						}
 					}
-				} else{
-					if(!checkBasePairs(barcodes)){
-						areUnique = false;
-						break;
-					}
-					idRequest = workItem.@idRequest;
-					multiplexGroupNumber = workItem.@multiplexGroupNumber;
-					requestNumber = workItem.@requestNumber;
-					barcodes = new ArrayCollection();
 				}
 			}
 			
@@ -193,6 +209,17 @@
 			} else{
 				save();
 			}
+		}
+			
+		//Helper function for areAandBTagsUnique()	
+		private function addBarcodes(workItem:Object, barcodes:ArrayCollection):void{
+			var barcodeA:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcode).@barcodeSequence;
+			var barcodeB:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcodeB).@barcodeSequence;
+			var barcodeSequence:String = barcodeA + barcodeB;
+			if(barcodeSequence != null && barcodeSequence != ""){
+				barcodes.addItem(barcodeSequence);
+			}
+			
 		}
 			
 		private function checkBasePairs(barcodes:ArrayCollection):Boolean{
