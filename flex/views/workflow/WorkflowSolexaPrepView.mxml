@@ -166,7 +166,9 @@
 			var requestNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@requestNumber : "";
 			var multiplexGroupNumber:String = workList.getItemAt(0) != null ? workList.getItemAt(0).@multiplexGroupNumber : "";
 			var barcodes:ArrayCollection = new ArrayCollection();
-			for each(var workItem:Object in workList){
+			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
+			dirtyWorkItems = new XMLListCollection(dirtyItems);
+			for each(var workItem:Object in dirtyWorkItems){
 				if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
 					var barcodeSequence:String = workItem.@barcodeSequence + workItem.@barcodeSequenceB;
 					if(barcodeSequence != null && barcodeSequence != ""){
