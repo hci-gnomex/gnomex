@@ -270,7 +270,7 @@
 						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
 					</mx:Text>
 				</mx:HBox>
-				<mx:HBox horizontalGap="0" verticalAlign="middle">
+				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
 									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
