@@ -131,6 +131,7 @@ public class Constants {
     ".pptx",
     ".xls",
     ".xlsx",
+    ".xml",
    };
   
 
