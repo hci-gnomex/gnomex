@@ -1877,8 +1877,8 @@
 												 includeInLayout="{currentState != 'GuestState'}"
 												 paddingLeft="0" selected="true"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
 									<mx:CheckBox id="cbVisibilityPublic" label="Public"
-												 visible="{currentState != 'GuestState'}"
-												 includeInLayout="{currentState != 'GuestState'}"
+												 visible="{parentApplication.isPublicVisibility}"
+												 includeInLayout="{parentApplication.isPublicVisibility}"
 												 selected="true" paddingLeft="0"  paddingTop="0" paddingBottom="0" styleName="menuLabelSmall" click="refreshDataTracks()"/>
 									
 								</mx:VBox>
