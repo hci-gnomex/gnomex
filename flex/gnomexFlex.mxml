@@ -979,6 +979,9 @@
 			
 			[Bindable]
 			public var useConfigurableBillingAccounts:Boolean = false;
+
+			[Bindable]
+			public var isPublicVisibility:Boolean = true;
 			
 			public var nonReqAnnotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
 			public var annotationColor:uint       = 0xE9FFD9;
@@ -1132,6 +1135,7 @@
 			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
 			public var PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES:String      = "allow_add_sequencing_services";
 			public var PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT:String  = "hide_sampletype_on_external_experiment";
+			public var PROPERTY_NO_PUBLIC_VISIBILITY:String               = "no_public_visibility";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -2482,6 +2486,13 @@
 					this.allowPaste = false;
 				} else {
 					this.allowPaste = true;
+				}
+
+				if (this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) != null && 
+					this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) == 'Y') {
+					this.isPublicVisibility = false;
+				} else {
+					this.isFDTSupported = true;
 				}
 				
 				if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null && 
