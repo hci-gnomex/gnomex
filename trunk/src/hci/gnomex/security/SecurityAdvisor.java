@@ -598,6 +598,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
         canRead = true;
       }
+      // Submitters need to read any project.
+      else if (hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES)) {
+        canRead = true;
+      }
       // GNomEx Users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
         Project proj = (Project)object;
@@ -1101,6 +1105,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
       // Admins
       if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = true;
+      }
+      // Submitters need to create projects
+      else if (hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES)) {
         canUpdate = true;
       }
       // University GNomEx users
@@ -2308,7 +2316,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // GNomex is not restricted
     } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
 
-      // GNomex admin is restricted to objects for their core facility
+      // GNomex admin is restricted to objects for their core facility.
+      // Same restriction applies for CAN_SUBMIT_FOR_OTHER_CORES).
       queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
       isFirstCriteria = false;
       queryBuf.append(" ( ");
@@ -2377,6 +2386,17 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
         queryBuf.append(" ( ");
         criteriaAdded = this.appendGroupCriteria(queryBuf, inheritedClassShortName);
+        queryBuf.append(" AND ");
+        queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
+        queryBuf.append(" ) ");
+      } 
+
+      // Pick up "empty" projects or analysis groups that don't have any children but
+      // belong to same core user can submit to.
+      if (leftJoinExclusionCriteria != null && this.getCoreFacilitiesICanSubmitTo().size() > 0 && labCoreFacilitiesName != null) {
+        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+        queryBuf.append(" ( ");
+        criteriaAdded = this.appendSubmitterCoreFacilityCriteria(queryBuf, labCoreFacilitiesName);
         queryBuf.append(" AND ");
         queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
         queryBuf.append(" ) ");
@@ -2650,6 +2670,30 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     queryBuf.append(classShortName);
     queryBuf.append(".idCoreFacility in ( ");
     for(Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+      CoreFacility coreFacility = (CoreFacility)i.next();
+      queryBuf.append(coreFacility.getIdCoreFacility());
+      if (i.hasNext()) {
+        queryBuf.append(", ");
+      }
+    }      
+    queryBuf.append(" )");
+
+    queryBuf.append(" )");
+
+    return true;
+  }
+
+  private boolean appendSubmitterCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
+    if (this.getCoreFacilitiesICanSubmitTo().isEmpty()) {
+      throw new RuntimeException("Unable to filter submitter by core facilties -- no core facilities have been assiged to this user");
+    }
+
+    queryBuf.append(" ( ");
+
+    // req.idCoreFacility in (....)
+    queryBuf.append(classShortName);
+    queryBuf.append(".idCoreFacility in ( ");
+    for(Iterator i = this.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
       CoreFacility coreFacility = (CoreFacility)i.next();
       queryBuf.append(coreFacility.getIdCoreFacility());
       if (i.hasNext()) {

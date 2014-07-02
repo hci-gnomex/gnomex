@@ -150,7 +150,8 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           req.samples as sample ");
     queryBuf.append(" LEFT JOIN           req.collaborators as collab ");
 
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) 
+        && (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES))) {
       // Admins must do security limit by lab core facility.
       queryBuf.append(" LEFT JOIN           projectLab.coreFacilities as labFacilities ");
     }
