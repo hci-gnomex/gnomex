@@ -215,6 +215,7 @@
 					}
 				}
 				
+				parentApplication.
 				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
 				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol)
@@ -1312,8 +1313,10 @@
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
+					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
+					    <mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
 									click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" toolTip="Visible to everyone"/>					   		
+					</mx:HBox>
 				</mx:VBox>				
 			</mx:HBox>
 		</mx:VBox>
