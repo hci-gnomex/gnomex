@@ -244,7 +244,7 @@ public class DataTrackQuery implements Serializable {
     addWhere = true;
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
     }
     
     
@@ -300,7 +300,7 @@ public class DataTrackQuery implements Serializable {
 
 		
 		if (secAdvisor != null) {
-		  addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
+		  addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
 		}
 		
 		
@@ -365,7 +365,7 @@ public class DataTrackQuery implements Serializable {
 
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
     }
 
     return queryBuf;

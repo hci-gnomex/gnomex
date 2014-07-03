@@ -2424,8 +2424,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return isFirstCriteria;
   }
-
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility) {
+    return buildSecurityCriteria(queryBuf, classShortName, collabClassShortName, isFirstCriteria, scopeToGroup, hasCoreFacility, true);
+  }
+  
+  public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility, boolean checkSubmitter) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 
       // GNomex super admin is not restricted (much)
@@ -2459,7 +2462,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
       
       // Add criteria for submitters
-      if(hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES)) {
+      if(hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES) && checkSubmitter) {
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
         criteriaAdded = appendSubmitterCriteria(queryBuf, classShortName);
       }
@@ -2492,7 +2495,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (hasCoreFacility) {
         this.appendSpecifiedCoreFacilityCriteria(queryBuf, classShortName, isFirstCriteria);
       }
-    } else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)){
+    } else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && checkSubmitter){
       queryBuf.append( !isFirstCriteria ? "WHERE " : " AND ");
       appendSubmitterCriteria(queryBuf, classShortName); 
     } else {
