@@ -215,7 +215,6 @@
 					}
 				}
 				
-				parentApplication.
 				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
 				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol)
