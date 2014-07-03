@@ -201,6 +201,10 @@
 					}
 				}
 			}
+			// do check for last request...
+			if(!checkBasePairs(barcodes)){
+				areUnique = false;
+			}
 			
 			if(areUnique == false){
 				Alert.show("Request " + requestNumber + 
