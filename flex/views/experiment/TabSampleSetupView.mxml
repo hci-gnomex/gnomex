@@ -1343,7 +1343,8 @@
 	
 	<mx:states>
 		<mx:State name="QCSetupState">
-			<mx:RemoveChild target="{sampleOrganismContainer}"/>
+			<mx:SetProperty target="{sampleOrganismContainer}" name="visible" value="false"/>
+			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:HBox width="100%" horizontalGap="0" id="hbox4">
@@ -2086,8 +2087,7 @@
 					<mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{sampleTypeHBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{sampleTypeHBox}"/>
 		    <mx:AddChild relativeTo="{hbox3}" position="before" target="{sampleTypeHBox}"/>
 			<mx:SetProperty target="{label8}" name="label" value="(4) Which category best describes your samples?"/>
 			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
