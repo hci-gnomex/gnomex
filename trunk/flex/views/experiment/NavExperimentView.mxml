@@ -1212,7 +1212,8 @@
 			PopUpManager.centerPopUp(changePrompt);
 			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 				" to project " + dropProject.@projectName + "?";
-			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal);			
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',dragRequest.@codeRequestCategory);
+			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal, requestCategory.@idCoreFacility);			
 		}
 		
 		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String):void {
