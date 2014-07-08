@@ -873,17 +873,21 @@
 			}
 			
 			private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
-				var uniqueBaseCount:int = 0;
-				for(var i:int = 0; i < sequenceOne.length; i++){
-					if(sequenceOne[i] != sequenceTwo[i]){
-						uniqueBaseCount++;
+				if (sequenceOne.length > 3 && sequenceTwo.length > 3) {
+					var uniqueBaseCount:int = 0;
+					for(var i:int = 0; i < sequenceOne.length; i++){
+						if(sequenceOne[i] != sequenceTwo[i]){
+							uniqueBaseCount++;
+						}
 					}
-				}
-				
-				if(uniqueBaseCount >= 3){
+					
+					if(uniqueBaseCount >= 3){
+						return true;
+					} else{
+						return false;
+					}
+				} else {
 					return true;
-				} else{
-					return false;
 				}
 			}
 			
