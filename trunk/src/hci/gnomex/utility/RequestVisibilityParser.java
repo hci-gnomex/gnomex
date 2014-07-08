@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
@@ -38,7 +39,7 @@ public class RequestVisibilityParser implements Serializable {
       
       Request request = (Request)sess.load(Request.class, new Integer(idRequest));
       
-      if (secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+      if (secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY) && (request.getRequestCategory().getIsOwnerOnly() == null || request.getRequestCategory().getIsOwnerOnly().equals("N"))) {
         if (codeVisibility == null || codeVisibility.equals("")) {
           throw new Exception("Visibility is required for experiment " + request.getNumber());
         }
@@ -48,6 +49,10 @@ public class RequestVisibilityParser implements Serializable {
         
         request.setCodeVisibility(codeVisibility);
         requests.add(request);
+      } else if ((request.getRequestCategory().getIsOwnerOnly() != null && request.getRequestCategory().getIsOwnerOnly().equals("Y"))) {
+        request.setCodeVisibility(Visibility.VISIBLE_TO_OWNER);
+        log.warn("Bypassing update of visibility on request " + request.getNumber() + 
+            ".  Request category allows owner visibility only.");
       } else {
         // Skip saving requests that user does not have permission to save
         log.warn("Bypassing update of visibility on request " + request.getNumber() + 
