@@ -3025,13 +3025,12 @@
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
 					
-					if(createSecurityAdvisor.lastResult.@passwordExpired == 'Y'){
+					if(createSecurityAdvisor.lastResult != null && createSecurityAdvisor.lastResult.@passwordExpired == 'Y'){
 						var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
 						PopUpManager.centerPopUp(changePasswordWindow);	
 					}
 
 				}
-				
 			}
 			
 			private function checkSecurityAndLaunchStartWindow():void {
