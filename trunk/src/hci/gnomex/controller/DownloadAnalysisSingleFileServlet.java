@@ -11,6 +11,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,6 +49,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
   private String						  analysisDir = null;
   private StringBuilder                   htmlText = new StringBuilder(1024000);
   
+  
   public void init() {
   
   }
@@ -65,7 +67,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     needToPreprocess = false;
     htmlText = new StringBuilder(1024000);
     analysisDir = null;
-    
+ 
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
       if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
@@ -214,8 +216,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
         // If we found the analysis, download it
         if (analysisFd != null) {
-          
-          
+                   
           // Insert a transfer log entry
           TransferLog xferLog = new TransferLog();
           
@@ -231,10 +232,13 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
           xferLog.setIpAddress(GNomExCommand.getRemoteIP(req));
           xferLog.setIdAppUser(secAdvisor.getIdAppUser());
 
-          analysisDir = analysisFd.getFileName().substring(0,analysisFd.getFileName().lastIndexOf('/')+1);
+          String analysisfdFileName = analysisFd.getFileName().replaceAll("\\\\", "/");
+          analysisDir = analysisfdFileName.substring(0,analysisfdFileName.lastIndexOf('/')+1);
                     
           in = new FileInputStream(analysisFd.getFileName());
           OutputStream out = response.getOutputStream();
+                   
+          
           byte b[] = new byte[102400];
           int numRead = 0;
           int size = 0;
@@ -271,6 +275,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
           in = null;
           out = null;
+                    
         }
 
         sess.flush();
@@ -372,7 +377,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 			outString (htmlText,nxtpos,ipos,out);
 
 			// get the line
-			String imgline = htmlText.substring (ipos, epos);
+			String imgline = htmlText.substring (ipos, epos+1);
 
 			// process it
 			if (!processIMG (imgline,out)) {
@@ -394,6 +399,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 		try {
 			asBytes = theBytes.getBytes("UTF-8");
 			out.write(asBytes);
+			
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -406,56 +412,112 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 	private boolean processIMG (String imgline, OutputStream out) {
 		boolean processed = false;
 
-		// we are only interested in images being handled by downloadsingleservlet
-		int ipos = imgline.indexOf("DownloadSingleFileServlet");
+		// there are two types of syntax, image tags containing DownloadAnalysisSingleFileServlet
+		// and those with src="local image name" without a &dir specified
+		int syntaxType = 1;								// assume DownloadAnalysisSingleFileServlet
+		int ipos = imgline.indexOf("DownloadAnalysisSingleFileServlet");
 		if (ipos == -1) {
-			return processed;
+			syntaxType = 2;
 		}
 
-		// get the image filename, here's an example of what the html looks like
-		// <img src="https://b2b.hci.utah.edu/gnomex/DownloadSingleFileServlet.gx?requestNumber=103R&fileName=per_base_quality.png&view=Y&dir=Images">
-		ipos = imgline.indexOf("fileName=");
-		if (ipos == -1) {
-			// not a format we can deal with
-			return processed;
-		}
-
-		int epos = imgline.indexOf("&",ipos+9);
-		if (epos == -1) {
-			return processed;
-		}
-
-		String fileName = imgline.substring(ipos+9,epos);
-		
-		// figure out what type of image it is
+		String localdir = null;
+		String fileName = null;
 		String imageType = "png";
-		ipos = fileName.lastIndexOf('.');
-		if (ipos != -1 && (ipos+1 < fileName.length()) ) {
-			imageType = fileName.substring(ipos+1);
+		int startA = 0;							// <
+		int endA = 0;							// everything upto src=
+		int startC = 0;							// everything after close " on src filename
+		
+		if (syntaxType == 1) {
+			// get the image filename, here's an example of what the html looks like
+			// <img src="https://b2b.hci.utah.edu/gnomex/DownloadSingleFileServlet.gx?requestNumber=103R&fileName=per_base_quality.png&view=Y&dir=Images">
+			ipos = imgline.indexOf("fileName=");
+			if (ipos == -1) {
+				// not a format we can deal with
+				return processed;
+			}
+
+			int epos = imgline.indexOf("&",ipos+9);
+			if (epos == -1) {
+				return processed;
+			}
+
+			fileName = imgline.substring(ipos+9,epos);
+		
+			// figure out what type of image it is
+			imageType = "png";
+			ipos = fileName.lastIndexOf('.');
+			if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+				imageType = fileName.substring(ipos+1);
+			}
+		
+			// get the directory
+			ipos = imgline.indexOf("&dir=");
+			if (ipos == -1) {
+				return processed;
+			}
+
+			epos = imgline.indexOf('"',ipos+5);
+			if (epos == -1) {
+				return processed;
+			}
+
+			localdir = imgline.substring(ipos+5,epos) + "/";
+		}
+		else if (syntaxType == 2) {
+			// <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
+			ipos = imgline.indexOf("src=");
+			if (ipos == -1) {
+				// not a format we can deal with
+				return processed;
+			}
+			
+			endA = ipos;			// end of everything upto src=
+			ipos = imgline.indexOf('"',ipos+4);
+			if (ipos == -1) {
+				// not a format we can deal with
+				return processed;
+			}
+
+			int epos = imgline.indexOf('"',ipos+1);
+			if (epos == -1) {
+				return processed;
+			}
+			
+			startC = epos+1;		// start up everything after the image name
+			fileName = imgline.substring(ipos+1,epos);
+			if (fileName.toLowerCase().startsWith("http")) {
+				// we only deal with local filenames
+				return processed;
+			}
+			
+			// figure out what type of image it is
+			imageType = "png";
+			ipos = fileName.lastIndexOf('.');
+			if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+				imageType = fileName.substring(ipos+1);
+			}
+			
+			
+			localdir = dir + "/";
+			if (analysisDir.endsWith(localdir))
+			{
+				localdir = "";
+			}
+			
 		}
 		
-		// get the directory
-		ipos = imgline.indexOf("&dir=");
-		if (ipos == -1) {
-			return processed;
-		}
-
-		epos = imgline.indexOf('"',ipos+5);
-		if (epos == -1) {
-			return processed;
-		}
-
-		String dir = imgline.substring(ipos+5,epos);
-
 		// get the file
-		String pathname = analysisDir + dir + "/" + fileName;
+		String pathname = analysisDir + localdir + fileName;
+				
 		File imageFd = new File(pathname);
 
 		// read it in
 		long filesize = imageFd.length();
+				
 		byte thefile[] = new byte[(int)filesize];
 
 	    FileInputStream inf;
+	    boolean readImageOK = true;
 		try {
 			inf = new FileInputStream(pathname);
 			int numRead = 0;
@@ -463,25 +525,48 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 	        inf.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
+			readImageOK = false;
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			readImageOK = false;
 			e.printStackTrace();
 		}
 
+		if (!readImageOK) {
+			return processed;
+		}
+		
 		// convert it to base64
 		byte[] encodedBytes = Base64.encodeBase64(thefile);
 
 		// now build the <img tag
 		StringBuilder imgtag = new StringBuilder (1024000);
 		//imgtag.append("<img src=\"data:image/png;base64,");
-		imgtag.append("<img src=\"data:image/");
-		imgtag.append(imageType);
-		imgtag.append(";base64,"); 
+		if (syntaxType == 1) {
+			imgtag.append("<img src=\"data:image/");
+			imgtag.append(imageType);
+			imgtag.append(";base64,"); 
 				
-		imgtag.append(new String(encodedBytes));
-		imgtag.append("\" />");
+			imgtag.append(new String(encodedBytes));
+			imgtag.append("\" />");
+		}
+		else if (syntaxType == 2) {
+			String partA = imgline.substring(startA,endA);
+			imgtag.append(partA);
 
+			imgtag.append("src=\"data:image/");
+			imgtag.append(imageType);
+			imgtag.append(";base64,"); 
+				
+			imgtag.append(new String(encodedBytes));
+			imgtag.append("\"");
+			
+			String partC = imgline.substring(startC);
+			imgtag.append(partC);
+			
+		}
+		
 		// write it out
 		outString (imgtag,0,imgtag.length(),out);
 		processed = true;
