@@ -1216,20 +1216,6 @@
 				}
 				
 			}
-
-			private function copyAccountsFromOtherCores():void {
-				if (this.dirty.isDirty()) {
-					Alert.show("Please save all changes before choosing copy.", "Save Before Copy");
-					return;
-				}
-				
-				var copyAcctWindow:CopyBillingAcctWindow = CopyBillingAcctWindow(mx.managers.PopUpManager.createPopUp(this, CopyBillingAcctWindow, true));
-				copyAcctWindow.selectedIdCoreFacility = this.getSelectedCoreFacilityId();
-				copyAcctWindow.lab = parentDocument.fullLab;
-				mx.managers.PopUpManager.centerPopUp(copyAcctWindow);
-				this.setFocus();
-				billingAccountGrid.editedItemPosition = null;
-			}
 		]]>
 	</mx:Script>	  
 	
