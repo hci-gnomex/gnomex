@@ -440,14 +440,16 @@ public class RequestParser implements Serializable {
     }
     
     // On existing requests, save visibility and privacyExpirationDate
-    if (!isNewRequest && (request.getRequestCategory().getIsOwnerOnly() == null || request.getRequestCategory().getIsOwnerOnly().equals("N"))) {
-      if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
-        request.setCodeVisibility(n.getAttributeValue("codeVisibility")); 
-        request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
+    if (!isNewRequest) {
+      if (request.getRequestCategory().getIsOwnerOnly() == null || request.getRequestCategory().getIsOwnerOnly().equals("N")) {
+        if (this.secAdvisor.canUpdate(request, SecurityAdvisor.PROFILE_OBJECT_VISIBILITY)) {
+          request.setCodeVisibility(n.getAttributeValue("codeVisibility")); 
+          request.setPrivacyExpirationDate(convertDate(n.getAttributeValue("privacyExpirationDate"))); 
+        }
+      } else if (request.getRequestCategory().getIsOwnerOnly() != null && request.getRequestCategory().getIsOwnerOnly().equals("Y")) {
+        request.setCodeVisibility(Visibility.VISIBLE_TO_OWNER);
       }
-    } else if ((request.getRequestCategory().getIsOwnerOnly() != null && request.getRequestCategory().getIsOwnerOnly().equals("Y"))) {
-      request.setCodeVisibility(Visibility.VISIBLE_TO_OWNER);
-    } 
+    }
   }
   
   private void initializeSample(Element requestNode, Element n, Session sess, RequestCategory requestCategory) throws Exception {
