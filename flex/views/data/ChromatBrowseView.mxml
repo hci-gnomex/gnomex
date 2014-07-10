@@ -537,7 +537,7 @@
 				
 				var paramStr:String =  selectedFiles.toXMLString();			
 				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-				url.contentType = "text/xml";
+				url.contentType = "text/plain";
 				url.method = URLRequestMethod.GET;
 				navigateToURL(url, '_self');					
 				

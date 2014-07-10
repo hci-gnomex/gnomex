@@ -311,7 +311,7 @@
 			
 			public function showFastDataTransferDownloadPage():void {
 				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-				url.contentType = "text/xml";
+				url.contentType = "text/plain";
 				url.method = URLRequestMethod.GET;
 				var parms:URLVariables = new URLVariables();
 				if (parentApplication.guestEmailAddress != null) {
