@@ -117,7 +117,7 @@
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
 	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
-	<mx:XMLListCollection id="coreFacilitiesICanSubmitTo" source="{getAppUser.lastResult.coreFacilitiesICanSubmitTo.coreFacility}"/>
+	<mx:XMLListCollection id="coreFacilitiesICanSubmitTo" source="{getAppUser.lastResult.coreFacilitiesICanSubmitTo.coreFacility}" filterFunction="filterCoreFacilitiesICanSubmitTo"/>
 	
 
 
@@ -443,6 +443,15 @@
 			  }
 			  return true;
           } 
+			
+  		  private function filterCoreFacilitiesICanSubmitTo(item:Object):Boolean {
+			  if (item.@allowed.toString() == "Y") {
+				  return true;
+			  } else {
+				  return false;
+			  }
+		  } 
+			
 			
           private function filterLab(item:Object):Boolean {
 			  var deptString:String = parentApplication.escapeRegexChars(deptSearchText.text);

@@ -8,12 +8,16 @@ import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -158,20 +162,34 @@ public class GetAppUser extends GNomExCommand implements Serializable {
   private void getCoreFacilitiesICanSubmitTo(Session sess, Document doc, AppUser theAppUser) {
     Element facilitiesNode = new Element("coreFacilitiesICanSubmitTo");
     doc.getRootElement().addContent(facilitiesNode);
-    for(Iterator coreIter = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator();coreIter.hasNext();) {
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+
+    Set coresToCheck = new TreeSet();
+    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      coresToCheck = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility");
+    } else {
+      coresToCheck = this.getSecAdvisor().getCoreFacilitiesIManage();
+    }
+
+    for(Iterator coreIter = coresToCheck.iterator();coreIter.hasNext();) {
       Object de = coreIter.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
       CoreFacility facility = (CoreFacility)de;
       String selected = "N";
-      for(Iterator userIter = theAppUser.getCoreFacilitiesICanSubmitTo().iterator();userIter.hasNext();) {
-        CoreFacility userFacility = (CoreFacility)userIter.next();
-        if (userFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
-          selected = "Y";
-          break;
+      String allowed = "N";
+      if (this.getSecAdvisor().coreAllowsGlobalSubmission(facility.getIdCoreFacility())) {
+        allowed = "Y";
+        for(Iterator userIter = theAppUser.getCoreFacilitiesICanSubmitTo().iterator();userIter.hasNext();) {
+          CoreFacility userFacility = (CoreFacility)userIter.next();
+          if (userFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
+            selected = "Y";
+            break;
+          }
         }
       }
+      
       if (selected.equals("N") && (facility.getIsActive() == null || facility.getIsActive().equals("N"))) {
         continue;
       }
@@ -185,6 +203,7 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       facilityNode.setAttribute("value", facility.getIdCoreFacility().toString());
       facilityNode.setAttribute("display", name);
       facilityNode.setAttribute("selected",selected);
+      facilityNode.setAttribute("allowed", allowed);
     }
   }
 }
