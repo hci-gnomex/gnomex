@@ -2120,6 +2120,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if(l == null) {
       return true;
     }
+    
+    if(isGuest && appUser == null) {
+      return false;
+    }
+    
     boolean isLabICanSubmitTo = false;
     for (Iterator i = l.getCoreFacilities().iterator(); i.hasNext();) {
       CoreFacility coreFacility = (CoreFacility)i.next();
