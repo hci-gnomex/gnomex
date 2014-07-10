@@ -126,6 +126,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   // Global permission map
   private Map                          globalPermissionMap = new HashMap();
 
+  // ids of core facilities that allow users to have global submission privileges.
+  private Map<Integer, Integer>        coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
+  
   private String                       loginDateTime;
 
   private BSTXSecurityAdvisor          bstxSecurityAdvisor;
@@ -136,7 +139,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName, Integer idCoreFacility) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName, Integer idCoreFacility, Map<Integer, Integer>submitMap) throws InvalidSecurityAdvisorException {
 
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
@@ -147,6 +150,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.canAccessBSTX = canAccessBSTX;
     this.ntUserName = ntUserName;
     this.specifiedIdCoreFacility = idCoreFacility;
+    this.coreFacilitiesAllowingGlobalSubmission = submitMap;
 
     setGlobalPermissions();    
     validate();
@@ -161,6 +165,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     canAccessBSTX = false;
     this.loginDateTime = new SimpleDateFormat("MMM-dd HH:mm").format(System.currentTimeMillis());
     this.specifiedIdCoreFacility = idCoreFacility;
+    this.coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
     setGlobalPermissions();
   }
   /*
@@ -315,8 +320,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
 
+    HashMap<Integer, Integer>submitMap = new HashMap<Integer,Integer>();
+    for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      
+      if (de == null) {
+        continue;
+      }
+      
+      CoreFacility cf = (CoreFacility)de;
+      String canHaveGlobalSubmission = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.ALLOW_CORE_GLOBAL_SUBMISSION);
+      if (canHaveGlobalSubmission != null && canHaveGlobalSubmission.equals("Y")) {
+        submitMap.put(cf.getIdCoreFacility(), cf.getIdCoreFacility());
+      }
+    }
+    
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName, idCoreFacility);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName, idCoreFacility, submitMap);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
@@ -1777,11 +1797,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND) 
           || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.GROUP_PERMISSION_KIND) 
           || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ) {
-        if(appUser.getCoreFacilitiesICanSubmitTo() != null && appUser.getCoreFacilitiesICanSubmitTo().size() > 0) {
-          globalPermissionMap.put(new Permission(this.CAN_SUBMIT_FOR_OTHER_CORES), null);  
+        for(Iterator coreIt = appUser.getCoreFacilitiesICanSubmitTo().iterator(); coreIt.hasNext();) {
+          CoreFacility cf = (CoreFacility)coreIt.next();
+          if (coreAllowsGlobalSubmission(cf.getIdCoreFacility())) {
+            globalPermissionMap.put(new Permission(this.CAN_SUBMIT_FOR_OTHER_CORES), null);  
+            break;
           }
         }
-
+      }
 
       // Can write common dictionaries
       if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND) ||
@@ -2106,11 +2129,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public boolean isCoreFacilityICanSubmitTo(Integer idCoreFacility) {
     boolean isCoreICanSubmitTo = false;
-    for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
-      CoreFacility coreFacility = (CoreFacility)i.next();
-      if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
-        isCoreICanSubmitTo = true;
-        break;
+    if (this.coreAllowsGlobalSubmission(idCoreFacility)) {
+      for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+        CoreFacility coreFacility = (CoreFacility)i.next();
+        if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
+          isCoreICanSubmitTo = true;
+          break;
+        }
       }
     }
     return isCoreICanSubmitTo;
@@ -3359,7 +3384,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   
   public Set getCoreFacilitiesICanSubmitTo() {
     if(appUser != null && appUser.getCoreFacilitiesICanSubmitTo() != null) {
-      return appUser.getCoreFacilitiesICanSubmitTo();
+      TreeSet cores = new TreeSet();
+      for(Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        if (this.coreAllowsGlobalSubmission(cf.getIdCoreFacility())) {
+          cores.add(cf);
+        }
+      }
+      return cores;
     }
     
     return new TreeSet();
@@ -3412,5 +3444,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Url += "idCore=" + this.specifiedIdCoreFacility.toString();
     }
     return Url;
+  }
+  
+  public Boolean coreAllowsGlobalSubmission(Integer idCoreFacility) {
+    return this.coreFacilitiesAllowingGlobalSubmission.containsKey(idCoreFacility);
   }
 }

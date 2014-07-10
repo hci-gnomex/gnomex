@@ -125,8 +125,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SEQ_LANE_NUMBER_SEPARATOR           = "seq_lane_number_separator";
   public static final String        SEQ_LANE_LETTER                     = "seq_lane_letter";
   public static final String        STATUS_TO_START_WORKFLOW            = "status_to_start_workflow";
-  public static final String		NO_GUEST_ACCESS						= "no_guest_access";
-  public static final String		NO_PUBLIC_VISIBILITY				= "no_public_visibility";
+  public static final String		    NO_GUEST_ACCESS						          = "no_guest_access";
+  public static final String		    NO_PUBLIC_VISIBILITY				        = "no_public_visibility";
+  public static final String        ALLOW_CORE_GLOBAL_SUBMISSION        = "allow_core_global_submission";
 
 
 
