@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" width="900" height="548"
+	xmlns:views="views.*" 
+	showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
+	title="Lib Prep Steps"> 	 
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent; 
+			
+			import views.util.DirtyNote;
+			import views.util.GNomExStringUtil;
+			
+			private var parentDirty:DirtyNote;
+			private var experimentType:String = null;
+			private var selectedItem:Object;
+			
+			public function init(dirty:DirtyNote, selectedItem:Object):void {
+				parentDirty = dirty;
+				this.selectedItem = selectedItem;
+			}
+			
+			private function removeRichTextButtons():void {
+				this.coreSteps.toolbar.removeChild(coreSteps.colorPicker);
+				this.coreSteps.toolbar.removeChild(coreSteps.fontFamilyCombo);
+				this.coreSteps.toolbar.removeChild(coreSteps.fontSizeCombo);
+				
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.colorPicker);
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.fontFamilyCombo);
+				this.coreStepsNoLibPrep.toolbar.removeChild(coreStepsNoLibPrep.fontSizeCombo);
+
+			}
+			
+			private function save():void {
+				selectedItem.@coreSteps = GNomExStringUtil.cleanRichTextHTML(coreSteps.htmlText);
+				selectedItem.@coreStepsNoLibPrep = GNomExStringUtil.cleanRichTextHTML(coreStepsNoLibPrep.htmlText);
+				parentDirty.setDirty();
+				PopUpManager.removePopUp(this);
+				Alert.show("You must press save on this screen to make your updates to configuration steps permanent.");
+			}
+			
+			private function cancel():void {
+				mx.managers.PopUpManager.removePopUp(this);
+			}
+
+			private function showCoreSteps():void{
+				coreSteps.htmlText = selectedItem.@coreSteps;
+			}
+
+			private function showCoreStepsNoLibPrep():void{
+				coreStepsNoLibPrep.htmlText = selectedItem.@coreStepsNoLibPrep;
+			}
+
+		
+		]]>
+	</mx:Script>
+	<mx:Label text="Use underscores to indicate area for user to write in."/>
+	<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4">
+
+		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
+			
+				<mx:Label text="Core Steps" id="coreStepsLabel"/>
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="coreSteps" width="100%" 
+									showControlBar="true"
+									creationComplete="removeRichTextButtons(); showCoreSteps(); "
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" height="100%" minHeight="50"/>		
+			
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
+				<mx:Label text="Core Steps(No Lib Prep)" id="labStepsLabel"/>
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+									id="coreStepsNoLibPrep" width="100%" 
+									showControlBar="true"
+									creationComplete="showCoreStepsNoLibPrep(); "
+									paddingLeft="0" paddingRight="0" paddingTop="0" 
+									roundedBottomCorners="false" paddingBottom="0" 
+									borderThicknessRight="0" borderThicknessLeft="0" 
+									borderThicknessBottom="0" borderThickness="0" 
+									borderThicknessTop="0" height="100%" minHeight="50"/>		
+		</mx:VBox>
+	</mx:HDividedBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Update" id="saveButton" click="save()" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="cancel()"/>
+	</mx:ControlBar>
+
+</mx:TitleWindow>
