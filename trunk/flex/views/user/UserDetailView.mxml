@@ -269,8 +269,10 @@
 				<mx:VBox visible="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected || this.isAdminPermissionLevel.selected)}" 
 						 includeInLayout="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected || this.isAdminPermissionLevel.selected)}" 
 						 borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
-					<util:ContextHelp context1="SubmitterPermissionHelp" showEdit="{parentApplication.isSuperAdmin}" title="Submitter Help"
-									  label="Submit experiments in all labs in core" labelPlacement="left" id="text1"/>
+					<mx:HBox verticalAlign="middle" width="100%">
+						<mx:Label text="Submit experiments in all labs in core" id="text1" styleName="formLabel"/>
+						<util:ContextHelp context1="SubmitterPermissionHelp" showEdit="{parentApplication.isSuperAdmin}" title="Submitter Help" />
+					</mx:HBox>
 					<mx:Repeater id="coreFacilitySubmitRepeater" dataProvider="{parentDocument.coreFacilitiesICanSubmitTo}">
 						<mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 							<mx:CheckBox id="chkSubmitCoreFacility" paddingBottom="0" paddingTop="0" verticalGap="0"
