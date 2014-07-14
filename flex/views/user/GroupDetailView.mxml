@@ -1225,11 +1225,14 @@
 				
 				var copyAcctWindow:CopyBillingAcctWindow = CopyBillingAcctWindow(mx.managers.PopUpManager.createPopUp(this, CopyBillingAcctWindow, true));
 				copyAcctWindow.selectedIdCoreFacility = this.getSelectedCoreFacilityId();
-				copyAcctWindow.lab = parentDocument.fullLab;
+				copyAcctWindow.allBillingAccounts = this.allBillingAccounts;
+				copyAcctWindow.currentAccounts = this.billingAccounts;
+				copyAcctWindow.parentWindow = this;
 				mx.managers.PopUpManager.centerPopUp(copyAcctWindow);
 				this.setFocus();
 				billingAccountGrid.editedItemPosition = null;
 			}
+			
 		]]>
 	</mx:Script>	  
 	
@@ -1505,8 +1508,8 @@
 								 labelField="@display" close="{lastIdCoreFacility=coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@idCoreFacility : ''}" change="{onCoreFacilitySelected()}" prompt="Core facility..." fontSize="11"/>
 					<mx:LinkButton label="Add account" id="showAddAccountLink" visible="{!addAccountBox.visible}" 
 								   click="{defaultAccountTypeForAdd()}" styleName="formLinkButton"/>
-					<mx:LinkButton label="Copy Accounts From Other Cores" id="copyAccountFromOtherCoreLink" visible="{false}" 
-								   click="{copyAccountsFromOtherCores()}" styleName="formLinkButton" includeInLayout="false"/>
+					<mx:LinkButton label="Copy Accounts From Other Cores" id="copyAccountFromOtherCoreLink" visible="{true}" 
+								   click="{copyAccountsFromOtherCores()}" styleName="formLinkButton" includeInLayout="true"/>
 				</mx:HBox>				    
 					<mx:VBox id="addAccountBox" visible="false" includeInLayout="false" verticalGap="3" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2"  borderStyle="solid" cornerRadius="6">
 						<mx:HBox horizontalGap="4" width="552" verticalAlign="middle" paddingTop="2">
