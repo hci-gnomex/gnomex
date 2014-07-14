@@ -56,6 +56,29 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="getFDTUploadInstructions" 
+		url="FastDataTransferUploadGetJnlpServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTUploadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="getFDTDownloadInstructions" 
+		url="FastDataTransferDownloadExpServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTDownloadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="GET"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -92,7 +115,7 @@
 			
 			[Bindable]
 			public var rowCountMessage:String = new String();
-						
+			
 			[Bindable]
 			private var _request:Object;
 			
@@ -130,7 +153,7 @@
 			public function get request():Object {
 				return _request;
 			}
-
+			
 			private function onGetRequestDownloadList(event:ResultEvent): void {
 				if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
 					Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
@@ -141,7 +164,7 @@
 				sortDownloadList(this.downloadList);
 				callLater(expandNodes);
 				parentDocument.filterList();
-							
+				
 			}
 			
 			private function sortDownloadList(theList:XMLListCollection):void{
@@ -150,7 +173,7 @@
 				theList.sort = sort;
 				theList.refresh();
 			}
-			 
+			
 			private function expandNodes():void {
 				if(downloadList.length > 0) {
 					downloadTree.expandItem(downloadList.getItemAt(0),true); 
@@ -162,7 +185,7 @@
 					downloadTree.expandItem(item3, false);
 				}
 			}
-						
+			
 			
 			public function downloadExpandedFiles(selectedFiles:XMLList):void {      	
 				selectedFileList = new XMLListCollection(selectedFiles);
@@ -249,7 +272,7 @@
 				
 				
 			}
-						
+			
 			private function onDownloadFiles(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					var parms:URLVariables = new URLVariables();
@@ -310,21 +333,32 @@
 			}
 			
 			public function showFastDataTransferDownloadPage():void {
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
-				url.contentType = "text/plain";
-				url.method = URLRequestMethod.GET;
-				var parms:URLVariables = new URLVariables();
-				if (parentApplication.guestEmailAddress != null) {
-					parms.emailAddress = parentApplication.guestEmailAddress;
-				}
-				parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
-				url.data = parms;
+				
 				if(showCommandLineInstructions){
-					navigateToURL(url, '_blank');
+					var params:Object = new Object();
+					params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					if (parentApplication.guestEmailAddress != null) {
+						params.emailAddress = parentApplication.guestEmailAddress;
+					}
+					getFDTDownloadInstructions.send(params);
 					showCommandLineInstructions = false;
 				} else{
+					var url:URLRequest = new URLRequest('FastDataTransferDownloadExpServlet.gx');	
+					url.contentType = "text/plain";
+					url.method = URLRequestMethod.GET;
+					var parms:URLVariables = new URLVariables();
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
+					parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
+					url.data = parms;
+					
 					navigateToURL(url, '_self');
 				}
+			}
+			
+			private function onGetFDTDownloadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
 			}
 			
 			public function showAlternateDownloadPage(selectedFiles:XMLList):void {
@@ -369,20 +403,31 @@
 				if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
 					var uuid:String = fdtUploadStart.lastResult.@uuid;
 					
-					var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
-					var uv:URLVariables = new URLVariables();
-					uv.uuid = uuid;
-					uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
-					url.data = uv;
-					url.method = URLRequestMethod.POST;		
 					if(showCommandLineInstructions){
-						navigateToURL(url, '_blank');
+						var params:Object = new Object();
+						params.uuid = uuid;
+						params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						getFDTUploadInstructions.send(params);
 						showCommandLineInstructions = false;
 					} else{
+						var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+						var uv:URLVariables = new URLVariables();
+						uv.uuid = uuid;
+						uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						url.data = uv;
+						url.method = URLRequestMethod.POST;
+						
 						navigateToURL(url, '_self');
 					}
 				}
 			}
+			
+			
+			private function onGetFDTUploadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
+			}
+			
+			
 			
 			
 			private function showExperimentUploadWindow():void {
@@ -429,7 +474,7 @@
 					showDownloadWindowAfterGuestPrompt();
 				}
 			}
-
+			
 			public function showDownloadWindowAfterGuestPrompt():void {
 				if (this.browseParameters != null) {	  
 					downloadWindow = ExperimentDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, ExperimentDownloadWindow, true));

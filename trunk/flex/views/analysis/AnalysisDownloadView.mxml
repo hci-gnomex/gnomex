@@ -56,6 +56,28 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="getFDTUploadInstructions" 
+		url="FastDataTransferUploadGetJnlpServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTUploadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getFDTDownloadInstructions" 
+		url="FastDataTransferDownloadAnalysisServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTDownloadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="GET"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -201,22 +223,32 @@
 				showFastDataTransferDownloadPage();
 			}
 			
-			public function showFastDataTransferDownloadPage():void {	
-				var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
-				url.contentType = "text/plain";
-				url.method = URLRequestMethod.GET;
-				var parms:URLVariables = new URLVariables();
-				if (parentApplication.guestEmailAddress != null) {
-					parms.emailAddress = parentApplication.guestEmailAddress;
-				}
-				parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
-				url.data = parms;
+			public function showFastDataTransferDownloadPage():void {
+				
 				if(showCommandLineInstructions){
-					navigateToURL(url, '_blank');
+					var params:Object = new Object();
+					params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					if (parentApplication.guestEmailAddress != null) {
+						params.emailAddress = parentApplication.guestEmailAddress;
+					}
+					getFDTDownloadInstructions.send(params);
 					showCommandLineInstructions = false;
 				} else{
+					var url:URLRequest = new URLRequest('FastDataTransferDownloadAnalysisServlet.gx');	
+					url.contentType = "text/plain";
+					url.method = URLRequestMethod.GET;
+					var parms:URLVariables = new URLVariables();
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
+					parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
+					url.data = parms;
 					navigateToURL(url, '_self');
-				}					
+				}	
+			}
+			
+			private function onGetFDTDownloadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
 			}
 			
 			public function startFDTUpload():void {			
@@ -231,20 +263,27 @@
 				if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
 					var uuid:String = fdtUploadStart.lastResult.@uuid;
 					
-					var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
-					var uv:URLVariables = new URLVariables();
-					uv.uuid = uuid;
-					uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
-					url.data = uv;
-					url.method = URLRequestMethod.POST;
 					if(showCommandLineInstructions){
-						navigateToURL(url, '_blank');
+						var params:Object = new Object();
+						params.uuid = uuid;
+						params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						getFDTUploadInstructions.send(params);
 						showCommandLineInstructions = false;
 					} else{
+						var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+						var uv:URLVariables = new URLVariables();
+						uv.uuid = uuid;
+						uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						url.data = uv;
+						url.method = URLRequestMethod.POST;
+						
 						navigateToURL(url, '_self');
 					}
-					
 				}
+			}
+			
+			private function onGetFDTUploadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
 			}
 			
 			private function onCacheAnalysisFileDownloadList(event:ResultEvent):void {
@@ -536,7 +575,7 @@
 				return hasUnregisteredFile;
 			}
 			
-						
+			
 			private function checkEdit(event:AdvancedDataGridEvent):void{
 				if ( event.itemRenderer.data.@type == "dir"){
 					event.preventDefault();
