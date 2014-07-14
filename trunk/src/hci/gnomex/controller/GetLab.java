@@ -137,13 +137,17 @@ public class GetLab extends GNomExCommand implements Serializable {
       theLab.excludeMethodFromXML("getInternalBillingAccounts");  // Added explicitly below
       theLab.excludeMethodFromXML("getPOBillingAccounts");  // Added explicitly below
       theLab.excludeMethodFromXML("getCreditCardBillingAccounts");  // Added explicitly below
+      theLab.excludeMethodFromXML("getBillingAccounts"); //Added explicitly below
       Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
       this.appendPossibleCollaborators(labNode, theLab);
       this.appendSubmitters(labNode, theLab);
+      this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
       this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
       this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
       this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
       this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode, theLab);
+   
       doc.getRootElement().addContent(labNode);
       
       
