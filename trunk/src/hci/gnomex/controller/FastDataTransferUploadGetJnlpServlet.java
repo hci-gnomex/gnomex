@@ -68,6 +68,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
     try {
 
 
+      
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -100,16 +101,12 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
         
         if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
           response.setContentType("text/html");
-          response.getOutputStream().println(
-          "<html><head><title>Command Line Instructions</title></head>");
-          response.getOutputStream().println("<body>");
-          response.getOutputStream().println("Complete the following steps to run FDT from the command line:" + "<br><br>");
-          response.getOutputStream().println("1) Download the fdt.jar app from " + fdtJarLoc + "<br>");
-          response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).<br>");
-          response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):<br><br>");
+          response.getOutputStream().println("Complete the following steps to run FDT from the command line:");
+          response.getOutputStream().println("1) Download the fdt.jar app from " + fdtJarLoc);
+          response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
+          response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
           response.getOutputStream().println("java -jar ./fdt.jar -r -c " + fdtServerName + " -d " + softLinksPath + " ./");
-          response.getOutputStream().println("</body>");
-          response.getOutputStream().println("</html>");
+          response.getOutputStream().flush();
           return;
         }
 
