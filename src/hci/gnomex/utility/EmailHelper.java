@@ -23,8 +23,9 @@ public class EmailHelper {
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
-    introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + ".");
-    introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+    introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + " core.");
+    introNote.append("<br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE));
+    introNote.append("<br>To see experiment details in GNomEx, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, secAdvisor, appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
@@ -73,7 +74,7 @@ public class EmailHelper {
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
-    introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by " + coreFacilityName + ": ");
+    introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by the " + coreFacilityName + " core: ");
     introNote.append("<br>");
     introNote.append(request.getRedoSampleNames());
     introNote.append("<br><br>");
