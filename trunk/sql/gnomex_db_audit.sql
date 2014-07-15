@@ -213,6 +213,12 @@ DROP TRIGGER IF EXISTS TrAU_CoreFacilityManager_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_CoreFacilityManager_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_CoreFacilitySubmitter_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_CoreFacilitySubmitter_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_CoreFacilitySubmitter_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_CreditCardCompany_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_CreditCardCompany_FER
@@ -3109,10 +3115,10 @@ CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
  ,`userNameExternal`  varchar(100)  NULL DEFAULT NULL
  ,`passwordExternal`  varchar(100)  NULL DEFAULT NULL
  ,`ucscUrl`  varchar(250)  NULL DEFAULT NULL
- ,`salt` varchar(300) NULL DEFAULT NULL
- ,`guid` varchar(100) NULL DEFAULT NULL
- ,`guidExpiration` datetime NULL DEFAULT NULL
- ,`passwordExpired` char(1) NULL DEFAULT NULL
+ ,`salt`  varchar(300)  NULL DEFAULT NULL
+ ,`guid`  varchar(100)  NULL DEFAULT NULL
+ ,`guidExpiration`  datetime  NULL DEFAULT NULL
+ ,`passwordExpired`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -3139,7 +3145,11 @@ INSERT INTO AppUser_Audit
   , codeUserPermissionKind
   , userNameExternal
   , passwordExternal
-  , ucscUrl )
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired )
   SELECT
   'No Context'
   , 'L'
@@ -3159,6 +3169,10 @@ INSERT INTO AppUser_Audit
   , userNameExternal
   , passwordExternal
   , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired
   FROM AppUser
   WHERE NOT EXISTS(SELECT * FROM AppUser_Audit)
 $$
@@ -3188,7 +3202,11 @@ BEGIN
   , codeUserPermissionKind
   , userNameExternal
   , passwordExternal
-  , ucscUrl )
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -3207,7 +3225,11 @@ BEGIN
   , NEW.codeUserPermissionKind
   , NEW.userNameExternal
   , NEW.passwordExternal
-  , NEW.ucscUrl );
+  , NEW.ucscUrl
+  , NEW.salt
+  , NEW.guid
+  , NEW.guidExpiration
+  , NEW.passwordExpired );
 END;
 $$
 
@@ -3232,7 +3254,11 @@ BEGIN
   , codeUserPermissionKind
   , userNameExternal
   , passwordExternal
-  , ucscUrl )
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -3251,7 +3277,11 @@ BEGIN
   , NEW.codeUserPermissionKind
   , NEW.userNameExternal
   , NEW.passwordExternal
-  , NEW.ucscUrl );
+  , NEW.ucscUrl
+  , NEW.salt
+  , NEW.guid
+  , NEW.guidExpiration
+  , NEW.passwordExpired );
 END;
 $$
 
@@ -3276,7 +3306,11 @@ BEGIN
   , codeUserPermissionKind
   , userNameExternal
   , passwordExternal
-  , ucscUrl )
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -3295,7 +3329,11 @@ BEGIN
   , OLD.codeUserPermissionKind
   , OLD.userNameExternal
   , OLD.passwordExternal
-  , OLD.ucscUrl );
+  , OLD.ucscUrl
+  , OLD.salt
+  , OLD.guid
+  , OLD.guidExpiration
+  , OLD.passwordExpired );
 END;
 $$
 
@@ -5845,6 +5883,108 @@ $$
 CREATE TRIGGER TrAD_CoreFacilityManager_FER AFTER DELETE ON CoreFacilityManager FOR EACH ROW
 BEGIN
   INSERT INTO CoreFacilityManager_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idCoreFacility
+  , OLD.idAppUser );
+END;
+$$
+
+
+--
+-- Audit Table For CoreFacilitySubmitter 
+--
+
+CREATE TABLE IF NOT EXISTS `CoreFacilitySubmitter_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idAppUser`  int(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for CoreFacilitySubmitter 
+--
+
+INSERT INTO CoreFacilitySubmitter_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idAppUser
+  FROM CoreFacilitySubmitter
+  WHERE NOT EXISTS(SELECT * FROM CoreFacilitySubmitter_Audit)
+$$
+
+--
+-- Audit Triggers For CoreFacilitySubmitter 
+--
+
+
+CREATE TRIGGER TrAI_CoreFacilitySubmitter_FER AFTER INSERT ON CoreFacilitySubmitter FOR EACH ROW
+BEGIN
+  INSERT INTO CoreFacilitySubmitter_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idCoreFacility
+  , NEW.idAppUser );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_CoreFacilitySubmitter_FER AFTER UPDATE ON CoreFacilitySubmitter FOR EACH ROW
+BEGIN
+  INSERT INTO CoreFacilitySubmitter_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idCoreFacility
+  , NEW.idAppUser );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_CoreFacilitySubmitter_FER AFTER DELETE ON CoreFacilitySubmitter FOR EACH ROW
+BEGIN
+  INSERT INTO CoreFacilitySubmitter_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -16119,6 +16259,7 @@ CREATE TABLE IF NOT EXISTS `Property_Audit` (
  ,`forAnalysis`  char(1)  NULL DEFAULT NULL
  ,`forDataTrack`  char(1)  NULL DEFAULT NULL
  ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16143,7 +16284,8 @@ INSERT INTO Property_Audit
   , forSample
   , forAnalysis
   , forDataTrack
-  , codePropertyType )
+  , codePropertyType
+  , sortOrder )
   SELECT
   'No Context'
   , 'L'
@@ -16161,6 +16303,7 @@ INSERT INTO Property_Audit
   , forAnalysis
   , forDataTrack
   , codePropertyType
+  , sortOrder
   FROM Property
   WHERE NOT EXISTS(SELECT * FROM Property_Audit)
 $$
@@ -16188,7 +16331,8 @@ BEGIN
   , forSample
   , forAnalysis
   , forDataTrack
-  , codePropertyType )
+  , codePropertyType
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -16205,7 +16349,8 @@ BEGIN
   , NEW.forSample
   , NEW.forAnalysis
   , NEW.forDataTrack
-  , NEW.codePropertyType );
+  , NEW.codePropertyType
+  , NEW.sortOrder );
 END;
 $$
 
@@ -16228,7 +16373,8 @@ BEGIN
   , forSample
   , forAnalysis
   , forDataTrack
-  , codePropertyType )
+  , codePropertyType
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -16245,7 +16391,8 @@ BEGIN
   , NEW.forSample
   , NEW.forAnalysis
   , NEW.forDataTrack
-  , NEW.codePropertyType );
+  , NEW.codePropertyType
+  , NEW.sortOrder );
 END;
 $$
 
@@ -16268,7 +16415,8 @@ BEGIN
   , forSample
   , forAnalysis
   , forDataTrack
-  , codePropertyType )
+  , codePropertyType
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -16285,7 +16433,8 @@ BEGIN
   , OLD.forSample
   , OLD.forAnalysis
   , OLD.forDataTrack
-  , OLD.codePropertyType );
+  , OLD.codePropertyType
+  , OLD.sortOrder );
 END;
 $$
 
