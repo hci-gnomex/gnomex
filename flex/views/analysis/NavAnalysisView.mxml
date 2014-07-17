@@ -675,6 +675,7 @@
 					getAnalysisGroupList.send(params);
 					
 					analysisDetailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
+					analysisEditView.titleLabel.text = "Edit Analysis " + selectedAnalysisNumber;
 					
 					
 				}
