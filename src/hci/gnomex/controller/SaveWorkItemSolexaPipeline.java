@@ -374,7 +374,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     StringBuffer introNote = new StringBuffer();
     
     introNote.append("Sequence " + laneText + " " + finishedLaneText + " for ");
-    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + cf.getFacilityName() + " core.");
+    introNote.append("Request " + request.getNumber() + " " + haveText + " been completed by the " + cf.getFacilityName() + ".");
     if(request.getIsExternal().equals("N") && request.getIdCoreFacility().equals(CoreFacility.CORE_FACILITY_GENOMICS_ID)){
       introNote.append("<br><br>" + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(CoreFacility.CORE_FACILITY_GENOMICS_ID, PropertyDictionary.ANALYSIS_ASSISTANCE_NOTE));
     }
