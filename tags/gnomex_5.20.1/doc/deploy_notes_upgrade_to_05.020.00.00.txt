@@ -1,0 +1,2 @@
+1. gnomex_realm.jar has changed so please make sure you redeploy this into the Tomcat lib directory. 
+2. The log4j-1.2.11.jar must be added to the Tomcat lib as the new war will remove it from the webapps/gnomex/WEB-INF/lib directory.

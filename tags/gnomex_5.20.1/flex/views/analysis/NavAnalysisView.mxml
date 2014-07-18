@@ -1,0 +1,1376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+		   label="Analysis"  height="100%" width="100%"		   
+		   xmlns:views="views.*"
+		   xmlns:analysis="views.analysis.*" 
+		   xmlns:util="views.util.*"
+		   xmlns:renderers="views.renderers.*"
+		   creationPolicy="all" show="init()"
+		   defaultButton="{lookupButton}"
+		   cornerRadius="10"  backgroundAlpha="0">
+	
+	
+	<mx:HTTPService  
+		id="getAnalysisGroupList" 
+		url="GetAnalysisGroupList.gx"
+		destination="getAnalysisGroupList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysisGroupList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+		method="POST"   
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysis" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysisLabList" 
+		url="GetAnalysisLabList.gx"
+		destination="getAnalysisLabList"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetAnalysisLabList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis lab list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="deleteAnalysisGroup" 
+		url="DeleteAnalysisGroup.gx"
+		destination="deleteAnalysisGroup"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onDeleteAnalysisGroup(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete analysis group', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="deleteAnalysis" 
+		url="DeleteAnalysis.gx"
+		destination="deleteAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onDeleteAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="getAnalysisGroup" 
+		url="GetAnalysisGroup.gx"
+		destination="getAnalysisGroup"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysisGroup(event)"
+		method="POST"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis group', event)"
+		useProxy="false">
+		<mx:request>
+			<idAnalysisGroup>{selectedIdAnalysisGroup}</idAnalysisGroup>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getNewAnalysisGroup" 
+		url="GetAnalysisGroup.gx"
+		destination="getAnalysisGroup"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetNewAnalysisGroup(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idAnalysisGroup>0</idAnalysisGroup>    	
+		</mx:request>
+	</mx:HTTPService>
+	
+	
+	
+	
+	<mx:Script> 
+		<![CDATA[
+			import mx.charts.chartClasses.StackedSeries;
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.List;
+			import mx.controls.Menu;
+			import mx.controls.TextArea;
+			import mx.controls.treeClasses.TreeItemRenderer;
+			import mx.controls.treeClasses.TreeListData;
+			import mx.core.DragSource;
+			import mx.core.UITextField;
+			import mx.events.CloseEvent;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent; 
+			
+			public var selectedIdAnalysis:Object;
+			public var selectedAnalysisNumber:Object;
+			
+			
+			public var showEditView:Boolean = false;
+			public var addAnalysisGroup:XML = null;
+			public var removeIdAnalysisGroup:String = null;
+			private var selectedTreeItems:ArrayCollection;
+			
+			[Bindable]
+			public var selectedAnalysis:Object;
+			
+			[Bindable]
+			public var selectedAnalysisGroup:Object;
+			
+			public var selectedIdLab:String;
+			
+			public var selectedNode:Object;
+			
+			public var parentIdLab:Object = null;
+			
+			private var dropProject:Object;
+			private var dragRequest:Object;
+
+			[Bindable]
+			public var selectedIdAnalysisGroup:String;
+			
+			public var shortcutToDownloadTab:Boolean = false;
+			public var shortcutToAnalysisListTab:Boolean = false;
+			
+			public var noOnBrowseTreeCall:Boolean = false;
+			
+			[Bindable]
+			public var rowCountMessage:String = new String();
+			
+			
+			private var showDownloads:Boolean = false;
+			
+			private var analysisGroupWindow:AnalysisGroupWindow;
+			private var analysisAddWindow:AnalysisAddView;
+			
+			public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+			public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
+			public static const millisecondsPerMonth:Number = 1000 * 60 * 60 * 24 * 30;
+			public static const millisecondsPerYear:Number = 1000 * 60 * 60 * 24 * 365;
+			
+			public var isInitialized:Boolean = false;
+			
+			[Bindable]
+			public var labList:XMLListCollection = null;
+			
+			[Bindable]
+			public var labKeys:String = "";
+			
+			[Bindable]
+			public var selectedLabsLabel:String = "";
+			
+			public function checkDirty():void {
+			}
+			
+			private function init():void {
+				checkSecurity();
+				
+				if (!isInitialized) {
+					if (currentState == "AdminState") {
+						this.getAnalysisLabList.send();				
+					}
+				}
+				
+				// Only initialize analysis if the user clicked on
+				// Analysis link in top nav bar. (Bypass
+				// if looking up analysis based on its number.)
+				if (selectedAnalysisNumber == null) {
+					initializeAnalysis();			
+				}
+				
+				
+				if (this.shortcutToDownloadTab || this.shortcutToAnalysisListTab) {
+					if (this.currentState == "AdminState") {
+						this.refreshAnalysis();
+					}
+				} else {
+					if (selectedAnalysisNumber != null) {
+						this.refreshAnalysisForLookup();
+					}
+				}
+				
+				if (this.shortcutToDownloadTab) {
+					this.analysisViews.selectedChild = this.analysisDetailView;
+				} else if (this.shortcutToAnalysisListTab) {
+					this.analysisViews.selectedChild = this.browseView;
+					this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+				}
+				
+				isInitialized = true;
+			}
+			
+			public function refreshAnalysisForLookup():void  {
+				var parms:Object = new Object();
+				if (parentApplication.isGuestMode()) {
+					parms.searchPublicProjects = "Y";
+					this.getAnalysisGroupList.send(parms);				
+				} else {
+					// If this is a normal user performing a lookup,
+					// then check to 'show public analysis' incase
+					// analysis is not from the user's lab.
+					if (this.currentState == "" || this.currentState == null) {
+						this.userAllAnalysisRadio.selected = true;
+					}
+					parms.analysisNumber = this.selectedAnalysisNumber;
+					this.getAnalysis.send(parms);
+					this.noOnBrowseTreeCall = true;    
+				}			
+			}
+			
+			public function checkSecurity():void {
+				if (parentApplication.hasPermission("canWriteAnyObject")) {
+					currentState = "AdminState";
+				} else if (parentApplication.currentState == "GuestState") {
+					currentState = "GuestState";
+				} else {
+					currentState = "";
+					// Only enable to new analysis, new analysis group link buttons
+					// if the user belongs to at least one lab
+					this.newAnalysisButton.enabled = parentApplication.canSubmitRequestForALab();
+					this.newAnalysisGroupButton.enabled = parentApplication.canSubmitRequestForALab();
+				}
+				if (this.browseView != null) {
+					this.browseView.checkSecurity();
+				}
+				
+			}
+			
+			private function getBrowseTreeLabel(item:Object):String {
+				var label:String = item.@label;
+				return label;
+			}
+			
+			
+			private function onGetAnalysisLabList(event:ResultEvent):void {
+				if (getAnalysisLabList.lastResult.name() == "LabList") {
+					labList = new XMLListCollection(getAnalysisLabList.lastResult.Lab);    		
+				}
+			}
+			
+			private function onGetRequestDownloadList(event:ResultEvent): void {        	
+				setResultsCount();
+			}
+			
+			private function onGetAnalysisGroupList(event:ResultEvent): void {
+				messageLabel.text = "";
+				if (getAnalysisGroupList.lastResult.Lab.length() == 0) {
+					browseTree.visible = false;
+				} else {
+					browseTree.visible = true;
+				}
+				
+				if (getAnalysisGroupList.lastResult.@message != "") {
+					messageLabel.text = "(" + getAnalysisGroupList.lastResult.@message + ")";
+				} else {
+					messageLabel.text =  "(" + getAnalysisGroupList.lastResult.@analysisCount +  " analyses)"; 
+				}
+				
+				var call:Object = event.token;
+				if (call.marker == "showDownloads") {
+					showDownloads = true;
+				} else {
+					showDownloads = false;
+				}
+				
+				if (this.shortcutToDownloadTab) {
+					this.analysisViews.selectedChild = this.browseView;
+					this.shortcutToDownloadTab = false;
+					this.browseTree.selectedIndex = 0;
+				} else if (this.shortcutToAnalysisListTab) {
+					this.analysisViews.selectedChild = this.browseView;
+					this.browseView.theViews.selectedChild = this.browseView.experimentListView;
+					this.shortcutToAnalysisListTab = false;
+					this.browseTree.selectedIndex = 0;
+				}
+				
+				
+				callLater(reselectTreeItem);
+				callLater(expandAllNodes); 
+			}
+			
+			
+			
+			private function reselectTreeItem():void {
+				callLater(selectTreeNode);
+			}
+			
+			private function selectTreeNode():void {
+				var idx:int = -1;
+				var pos:int = 0;
+				var lab:Object;
+				var analysisGroup:Object;
+				var analysis:Object;
+				// If actionscript sets selectedItem (rather than selectedIndex) on tree,
+				// there is a flex bug that causes an extra node to be inserted under
+				// selected item.  To work around this problem, I'm iterating through
+				// open items to determine the selected index.  This is clumsy code,
+				// but it woirks!
+				if (selectedAnalysisNumber != null) {
+					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+						pos++;	    	
+						for each(analysisGroup in lab.AnalysisGroup) {
+							pos++;
+							for each( analysis in analysisGroup.Analysis) {
+								pos++;
+								if (analysis.@number == selectedAnalysisNumber) {
+									idx = --pos;
+									
+									// We came from the main gnomex app, so select the lab 
+									if (this.currentState == "AdminState") {
+										for each(var l:Object in  labList) {
+											if (l.@idLab == analysis.@idLab) {
+												l.@isSelected = 'true';
+												this.selectedLabsLabel = l.@name;
+												this.labKeys = l.@idLab;
+											} else {
+												l.@isSelected = 'false';
+											}
+										}
+									}		    					
+									break;
+								} 
+							}
+							if (idx != -1) {
+								break;
+							} 
+						}
+						if (idx != -1) {
+							break;
+						}
+					}    			
+				} else if (selectedAnalysis != null) {
+					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+						pos++;	    	
+						for each(analysisGroup in lab.AnalysisGroup) {
+							pos++;
+							for each( analysis in analysisGroup.Analysis) {
+								pos++;
+								if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
+									analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+									idx = --pos;
+									break;
+								} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
+									idx = --pos;
+									break;
+								}
+							}
+							if (idx != -1) {
+								break;
+							} 
+						}
+						if (idx != -1) {
+							break;
+						}
+					}    			
+				}else if (selectedIdAnalysisGroup != null) {
+					for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
+						pos++; 	
+						for each(analysisGroup in lab.AnalysisGroup) {
+							pos++;
+							if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+								idx = --pos;
+								break;
+							}
+							for each( analysis in analysisGroup.Analysis) {
+								pos++;
+							}
+							if (idx != -1) {
+								break;
+							}
+						}
+						if (idx != -1) {
+							break;
+						}
+					}    			
+				} else if (selectedIdLab != null) {
+					for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
+						pos++;
+						if (selectedIdLab == lab.@idLab) {
+							idx = --pos;
+							break;
+						}
+						for each(analysisGroup in lab.AnalysisGroup) {
+							pos++;
+							for each(analysis in analysisGroup.Analysis) {
+								pos++;
+							}
+							if (idx != -1) {
+								break;
+							}
+						}
+						if (idx != -1) {
+							break;
+						}
+					}    			
+				}
+				
+				if (idx != -1) {
+					browseTree.selectedIndex = idx;
+					browseTree.scrollToIndex(idx);
+				}
+				
+				if(noOnBrowseTreeCall) {
+					noOnBrowseTreeCall = false;
+					return;
+				}
+				
+				onBrowseTree();
+			}
+			
+			
+			
+			private function expandLabNodes():void
+			{
+				browseTree.expandItem(getAnalysisGroupList.lastResult, true);
+				for each(var lab:Object in getAnalysisGroupList.lastResult..Lab) {
+					browseTree.expandItem(lab, true);
+				}
+				browseTree.validateNow();
+				treeContainer.validateNow();
+			}
+			
+			public function expandAllNodes():void
+			{
+				browseTree.expandItem(getAnalysisGroupList.lastResult, true);
+				for each(var lab:Object in getAnalysisGroupList.lastResult..Lab) {
+					browseTree.expandItem(lab, true);
+				}
+				for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
+					browseTree.expandItem(ag, true);
+				}
+				for each(var a:Object in getAnalysisGroupList.lastResult..Analysis) {
+					browseTree.expandItem(a, true);
+				}
+				browseTree.validateNow();
+				treeContainer.validateNow();
+			}
+			
+			
+			private function collapseAllBrowseNodes():void {
+				browseTree.openItems = [];
+				browseTree.validateNow();
+			}
+			
+			public function setResultsCount():void {
+				if (browseTree.selectedItem == null) {
+					rowCountMessage = "";
+				} else if (browseTree.selectedItem..Request.length() == 1) {
+					rowCountMessage = "(" + browseTree.selectedItem..Analysis.length() + " analysis)";
+				} else {
+					rowCountMessage = "(" + browseTree.selectedItem..Analysis.length() + " analyses)";
+				}
+			}
+			
+			
+			public function onBrowseTree():void {
+				if(browseTree.selectedItems.length != 1){
+					return;
+				}
+				setResultsCount();
+				
+				browseView.dirtyAnalysisGroup.resetDirty();
+				browseView.dirtyVisibility.resetDirty();
+				
+				selectedAnalysisGroup = null;
+				selectedIdAnalysisGroup = null;
+				selectedIdAnalysis = null;
+				selectedAnalysis = null;
+				selectedIdLab = null;
+				
+				this.deleteButton.enabled = false;
+				
+				if (browseTree.selectedItem == null) {
+					return;
+				}
+				
+				if (browseTree.selectedItem.name() == 'Analysis') {
+					analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
+					analysisEditView.titleLabel.text = "Edit Analysis " + browseTree.selectedItem.@number;
+					selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
+					var parms:Object = new Object();
+					parms.idAnalysis = selectedIdAnalysis; 
+					getAnalysis.send(parms);
+					selectedIdLab = browseTree.selectedItem.@idLab;
+					selectedIdAnalysisGroup = browseTree.selectedItem.parent().@idAnalysisGroup;
+					selectedAnalysisNumber = null;
+					
+				} else {												
+					selectedIdLab = browseTree.selectedItem.@idLab.toString();
+					
+					if (browseTree.selectedItem.name() == 'AnalysisGroup') {
+						browseView.titleLabel.text = browseTree.selectedItem.@label + "\t" + rowCountMessage;
+						selectedIdAnalysisGroup = browseTree.selectedItem.@idAnalysisGroup.toString();
+						if (!browseView.theViews.contains(browseView.analysisGroupView)) {
+							browseView.theViews.addChild(browseView.analysisGroupView);
+						}
+						getAnalysisGroup.send();
+						
+					} else {
+						browseView.titleLabel.text =  browseTree.selectedItem.@labName + "\t" + rowCountMessage;
+						selectedIdAnalysisGroup = null;
+						if (browseView.theViews.contains(browseView.analysisGroupView)) {
+							browseView.theViews.removeChild(browseView.analysisGroupView);
+						}
+						browseView.buttonStack.selectedChild = browseView.browseButtonView;
+						browseView.refreshButtonStack();
+						
+					}
+					
+					analysisViews.selectedIndex=0;
+				} 
+				
+				browseView.analysisNumberCombo.selectedIndex = -1;
+				browseView.browseList.refresh();
+				refreshAnalysisNumbers(browseView.browseList);
+				browseView.refreshVisibilityList();
+				analysisViews.visible = true;
+				
+				
+			}
+			
+
+			
+			public function refreshAnalysisNumbers(analysisList:XMLListCollection):void {
+				analysisNumbers.removeAll();
+				browseView.analysisNumberCombo.selectedIndex = -1;
+				
+				var blankItem:Object = new Object();
+				blankItem.data = "";
+				blankItem.label = "";
+				analysisNumbers.addItem(blankItem);
+				
+				for(var x:Number = 0; x < analysisList.length; x++) {
+					var item:Object = analysisList.getItemAt(x, 0);
+					
+					var found:Boolean = false;
+					for(var i:Number = 0; i < analysisNumbers.length; i++) {
+						if (analysisNumbers.getItemAt(i).label == item.@number) {
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						var newItem:Object = new Object();
+						newItem.data = item.@number;
+						newItem.label = item.@number;
+						analysisNumbers.addItem(newItem);
+					}
+				}
+				analysisNumbers.refresh();
+			}		
+			
+			public function sortAnalysisNumbers(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var num1:String = obj1.label;
+					var num2:String = obj2.label;
+					
+					if (num1 == 'Other') {
+						return 1;
+					} else if (num2 == 'Other') {
+						return  -1;
+					} else {
+						if (num1 < num2) {
+							return -1;
+						} else if (num1 > num2) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}			
+					
+				}
+			}
+			
+			public function filterAnalysisList(item:Object):Boolean {
+				var keep:Boolean = true;
+				if (browseView.analysisNumberCombo.selectedItem != null && browseView.analysisNumberCombo.selectedItem.label != "") {
+					keep = false; 
+					if (item.@number == browseView.analysisNumberCombo.selectedItem.label) {
+						keep = true;
+					}
+				}   
+				return keep;
+			}
+			
+			private function filterGenomeBuild(item:Object):Boolean {
+				if (item.@value == "") {
+					return true;
+				}
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				var doesMatch:Boolean = false;
+				if (this.organismCombo.selectedItem != null && 
+					this.organismCombo.selectedItem.@value != null  &&
+					this.organismCombo.selectedItem.@value != "") {
+					if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+						doesMatch = true;
+					}
+				}
+				return doesMatch;
+			}	
+			
+			
+			
+			
+			
+			private function onGetAnalysis(event:ResultEvent):void {
+				if (getAnalysis.lastResult.name() == "SUCCESS") {
+					Alert.show("Analysis not found");
+					parentApplication.theViews.selectedIndex = 0;
+					return;
+				}
+				if (getAnalysis.lastResult.name() != "OpenAnalysisList") {
+					Alert.show(getAnalysis.lastResult..ACTMESSAGE.@TEXT);
+					return;
+				}
+				
+				analysisEditView.dirty.resetDirty();
+				
+				if (this.showDownloads) {
+					analysisViews.visible = true;
+					this.showDownloads = false;
+					return;
+				}
+				
+				if (selectedIdAnalysis != null) {
+					selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);			
+				} else if (selectedAnalysisNumber != null && selectedAnalysisNumber != '') {
+					selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
+					
+					var params:Object = new Object();
+					params.idAnalysisGroup = selectedAnalysis.@idAnalysisGroup;
+					params.idLab = selectedAnalysis.@idLab;
+					params.showSamples = "N";
+					params.showCategory = "N";
+					params.searchPublicProjects = this.publicProjectsCheckbox ? "Y" : "N"; 
+					getAnalysisGroupList.send(params);
+					
+					analysisDetailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
+					
+					
+				}
+				
+				if (showEditView) {	
+					analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
+					analysisViews.selectedChild = analysisEditView;
+					showEditView = false;
+					if(addAnalysisGroup != null) {
+						if(removeIdAnalysisGroup != null) {
+							var item:Object;
+							var i:int = 0;	
+							for each(item in analysisEditView.analysisGroups) {
+								if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
+									analysisEditView.analysisGroups.removeItemAt(i);
+									break;						
+								}
+								i++;
+							}					
+							
+						}
+						analysisEditView.analysisGroups.addItem(addAnalysisGroup);
+						analysisEditView.parentIdLab = parentIdLab;
+						analysisEditView.setExecValidateAndSaveAnalysis();
+						addAnalysisGroup = null;
+					}
+				} else{
+					analysisViews.selectedChild = analysisDetailView;				
+					analysisDetailView.setupForm(this.selectedAnalysis);
+					analysisDetailView.updateUploadFormAnalysisObj();
+				}
+				
+				parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
+				
+				if (selectedAnalysis.@canDelete == "Y") {
+					this.deleteButton.enabled = true;
+				} else {
+					this.deleteButton.enabled = false;
+				}
+				browseView.refreshButtonStack();
+				
+				analysisViews.visible = true;
+			}
+			
+			private function onGetAnalysisGroup(event:ResultEvent):void {
+				selectedAnalysisGroup = getAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
+				browseView.refreshDownloadList();
+				browseView.refreshTrackList();
+				browseView.refreshVisibilityList();
+				
+				browseView.refreshButtonStack();
+				if (!browseView.theViews.contains(browseView.analysisGroupView)) {
+					browseView.theViews.addChild(browseView.analysisGroupView);
+				}
+				browseView.analysisGroupView.checkSecurity();
+				
+				if (selectedAnalysisGroup.@canDelete == "Y") {
+					this.deleteButton.enabled = true;
+				} else {
+					this.deleteButton.enabled = false;
+				}
+			}
+			
+			private function onGetNewAnalysisGroup(event:ResultEvent):void {
+				if (getNewAnalysisGroup.lastResult.name() == "OpenAnalysisGroupList") {
+					selectedAnalysisGroup = getNewAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == 0);
+					selectedAnalysisGroup.@idAppUser = parentApplication.getIdAppUser();
+					selectedAnalysisGroup.@idLab = selectedIdLab;
+					this.analysisGroupWindow = AnalysisGroupWindow(PopUpManager.createPopUp(this, AnalysisGroupWindow, true));
+					
+					var selectedLabNode:Object = null;
+					if (this.selectedIdLab != null) {
+						selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
+					} else {
+						if (currentState == 'AdminState') {
+							for each(var l:Object in labList) {
+								if (l.@isSelected == 'true') {
+									selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);
+									break;		 			 					
+								}
+							}
+						} else {
+							selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
+						}
+					}
+					this.analysisGroupWindow.labCombo.selectedItem = selectedLabNode;
+					
+					PopUpManager.centerPopUp(this.analysisGroupWindow);		
+					
+				} else {
+					mx.controls.Alert.show(getNewAnalysisGroup.lastResult..ACTMESSAGE.@TEXT, "Get new analysis group failed");
+				}
+			}
+			
+			public function showNewAnalysisWindow():void {
+				parentIdLab = null
+				this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
+				
+				PopUpManager.centerPopUp(this.analysisAddWindow);		
+				
+				
+				var selectedLabNode:Object = null;
+				if (this.selectedIdLab != null) {
+					selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
+				} else {
+					if (currentState == 'AdminState') {
+						for each(var l:Object in labList) {
+							if (l.@isSelected == 'true') {
+								selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);
+								break;		 			 					
+							}
+						}
+					} else {
+						selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
+						
+					}
+				}
+				
+				analysisAddWindow.initializeData(selectedLabNode != null ? selectedLabNode.@idLab : "", selectedIdAnalysisGroup);		 
+			}
+			
+			
+			public function getTreeLabel(item:Object):String {
+				if (item.name() == "Analysis") { 
+					return item.@number + " (" + item.@name + ")";
+				} else {
+					return item.@label;
+				}
+			}
+			
+			public function getBrowseParameters():Object {
+				var params:Object = new Object();
+				if (this.currentState == 'AdminState' && this.showAllAnalysisCheckbox.selected) {
+					params.allAnalysis = 'Y';
+				}  else {
+					if (this.currentState == 'GuestState') {
+						params.publicProjects = 'Y';
+					} else if (this.currentState == 'AdminState' &&  publicProjectsCheckbox.selected ) {
+						params.publicProjects = 'Y';
+					} else if ((this.currentState == null || this.currentState == "") && publicAnalysisOtherGroupsRadio.selected) {
+						params.publicAnalysisOtherGroups = 'Y';
+					}
+					
+					if ((this.currentState == null || this.currentState == "") && userAllAnalysisRadio.selected) {
+						params.allAnalysis = 'Y';
+					}
+					
+					if ((this.currentState == null || this.currentState == "") && myAnalysisRadio.selected) {
+						params.idAppUser = this.parentApplication.idAppUser;
+					}
+					
+					if (this.currentState == "AdminState") {
+						params.showMyLabsAlways = 'N';
+					} else {
+						params.showMyLabsAlways = 'Y';
+					}
+					
+					
+					params.labKeys = labKeys;
+					if(searchTextField.text != 'Search...') {
+						params.searchText = searchTextField.text;
+					}
+					params.lastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
+					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
+					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
+					params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
+					params.idGenomeBuild = genomeBuildCombo.selectedItem == null ? "" : genomeBuildCombo.selectedItem.@idGenomeBuild;
+					params.idOrganism = organismCombo.selectedItem == null ? "" : organismCombo.selectedItem.@idOrganism;
+					
+				}
+				
+				
+				return params;
+			}
+			
+			
+			public function refreshAnalysis():void {
+				this.browseTree.selectedItem = null;
+				getAnalysisGroupList.send(getBrowseParameters());
+			}
+			
+			public function refreshAnalysisFilterByLabs(labKeys:String, label:String):void {
+				this.labKeys = labKeys;
+				this.selectedLabsLabel = label;
+				this.browseLabCombo.selectedItem = null;
+				refreshAnalysis();
+			}
+			
+			public function selectLab():void {
+				// Unselect all labs firt
+				for each(var lab:Object in labList) {
+					if (lab.hasOwnProperty("@isSelected") && lab.@isSelected == 'true') {
+						lab.@isSelected = 'false';
+					}
+				}
+				if(browseLabCombo.selectedItem == null){
+					return;
+				}
+				
+				if (browseLabCombo.selectedItem != null) {
+					this.labKeys = browseLabCombo.selectedItem.@idLab;
+					browseLabCombo.selectedItem.@isSelected = 'true';
+					var labName:String = browseLabCombo.selectedItem.@lastName != "" ? browseLabCombo.selectedItem.@lastName : browseLabCombo.selectedItem.@firstName;
+					this.selectedLabsLabel = labName;
+				} else {
+					this.labKeys = "";
+					this.selectedLabsLabel = browseLabCombo.selectedItem.@name;
+				}
+				
+			}
+			
+			public function initializeAnalysis():void {
+				if (parentApplication.hasPermission('canAccessAnyObject')) {
+				} else {
+					if (getAnalysisGroupList.lastResult == null ||
+						selectedAnalysisNumber != null) {
+						collapseAllBrowseNodes();
+						selectedAnalysisNumber = null;
+						refreshAnalysis();
+					}
+					
+				}
+			}
+			
+			
+			public function promptToDelete():void {
+				var message:String = "The following items will be deleted: \n";
+				var analysisWithDataTracks:ArrayCollection = new ArrayCollection;
+				var analysisGroupSelected:Boolean = false;
+				for each(var item:XML in browseTree.selectedItems){
+					if (item.name() == 'Analysis' && item.DataTrackList.@count > 0) {
+						message += "*" + item.@name + ", ";
+					}
+					else if(item.name() == 'AnalysisGroup'){
+						analysisGroupSelected = true;
+						message += item.@name + ", ";
+					}
+					else{
+						message += item.@name + ", ";
+					}
+
+					
+				}
+				message = message.substring(0, message.lastIndexOf(","));
+				
+				if(message.search('*') != -1){
+					message += "\n\nThe analysis denoted with an '*' have associated data tracks. Both the analysis and the associated data tracks will be deleted.";
+				}
+				
+				if(analysisGroupSelected){
+					message += "\n\nOne or more analysis groups have been selected.  Any analysis contained within the group will also be deleted.";
+				}
+				message += "\nContinue?"
+				Alert.show(message, "Warning", (Alert.YES | Alert.NO), this, onPromptToDelete);
+				
+
+			}
+			
+			
+			public function onPromptToDelete(event:CloseEvent):void {				
+				if(event.detail==Alert.YES){
+					selectedTreeItems = new ArrayCollection(browseTree.selectedItems);
+					for each(var item:XML in selectedTreeItems){
+						if(item.name() == "AnalysisGroup" && item.children().length() > 0){
+							for each(var child:XML in item.children()){
+								if(!selectedTreeItems.contains(child)){
+									selectedTreeItems.addItem(child);
+								}
+							}
+							selectedTreeItems.removeItemAt(selectedTreeItems.getItemIndex(item));
+							selectedTreeItems.addItem(item);
+						}
+					}
+					deleteSelectedItems();
+				}
+				
+			}
+			
+			private function deleteSelectedItems():void{
+				var params:Object = new Object();
+				if(selectedTreeItems.length != 0){
+					var item:XML = XML(selectedTreeItems.removeItemAt(0));
+					if(item.name() == "Analysis"){
+						params.idAnalysis = item.@idAnalysis;
+						deleteAnalysis.send(params);
+					}
+					else if(item.name() == "AnalysisGroup"){
+						params.idAnalysisGroup = item.@idAnalysisGroup;
+						deleteAnalysisGroup.send(params);
+					}
+				}
+				else{
+					this.refreshAnalysis();
+					return;
+				}
+			}
+			
+			private function onDeleteAnalysis(event:ResultEvent): void {
+				if (deleteAnalysis.lastResult.name() == "SUCCESS") {
+					selectedAnalysisGroup = null;
+					selectedIdAnalysisGroup = null;
+					browseView.buttonStack.selectedChild = browseView.browseButtonView;
+					deleteSelectedItems();
+					analysisViews.selectedChild = browseView;
+				} else {
+					Alert.show(deleteAnalysis.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+			
+			private function onDeleteAnalysisGroup(event:ResultEvent): void {
+				if (deleteAnalysisGroup.lastResult.name() == "SUCCESS") {
+					selectedAnalysisGroup = null;
+					selectedIdAnalysisGroup = null;
+					browseView.buttonStack.selectedChild = browseView.browseButtonView;
+					deleteSelectedItems();
+					analysisViews.selectedChild = browseView;
+				} else {
+					Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+
+			
+			private function browseTreeDrop(e:DragEvent):void {
+				e.preventDefault();
+				
+				if(browseTree.selectedItems.length > 1){
+					Alert.show("Sorry, you may only move one analysis item at a time");
+					return;
+				}
+				
+				browseTree.hideDropFeedback(e);
+				var obj:Object = e.dragSource.dataForFormat("treeItems");
+				var dragParent:XML = XML(obj.parent);
+				var data:XML = obj[0];
+				var nodeName:String = String(data.name());
+				if(nodeName != "Analysis") {
+					Alert.show("Sorry, you may only copy/move analysis items.", "", 4, browseTree);
+					return;
+				}
+				var illegalDrop:Boolean = true;
+				var dropData : Object = browseTree.mx_internal::_dropData as Object;
+				
+				// determine where in the tree the drop occurs and select that node by the index; followed by 
+				// retrieving the node itself. 
+				var r:int = browseTree.calculateDropIndex(e);
+				browseTree.selectedIndex = r;
+				var node:XML = browseTree.selectedItem as XML;
+				var p:*;		
+				
+				if (node.name() == "AnalysisGroup") {
+					p = node;
+					illegalDrop = false;
+				} else if (node.name() == "Analysis") {
+					p = node.parent();
+					illegalDrop = false;
+				} else if (node.name() == "Lab") {
+					// If dropped within Lab then use first AnalysisGroup
+					var item:Object;
+					p = node;
+					if(p.AnalysisGroup.length() == 0) {	// Adding to Lab with no AnalysisGroups. No longer illegal as backend can now handle this.						
+						illegalDrop = false;}					
+					for each(item in p.AnalysisGroup) {
+						p = XML(item);
+						illegalDrop = false;
+						break;
+					}		
+				}	
+				if(!illegalDrop) {
+					for each(var analysis:Object in p.Analysis) {
+						if(data.@idAnalysis == analysis.@idAnalysis) {
+							Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
+							return;   						
+						}
+					}
+					illegalDrop = false;
+					p.appendChild(data);
+					browseTree.selectedItem = data;
+					showEditView = true;
+					
+					// Set the idLab of the Analysis to the lab it was dropped
+					// to (the lab of the analysis group
+					parentIdLab = p.@idLab;
+					
+					if(e.ctrlKey) {
+						// Don't remove dragged item if we're copying
+						removeIdAnalysisGroup = null;
+					}
+					addAnalysisGroup = new XML("<AnalysisGroup " +
+						" idAnalysisGroup=\"" + p.@idAnalysisGroup + "\"" +
+						" name=\""            + p.@name + "\"" + "/>");
+					onBrowseTree();					
+				}
+				
+				if(illegalDrop) {
+					Alert.show("Please drop the analysis item within an analysis folder.", "", 4, browseTree);
+				}
+			}
+			
+			private function browseTreeMouseDown(e:MouseEvent):void {
+				var i:int = 1;
+				var t:Tree = Tree(e.currentTarget);
+				if(t.selectedItem!= null && String(t.selectedItem.name()) == "Analysis") {
+					var parentXML:XML = XML(t.getParentItem(t.selectedItem));
+					removeIdAnalysisGroup = parentXML.@idAnalysisGroup;
+				} else {
+					removeIdAnalysisGroup = null;
+				}
+				
+			}
+			
+			private function showMultiLabFilterWindow():void {  
+				var window:MultiLabFilterWindow  = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
+				PopUpManager.centerPopUp(window);
+			}
+			
+			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 1) {
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 2) {
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 3) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastYearCheckbox.selected  = false;
+				}  else if (checkBoxNumber == 4) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+				}   
+			} 			
+			
+			private function toggleAllAnalysis():void {
+				//this.searchLabel.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.searchTextField.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lookupButton.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastWeekCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastMonthCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastThreeMonthsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastYearCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.publicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				if (currentState == "AdminState") {
+					this.selectGroupsLinkButton.enabled = !this.showAllAnalysisCheckbox.selected;
+				} else {
+					this.publicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;					
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
+	<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+	
+	<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+	<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
+	
+	<mx:VBox   width="100%" height="100%" verticalGap="2">
+		<mx:VBox styleName="panelBox" width="100%" id="vbox1"  paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
+			<mx:VBox id="analysisNavFilterBox"  verticalGap="0" width="100%">
+				<mx:HBox id="firstRowBox" width="100%" horizontalScrollPolicy="off">				
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="0"  width="60"/>					
+					<mx:HBox id="timeFilterBox" paddingLeft="0" paddingRight="0">						
+						<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(2);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(3);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+					</mx:HBox>
+					<mx:HBox verticalAlign="middle" paddingBottom="5" paddingLeft="0" paddingRight="0" id="OrganismAndGenomeFiltersBox" >
+						<!--<mx:Label text="Organism:" styleName="labelSmall" width="55" />-->
+						<renderers:FilterComboBox labelField="@display"
+												  prompt="Organism..."
+												  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
+												  id="organismCombo"
+												  dataProvider="{organisms.source}"
+												  width="180">
+						</renderers:FilterComboBox>
+						<!--<mx:Label text="Genome: " styleName="labelSmall" width="55" />-->
+						<renderers:FilterComboBox labelField="@display"
+												  prompt="Genome Build..."
+												  close="refreshAnalysis();"
+												  id="genomeBuildCombo"
+												  dataProvider="{filteredGenomeBuildList}"
+												  width="180">
+						</renderers:FilterComboBox>
+					</mx:HBox>
+					<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
+						<!--<mx:Label text="Search" id="searchLabel" paddingLeft="6" width="50"/>-->
+						<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF" text="Search..." click="{if(searchTextField.text == 'Search...') searchTextField.text = ''}"/>     
+						<mx:Button id="lookupButton"  
+								   fontFamily="Arial"  height="18" width="30"
+								   color="#400040" click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+					</mx:HBox>
+					<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
+				</mx:HBox>
+				<mx:HBox id="secondRowBox">
+					<mx:Spacer width="60" id="secondRowSpacer" />
+					<mx:HBox id="userFilters">
+						<mx:HBox id="analysisRadioGroupBox">
+							<mx:RadioButtonGroup id="analysisRadioGroup"/>
+							<mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup"  letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
+								<mx:click>this.refreshAnalysis()</mx:click>
+							</mx:RadioButton>
+							<mx:RadioButton label="My lab" id="myLabsAnalysisRadio"  selected="true" groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+								<mx:toolTip><![CDATA[Analysis of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
+								<mx:click>this.refreshAnalysis()</mx:click>
+							</mx:RadioButton>
+							<mx:RadioButton label="Other labs" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+								<mx:toolTip>Other labs' analyses that are visible to public</mx:toolTip>
+								<mx:click>this.refreshAnalysis()</mx:click>
+							</mx:RadioButton>
+							<mx:RadioButton label="All" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+								<mx:toolTip>All analysis I have access to</mx:toolTip>
+								<mx:click>this.refreshAnalysis()</mx:click>
+							</mx:RadioButton>
+						</mx:HBox>						
+					</mx:HBox>							 
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:HDividedBox height="100%" width="100%"> 
+			<mx:VBox styleName="panelBox"  label="Analysis" width="278" height="100%" id="navPanel"  dropShadowEnabled="true">
+				<mx:HBox width="100%">
+					<mx:Label id="messageLabel" styleName="labelSmall" text="" width="100%" textAlign="right"/>
+				</mx:HBox>
+				
+				<mx:VBox id="navContainer" width="100%" height="100%" verticalGap="0" paddingTop="0" label="Experiments">
+					<mx:VBox id="treeContainer"  dropShadowEnabled="true" width="100%" height="100%" paddingLeft="2" verticalGap="2" >
+						<mx:HBox width="100%" horizontalGap="8" horizontalAlign="right">
+						</mx:HBox>
+						
+						<mx:Tree width="100%" height="100%" 
+								 dataProvider="{getAnalysisGroupList.lastResult}" 
+								 showRoot="false" 
+								 id="browseTree" 
+								 click="onBrowseTree();" 
+								 doubleClickEnabled="false" 
+								 borderStyle="solid"
+								 labelField="@label"
+								 labelFunction="getTreeLabel"
+								 iconFunction="parentApplication.getTreeIcon" 
+								 backgroundAlpha="1"
+								 dragDrop="browseTreeDrop(event);" mouseDown="browseTreeMouseDown(event);" 
+								 dragEnabled="true" allowMultipleSelection="true"
+								 dropEnabled="true"></mx:Tree>
+						
+					</mx:VBox>
+					
+				</mx:VBox>
+				<mx:ControlBar width="100%" verticalAlign="bottom">
+					<mx:VBox verticalGap="0">
+						<mx:LinkButton label="New analysis" id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
+									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="true" disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
+						<mx:LinkButton label="New analysis group" id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
+									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="true" textDecoration="underline">
+							<mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
+						</mx:LinkButton>
+						
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:LinkButton label="Delete" id="deleteButton" icon="@Embed('../../assets/delete.png')" 
+									   click="promptToDelete()"
+									   letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false" textDecoration="underline">
+							<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
+						</mx:LinkButton>
+						<mx:LinkButton label="Drag-and-drop hint" 
+									   click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+						</mx:LinkButton>
+					</mx:VBox>
+					
+				</mx:ControlBar>
+			</mx:VBox> 
+			
+			
+			
+			
+			
+			
+			<mx:ViewStack id="analysisViews" visible="true" width="100%" height="100%" dropShadowEnabled="true">
+				
+				<analysis:AnalysisBrowseView id="browseView"  width="100%" height="100%">
+				</analysis:AnalysisBrowseView>
+				
+				<analysis:AnalysisDetailView id="analysisDetailView" width="100%" height="100%">
+				</analysis:AnalysisDetailView>
+				
+				<analysis:AnalysisEditView id="analysisEditView" width="100%" height="100%">
+				</analysis:AnalysisEditView>
+				
+				
+			</mx:ViewStack>
+			
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+	<mx:states>
+		<mx:State name="GuestState">
+			<mx:RemoveChild target="{userFilters}"/>
+			
+			<!--
+			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
+			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
+			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
+			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
+			<mx:RemoveChild target="{spacer2}"/>
+			<mx:RemoveChild target="{analysisRadioGroupBox}"/>
+			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="20"/>
+			<mx:SetProperty name="width" target="{timeFilterBox}" value="223"/>
+			-->
+		</mx:State>
+		
+		<mx:State name="AdminState">
+			<mx:RemoveChild target="{userFilters}"/>
+			<mx:AddChild relativeTo="{secondRowBox}" position="lastChild">
+				<mx:HBox id="AdminFilters" >
+					<mx:HBox >
+						<mx:CheckBox  label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0" fontSize="10"/>
+						<mx:CheckBox  label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5" fontSize="10"/>
+					</mx:HBox>
+					<mx:HBox  verticalAlign="middle">
+						<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
+							<mx:Label id="groupLabel" width="50" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
+							<renderers:FilterComboBox dataProvider="{labList}" 
+													  labelField="@name" 
+													  prompt="Select a lab..."
+													  width="250" 
+													  close="{selectLab();refreshAnalysis()}"  
+													  id="browseLabCombo">
+							</renderers:FilterComboBox>
+						</mx:HBox>					
+						<mx:HBox horizontalGap="1"  horizontalScrollPolicy="off" verticalScrollPolicy="off" id="vbox2">
+							<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
+							<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="500"/>
+						</mx:HBox>					
+					</mx:HBox>
+
+				</mx:HBox>
+			</mx:AddChild>	
+			
+			<!--
+			<mx:RemoveChild target="{analysisRadioGroup}"/>
+			<mx:AddChild relativeTo="{timeFilterBox}" position="before">
+				<mx:VBox width="100%" verticalAlign="middle" paddingLeft="90">
+					<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
+						<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
+						<mx:Spacer width="45"/>
+						<renderers:FilterComboBox dataProvider="{labList}" 
+												  labelField="@name" 
+												  prompt="Select a lab..."
+												  width="281" 
+												  close="{selectLab();refreshAnalysis()}"  
+												  id="browseLabCombo">
+						</renderers:FilterComboBox>
+					</mx:HBox>
+					
+					<mx:HBox horizontalGap="1" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle" id="vbox2">
+						<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
+						<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="550"/>
+					</mx:HBox>
+					
+				</mx:VBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{searchBox}" position="before">
+				<mx:HBox  horizontalGap="0">
+					<mx:CheckBox label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0" fontSize="10"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{analysisRadioGroupBox}"/>
+			<mx:RemoveChild target="{timeFilterBox}"/>
+			<mx:AddChild relativeTo="{searchBox}" position="before" target="{timeFilterBox}"/>
+			<mx:SetProperty target="{titleLabel}" name="width" value="80"/>
+			<mx:SetStyle target="{timeFilterBox}" name="paddingLeft" value="14"/>
+			<mx:AddChild relativeTo="{timeFilterBox}" position="before">
+				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5" fontSize="10"/>
+			</mx:AddChild>
+			<mx:SetStyle target="{vbox1}" name="borderStyle" value="solid"/>
+			<mx:SetStyle target="{vbox1}" name="paddingTop" value="4"/> -->
+		</mx:State>
+		
+		
+	</mx:states>
+	
+	
+	
+</mx:Canvas>
