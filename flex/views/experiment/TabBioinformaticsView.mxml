@@ -74,6 +74,7 @@
 				if (!alignCheckBox.selected) {
 					genomeBuildCombo.selectedIndex = 0;
 					genomeBuildCombo.enabled = false;
+					propagateGenomeBuild();
 				} else {
 					genomeBuildCombo.enabled = true;
 					if (genomeBuildCombo.selectedIndex == 0) {
@@ -84,8 +85,10 @@
 			
 			private function onGenomeBuildComboChange():void {
 				if (!alignCheckBox.selected) {
-					genomeBuildCombo.selectedIndex = 0;	
+					genomeBuildCombo.selectedIndex = 0;
 				}
+				
+				propagateGenomeBuild();
 			}
 			
 			private function onBioAssistCheckBoxClick():void {
