@@ -169,7 +169,7 @@
 				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
-				genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane.@idGenomeBuildAlignTo);
+				genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo);
 				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
