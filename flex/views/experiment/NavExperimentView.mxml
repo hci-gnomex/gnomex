@@ -1439,7 +1439,7 @@
 	private function filterRequestCategory(item:Object):Boolean {
 		var keep:Boolean = false;
 		if (item.@idCoreFacility != null ) {
-			if ( parentApplication.coreFacilitiesICanManage.length() > 1 && (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') ) {
+			if ( parentApplication.coreFacilitiesICanManage.length() > 1 && (coreFacilityCombo == null || coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') ) {
 				keep = false;
 			} else if ( coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@value != null && coreFacilityCombo.selectedItem.@value != '' ) {
 				if (item.@idCoreFacility == coreFacilityCombo.selectedItem.@value){
