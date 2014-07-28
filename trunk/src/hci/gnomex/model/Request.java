@@ -1433,4 +1433,13 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setIncludeQubitConcentration( String includeQubitConcentration ) {
     this.includeQubitConcentration = includeQubitConcentration;
   }
+  
+  public String getTurnAroundTime() {
+    if(this.createDate != null && this.completedDate != null) {
+      long difference = ((this.completedDate.getTime() - this.createDate.getTime()) / (1000 * 60 * 60 * 24));
+      return Long.toString(difference);
+    }
+    
+    return "";
+  }
 }
