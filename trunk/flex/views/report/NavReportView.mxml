@@ -465,7 +465,7 @@
 									</mx:columns>
 								</mx:DataGrid>
 								
-								<mx:DataGrid id="customGrid" height="100%" includeInLayout="{annotationRadioGroup1.selectedValue == 'SAMPLE'}" visible="{annotationRadioGroup1.selectedValue == 'SAMPLE'}"
+								<mx:DataGrid id="customGrid" height="100%" includeInLayout="{annotationRadioGroup1.selectedValue == 'SAMPLE' &amp;&amp; customColumns.length > 0}" visible="{annotationRadioGroup1.selectedValue == 'SAMPLE' &amp;&amp; customColumns.length > 0}"
 											 dataProvider="{customColumns}" itemClick="toggleCustomColumnCheck(event)" 
 											 showHeaders="true" headerHeight="20" variableRowHeight="true" width="400" 
 											 allowMultipleSelection="true" focusOut="{customGrid.selectedIndex=-1}" rowHeight="20"  >
