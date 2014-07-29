@@ -36,6 +36,7 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
 			
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
@@ -261,6 +262,15 @@
 				if (newAnnotationName.text == null || newAnnotationName.text.length == 0 || newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT) {
 					Alert.show('Please enter name of new annotation in the text box before pressing Add Annotation');
 					return;
+				}
+				
+				for each(var sc:Object in parentApplication.propertyList) {
+					var thisPropName:String = StringUtil.trim(sc.@name);
+					thisPropName = thisPropName.toLowerCase();
+					if(newAnnotationName.text.toLowerCase() == thisPropName) {
+						Alert.show('"' + newAnnotationName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
+						return;
+					}
 				}
 				
 				var found:Boolean = selectAndScrollToName(newAnnotationName.text);
