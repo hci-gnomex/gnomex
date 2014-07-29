@@ -2202,7 +2202,7 @@
       <generator class="assigned"/>
     </id>
     <property name="description" column="description" type="string"/>
-    <property name="idCoreFacility" column="idVendor" type="integer"/>
+    <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="idVendor" column="idVendor" type="integer"/>
     <property name="idPriceCategory" column="idPriceCategory" type="integer"/>
   </class>  

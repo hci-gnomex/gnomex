@@ -143,10 +143,12 @@
 
   <Dictionary displayName="Product Order Status" className="hci.gnomex.model.ProductOrderStatus" editable="Y" />
   <Dictionary displayName="Product Type" className="hci.gnomex.model.ProductType" editable="Y" >
+    <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
     <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
     <Filter className="hci.gnomex.model.PriceCategory" filterField="idPriceCategory"/>
   </Dictionary>
 
+  <Dictionary displayName="Price Category" className="hci.gnomex.model.PriceCategory"  editable="N">
 
   <Dictionary displayName="DNA Seq Core - Primer" className="hci.gnomex.model.Primer"  />
   <Dictionary displayName="DNA Seq Core - Assay" className="hci.gnomex.model.Assay" />
