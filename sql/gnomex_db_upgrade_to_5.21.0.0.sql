@@ -179,3 +179,6 @@ CREATE TABLE `gnomex`.`ProductOrderFile` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+--Uniqueness constraint for Property table
+ALTER TABLE `Property` ADD UNIQUE (`name`);
