@@ -311,49 +311,35 @@
 		<id name="idBillingItem" column="idBillingItem" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="category" column="category" type="string" />
-		<property name="description" column="description" type="string" />
-		<property name="qty" column="qty" type="integer" />
-		<property name="unitPrice" column="unitPrice" type="big_decimal" />
-		<property name="totalPrice" type="big_decimal" formula="qty * unitPrice" />
-		<property name="invoicePrice" column="invoicePrice" type="big_decimal" />
-		<property name="percentagePrice" column="percentagePrice"
-			type="big_decimal" />
-		<property name="codeBillingStatus" column="codeBillingStatus"
-			type="string" />
-		<property name="codeBillingChargeKind" column="codeBillingChargeKind"
-			type="string" />
-		<property name="idBillingPeriod" column="idBillingPeriod"
-			type="integer" />
-		<property name="completeDate" column="completeDate" type="date" />
-		<many-to-one name="billingPeriod" column="idBillingPeriod"
-			class="hci.gnomex.model.BillingPeriod" cascade="none" insert="false"
-			update="false" />
-		<property name="idPriceCategory" column="idPriceCategory"
-			type="integer" />
-		<many-to-one name="priceCategory" column="idPriceCategory"
-			class="hci.gnomex.model.PriceCategory" cascade="none" insert="false"
-			update="false" />
-		<property name="idPrice" column="idPrice" type="integer" />
-		<property name="idRequest" column="idRequest" type="integer" />
-		<property name="idBillingAccount" column="idBillingAccount"
-			type="integer" />
-		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
-		<many-to-one name="billingAccount" column="idBillingAccount"
-			class="hci.gnomex.model.BillingAccount" cascade="none" insert="false"
-			update="false" />
-		<property name="idLab" column="idLab" type="integer" />
-		<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab"
-			cascade="none" insert="false" update="false" />
-		<property name="notes" column="notes" type="string" />
-		<property name="splitType" column="splitType" type="string" />
-		<property name="idInvoice" column="idInvoice" type="integer" />
-		<many-to-one name="invoice" column="idInvoice"
-			class="hci.gnomex.model.Invoice" cascade="none" insert="false"
-			update="false" />
-		<property name="idDiskUsageByMonth" column="idDiskUsageByMonth"
-			type="integer" />
-	</class>
+		<property name="category" column="category" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="qty" column="qty" type="integer"/>
+		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
+		<property name="totalPrice" type="big_decimal" formula="qty * unitPrice"/>
+		<property name="invoicePrice" column="invoicePrice" type="big_decimal"/>
+		<property name="percentagePrice" column="percentagePrice" type="big_decimal"/>
+		<property name="codeBillingStatus" column="codeBillingStatus" type="string"/>
+		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
+		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
+		<property name="completeDate" column="completeDate" type="date"/>
+		<many-to-one name="billingPeriod" column="idBillingPeriod" class="hci.gnomex.model.BillingPeriod" cascade="none" insert="false" update="false" />
+		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
+		<many-to-one name="priceCategory" column="idPriceCategory" class="hci.gnomex.model.PriceCategory" cascade="none" insert="false" update="false" />
+		<property name="idPrice" column="idPrice" type="integer"/>		
+		<property name="idRequest" column="idRequest" type="integer"/>
+		<property name="idBillingAccount" column="idBillingAccount" type="integer"/>
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    	<many-to-one name="billingAccount" column="idBillingAccount" class="hci.gnomex.model.BillingAccount" cascade="none" insert="false" update="false" />
+		<property name="idLab" column="idLab" type="integer"/>
+    	<many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false" update="false" />
+		<property name="notes" column="notes" type="string"/>
+	  	<property name="splitType" column="splitType" type="string"/>
+    	<property name="idInvoice" column="idInvoice" type="integer"/>
+    	<many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
+    	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
+    	<property name="idProductOrder" column="idProductOrder" type="integer" />
+  </class>	
+  
 
 	<!-- hci.gnomex.model.Chromatogram -->
 	<class name="hci.gnomex.model.Chromatogram" table="Chromatogram">
@@ -2113,14 +2099,115 @@
 		<id name="idPriceCriteria" column="idPriceCriteria" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="filter1" column="filter1" type="string" />
-		<property name="filter2" column="filter2" type="string" />
-		<property name="idPrice" column="idPrice" type="integer" />
-
-	</class>
-
-
-	<!-- hci.gnomex.model.PropertyDictionary -->
+		<property name="filter1" column="filter1" type="string"/>
+		<property name="filter2" column="filter2" type="string"/>
+		<property name="idPrice" column="idPrice" type="integer"/>
+		
+	</class>	
+	
+  <!-- hci.gnomex.model.Product -->
+  <class name="hci.gnomex.model.Product" table="Product">
+    <id name="idProduct" column="idProduct" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="name" column="name" type="string"/>
+    <property name="codeProductType" column="codeProductType" type="string"/>
+    <property name="idPrice" column="idPrice" type="integer"/>
+    <property name="orderQty" column="orderQty" type="integer"/>
+    <property name="useQty" column="useQty" type="integer"/>
+    <property name="catalogNumber" column="catalogNumber" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class> 
+  
+  <!-- hci.gnomex.model.ProductLedger -->
+  <class name="hci.gnomex.model.ProductLedger" table="ProductLedger">
+    <id name="idProductLedger" column="idProductLedger" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="idLab" column="idLab" type="integer"/>
+    <property name="idProduct" column="idProduct" type="integer"/>
+    <property name="qty" column="qty" type="integer"/>
+    <property name="comment" column="comment" type="string"/>
+    <property name="timeStamp" column="timeStamp" type="date"/>
+    <property name="idProductOrder" column="idProductOrder" type="integer"/>
+    <property name="requestNumber" column="requestNumber" type="string"/>
+    
+  </class> 
+  
+  
+  <!-- hci.gnomex.model.ProductLineItem -->
+  <class name="hci.gnomex.model.ProductLineItem" table="ProductLineItem">
+    <id name="idProductLineItem" column="idProductLineItem" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="idProductOrder" column="idProductOrder" type="integer"/>
+    <property name="idProduct" column="idProduct" type="integer"/>
+    <property name="qty" column="qty" type="integer"/>
+    <property name="unitPrice" column="unitPrice" type="big_decimal"/>
+  </class>  
+  
+  <!-- hci.gnomex.model.ProductOrder -->
+  <class name="hci.gnomex.model.ProductOrder" table="ProductOrder">
+    <id name="idProductOrder" column="idProductOrder" type="integer">
+      <generator class="native"/>
+    </id>
+    <property name="idAppUser" column="idAppUser" type="integer"/>
+    <property name="idLab" column="idLab" type="integer"/>
+    <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+    <property name="submitDate" column="submitDate" type="date"/>
+    <property name="codeProductType" column="codeProductType" type="string"/>
+    <property name="codeProductOrderStatus" column="codeProductOrderStatus" type="string"/>
+    <property name="quoteNumber" column="quoteNumber" type="string"/>
+    <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
+    <property name="uuid" column="uuid" type="string"/>
+    
+    <set name="productLineItems" table="ProductLineItem" lazy="true" cascade="none" order-by="idProductLineItem">
+      <key column="idProductOrder"/>
+      <one-to-many class="hci.gnomex.model.ProductLineItem" />
+    </set>
+    <set name="billingItems" table="BillingItem" lazy="true" cascade="none" order-by="idBillingItem">
+      <key column="idProductOrder"/>
+      <one-to-many class="hci.gnomex.model.BillingItem" />
+    </set>
+    <set name="files" table="ExperimentFile" lazy="false" cascade="all" order-by="fileName">
+      <key column="idProductOrder"/>
+      <one-to-many class="hci.gnomex.model.ProductOrderFile" />
+    </set>
+  </class> 
+  
+  <!-- hci.gnomex.model.ProductOrderFile -->
+  <class name="hci.gnomex.model.ProductOrderFile" table="ProductOrderFile">
+    <id name="idProductOrderFile" column="idProductOrderFile" type="integer">
+      <generator class="native"/>
+    </id>
+    <many-to-one name="productOrder" column="idProductOrder" class="hci.gnomex.model.ProductOrder" cascade="none" update="false" insert="false"/>
+    <property name="idProductOrder" column="idProductOrder" type="integer"/>
+    <property name="fileName" column="fileName" type="string"/>
+    <property name="fileSize" column="fileSize" type="big_decimal"/>
+    <property name="createDate" column="createDate" type="date"/>
+  </class>
+  
+  <!-- hci.gnomex.model.ProductOrderStatus -->
+  <class name="hci.gnomex.model.ProductOrderStatus" table="ProductOrderStatus">
+    <id name="codeProductOrderStatus" column="codeProductOrderStatus" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="productOrderStatus" column="productOrderStatus" type="string"/>
+    <property name="isActive" column="isActive" type="string"/>
+  </class>
+  
+   <!-- hci.gnomex.model.ProductType -->
+  <class name="hci.gnomex.model.ProductType" table="ProductType">
+    <id name="codeProductType" column="codeProductType" type="string">
+      <generator class="assigned"/>
+    </id>
+    <property name="description" column="description" type="string"/>
+    <property name="idCoreFacility" column="idVendor" type="integer"/>
+    <property name="idVendor" column="idVendor" type="integer"/>
+    <property name="idPriceCategory" column="idPriceCategory" type="integer"/>
+  </class>  
+	
+  <!-- hci.gnomex.model.PropertyDictionary -->
 	<class name="hci.gnomex.model.PropertyDictionary" table="PropertyDictionary">
 		<id name="idPropertyDictionary" column="idPropertyDictionary" type="integer">
 			<generator class="native" />

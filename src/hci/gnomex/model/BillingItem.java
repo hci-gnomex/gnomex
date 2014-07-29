@@ -38,6 +38,7 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idInvoice;
   private Invoice        invoice;
   private Integer        idDiskUsageByMonth;
+  private Integer        idProductOrder;
   
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -341,6 +342,16 @@ public class BillingItem extends HibernateDetailObject {
     idDiskUsageByMonth = id;
   }
   
+  
+  public Integer getIdProductOrder() {
+    return idProductOrder;
+  }
+
+  
+  public void setIdProductOrder( Integer idProductOrder ) {
+    this.idProductOrder = idProductOrder;
+  }
+
   private Invoice getInvoiceForBillingItem(Session sess) {
     Invoice inv = new Invoice();
     String queryString = "from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
