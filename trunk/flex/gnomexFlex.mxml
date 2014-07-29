@@ -145,6 +145,19 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
+		id="getProductList" 
+		url="GetProductList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getProductList"
+		result="onGetProductList(event)"
+		fault="onFailHttpRequest('Failed to get product list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
 		id="getAppUserList" 
 		url="GetAppUserList.gx"
 		showBusyCursor="false"
@@ -344,6 +357,8 @@
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
+			import views.util.ProductEvent;
+			import views.util.ProductWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.ScreenshotWindow;
 			import views.util.SessionTimeoutData;
@@ -1035,6 +1050,8 @@
 			public var protocolList:XMLListCollection;
 			[Bindable]
 			public var iScanChipList:XMLListCollection;
+			[Bindable]
+			public var productList:XMLListCollection;
 			
 			[Bindable]
 			public var internalAccountFieldsConfigurationList:XMLListCollection;
@@ -2906,6 +2923,7 @@
 				getOrganismList.send();
 				getPropertyList.send();
 				getIScanChipList.send();
+				getProductList.send();
 				
 				getAccountFieldsConfiguration.send();
 				
@@ -2987,6 +3005,18 @@
 				var emptyNode:XML = <IScanChip idIScanChip='' name='' />;
 				
 				this.dispatchEvent(new IScanChipEvent(IScanChipEvent.DATA_REFRESHED));
+				
+				if (currentState == null || currentState == "") {
+					showProgress(10);
+					enableApp();
+				}
+			}
+			
+			private function onGetProductList(event:ResultEvent):void {
+				productList = new XMLListCollection(getProductList.lastResult..Product);
+				var emptyNode:XML = <Product idProduct='' name='' />;
+				
+				this.dispatchEvent(new ProductEvent(ProductEvent.DATA_REFRESHED));
 				
 				if (currentState == null || currentState == "") {
 					showProgress(10);
@@ -3566,9 +3596,11 @@
 					showProtocols();
 				} else if (label == "Upload and Download Help") {
 					this.showUploadDownloadHints();
-				}else if (label == "Configure iScan Chips") {
+				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
-				} else if (label == "Bulk Sample Sheet Import") {
+				} else if (label == "Configure Products") {
+					showProductWindow();				
+				}  else if (label == "Bulk Sample Sheet Import") {
 					var multiUploadWindow:UploadMultiRequestSampleSheetView = UploadMultiRequestSampleSheetView(PopUpManager.createPopUp(this.theBody, UploadMultiRequestSampleSheetView, false));
 					multiUploadWindow.init();
 					PopUpManager.centerPopUp(multiUploadWindow);
@@ -3696,6 +3728,16 @@
 			private function showIScanChipWindow():void {
 				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
+					PopUpManager.centerPopUp(configWindow);
+				} else {
+					Alert.show("This feature is not enabled.");
+				}
+				
+			}
+			
+			private function showProductWindow():void {
+				if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+					var configWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(this.theBody, ProductWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
 					Alert.show("This feature is not enabled.");
@@ -3854,7 +3896,8 @@
 			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
 			<menuitem label="Manage Protocols" icon="iconProtocol" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
+			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -4064,6 +4107,7 @@
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
 			<menuitem label="Protocols" icon="iconProtocol" />
 			<menuitem label="Configure iScan Chips" icon="iconConfig" />
+			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
