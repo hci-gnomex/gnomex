@@ -208,6 +208,7 @@
 			
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
+			import views.util.AnnotationUtility;
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
         
@@ -1559,7 +1560,11 @@
 			if(sce.@idProperty == "-1" || property == null) {
 				return true;	// Special case for "Description" field which is not a "real" property 
 			}
-			if (this.isApplicableProperty(property)) {
+			var idOrganism:String = null;
+			if (this.getOrganism() != null) {
+				idOrganism = this.getOrganism().@idOrganism;
+			}
+			if (AnnotationUtility.isApplicableProperty(property, this.getRequestCategory(), idOrganism, this.codeApplication)) {
 				if (sce.@isSelected == 'true' || property.@isActive != 'N') {
 					keep = true;
 				}
@@ -1568,58 +1573,6 @@
 			return keep;
 		}
 			
-			
-		private function isApplicableProperty(property:XML):Boolean {
-			var filterByOrganism:Boolean = false;
-			if (property.descendants("Organism").length() > 0) {
-				filterByOrganism = true;	
-			}
-			
-			var filterByPlatformApplication:Boolean = false;
-			if (property.descendants("PropertyPlatformApplication").length() > 0 || 
-				this.isIScanState() || 
-				this.isSequenomState() || this.isClinicalSequenomState() ||
-				this.isIsolationState()) {
-				filterByPlatformApplication = true;	
-			}
-			
-			var keep:Boolean = false;
-			
-			if (!filterByOrganism) {
-				keep = true;
-			} else {
-				if (this.getOrganism() != null) {
-					for each(var organism:XML in property.descendants("Organism")) {
-						if (this.getOrganism().@idOrganism == organism.@idOrganism) {
-							keep = true;
-							break;
-						}
-					}
-				}
-			}
-			
-			if (keep) {
-				if (!filterByPlatformApplication) {
-					keep = true;
-				} else {
-					keep = false;
-					var reqCategory:Object = this.getRequestCategory();
-					if (reqCategory != null) {
-						for each(var pa:XML in property.descendants("PropertyPlatformApplication")) {
-							if (reqCategory.@codeRequestCategory.toString() == pa.@codeRequestCategory) {
-								if(pa.@codeApplication == "" || this.codeApplication == pa.@codeApplication) {
-									keep = true;
-									break;
-								}
-							}
-						}						
-					}
-				}
-			}
-			
-			
-			return keep;
-		}
 		
 		private function isIlluminaAmendRequestType():Boolean {
 			var codeRequestCategory:String = getAmendRequestCategory();
