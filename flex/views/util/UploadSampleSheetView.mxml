@@ -372,6 +372,9 @@
 											var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
 											if(thisItemRenderer != null) {
 												var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
+												if (thisDataProvider == null && thisItemRenderer.properties.hasOwnProperty("idProperty")) {
+													thisDataProvider = parentApplication.getSampleProperty(thisItemRenderer.properties.idProperty)..PropertyOption;
+												}
 												var thisLabelField:String = thisItemRenderer.properties.labelField;	
 												if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
 													// Strip off @ if it's there -- not needed for this action
