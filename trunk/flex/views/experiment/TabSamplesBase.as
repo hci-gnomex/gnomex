@@ -339,6 +339,7 @@ package views.experiment
 		
 		protected function init():void {
 			if (parentDocument != null) {
+				parentDocument.propertyEntries.refresh();
 				showHideColumns();
 				initButtons();
 				rebuildSamplesGrid();
