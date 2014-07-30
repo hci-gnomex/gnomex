@@ -1,26 +1,5 @@
 use gnomex;
 
-DROP TABLE IF EXISTS `gnomex`.`AnnotationReportField`;
-CREATE TABLE `gnomex`.`AnnotationReportField` (
-  `idAnnotationReportField` INT(10) NOT NULL AUTO_INCREMENT, 
-  `source` VARCHAR(50) NULL,
-  `fieldName` VARCHAR(50) NULL,
-  `display` VARCHAR(50) NULL,
-  `isCustom` CHAR(1) NULL,
-  `sortOrder` INT(10) NULL,
-  `dictionaryLookUpTable` VARCHAR(100) NULL,
-  PRIMARY KEY (`idAnnotationReportField`)
-)
-ENGINE = INNODB;
- 
--- Add idProductOrder to BillingItem
-ALTER TABLE BillingItem ADD idProductOrder INT(10) NULL;
-call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit add idProductOrder INT(10) null');
-alter table BillingItem add 
-  CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
-    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION;
 
 -- Add tables for Product ordering
 
@@ -180,5 +159,15 @@ CREATE TABLE `gnomex`.`ProductOrderFile` (
 )
 ENGINE = INNODB;
 
---Uniqueness constraint for Property table
+-- Add idProductOrder to BillingItem
+ALTER TABLE BillingItem ADD idProductOrder INT(10) NULL;
+call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit add idProductOrder INT(10) null');
+alter table BillingItem add 
+  CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
+    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+
+-- Uniqueness constraint for Property table
 ALTER TABLE `Property` ADD UNIQUE (`name`);
