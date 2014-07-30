@@ -264,12 +264,6 @@
 				
 			}
 			
-			private function showProductWindow():void {
-				var productWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(parentApplication.theBody, ProductWindow, true));
-				PopUpManager.centerPopUp(productWindow);
-				
-			}
-			
 			private function showUsageWindow():void {
 				this.parentApplication.theViews.selectedChild = this.parentApplication.navUsageView;
 			}

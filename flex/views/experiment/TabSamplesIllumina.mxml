@@ -847,9 +847,9 @@
 					sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
 				}
 				
+				var barcodes:ArrayCollection = new ArrayCollection();
 				
 				for (var multiplexGroupNumber:Object in sampleMap) {
-					var barcodes:ArrayCollection = new ArrayCollection();
 					var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
 					for each(var s1:Object in samplesInGroup) {
 						var barcode:Object = s1[barcodeField];
@@ -858,14 +858,14 @@
 							barcodes.addItem(barcode);
 						}
 					}
-					
-					for(var i:int = 0; i < barcodes.length; i++){
-						var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
-						for(var j:int = i+1; j < barcodes.length; j++){
-							var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
-							if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
-								return false;
-							}
+				}
+				
+				for(var i:int = 0; i < barcodes.length; i++){
+					var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+					for(var j:int = i+1; j < barcodes.length; j++){
+						var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+						if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
+							return false;
 						}
 					}
 				}
@@ -1131,7 +1131,6 @@
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
 												  addRowFunction="{addSample}"
-												  deleteRowFunction="{deleteTheSample}"
 												  clearAllFunction="promptToClearAllSamples"
 												  showRowNumberCol="true">
 			<util:columns>

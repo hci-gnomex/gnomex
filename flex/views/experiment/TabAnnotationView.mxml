@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   xmlns:util="views.util.*" show="{this.init()}"
+		   xmlns:util="views.util.*" 
 		   width="100%" height="100%" enabled="false">
 	
 	<mx:HTTPService  
@@ -36,7 +36,6 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import mx.utils.StringUtil;
 			
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
@@ -52,12 +51,6 @@
 			public var ignoreToggle:Boolean = false;
 			
 			private var addingAnnotation:Boolean = false;
-			
-			private function init():void {
-				if (parentDocument != null) {
-					parentDocument.propertyEntries.refresh();
-				}
-			}
 			
 			public function checkSecurity():void {
 				if (parentDocument == null) {
@@ -268,15 +261,6 @@
 				if (newAnnotationName.text == null || newAnnotationName.text.length == 0 || newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT) {
 					Alert.show('Please enter name of new annotation in the text box before pressing Add Annotation');
 					return;
-				}
-				
-				for each(var sc:Object in parentApplication.propertyList) {
-					var thisPropName:String = StringUtil.trim(sc.@name);
-					thisPropName = thisPropName.toLowerCase();
-					if(newAnnotationName.text.toLowerCase() == thisPropName) {
-						Alert.show('"' + newAnnotationName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
-						return;
-					}
 				}
 				
 				var found:Boolean = selectAndScrollToName(newAnnotationName.text);

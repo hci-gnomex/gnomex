@@ -2057,10 +2057,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
-          if (idSampleMap.get(laneInfo.getIdSampleString()) == null) {
-            // Looks like sample for this lane is deleted.  This will cause lane to get deleted as well.
-            continue;
-          }
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
           SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, 
               timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded, isImport);
@@ -2296,10 +2292,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     } else {
       if (requestParser.isNewRequest()) {
         introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() + 
-        " core.  You will receive email notification when the experiment is complete.");   
+        ".  You will receive email notification when the experiment is complete.");   
       } else {
         introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() + 
-        " core.  You will receive email notification when the experiment is complete.");   
+        ".  You will receive email notification when the experiment is complete.");   
         
       }
       introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + requestParser.getRequest().getNumber() + "</a>.");
@@ -2403,10 +2399,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() + 
-      " core.");
+      ".");
     } else {
       emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() + 
-      " core.");
+      ".");
     }
    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
 

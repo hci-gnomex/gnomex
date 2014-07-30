@@ -228,7 +228,7 @@
 		}
 		
 		private function initWorkAuthState():void {
-			this.title = "Submit Campus Billing Account";
+			this.title = "Submit Campus Billing Bccount";
 			if (!parentApplication.useConfigurableBillingAccounts) {
 				
 				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
@@ -385,7 +385,6 @@
 				Alert.show("Screen has been updated. Click the save button to update the accounts in the database.", "",  mx.controls.Alert.OK, this.parentView);
 				parentView.billingAccountGrid.editedItemPosition = null;
 			} else {
-				this.saveButton.enabled = false;
 				var errorMessage:String = "";
 				
 				errorMessage = checkFormCompleteness();
@@ -393,7 +392,6 @@
 				{
 					Alert.show(errorMessage, "Please fix the following errors with this form before proceeding:");
 					project.setFocus();
-					this.saveButton.enabled = true;
 					return;
 				}
 				var params:Object = new Object();
@@ -659,7 +657,6 @@
 
 			} else {
 				Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
-				this.saveButton.enabled = true;
 			}        	
 		}     
 		
@@ -838,16 +835,14 @@
 			<mx:TextInput width="120" id="shortAcct" text="{ba.@shortAcct}" focusOut="{ba.@shortAcct = shortAcct.text}"></mx:TextInput>
 		</mx:HBox>
 		
-		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox" visible="{coreFacilities.length > 1}"
-				 includeInLayout="{coreFacilities.length > 1}">
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox">
 			<mx:Label text="Core Facility" width="120" styleName="formLabel" id="coreLabel"/>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
 			<mx:VBox id="coreCheckboxBox">
 				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
 					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
-								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11"
-								 selected="{coreFacilities.length == 1}">
+								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11">
 					</mx:CheckBox> 
 				</mx:Repeater>
 			</mx:VBox>

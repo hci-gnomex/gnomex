@@ -1,108 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:renderers="views.renderers.*"
-				layout="vertical"
-				title="Copy Campus Billing Account" showCloseButton="true" close="close(event)"
-				width="700"
+				layout="vertical" 
+				title="Copy Campus Billing Account" 
+				width="1000" 
 				creationComplete="init()"
-				titleIcon="@Embed(source='../../assets/work_auth_form.png')" >
+				titleIcon="@Embed(source='../../assets/work_auth_form.png')">
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.XMLListCollection;
-			import mx.events.CloseEvent;
-			import mx.controls.Alert;
-			import mx.controls.CheckBox;
-			import mx.managers.PopUpManager;
-
 			[Bindable]
 			public var selectedIdCoreFacility:String;
-			
 			[Bindable]
-			public var allBillingAccounts:XMLListCollection;
-			
-			public var currentAccounts:XMLListCollection;
-			
-			public var parentWindow:Object;
-			
-			public var accountsToCopy:XMLListCollection = new XMLListCollection();
+			public var lab:Object;
 			
 			private function init():void {
 			}
-			
-			private function validateAndCopy():void{	
-				for each(var account:XML in accountsToCopy){
-					account.@idCoreFacility = selectedIdCoreFacility;
-					account.@idBillingAccount = "BillingAccount" + account.@isCreditCard + account.@isPO + account.@accountName;
-					
-					if(account.@isPO == 'Y'){
-						parentWindow.poBillingAccounts.addItem(account);
-					} else if(account.@isCreditCard == 'Y'){
-						parentWindow.creditCardBillingAccounts.addItem(account);
-					} else{
-						parentWindow.billingAccounts.addItem(account)
-					}
-				}
-				
-				parentWindow.allBillingAccounts.refresh();
-				parentWindow.poBillingAccounts.refresh();
-				parentWindow.creditCardBillingAccounts.refresh();
-				parentWindow.billingAccounts.refresh();
-				
-				parentWindow.dirty.setDirty();
-				
-				PopUpManager.removePopUp(this);
-				
-			}
-			
-			private function checkForDuplicates():void{
-				for each(var current:XML in currentAccounts){
-					for each(var copy:XML in accountsToCopy){
-						if(current.@accountNumber == copy.@accountNumber){
-							Alert.show("Please note that some of the accounts you are copying have the same account number as some of your existing accounts in this core.  You may want to fix this before saving.", "Warning");
-							return;
-						}
-					}
-				}
-			}
-	
-
-			private function close(event:CloseEvent):void {
-				PopUpManager.removePopUp(this);
-			}
-
 		]]>
 	</mx:Script>
-	
-	
-	<mx:VBox width="100%">
-		<mx:DataGrid width="100%" id="accountsGrid" height="100%" editable="true">
-			<mx:dataProvider>{allBillingAccounts}</mx:dataProvider>
-			<mx:columns>
-				<mx:DataGridColumn editable="false" width="30">
-					<mx:itemRenderer>
-						<mx:Component>
-							<mx:CheckBox selected="false" paddingLeft="5" change="{this.selected == true ? outerDocument.accountsToCopy.addItem(outerDocument.allBillingAccounts.getItemAt(outerDocument.accountsGrid.selectedIndex).copy()) : outerDocument.accountsToCopy.removeItemAt(outerDocument.accountsToCopy.getItemIndex((outerDocument.allBillingAccounts.getItemAt(outerDocument.accountsGrid.selectedIndex))))}"/>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Account name" dataField="@accountName" width="180" editable="false"/>
-				<mx:DataGridColumn headerText="Bus"  dataField="@accountNumberBus" width="30" id="busCol" editable="false"/>
-				<mx:DataGridColumn headerText="Org"   dataField="@accountNumberOrg" width="50" id="orgCol" editable="false"/>
-				<mx:DataGridColumn headerText="Fund"  dataField="@accountNumberFund" width="50" id="fundCol" editable="false"/>
-				<mx:DataGridColumn headerText="Activity"  dataField="@accountNumberActivity" width="50" id="activityCol" editable="false"/>
-				<mx:DataGridColumn headerText="Project"  dataField="@accountNumberProject" width="50" id="projectCol" editable="false"/>
-				<mx:DataGridColumn headerText="Acct"  dataField="@accountNumberAccount" width="40" id="accountCol" editable="false"/>
-				<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="20" id="auCol" editable="false"/>
-			</mx:columns>
-			
-		</mx:DataGrid>
-		
-		<mx:ControlBar width="100%"  horizontalAlign="left" id="controlbar1" verticalGap="0" verticalAlign="bottom" paddingTop="0" paddingRight="2" paddingLeft="2" paddingBottom="0">
-			<mx:HBox  width="100%" paddingTop="2" paddingBottom="2" paddingRight="0" paddingLeft="0" verticalAlign="bottom">
-				<mx:Spacer width="100%"/>
-				<mx:Button label="Copy" icon="@Embed('../../assets/action_save.gif')" click="validateAndCopy()" disabledIcon="@Embed('../../assets/save_disable.png')" id="button1"/>
-			</mx:HBox>
-		</mx:ControlBar>
-	</mx:VBox>
 
 </mx:TitleWindow>

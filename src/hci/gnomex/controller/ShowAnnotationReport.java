@@ -1,6 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
@@ -13,7 +12,6 @@ import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
-import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestSampleFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DataTrackQuery;
@@ -25,7 +23,6 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
-import java.io.StringReader;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,10 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 
 public class ShowAnnotationReport extends ReportCommand implements Serializable {
@@ -56,15 +49,13 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
   
   private SecurityAdvisor           secAdvisor;
   private List<Integer>             idProperties = new ArrayList<Integer>();
-  private String                    customColumnString = "";
-  private Document                  customColDoc;
   private String                    target;
   private Integer                   idLab;
   private RequestSampleFilter       sampleFilter;
   private AnalysisGroupFilter       analysisFilter;
   private DataTrackQuery            dataTrackQuery;
   private TreeMap<Integer, Map>     propertyEntryAnnotationMap = new TreeMap<Integer, Map>();
-  private TreeMap<String, String>   propertyColumnMap = new TreeMap<String, String>();
+  private TreeMap<String, String>  propertyColumnMap = new TreeMap<String, String>();
   
   public static final String        TARGET_SAMPLE = "SAMPLE";
   public static final String        TARGET_ANALYSIS = "ANALYSIS";
@@ -86,24 +77,11 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
     
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab = Integer.valueOf(request.getParameter("idLab"));
-    }
-    
-    if (request.getParameter("customColumnString") != null && !request.getParameter("customColumnString").equals("")) {
-      this.customColumnString = request.getParameter("customColumnString");
-    }
-    
-    StringReader reader = new StringReader(this.customColumnString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      customColDoc = sax.build(reader);
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse customColumnString", je );
-      this.addInvalidField( "customColumnString", "Invalid request xml");
-    }
+    } 
 
 
     if (target.equals(TARGET_SAMPLE)) {
-      sampleFilter = new RequestSampleFilter(customColDoc);
+      sampleFilter = new RequestSampleFilter();
       this.loadDetailObject(request, sampleFilter);
     } else if (target.equals(TARGET_ANALYSIS)) {
       analysisFilter = new AnalysisGroupFilter();
@@ -219,29 +197,6 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             values.add(sampleName);
             values.add(sampleDescription != null ? sampleDescription : "");
             values.add(organism);
-            
-            int incrementOffSet = 0;
-            
-            for(Iterator j = customColDoc.getRootElement().getContent().iterator(); j.hasNext();) {
-              Element e = (Element)j.next();
-              if(e.getAttributeValue("isSelected") != null && e.getAttributeValue("isSelected").equals("true")) {
-                if(row[RequestSampleFilter.COL_OFFSET + incrementOffSet] != null) {
-                  if(e.getAttributeValue("isCustom").equals("Y")) {
-                    values.add(handleCustomAnnotation(e, idRequest, sess));
-                  } else if(e.getAttributeValue("dictionaryLookUpTable") != null && !e.getAttributeValue("dictionaryLookUpTable").equals("")) {
-                    Integer id = (Integer)row[RequestSampleFilter.COL_OFFSET + incrementOffSet];
-                    String value = DictionaryManager.getDisplay(e.getAttributeValue("dictionaryLookUpTable"), id.toString());
-                    values.add(value);                    
-                  } else {
-                    values.add((row[RequestSampleFilter.COL_OFFSET + incrementOffSet]).toString());
-                  }
-                } else {
-                  values.add("");
-                }
-                incrementOffSet++;
-              }
-            }
-            
           } else if (target.equals(TARGET_ANALYSIS)) {
             theId =  (Integer)row[AnalysisGroupFilter.COL_ID_ANALYSIS];
             String labLastName = (String)row[AnalysisGroupFilter.COL_LAB_LAST_NAME];
@@ -336,17 +291,6 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
     return this;
   }
   
-  private String handleCustomAnnotation(Element e, Integer idRequest, Session sess) {
-    String turnAround = "";
-    if(e.getAttributeValue("fieldName").equals("turnAroundTime")) {
-      Request r = (Request)sess.load(Request.class, idRequest); 
-      if(!r.getTurnAroundTime().equals("")) {
-        turnAround = r.getTurnAroundTime() + " days";
-      }
-    }
-    return turnAround;
-  }
-  
   private void createReportTray(Session sess, DictionaryHelper dh) {
     // Get the lab
     String labQualifier = "";
@@ -375,14 +319,6 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       columns.add(makeReportColumn("Sample Name", 5));
       columns.add(makeReportColumn("Sample Description", 6));
       columns.add(makeReportColumn("Organism", 7));
-      
-      int colNum = 8;
-      for(Iterator i = customColDoc.getRootElement().getContent().iterator(); i.hasNext();) {
-        Element e = (Element)i.next();
-        if(e.getAttributeValue("isSelected") != null && e.getAttributeValue("isSelected").equals("true")) {
-          columns.add(makeReportColumn(e.getAttributeValue("display"), colNum++));
-        }
-      }
     } else if (target.equals(TARGET_ANALYSIS)) {
       columns.add(makeReportColumn("Lab", 1));
       columns.add(makeReportColumn("Submitter", 2));

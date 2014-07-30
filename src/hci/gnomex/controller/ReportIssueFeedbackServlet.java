@@ -6,7 +6,6 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.awt.image.BufferedImage;
 
@@ -82,7 +81,6 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 
 			// Get the dictionary helper
 			DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-			PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
 			// Get security advisor
 			SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession()
@@ -169,7 +167,6 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 						String filename = "IssueReportedScreenshot " + currentDate.toString() + ".png";
 						filename = filename.replaceAll("\\s", "");
 						filename = filename.replaceAll(":", "");
-						filename = pdh.getQualifiedProperty(PropertyDictionary.TEMP_DIRECTORY, req.getServerName()) + filename;
 						File outputfileTemp = new File(filename);
 						//File outputfileTemp = new File("ReportIssueScreenshot.png");
 						ImageIO.write(image, "png", outputfileTemp);

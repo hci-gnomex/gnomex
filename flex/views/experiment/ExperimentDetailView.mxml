@@ -39,7 +39,6 @@
 			import views.renderers.MultiselectRenderer;
 			import views.renderers.Text;
 			import views.renderers.URLRenderer;
-			import views.util.AnnotationUtility;
 			import views.util.CollaboratorWindow;
 			import views.util.GNomExStringUtil;
 			
@@ -170,9 +169,7 @@
 				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
-				if(selectedExperiment.sequenceLanes.SequenceLane[0] != null && selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo != null){
-					genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo);
-				}
+				genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane.@idGenomeBuildAlignTo);
 				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
@@ -1232,17 +1229,12 @@
 							headerName = annotation.@name;
 						}
 						
-						// Note we don't specify application because that is taken care of in the back end (GetRequest).
-						var isApplicable:Boolean = AnnotationUtility.isApplicableProperty(parentApplication.getSampleProperty(annotation.@idProperty),
-							parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory),
-							this.selectedExperiment.@idOrganism);
-						
 						exists = false;
 						
 						for each(col in samplesGridConfirm.columns) {
 							if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
 								exists = true;
-								col.visible    = annotation.@isSelected == "true" && isApplicable ? true : false;       				
+								col.visible    = annotation.@isSelected == "true" ? true : false;       				
 								col.headerText = headerName;
 								break;
 							}    				
@@ -1255,7 +1247,7 @@
 						} else {
 							newCol.dataField  = "@ANNOT" + annotation.@idProperty;
 							newCol.headerText = headerName;
-							newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
+							newCol.visible    = (annotation.@isSelected == "true" ? true : false);
 							newCol.propertyType = property.@codePropertyType;
 							
 							if (property.@codePropertyType == 'MOPTION') {

@@ -310,7 +310,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, req.getIdCoreFacility());
     
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + cf.getFacilityName() + 
-      " core.  You will receive email notification when the experiment is complete.");   
+      ".  You will receive email notification when the experiment is complete.");   
     
     // Special notes for iScan requests
     if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)){
@@ -407,7 +407,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     emailBody.append("A request for iScan chips has been submitted from the " + 
                       cf.getFacilityName() +
-                      " core.");
+                      ".");
     emailBody.append("<br><br><table border='0' width = '600'><tr><td>Experiment:</td><td>" + requestNumber );
     emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
     emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
