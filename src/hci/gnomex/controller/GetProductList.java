@@ -113,7 +113,13 @@ public class GetProductList extends GNomExCommand implements Serializable {
      return null;
    }
    
-    String priceQuery = "SELECT p from Price as p where p.idPriceCategory=" + pt.getIdPriceCategory() + "       AND p.name='" + product.getName() + "'";
+   String priceQuery; 
+   
+   if ( product.getIdPrice() != null ) {
+     priceQuery = "SELECT p from Price as p where p.idPrice=" + product.getIdPrice();
+   } else {
+     priceQuery = "SELECT p from Price as p where p.idPriceCategory=" + pt.getIdPriceCategory() + "       AND p.name='" + product.getName() + "'";
+   }
     Price price = (Price) sess.createQuery( priceQuery ).uniqueResult();
     
     return price;
