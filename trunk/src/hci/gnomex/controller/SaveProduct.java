@@ -187,6 +187,11 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       sess.save(crit);
       modified = true;
     }
+    
+    if ( price.getIdPrice() != product.getIdPrice() ) {
+      product.setIdPrice( price.getIdPrice() );
+      modified = true;
+    }
 
     if ( unitPriceInternal != null ) {
       if (setPrice(unitPriceInternal, price.getUnitPrice(), price, PRICE_INTERNAL)) {

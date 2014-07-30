@@ -56,6 +56,9 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
         // Get and delete the corresponding price        
         Price price = GetProductList.getProductPrice( sess, product, pt );
         if ( price != null ) {
+          product.setIdPrice( null );
+          sess.flush();
+          
           Hibernate.initialize(price.getPriceCriterias());
           sess.delete(price);
         }
