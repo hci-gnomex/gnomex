@@ -4,7 +4,10 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -45,17 +48,23 @@ public class GetProductList extends GNomExCommand implements Serializable {
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       Document doc = new Document(new Element("ProductList"));
       
-      List products = sess.createQuery("SELECT c from Product c order by c.name").list();
+      List products = sess.createQuery("SELECT p from Product p order by p.name").list();
 
       for(Iterator i = products.iterator(); i.hasNext();) {
         Product product = (Product)i.next();
         this.getSecAdvisor().flagPermissions(product);
         Element node = product.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-//        node.setAttribute( "costPerSampleDisplay", product.getCostPerSample() != null ? product.getCostPerSample().toString() : "" );
+        
+        ProductType pt = dictionaryHelper.getProductTypeObject(product.getCodeProductType());
+        Price price = getProductPrice( sess, product, pt );
+        
+        node.setAttribute( "unitPriceInternal", price != null ? price.getUnitPrice().toString() : "");
+        node.setAttribute( "unitPriceExternalAcademic", price != null ? price.getUnitPriceExternalAcademic().toString() : "");
+        node.setAttribute( "unitPriceExternalCommercial", price != null ? price.getUnitPriceExternalCommercial().toString() : "");
         
         doc.getRootElement().addContent(node);
       }
@@ -98,4 +107,16 @@ public class GetProductList extends GNomExCommand implements Serializable {
     return this;
   }
 
+ public static Price getProductPrice(Session sess, Product product, ProductType pt) {
+   
+   if ( product == null || pt == null ) {
+     return null;
+   }
+   
+    String priceQuery = "SELECT p from Price as p where p.idPriceCategory=" + pt.getIdPriceCategory() + "       AND p.name='" + product.getName() + "'";
+    Price price = (Price) sess.createQuery( priceQuery ).uniqueResult();
+    
+    return price;
+  }
+  
 }

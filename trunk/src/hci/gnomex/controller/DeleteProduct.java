@@ -2,8 +2,11 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -11,6 +14,7 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 
@@ -42,11 +46,20 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
-      // TODO: add idCoreFacility to product.  check for permission to manage that core facility before delete.
-      if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
-        Product product = (Product)sess.load(Product.class, idProduct);
-                
+      Product product = (Product)sess.load(Product.class, idProduct);
+      ProductType pt = dictionaryHelper.getProductTypeObject(product.getCodeProductType());
+           
+      if (pt == null || pt.getIdCoreFacility() == null || this.getSecAdvisor().isCoreFacilityIManage(pt.getIdCoreFacility()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+          
+        // Get and delete the corresponding price        
+        Price price = GetProductList.getProductPrice( sess, product, pt );
+        if ( price != null ) {
+          Hibernate.initialize(price.getPriceCriterias());
+          sess.delete(price);
+        }
+        
         //
         // Delete product
         //

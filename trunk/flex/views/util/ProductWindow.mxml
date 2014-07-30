@@ -202,6 +202,9 @@
 		params.useQty = useQty.text; 
 		params.catalogNumber = catalogNumber.text;
 		params.codeProductType = productTypeCombo.selectedItem.@codeProductType;
+		params.unitPriceInternal = priceInternalText.text;
+		params.unitPriceExternalAcademic = priceExternalAcademicText.text;
+		params.unitPriceExternalCommercial = priceExternalCommercialText.text;
 		
 		saveProduct.send(params);
 		
@@ -224,7 +227,11 @@
 			{
 				Alert.show("Product needs a name.",
 					"MISSING FIELDS");
-			} else {
+			} else if(productTypeCombo.selectedItem == null )
+			{
+				Alert.show("Product needs a product type.",
+					"MISSING FIELDS");
+			}  else {
 				save();
 			}
 			

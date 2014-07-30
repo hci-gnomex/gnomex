@@ -2,11 +2,10 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Application;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Product;
-import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.ProductType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -15,18 +14,14 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.jdom.Element;
 
 
 public class SaveProduct extends GNomExCommand implements Serializable {
-  
- 
   
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProduct.class);
@@ -91,10 +86,13 @@ public class SaveProduct extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
       
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
-
+      Session sess = HibernateSession.currentSession(this.getUsername());
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      
+      ProductType pt = dictionaryHelper.getProductTypeObject(productScreen.getCodeProductType());
+           
+      if (pt == null || pt.getIdCoreFacility() == null || this.getSecAdvisor().isCoreFacilityIManage(pt.getIdCoreFacility()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) ) {
         
         Product product = null;
         
@@ -114,7 +112,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
           sess.flush();
         }
         
-//        saveProductPrices(sess,);
+        saveProductPrices(sess, product, pt);
                
         DictionaryHelper.reload(sess);
         
@@ -154,51 +152,56 @@ public class SaveProduct extends GNomExCommand implements Serializable {
     
   }
   
-  private void saveProductPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
-    
-    // Get id price category from product type
-    // Check to see if there is a price in db already - search by name and idPriceCategory
-    // Get existing Price or create a new one
-    // Initialize Price
-    // Create a filter with filter1 = idproduct, idPrice
+  private void saveProductPrices(Session sess, Product product, ProductType pt) {
     
     if (!priceModified()) {
       return;
     }
 
     Boolean modified = false;
-    Price price = map.get(app.getCodeApplication());
+   
+    if (pt.getIdPriceCategory() == null) {
+      // no  price category -- can't store new price.
+      log.error("SaveProduct: Unable to store new product price due to no price category for ProductType:" + pt.getCodeProductType());
+      return;
+    }
+    
+    Price price = GetProductList.getProductPrice( sess, product, pt );
+    
     if (price == null) {
-      if (defaultCategoryId == null) {
-        // no default price category -- can't store new price.
-        log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
-        return;
-      }
+      
       price = new Price();
-      price.setName(app.getApplication());
+      price.setName(product.getName());
       price.setDescription("");
-      price.setIdPriceCategory(defaultCategoryId);
+      price.setIdPriceCategory(pt.getIdPriceCategory());
       price.setIsActive("Y");
       price.setUnitPrice(BigDecimal.ZERO);
       price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
       price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
       sess.save(price);
       sess.flush();
+      
       PriceCriteria crit = new PriceCriteria();
       crit.setIdPrice(price.getIdPrice());
-      crit.setFilter1(app.getCodeApplication());
+      crit.setFilter1(product.getIdProduct().toString());
       sess.save(crit);
       modified = true;
     }
 
-    if (setPrice(unitPriceInternal, price.getUnitPrice(), price, PRICE_INTERNAL)) {
-      modified = true;
+    if ( unitPriceInternal != null ) {
+      if (setPrice(unitPriceInternal, price.getUnitPrice(), price, PRICE_INTERNAL)) {
+        modified = true;
+      }
     }
-    if (setPrice(unitPriceExternalAcademic, price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
-      modified = true;
+    if ( unitPriceExternalAcademic != null ) {
+      if (setPrice(unitPriceExternalAcademic, price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
+        modified = true;
+      }
     }
-    if (setPrice(unitPriceExternalCommercial, price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
-      modified = true;
+    if ( unitPriceExternalCommercial != null ) {
+      if (setPrice(unitPriceExternalCommercial, price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
+        modified = true;
+      }
     }
     
     if (modified) {
@@ -233,6 +236,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       price.setUnitPriceExternalCommercial(value);
     }
   }
+  
   
   private class ProductComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {

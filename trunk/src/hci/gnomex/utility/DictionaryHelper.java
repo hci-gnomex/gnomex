@@ -11,6 +11,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
+import hci.gnomex.model.ProductType;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
@@ -41,6 +42,7 @@ public class DictionaryHelper implements Serializable {
   private PropertyDictionaryHelper propertyDictionaryHelper;
   private List                                  requestCategoryList      = new ArrayList();
   private Map                                   requestCategoryMap       = new HashMap();
+  private Map                                   productTypeMap           = new HashMap();
   private Map                                   oligoBarcodeMap          = new HashMap();
   private Map                                   submissionInstructionMap = new HashMap();
   private Map                                   billingPeriodMap         = new HashMap();
@@ -186,6 +188,14 @@ public class DictionaryHelper implements Serializable {
       RequestCategory rc = (RequestCategory)de;
       requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
+    }
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.ProductType").iterator(); i.hasNext();) {
+      Object de = i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      ProductType pt = (ProductType)de;
+      productTypeMap.put(pt.getCodeProductType(), pt);
     }
     seqRunTypeList = new ArrayList();
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqRunType").iterator(); i.hasNext();) {
@@ -461,6 +471,10 @@ public class DictionaryHelper implements Serializable {
   public RequestCategory getRequestCategoryObject(String code) {
     lazyLoadManagedDictionaries();
     return (RequestCategory)requestCategoryMap.get(code);
+  }
+  public ProductType getProductTypeObject(String code) {
+    lazyLoadManagedDictionaries();
+    return (ProductType)productTypeMap.get(code);
   }
   public String getSeqRunType(Integer id) {
     lazyLoadManagedDictionaries();
