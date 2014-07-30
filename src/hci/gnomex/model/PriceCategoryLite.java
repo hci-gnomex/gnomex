@@ -3,12 +3,10 @@ package hci.gnomex.model;
 import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
-import java.util.Set;
-import java.util.TreeSet;
 
 
 
-public class PriceCategory extends DictionaryEntry implements Comparable, Serializable {
+public class PriceCategoryLite extends DictionaryEntry implements Serializable {
   
   private Integer  idPriceCategory;
   private String   name;
@@ -18,8 +16,7 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   private String   dictionaryClassNameFilter1;
   private String   dictionaryClassNameFilter2;
   private String   isActive;
-  private Set      prices = new TreeSet();
-  private Set      steps;
+  
   
   public String getDisplay() {
     String display = this.getNonNullString(getName());
@@ -110,30 +107,4 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   }
 
   
-  public Set getPrices() {
-    return prices;
-  }
-
-  
-  public void setPrices(Set prices) {
-    this.prices = prices;
-  }
-
-  public Set getSteps() {
-    return steps;
-  }
-  public void setSteps(Set steps) {
-    this.steps = steps;
-  }
-
-
-  public int compareTo(Object o) {
-    if (o instanceof PriceCategory) {
-      PriceCategory other = (PriceCategory)o;
-      return this.getIdPriceCategory().compareTo(other.getIdPriceCategory());
-    } else {
-      return -1;
-    }
-  }
-
 }
