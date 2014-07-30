@@ -2057,6 +2057,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         
         for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
+          if (idSampleMap.get(laneInfo.getIdSampleString()) == null) {
+            // Looks like sample for this lane is deleted.  This will cause lane to get deleted as well.
+            continue;
+          }
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
           SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, 
               timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded, isImport);

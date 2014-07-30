@@ -1131,6 +1131,7 @@
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
 												  addRowFunction="{addSample}"
+												  deleteRowFunction="{deleteTheSample}"
 												  clearAllFunction="promptToClearAllSamples"
 												  showRowNumberCol="true">
 			<util:columns>
