@@ -2068,8 +2068,25 @@
 				<column name="codeStep" not-null="true" />
 			</many-to-many>
 		</set>
-
 	</class>
+
+<!-- hci.gnomex.model.PriceCategoryLite -->
+  <class name="hci.gnomex.model.PriceCategoryLite" table="PriceCategory">
+    <id name="idPriceCategory" column="idPriceCategory" type="integer">
+      <generator class="native" />
+    </id>
+    <property name="name" column="name" type="string" />
+    <property name="description" column="description" type="string" />
+    <property name="pluginClassName" column="pluginClassName"
+      type="string" />
+    <property name="dictionaryClassNameFilter1" column="dictionaryClassNameFilter1"
+      type="string" />
+    <property name="dictionaryClassNameFilter2" column="dictionaryClassNameFilter2"
+      type="string" />
+    <property name="codeBillingChargeKind" column="codeBillingChargeKind"
+      type="string" />
+    <property name="isActive" column="isActive" type="string" />
+  </class>
 
 	<!-- hci.gnomex.model.Price -->
 	<class name="hci.gnomex.model.Price" table="Price">
