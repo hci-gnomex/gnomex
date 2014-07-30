@@ -142,7 +142,7 @@
 				//remove linkSamplesTab if property not enabled or if the experiment isn't hiseq or miseq
 				if(parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == null || 
 					parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'N' ||
-					(request.@codeRequestCategory != parentApplication.TYPE_MISEQ &&  request.@codeRequestCategory != parentApplication.TYPE_HISEQ)){
+					(request.@type != parentApplication.TYPE_MISEQ &&  request.@type != parentApplication.TYPE_HISEQ)){
 					theTab.removeChildAt(2);
 				}
 				
