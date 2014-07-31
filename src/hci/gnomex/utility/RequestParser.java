@@ -314,7 +314,7 @@ public class RequestParser implements Serializable {
     
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
-      if (!isNewRequest) {
+      if (!isNewRequest && !this.isExternalExperiment()) {
         if (request.getIdBillingAccount() == null || !request.getIdBillingAccount().equals(new Integer(n.getAttributeValue("idBillingAccount")))) {
           reassignBillingAccount = true;        
         }        
