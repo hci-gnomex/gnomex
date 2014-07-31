@@ -13,9 +13,9 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
+			import mx.collections.ArrayCollection;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
-			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -473,29 +473,36 @@
 				
 				// If this is a Solexa request and the sample setup is complete,
 				// create the sequencing lanes based on the number of lanes 
-				// entered for each sample.
-				if (isComplete && currentState != null && currentState =='SolexaSamplesState') {
+				// entered for each sample. parentdocument.SeqExternalEditState handle blank numberseqlanes.
+				var isExternalEditState:Boolean = (parentDocument.currentState == 'SeqExternalEditState');
+				if (isComplete && currentState != null && (currentState =='SolexaSamplesState' || isExternalEditState)) {
 					var isValidNumberSeqLanes:Boolean = true;
-					for each (var s:Object in parentDocument.samples) {
-						if (s.@numberSequencingLanes > 100) {
-							callLater(showMaxLaneError, [s.@numberSequencingLanes]);
-							parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
-							isValidNumberSeqLanes = false;
-							break;
+					if (!isExternalEditState) {
+						for each (var s:Object in parentDocument.samples) {
+							if (s.@numberSequencingLanes > 100) {
+								callLater(showMaxLaneError, [s.@numberSequencingLanes]);
+								parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
+								isValidNumberSeqLanes = false;
+								break;
+							}
 						}
 					}
 					if (isValidNumberSeqLanes) {
 						var lanesAdded:Boolean = false;
 						for each (var theSample:Object in parentDocument.samples) {
 							var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
-							if (numberLanesForSample < theSample.@numberSequencingLanes) {
-								var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
+							var numLanes:int = 1;
+							if (!isExternalEditState) {
+								numLanes = theSample.@numberSequencingLanes;
+							}
+							if (numberLanesForSample < numLanes) {
+								var numberLanesToAdd:int = numLanes - numberLanesForSample;
 								for (var x:Number = 0; x < numberLanesToAdd; x++) {
 									addSequencingLaneForSample(theSample);
 									lanesAdded = true;
 								}
-							} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
-								var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
+							} else if (numberLanesForSample > numLanes) {
+								var numberLanesToRemove:int = numberLanesForSample - numLanes;
 								for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
 									parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
 								}
