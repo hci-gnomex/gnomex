@@ -1257,6 +1257,7 @@
 							newCol.headerText = headerName;
 							newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
 							newCol.propertyType = property.@codePropertyType;
+							newCol.headerWordWrap = true;
 							
 							if (property.@codePropertyType == 'MOPTION') {
 								newCol.itemRenderer =  MultiselectRenderer.create(false);

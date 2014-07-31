@@ -267,6 +267,7 @@ package views.experiment
 			var fieldName:String = "@ANNOT" + propertyNode.@idProperty;
 			dc.dataField  = fieldName;
 			dc.headerText = propertyNode.@name;
+			dc.headerWordWrap = true;
 			if (propertyNode.@name == "Other" && parentDocument.request.@otherLabel != null && parentDocument.request.@otherLabel != '') {
 				dc.headerText = parentDocument.request.@otherLabel;
 			}
