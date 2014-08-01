@@ -29,6 +29,7 @@ public class Sample extends HibernateDetailObject {
   private String      description;
   private BigDecimal  concentration;
   private String      codeConcentrationUnit;
+  private Organism    organism;
   private Integer     idOrganism;
   private String      otherOrganism;
   private Integer     idSampleType;
@@ -922,5 +923,13 @@ public class Sample extends HibernateDetailObject {
 
   public void setWorkItems(Set workItems) {
     this.workItems = workItems;
+  }
+
+  public Organism getOrganism() {
+    return organism;
+  }
+
+  public void setOrganism(Organism organism) {
+    this.organism = organism;
   }
 }
