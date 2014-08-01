@@ -1100,6 +1100,9 @@
 		<property name="concentration" column="concentration" type="big_decimal" />
 		<property name="codeConcentrationUnit" column="codeConcentrationUnit"
 			type="string" />
+		<many-to-one name="organism" column="idOrganism"
+			class="hci.gnomex.model.Organism" cascade="none" insert="false"
+			update="false" />
 		<property name="idOrganism" column="idOrganism" type="integer" />
 		<property name="otherOrganism" column="otherOrganism" type="string" />
 		<property name="idSampleType" column="idSampleType" type="integer" />

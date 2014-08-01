@@ -193,7 +193,8 @@ public class GNomExFrontController extends HttpServlet {
         && (!requestName.equals("ChangePassword"))
         && (!requestName.equals("GetLaunchProperties"))
         && (!requestName.equals("PublicSaveSelfRegisteredAppUser"))
-        && (!requestName.equals("ShowRequestDownloadFormForGuest"))) {
+        && (!requestName.equals("ShowRequestDownloadFormForGuest"))
+        && (!requestName.equals("ShowExperimentMatrix"))) {
     		
        commandInstance.addInvalidField("SecurityAdvisor", "You must create a SecurityAdvisor in order to run this command.");
     }
