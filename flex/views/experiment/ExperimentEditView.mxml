@@ -3997,7 +3997,6 @@
 			parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 			parentDocument.experimentDetailView.detail.setupForm(this.request);
 			parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ')+ this.request.@number;
-
 		}
 		
 
@@ -4921,10 +4920,6 @@
 			
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;
-
-				if(item.@idLab == 1278){
-					trace("Debugging");
-				}
 
 				if(parentApplication.hasPermission('canSubmitForOtherCores') && coreFacility != null && parentApplication.coreFacilitiesICanSubmitTo.contains(coreFacility)){
 					for each(var coreFac:XML in parentApplication.coreFacilitiesICanSubmitTo){
