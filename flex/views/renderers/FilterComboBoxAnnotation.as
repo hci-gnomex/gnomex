@@ -10,6 +10,7 @@ package views.renderers
 	
 	import views.renderers.FilterComboBox;
 	import views.util.AnnotationOptionAddEvent;
+	import views.util.AnnotationUtility;
 
 	public class FilterComboBoxAnnotation extends FilterComboBox
 	{
@@ -120,10 +121,13 @@ package views.renderers
 			}
 			
 			if (this.selectedItem == null && this.addOptionOnFly && this.text != null && this.text.length > 0 && this.text != this.prompt) {
-				addOptionOpen = true;
-				var oName:String = this.text;
-				this.text = '';
-				callLater(addOption,[oName]);
+				this.text = AnnotationUtility.mapPropertyOptionEquivalents(this.text, parentApplication.getProperty(parentApplication.PROPERTY_ANNOTATION_OPTION_EQUIVALENTS));
+				if (!setDataFromText()) {
+					addOptionOpen = true;
+					var oName:String = this.text;
+					this.text = '';
+					callLater(addOption,[oName]);
+				}
 				return;
 			}
 			
@@ -132,6 +136,18 @@ package views.renderers
 			}  else {
 				data[dataField] = '';
 			}
+		}
+		
+		private function setDataFromText():Boolean {
+			for (var i : int = 0; i < dataProvider.length; i++) {
+				var item:Object = dataProvider[i];
+				trace("display=" + item["display"] + ",text=" + this.text);
+				if(item["@display"] == this.text) {
+					this.selectedIndex = i;
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		override protected function focusInHandler(event:FocusEvent):void
@@ -153,7 +169,6 @@ package views.renderers
 					break;
 				}
 			}
-			
 		}
 	}
 }
