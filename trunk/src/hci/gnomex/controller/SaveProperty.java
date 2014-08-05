@@ -6,12 +6,14 @@ import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyPlatformApplication;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -58,6 +60,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   private Property                       propertyScreen;
   private boolean                        isNewProperty = false;
 
+  private String                         annotationPropertyEquivalents = null;
   
   public void validate() {
   }
@@ -81,6 +84,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         optionsDoc = sax.build(reader);     
+        checkOptions();
       } catch (JDOMException je ) {
         log.error( "Cannot parse optionsXMLString", je );
         this.addInvalidField( "optionsXMLString", "Invalid optionsXMLString");
@@ -126,6 +130,62 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       
 
   }
+  
+  private void checkOptions() {
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(null);
+    this.annotationPropertyEquivalents = pdh.getProperty(PropertyDictionary.ANNOTATION_OPTION_EQUIVALENTS);
+    String annotationPropertyInvalid = pdh.getProperty(PropertyDictionary.ANNOTATION_OPTION_INVALID);
+    
+    HashMap<String, String> invalidMap = new HashMap<String, String>();
+    if (annotationPropertyInvalid != null) {
+      for (String i: annotationPropertyInvalid.split(",")) {
+        invalidMap.put(i.trim().toUpperCase(), i);
+      }
+    }
+    
+    HashMap<String, String> nameMap = new HashMap<String, String>();
+    for(Iterator i = this.optionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+      Element node = (Element)i.next();
+      
+      String name = node.getAttributeValue("option");
+      name = mapPropertyOptionEquivalents(name);
+      
+      if (invalidMap.containsKey(name.toUpperCase())) {
+        this.addInvalidField("Invalid Option", "The option '" + node.getAttributeValue("option") + "' is not allowed.");
+      }
+      
+      if (nameMap.containsKey(name.toUpperCase())) {
+        this.addInvalidField("Duplicate Option", "The options '" + node.getAttributeValue("option") + "' and '" + nameMap.get(name.toUpperCase()) + "' are duplicate.  Please correct and try again.");
+      }
+      nameMap.put(name.toUpperCase(), node.getAttributeValue("option"));
+    }
+  }
+  
+  private String mapPropertyOptionEquivalents(String option) {
+    if (option == null) {
+      return "";
+    }
+    option = option.trim();
+
+    String eq = this.annotationPropertyEquivalents;
+    if (eq == null || eq.trim().length() == 0) {
+      return option;
+    }
+    
+    String opts[] = eq.split(",");
+    if (opts.length < 2) {
+      return option;
+    }
+    
+    for(String opt : opts) {
+      opt = opt.trim();
+      if (opt.toUpperCase().equals(option.toUpperCase())) {
+        return opts[0].trim();
+      }
+    }
+    
+    return option;
+  }
 
   public Command execute() throws RollBackCommandException {
     
@@ -170,7 +230,10 @@ public class SaveProperty extends GNomExCommand implements Serializable {
               option = (PropertyOption) sess.load(PropertyOption.class, Integer.valueOf(idPropertyOption));
             }
             
-            option.setOption(node.getAttributeValue("option"));
+            String name = node.getAttributeValue("option");
+            name = mapPropertyOptionEquivalents(name);
+            
+            option.setOption(name);
             option.setSortOrder(node.getAttributeValue("sortOrder") != null && !node.getAttributeValue("sortOrder").equals("") ? Integer.valueOf(node.getAttributeValue("sortOrder")) : null);
             option.setIsActive(node.getAttributeValue("isActive"));
             option.setIdProperty(sc.getIdProperty());

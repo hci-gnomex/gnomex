@@ -1154,6 +1154,7 @@
 			public var PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT:String  = "hide_sampletype_on_external_experiment";
 			public var PROPERTY_NO_PUBLIC_VISIBILITY:String               = "no_public_visibility";
 			public var PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION:String       = "allow_core_global_submission";
+			public var PROPERTY_ANNOTATION_OPTION_EQUIVALENTS:String      = "annotation_option_equivalents";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			

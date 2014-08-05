@@ -129,6 +129,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String		    NO_PUBLIC_VISIBILITY				        = "no_public_visibility";
   public static final String        ALLOW_CORE_GLOBAL_SUBMISSION        = "allow_core_global_submission";
   public static final String        REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE = "request_complete_confirmation_email_message";
+  public static final String        ANNOTATION_OPTION_EQUIVALENTS       = "annotation_option_equivalents";
+  public static final String        ANNOTATION_OPTION_INVALID           = "annotation_option_invalid";
   public static final String        EXPERIMENT_MATRIX_PROPERTIES        = "experiment_matrix_properties";
 
 

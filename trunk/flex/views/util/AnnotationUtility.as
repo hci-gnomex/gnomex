@@ -1,5 +1,8 @@
 package views.util
 {
+	import mx.utils.StringUtil;
+	import views.util.AnnotationUtility;
+	
 	public class AnnotationUtility
 	{
 		public function AnnotationUtility()
@@ -61,5 +64,32 @@ package views.util
 			
 			return keep;
 		}
+		
+		public static function mapPropertyOptionEquivalents(option:String, equivalents:String):String {
+			if (option == null) {
+				return "";
+			}
+			option = StringUtil.trim(option);
+			
+			var eq:String = equivalents;
+			if (eq == null || StringUtil.trim(eq).length == 0) {
+				return option;
+			}
+			
+			var opts:Array = eq.split(",");
+			if (opts.length < 2) {
+				return option;
+			}
+			
+			for each(var opt:String in opts) {
+				opt = StringUtil.trim(opt);
+				if (opt.toUpperCase() == option.toUpperCase()) {
+					return StringUtil.trim(opts[0]);
+				}
+			}
+			
+			return option;
+		}
 	}
+
 }
