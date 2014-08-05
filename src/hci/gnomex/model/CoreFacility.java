@@ -21,6 +21,10 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   showProjectAnnotations;
   private String   description;
   private String   acceptOnlineWorkAuth;
+  private String   shortDescription;
+  private String   contactName;
+  private String   contactEmail;
+  private String   contactPhone;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -87,6 +91,46 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
     showProjectAnnotations = val;
   }
   
+  
+  public String getShortDescription() {
+    return shortDescription;
+  }
+
+  
+  public void setShortDescription( String shortDescription ) {
+    this.shortDescription = shortDescription;
+  }
+
+  
+  public String getContactName() {
+    return contactName;
+  }
+
+  
+  public void setContactName( String contactName ) {
+    this.contactName = contactName;
+  }
+
+  
+  public String getContactEmail() {
+    return contactEmail;
+  }
+
+  
+  public void setContactEmail( String contactEmail ) {
+    this.contactEmail = contactEmail;
+  }
+
+  
+  public String getContactPhone() {
+    return contactPhone;
+  }
+
+  
+  public void setContactPhone( String contactPhone ) {
+    this.contactPhone = contactPhone;
+  }
+
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getExcludedMethodsMap");
   }

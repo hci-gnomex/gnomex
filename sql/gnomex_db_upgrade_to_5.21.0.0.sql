@@ -171,3 +171,15 @@ alter table BillingItem add
 
 -- Uniqueness constraint for Property table
 ALTER TABLE `Property` ADD UNIQUE (`name`);
+
+-- Add columns to CoreFacility
+ALTER TABLE CoreFacility ADD shortDescription VARCHAR(1000) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacility_Audit add shortDescription VARCHAR(1000) null');
+ALTER TABLE CoreFacility ADD contactName VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacility_Audit add contactName VARCHAR(200) null');
+ALTER TABLE CoreFacility ADD contactEmail VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacility_Audit add contactEmail VARCHAR(200) null');
+ALTER TABLE CoreFacility ADD contactPhone VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacility_Audit add contactPhone VARCHAR(200) null');
+
+
