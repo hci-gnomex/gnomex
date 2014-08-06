@@ -25,6 +25,7 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   contactName;
   private String   contactEmail;
   private String   contactPhone;
+  private Integer  sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -130,13 +131,20 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   public void setContactPhone( String contactPhone ) {
     this.contactPhone = contactPhone;
   }
+  
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getExcludedMethodsMap");
   }
 
   public static List getActiveCoreFacilities(Session sess) {
-    List facilities = sess.createQuery("from CoreFacility where isActive = 'Y'").list();
+    List facilities = sess.createQuery("from CoreFacility where isActive = 'Y' order by sortOrder").list();
     return facilities;
   }
 }
