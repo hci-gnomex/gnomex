@@ -28,6 +28,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class ImportExperiment {
   private TreeSet                         samplesAdded = new TreeSet(new SampleNumberComparator());
   private TreeSet                         sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
   
+  private AppUser						  appuser;
   private Lab                             lab;
   private String                          labLastName;
   private String                          labFirstName;
@@ -96,6 +98,8 @@ public class ImportExperiment {
   private HashMap<String, GenomeBuild>    genomeBuildMap = new HashMap<String, GenomeBuild>();
   
   private HashMap<Integer, Integer>       idPropertyMap = new HashMap<Integer,Integer>();
+  
+  private Set<AppUser> 					  members;
   
   public ImportExperiment(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -236,7 +240,7 @@ public class ImportExperiment {
       } catch (HibernateException e) {
         System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
       } 
-      targetPropertyMap.put(prop.getName(), prop);
+      targetPropertyMap.put(prop.getName().toUpperCase(), prop);
       targetIdToPropertyMap.put(prop.getIdProperty(), prop);
     }    
     
@@ -299,6 +303,35 @@ public class ImportExperiment {
     Query labQuery = sess.createQuery("select l from Lab l where lastName = '" + labLastName + "'" + " and firstName = '" + labFirstName + "'");
     lab = (Lab)labQuery.uniqueResult();   
     if (lab == null) {
+	     	  
+    	// make a skeleton AppUser
+//    	appuser = new AppUser();
+    	
+//    	appuser.setFirstName(labFirstName);
+//    	appuser.setLastName(labLastName);
+//    	appuser.setIsActive("Y");
+//    	appuser.setCodeUserPermissionKind("LAB");
+    	
+    	// save it and flush to assign the id
+//    	sess.save(appuser);
+//    	sess.flush();
+    	
+    	// appuser will be a member of the lab we are about to create
+//    	members = new HashSet<AppUser>();
+//    	members.add(appuser);
+    	
+    	// we don't have this lab, make a skeleton of it
+//    	lab = new Lab();
+      	  
+//      	lab.setFirstName(labFirstName);
+//      	lab.setLastName(labLastName);     	
+//      	lab.setIsActive("Y");
+//      	lab.setMembers(members);
+    
+      	//save it and flush it to assign the DB id
+ //       sess.save(lab);
+ //       sess.flush();
+    	  	    	
       throw new Exception("Cannot find lab " + labLastName + ", " + labFirstName);
     }
     requestNode.setAttribute("idLab", lab.getIdLab().toString());
@@ -306,6 +339,10 @@ public class ImportExperiment {
     // Fill in the  idOwner, idAppUser based on and submitter name
     parseSubmitterName();
     idAppUser = getIdAppUser(lab);
+    if (idAppUser == null) {
+        throw new Exception("Cannot find idAppUser " + idAppUser);
+      }
+
     requestNode.setAttribute("idAppUser", idAppUser.toString());
     requestNode.setAttribute("idSubmitter", idAppUser.toString());
     
@@ -418,7 +455,7 @@ public class ImportExperiment {
       String genomeBuildName = laneNode.getAttributeValue("genomeBuild");
       if (genomeBuildName != null && !genomeBuildName.equals("")) {
         GenomeBuild genomeBuild = genomeBuildMap.get(genomeBuildName);
-        if (genomeBuildName == null) {
+        if (genomeBuild == null) {
           throw new Exception("Cannot find genomeBuild " + genomeBuildName + ".");
         }
         laneNode.setAttribute("idGenomeBuildAlignTo", genomeBuild.getIdGenomeBuild().toString());
@@ -450,7 +487,7 @@ public class ImportExperiment {
       
       Integer idPropertySource    = Integer.parseInt(propertyNode.getAttributeValue("idProperty"));
       
-      Property prop = targetPropertyMap.get(propertyName);
+      Property prop = targetPropertyMap.get(propertyName.toUpperCase());
       if (prop == null) {
     	     	  
     	  // we don't have this annotation, make it
@@ -470,7 +507,7 @@ public class ImportExperiment {
           sess.flush();
 
           // remember it
-          targetPropertyMap.put(prop.getName(),prop);
+          targetPropertyMap.put(prop.getName().toUpperCase(),prop);
           targetIdToPropertyMap.put(prop.getIdProperty(), prop);
                     
       }
