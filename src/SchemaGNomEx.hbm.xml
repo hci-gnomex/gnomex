@@ -386,6 +386,10 @@
 		<property name="description" column="description" type="string" />
 		<property name="acceptOnlineWorkAuth" column="acceptOnlineWorkAuth"
 			type="string" />
+    <property name="shortDescription" column="shortDescription" type="string" />
+    <property name="contactName" column="contactName" type="string" />
+    <property name="contactEmail" column="contactEmail" type="string" />
+    <property name="contactPhone" column="contactPhone" type="string" />
 	</class>
 
 
