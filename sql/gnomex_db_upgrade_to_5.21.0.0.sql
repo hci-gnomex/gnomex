@@ -187,6 +187,12 @@ Insert into PropertyDictionary(propertyName, propertyValue, propertyDescription,
 	values('billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y', null);
 Insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
 	values('billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y', null);
+	
+-- Sort Order for CoreFacility
+ALTER TABLE CoreFacility add sortOrder INT(10) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add sortOrder INT(10) NULL');
+
+
 
 
 

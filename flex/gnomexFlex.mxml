@@ -2633,6 +2633,25 @@
 					}
 				}
 				
+				// Sort core facilities by sort order
+				if (myCoreFacilities != null) {
+					var swap:Boolean = true;
+					while(swap) {
+						swap = false;
+						for(var j:int = 1; j < myCoreFacilities.length(); j++) {
+							var c1:Object = myCoreFacilities[j-1];
+							var c2:Object = myCoreFacilities[j];
+							var c1Sort:int = c1.@sortOrder != '' ? Number(c1.@sortOrder) : 0;
+							var c2Sort:int = c2.@sortOrder != '' ? Number(c2.@sortOrder) : 0;
+							if (c1Sort > c2Sort) {
+								myCoreFacilities[j-1] = c2;
+								myCoreFacilities[j] = c1;
+								swap = true;
+							}
+						}
+					}
+				}
+				
 				requestCategoryTypeMap = new Object();
 				for each (var rct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType")) {
 					requestCategoryTypeMap[rct.@codeRequestCategoryType] = rct;
