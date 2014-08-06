@@ -803,19 +803,10 @@
 					allowMultipleSelection="true"
 					editable="true">
 					<util:columns>
-						<mx:AdvancedDataGridColumn dataField="@number" editable="false" width="75" >
-							<mx:headerRenderer>
-								<mx:Component>
-									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-										<mx:Label text="Experiment"/>
-									</mx:VBox>
-								</mx:Component>
-							</mx:headerRenderer>
-						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="70"
+						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="75"
 												   dataField="@flowCellChannelNumber" editable="true"
 												   rendererIsEditor="false"												    
-												   editorDataField="value"  >
+												   editorDataField="value" >
 							<mx:itemEditor>
 								<mx:Component id ="channelChooserColumnItemEditor">
 									<renderers:GridColumnFillButton fillColumnKey="idRequestAndMultiplexGroup">
@@ -829,7 +820,16 @@
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
-										<mx:Label text="Lane" color="Blue" fontSize="11" fontStyle="bold"/>
+										<mx:Label text="Select Lane #" styleName="blueHeaderFlowCellAssembly" />
+									</mx:VBox>
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn dataField="@number" editable="false" width="75" >
+							<mx:headerRenderer>
+								<mx:Component>
+									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+										<mx:Label text="Experiment"/>
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>
@@ -852,7 +852,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="300"
+						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="295"
 												   dataField="@idNumberSequencingCyclesAllowed" editable="false"
 												   rendererIsEditor="false"
 												   itemRenderer="{views.renderers.DropdownLabel.create(sequenceProtocolsList.source, '@display', '@value', '@idNumberSequencingCyclesAllowed', true, true)}"
