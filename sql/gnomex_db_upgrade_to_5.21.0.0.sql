@@ -182,4 +182,11 @@ call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacilit
 ALTER TABLE CoreFacility ADD contactPhone VARCHAR(200) NULL;
 call ExecuteIfTableExists('gnomex','CoreFacility_Audit','alter table CoreFacility_Audit add contactPhone VARCHAR(200) null');
 
+-- New properties for gl interface.
+Insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
+	values('billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y', null);
+Insert into PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
+	values('billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y', null);
+
+
 
