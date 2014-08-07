@@ -27,10 +27,10 @@
 				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text width="320" paddingLeft="2"
-							 text="{coreRepeater.currentItem.@coreName + ' Core:'}"/>
+							 text="{coreRepeater.currentItem.@facilityName + ' Core:'}"/>
 					<mx:Text htmlText="{'&lt;b&gt;' + coreRepeater.currentItem.@contactName + '&lt;/b&gt;'}" />
 					<mx:Text paddingLeft="4" htmlText="{'&lt;i&gt; Phone: &lt;/i&gt;'}" />
-					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactNumber}" />
+					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactPhone}" />
 					<mx:Text paddingLeft="4" paddingRight="0" htmlText="{'&lt;i&gt; Email: &lt;/i&gt;'}" />
 					<mx:LinkButton id="emailLink" label="{coreRepeater.currentItem.@contactEmail}" click="emailLinkClick(event)" textDecoration="underline" color="#0000ff" paddingTop="1"/>
 				</mx:HBox>

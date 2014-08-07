@@ -192,7 +192,8 @@ Insert into PropertyDictionary(propertyName, propertyValue, propertyDescription,
 ALTER TABLE CoreFacility add sortOrder INT(10) NULL;
 call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add sortOrder INT(10) NULL');
 
-
-
+-- Contact Image for CoreFacility
+ALTER TABLE CoreFacility add contactImage VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add contactImage VARCHAR(200) NULL');
 
 

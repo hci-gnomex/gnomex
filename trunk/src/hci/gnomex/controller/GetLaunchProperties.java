@@ -152,19 +152,20 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       
       
       if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
-        String coreName = cf.getFacilityName();
+        String facilityName = cf.getFacilityName();
         int idCoreFacility = cf.getIdCoreFacility();
-        String contactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
-        String contactNumber = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY);
-        String contactEmail = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
+        
         Element facilityNode = new Element("CoreFacility");
         facilitiesNode.addContent(facilityNode);
         facilityNode.setAttribute("idCoreFacility", String.valueOf( idCoreFacility ));
-        facilityNode.setAttribute("coreName", coreName != null ? coreName : "");
-        facilityNode.setAttribute("contactName", contactName != null ? contactName : "");
-        facilityNode.setAttribute("contactNumber", contactNumber != null ? contactNumber : "");
-        facilityNode.setAttribute("contactEmail", contactEmail != null ? contactEmail : "");
+        facilityNode.setAttribute("facilityName", facilityName != null ? facilityName : "");
+        facilityNode.setAttribute("contactName", cf.getContactName() != null ? cf.getContactName() : "");
+        facilityNode.setAttribute("contactPhone", cf.getContactPhone() != null ? cf.getContactPhone() : "");
+        facilityNode.setAttribute("contactEmail", cf.getContactEmail() != null ? cf.getContactEmail() : "");
+        facilityNode.setAttribute("description", cf.getDescription() != null ? cf.getDescription() : "");
+        facilityNode.setAttribute("shortDescription", cf.getShortDescription() != null ? cf.getShortDescription() : "");
+        facilityNode.setAttribute("contactImage", cf.getContactImage() != null ? cf.getContactImage() : "");
+        facilityNode.setAttribute("sortOrder", cf.getSortOrder() != null ? cf.getSortOrder().toString() : "");
       }
     }
   }
