@@ -2280,13 +2280,15 @@
 			}
 
 			private function hideMenusByProperties(navMenu:XMLList):void {
+				var showMenus:Dictionary = new Dictionary();
+				var hideMenus:Dictionary = new Dictionary();
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (property.@value == '') {
 						continue; 
 					}
 					if (property.@propertyName.toString().indexOf("menu_") == 0) {
-						var menuToHide:String = null;
-						if (property.@propertyValue == "hide") {
+						var menuToHideShow:String = null;
+						if (property.@propertyValue == "hide" || property.@propertyValue == "show") {
 							if (property.@idCoreFacility != "" && !isSuperAdmin) {
 								if (coreFacilitiesICanManage.length() > 0) {
 									// Only hide a menu for a core facility admin when
@@ -2294,20 +2296,20 @@
 									// the admin manages.
 										for each (var cf:Object in coreFacilitiesICanManage) {
 											if (property.@idCoreFacility == cf.@idCoreFacility) {
-												menuToHide = property.@propertyName.toString().substr(5);
+												menuToHideShow = property.@propertyName.toString().substr(5);
 												break;
 											}
 										}
 								} else {
 									
-									if (menuToHide == null) {
+									if (menuToHideShow == null) {
 										// Only hide a menu when the menu_ property matches the
 										// core facility and the user is only associated with ONE
 										// core facility
 										if (myCoreFacilities.length() < 2) {
 											for each (var cf1:Object in  myCoreFacilities) {
 												if (property.@idCoreFacility == cf1.@idCoreFacility) {
-													menuToHide = property.@propertyName.toString().substr(5);
+													menuToHideShow = property.@propertyName.toString().substr(5);
 													break;
 												}
 											}
@@ -2316,23 +2318,32 @@
 									}
 								}
 							} else if (property.@idCoreFacility == "") {
-								menuToHide = property.@propertyName.toString().substr(5);
+								menuToHideShow = property.@propertyName.toString().substr(5);
 							}							
 						} else if (property.@propertyValue == "hide super" && isSuperAdmin) {
-							menuToHide = property.@propertyName.toString().substr(5);
+							menuToHideShow = property.@propertyName.toString().substr(5);
 						} 
-						if (menuToHide != null) {
-							for (var i:int = 0; i < navMenu.length(); i++) {
-								if (navMenu[i].@label == menuToHide) {
-									delete navMenu[i];
-									break;
-								} else {
-									var cn:XMLList = XMLList(navMenu[i].children());
-									for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
-										if (cn[j].@label == menuToHide) {
-											delete cn[j];
-											break;
-										}
+					}
+					if (menuToHideShow != null) {
+						if (property.@propertyValue == "hide" || property.@propertyValue == "hide super") {
+							hideMenus[menuToHideShow] = menuToHideShow;
+						} else if (property.@propertyValue == "show") {
+							showMenus[menuToHideShow] = menuToHideShow;
+						}
+					}
+				}
+				for(var key:Object in hideMenus) {
+					if (!showMenus.hasOwnProperty(key)) {
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@label == key) {
+								delete navMenu[i];
+								break;
+							} else {
+								var cn:XMLList = XMLList(navMenu[i].children());
+								for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+									if (cn[j].@label == key) {
+										delete cn[j];
+										break;
 									}
 								}
 							}
