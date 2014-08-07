@@ -26,6 +26,7 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   contactEmail;
   private String   contactPhone;
   private Integer  sortOrder;
+  private String   contactImage;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -137,6 +138,16 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   }
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  
+  public String getContactImage() {
+    return contactImage;
+  }
+
+  
+  public void setContactImage( String contactImage ) {
+    this.contactImage = contactImage;
   }
 
   public void registerMethodsToExcludeFromXML() {

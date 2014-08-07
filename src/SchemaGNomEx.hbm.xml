@@ -391,6 +391,7 @@
     <property name="contactEmail" column="contactEmail" type="string" />
     <property name="contactPhone" column="contactPhone" type="string" />
     <property name="sortOrder" column="sortOrder" type="integer" />
+    <property name="contactImage" column="contactImage" type="string" />
 	</class>
 
 

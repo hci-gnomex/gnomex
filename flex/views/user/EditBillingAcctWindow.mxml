@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:renderers="views.renderers.*"
+				xmlns:util="views.util.*"
 				layout="vertical" 
 				title="Edit Campus Billing Account" 
 				width="675" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
-				titleIcon="@Embed(source='../../assets/work_auth_form.png')">
+				titleIcon="@Embed(source='../../assets/work_auth_form.png')" >
     
 <mx:states>
 	<mx:State name="internalEditState">
@@ -113,17 +114,19 @@
 	<![CDATA[
 		import hci.flex.controls.DropdownLabel;
 		
-		import mx.collections.SortField;
 		import mx.collections.Sort;
+		import mx.collections.SortField;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.core.Container;
+		import mx.events.ToolTipEvent;
 		import mx.events.ValidationResultEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
+		import views.util.CoreFacilityInfoView;
 		import views.util.GNomExStringUtil;
 		
 		[Bindable]
@@ -427,7 +430,7 @@
 		private function getSelectedCoreFacilities():XMLListCollection {
 			var facilities:XMLListCollection = new XMLListCollection();
 			for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
-				if (coreFacilityCheckbox[x].selected) {
+				if (coreFacilityCheckbox[x].selected) { 
 					var facility:Object = coreFacilities.getItemAt(x);
 					var node:XML = new XML("<CoreFacility " +
 						" idCoreFacility='" + facility.@value + "'" +
@@ -670,7 +673,7 @@
 			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 			
 			var sortDisplay:Sort = new Sort();
-			sortDisplay.fields=[new SortField("@display")];
+			sortDisplay.fields=[new SortField("@sortOrder")];
 			
 			if (coreCombo.visible) {
 				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
@@ -722,12 +725,17 @@
 		}
 		
 		private function coreFacilityLabel(item:Object):String {
-			if ( item.@display == '' ) {
+			var name:String = item.@display;
+			
+			if ( item.@contactName != '' ) {
+				name += ' (' + item.@contactName + ')'
+			}
+			if ( name == '' ) {
 				return '';
-			} else if ( item.@description == '' ) {
-				return item.@display;
+			} else if ( item.@shortDescription == '' ) {
+				return name;
 			} else {
-				return item.@display + " - " + item.@description;
+				return name + " - " + item.@shortDescription;
 			}
 		}
 		
@@ -788,6 +796,7 @@
 			ba.@submitterEmail = submitterEmail.text;
 		}
 		
+		
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="fundingAgencies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry}"/>
@@ -840,14 +849,19 @@
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox" visible="{coreFacilities.length > 1}"
 				 includeInLayout="{coreFacilities.length > 1}">
-			<mx:Label text="Core Facility" width="120" styleName="formLabel" id="coreLabel"/>
+			<mx:VBox width="120" verticalGap="0" >
+				<mx:Label text="Core Facility" width="120" styleName="formLabel" id="coreLabel"/>
+				<util:ContextHelp context1="coreFacilityHelp" context2="" context3="" 
+								  showEdit="{parentApplication.isSuperAdmin}" 
+								  title="Core Facility Information" label="Help me choose" id="coreFacilityHelp"/>
+			</mx:VBox>
 			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
 			<mx:VBox id="coreCheckboxBox">
 				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
 					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11"
-								 selected="{coreFacilities.length == 1}">
+								 selected="{coreFacilities.length == 1}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
 					</mx:CheckBox> 
 				</mx:Repeater>
 			</mx:VBox>
