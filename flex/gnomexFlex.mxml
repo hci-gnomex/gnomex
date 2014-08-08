@@ -3927,8 +3927,6 @@
 			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
 			<menuitem label="Manage Protocols" icon="iconProtocol" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
-			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
