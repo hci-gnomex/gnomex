@@ -227,7 +227,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
-    if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+    if (RequestCategory.isQCRequestCategory(request.getCodeRequestCategory())) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
       introNote.append("Request " + request.getNumber() + " has been completed by the " + cf.getFacilityName() + " core.");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      

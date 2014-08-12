@@ -560,7 +560,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public boolean isConsideredFinished() {
     boolean isFinished = false;
     
-    if (this.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+    if (RequestCategory.isQCRequestCategory(this.getCodeRequestCategory())) {
       isFinished = isFinishedWithQC();
     } else if (RequestCategory.isIlluminaRequestCategory(this.getCodeRequestCategory())) {
       int doneLaneCount = 0;
