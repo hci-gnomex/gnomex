@@ -54,13 +54,10 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private RequestCategoryType   categoryType;
   
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
-    if (codeRequestCategory.equals(AGILIENT_1_COLOR_MICROARRAY_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(AGILIENT_MICROARRAY_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(NIMBLEGEN_MICROARRAY_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(INHOUSE_MICROARRAY_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(OTHER_MICROARRAY_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY)) {
-      return true;
+    DictionaryHelper dh = DictionaryHelper.getInstance(null);
+    RequestCategory cat = dh.getRequestCategoryObject(codeRequestCategory);
+    if (cat != null) {
+      return cat.isMicroarrayRequestCategory();
     } else {
       return false;
     }
@@ -93,7 +90,17 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     if (this.type != null && !this.type.equals("")) {
       return type.equals(RequestCategoryType.TYPE_MICROARRAY);
     } else {
-      return isMicroarrayRequestCategory(this.getCodeRequestCategory());
+      return false;
+    }
+  }
+
+  public static boolean isQCRequestCategory(String codeRequestCategory) {
+    DictionaryHelper dh = DictionaryHelper.getInstance(null);
+    RequestCategory cat = dh.getRequestCategoryObject(codeRequestCategory);
+    if (cat != null) {
+      return cat.isQCRequestCategory();
+    } else {
+      return false;
     }
   }
   
@@ -106,7 +113,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     if (this.type != null && !this.type.equals("")) {
       return type.equals(RequestCategoryType.TYPE_QC);
     } else {
-      return codeRequestCategory.equals(this.QUALITY_CONTROL_REQUEST_CATEGORY);
+      return false;
     }
   }
   

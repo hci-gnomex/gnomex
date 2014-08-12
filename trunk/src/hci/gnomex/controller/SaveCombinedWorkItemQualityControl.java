@@ -190,7 +190,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               // all samples.  If so, set complete date on request
               if (request.isConsideredFinished() && 
                   request.getCompletedDate() == null &&
-                  request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+                  RequestCategory.isQCRequestCategory(request.getCodeRequestCategory())) {
                 request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
                 request.setCodeRequestStatus(RequestStatus.COMPLETED);
                 sess.save(request);   
@@ -283,7 +283,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
     
-    if (isStepQualityControl && request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+    if (isStepQualityControl && RequestCategory.isQCRequestCategory(request.getCodeRequestCategory())) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
       introNote.append("Request " + request.getNumber() + " has been completed by the " + cf.getFacilityName() + " core.");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
