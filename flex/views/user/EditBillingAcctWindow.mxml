@@ -126,7 +126,6 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.renderers.MultiselectRendererCommon;
-		import views.util.CoreFacilityInfoView;
 		import views.util.GNomExStringUtil;
 		
 		[Bindable]
