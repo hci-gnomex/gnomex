@@ -214,7 +214,7 @@
 					if(codeRequestCategories.length > 0) {
 						codeRequestCategories += ",";
 					}
-					if(requestCategory.@isSelected == 'Y'){
+					if(requestCategory.@isSelected == 'true'){
 						codeRequestCategories += requestCategory.@codeRequestCategory;
 					}
 				}
@@ -325,7 +325,7 @@
 			private function updateRequestCategoryFilter(event:CloseEvent):void{
 				requestCategoryLabel.text = "";
 				for(var i:int = 0; i < requestCategories.length; i++){
-					if(requestCategories.getItemAt(i).@isSelected == 'Y'){
+					if(requestCategories.getItemAt(i).@isSelected == 'true'){
 						var rcLabel:String = requestCategories.getItemAt(i).@display;
 						requestCategoryLabel.text += rcLabel;
 						if((i+1) < requestCategories.length){
