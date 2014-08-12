@@ -215,6 +215,18 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
   
+  public Integer convertPropertyToInteger(String property, Integer def) {
+    Integer intProperty = def;
+    if (property != null) {
+      try {
+        intProperty = Integer.parseInt(property);
+      } catch(NumberFormatException ex) {
+        
+      }
+    }
+    return intProperty;
+  }
+  
   public boolean isProductionServer(String serverName) {
     if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
         this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
