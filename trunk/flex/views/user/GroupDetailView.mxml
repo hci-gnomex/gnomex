@@ -1250,12 +1250,13 @@
 	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}" filterFunction="filterIsActive"/>
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
-	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" />
+	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" sort="{sortOrderSort}" />
 	<mx:XMLListCollection id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	<mx:EmailValidator id="emailValidator" property="text" />
 	
 	<mx:Sort id="alphabeticSort" compareFunction="sortByLastName"/>
+	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
 		
