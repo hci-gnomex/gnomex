@@ -92,7 +92,7 @@
 				<mx:DataGridColumn headerText="Activity"  dataField="@accountNumberActivity" width="50" id="activityCol" editable="false"/>
 				<mx:DataGridColumn headerText="Project"  dataField="@accountNumberProject" width="50" id="projectCol" editable="false"/>
 				<mx:DataGridColumn headerText="Acct"  dataField="@accountNumberAccount" width="40" id="accountCol" editable="false"/>
-				<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="20" id="auCol" editable="false"/>
+				<mx:DataGridColumn headerText="AU"   dataField="@accountNumberAu" width="30" id="auCol" editable="false"/>
 			</mx:columns>
 			
 		</mx:DataGrid>
