@@ -134,6 +134,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_MATRIX_PROPERTIES        = "experiment_matrix_properties";
   public static final String        BILLING_GL_HEADER_CURRENCY          = "billing_gl_header_currency";
   public static final String        BILLING_GL_BLANK_YEAR               = "billing_gl_blank_year";
+  public static final String        FISCAL_YEAR_BREAK_MONTH             = "fiscal_year_break_month";
+  public static final String        FISCAL_YEAR_BREAK_DAY               = "fiscal_year_break_day";
 
 
   private Integer       idPropertyDictionary;

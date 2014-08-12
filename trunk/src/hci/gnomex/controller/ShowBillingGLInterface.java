@@ -145,9 +145,11 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       String glHeaderCurrency = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_HEADER_CURRENCY);
       journalEntry = this.journalId + journalDateFormat.format(billingPeriod.getStartDate()) + revisionNumber.toString();
       String blankYearString = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_GL_BLANK_YEAR);
-      Boolean blankYear = false;
+      String fiscalYear;
       if (blankYearString != null && blankYearString.toUpperCase().equals("Y")) {
-        blankYear = true;
+        fiscalYear = "";
+      } else {
+        fiscalYear = billingPeriod.getFiscalYear(pdh, idCoreFacility);
       }
       
    
@@ -273,7 +275,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 String labBillingName = bi.getLabName() + acctNum;
 
                 if (!firstTime && !labBillingName.equals(prevLabBillingName)) {
-                  writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, billingPeriod.getBillingPeriod(), blankYear);
+                  writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, fiscalYear);
                 }
 
               
@@ -302,7 +304,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
           }
 
           if (billingItemMap.size() > 0) {
-            writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, billingPeriod.getBillingPeriod(), blankYear);
+            writeLabAccountDebit(prevLabName, prevBillingAccount, accountDescription, fiscalYear);
             
             // Verify that grand total matches expected grand total
             if (this.totalPrice.compareTo(this.expectedGrandTotalPrice) != 0) {
@@ -315,7 +317,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
             }
             
             // Show the core facility credit for the total billing (internal customers)
-            this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true, blankYear);    
+            this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_ACCOUNT, this.totalPrice, true, fiscalYear);    
             
             
             // Only show the debit and credit lines for manual billing on POs if there is a core facility property
@@ -344,10 +346,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
                 if (totalPriceExternalPO != null) {
                   
                   // Show the microarray debit for the total billing (customers billed from POs)
-                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false, blankYear);            
+                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_PO_ACCOUNT, totalPriceExternalPO, false, fiscalYear);            
                   
                   // Show the microarray credit for the total billing (customers billed from POs)
-                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true, blankYear);            
+                  this.writeCoreFacilityCredit(billingPeriod, pdh, PropertyDictionary.BILLING_CORE_FACILITY_PO_ACCOUNT, totalPriceExternalPO, true, fiscalYear);            
                 }
               }
             }
@@ -474,7 +476,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     }
   }
   
-  private void writeLabAccountDebit(String labName, BillingAccount billingAccount, String description, String billingPeriod, boolean blankYear) {
+  private void writeLabAccountDebit(String labName, BillingAccount billingAccount, String description, String fiscalYear) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
     
@@ -506,11 +508,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     } else {
       values.add(getFixedWidthEmptyValue(5));  // au blank when project is charged
     }
-    if (blankYear) {
-      values.add(getFixedWidthEmptyValue(4));
-    } else {
-      values.add(getFixedWidthValue(billingPeriod.substring(billingPeriod.indexOf(" ") + 1), 4));
-    }
+    values.add(getFixedWidthValue(fiscalYear, 4));
+
     values.add(getFixedWidthValue(billingAccount.getAccountNumberProject(), 15)); // project id
     values.add(getFixedWidthEmptyValue(3));     // statistics code
     values.add(getFixedWidthEmptyValue(5));  // affiliate
@@ -535,7 +534,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     
   }
   
-  private void writeCoreFacilityCredit(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String property_for_account, BigDecimal totalAmt, boolean isCredit, boolean blankYear) {
+  private void writeCoreFacilityCredit(BillingPeriod billingPeriod, PropertyDictionaryHelper pdh, String property_for_account, BigDecimal totalAmt, boolean isCredit, String fiscalYear) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
     String year = billingPeriod.getBillingPeriod();
@@ -557,11 +556,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
     values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ORG), 10)); // dept id
     values.add(getFixedWidthValue(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.BILLING_CORE_FACILITY_ACTIVITY), 5)); //activity
     values.add(getFixedWidthEmptyValue(5));  // au (blank for credits)
-    if (blankYear) {
-      values.add(getFixedWidthEmptyValue(4));
-    } else {
-      values.add(getFixedWidthValue(year.substring(year.indexOf(" ") + 1), 4));
-    }
+    values.add(getFixedWidthValue(fiscalYear, 4));
     values.add(getFixedWidthEmptyValue(15)); // project id
     values.add(getFixedWidthEmptyValue(3));     // statistics code
     values.add(getFixedWidthEmptyValue(5));  // affiliate
