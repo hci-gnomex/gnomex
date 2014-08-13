@@ -12,6 +12,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
@@ -1330,30 +1331,22 @@ public class BuildSearchIndex extends DetailObject {
       labRequest = Lab.formatLabName(labLastNameRequest, labFirstNameRequest);
       
       requestDisplayName = new StringBuffer();
-      if (codeRequestCategory != null && RequestCategory.isMicroarrayRequestCategory(codeRequestCategory)) {
-        requestDisplayName.append(requestNumber);
+      requestDisplayName.append(requestNumber);
+      if (codeApplication != null && !codeApplication.equals("")) {
         requestDisplayName.append(" - ");
-        requestDisplayName.append(slideProduct);      
+        requestDisplayName.append(getDictionaryDisplay("hci.gnomex.model.Application", codeApplication));                
+      }
+      if (slideProduct != null && !slideProduct.equals("")) {
         requestDisplayName.append(" - ");
-        requestDisplayName.append(requestOwnerFirstName);
-        requestDisplayName.append(" ");
-        requestDisplayName.append(requestOwnerLastName);
-        requestDisplayName.append(" ");
-        requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));      
-      } else {
-        requestDisplayName.append(requestNumber);
-        if (codeApplication != null && !codeApplication.equals("")) {
-          requestDisplayName.append(" - ");
-          requestDisplayName.append(getDictionaryDisplay("hci.gnomex.model.Application", codeApplication));                
-        }
-        requestDisplayName.append(" - ");
-        requestDisplayName.append(requestOwnerFirstName);
-        requestDisplayName.append(" ");
-        requestDisplayName.append(requestOwnerLastName);
-        requestDisplayName.append(" ");
-        if (requestCreateDate != null) {
-          requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));                
-        }
+        requestDisplayName.append(slideProduct);                
+      }
+      requestDisplayName.append(" - ");
+      requestDisplayName.append(requestOwnerFirstName);
+      requestDisplayName.append(" ");
+      requestDisplayName.append(requestOwnerLastName);
+      requestDisplayName.append(" ");
+      if (requestCreateDate != null) {
+        requestDisplayName.append(DateFormat.getDateInstance(DateFormat.MEDIUM).format(requestCreateDate));                
       }
       
     }
