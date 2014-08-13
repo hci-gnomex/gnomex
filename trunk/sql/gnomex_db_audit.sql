@@ -591,6 +591,48 @@ DROP TRIGGER IF EXISTS TrAU_Primer_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Primer_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_Product_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_Product_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_Product_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductLedger_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductLedger_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductLedger_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductLineItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductLineItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductLineItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductOrder_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductOrder_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductOrder_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductOrderFile_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductOrderFile_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductOrderFile_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductOrderStatus_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductOrderStatus_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductOrderStatus_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_ProductType_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_ProductType_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_ProductType_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_Project_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Project_FER
@@ -4332,6 +4374,7 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(11)  NULL DEFAULT NULL
  ,`totalPrice`  decimal(8,2)  NULL DEFAULT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -4366,7 +4409,8 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice )
+  , totalPrice
+  , idProductOrder )
   SELECT
   'No Context'
   , 'L'
@@ -4394,6 +4438,7 @@ INSERT INTO BillingItem_Audit
   , idInvoice
   , idDiskUsageByMonth
   , totalPrice
+  , idProductOrder
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
 $$
@@ -4431,7 +4476,8 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice )
+  , totalPrice
+  , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -4458,7 +4504,8 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.totalPrice );
+  , NEW.totalPrice
+  , NEW.idProductOrder );
 END;
 $$
 
@@ -4491,7 +4538,8 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice )
+  , totalPrice
+  , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -4518,7 +4566,8 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.totalPrice );
+  , NEW.totalPrice
+  , NEW.idProductOrder );
 END;
 $$
 
@@ -4551,7 +4600,8 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice )
+  , totalPrice
+  , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -4578,7 +4628,8 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
-  , OLD.totalPrice );
+  , OLD.totalPrice
+  , OLD.idProductOrder );
 END;
 $$
 
@@ -6017,6 +6068,12 @@ CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
  ,`showProjectAnnotations`  char(1)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
  ,`acceptOnlineWorkAuth`  char(1)  NULL DEFAULT NULL
+ ,`shortDescription`  varchar(1000)  NULL DEFAULT NULL
+ ,`contactName`  varchar(200)  NULL DEFAULT NULL
+ ,`contactEmail`  varchar(200)  NULL DEFAULT NULL
+ ,`contactPhone`  varchar(200)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
+ ,`contactImage`  varchar(200)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -6035,7 +6092,13 @@ INSERT INTO CoreFacility_Audit
   , isActive
   , showProjectAnnotations
   , description
-  , acceptOnlineWorkAuth )
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage )
   SELECT
   'No Context'
   , 'L'
@@ -6047,6 +6110,12 @@ INSERT INTO CoreFacility_Audit
   , showProjectAnnotations
   , description
   , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage
   FROM CoreFacility
   WHERE NOT EXISTS(SELECT * FROM CoreFacility_Audit)
 $$
@@ -6068,7 +6137,13 @@ BEGIN
   , isActive
   , showProjectAnnotations
   , description
-  , acceptOnlineWorkAuth )
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -6079,7 +6154,13 @@ BEGIN
   , NEW.isActive
   , NEW.showProjectAnnotations
   , NEW.description
-  , NEW.acceptOnlineWorkAuth );
+  , NEW.acceptOnlineWorkAuth
+  , NEW.shortDescription
+  , NEW.contactName
+  , NEW.contactEmail
+  , NEW.contactPhone
+  , NEW.sortOrder
+  , NEW.contactImage );
 END;
 $$
 
@@ -6096,7 +6177,13 @@ BEGIN
   , isActive
   , showProjectAnnotations
   , description
-  , acceptOnlineWorkAuth )
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -6107,7 +6194,13 @@ BEGIN
   , NEW.isActive
   , NEW.showProjectAnnotations
   , NEW.description
-  , NEW.acceptOnlineWorkAuth );
+  , NEW.acceptOnlineWorkAuth
+  , NEW.shortDescription
+  , NEW.contactName
+  , NEW.contactEmail
+  , NEW.contactPhone
+  , NEW.sortOrder
+  , NEW.contactImage );
 END;
 $$
 
@@ -6124,7 +6217,13 @@ BEGIN
   , isActive
   , showProjectAnnotations
   , description
-  , acceptOnlineWorkAuth )
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -6135,7 +6234,13 @@ BEGIN
   , OLD.isActive
   , OLD.showProjectAnnotations
   , OLD.description
-  , OLD.acceptOnlineWorkAuth );
+  , OLD.acceptOnlineWorkAuth
+  , OLD.shortDescription
+  , OLD.contactName
+  , OLD.contactEmail
+  , OLD.contactPhone
+  , OLD.sortOrder
+  , OLD.contactImage );
 END;
 $$
 
@@ -15015,6 +15120,990 @@ BEGIN
   , OLD.name
   , OLD.description
   , OLD.sequence
+  , OLD.isActive );
+END;
+$$
+
+
+--
+-- Audit Table For ProductLedger 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idProductLedger`  int(10)  NULL DEFAULT NULL
+ ,`idLab`  int(10)  NULL DEFAULT NULL
+ ,`idProduct`  int(10)  NULL DEFAULT NULL
+ ,`qty`  int(10)  NULL DEFAULT NULL
+ ,`comment`  varchar(5000)  NULL DEFAULT NULL
+ ,`timeStame`  datetime  NULL DEFAULT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
+ ,`requestNumber`  int(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductLedger 
+--
+
+INSERT INTO ProductLedger_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , requestNumber )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , requestNumber
+  FROM ProductLedger
+  WHERE NOT EXISTS(SELECT * FROM ProductLedger_Audit)
+$$
+
+--
+-- Audit Triggers For ProductLedger 
+--
+
+
+CREATE TRIGGER TrAI_ProductLedger_FER AFTER INSERT ON ProductLedger FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLedger_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , requestNumber )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idProductLedger
+  , NEW.idLab
+  , NEW.idProduct
+  , NEW.qty
+  , NEW.comment
+  , NEW.timeStame
+  , NEW.idProductOrder
+  , NEW.requestNumber );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductLedger_FER AFTER UPDATE ON ProductLedger FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLedger_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , requestNumber )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idProductLedger
+  , NEW.idLab
+  , NEW.idProduct
+  , NEW.qty
+  , NEW.comment
+  , NEW.timeStame
+  , NEW.idProductOrder
+  , NEW.requestNumber );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductLedger_FER AFTER DELETE ON ProductLedger FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLedger_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , requestNumber )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idProductLedger
+  , OLD.idLab
+  , OLD.idProduct
+  , OLD.qty
+  , OLD.comment
+  , OLD.timeStame
+  , OLD.idProductOrder
+  , OLD.requestNumber );
+END;
+$$
+
+
+--
+-- Audit Table For ProductLineItem 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductLineItem_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idProductLineItem`  int(10)  NULL DEFAULT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
+ ,`idProduct`  int(10)  NULL DEFAULT NULL
+ ,`qty`  int(10)  NULL DEFAULT NULL
+ ,`unitPrice`  decimal(7,2)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductLineItem 
+--
+
+INSERT INTO ProductLineItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice
+  FROM ProductLineItem
+  WHERE NOT EXISTS(SELECT * FROM ProductLineItem_Audit)
+$$
+
+--
+-- Audit Triggers For ProductLineItem 
+--
+
+
+CREATE TRIGGER TrAI_ProductLineItem_FER AFTER INSERT ON ProductLineItem FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLineItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idProductLineItem
+  , NEW.idProductOrder
+  , NEW.idProduct
+  , NEW.qty
+  , NEW.unitPrice );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductLineItem_FER AFTER UPDATE ON ProductLineItem FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLineItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idProductLineItem
+  , NEW.idProductOrder
+  , NEW.idProduct
+  , NEW.qty
+  , NEW.unitPrice );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductLineItem_FER AFTER DELETE ON ProductLineItem FOR EACH ROW
+BEGIN
+  INSERT INTO ProductLineItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idProductLineItem
+  , OLD.idProductOrder
+  , OLD.idProduct
+  , OLD.qty
+  , OLD.unitPrice );
+END;
+$$
+
+
+--
+-- Audit Table For ProductOrderFile 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idProductOrderFile`  int(10)  NULL DEFAULT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
+ ,`fileName`  varchar(2000)  NULL DEFAULT NULL
+ ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
+ ,`createDate`  date  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductOrderFile 
+--
+
+INSERT INTO ProductOrderFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate
+  FROM ProductOrderFile
+  WHERE NOT EXISTS(SELECT * FROM ProductOrderFile_Audit)
+$$
+
+--
+-- Audit Triggers For ProductOrderFile 
+--
+
+
+CREATE TRIGGER TrAI_ProductOrderFile_FER AFTER INSERT ON ProductOrderFile FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idProductOrderFile
+  , NEW.idProductOrder
+  , NEW.fileName
+  , NEW.fileSize
+  , NEW.createDate );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductOrderFile_FER AFTER UPDATE ON ProductOrderFile FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idProductOrderFile
+  , NEW.idProductOrder
+  , NEW.fileName
+  , NEW.fileSize
+  , NEW.createDate );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductOrderFile_FER AFTER DELETE ON ProductOrderFile FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderFile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idProductOrderFile
+  , OLD.idProductOrder
+  , OLD.fileName
+  , OLD.fileSize
+  , OLD.createDate );
+END;
+$$
+
+
+--
+-- Audit Table For ProductOrderStatus 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductOrderStatus_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeProductOrderStatus`  varchar(10)  NULL DEFAULT NULL
+ ,`productOrderStatus`  varchar(50)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductOrderStatus 
+--
+
+INSERT INTO ProductOrderStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive
+  FROM ProductOrderStatus
+  WHERE NOT EXISTS(SELECT * FROM ProductOrderStatus_Audit)
+$$
+
+--
+-- Audit Triggers For ProductOrderStatus 
+--
+
+
+CREATE TRIGGER TrAI_ProductOrderStatus_FER AFTER INSERT ON ProductOrderStatus FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeProductOrderStatus
+  , NEW.productOrderStatus
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductOrderStatus_FER AFTER UPDATE ON ProductOrderStatus FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeProductOrderStatus
+  , NEW.productOrderStatus
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductOrderStatus_FER AFTER DELETE ON ProductOrderStatus FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrderStatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeProductOrderStatus
+  , OLD.productOrderStatus
+  , OLD.isActive );
+END;
+$$
+
+
+--
+-- Audit Table For ProductOrder 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
+ ,`idAppUser`  int(10)  NULL DEFAULT NULL
+ ,`idLab`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`submitDate`  datetime  NULL DEFAULT NULL
+ ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`codeProductOrderStatus`  varchar(10)  NULL DEFAULT NULL
+ ,`quoteNumber`  varchar(50)  NULL DEFAULT NULL
+ ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
+ ,`uuid`  varchar(36)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductOrder 
+--
+
+INSERT INTO ProductOrder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , codeProductOrderStatus
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , codeProductOrderStatus
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid
+  FROM ProductOrder
+  WHERE NOT EXISTS(SELECT * FROM ProductOrder_Audit)
+$$
+
+--
+-- Audit Triggers For ProductOrder 
+--
+
+
+CREATE TRIGGER TrAI_ProductOrder_FER AFTER INSERT ON ProductOrder FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , codeProductOrderStatus
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idProductOrder
+  , NEW.idAppUser
+  , NEW.idLab
+  , NEW.idCoreFacility
+  , NEW.submitDate
+  , NEW.codeProductType
+  , NEW.codeProductOrderStatus
+  , NEW.quoteNumber
+  , NEW.quoteReceivedDate
+  , NEW.uuid );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductOrder_FER AFTER UPDATE ON ProductOrder FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , codeProductOrderStatus
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idProductOrder
+  , NEW.idAppUser
+  , NEW.idLab
+  , NEW.idCoreFacility
+  , NEW.submitDate
+  , NEW.codeProductType
+  , NEW.codeProductOrderStatus
+  , NEW.quoteNumber
+  , NEW.quoteReceivedDate
+  , NEW.uuid );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductOrder_FER AFTER DELETE ON ProductOrder FOR EACH ROW
+BEGIN
+  INSERT INTO ProductOrder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , codeProductOrderStatus
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idProductOrder
+  , OLD.idAppUser
+  , OLD.idLab
+  , OLD.idCoreFacility
+  , OLD.submitDate
+  , OLD.codeProductType
+  , OLD.codeProductOrderStatus
+  , OLD.quoteNumber
+  , OLD.quoteReceivedDate
+  , OLD.uuid );
+END;
+$$
+
+
+--
+-- Audit Table For ProductType 
+--
+
+CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`description`  varchar(5000)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idVendor`  int(10)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for ProductType 
+--
+
+INSERT INTO ProductType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory
+  FROM ProductType
+  WHERE NOT EXISTS(SELECT * FROM ProductType_Audit)
+$$
+
+--
+-- Audit Triggers For ProductType 
+--
+
+
+CREATE TRIGGER TrAI_ProductType_FER AFTER INSERT ON ProductType FOR EACH ROW
+BEGIN
+  INSERT INTO ProductType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeProductType
+  , NEW.description
+  , NEW.idCoreFacility
+  , NEW.idVendor
+  , NEW.idPriceCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_ProductType_FER AFTER UPDATE ON ProductType FOR EACH ROW
+BEGIN
+  INSERT INTO ProductType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeProductType
+  , NEW.description
+  , NEW.idCoreFacility
+  , NEW.idVendor
+  , NEW.idPriceCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_ProductType_FER AFTER DELETE ON ProductType FOR EACH ROW
+BEGIN
+  INSERT INTO ProductType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeProductType
+  , OLD.description
+  , OLD.idCoreFacility
+  , OLD.idVendor
+  , OLD.idPriceCategory );
+END;
+$$
+
+
+--
+-- Audit Table For Product 
+--
+
+CREATE TABLE IF NOT EXISTS `Product_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idProduct`  int(10)  NULL DEFAULT NULL
+ ,`name`  varchar(200)  NULL DEFAULT NULL
+ ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`idPrice`  int(10)  NULL DEFAULT NULL
+ ,`orderQty`  int(10)  NULL DEFAULT NULL
+ ,`useQty`  int(10)  NULL DEFAULT NULL
+ ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for Product 
+--
+
+INSERT INTO Product_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive
+  FROM Product
+  WHERE NOT EXISTS(SELECT * FROM Product_Audit)
+$$
+
+--
+-- Audit Triggers For Product 
+--
+
+
+CREATE TRIGGER TrAI_Product_FER AFTER INSERT ON Product FOR EACH ROW
+BEGIN
+  INSERT INTO Product_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idProduct
+  , NEW.name
+  , NEW.codeProductType
+  , NEW.idPrice
+  , NEW.orderQty
+  , NEW.useQty
+  , NEW.catalogNumber
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_Product_FER AFTER UPDATE ON Product FOR EACH ROW
+BEGIN
+  INSERT INTO Product_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idProduct
+  , NEW.name
+  , NEW.codeProductType
+  , NEW.idPrice
+  , NEW.orderQty
+  , NEW.useQty
+  , NEW.catalogNumber
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_Product_FER AFTER DELETE ON Product FOR EACH ROW
+BEGIN
+  INSERT INTO Product_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idProduct
+  , OLD.name
+  , OLD.codeProductType
+  , OLD.idPrice
+  , OLD.orderQty
+  , OLD.useQty
+  , OLD.catalogNumber
   , OLD.isActive );
 END;
 $$
