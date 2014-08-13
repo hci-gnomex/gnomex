@@ -81,6 +81,12 @@ DROP TRIGGER IF EXISTS TrAU_AnalysisType_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_AnalysisType_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_AnnotationReportField_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_AnnotationReportField_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_AnnotationReportField_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_Application_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Application_FER
@@ -2707,6 +2713,153 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.privacyExpirationDate
   , OLD.idSubmitter );
+END;
+$$
+
+
+--
+-- Audit Table For AnnotationReportField 
+--
+
+CREATE TABLE IF NOT EXISTS `AnnotationReportField_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idAnnotationReportField`  int(10)  NULL DEFAULT NULL
+ ,`source`  varchar(50)  NULL DEFAULT NULL
+ ,`fieldName`  varchar(50)  NULL DEFAULT NULL
+ ,`display`  varchar(50)  NULL DEFAULT NULL
+ ,`isCustom`  char(1)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
+ ,`dictionaryLookUpTable`  varchar(100)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for AnnotationReportField 
+--
+
+INSERT INTO AnnotationReportField_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable
+  FROM AnnotationReportField
+  WHERE NOT EXISTS(SELECT * FROM AnnotationReportField_Audit)
+$$
+
+--
+-- Audit Triggers For AnnotationReportField 
+--
+
+
+CREATE TRIGGER TrAI_AnnotationReportField_FER AFTER INSERT ON AnnotationReportField FOR EACH ROW
+BEGIN
+  INSERT INTO AnnotationReportField_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idAnnotationReportField
+  , NEW.source
+  , NEW.fieldName
+  , NEW.display
+  , NEW.isCustom
+  , NEW.sortOrder
+  , NEW.dictionaryLookUpTable );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_AnnotationReportField_FER AFTER UPDATE ON AnnotationReportField FOR EACH ROW
+BEGIN
+  INSERT INTO AnnotationReportField_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idAnnotationReportField
+  , NEW.source
+  , NEW.fieldName
+  , NEW.display
+  , NEW.isCustom
+  , NEW.sortOrder
+  , NEW.dictionaryLookUpTable );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_AnnotationReportField_FER AFTER DELETE ON AnnotationReportField FOR EACH ROW
+BEGIN
+  INSERT INTO AnnotationReportField_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idAnnotationReportField
+  , OLD.source
+  , OLD.fieldName
+  , OLD.display
+  , OLD.isCustom
+  , OLD.sortOrder
+  , OLD.dictionaryLookUpTable );
 END;
 $$
 
