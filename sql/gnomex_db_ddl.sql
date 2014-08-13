@@ -500,15 +500,15 @@ CREATE TABLE `gnomex`.`BillingItem` (
   CONSTRAINT `FK_BillingItem_Invoice` FOREIGN KEY  (`idInvoice`)
     REFERENCES `gnomex`.`Invoice` (`idInvoice`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingItem_DiskUsageByMonth` FOREIGN KEY `FK_BillingItem_DiskUsageByMonth` (`idDiskUsageByMonth`)
     REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
     REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION;
+    ON UPDATE NO ACTION
     
 )
 ENGINE = INNODB;
@@ -3250,7 +3250,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`CoreFacilitySubmitter`;
 CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
   `idCoreFacility` INT(10) NOT NULL,
-  `idAppUser` INT(10) NOT NULL,
+  `idAppUser` INT(10) NOT NULL
 )
 ENGINE = INNODB;
 
