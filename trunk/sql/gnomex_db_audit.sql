@@ -4526,7 +4526,6 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(11)  NULL DEFAULT NULL
- ,`totalPrice`  decimal(8,2)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -4562,7 +4561,6 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice
   , idProductOrder )
   SELECT
   'No Context'
@@ -4590,7 +4588,6 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice
   , idProductOrder
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
@@ -4629,7 +4626,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice
   , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4657,7 +4653,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.totalPrice
   , NEW.idProductOrder );
 END;
 $$
@@ -4691,7 +4686,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice
   , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4719,7 +4713,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.totalPrice
   , NEW.idProductOrder );
 END;
 $$
@@ -4753,7 +4746,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , totalPrice
   , idProductOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4781,7 +4773,6 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
-  , OLD.totalPrice
   , OLD.idProductOrder );
 END;
 $$
@@ -8837,7 +8828,6 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
- ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
  ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -8864,7 +8854,6 @@ INSERT INTO FlowCell_Audit
   , idInstrument
   , side
   , idCoreFacility
-  , numberSequencingCyclesActual
   , idNumberSequencingCyclesAllowed )
   SELECT
   'No Context'
@@ -8883,7 +8872,6 @@ INSERT INTO FlowCell_Audit
   , idInstrument
   , side
   , idCoreFacility
-  , numberSequencingCyclesActual
   , idNumberSequencingCyclesAllowed
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
@@ -8913,7 +8901,6 @@ BEGIN
   , idInstrument
   , side
   , idCoreFacility
-  , numberSequencingCyclesActual
   , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -8932,7 +8919,6 @@ BEGIN
   , NEW.idInstrument
   , NEW.side
   , NEW.idCoreFacility
-  , NEW.numberSequencingCyclesActual
   , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
@@ -8957,7 +8943,6 @@ BEGIN
   , idInstrument
   , side
   , idCoreFacility
-  , numberSequencingCyclesActual
   , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -8976,7 +8961,6 @@ BEGIN
   , NEW.idInstrument
   , NEW.side
   , NEW.idCoreFacility
-  , NEW.numberSequencingCyclesActual
   , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
@@ -9001,7 +8985,6 @@ BEGIN
   , idInstrument
   , side
   , idCoreFacility
-  , numberSequencingCyclesActual
   , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -9020,7 +9003,6 @@ BEGIN
   , OLD.idInstrument
   , OLD.side
   , OLD.idCoreFacility
-  , OLD.numberSequencingCyclesActual
   , OLD.idNumberSequencingCyclesAllowed );
 END;
 $$
@@ -21679,8 +21661,6 @@ CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
  ,`description`  longtext  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
- ,`adapterSequence5Prime`  varchar(500)  NULL DEFAULT NULL
- ,`adapterSequence3Prime`  varchar(500)  NULL DEFAULT NULL
  ,`adapterSequenceRead1`  varchar(500)  NULL DEFAULT NULL
  ,`adapterSequenceRead2`  varchar(500)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
@@ -21701,8 +21681,6 @@ INSERT INTO SeqLibProtocol_Audit
   , description
   , url
   , isActive
-  , adapterSequence5Prime
-  , adapterSequence3Prime
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   SELECT
@@ -21715,8 +21693,6 @@ INSERT INTO SeqLibProtocol_Audit
   , description
   , url
   , isActive
-  , adapterSequence5Prime
-  , adapterSequence3Prime
   , adapterSequenceRead1
   , adapterSequenceRead2
   FROM SeqLibProtocol
@@ -21740,8 +21716,6 @@ BEGIN
   , description
   , url
   , isActive
-  , adapterSequence5Prime
-  , adapterSequence3Prime
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
@@ -21754,8 +21728,6 @@ BEGIN
   , NEW.description
   , NEW.url
   , NEW.isActive
-  , NEW.adapterSequence5Prime
-  , NEW.adapterSequence3Prime
   , NEW.adapterSequenceRead1
   , NEW.adapterSequenceRead2 );
 END;
@@ -21774,8 +21746,6 @@ BEGIN
   , description
   , url
   , isActive
-  , adapterSequence5Prime
-  , adapterSequence3Prime
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
@@ -21788,8 +21758,6 @@ BEGIN
   , NEW.description
   , NEW.url
   , NEW.isActive
-  , NEW.adapterSequence5Prime
-  , NEW.adapterSequence3Prime
   , NEW.adapterSequenceRead1
   , NEW.adapterSequenceRead2 );
 END;
@@ -21808,8 +21776,6 @@ BEGIN
   , description
   , url
   , isActive
-  , adapterSequence5Prime
-  , adapterSequence3Prime
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
@@ -21822,8 +21788,6 @@ BEGIN
   , OLD.description
   , OLD.url
   , OLD.isActive
-  , OLD.adapterSequence5Prime
-  , OLD.adapterSequence3Prime
   , OLD.adapterSequenceRead1
   , OLD.adapterSequenceRead2 );
 END;
