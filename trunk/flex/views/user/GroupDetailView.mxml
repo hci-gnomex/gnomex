@@ -117,6 +117,9 @@
 				// Get the list of all users
 				parentApplication.navUsersView.getAppUserList.send();
 				
+				coreFacilities.refresh();
+				labCoreFacilities.refresh();
+				labCoreFacilitiesIManage.refresh();
 				
 				appUsers.refresh();
 				activeAppUsers.filterFunction = filterIsActive;
@@ -1248,8 +1251,8 @@
 	<mx:XMLListCollection id="managers" source="{parentDocument.fullLab.managers.AppUser}" sort="{alphabeticSort}"/>
 	<mx:XMLListCollection id="appUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}"/>
 	<mx:XMLListCollection id="activeAppUsers" source="{parentApplication.navUsersView.getAppUserList.lastResult..AppUser}" filterFunction="filterIsActive"/>
-	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" />
-	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" />
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N')}" sort="{sortOrderSort}"/>
+	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" sort="{sortOrderSort}" />
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" sort="{sortOrderSort}" />
 	<mx:XMLListCollection id="activeSubmitters"/>
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>

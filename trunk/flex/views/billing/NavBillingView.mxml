@@ -202,6 +202,8 @@
  	<![CDATA[
 		import flash.utils.setTimeout;
 		
+		import mx.collections.SortField;
+		
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		
@@ -342,6 +344,8 @@
 				menuBarNoGLInterface.visible = false;
 				menuBarNoGLInterface.includeInLayout = false;
 			}
+			
+			coreFacilities.refresh();
 			
 			billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
         	var billingPeriodSort:Sort = new Sort();
@@ -2237,6 +2241,9 @@
   .percentageEmphasis {fontWeight:bold; color: #AA082A;}
   .normal {}    
 </mx:Style>
+
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}"  sort="{sortOrderSort}"/>
+	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
 	
   <mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
@@ -2300,7 +2307,7 @@
 	      <mx:HBox horizontalGap="10" verticalAlign="top" paddingLeft="62" paddingTop="4" width="100%">
 			    <mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
 				    <mx:Label text="Core Facility"/>
-				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{parentApplication.coreFacilitiesICanManage}"
+				    <mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{coreFacilities}"
 							     labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()"/>
 			    </mx:VBox>
 		    	<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">

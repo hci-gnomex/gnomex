@@ -5,6 +5,9 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			import mx.managers.PopUpManager;
@@ -15,13 +18,19 @@
 			[Bindable]
 			private var types:XMLList = null;
 			[Bindable]
-			private var coreFacilities:XMLList = null;
+			private var coreFacilities:XMLListCollection = null;
 			
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
 				
 				types = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry;
-				coreFacilities = parentApplication.coreFacilitiesICanManage.copy();
+				coreFacilities = new XMLListCollection(parentApplication.coreFacilitiesICanManage.copy());
+				
+				var sortDisplay:Sort = new Sort();
+				sortDisplay.fields=[new SortField("@sortOrder")];
+				
+				coreFacilities.sort = sortDisplay;
+				coreFacilities.refresh(); 
 				
 				vendorCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.Vendor', state.requestCategory.@idVendor);
 				organismCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',state.requestCategory.@idOrganism);
@@ -29,9 +38,9 @@
 				state.selectedType = typeCombo.selectedItem;
 				setIconCombo(state.requestCategory.@icon);
 				
-				for(var i:int = 0; i < coreFacilities.length(); i++) {
-					if (coreFacilities[i].@idCoreFacility == state.requestCategory.@idCoreFacility) {
-						coreFacilityCombo.selectedIndex = i;
+				for each (var facility:Object in coreFacilities) {
+					if (facility.@idCoreFacility == state.requestCategory.@idCoreFacility) {
+						coreFacilityCombo.selectedItem = facility;
 						break;
 					}
 				}
