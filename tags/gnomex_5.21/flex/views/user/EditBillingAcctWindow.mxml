@@ -1,0 +1,988 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:renderers="views.renderers.*"
+				xmlns:util="views.util.*"
+				layout="vertical" 
+				title="Edit Campus Billing Account" 
+				width="675" 
+				defaultButton="{saveButton}" 
+				creationComplete="init()"
+				titleIcon="@Embed(source='../../assets/work_auth_form.png')" >
+    
+<mx:states>
+	<mx:State name="internalEditState">
+		
+	</mx:State>
+	<mx:State name="internalWorkAuthState">
+		<mx:RemoveChild target="{this.labNameHBox}" />
+		<mx:SetProperty target="{this.labComboHBox}" name="visible" value="true" />
+		<mx:SetProperty target="{this.labComboHBox}" name="includeInLayout" value="true" />
+		<mx:SetProperty target="{this.iAgreeHBox}" name="visible" value="true" />
+		<mx:SetProperty target="{this.iAgreeHBox}" name="includeInLayout" value="true" />
+		
+		<mx:SetProperty target="{this.shortAcctHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.shortAcctHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.poHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.poHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.totalDollarAmountHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.totalDollarAmountHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.acctUsersHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.acctUsersHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.submitterEmailLabel}" name="text" value="Your email address"/>
+		<mx:SetProperty target="{this.saveButton}" name="label" value="Save"/>
+		<mx:SetProperty target="{creditCardCheckbox}" name="label" value="Credit Card"/>
+		<mx:SetProperty target="{creditCardTypeLabel}" name="text" value="Credit Card Agency"/>
+	</mx:State>
+	<mx:State name="openSourceState">
+		<mx:RemoveChild target="{this.internalChartFieldHBox}" />
+		<mx:AddChild position="after" relativeTo="{this.chartFieldLabel}">
+			<mx:HBox width="100%" id='openSourceChartFieldHBox'>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="ch1" id="chFld1Label"/>
+					<mx:TextInput id="chFld1"/>
+					<mx:Label text="n digits" styleName="labelSmall" id="chFld1NumDigits"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="ch2" id="chFld2Label"/>
+					<mx:TextInput id="chFld2"/>
+					<mx:Label text="n digits" styleName="labelSmall" id="chFld2NumDigits"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="ch3" id="chFld3Label"/>
+					<mx:TextInput id="chFld3"/>
+					<mx:Label text="n digits" styleName="labelSmall" id="chFld3NumDigits"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="ch4" id="chFld4Label"/>
+					<mx:TextInput id="chFld4"/>
+					<mx:Label text="n digits" styleName="labelSmall" id="chFld4NumDigits"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label text="ch5" id="chFld5Label"/>
+					<mx:TextInput id="chFld5"/>
+					<mx:Label text="n digits" styleName="labelSmall" id="chFld5NumDigits"/>
+				</mx:VBox>
+			</mx:HBox>
+		</mx:AddChild>
+		<mx:SetStyle target="{startDateHBox}" name="horizontalGap" value="4"/>
+	</mx:State>
+	<mx:State name="openSourceEditState" basedOn="openSourceState">
+		
+	</mx:State>
+	<mx:State name="openSourceWorkAuthState" basedOn="openSourceState">
+		<mx:RemoveChild target="{this.labNameHBox}" />
+		<mx:SetProperty target="{this.labComboHBox}" name="visible" value="true" />
+		<mx:SetProperty target="{this.labComboHBox}" name="includeInLayout" value="true" />
+		<mx:SetProperty target="{this.iAgreeHBox}" name="visible" value="true" />
+		<mx:SetProperty target="{this.iAgreeHBox}" name="includeInLayout" value="true" />
+
+		<mx:SetProperty target="{this.poHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.poHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.acctUsersHBox}" name="visible" value="false"/>
+		<mx:SetProperty target="{this.acctUsersHBox}" name="includeInLayout" value="false"/>
+		<mx:SetProperty target="{this.saveButton}" name="label" value="Save"/>
+	</mx:State>
+</mx:states>
+	
+<mx:HTTPService 
+	id="submitWorkAuthForm" 
+	url="SubmitWorkAuthForm.gx"
+	resultFormat="e4x" 
+	showBusyCursor="true"
+	result="onSubmitWorkAuthForm(event)"
+	fault="parentApplication.onFailHttpRequest('Unable to submit work authorization form', event)"
+	method="POST"
+	useProxy="false">
+</mx:HTTPService >  
+
+<mx:HTTPService 
+	id="getLab" 
+	url="GetLab.gx"
+	destination="getLab"
+	showBusyCursor="true"
+	resultFormat="e4x"
+	result="onGetLab(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+	useProxy="false">
+	<mx:request>
+		<idLab>{labCombo.selectedItem.@idLab}</idLab>
+		<forWorkAuth>Y</forWorkAuth>
+	</mx:request>
+</mx:HTTPService >
+
+<mx:Script>
+	<![CDATA[
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.core.Container;
+		import mx.events.ToolTipEvent;
+		import mx.events.ValidationResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.MultiselectRendererCommon;
+		import views.util.GNomExStringUtil;
+		
+		[Bindable]
+		public var parentView:GroupDetailView; 
+		[Bindable]
+		public var coreFacilities:XMLListCollection = new XMLListCollection();
+		[Bindable]
+		public var activeSubmitters:XMLListCollection;
+		[Bindable]
+		public var ba:XML;
+		[Bindable]
+		public var originalBa:XML;
+		[Bindable]
+		public var labName:String;
+		[Bindable]
+		public var isEdit:Boolean = false;
+		private var validEmail:Boolean = false;
+		private var openSourceChartFieldCollection:XMLList;
+		
+		private function init():void {
+			if (parentApplication.useConfigurableBillingAccounts) {
+				if (isEdit) {
+					currentState = "openSourceEditState";
+					changeCoreComboVis(true);
+				} else {
+					currentState = "openSourceWorkAuthState";
+					initWorkAuthState();
+					changeCoreComboVis(false);
+				}
+				var lastUsedOrd:int = -1;
+				for(var i:int=1; i<6; i++) {
+					var lastOrd:int = 99;
+					var selectedConfiguration:Object = null;
+					for each(var conf:XML in parentApplication.internalAccountFieldsConfigurationList) {
+						if (conf.attribute("include") == 'Y') {
+							var curOrd:int = int(conf.@sortOrder);
+							if (curOrd > lastUsedOrd && curOrd < lastOrd) {
+								selectedConfiguration = conf;
+								lastOrd = curOrd;
+							}
+						}
+					}
+					if (selectedConfiguration != null) {
+						lastUsedOrd = lastOrd;
+					}
+					configureOpenSourceInternalField(i, selectedConfiguration);
+				}	
+				configureOpenSourceOtherFields();
+			} else {
+				if (isEdit) {
+					currentState = "internalEditState";
+					changeCoreComboVis(true);
+				} else {
+					currentState = "internalWorkAuthState";
+					initWorkAuthState();
+					changeCoreComboVis(false);
+				}
+			}
+			originalBa = ba.copy();
+			if (ba.@idFundingAgency == null || ba.@idFundingAgency == '') {
+				fundingAgencyCombo.selectedIndex = 0;
+			} else {
+				for (var j:int = 1; j < fundingAgencies.length; j++) {
+					if (fundingAgencies[j].@idFundingAgency == ba.@idFundingAgency) {
+						fundingAgencyCombo.selectedIndex = j;
+						break;
+					}
+				}
+			}
+			if (ba.@idCreditCardCompany == null || ba.@idCreditCardCompany == '') {
+				creditCardCompanyCombo.selectedIndex = 0;
+			} else {
+				for (var x:int = 1; x < creditCardCompanies.length; x++) {
+					if (creditCardCompanies[x].@idCreditCardCompany == ba.@idCreditCardCompany) {
+						creditCardCompanyCombo.selectedIndex = x;
+						break;
+					}
+				}
+			}
+			startDatePicker.text = ba.@startDate.toString();
+			expirationDatePicker.text = ba.@expirationDate.toString();
+			if (ba.@startDate.toString().length == 0 && startDateHBox.visible) {
+				if (ba.@idBillingAccount == null || ba.@idBillingAccount.toString().length == 0 || ba.@idBillingAccount.toString().indexOf("Billing") != -1) {
+					startDatePicker.selectedDate = new Date();
+					// ba.@startDateOther is set in update function since startDatePicker doesn't set text until display
+				}
+			}
+			
+			if (parentApplication.myCoreFacilities.length() == 1) {
+				coreCombo.visible = false;
+				coreCombo.includeInLayout = false;
+				ba.@idCoreFacility = parentApplication.myCoreFacilities[0].@idCoreFacility;
+			}
+		}
+		
+		private function changeCoreComboVis(vis:Boolean):void {
+			coreCombo.visible = vis;
+			coreCombo.includeInLayout = vis;
+			coreCheckboxBox.visible = !vis;
+			coreCheckboxBox.includeInLayout = !vis;
+			coreLabel.text = vis ? 'Core Facility' : 'Core Facility(ies)';
+		}
+		
+		private function initWorkAuthState():void {
+			this.title = "Submit Campus Billing Account";
+			if (!parentApplication.useConfigurableBillingAccounts) {
+				
+				if (parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT) != null) {
+					this.account.text = parentApplication.getProperty(parentApplication.PROPERTY_ACCOUNT_NUMBER_ACCOUNT_DEFAULT);
+					ba.@accountNumberAccount = this.account.text;
+				}
+			}
+			if (ba.@idLab != null && ba.@idLab != '') {
+				for(var i:int = 0; i < parentApplication.workAuthLabList.length; i++) {
+					if (parentApplication.workAuthLabList[i].@idLab == ba.@idLab) {
+						labCombo.selectedIndex = i;
+						groupSelected();
+					}
+				}
+			}
+		}
+		
+		private function configureOpenSourceInternalField(i:int, conf:Object):void {
+			var fld:TextInput;
+			var lab:Label;
+			var numDig:Label;
+			if (i == 1) {
+				fld = chFld1;
+				lab = chFld1Label;
+				numDig = chFld1NumDigits;
+			} else if (i == 2) {
+				fld = chFld2;
+				lab = chFld2Label;
+				numDig = chFld2NumDigits;
+			} else if (i == 3) {
+				fld = chFld3;
+				lab = chFld3Label;
+				numDig = chFld3NumDigits;
+			} else if (i == 4) {
+				fld = chFld4;
+				lab = chFld4Label;
+				numDig = chFld4NumDigits;
+			} else if (i == 5) {
+				fld = chFld5;
+				lab = chFld5Label;
+				numDig = chFld5NumDigits;
+			}
+			if (conf == null) {
+				fld.visible = false;
+				fld.includeInLayout = false;
+				lab.visible = false;
+				lab.includeInLayout = false;
+				numDig.visible = false;
+				numDig.includeInLayout = false;
+			} else {
+				fld.visible = true;
+				fld.includeInLayout = true;
+				lab.visible = true;
+				lab.includeInLayout = true;
+				numDig.visible = true;
+				numDig.includeInLayout = true;
+				
+				var width:int = int(conf.@maxLength) * 10;
+				
+				lab.text = conf.@displayName;
+				
+				fld.width = width;
+				fld.maxChars = conf.@maxLength;
+				if (conf.@fieldName == "project") {
+					fld.text = ba.@accountNumberProject;
+					fld.addEventListener("focusOut", function(event:Event):void{ba.@accountNumberProject = event.currentTarget.text});
+				} else if (conf.@fieldName == "account") {
+					fld.text = ba.@accountNumberAccount;
+					fld.addEventListener("focusOut", function(event:Event):void{ba.@accountNumberAccount = event.currentTarget.text});
+				} else if (conf.@fieldName == "custom1") {
+					fld.text = ba.@custom1;
+					fld.addEventListener("focusOut", function(event:Event):void{ba.@custom1 = event.currentTarget.text});
+				} else if (conf.@fieldName == "custom2") {
+					fld.text = ba.@custom2;
+					fld.addEventListener("focusOut", function(event:Event):void{ba.@custom2 = event.currentTarget.text});
+				} else if (conf.@fieldName == "custom3") {
+					fld.text = ba.@custom3;
+					fld.addEventListener("focusOut", function(event:Event):void{ba.@custom3 = event.currentTarget.text});
+				}
+				
+				var valType:String = "digits";
+				if (conf.@isNumber != 'Y') {
+					valType = "chars";
+				}
+				if (conf.@minLength == conf.@maxLength) {
+					numDig.text = conf.@minLength.toString() + " " + valType;
+				} else {
+					numDig.text = conf.@minLength.toString() + " to " + conf.@maxLength.toString() + " " + valType;
+				}
+			}
+		}
+		
+		private function configureOpenSourceOtherFields():void {
+			var firstLabel:Label = null;
+			for each(var oConf:XML in parentApplication.otherAccountFieldsConfigurationList) {
+				var control:Container = null;
+				if (oConf.@fieldName == "expirationDate") {
+					control = this.expirationDateHBox;
+					if (oConf.attribute("include") == "Y" && (firstLabel == null || firstLabel == this.totalDollarAmountLabel)) {
+						firstLabel = this.expirationDateLabel;
+					}
+				}
+				if (oConf.@fieldName == "startDate") {
+					control = this.startDateHBox;
+					if (oConf.attribute("include") == "Y") {
+						firstLabel = this.startDateLabel;
+					}
+				}
+				if (oConf.@fieldName == "idFundingAgency") {
+					control = this.fundingAgencyHBox;
+				}
+				if (oConf.@fieldName == "totalDollarAmount") {
+					if (oConf.attribute("include") == "Y" && firstLabel == null) {
+						firstLabel = this.totalDollarAmountLabel;
+					}
+					control = this.totalDollarAmountHBox;
+				}
+				if (oConf.@fieldName == "shortAcct") {
+					control = this.shortAcctHBox;
+				}
+				if (control != null) {
+					if (oConf.attribute("include") == "Y") {
+						control.visible = true;
+						control.includeInLayout = true;
+					} else {
+						control.visible = false;
+						control.includeInLayout = false;
+					}
+				}
+			}
+			// Note that start date, expiration date and total dollar are on a single line.
+			// This makes that look ok if not all 3 are included.
+			if (firstLabel != null) {
+				firstLabel.width = 120;
+				firstLabel.setStyle("paddingRight",0);
+			} else {
+				dateDollarHBox.visible = false;
+				dateDollarHBox.includeInLayout = false;
+			}
+		}
+		
+		private function update():void {
+			//kludge to pick up defaulting of start date when necssary
+			if (startDateHBox.visible) {
+				ba.@startDateOther = startDatePicker.text;
+			}
+			if(expirationDateHBox.visible){
+				ba.@expirationDateOther = expirationDatePicker.text;
+			}
+			
+			if (isEdit) {
+				parentView.setDirtyBillingAccount( ba );
+				mx.managers.PopUpManager.removePopUp(this);
+				Alert.show("Screen has been updated. Click the save button to update the accounts in the database.", "",  mx.controls.Alert.OK, this.parentView);
+				parentView.billingAccountGrid.editedItemPosition = null;
+			} else {
+				this.saveButton.enabled = false;
+				var errorMessage:String = "";
+				
+				errorMessage = checkFormCompleteness();
+				if(errorMessage != "")
+				{
+					Alert.show(errorMessage, "Please fix the following errors with this form before proceeding:");
+					project.setFocus();
+					this.saveButton.enabled = true;
+					return;
+				}
+				var params:Object = new Object();
+				params.accountName = ba.@accountName;
+				params.startDate = ba.@startDateOther;
+				params.expirationDate = ba.@expirationDateOther;
+				params.idLab = this.labCombo.selectedItem.@idLab;
+				params.accountNumberBus = ba.@accountNumberBus;
+				params.accountNumberOrg = ba.@accountNumberOrg;
+				params.accountNumberFund = ba.@accountNumberFund;
+				params.accountNumberActivity = ba.@accountNumberActivity;
+				params.accountNumberProject = ba.@accountNumberProject;
+				params.accountNumberAccount = ba.@accountNumberAccount;
+				params.accountNumberAu = ba.@accountNumberAu;
+				params.idFundingAgency = ba.@idFundingAgency;
+				params.custom1 = ba.@custom1;
+				params.custom2 = ba.@custom2;
+				params.custom3 = ba.@custom3;
+				params.shortAcct = ba.@shortAcct;
+				params.isPO = "N";
+				params.submitterEmail = ba.@submitterEmail;
+				params.totalDollarAmountDisplay = ba.@totalDollarAmountDisplay;
+				
+				params.coreFacilitiesXMLString = "<coreFacilities>" + getSelectedCoreFacilities().toXMLString() + "</coreFacilities>";
+				
+				
+				submitWorkAuthForm.send(params);
+			}
+		}
+		
+		private function getSelectedCoreFacilities():XMLListCollection {
+			var facilities:XMLListCollection = new XMLListCollection();
+			for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+				if (coreFacilityCheckbox[x].selected) { 
+					var facility:Object = coreFacilities.getItemAt(x);
+					var node:XML = new XML("<CoreFacility " +
+						" idCoreFacility='" + facility.@value + "'" +
+						" facilityName='" + facility.@display + "'" +
+						"/>");
+					facilities.addItem(node);
+				}
+			}
+			return facilities;
+		}
+		
+		private function cancel():void {
+			for each(var attr:XML in originalBa.attributes())
+			{
+				ba.@[attr.name()] = attr;
+			}
+			mx.managers.PopUpManager.removePopUp(this);
+			if (parentView != null) {
+				parentView.billingAccountGrid.editedItemPosition = null;
+			}
+		}
+		
+		private function checkFormCompleteness():String{
+			var errorMessage:String = "";
+			
+			if(labCombo.selectedIndex == -1)
+				errorMessage += "- Please select a lab\n";
+						
+			if(ba.@accountName == "")
+				errorMessage += "- Please provide a name for your account.\n";
+			
+			if (isEdit) {
+				if(ba.@idCoreFacility == '')
+					errorMessage += "- Please select a core facility\n";
+			} else {
+				if(getSelectedCoreFacilities() == null || getSelectedCoreFacilities().length == 0)
+					errorMessage += "- Please select at least 1 core facility\n";
+			}
+			
+			emailValidator.validate(ba.@submitterEmail.toString());
+			if(validEmail == false)
+				errorMessage += "- Please enter a valid email address.\n";
+			
+			if(iAgree.selected == false)
+				errorMessage += "- Please agree to the terms and conditions.\n";
+			
+			if(ba.@expirationDate == "")
+				errorMessage += "- Please select an expiration date.\n";
+			
+			errorMessage += checkChartFieldCompleteness();
+			
+			errorMessage += checkOtherFieldCompleteness();
+			
+			return errorMessage;
+		}
+
+		private function checkChartFieldCompleteness():String {
+			var errorMessage:String = "";
+			var regEx:RegExp = /[^0-9]/;
+			
+			if (parentApplication.useConfigurableBillingAccounts) {
+				for each(var conf:XML in parentApplication.internalAccountFieldsConfigurationList) {
+					if (conf.attribute("include") == 'Y') {
+						var val:String = getValueForConfiguration(conf);
+						if (conf.@isRequired == "Y" && (val == null || val.length == 0)) {
+							errorMessage += "- " + getLabelForConfiguration(conf) + " is required.\n";
+						}
+						if (val != null && val.length > 0) {
+							var min:int = int(conf.@minLength);
+							var max:int = int(conf.@maxLength);
+							if (val.length < min || val.length > max) {
+								if (min == max) {
+									errorMessage += "- " + conf.@displayName + " must be " + min.toString() + " characters long.\n";
+								} else {
+									errorMessage += "- " + conf.@displayName + " must be between " + min.toString() + " and " + max.toString() + " characters long.\n";
+								}
+							}
+							if (conf.@isNumber == "Y") {
+								if (val.search(regEx) != -1) {
+									errorMessage += "- " + conf.@displayName + " must be numeric.\n"; 
+								}
+							}
+						}
+					}
+				}
+			} else {
+				if (ba.@accountNumberProject != '' && ba.@accountNumberActivity != '')
+					errorMessage +="- The chartfield must contain either project or activity, but not both.\n";
+
+				if(ba.@accountNumberBus.toString().length != 2 || ba.@accountNumberBus.toString().search(regEx) != -1) {
+					errorMessage += "- Bus must be 2 digits.\n";
+				}
+				if (ba.@accountNumberOrg.toString().length != 5 || ba.@accountNumberOrg.toString().search(regEx) != -1) {
+					errorMessage += "- Org must be 5 digits.\n";
+				}
+				if (ba.@accountNumberFund.toString().length != 4 || ba.@accountNumberFund.toString().search(regEx) != -1) {
+					errorMessage += "- Fund must be 4 digits.\n";
+				}
+				if (ba.@accountNumberAccount.toString().length != 5 || ba.@accountNumberAccount.toString().search(regEx) != -1) {
+					errorMessage += "- Account must be 5 digits.\n";
+				}
+				if (ba.@accountNumberActivity.toString().length > 0) {
+					if (ba.@accountNumberAu.toString().length != 1 || ba.@accountNumberAu.toString().search(regEx) != -1) {
+						errorMessage += "- A/U must be 1 digit.\n";
+					}
+				}
+				
+				if ((ba.@accountNumberActivity.toString().length != 5 || ba.@accountNumberActivity.toString().search(regEx) != -1) && ba.@accountNumberProject == '') {
+					errorMessage += "- Activity must be 5 digits.\n";
+				}
+				if ((ba.@accountNumberProject.toString().length != 8 || ba.@accountNumberProject.toString().search(regEx) != -1) && ba.@accountNumberActivity == '') {
+					errorMessage += "- Project must be 8 digits.\n";
+				}
+			}
+			
+			return errorMessage;
+		}
+		
+		private function checkOtherFieldCompleteness():String {
+			var errorMessage:String = "";
+			var regEx:RegExp = /[^0-9]/;
+			
+			if (parentApplication.useConfigurableBillingAccounts) {
+				for each(var conf:XML in parentApplication.otherAccountFieldsConfigurationList) {
+					if (conf.attribute("include") == 'Y') {
+						var val:String = getValueForConfiguration(conf);
+						if (conf.@isRequired == "Y" && (val == null || val.length == 0)) {
+							errorMessage += "- " + getLabelForConfiguration(conf) + " is required.\n";
+						}
+					}
+				}
+			} else {
+				if(ba.@idFundingAgency == '')
+					errorMessage += "- Please select a funding agency.\n";
+				
+				if(ba.@expirationDateOther == "")
+					errorMessage += "- Please pick an expiration date.\n";
+			}
+			
+			return errorMessage;		
+		}
+		
+		private function getValueForConfiguration(conf:Object):String {
+			var val:String = "";
+			if (conf.@fieldName == "project") {
+				val = ba.@accountNumberProject;
+			} else if (conf.@fieldName == "account") {
+				val = ba.@accountNumberAccount;
+			} else if (conf.@fieldName == "custom1") {
+				val = ba.@custom1;
+			} else if (conf.@fieldName == "custom2") {
+				val = ba.@custom2;
+			} else if (conf.@fieldName == "custom3") {
+				val = ba.@custom3;
+			} else if (conf.@fieldName == "expirationDate") {
+				val = ba.@expirationDateOther;
+			} else if (conf.@fieldName == "startDate") {
+				val = ba.@startDateOther;
+			} else if (conf.@fieldName == "idFundingAgency") {
+				val = ba.@idFundingAgency;
+			} else if (conf.@fieldName == "totalDollarAmount") {
+				val = ba.@totalDollarAmountDisplay;
+			} else if (conf.@fieldName == "shortAcct") {
+				val = ba.@shortAcct;
+			}
+			
+			return val;
+		}
+		
+		private function getLabelForConfiguration(conf:Object):String {
+			var val:String = "";
+			if (conf.@fieldName == "project") {
+				val = conf.@displayName;
+			} else if (conf.@fieldName == "account") {
+				val = conf.@displayName;
+			} else if (conf.@fieldName == "custom1") {
+				val = conf.@displayName;
+			} else if (conf.@fieldName == "custom2") {
+				val = conf.@displayName;
+			} else if (conf.@fieldName == "custom3") {
+				val = conf.@displayName;
+			} else if (conf.@fieldName == "expirationDate") {
+				val = this.expirationDateLabel.text;
+			} else if (conf.@fieldName == "startDate") {
+				val = this.startDateLabel.text;
+			} else if (conf.@fieldName == "idFundingAgency") {
+				val = this.fundingAgencyLabel.text;
+			} else if (conf.@fieldName == "totalDollarAmount") {
+				val = this.totalDollarAmountLabel.text;
+			} else if (conf.@fieldName == "shortAcct") {
+				val = this.shortAcctLabel.text;
+			}
+			
+			return val;
+		}
+		
+		private function getCoreFacilityName():String {
+			var name:String = "";
+			for each(var c:Object in getSelectedCoreFacilities()) {
+				name += c.@facilityName + ", ";
+			}
+			name = name.substring(0, name.length-2);
+			return name;
+		}
+		
+		private function groupSelected():void {
+			if(labCombo.selectedIndex >= 0) {
+				getMembersOfLab();			
+			}
+		}
+		
+		private function getMembersOfLab():void {
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != null) {
+				getLab.send();				
+			}
+		}
+		
+		private function onSubmitWorkAuthForm(event:ResultEvent):void {
+			if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
+				Alert.show("Work authorization for account " + 
+					"'" + this.accountName.text + "'"+
+					" has been submitted to " + getCoreFacilityName() +
+					".\n\n" + 
+					"After the account information is reviewed and approved, " +
+					"you will be notified by email that experiment " +
+					"requests can now be submitted against this account in GNomEx.\n\n" + submitWorkAuthForm.lastResult.@emailWarning);
+				
+				PopUpManager.removePopUp(this);
+
+			} else {
+				Alert.show(submitWorkAuthForm.lastResult..ACTMESSAGE.@TEXT);
+				this.saveButton.enabled = true;
+			}        	
+		}     
+		
+		private function onGetLab(event:ResultEvent):void {
+			if ( getLab.lastResult == null || getLab.lastResult.name() != "OpenLabList" ) {
+				return;
+			}
+			var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			
+			var sortDisplay:Sort = new Sort();
+			sortDisplay.fields=[new SortField("@sortOrder")];
+			
+			if (coreCombo.visible) {
+				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+							
+				coreFacilities.sort = sortDisplay;
+				coreFacilities.refresh(); 
+				
+				coreCombo.dropdown.dataProvider = coreFacilities;
+								
+				if (coreFacilities.length > 1) {
+					var blankNode:XML = new XML("<CoreFacility idCoreFacility='' display=''/>");
+					coreFacilities.addItemAt(blankNode, 0);
+					if (ba.@idCoreFacility != '') {
+						var found:Boolean = false;
+						for(var i:int = 1; i < coreFacilities.length; i++) {
+							if (coreFacilities[i].@idCoreFacility == ba.@idCoreFacility) {
+								coreCombo.selectedIndex = i;
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							ba.@idCoreFacility = '';
+							coreCombo.selectedIndex = 0;
+						}
+					} else {
+						coreCombo.selectedIndex = 0;
+					}
+				} else if (coreFacilities.length > 0) {
+					ba.@idCoreFacility = coreFacilities[0].@idCoreFacility;
+					coreCombo.selectedIndex = 0;
+				} else {
+					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+					PopUpManager.removePopUp(this);
+				}
+			} else {
+				coreFacilities = new XMLListCollection(lab.coreFacilities.CoreFacility.(@acceptOnlineWorkAuth=='Y'));
+				
+				coreFacilities.sort = sortDisplay;
+				coreFacilities.refresh();
+				
+				coreFacilityRepeater.dataProvider = coreFacilities;
+				
+				if (coreFacilities.length == 0) {
+					Alert.show("Lab is not associated with any core facilities.  Please contact your system administrator");
+					PopUpManager.removePopUp(this);
+				}
+			}
+		}
+		
+		private function coreFacilityLabel(item:Object):String {
+			var name:String = item.@display;
+			
+			if ( item.@contactName != '' ) {
+				name += ' (' + item.@contactName + ')'
+			}
+			if ( name == '' ) {
+				return '';
+			} else if ( item.@shortDescription == '' ) {
+				return name;
+			} else {
+				return name + " - " + item.@shortDescription;
+			}
+		}
+		
+		private function onActivityChanged():void {
+			ba.@accountNumberActivity = activity.text;
+			if (ba.@accountNumberActivity.toString().length > 0) {
+				ba.@accountNumberAu = "1";
+				this.auBox.visible = true;
+				this.auBox.includeInLayout = true;
+				ba.@accountNumberProject = "";
+			} else {
+				ba.@accountNumberAu = "";
+				this.auBox.visible = false;
+				this.auBox.includeInLayout = false;
+			}
+		}
+		
+		private function onProjectChanged():void {
+			ba.@accountNumberProject = project.text;
+			if (ba.@accountNumberProject.toString().length > 0) {
+				ba.@accountNumberActivity = "";
+				ba.@accountNumberAu = "";
+				this.auBox.visible = false;
+				this.auBox.includeInLayout = false;					
+				}
+		}
+		
+		private function toggleType(type:int):void {
+			if (type == 0) {
+				if (this.internalCheckbox.selected) {
+					ba.@isPO = 'N';
+					ba.@isCreditCard = 'N';
+				} 
+			} else if (type == 1) {
+				if (this.poCheckbox.selected) {
+					ba.@isPO = 'Y';
+					ba.@isCreditCard = 'N';
+				} 
+			} else if (type == 2) {
+				if (this.creditCardCheckbox.selected) {
+					ba.@isPO = 'N';
+					ba.@isCreditCard = 'Y';
+				} 
+				
+			}
+		}
+		
+		private function checkEmailValidity(event:KeyboardEvent):void {
+			var validationEvent:ValidationResultEvent = emailValidator.validate(this.submitterEmail.text);
+			if(validationEvent.type == ValidationResultEvent.VALID){
+				saveButton.enabled = true;
+				submitterEmail.errorString = "";
+			} else{
+				saveButton.enabled = false;
+				submitterEmail.errorString = validationEvent.message;
+			}
+			
+			ba.@submitterEmail = submitterEmail.text;
+		}
+		
+		
+	]]>
+</mx:Script>
+	<mx:XMLListCollection id="fundingAgencies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry}"/>
+	<mx:XMLListCollection id="creditCardCompanies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry}"/>
+	
+	<mx:EmailValidator id="emailValidator" required="true" invalid="{validEmail = false}" valid="{validEmail = true}"/> 
+	<mx:StringValidator required="false" source="{bus}" property="text" maxLength="2" minLength="2" tooShortError="Must be 2 digits"/>
+	<mx:StringValidator required="false" source="{org}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="false" source="{fund}" property="text" maxLength="4" minLength="4" tooShortError="Must be 4 digits"/>
+	<mx:StringValidator required="false" source="{activity}" property="text" maxLength="5" minLength="0"/>
+	<mx:StringValidator required="false" source="{project}" property="text" maxLength="8" minLength="0"/>
+	<mx:StringValidator required="false" source="{account}" property="text" maxLength="5" minLength="5" tooShortError="Must be 5 digits"/>
+	<mx:StringValidator required="false" source="{au}" property="text" maxLength="1" minLength="1" requiredFieldError="This field required"/>
+	<mx:StringValidator required="true" source="{accountName}" property="text" requiredFieldError="This field required"/>
+	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
+	
+	
+	<mx:VBox height="100%" width="100%" verticalGap="4" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="poHBox">
+			<mx:Label text="Type of Account" width="120" styleName="formLabel"/>
+			<mx:RadioButtonGroup id="typeRadioGroup"/>
+			<mx:RadioButton id="internalCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO !='Y' &amp;&amp; ba.@isCreditCard != 'Y'}" click="{toggleType(0); }" label="{parentApplication.isUnivUserAuth ? 'Chartfield' : 'Internal'}"/>   
+			<mx:RadioButton id="poCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO=='Y'}" click="{toggleType(1)}" label="PO"/>   
+			<mx:RadioButton id="creditCardCheckbox" group="{typeRadioGroup}" selected="{ba.@isCreditCard=='Y'}" click="{toggleType(2)}" label="Credit Card"/>   
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="labNameHBox">
+			<mx:Label text="Lab" width="120" styleName="formLabel"/>
+			<mx:Label text="{labName}" width="100%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" visible="false" includeInLayout="false" id="labComboHBox">
+			<mx:Label text="Lab" width="120" styleName="formLabel"/>
+			<renderers:FilterComboBox width="492" id="labCombo"
+									  labelField="@name" 
+									  prompt="Select a lab..."
+									  close="{groupSelected()}"
+									  dataProvider="{parentApplication.workAuthLabList}">
+			</renderers:FilterComboBox>
+		</mx:HBox>
+
+		<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" id="accountNameHBox">
+			<mx:Text text="{ba.@isCreditCard == 'Y' ? 'Credit Card Last 4 digits' : 'Title of Account'}" styleName="formLabel" width="120"/>
+			<mx:TextInput width="100%" id="accountName" text="{ba.@accountName}" focusOut="{ba.@accountName = GNomExStringUtil.unicodeToAscii(accountName.text)}"></mx:TextInput>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="shortAcctHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
+			<mx:Label text="Short Account" width="120" id="shortAcctLabel" styleName="formLabel"/>
+			<mx:TextInput width="120" id="shortAcct" text="{ba.@shortAcct}" focusOut="{ba.@shortAcct = shortAcct.text}"></mx:TextInput>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="coreComboHBox" visible="{coreFacilities.length > 1}"
+				 includeInLayout="{coreFacilities.length > 1}">
+			<mx:VBox width="120" verticalGap="0" >
+				<mx:Label text="Core Facility" width="120" styleName="formLabel" id="coreLabel"/>
+				<util:ContextHelp context1="coreFacilityHelp" context2="" context3="" 
+								  showEdit="{parentApplication.isSuperAdmin}" 
+								  title="Core Facility Information" label="Help me choose" id="coreFacilityHelp"/>
+			</mx:VBox>
+			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
+						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
+			<mx:VBox id="coreCheckboxBox">
+				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
+					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
+								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11"
+								 selected="{coreFacilities.length == 1}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
+					</mx:CheckBox> 
+				</mx:Repeater>
+			</mx:VBox>
+		</mx:HBox>
+		
+		
+		<mx:VBox verticalGap="0" visible="{!poCheckbox.selected &amp;&amp; !creditCardCheckbox.selected}" includeInLayout="{!poCheckbox.selected  &amp;&amp; !creditCardCheckbox.selected}">
+			<mx:HBox horizontalGap="4" width="100%">
+				<mx:Text text="Chartfield to be charged" textAlign="left" width="120" id="chartFieldLabel" styleName="formLabel"/>
+				<mx:HBox width="100%" id='internalChartFieldHBox' height="68">
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Bus"/>
+						<mx:TextInput id="bus" width="52" maxChars="2" text="{ba.@accountNumberBus}" focusOut="{ba.@accountNumberBus = bus.text}"/>
+						<mx:Label text="2 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VRule height="100%"/>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Org"/>
+						<mx:TextInput id="org" width="52" maxChars="5" text="{ba.@accountNumberOrg}" focusOut="{ba.@accountNumberOrg = org.text}"/>
+						<mx:Label text="5 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VRule height="100%"/>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Fund"/>
+						<mx:TextInput id="fund" width="52" maxChars="4" text="{ba.@accountNumberFund}" focusOut="{ba.@accountNumberFund = fund.text}"/>
+						<mx:Label text="4 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VRule height="100%"/>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Activity"/>
+						<mx:TextInput id="activity" width="62" maxChars="5" text="{ba.@accountNumberActivity}" change="{onActivityChanged()}"/>
+						<mx:Label text="5 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VBox height="100%" verticalAlign="middle">
+						<mx:Label text="OR"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Project"/>
+						<mx:TextInput id="project" width="72" maxChars="8" text="{ba.@accountNumberProject}" change="{onProjectChanged()}"/>
+						<mx:Label text="8 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VRule height="100%"/>
+					<mx:VBox verticalGap="0">
+						<mx:Label text="Account"/>
+						<mx:TextInput id="account" width="62" maxChars="5" text="{ba.@accountNumberAccount}" focusOut="{ba.@accountNumberAccount = account.text}"/>
+						<mx:Label text="5 digits" styleName="labelSmall"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0" id="auBox" visible="false" includeInLayout="false">
+						<mx:Label text="A/U"/>
+						<mx:Label id="au" width="47" text="{ba.@accountNumberAu}"/>
+						<mx:Label text="1 digit" styleName="labelSmall"/>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:HBox>	
+		</mx:VBox>
+		
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
+				 horizontalGap="4" id="fundingAgencyHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
+			<mx:Label text="Funding Agency" width="120" id="fundingAgencyLabel" styleName="formLabel"/>
+			<mx:ComboBox width="522" id="fundingAgencyCombo" labelField="@display"
+						 			  dataProvider="{fundingAgencies}" 
+						              change="{if (fundingAgencyCombo.selectedItem != null) ba.@idFundingAgency = fundingAgencyCombo.selectedItem.@value; else ba.@idFundingAgency='';}"/>
+		</mx:HBox>
+
+		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
+				 horizontalGap="4" id="creditCardTypeHBox" visible="{creditCardCheckbox.selected}"  includeInLayout="{creditCardCheckbox.selected}">
+			<mx:Text text="Credit Card Company" width="120" id="creditCardTypeLabel" styleName="formLabel"/>
+			<mx:ComboBox width="120" id="creditCardCompanyCombo" labelField="@display"
+						 dataProvider="{creditCardCompanies}" 
+						 change="{if (creditCardCompanyCombo.selectedItem != null) ba.@idCreditCardCompany = creditCardCompanyCombo.selectedItem.@value; else ba.@idCreditCard='';}"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="4" id="zipCodeHBox"
+				 visible="{creditCardCheckbox.selected}"  includeInLayout="{creditCardCheckbox.selected}">
+			<mx:Label text="Zip Code" width="120" id="zipCodeLabel" styleName="formLabel"/>
+			<mx:TextInput id="zipCode" width="120" text="{ba.@zipCode}" focusOut="{ba.@zipCode = zipCode.text}"/>
+		</mx:HBox>
+
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="dateDollarHBox" >
+			<mx:HBox id="startDateHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}" horizontalGap="4" verticalAlign="middle">
+				<mx:Label text="Start Date" width="120" id="startDateLabel" styleName="formLabel"/>
+				<mx:DateField id="startDatePicker" change="ba.@startDateOther=startDatePicker.text"  width="120"/>
+				<mx:Spacer width="5"/>
+			</mx:HBox>
+			<mx:HBox id="expirationDateHBox" verticalAlign="middle">
+	        	<mx:Label text="{ba.@isCreditCard == 'Y' ? 'Expiration Date' : 'Effective Until'}"  id="expirationDateLabel" styleName="formLabel" width="120"/>
+				<mx:DateField id="expirationDatePicker" change="ba.@expirationDateOther=expirationDatePicker.text"  width="120"/>
+	        	<mx:Spacer width="5"/>
+			</mx:HBox>
+        </mx:HBox>
+        <mx:HBox id="totalDollarAmountHBox" verticalAlign="middle" horizontalGap="4">
+              	<mx:Label id="totalDollarAmountLabel" text="Total Dollar Amount" styleName="formLabel" paddingRight="5" width="120"/>
+              	<mx:TextInput id="totalDollarAmount" height="25" width="120" 
+              	text="{ba.@totalDollarAmountDisplay}" focusOut="{totalDollarAmount.text=dollarFormatter.format(totalDollarAmount.text); ba.@totalDollarAmountDisplay = totalDollarAmount.text;}"/>
+        </mx:HBox>
+        
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="acctUsersHBox">
+			<mx:Label text="Approved Users" width="120" styleName="formLabel"/>
+			<mx:DataGrid  showHeaders="false" editable="true" dataProvider="{ba}" selectable="false" minHeight="0" rowCount="1" width="100%" height="25" rowHeight="25">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="100" 
+									   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters.source, true, false, true)}" 
+									   dataField="@acctUsers"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="4" id="submitterEmailHBox">
+			<mx:Label text="Submitter Email" width="120" id="submitterEmailLabel" styleName="formLabel"/>
+			<mx:TextInput id="submitterEmail" width="100%" text="{ba.@submitterEmail}" focusOut="{ba.@submitterEmail = this.submitterEmail.text}" keyUp="checkEmailValidity(event);"/>
+		</mx:HBox>
+		
+		<mx:VBox verticalGap="0" width="100%" id="iAgreeHBox" visible="false" includeInLayout="false">
+			<mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
+			<mx:CheckBox label="I agree" color="#1500DA" enabled="true" fontSize="11" width="100%" textAlign="center" id="iAgree"  fontWeight="bold" textRollOverColor="#3320E6" textSelectedColor="#3320E6"/>
+		</mx:VBox>
+
+    </mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Update" id="saveButton" click="update()" icon="@Embed(source='../../assets/save.png')" enabled="true" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="cancel()"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>

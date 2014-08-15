@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" enabled="{state != null &amp;&amp; state.isIllumina}" 
+		 label="Illumina Seq" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+
+			import views.experimentplatform.ExperimentPlatformState;
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+		
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			
+			public function init(state:ExperimentPlatformState):void {
+				this.state = state;
+
+				sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				
+				showInactiveCheckBox.selected = false;
+			}
+			
+			private function addNumberSequencingCyclesAllowed():void {
+				var newNode:XML = new XML("<NumberSequencingCyclesAllowed " +
+					" idNumberSequencingCyclesAllowed='" + 'NumberSequencingCyclesAllowed' + "'" +
+					" codeRequestCategory='" + state.requestCategory.codeRequestCategory.toString() + "'" +
+					" idNumberSequencingCycles=''" +
+					" idSeqRunType=''" +
+					" isCustom='N'" +
+					" name=''" +
+					" isActive='Y'" +
+					" sortOrder='0'" +
+					" />");
+				sequencingOptions.addItemAt(newNode, 0);
+				sequencingOptionGrid.selectedItem = newNode;
+				sequencingOptionGrid.scrollToIndex(0);
+				state.dirty.setDirty();
+				showEditSeqWindow(newNode);
+			}
+			
+			private function removeNumberSequencingCyclesAllowed():void {
+				if (sequencingOptionGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove the sequencing option named '" + sequencingOptionGrid.selectedItem.@name.toString() + "'?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveNumberSequencingCyclesAllowed,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveNumberSequencingCyclesAllowed(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeNumberSequencingCyclesAllowedImpl();
+				}
+			}
+			
+			private function removeNumberSequencingCyclesAllowedImpl():void {
+				if (sequencingOptionGrid.selectedItem != null) {
+					sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
+					state.dirty.setDirty();
+				}
+			}
+			
+			private function underlyingSeqOptionChange(event:CollectionEvent):void {
+				var ignore:int = 0;
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				for each(var e:Object in event.items) {
+					if (e is PropertyChangeEvent) {
+						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+						
+						if (pe.property == "@paired") {
+							if (pe.newValue == "Y") {
+								sequencingOptionGrid.selectedItem.@pairedName = sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle paired-end reads";
+							} else {
+								sequencingOptionGrid.selectedItem.@pairedName = "";
+							}
+						}else if (pe.property == "@single") {
+							if (pe.newValue == "Y") {
+								sequencingOptionGrid.selectedItem.@singleName = sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle single-end reads";
+							} else {
+								sequencingOptionGrid.selectedItem.@singleName = "";
+							}
+						}         	
+					}
+				}
+			}
+			
+			public function editSeqOption():void {
+				showEditSeqWindow(sequencingOptionGrid.selectedItem);
+			}
+			
+			private function showEditSeqWindow(app:Object):void {
+				var editWindow:IlluminaSeqDetailWindow = IlluminaSeqDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, IlluminaSeqDetailWindow, true));
+				PopUpManager.centerPopUp(editWindow);
+				editWindow.init(state, app);
+			}
+			
+			private function compareSequencingOptions(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var a1:String = obj1.@isCustom;
+					var a2:String = obj2.@isCustom;
+					if (a1 < a2) {
+						return -1;
+					} else if (a1 > a2) {
+						return 1;
+					} else {
+						var s1:int = getSortOrderAsInt(obj1.@sortOrder);
+						var s2:int = getSortOrderAsInt(obj2.@sortOrder);
+						if (s1 < s2) {
+							return -1;
+						} else if (s1 > s2) {
+							return 1;
+						} else {
+							var n1:String = obj1.@name;
+							var n2:String = obj2.@name;
+							if (n1 < n2) {
+								return -1;
+							} else if (n1 > n2) {
+								return 1;
+							} else {				
+								return 0;
+							}
+						}
+					}
+				}
+			}
+			
+			private function getSortOrderAsInt(sortOrder:String):int {
+				if (sortOrder == null || sortOrder == "") {
+					sortOrder = "0";
+				}
+				return int(sortOrder);
+			}
+			
+			private function filterSequencingOptions(item:Object):Boolean {
+				if (item.@isActive != 'Y' && !showInactiveCheckBox.selected) {
+					return false;
+				}
+				return true;
+			}	
+			
+			private function showInactiveChanged():void {
+				sequencingOptions.refresh();
+			}
+		]]>
+	</mx:Script>
+	<mx:XMLListCollection id="sequencingOptions" source="{state.requestCategory.sequencingOptions.NumberSequencingCyclesAllowed}" sort="{sortSequencingOptions}"  filterFunction="filterSequencingOptions"/>
+	<mx:Sort id="sortSequencingOptions" compareFunction="compareSequencingOptions" />
+
+	<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
+		<mx:VBox width="100%" verticalGap="0" height="100%">
+			<mx:HBox verticalAlign="middle" horizontalGap="0">
+				<mx:Label text="Sequencing options" width="150"/>
+				
+				<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{state.requestCategory.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" 
+							   disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCyclesAllowed()" fontSize="10"/>
+				<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   
+							   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCyclesAllowed()" fontSize="10"/>
+				<mx:Spacer width="100%" />
+				<mx:CheckBox label="Show Inactive" id="showInactiveCheckBox" selected="false" change="{showInactiveChanged()}" />
+			</mx:HBox> 
+			<mx:DataGrid id="sequencingOptionGrid" editable="true"
+						 dataProvider="{sequencingOptions}" wordWrap="true"
+						 width="100%" height="100%"  itemEditBegin="state.dirty.setDirty()" fontSize="10">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Active"  
+									   width="55"  editable="false"                      	
+									   dataField="@isActive" 
+									   editorDataField="selected"
+									   wordWrap="true"
+									   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, null)}">			 
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="RunMode" id="runModeColumn" dataField="@isCustom"  width="100"
+									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+									   itemRenderer="{DropdownLabel.getFactory(state.runModeOptions, '@display', '@value', '@isCustom')}"                
+									   itemEditor="{ComboBox.create(state.runModeOptions, '@display', '@value', '@isCustom', null, true)}"/>										
+					<mx:DataGridColumn headerText="Sort Order"  id="sortOrderCol"  dataField="@sortOrder" width="45" editable="true" editorDataField="text">
+						<mx:itemEditor>
+							<mx:Component>
+								<mx:TextInput restrict="0-9" maxChars="2" editable="true"/>
+							</mx:Component>
+						</mx:itemEditor>
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" textAlign="center">
+									<mx:Label text="Sort"/>
+									<mx:Label text="Order"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name" wordWrap="true" width="250" dataField="@name"  >
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Cycles" id="numberSequencingCyclesColumn" dataField="@idNumberSequencingCycles"  width="50"
+									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
+									   itemEditor="{ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', null, true)}"/>										
+					<mx:DataGridColumn headerText="Type" id="seqRunTypeColumn" dataField="@idSeqRunType"  
+									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+									   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"                
+									   itemEditor="{ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', null, true)}"/>										
+					<mx:DataGridColumn headerText="" width="35" editable="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+									<mx:LinkButton label="Edit" textDecoration="underline" fontSize="9" click="outerDocument.editSeqOption()" color="#0000FF"/>
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+	</mx:VBox>
+</mx:VBox>
