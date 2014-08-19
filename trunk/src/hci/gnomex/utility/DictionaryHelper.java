@@ -469,6 +469,9 @@ public class DictionaryHelper implements Serializable {
   }
   
   public RequestCategory getRequestCategoryObject(String code) {
+    if (!ManageDictionaries.isLoaded) {
+      return null;
+    }
     lazyLoadManagedDictionaries();
     return (RequestCategory)requestCategoryMap.get(code);
   }
