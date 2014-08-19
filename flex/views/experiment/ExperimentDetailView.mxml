@@ -1235,7 +1235,7 @@
 						// Note we don't specify application because that is taken care of in the back end (GetRequest).
 						var isApplicable:Boolean = AnnotationUtility.isApplicableProperty(parentApplication.getSampleProperty(annotation.@idProperty),
 							parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory),
-							this.selectedExperiment.@idOrganism);
+							this.selectedExperiment.@idOrganism, this.selectedExperiment.@codeApplication);
 						
 						exists = false;
 						
