@@ -263,7 +263,7 @@
 			}
 			
 			override protected function rebuildSamplesGrid():void {
-				var grid:AdvancedDataGrid = getSamplesGrid();
+				/* var grid:AdvancedDataGrid = getSamplesGrid();
 				var columns:Array = grid.columns;
 				var newColumns:Array = new Array();
 				if (grid != null) {
@@ -278,7 +278,7 @@
 					addAnnotationProperties(columns, newColumns);
 				}
 				grid.columns = newColumns;
-				grid.validateNow();
+				grid.validateNow(); */
 			}
 			
 			private function toggleShowCCNumber():void {
