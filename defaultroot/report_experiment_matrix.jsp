@@ -3,6 +3,8 @@
 <%@ page language="java" import="java.util.Iterator"%>
 <%@ page language="java" import="java.text.SimpleDateFormat"%>
 <%@ page language="java" import="java.util.TreeMap"%>
+<%@ page language="java" import="hci.gnomex.utility.MatrixLinkInfoBase"%>
+<%@ page language="java" import="hci.gnomex.utility.ExperimentMatrixLinkInfo"%>
 <%@ page language="java" import="hci.gnomex.utility.ExperimentMatrixLinkInfo"%>
 
 <!--  These are the session objects passed into this jsp -->
@@ -176,6 +178,7 @@ for (Object orgColKey : orgColMap.keySet()) {
 		<tbody>
 		
 <% 
+	Boolean firstProperty = true;
 	for (Object propertyKey : propertyMap.keySet()) {
 		TreeMap annotMap = (TreeMap)propertyMap.get(propertyKey);
 		
@@ -183,8 +186,16 @@ for (Object orgColKey : orgColMap.keySet()) {
 		  <tr>
 		  		<td class="warning left" colspan="<%=platformColMap.keySet().size() + 1%>"><%=propertyKey%></td>
 		  </tr>
-		  
+<%
+        if (firstProperty) {
+%>		 
+		  <tr>
+		  		<td class="warning left">&nbsp;</td>
+		  		<td class="warning left" colspan="<%=platformColMap.keySet().size()%>">Counts are E/A where E is # of Experiments and A is # of Analyses</td>
+		  </tr>
 <% 
+		  firstProperty = false;
+		}
 		for(Object annotKey : annotMap.keySet()) {
 %>		  
 		  <tr>
@@ -196,7 +207,8 @@ for (Object orgColKey : orgColMap.keySet()) {
 <% 
 			for (Object platformKey : platformColMap.keySet()) {
 				TreeMap expMap = (TreeMap)platformMap.get(platformKey);
-				String expCount = expMap != null ? String.valueOf(expMap.keySet().size()) : "";
+				Integer expCount = 0;
+				Integer anCount = 0;
 %>
 				<td><a href="#experiment-links-modal" data-toggle="modal" 
 				data-org-name="<%=orgName%>" 
@@ -208,15 +220,21 @@ for (Object orgColKey : orgColMap.keySet()) {
 <% 
 				if (expMap != null) {
 					for (Object expKey : expMap.keySet()) {
-						ExperimentMatrixLinkInfo li = (ExperimentMatrixLinkInfo)expMap.get(expKey);
+						MatrixLinkInfoBase li = (MatrixLinkInfoBase)expMap.get(expKey);
+						if (li.isExperiment()) {
+						    expCount++;
+						} else if (li.isAnalysis()) {
+						    anCount++;
+						}
 %>
 						<li class='list-group-item'><%=li.getLink()%></li>
 <% 
 					}
 				}
+				String linkName = (expCount > 0 || anCount > 0) ? expCount.toString() + "/" + anCount.toString() : ""; 
 %>
 				</ul>">
-				<%=expCount%>
+				<%=linkName%>
 				</a></td>
 <% 
 			}
