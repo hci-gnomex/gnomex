@@ -5,8 +5,10 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Visibility;
+import hci.gnomex.utility.AnalysisMatrixLinkInfo;
 import hci.gnomex.utility.ExperimentMatrixLinkInfo;
 import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.MatrixLinkInfoBase;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
@@ -53,7 +55,7 @@ import org.hibernate.Session;
  *  PropertyMap:   key = property name  value = AnnotMap
  *  AnnotMap:      key = annot value    value = PlatformMap
  *  PlatformMap:   key = code app       value = ExpMap
- *  ExpMap:        key = idRequest      value = requestNumber
+ *  ExpMap:        key = requestNumber  value = ExperimentMatrixLinkInfo
  *  
  *  OrgColMap      key = organism name  value = PlatformColMap
  *  PlatformColMap key = code app       value = application name
@@ -72,7 +74,7 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
   public TreeMap<String, Map>                      propertyMap    = new TreeMap<String, Map>();
   public TreeMap<String, Map>                      annotMap       = new TreeMap<String, Map>();
   public TreeMap<String, Map>                      platformMap    = new TreeMap<String, Map>();
-  public TreeMap<String, ExperimentMatrixLinkInfo> expMap         = new TreeMap<String, ExperimentMatrixLinkInfo>();
+  public TreeMap<String, MatrixLinkInfoBase>       expMap         = new TreeMap<String, MatrixLinkInfoBase>();
   
   public TreeMap<String, Map>                      orgColMap      = new TreeMap<String, Map>();
   public TreeMap<String, String>                   platformColMap = new TreeMap<String, String>();
@@ -132,7 +134,13 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
           + "r.name, "
           + "r.codeVisibility, "
           + "lab.lastName, "
-          + "lab.firstName "
+          + "lab.firstName, "
+          + "a.idAnalysis, "
+          + "a.number as analysisNumber, "
+          + "a.name as analysisName, "
+          + "a.codeVisibility as analysisVisibility, "
+          + "aLab.lastName as analysisLabLastName, "
+          + "aLab.firstName as analysisLabFirstName "
           );
       queryBuf.append(" from Request r");
       queryBuf.append(" join r.application app");
@@ -142,6 +150,9 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
       queryBuf.append(" join s.propertyEntries pe");
       queryBuf.append(" join pe.property p");
       queryBuf.append(" left join pe.options po");
+      queryBuf.append(" left join r.analysisExperimentItems aei");
+      queryBuf.append(" left join aei.analysis a");
+      queryBuf.append(" left join a.lab aLab");
       queryBuf.append(" where");
       queryBuf.append(" (  (p.codePropertyType = 'OPTION' and (po.option is not null and  po.option != '' and po.option != 'n/a' and  po.option != 'NA' and  po.option != ' NA'and po.option != 'none'))");
       queryBuf.append("   or"); 
@@ -191,7 +202,13 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
         String requestName      = (String)row[idx++];
         String codeVisibility   = (String)row[idx++];
         String labLastName      = (String)row[idx++];
-        String labFirstName     = (String)row[idx];
+        String labFirstName     = (String)row[idx++];
+        Integer idAnalysis      = (Integer)row[idx++];
+        String analysisNumber   = (String)row[idx++];
+        String analysisName     = (String)row[idx++];
+        String analysisVisibility = (String)row[idx++];
+        String analysisLabLastName = (String)row[idx++];
+        String analysisLabFirstName = (String)row[idx++];
         
         String orgKey = orgSortOrder + DELIM + organismName;
         propertyMap = (TreeMap<String, Map>)orgMap.get(orgKey);
@@ -218,23 +235,34 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
         }
         
         String platformKey = codeApplication;
-        expMap = (TreeMap<String, ExperimentMatrixLinkInfo>)platformMap.get(platformKey);
+        expMap = (TreeMap<String, MatrixLinkInfoBase>)platformMap.get(platformKey);
         if (expMap == null) {
-          expMap = new TreeMap<String, ExperimentMatrixLinkInfo>();
+          expMap = new TreeMap<String, MatrixLinkInfoBase>();
         }
-        ExperimentMatrixLinkInfo linkInfo = new ExperimentMatrixLinkInfo();
-        linkInfo.number = requestNumber;
-        linkInfo.name = requestName;
-        linkInfo.labLastName = labLastName;
-        linkInfo.labFirstName = labFirstName;
-        linkInfo.codeVisibility = codeVisibility;
-        
-        expMap.put(requestNumber, linkInfo);
+        if (!expMap.containsKey(requestNumber)) {
+          ExperimentMatrixLinkInfo linkInfo = new ExperimentMatrixLinkInfo();
+          linkInfo.number = requestNumber;
+          linkInfo.name = requestName;
+          linkInfo.labLastName = labLastName;
+          linkInfo.labFirstName = labFirstName;
+          linkInfo.codeVisibility = codeVisibility;
+          
+          expMap.put(requestNumber, linkInfo);
+        }
+        if (analysisNumber != null && !expMap.containsKey(analysisNumber)) {
+          AnalysisMatrixLinkInfo linkInfo = new AnalysisMatrixLinkInfo();
+          linkInfo.number = analysisNumber;
+          linkInfo.name = analysisName;
+          linkInfo.labLastName = analysisLabLastName;
+          linkInfo.labFirstName = analysisLabFirstName;
+          linkInfo.codeVisibility = analysisVisibility;
+          
+          expMap.put(analysisNumber, linkInfo);
+        }
         platformMap.put(platformKey, expMap);
         annotMap.put(annotKey, platformMap);
         propertyMap.put(propKey, annotMap);
         orgMap.put(orgKey, propertyMap);
-        
 
         platformColMap = (TreeMap<String, String>)orgColMap.get(orgKey);
         if (platformColMap == null) {
