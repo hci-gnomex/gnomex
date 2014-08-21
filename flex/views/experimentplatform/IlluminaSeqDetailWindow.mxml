@@ -48,7 +48,7 @@
 			
 			private function save():void {
 				if (seqOptionName.text == null || seqOptionName.text == "" 
-					|| runModeCombo.selectedItem == null || runModeCombo.selectedItem.@value == "" 
+					|| ((runModeCombo.selectedItem == null || runModeCombo.selectedItem.@value == "") && state.isHiSeq)
 				    || numberCyclesCombo.selectedItem == null || numberCyclesCombo.selectedItem.@value == ""
 				    || seqRunTypeCombo.selectedItem == null || seqRunTypeCombo.selectedItem.@value == "") {
 					Alert.show("Please enter name, run mode, number of cycles and Seq Run Type before saving.");
@@ -74,7 +74,7 @@
 				
 				selectedItem.@name = seqOptionName.text;
 				selectedItem.@isActive = activeCheckbox.selected ? 'Y' : 'N';
-				selectedItem.@isCustom = runModeCombo.selectedItem.@value;
+				selectedItem.@isCustom = state.isHiSeq ? runModeCombo.selectedItem.@value : 'N';
 				selectedItem.@sortOrder = sortOrderText.text;
 				selectedItem.@idSeqRunType = seqRunTypeCombo.selectedItem.@value;
 				selectedItem.@idNumberSequencingCycles = numberCyclesCombo.selectedItem.@value;
@@ -105,7 +105,8 @@
 			<mx:Spacer width="20" />
 			<mx:CheckBox id="activeCheckbox" selected="{selectedItem.@isActive=='Y'}" label="Active" change="dirty.setDirty()" />
 		</mx:HBox>
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4"
+				 visible="{state.isHiSeq}" includeInLayout="{state.isHiSeq}">
 			<mx:Text text="Run Mode" styleName="formLabel" width="100"/>
 			<mx:ComboBox dataProvider="{state.runModeOptions}" id="runModeCombo" width="200" change="dirty.setDirty()" labelField="@display" />					    		
 		</mx:HBox>
