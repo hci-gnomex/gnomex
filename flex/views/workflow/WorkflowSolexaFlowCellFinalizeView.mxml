@@ -125,7 +125,7 @@
 		}
 		private function onDeleteFlowCell(event:ResultEvent):void {
 			if (deleteFlowCell.lastResult.name() == "SUCCESS") {
-				Alert.show("Flow Cell " + deleteFlowCell.lastResult.@flowCellNumber + " has been created.");
+				Alert.show("Flow Cell " + deleteFlowCell.lastResult.@flowCellNumber + " has been deleted.");
 				refresh();
 			} else  {
 				Alert.show(event.result..ERROR.@message.toString(), "Error deleting flow cell");
