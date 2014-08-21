@@ -498,9 +498,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       columns.add(makeReportColumn("Lab", 1));
       columns.add(makeReportColumn("Total Experiments", 2));
       columns.add(makeReportColumn("Fully Annotated", 3));
-      columns.add(makeReportColumn("%", 4));
-      columns.add(makeReportColumn("Missing Annotations", 5));
-      columns.add(makeReportColumn("%", 6));
+      columns.add(makeReportColumn("Missing Annotations", 4));
       
     } else {
       columns.add(makeReportColumn("Lab", 1));
@@ -549,16 +547,12 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     
     int totalExperiments = labInfo.completeExperimentMap.size() + labInfo.incompleteExperimentMap.size();
     int completeExperiments = labInfo.completeExperimentMap.size();
-    int completePercent = Math.round((completeExperiments / totalExperiments) * 100);
     int incompleteExperiments = labInfo.incompleteExperimentMap.size();
-    int incompletePercent = Math.round((incompleteExperiments / totalExperiments) * 100);
     
     values.add(labInfo.labName);
     values.add(Integer.valueOf(totalExperiments).toString());
     values.add(Integer.valueOf(completeExperiments).toString());
-    values.add(completePercent + "%");
     values.add(Integer.valueOf(incompleteExperiments).toString());
-    values.add(incompletePercent + "%");
     
     reportRow.setValues(values);
     tray.addRow(reportRow);
