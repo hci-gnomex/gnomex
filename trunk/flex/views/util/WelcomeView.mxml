@@ -71,19 +71,24 @@
 				
 				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_NEWS_DASHBOARD) == 'Y'){
 					newsButtonBox.visible = true;
+					newsButtonBox.includeInLayout = true;
 				}
 				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y' && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false ){
 					activityBox.visible = true;
+					activityBox.includeInLayout = true;
 				}
 				if(parentApplication.isAdminState == true && parentApplication.isGuestMode() == false && parentApplication.isUniversityOnlyUser == false){
 					for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
 						if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
 							sequencerButton.visible = true;
+							sequencerButton.includeInLayout = true;
 							break;
 						}
 					}
 				}
-				
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_CORE_INFO_BOX) == 'Y' && parentApplication.isGuestMode() == false ){
+					callLater(showCoreInfoBox);
+				}
 				
 			}
 			
@@ -281,17 +286,50 @@
 			}
 			
 			public function refreshDashboard():void{
-				this.newsHub.getNewsItem.send();
-				this.notificationHub.userTab.notificationInterface.send();
-				this.notificationHub.workflowTab.notificationInterface.send();
-				this.notificationHub.adminTab.notificationInterface.send();
-				this.notificationHub.billingTab.notificationInterface.send();
-				
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_NEWS_DASHBOARD) == 'Y'){
+					this.newsHub.getNewsItem.send();
+				}
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'Y' && parentApplication.isGuestMode() == false  ){
+					this.notificationHub.userTab.notificationInterface.send();
+					this.notificationHub.workflowTab.notificationInterface.send();
+					this.notificationHub.adminTab.notificationInterface.send();
+					this.notificationHub.billingTab.notificationInterface.send();
+				}
+								
 				for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
 					if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
 						this.runStatusHub.metrixInterface.send();
 						break;
 					}
+				}
+				showSplashAndDash();
+			}
+			
+			private function showCoreInfoBox():void{
+				if (splashImage.visible){
+					splashImage.visible = false;
+					splashImage.includeInLayout = false;
+				}
+				if (vbox15.visible) {
+					vbox15.visible = false;
+					vbox15.includeInLayout = false;
+					spacer2.visible = false;
+					spacer2.includeInLayout = false;
+				}
+				if(!coreInfoBox.visible){
+					moveDashboard.target = coreInfoBox;
+					moveDashboard.xTo = dashBuffer;
+					coreInfoBox.includeInLayout = true;
+					coreInfoBox.visible = true;
+					newsBox.includeInLayout = false;
+					newsBox.visible = false;
+					notificationBox.includeInLayout = false;
+					notificationBox.visible = false;
+					sequencerBox.includeInLayout = false;
+					sequencerBox.visible = false;
+					moveDashboard.play();
+				} else {
+					coreFacilitiesInfoView.showOverview();
 				}
 			}
 			
@@ -299,6 +337,8 @@
 				if(newsBox.visible == false){
 					moveDashboard.target = newsBox;
 					moveDashboard.xTo = dashBuffer;
+					coreInfoBox.includeInLayout = false;
+					coreInfoBox.visible = false;
 					newsBox.includeInLayout = true;
 					newsBox.visible = true;
 					notificationBox.includeInLayout = false;
@@ -313,6 +353,8 @@
 				if(notificationBox.visible == false){
 					moveDashboard.target = notificationBox;
 					moveDashboard.xTo = dashBuffer;
+					coreInfoBox.includeInLayout = false;
+					coreInfoBox.visible = false;
 					notificationBox.includeInLayout = true;
 					notificationBox.visible = true;
 					notificationHub.setStartView();
@@ -329,6 +371,8 @@
 				if(sequencerBox.visible == false){
 					moveDashboard.target = sequencerBox;
 					moveDashboard.xTo = dashBuffer;
+					coreInfoBox.includeInLayout = false;
+					coreInfoBox.visible = false;
 					sequencerBox.includeInLayout = true;
 					sequencerBox.visible = true;
 					newsBox.includeInLayout = false;
@@ -367,12 +411,14 @@
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
-	<mx:VBox
-			 width="100%" height="100%"  
+	<mx:VBox width="100%" height="100%"  
 			 horizontalAlign="center" 
 			 paddingRight="6" paddingLeft="6" paddingBottom="4" verticalGap="1" paddingTop="20" id="vbox11"  textAlign="center" horizontalScrollPolicy="off">
-		<mx:HBox horizontalAlign="center" width="100%" paddingTop="20">
+		<mx:HBox horizontalAlign="center" width="100%" height="100%" paddingTop="20">
 			<mx:Image id="splashImage" horizontalAlign="center" source="{parentApplication.welcomeSplash}"  show="{showSplashAndDash()}" showEffect="{parentApplication.fadeInSlow}"/>	
+			<mx:VBox id="coreInfoBox" paddingBottom="10" verticalAlign="middle" width="100%" height="100%" horizontalAlign="center" visible="false" includeInLayout="false">
+				<util:CoreFacilitiesInfoView id="coreFacilitiesInfoView" height="100%"/>
+			</mx:VBox>
 			<mx:VBox id="newsBox" paddingTop="30" verticalAlign="middle" width="100%" horizontalAlign="center" visible="false" includeInLayout="false">
 				<db:News id="newsHub"/>
 			</mx:VBox>

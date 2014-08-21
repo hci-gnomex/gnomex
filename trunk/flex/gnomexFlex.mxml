@@ -21,8 +21,9 @@
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
 				xmlns:dashboard="views.dashboard.*"
+				xmlns:product="views.product.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" visible="true">
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" visible="true" >
 	
 	
 	<mx:Fade id="fadeOut" duration="100"/>
@@ -1147,6 +1148,7 @@
 			public var PROPERTY_SHOW_NEWS_DASHBOARD:String                = "show_news_dashboard";
 			public var PROPERTY_SHOW_METRIX_DASHBOARD:String              = "show_metrix_dashboard";
 			public var PROPERTY_SHOW_ACTIVITY_DASHBOARD:String            = "show_activity_dashboard";
+			public var PROPERTY_SHOW_CORE_INFO_BOX:String                 = "show_core_info_box";
 			public var PROPERTY_INTERNAL_PRICE_LABEL:String               = "internal_price_label";
 			public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String      = "external_academic_price_label";
 			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
@@ -3654,7 +3656,9 @@
 					theViews.selectedChild = sequencerOverview;					
 				} else if (label == "Overview"){
 					theViews.selectedChild = expOverview;
-				}
+				} else if (label == "Product Orders") {
+					theViews.selectedChild = navProductOrderView;
+				} 
 			}
 			
 			
@@ -3849,6 +3853,12 @@
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
+		</menuitem>
+		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
+			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -4404,6 +4414,9 @@
 					
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
+					
+					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0" >
+					</product:NavProductOrderView>
 					
 				</mx:ViewStack>
 				
