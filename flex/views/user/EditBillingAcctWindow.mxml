@@ -860,7 +860,7 @@
 				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
 					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11"
-								 selected="{coreFacilities.length == 1}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
+								 selected="{coreFacilities.length == 1 || ba.@idCoreFacility==coreFacilityRepeater.currentItem.@idCoreFacility}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
 					</mx:CheckBox> 
 				</mx:Repeater>
 			</mx:VBox>
