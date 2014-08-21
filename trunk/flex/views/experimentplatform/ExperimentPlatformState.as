@@ -56,7 +56,13 @@ package views.experimentplatform {
 				return false;
 			}
 		}
-		
+		public function get isHiSeq():Boolean {
+			if (_selectedType != null && _selectedType.@value == 'HISEQ') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		public function get isMicroarray():Boolean {
 			return _selectedType != null && _selectedType.@value == 'MICROARRAY';
 		}

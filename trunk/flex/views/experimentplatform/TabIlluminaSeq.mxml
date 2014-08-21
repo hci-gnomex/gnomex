@@ -26,6 +26,10 @@
 				sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
 				
 				showInactiveCheckBox.selected = false;
+				
+				if (!state.isHiSeq) {
+					runModeColumn.visible = false;
+				}
 			}
 			
 			private function addNumberSequencingCyclesAllowed():void {
@@ -190,7 +194,7 @@
 									   wordWrap="true"
 									   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, null)}">			 
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="RunMode" id="runModeColumn" dataField="@isCustom"  width="100"
+					<mx:DataGridColumn headerText="Run Mode" id="runModeColumn" dataField="@isCustom"  width="100"
 									   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
 									   itemRenderer="{DropdownLabel.getFactory(state.runModeOptions, '@display', '@value', '@isCustom')}"                
 									   itemEditor="{ComboBox.create(state.runModeOptions, '@display', '@value', '@isCustom', null, true)}"/>										
