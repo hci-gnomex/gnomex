@@ -398,7 +398,7 @@
 				}
 				if (tmp.length > 0) {
 					if(flowCellChannelsCount > 1) {
-						warningMessage = "Not all " + flowCellChannelsCount + " channels are populated.\n\n";
+						warningMessage = "Not all " + flowCellChannelsCount + " lanes are populated.\n\n";
 					} else {
 						warningMessage = "The channel is not populated.\n\n";
 					}
