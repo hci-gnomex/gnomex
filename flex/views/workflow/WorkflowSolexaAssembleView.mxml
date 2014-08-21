@@ -373,7 +373,6 @@
 				}
 				if (assembleFlowCellWorkList.length > 0) {
 					validateNumberOfLanes();
-					validateSequencingControl();
 //					validateProtocol();
 					validateProtocolAndLanes();
 					validateIndexTags();
@@ -405,24 +404,6 @@
 					}
 					isValid = false;
 				}					
-			}			
-			// Warn if no channel is selected as a control
-			private function validateSequencingControl():void {
-				var theItem:Object;
-				var item:Object;
-				var controlCount:int = 0;
-				
-				// Make sure at least one sequencing control specified
-				for each (theItem in assembleFlowCellWorkList) {
-					if (theItem.hasOwnProperty("@idSequencingControl")) {
-						controlCount++;
-					} else if (theItem != null && theItem.hasOwnProperty("@isControl") && theItem.@isControl != null && theItem.@isControl == "true") {
-						controlCount++;
-					}
-				}
-				if (controlCount == 0) {
-					warningMessage += "No sequencing control specified for any of the channels.\n\n";
-				}
 			}			
 			//Warn if not all channels are of the same protocol type
 			private function validateProtocol():void {
