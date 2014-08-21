@@ -102,8 +102,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
              sess.delete(flowCell);
         sess.flush();
 
-        this.xmlResult = "<SUCCESS idFlowCell=\"" + flowCell.getIdFlowCell()
-            + "\"/>";
+        this.xmlResult = "<SUCCESS idFlowCell=\"" + flowCell.getIdFlowCell() + "\" flowCellNumber=\"" + flowCell.getNumber() + "\"/>";
 
         setResponsePage(this.SUCCESS_JSP);
       } else {
