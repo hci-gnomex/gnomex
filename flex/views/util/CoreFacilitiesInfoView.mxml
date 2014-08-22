@@ -34,7 +34,7 @@
 				<mx:itemRenderer >
 					<mx:Component>
 						<mx:VBox paddingLeft="2" paddingRight="2" paddingTop="0" paddingBottom="0" >
-							<util:CoreFacilityInfoView coreFacility="{data}" 
+							<util:CoreFacilityInfoView coreFacility="{data}"
 													   click="{outerDocument.coreFacilities.refresh();outerDocument.showDetail(outerDocument.coreFacilities.getItemIndex(data))}" />
 						</mx:VBox>
 					</mx:Component>
