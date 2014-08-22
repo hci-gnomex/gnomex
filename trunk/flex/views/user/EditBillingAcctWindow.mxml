@@ -4,7 +4,7 @@
 				xmlns:util="views.util.*"
 				layout="vertical" 
 				title="Edit Campus Billing Account" 
-				width="675" 
+				width="750" 
 				defaultButton="{saveButton}" 
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/work_auth_form.png')" >
@@ -854,12 +854,12 @@
 								  showEdit="{parentApplication.isSuperAdmin}" 
 								  title="Core Facility Information" label="Help me choose" id="coreFacilityHelp"/>
 			</mx:VBox>
-			<mx:ComboBox width="522" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
+			<mx:ComboBox width="597" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
 						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
 			<mx:VBox id="coreCheckboxBox">
 				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
 					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
-								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="522" fontSize="11"
+								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="597" fontSize="11"
 								 selected="{coreFacilities.length == 1 || ba.@idCoreFacility==coreFacilityRepeater.currentItem.@idCoreFacility}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
 					</mx:CheckBox> 
 				</mx:Repeater>
@@ -920,7 +920,7 @@
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
 				 horizontalGap="4" id="fundingAgencyHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
 			<mx:Label text="Funding Agency" width="120" id="fundingAgencyLabel" styleName="formLabel"/>
-			<mx:ComboBox width="522" id="fundingAgencyCombo" labelField="@display"
+			<mx:ComboBox width="597" id="fundingAgencyCombo" labelField="@display"
 						 			  dataProvider="{fundingAgencies}" 
 						              change="{if (fundingAgencyCombo.selectedItem != null) ba.@idFundingAgency = fundingAgencyCombo.selectedItem.@value; else ba.@idFundingAgency='';}"/>
 		</mx:HBox>
