@@ -132,7 +132,7 @@ public class RequestHTMLFormatter {
     }
     String labName = "";
     if (request.getLab() != null) {
-      labName = request.getLab().getName();
+      labName = request.getLab().getName(false, false);
     }
     
     Element table = new Element("TABLE");    
