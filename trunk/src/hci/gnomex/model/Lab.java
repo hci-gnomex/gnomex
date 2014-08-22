@@ -151,28 +151,51 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   }
   
   public String getName() {
+    return getName(true,true,true);
+  }
+
+  public String getName( Boolean lastNameFirst, Boolean includeLab ) {
+    return getName(lastNameFirst, includeLab, false);
+  }
+  
+  
+  public String getName( Boolean lastNameFirst, Boolean includeLab, Boolean includeActiveFlag) {
+
     String name = "";
-    if (lastName != null && !lastName.equals("")) {
-      name = lastName;
-    }
-    if (firstName != null && !firstName.equals("")) {
-      if (name.length() > 0) {
-        name += ", ";
+
+    if ( lastNameFirst ) {
+      if (lastName != null && !lastName.equals("")) {
+        name = lastName;
       }
-      name += firstName;
+      if (firstName != null && !firstName.equals("")) {
+        if (name.length() > 0) {
+          name += ", ";
+        }
+        name += firstName;
+      }
+    } else {
+      if (firstName != null && !firstName.equals("")) {
+        name = firstName;
+      }
+      if (lastName != null && !lastName.equals("")) {
+        name += " " + lastName;
+      }
     }
-    if (name.length() > 0) {
-      name += " Lab";      
+    if ( includeLab ) {
+      if (name.length() > 0) {
+        name += " Lab";      
+      }
     }
-    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
-      name += " (inactive)";
+    if ( includeActiveFlag ) {
+      if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+        name += " (inactive)";
+      }
     }
+    
     return name;
   }
 
-
  
-  
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAppUsers");
   }
