@@ -14,6 +14,8 @@
 			
 			[Bindable]
 			public var coreFacility:Object;
+			[Bindable]
+			public var useShortDescription:Boolean;
 			
 			private function init():void {
 				// If used as an item renderer, this will make sure the core facility is assigned.
@@ -55,7 +57,7 @@
 		<mx:Text text="{'to ' + coreFacility.@facilityName}"/>
 	</mx:HBox>
 	
-	<mx:TextArea text="{coreFacility.@description}" width="100%" height="100%" textAlign="left" editable="false" selectable="false"  backgroundColor="#FFFFFF"/>
+	<mx:TextArea text="{useShortDescription ? coreFacility.@shortDescription : coreFacility.@description}" width="100%" height="100%" textAlign="left" editable="false" selectable="false"  backgroundColor="#FFFFFF"/>
 	
 
 </mx:VBox>
