@@ -1054,6 +1054,7 @@
 			[Bindable]
 			public var productList:XMLListCollection;
 			
+			
 			[Bindable]
 			public var internalAccountFieldsConfigurationList:XMLListCollection;
 			[Bindable]
@@ -3654,9 +3655,7 @@
 					theViews.selectedChild = sequencerOverview;					
 				} else if (label == "Overview"){
 					theViews.selectedChild = expOverview;
-				} else if (label == "Product Orders") {
-					theViews.selectedChild = navProductOrderView;
-				} 
+				}
 			}
 			
 			
@@ -3851,12 +3850,6 @@
 			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
-		</menuitem>
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
-			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -4412,10 +4405,7 @@
 					
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
-					
-					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0" >
-					</product:NavProductOrderView>
-					
+
 				</mx:ViewStack>
 				
 			</mx:ViewStack>
