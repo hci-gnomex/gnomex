@@ -352,6 +352,8 @@
 	
 		public var ccNumberList:Array = null;
 		
+		public var defaultTab:Container = null;
+			
 		[Bindable]
 		private var labList:XMLListCollection = null;
 
@@ -420,7 +422,12 @@
 				requestApplication = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
         	}	
 
-			this.theTab.selectedIndex = 0;
+			if (defaultTab == null) {
+				this.theTab.selectedIndex = 0;
+			} else {
+				this.theTab.selectedChild = defaultTab;
+				defaultTab = null;
+			}
 		}
 
 		private function enableTabs(enable:Boolean):void {
@@ -3995,10 +4002,25 @@
 
 		private function showViewWindow():void {
 			parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
+			chooseViewTabs();
 			parentDocument.experimentDetailView.detail.setupForm(this.request);
 			parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ')+ this.request.@number;
 		}
+			
+		private function chooseViewTabs():void {
+			chooseViewTab(infoTab, parentDocument.experimentDetailView.detail.infoTab);
+			chooseViewTab(notesView, parentDocument.experimentDetailView.detail.notesTab);
+			chooseViewTab(samplesView, parentDocument.experimentDetailView.detail.samplesTab);
+			chooseViewTab(lanesView, parentDocument.experimentDetailView.detail.lanesConfirmContainer);
+			chooseViewTab(bioinformaticsView, parentDocument.experimentDetailView.detail.bioinformaticsTab);
+			chooseViewTab(downloadView, parentDocument.experimentDetailView.detail.filesView);
+		}
 		
+		private function chooseViewTab(selectedTab:Object, parentTab:Container):void {
+			if (theTab.selectedChild == selectedTab && parentDocument.experimentDetailView.detail.theTab.contains(parentTab)) {
+				parentDocument.experimentDetailView.detail.defaultTab = parentTab;
+			}
+		}
 
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
@@ -5408,7 +5430,7 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{navBox}" name="width" value="100%"/>
 			<mx:AddChild relativeTo="{theTab}" position="firstChild">
-				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6">
+				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6" id="infoTab">
 					 <mx:HBox verticalGap="0" horizontalGap="0">
 					       <mx:Text text="Experiment" width="100"  fontWeight="normal" styleName="formLabel"/>
 					       <mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="500"  fontWeight="normal"/>
