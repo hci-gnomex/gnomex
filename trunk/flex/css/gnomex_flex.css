@@ -331,6 +331,15 @@ TextInput {
 	disabledColor: #5f5f5f;
 	backgroundColor: #E4E0E0;
 }
+.missingInfo {
+	backgroundColor: #FFFFB9;
+}
+.normalBackground {
+	backgroundColor: #E4E0E0;
+}
+.whiteBackground {
+	backgroundColor: #FFFFFF;
+}
 TextArea {
 	disabledColor: #5f5f5f;
 		backgroundColor: #E4E0E0;

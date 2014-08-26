@@ -583,6 +583,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
               }
             }
             
+            // Update active flag
+            if ( lab.getCoreFacilities() != null && lab.getCoreFacilities().size() > 0 ) {
+              lab.setIsActive( "Y" );
+            } else {
+              lab.setIsActive( "N" );
+            }
+            sess.flush();
+            
             this.xmlResult = "<SUCCESS idLab=\"" + lab.getIdLab() + "\"/>";
     
             setResponsePage(this.SUCCESS_JSP);
@@ -652,11 +660,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
     lab.setIsCcsgMember(labScreen.getIsCcsgMember());
     lab.setIsExternalPricing(labScreen.getIsExternalPricing());
     lab.setIsExternalPricingCommercial(labScreen.getIsExternalPricingCommercial());
-    lab.setIsActive(labScreen.getIsActive());
     lab.setExcludeUsage(labScreen.getExcludeUsage());
     lab.setBillingContactEmail(labScreen.getBillingContactEmail());
-
+    
   }
+  
   
   private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
     PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
