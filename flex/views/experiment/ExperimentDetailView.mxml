@@ -28,6 +28,7 @@
 			import mx.collections.GroupingField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+			import mx.core.Container;
 			import mx.events.CloseEvent;
 			import mx.events.IndexChangedEvent;
 			import mx.managers.PopUpManager;
@@ -68,6 +69,8 @@
 			
 			[Bindable]
 			private var genomeBuild:String = "";
+			
+			public var defaultTab:Container = null;
 			
 			public function isCapSeqState():Boolean {
 				if (currentState == 'CapSeqState') {
@@ -371,6 +374,12 @@
 					globalAdapterSize = parseInt(String(propAdapterSize));			
 				}
 				
+				if (defaultTab == null) {
+					theTab.selectedIndex = 0;
+				} else {
+					theTab.selectedChild = defaultTab;
+					defaultTab = null;
+				}
 				// Workflow progress
 				callLater(setWorkflowStatus);
 				
@@ -770,8 +779,24 @@
 					parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				}
 				
+				chooseEditTabs();
 				callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 				
+			}
+			
+			private function chooseEditTabs():void {
+				chooseEditTab(infoTab, parentDocument.parentDocument.experimentEditView.infoTab);
+				chooseEditTab(notesTab, parentDocument.parentDocument.experimentEditView.notesView);
+				chooseEditTab(samplesTab, parentDocument.parentDocument.experimentEditView.samplesView);
+				chooseEditTab(lanesConfirmContainer, parentDocument.parentDocument.experimentEditView.lanesView);
+				chooseEditTab(bioinformaticsTab, parentDocument.parentDocument.experimentEditView.bioinformaticsView);
+				chooseEditTab(filesView, parentDocument.parentDocument.experimentEditView.downloadView);
+			}
+			
+			private function chooseEditTab(selectedTab:Object, parentTab:Container):void {
+				if (theTab.selectedChild == selectedTab && parentDocument.parentDocument.experimentEditView.theTab.contains(parentTab)) {
+					parentDocument.parentDocument.experimentEditView.defaultTab = parentTab;
+				}
 			}
 			
 			private function countPlates():int {
@@ -1414,7 +1439,7 @@
 	<mx:XMLListCollection id="collaborators" source="{selectedExperiment.collaborators.ExperimentCollaborator}"/>
 	
 	<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%"> 
+		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%" id="infoTab"> 
 			<mx:HBox horizontalGap="0" width="100%" >
 				<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 					
