@@ -871,9 +871,6 @@
 						lab.@isSelected = 'false';
 					}
 				}
-				if(browseLabCombo.selectedItem == null){
-					return;
-				}
 				
 				if (browseLabCombo.selectedItem != null) {
 					this.labKeys = browseLabCombo.selectedItem.@idLab;
@@ -882,7 +879,7 @@
 					this.selectedLabsLabel = labName;
 				} else {
 					this.labKeys = "";
-					this.selectedLabsLabel = browseLabCombo.selectedItem.@name;
+					this.selectedLabsLabel = "";
 				}
 				
 			}
