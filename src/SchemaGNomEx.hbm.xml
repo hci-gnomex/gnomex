@@ -2759,7 +2759,7 @@
 		<property name="isActive" column="isActive" type="string" />
 	</class>
 
-	<!-- Topic -->
+	<!-- hci.gnomex.model.Topic -->
 	<class name="hci.gnomex.model.Topic" table="Topic">
 		<id name="idTopic" column="idTopic" type="integer">
 			<generator class="native" />
