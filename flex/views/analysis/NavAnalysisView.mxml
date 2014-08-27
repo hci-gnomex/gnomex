@@ -1087,6 +1087,7 @@
 			
 			private function showMultiLabFilterWindow():void {  
 				var window:MultiLabFilterWindow  = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
+				window.labKeys = this.labKeys;
 				PopUpManager.centerPopUp(window);
 			}
 			
