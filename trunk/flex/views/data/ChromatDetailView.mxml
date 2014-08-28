@@ -40,6 +40,13 @@
 					   click="doPrint();" 
 					   visible="{this.isInit}"
 					   includeInLayout="{this.isInit}"/>
+		<mx:LinkButton label="Save as PDF" 
+					   id="printPDFButton"
+					   textDecoration="underline" 
+					   icon="@Embed(source='../../assets/page_white_acrobat.png')"
+					   click="doPrintPDF();" 
+					   visible="{this.isInit}"
+					   includeInLayout="{this.isInit}" color="#2E2D2C"/>
 	</mx:HBox>
 		
 	</mx:VBox>
@@ -88,6 +95,18 @@
 			import mx.printing.*;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.StringUtil;
+			
+			import org.alivepdf.display.Display;
+			import org.alivepdf.layout.Layout;
+			import org.alivepdf.layout.Mode;
+			import org.alivepdf.layout.Orientation;
+			import org.alivepdf.layout.Position;
+			import org.alivepdf.layout.Resize;
+			import org.alivepdf.layout.Size;
+			import org.alivepdf.layout.Unit;
+			import org.alivepdf.pdf.PDF;
+			import org.alivepdf.saving.Download;
+			import org.alivepdf.saving.Method;
 			
 			import views.util.ChromatPrintView;
 			
@@ -490,6 +509,50 @@
 					accordion4.addChildAt(sequenceAccordion, 0);
 					addAccordianEventListeners();
 				}
+			}
+			
+			// Print the chromatogram information
+			private function doPrintPDF():void {
+				
+				var pdfPrintJob:PDF = new PDF( Orientation.PORTRAIT, Unit.MM, Size.A4 ); 
+				pdfPrintJob.setDisplayMode( Display.FULL_PAGE, Layout.SINGLE_PAGE );
+					
+				// Create Page 1 of chromat print view
+				var chromatPrintView:ChromatPrintView = new ChromatPrintView();
+				addChild(chromatPrintView);
+				
+				// Include data table, quality and trace charts
+				chromatPrintView.titleLabel.text = 'Chromatogram ' + selectedIdChromatogram;
+				chromatPrintView.titleLabel.text += this.isInit && getChromatogram.lastResult.Chromatogram.@redoFlag == 'Y' ? ' (REDO)' : '';
+				chromatPrintView.accordion1.addChild(dataGridAccordion);
+				chromatPrintView.accordion2.addChild(qualityCanvas);
+				chromatPrintView.accordion3.addChild(traceCanvas);
+				chromatPrintView.accordion4.addChild(sequenceAccordion);
+				chromatPrintView.accordion4.includeInLayout = true;
+				chromatPrintView.accordion4.visible = true;
+				
+				chromatPrintView.height = 1550;
+				chromatPrintView.validateNow();
+				
+				// Add Page 1 to the print job				
+				pdfPrintJob.addPage();
+				pdfPrintJob.addImage(chromatPrintView, new Resize(Mode.FIT_TO_PAGE,Position.CENTERED));
+				
+				// Save the pdf
+				var bytesTemp:ByteArray = pdfPrintJob.save( Method.LOCAL );
+				var f:FileReference = new FileReference();
+				f.save(bytesTemp, 'Chromatogram_' + selectedIdChromatogram + ".pdf");
+				
+				// Remove the print-specific control to free memory
+				removeChild(chromatPrintView);
+				
+				// Add the canvases back to this view and add the event listeners for expanding/contracting the accordians
+				accordion1.addChildAt(dataGridAccordion, 0);
+				accordion2.addChildAt(qualityCanvas, 0);
+				accordion3.addChildAt(traceCanvas, 0);
+				accordion4.addChildAt(sequenceAccordion, 0);
+				addAccordianEventListeners();
+					
 			}
 			
 		]]>

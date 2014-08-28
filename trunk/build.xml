@@ -417,6 +417,9 @@
 			output="${build.dir}/${flexapp.name}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
+			    <compiler.library-path dir="${lib.dir}" append="true">
+			                <include name="AlivePDF.swc" />
+			     </compiler.library-path>
 			<compiler.debug>true</compiler.debug>			
 		</mxmlc>
 		<html-wrapper 
@@ -426,9 +429,9 @@
 		      height="100%"
 		      application="${flexapp.name}"
 		      swf="${flexapp.name}"
-		      version-major="9"
+		      version-major="10"
 		      version-minor="0"
-		      version-revision="28"
+		      version-revision="0"
 		      history="false"
 		      template="express-installation"
 		      output="${build.dir}"/>
@@ -771,6 +774,7 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
+    	<delete dir="${tomcat.dir}/webapps/${app.name}"/>
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
 	
