@@ -222,7 +222,7 @@ public class RequestParser implements Serializable {
         }
       }
       
-      initializeRequest(n, request);
+      initializeRequest(n, request, sess);
   }
   
   private java.sql.Date convertDate(String dateString) throws Exception {
@@ -235,7 +235,7 @@ public class RequestParser implements Serializable {
     return date;
   }
   
-  private void initializeRequest(Element n, Request request) throws Exception {
+  private void initializeRequest(Element n, Request request, Session sess) throws Exception {
 
     if (n.getAttributeValue("isExternal") != null && !n.getAttributeValue("isExternal").equals("")) {
       request.setIsExternal(n.getAttributeValue("isExternal"));      
@@ -358,7 +358,13 @@ public class RequestParser implements Serializable {
       request.setTrimAdapter(n.getAttributeValue("trimAdapter"));
     }
     if (request.getTrimAdapter() == null || (!request.getTrimAdapter().equals("Y") && !request.getTrimAdapter().equals("N"))) {
-      request.setTrimAdapter("Y");
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+      String catd = pdh.getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CHOOSE_ADAPTER_TRIM_DEFAULT);
+      if (catd != null && catd.equals("Y")) {
+        request.setTrimAdapter("Y");
+      } else {
+        request.setTrimAdapter("N");
+      }
     }
     
     if (n.getAttributeValue("hasPrePooledLibraries") != null && !n.getAttributeValue("hasPrePooledLibraries").equals("")) {

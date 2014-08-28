@@ -39,6 +39,10 @@
 					&& parentDocument.request.hasOwnProperty("@trimAdapter")
 					&& parentDocument.request.@trimAdapter == 'N') {
 					this.adapterTrimCheckBox.selected = false;
+				} else if (parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CHOOSE_ADAPTER_TRIM_DEFAULT) == 'Y') {
+					this.adapterTrimCheckBox.selected = true;
+				} else {
+					this.adapterTrimCheckBox.selected = false;
 				}
 				
 				organismString = 'Organism: ' + parentDocument.getOrganism() != null ? parentDocument.getOrganism().@organism : "N/A";
@@ -133,7 +137,7 @@
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 			<mx:Spacer width="12"/>
 			<mx:CheckBox label="Yes"
-						 id="adapterTrimCheckBox" click="{onAdapterTrimCheckBoxClick(); parentDocument.dirty.setDirty();}" selected="true" />
+						 id="adapterTrimCheckBox" click="{onAdapterTrimCheckBoxClick(); parentDocument.dirty.setDirty();}" />
 		</mx:HBox>
 		<mx:Spacer height="10" />
 		<mx:VBox id="genomeBuildBox" width="100%" verticalGap="0">
