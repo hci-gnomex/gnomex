@@ -187,7 +187,7 @@ public class PendingWorkAuthd extends TimerTask {
       replyEmail = "DoNotReply@hci.utah.edu";
     }
     
-    String subject = "Pending Work Authorizations";
+    String subject = "Pending Billing Accounts";
     
     getPendingWorkAuthorizations(sess, facility);
     Iterator<String> it = waList.iterator();
@@ -207,14 +207,14 @@ public class PendingWorkAuthd extends TimerTask {
     }
 
     if(!hasWorkAuthorizations) {
-      subject = "(No Pending Work Authorizations)";
-      tableRows.append("<tr><td align='center'><span class='fontClass'>There are no pending work authorizations at this time.</span></td></tr>");        
+      subject = "(No Pending Billing Accounts)";
+      tableRows.append("<tr><td align='center'><span class='fontClass'>There are no pending billing accounts at this time.</span></td></tr>");        
     }
     
     // Build message body in html
     StringBuffer body = new StringBuffer("");
     
-    body.append("<html><head><title>Work Authorization Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
+    body.append("<html><head><title>Billing Account Status</title><meta http-equiv='content-style-type' content='text/css'></head>");
     body.append("<body leftmargin='0' marginwidth='0' topmargin='0' marginheight='0' offset='0' bgcolor='#FFFFFF'>");
     
     if(testEmailTo.length() > 0) {
@@ -229,7 +229,7 @@ public class PendingWorkAuthd extends TimerTask {
     if(hasWorkAuthorizations) {
       body.append("<table cellpadding='0' cellspacing='0' border='0' bgcolor='#FFFFFF'>");
       body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>" + "GNomEx - " + facility.getFacilityName() + "</span></td></tr>");        
-      body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following work authorizations are waiting to be approved:</span></td></tr>");        
+      body.append("<tr><td align='left' height='20'><span class='fontClassLgeBold'>The following billing accounts are waiting to be approved:</span></td></tr>");        
       body.append("</table>");        
     }
     body.append("<table cellpadding='5' cellspacing='0' border='1' bgcolor='#EBF2FC'>");

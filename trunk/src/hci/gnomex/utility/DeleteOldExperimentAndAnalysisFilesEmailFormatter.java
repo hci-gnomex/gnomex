@@ -122,7 +122,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     if (lab.isExternalLab()) {
       line2 += "Please make sure you have downloaded your data prior to this date.";
     } else {
-      line2 += "To avoid deletion a work authorization must be submitted and approved prior to this date.  (" + getWorkAuthLink() + ")";
+      line2 += "To avoid deletion a billing account must be submitted and approved prior to this date.  (" + getWorkAuthLink() + ")";
       line3 = "&nbsp;&nbsp;&nbsp; - Estimated charges for disk space, if any, will be sent in a separate email.";
     }
     if (!forWarning) {
@@ -151,7 +151,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
 
   private String getWorkAuthLink() {
     StringBuffer buf = new StringBuffer();
-    buf.append("<a href=\"").append(baseURL).append(Constants.LAUNCH_APP_JSP).append("?launchWindow=WorkAuthForm&idCore=").append(facility.getIdCoreFacility()).append("\">Work Authorization</a>");
+    buf.append("<a href=\"").append(baseURL).append(Constants.LAUNCH_APP_JSP).append("?launchWindow=WorkAuthForm&idCore=").append(facility.getIdCoreFacility()).append("\">New Billing Account</a>");
     return buf.toString();
   }
   
