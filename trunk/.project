@@ -27,7 +27,7 @@
 		<link>
 			<name>bin-debug</name>
 			<type>2</type>
-			<location>C:/Orion/applications/gnomex/gnomex</location>
+			<location>C:/Program Files/Apache Software Foundation/Tomcat 7.0/webapps/gnomex</location>
 		</link>
 	</linkedResources>
 </projectDescription>
