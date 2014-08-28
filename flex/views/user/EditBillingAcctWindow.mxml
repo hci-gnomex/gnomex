@@ -90,7 +90,7 @@
 	resultFormat="e4x" 
 	showBusyCursor="true"
 	result="onSubmitWorkAuthForm(event)"
-	fault="parentApplication.onFailHttpRequest('Unable to submit work authorization form', event)"
+	fault="parentApplication.onFailHttpRequest('Unable to submit billing account form', event)"
 	method="POST"
 	useProxy="false">
 </mx:HTTPService >  
@@ -649,7 +649,7 @@
 		
 		private function onSubmitWorkAuthForm(event:ResultEvent):void {
 			if (submitWorkAuthForm.lastResult.name() == "SUCCESS") {
-				Alert.show("Work authorization for account " + 
+				Alert.show("Billing Account " + 
 					"'" + this.accountName.text + "'"+
 					" has been submitted to " + getCoreFacilityName() +
 					".\n\n" + 

@@ -1326,7 +1326,7 @@
 						</mx:Text>
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
-							<mx:LinkButton  label="Submit Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
+							<mx:LinkButton  label="New Billing Account"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showNewWorkAuthForm()</mx:click>
 							</mx:LinkButton>
 						</mx:HBox>

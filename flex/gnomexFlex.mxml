@@ -3611,7 +3611,7 @@
 					theViews.selectedChild = navRunView;				
 				} else if (label == "Results") {
 					theViews.selectedChild = navDataView;
-				} else if (label == "Submit Work Auth") {
+				} else if (label == "New Billing Account") {
 					this.homeView.showWorkAuthForm();				
 				} else if (label == "New Project") {
 					var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
@@ -3849,7 +3849,7 @@
 			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="New Billing Account" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
@@ -3951,7 +3951,7 @@
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		<menuitem label="New Billing Account" icon="iconBilling"   />
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
@@ -3972,7 +3972,7 @@
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
-		<menuitem label="Submit Work Auth" icon="iconBilling"   />
+		<menuitem label="New Billing Account" icon="iconBilling"   />
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
@@ -4092,7 +4092,7 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
 		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
@@ -4160,7 +4160,7 @@
 			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
 		
 		
@@ -4194,7 +4194,7 @@
 			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="Submit Work Auth" icon="iconBilling"   />
+			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
 		
 		
@@ -4238,7 +4238,7 @@
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
-		<menuitem label="Submit Work Auth" icon="iconBilling" context="guest"  />
+		<menuitem label="New Billing Account" icon="iconBilling" context="guest"  />
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		

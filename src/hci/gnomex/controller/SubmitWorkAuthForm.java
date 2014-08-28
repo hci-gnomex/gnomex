@@ -115,7 +115,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             ((billingAccountScreen.getAccountNumberActivity() == null || billingAccountScreen.getAccountNumberActivity().equals("")) && (billingAccountScreen.getAccountNumberProject() == null || billingAccountScreen.getAccountNumberProject().length() !=8)) ||
             billingAccountScreen.getExpirationDate() == null || billingAccountScreen.getStartDate() == null) {
           
-          this.addInvalidField("Work Authorization Error", "Please make sure all fields are entered and that the correct number of digits are used for each account number field.");
+          this.addInvalidField("Billing Account Error", "Please make sure all fields are entered and that the correct number of digits are used for each account number field.");
           this.setResponsePage(this.ERROR_JSP);
         }
       }
@@ -150,7 +150,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             try {
               this.sendConfirmationEmail(sess, facility);
             } catch (MessagingException me) {
-              emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a work authorization was submitted.";
+              emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a billing account was submitted.";
             }
     
             this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
@@ -160,7 +160,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
           
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          this.addInvalidField("Insufficient permissions", "Insufficient permission to submit work authorization form.");
+          this.addInvalidField("Insufficient permissions", "Insufficient permission to submit billing account form.");
           setResponsePage(this.ERROR_JSP);
         }
       }
@@ -193,8 +193,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer coreNote= new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " submitted";    
-    String coreSubject      = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " pending";    
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " submitted";    
+    String coreSubject      = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " pending";    
     
     boolean send = false;
     boolean testEmail = false;
@@ -221,13 +221,13 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
-    submitterNote.append("The following work authorization " +
+    submitterNote.append("The following billing account " +
         "has been submitted to the " + facility.getDisplay() + " Core" +  
         ".  After the account information is reviewed and approved, " +
         "you will be notified by email that experiment " +
         "requests can now be submitted against this account in GNomEx.");
 
-    coreNote.append("The following work authorization " +
+    coreNote.append("The following billing account " +
         "has been submitted to the " + facility.getDisplay() + " Core" +  
         " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
 
@@ -267,7 +267,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             true);             
       } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
-        log.warn("Unable to send email notification to work authorization submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
+        log.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
       }
       

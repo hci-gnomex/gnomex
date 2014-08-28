@@ -645,8 +645,8 @@ public class ComputeMonthlyDiskUsage {
     } else {
       body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
         .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
-      body.append("The lab has no active billing accounts.  Please submit a work authorization to avoid file deletions(")
-        .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">Work Authorization</a>).");
+      body.append("The lab has no active billing accounts.  Please submit a new billing account to avoid file deletions(")
+        .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">New Billing Account</a>).");
     }
       
     if (sendMail) {

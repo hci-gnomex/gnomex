@@ -672,7 +672,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved"; 
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved"; 
     
     boolean send = false;
     String PIEmail = lab.getContactEmail();
@@ -695,7 +695,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
     
-    submitterNote.append("The following work authorization " +
+    submitterNote.append("The following billing account " +
         "has been approved." +
         "  Lab members can now submit experiment " +
         "requests against this account in GNomEx " + launchAppURL + ".");
@@ -733,7 +733,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Work authorization '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved";    
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved";    
 
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
@@ -759,7 +759,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
-    submitterNote.append("The following work authorization " +
+    submitterNote.append("The following billing account " +
         "has been approved by the " + facility.getDisplay() + " Core" +  
         ".  Lab members can now submit experiment " +
         "requests against this account in GNomEx " + launchAppURL + ".");
