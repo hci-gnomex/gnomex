@@ -12,6 +12,7 @@
 		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion1"/>
 		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion2"/>
 		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion3"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion4" includeInLayout="false" visible="false"/>
 	</mx:VBox>
 	
 </mx:VBox>
