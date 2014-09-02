@@ -240,8 +240,8 @@
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
 					<mx:Repeater id="requestCategoryRepeater" dataProvider="{selectedItem..RequestCategoryApplication}">
 						<mx:CheckBox id="requestCategoryCheckbox" selected="{requestCategoryRepeater.currentItem.@isSelected=='Y'}"
-							visible="{requestCategoryRepeater.currentItem.@isActive=='Y'}"
-							includeInLayout="{requestCategoryRepeater.currentItem.@isActive=='Y'}" 
+							visible="{requestCategoryRepeater.currentItem.@isActive=='Y' &amp;&amp; requestCategoryRepeater.currentItem.@idCoreFacility == state.requestCategory.@idCoreFacility}"
+							includeInLayout="{requestCategoryRepeater.currentItem.@isActive=='Y' &amp;&amp; requestCategoryRepeater.currentItem.@idCoreFacility == state.requestCategory.@idCoreFacility}" 
 							label="{requestCategoryRepeater.currentItem.@requestCategory}"
 							click="{clickRequestCategory(CheckBox(event.currentTarget))}" paddingBottom="0" paddingTop="0" />
 					</mx:Repeater>
