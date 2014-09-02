@@ -350,6 +350,7 @@
 			import views.util.ContactView;
 			import views.util.ContextHelp;
 			import views.util.ContextHelpEditEnableDisableEvent;
+			import views.util.CoreFacilityEvent;
 			import views.util.CoreFacilityWindow;
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
@@ -2608,19 +2609,24 @@
 				} else {
 					myCoreFacilities = new XMLList();
 					for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
-						var found:Boolean = false;
-						for(var i:int = 0; i < myCoreFacilities.length(); i++) {
-							var core2:Object = myCoreFacilities[i];
-							if (core.@idCoreFacility == '') {
-								found = true;
-								break;
-							} else if (core.@idCoreFacility == core2.@idCoreFacility) {
-								found = true;
-								break;
+						
+						for each (var cf:Object in coreFacilities) {
+							if (cf.@idCoreFacility == core.@idCoreFacility) {
+								var found:Boolean = false;
+								for(var i:int = 0; i < myCoreFacilities.length(); i++) {
+									var core2:Object = myCoreFacilities[i];
+									if (core.@idCoreFacility == '') {
+										found = true;
+										break;
+									} else if (core.@idCoreFacility == core2.@idCoreFacility) {
+										found = true;
+										break;
+									}
+								}
+								if (!found) {
+									myCoreFacilities[myCoreFacilities.length()] = cf;
+								}
 							}
-						}
-						if (!found) {
-							myCoreFacilities[myCoreFacilities.length()] = core;
 						}
 					}
 					//myCoreFacilities = new XMLList(temp.toXMLString());
@@ -2664,6 +2670,11 @@
 						}
 					}
 				}
+				if ( this.homeView != null ) { 
+					this.homeView.coreFacilitiesInfoView.refresh();
+				}
+				this.dispatchEvent(new CoreFacilityEvent(CoreFacilityEvent.DATA_REFRESHED));
+				
 				
 				requestCategoryTypeMap = new Object();
 				for each (var rct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType")) {
