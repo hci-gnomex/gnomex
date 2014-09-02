@@ -21,8 +21,8 @@
 		<![CDATA[
 			import hci.flex.controls.CheckBox;
 			
-			import mx.collections.SortField;
 			import mx.collections.ArrayCollection;
+			import mx.collections.SortField;
 			import mx.controls.Alert;
 			import mx.controls.DateField;
 			import mx.events.CloseEvent;
@@ -48,8 +48,18 @@
 				coreFacilities.refresh();
 				coreList.selectedIndex = 0;
 				onSelectCoreFacility();
+				parentApplication.removeEventListener(CoreFacilityEvent.DATA_REFRESHED, refresh);		                                  
+				parentApplication.addEventListener(CoreFacilityEvent.DATA_REFRESHED, refresh);	
 			}	
-						
+			
+				
+			private function refresh(event:Event):void {
+				coreFacilities.refresh();
+				coreList.dataProvider = coreFacilities;
+				coreList.validateNow();
+				reselectCoreFacility();
+			}
+			
 			public function selectCoreFacility(idCoreFacility:Object):void {
 				this.idCoreFacility = idCoreFacility;
 				reselectCoreFacility();
@@ -130,10 +140,10 @@
 			
 			private function onSaveCoreFacility(event:ResultEvent): void {
 				if (saveCoreFacility.lastResult.name() == "SUCCESS") {
-					dirty.resetDirty();
+					this.idCoreFacility = saveCoreFacility.lastResult.@idCoreFacility;
 					theViews.selectedIndex = 0;
+					dirty.resetDirty();
 					parentApplication.dictionaryManager.reload();
-					callLater(init);
 				} else {
 					mx.controls.Alert.show(saveCoreFacility.lastResult..ACTMESSAGE.@TEXT);
 				}
