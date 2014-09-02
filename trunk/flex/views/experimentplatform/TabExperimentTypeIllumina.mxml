@@ -93,7 +93,7 @@
 				var rcApps:XMLList = new XMLList();
 				for each (var rc:Object in state.dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 					var rct:Object = parentApplication.requestCategoryTypeMap[rc.@type];
-					if (rct.@isIllumina == 'Y') {
+					if (rct.@isIllumina == 'Y' && rc.@idCoreFacility == state.requestCategory.@idCoreFacility) {
 						var rcApp:XML = XML(rc).copy();
 						rcApp.setName("RequestCategoryApplication");
 						rcApp.@isSelected = rcApp.@isActive;
