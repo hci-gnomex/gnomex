@@ -62,10 +62,6 @@
 		for each(var c:XML in parentApplication.iScanChipList) {
 			iScanChips.addItem(c.copy());
 		}
-		parentApplication.removeEventListener(IScanChipEvent.DATA_REFRESHED,
-			onIScanChipRefreshed);		                                  
-		parentApplication.addEventListener(IScanChipEvent.DATA_REFRESHED,   
-			onIScanChipRefreshed);
 	}	
 			
 	private function onIScanChipRefreshed(event:Event):void{
