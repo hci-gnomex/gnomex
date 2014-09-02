@@ -350,10 +350,10 @@
 			import views.util.ContactView;
 			import views.util.ContextHelp;
 			import views.util.ContextHelpEditEnableDisableEvent;
+			import views.util.CoreFacilityWindow;
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
 			import views.util.GNomExStringUtil;
-			import views.util.IScanChipEvent;
 			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
@@ -1054,7 +1054,6 @@
 			[Bindable]
 			public var productList:XMLListCollection;
 			
-			
 			[Bindable]
 			public var internalAccountFieldsConfigurationList:XMLListCollection;
 			[Bindable]
@@ -1156,7 +1155,7 @@
 			public var PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION:String       = "allow_core_global_submission";
 			public var PROPERTY_ANNOTATION_OPTION_EQUIVALENTS:String      = "annotation_option_equivalents";
 			public var PROPERTY_HIDE_INSTITUTIONS:String     			  = "hide_institutions";
-			public var PROPERTY_HIDE_EXCLUDE_USAGE_FLAG:String       	  = "hide_exclude_usage_flag";
+			public var PROPERTY_HIDE_EXCLUDE_USAGE_FLAG:String     		  = "hide_exclude_usage_flag";
 			public var PROPERTY_CHOOSE_ADAPTER_TRIM_DEFAULT:String        = "choose_adapter_trim_default";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
@@ -3038,8 +3037,6 @@
 				iScanChipList = new XMLListCollection(getIScanChipList.lastResult..IScanChip);
 				var emptyNode:XML = <IScanChip idIScanChip='' name='' />;
 				
-				this.dispatchEvent(new IScanChipEvent(IScanChipEvent.DATA_REFRESHED));
-				
 				if (currentState == null || currentState == "") {
 					showProgress(10);
 					enableApp();
@@ -3657,7 +3654,11 @@
 					theViews.selectedChild = sequencerOverview;					
 				} else if (label == "Overview"){
 					theViews.selectedChild = expOverview;
-				}
+				} else if (label == "Product Orders") {
+					theViews.selectedChild = navProductOrderView;
+				} else if (label == "Configure Core Facilities") {
+					showCoreFacilityWindow();				
+				} 
 			}
 			
 			
@@ -3759,6 +3760,16 @@
 				this.theViews.selectedChild = this.protocolsView;
 			}	
 			
+			private function showCoreFacilityWindow():void {
+				if (coreFacilitiesICanManage.length() >= 1) {
+					var configWindow:CoreFacilityWindow = CoreFacilityWindow(PopUpManager.createPopUp(this.theBody, CoreFacilityWindow, true));
+					PopUpManager.centerPopUp(configWindow);
+				} else {
+					Alert.show("This feature is not enabled.");
+				}
+				
+			}
+			
 			private function showIScanChipWindow():void {
 				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
@@ -3854,6 +3865,12 @@
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
 		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
+			<menuitem label="Configure Products" icon="iconConfig" />
+		</menuitem>
+		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
@@ -3924,6 +3941,7 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
@@ -4407,7 +4425,10 @@
 					
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
-
+					
+					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0" >
+					</product:NavProductOrderView>
+					
 				</mx:ViewStack>
 				
 			</mx:ViewStack>

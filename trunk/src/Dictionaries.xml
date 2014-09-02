@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dictionaries>
 
-  <Dictionary displayName="General - Core Facility" className="hci.gnomex.model.CoreFacility" editable="Y" >
+  <Dictionary displayName="General - Core Facility" className="hci.gnomex.model.CoreFacility" editable="N" >
     <Filter className="YN" filterField="showProjectAnnotations"/>
     <Filter className="YN" filterField="acceptOnlineWorkAuth"/>
   </Dictionary>

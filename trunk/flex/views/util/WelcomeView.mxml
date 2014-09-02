@@ -417,7 +417,7 @@
 		<mx:HBox horizontalAlign="center" width="100%" height="100%" paddingTop="20">
 			<mx:Image id="splashImage" horizontalAlign="center" source="{parentApplication.welcomeSplash}"  show="{showSplashAndDash()}" showEffect="{parentApplication.fadeInSlow}"/>	
 			<mx:VBox id="coreInfoBox" paddingBottom="10" verticalAlign="middle" width="100%" height="100%" horizontalAlign="center" visible="false" includeInLayout="false">
-				<util:CoreFacilitiesInfoView id="coreFacilitiesInfoView" height="100%"/>
+				<util:CoreFacilitiesInfoView id="coreFacilitiesInfoView" height="100%" />
 			</mx:VBox>
 			<mx:VBox id="newsBox" paddingTop="30" verticalAlign="middle" width="100%" horizontalAlign="center" visible="false" includeInLayout="false">
 				<db:News id="newsHub"/>
