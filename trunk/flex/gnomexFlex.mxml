@@ -2610,8 +2610,8 @@
 					myCoreFacilities = new XMLList();
 					for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
 						
-						for each (var cf:Object in coreFacilities) {
-							if (cf.@idCoreFacility == core.@idCoreFacility) {
+						for each (var dcf:Object in coreFacilities) {
+							if (dcf.@idCoreFacility == core.@idCoreFacility) {
 								var found:Boolean = false;
 								for(var i:int = 0; i < myCoreFacilities.length(); i++) {
 									var core2:Object = myCoreFacilities[i];
@@ -2624,7 +2624,7 @@
 									}
 								}
 								if (!found) {
-									myCoreFacilities[myCoreFacilities.length()] = cf;
+									myCoreFacilities[myCoreFacilities.length()] = dcf;
 								}
 							}
 						}
