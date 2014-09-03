@@ -619,11 +619,11 @@
 				if(sampleTypeRadioGroup.selectedValue != null) {
 					sampleTypeDNARNAHBox.styleName = '';
 				}
+				
+				propagateSampleType();
+				parentDocument.samplesView.initializeSamplesGrid();
+				
 				if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
-					
-					propagateSampleType();
-					parentDocument.samplesView.initializeSamplesGrid();
-					
 					return;
 				}
 				// Select the default organism on sample setup if the request category specifies one
@@ -645,8 +645,6 @@
 					}
 				}
 				
-				propagateSampleType();
-				parentDocument.samplesView.initializeSamplesGrid();
 			}
 			
 			
