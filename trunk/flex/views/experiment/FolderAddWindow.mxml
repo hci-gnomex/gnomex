@@ -8,10 +8,18 @@
 	
 		[Bindable]
 		public var uploadWindow:ExperimentUploadWindow = null;
+		
+		[Bindable]
+		public var isDownloadFolder:Boolean;
 
 		
 		private function addFolder():void {
 			uploadWindow.addDownloadFolder(folderName.text);
+			PopUpManager.removePopUp(this);
+		}
+		
+		private function addSampleGroupFolder():void{
+			uploadWindow.addSampleGroupFolder(folderName.text);
 			PopUpManager.removePopUp(this);
 		}
 		
@@ -26,7 +34,7 @@
 		</mx:VBox>
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="OK" id="okButton" click="addFolder()" enabled="{folderName.text != ''}" />
+		<mx:Button label="OK" id="okButton" click="{isDownloadFolder ? addFolder() : addSampleGroupFolder()}" enabled="{folderName.text != ''}" />
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
