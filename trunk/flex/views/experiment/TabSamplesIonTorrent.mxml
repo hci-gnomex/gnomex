@@ -131,13 +131,18 @@
 				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
 					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
 					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');		
+				var idSampleType:String	= parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? 
+										  parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '';
 				
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
 					" name='' description='' " +
 					" concentration=''" +
-					" canChangeSampleName='Y'" +	
+					" canChangeSampleName='Y'" +
+					" canChangeSampleType='Y'" +
+					" canChangeSampleConcentration='Y'" +
 					" idOrganism='"  + idOrganism + "'" +	
+					" idSampleType='"  + idSampleType + "'" +
 					"/>");
 				return emptyNode;
 			}
