@@ -843,6 +843,10 @@
 			[Bindable]
 			[Embed(source="assets/note.png")]
 			public var iconNote:Class;
+			
+			[Bindable]
+			[Embed(source="assets/blue_folder.png")]
+			public var iconBlueFolder:Class;
 
 			
 			
