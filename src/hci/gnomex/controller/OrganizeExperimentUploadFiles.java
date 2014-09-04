@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
@@ -19,6 +20,8 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -398,7 +401,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           if(directoryFilesToUnlink.size() > 0) {
             for(Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
               String fileName = (String)i.next();
-              String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+              String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/");
               List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
@@ -472,17 +475,42 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
           }
 
-          //Link experiment files to samples
+
+          Map <String, List<Element>> sampleGroup = new TreeMap<String, List<Element>>();
           if(linkedSampleFileDoc != null) {
             Element root = this.linkedSampleFileDoc.getRootElement();
-            int fileCount = 1;
 
-            for(Iterator i = root.getChildren("Sample").iterator(); i.hasNext();) {
-              Element sampleNode = (Element)i.next();      
+            for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
+              Element child = (Element)i.next();
+              if(child.getName().equals("Sample")) {
+                if(sampleGroup.containsKey("*||*")) {
+                  List<Element> samples = sampleGroup.get("*||*");
+                  samples.add(child);
+                  sampleGroup.put("*||*", samples);
+                } else {
+                  List<Element> samples = new ArrayList<Element>();
+                  samples.add(child);
+                  sampleGroup.put("*||*", samples);
+                }
+              } else if(child.getName().equals("SampleGroup")) {
+                recurseAddSamples(child, sampleGroup, child.getAttributeValue("displayName"));
+              }
+            }
+          }
+
+          for(Iterator i = sampleGroup.keySet().iterator(); i.hasNext();) {
+            String displayName = (String)i.next();
+            int fileCount = 1;
+            List<Element> sampleNodes = sampleGroup.get(displayName);
+            for(Iterator j = sampleNodes.iterator(); j.hasNext();) {
+              Element sampleNode = (Element)j.next();      
               Integer idSample = Integer.parseInt(sampleNode.getAttributeValue("idSample"));
+              Sample s = (Sample)sess.load(Sample.class, idSample);
+              s.setGroupName(displayName);
+              sess.save(s);
               int seqRunNumber = 0;
-              for(Iterator j = sampleNode.getChildren().iterator(); j.hasNext();) {
-                Element seqRunNode = (Element)j.next();
+              for(Iterator k = sampleNode.getChildren().iterator(); k.hasNext();) {
+                Element seqRunNode = (Element)k.next();
                 SampleExperimentFile sef = new SampleExperimentFile();
                 Integer idSampleExperimentFile = null;
                 if(seqRunNode.getAttributeValue("idSampleExperimentFile") != null) {
@@ -494,8 +522,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 }
                 Integer idExperimentFile = null;
                 fileCount = 1;
-                for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
-                  Element expFile = (Element)k.next();
+                for(Iterator l = seqRunNode.getChildren().iterator(); l.hasNext();) {
+                  Element expFile = (Element)l.next();
                   ExperimentFile ef = new ExperimentFile();
 
                   if(expFileDictionary.containsKey(expFile.getAttributeValue("zipEntryName").replace("\\", "/"))){ //Is it in the dictionary?  Use it
@@ -538,9 +566,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   fileCount++;
                 }
               }
+
             }
-            sess.flush();
           }
+          sess.flush();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";
@@ -573,6 +602,25 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
     }
 
     return this;
+  }
+
+  private void recurseAddSamples(Element child, Map<String, List<Element>> sampleGroup, String displayName) {
+    for(Iterator i = child.getChildren().iterator(); i.hasNext();) {
+      Element subChild = (Element)i.next();
+      if(subChild.getName().equals("Sample")) {
+        if(sampleGroup.containsKey(displayName)) {
+          List<Element> samples = sampleGroup.get(displayName);
+          samples.add(subChild);
+          sampleGroup.put(displayName, samples);
+        } else {
+          List<Element> samples = new ArrayList<Element>();
+          samples.add(subChild);
+          sampleGroup.put(displayName, samples);
+        }
+      } else if(subChild.getName().equals("SampleGroup")) {
+        recurseAddSamples(subChild, sampleGroup, displayName + "/" + subChild.getAttributeValue("displayName"));
+      }
+    }
   }
 
 
