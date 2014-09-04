@@ -428,7 +428,7 @@
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
 					" displayName='" + memberCombo.selectedItem.@displayName + "'" +
-					"/>");
+					" isActive='Y'/>");
 				members.addItem(node);
 				memberCombo.selectedIndex = -1;
 			}
@@ -444,7 +444,7 @@
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
 					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
-					"/>");
+					" isActive='Y'/>");
 				collaborators.addItem(node);
 				collaboratorCombo.selectedIndex = -1;
 			}
@@ -460,7 +460,7 @@
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
 					" displayName='" + managerCombo.selectedItem.@displayName + "'" +
-					"/>");
+					" isActive='Y'/>");
 				managers.addItem(node);
 				managerCombo.selectedIndex = -1;
 			}
