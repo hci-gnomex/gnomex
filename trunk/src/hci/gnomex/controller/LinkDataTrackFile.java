@@ -136,9 +136,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
             int minusIndex = dtName.toUpperCase().indexOf("_MINUS");
             dtName = dtName.substring(0, minusIndex);
           } else {
-            dtName = dtName.substring(0, dtName.indexOf("."));
+            dtName = dtName.substring(0, dtName.lastIndexOf("."));
           }
-          
+
           dataTrack.setName(dtName);
           dataTrack.setIdLab(idLab);
           dataTrack.setIdGenomeBuild(idGenomeBuild);
