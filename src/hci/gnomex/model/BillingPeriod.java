@@ -119,4 +119,10 @@ public class BillingPeriod extends DictionaryEntry implements Serializable {
       return new Integer(calendar.get(Calendar.YEAR)).toString();
     }
   }
+  
+  public Integer getCalendarYear() {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(endDate);
+    return cal.get(Calendar.YEAR);
+  }
 }

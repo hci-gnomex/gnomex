@@ -99,7 +99,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       } else {
         this.addInvalidField("idLab", "idLab is required");
       }
-      if (request.getParameter("idBillingAccount") != null) {
+      if (request.getParameter("idBillingAccount") != null && request.getParameter("idBillingAccount").length() > 0) {
         idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
       } else {
         this.addInvalidField("idBillingAccount", "idBillingAccount is required");

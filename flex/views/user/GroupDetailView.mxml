@@ -72,6 +72,17 @@
 			<idBillingAccount>{poBillingAccounts.getItemAt(billingAccountPOGrid.selectedIndex).@idBillingAccount}</idBillingAccount>
 		</mx:request>
 	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="getInvoiceBillingAccounts" 
+		url="GetBillingAccountListForPeriodAndCore.gx"
+		destination="getInvoiceBillingAccounts"
+		showBusyCursor="true"
+		resultFormat="e4x"
+		result="onGetInvoiceBillingAccounts(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get billing accounts', event)"
+		useProxy="false">
+	</mx:HTTPService >
 
 	
 	<mx:Script>
@@ -87,6 +98,7 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.List;
 			import mx.events.CloseEvent;
@@ -102,18 +114,32 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.ValidationResult;
 			
+			import views.billing.BillingInvoiceEmailWindow;
+			import views.util.BillingPeriodSelectEvent;
+			import views.util.BillingPeriodUtil;
 			import views.util.InstitutionWindow;
-			
+			import views.util.PickBillingPeriodView;
+
 			private var dictionaryEditor:DictionaryEditor;
 			private var fileRef:FileReference = new FileReference();
+			private var billingPeriodUtil:BillingPeriodUtil = null;
+			
 			public var uploadPurchaseOrderURL:String;
 			
 			private var lastIdCoreFacility:Object = null;
+
+			[Bindable]
+			private var invoiceBillingPeriod:Object = null;
+			
+			private var invoiceLabList:String;
+			private var invoiceBillingAccountList:String;
 			
 			[Bindable]
 			private var showApproveCol:Boolean = false;
 			
 			public function initializeData():void {
+				billingPeriodUtil = new BillingPeriodUtil(parentApplication.dictionaryManager);
+				
 				// Get the list of all users
 				parentApplication.navUsersView.getAppUserList.send();
 				
@@ -935,6 +961,10 @@
 				addApprovedBillingAccountUsers(poBillingAccounts);
 				addApprovedBillingAccountUsers(creditCardBillingAccounts);
 				refreshBillingTab();
+				
+				var bp:Object = billingPeriodUtil.getPreviousBillingPeriod();
+				var evt:BillingPeriodSelectEvent = new BillingPeriodSelectEvent(bp.@display);
+				invoiceBillingPeriodSelected(evt);
 			}
 			
 			private function addApprovedBillingAccountUsers(billingAccountList:XMLListCollection):void{
@@ -1259,6 +1289,139 @@
 				billingAccountGrid.editedItemPosition = null;
 			}
 			
+			private function pickInvoiceBillingPeriod():void 
+			{
+				var pickBillingPeriodWindow:PickBillingPeriodView = new PickBillingPeriodView();
+				PopUpManager.addPopUp(pickBillingPeriodWindow, pickInvoiceBillingPeriodButton, false);
+				PopUpManager.centerPopUp(pickBillingPeriodWindow);
+				var selYear:int = (new Date()).getFullYear();
+				if (this.invoiceBillingPeriod != null) {
+				    selYear = this.invoiceBillingPeriod.@calendarYear;
+				}
+				
+				this.systemManager.removeEventListener("BillingPeriodSelectEvent", invoiceBillingPeriodSelected);
+				this.systemManager.addEventListener("BillingPeriodSelectEvent", invoiceBillingPeriodSelected);
+
+				pickBillingPeriodWindow.init(selYear, billingPeriodUtil.maxBillingYear, billingPeriodUtil.minBillingYear, billingPeriodUtil.activeBillingPeriods);
+			}
+			
+			private function invoiceBillingPeriodSelected(evt:BillingPeriodSelectEvent):void
+			{
+				pickInvoiceBillingPeriodButton.label = evt.selectedMonthYear;
+				this.invoiceBillingPeriod = billingPeriodUtil.getBillingPeriodFromYearMonth(evt.selectedMonthYear);
+				this.systemManager.removeEventListener("BillingPeriodSelectEvent", invoiceBillingPeriodSelected);
+				this.refreshInvoiceBillingAccountList();
+			}	
+
+			private function printInvoice():void {
+				if (this.getSelectedInvoiceCoreFacility() == null) {
+					Alert.show("Please choose a core facility");
+					return;
+				}
+				if (this.invoiceBillingPeriod == null) {
+					Alert.show("Please choose a billing period");
+					return;
+				}
+				setInvoiceIdLists();
+				if (this.invoiceBillingAccountList == null || this.invoiceBillingAccountList.length == 0) {
+					Alert.show("Please choose at least one billing account.");
+				}
+				var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
+					'?idBillingPeriod=' + invoiceBillingPeriod.@idBillingPeriod + 
+					'&idLabs=' + this.invoiceLabList +
+					'&idCoreFacility=' + this.getSelectedInvoiceCoreFacility().@idCoreFacility +
+					'&idBillingAccounts=' + this.invoiceBillingAccountList);
+				navigateToURL(showUrl, '_blank');
+			}
+			
+			private function refreshInvoiceBillingAccountList():void {
+				if (this.getSelectedInvoiceCoreFacility() != null && this.invoiceBillingPeriod != null) {
+					var parms:Object = new Object();
+					parms.idCoreFacility = this.getSelectedInvoiceCoreFacility().@idCoreFacility;
+					parms.idBillingPeriod = this.invoiceBillingPeriod.@idBillingPeriod;
+					parms.idLab = this.parentDocument.fullLab.@idLab;
+					this.getInvoiceBillingAccounts.send(parms);
+				} else {
+					this.invoiceBillingAccountWarningLabel.text = "Please choose core facility and billing period.";
+					showInvoiceWarning(true);
+				}
+			}
+			
+			public function onGetInvoiceBillingAccounts(event:ResultEvent):void {
+				if (getInvoiceBillingAccounts.lastResult.name() == "BillingAccountList") {
+					this.invoiceBillingAccounts.refresh();
+					if (this.invoiceBillingAccounts.length == 0) {
+						this.invoiceBillingAccountWarningLabel.text = "No invoice available for this core and period.";
+						showInvoiceWarning(true);
+					} else {
+						for (var x:int = 0; x < invoiceBillingAccountCheckBox.length; x++) {
+							invoiceBillingAccountCheckBox[x].selected = true;
+						}
+						showInvoiceWarning(false);
+					}
+				} else {
+					this.invoiceBillingAccountWarningLabel.text = "Unexpected error getting billing accounts.  If problem persists please contact GNomEx support.";
+					showInvoiceWarning(true);
+				}
+				setPrintInvoiceEnabled();
+			}
+			
+			private function showInvoiceWarning(show:Boolean):void {
+				this.invoiceBillingAccountWarningLabel.visible = show;
+				this.invoiceBillingAccountWarningLabel.includeInLayout = show;
+				this.invoiceBillingAccountVBox.visible = !show;
+				this.invoiceBillingAccountVBox.includeInLayout = !show;
+				
+			}
+			
+			private function invoiceBillingAccountCompare(obj1:Object, obj2:Object, fields:Array = null):int{
+				if(obj1 == null && obj2 == null){
+					return 0;
+				} else if(obj1 == null){
+					return 1;
+				} else if(obj2 == null){
+					return -1;
+				} else{
+					if(obj1.@accountNameDisplay < obj2.@accountNameDisplay){
+						return -1;
+					} else if(obj1.@accountNameDisplay > obj2.@accountNameDisplay){
+						return 1;
+					} else{
+						return 0;
+					}
+				}
+			}
+			
+			private function setInvoiceIdLists():void {
+				this.invoiceLabList = "";
+				this.invoiceBillingAccountList = "";
+				if (invoiceBillingAccountCheckBox != null) {
+					for (var x:int = 0; x < invoiceBillingAccountCheckBox.length; x++) {
+						var facility:Object = invoiceBillingAccounts.getItemAt(x);
+						if (invoiceBillingAccountCheckBox[x].selected) {
+							if (this.invoiceBillingAccountList.length > 0) {
+								this.invoiceBillingAccountList += ",";
+								this.invoiceLabList += ","
+							}
+							this.invoiceBillingAccountList += facility.@idBillingAccount;
+							this.invoiceLabList += parentDocument.fullLab.@idLab;
+						}
+					}
+				}
+			}
+			
+			private function setPrintInvoiceEnabled():void {
+				setInvoiceIdLists();
+				this.printInvoiceButton.enabled = (this.invoiceBillingAccountList != null && this.invoiceBillingAccountList.length > 0 && this.getSelectedInvoiceCoreFacility() != null && invoiceBillingPeriod != null);
+			}
+			
+			private function getSelectedInvoiceCoreFacility():Object {
+				if (this.labCoreFacilitiesIManage.length == 1) {
+					return this.labCoreFacilitiesIManage.getItemAt(0);
+				} else {
+					return this.invoiceCoreFacilityCombo.selectedItem;
+				}
+			}
 		]]>
 	</mx:Script>	  
 	
@@ -1278,11 +1441,13 @@
 	<mx:XMLListCollection id="labCoreFacilities" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" sort="{sortOrderSort}" />
 	<mx:XMLListCollection id="labCoreFacilitiesIManage" source="{parentDocument.fullLab.coreFacilities.CoreFacility}" filterFunction="filterCore" sort="{sortOrderSort}" />
 	<mx:XMLListCollection id="activeSubmitters"/>
+	<mx:XMLListCollection id="invoiceBillingAccounts" source="{getInvoiceBillingAccounts.lastResult.BillingAccount}" sort="{invoiceBillingAccountSort}" />
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	<mx:EmailValidator id="emailValidator" property="text" />
 	
 	<mx:Sort id="alphabeticSort" compareFunction="sortByLastName"/>
 	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
+	<mx:Sort id="invoiceBillingAccountSort" compareFunction="invoiceBillingAccountCompare"/>
 	
 	<mx:VBox  height="100%" width="100%" verticalGap="0" >
 		
@@ -1791,9 +1956,37 @@
 							
 						</mx:VDividedBox>
 
-				
 			</mx:VBox>
-
+			
+			<mx:VBox label="Invoices" id="invoicesTab" width="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="0">
+				<mx:HBox paddingTop="10" visible="{labCoreFacilitiesIManage.length > 1}" includeInLayout="{labCoreFacilitiesIManage.length > 1}">
+					<mx:Label id="invoiceCoreFacilityLabel" text="Core Facility" styleName="formLabel" width="75"/>
+					<mx:ComboBox id="invoiceCoreFacilityCombo" width="300" dataProvider="{labCoreFacilitiesIManage}" editable="false"
+								 labelField="@display" prompt="Core facility..." fontSize="11" click="refreshInvoiceBillingAccountList()" change="refreshInvoiceBillingAccountList()"/>
+					<util:ContextHelp context1="coreFacilityHelp" context2="" context3="" 
+									  showEdit="{parentApplication.isSuperAdmin}" 
+									  title="Core Facility Information" label="Help me choose" id="coreFacilityHelp"/>
+				</mx:HBox>
+				<mx:HBox paddingTop="5" paddingBottom="0">
+					<mx:Label id="pickInvoiceBillingPeriodLabel" text="Billing Period" styleName="formLabel" width="75"/>
+					<mx:Button label="Unknown" id="pickInvoiceBillingPeriodButton" click="pickInvoiceBillingPeriod()" height="22" width="130"/>		
+				</mx:HBox>
+				<mx:VBox paddingTop="5" paddingBottom="10" verticalGap="0">
+					<mx:Label id="invoiceBillingAccountLabel" text="Billing Accounts" styleName="formLabel"/>
+					<mx:HBox paddingTop="0" paddingBottom="0" id="invoiceBillingAccountHBox">
+						<mx:Spacer width="20"/>
+						<mx:VBox width="100%" paddingTop="0" verticalGap="0" id="invoiceBillingAccountVBox" visible="false" includeInLayout="false">
+							<mx:Repeater id="invoiceBillingAccountRepeater" dataProvider="{invoiceBillingAccounts}">
+								<mx:CheckBox id="invoiceBillingAccountCheckBox"
+											 label="{invoiceBillingAccountRepeater.currentItem.@accountNameDisplay}"
+											 paddingBottom="0" paddingTop="0" click="setPrintInvoiceEnabled()" />
+							</mx:Repeater>
+						</mx:VBox>
+						<mx:Label id="invoiceBillingAccountWarningLabel" text="Please choose core facility and billing period."/>
+					</mx:HBox>
+				</mx:VBox>
+				<mx:Button label="Show Printable Invoice" id="printInvoiceButton" click="printInvoice()" enabled="false"/>					
+			</mx:VBox> 
 		</mx:TabNavigator>
 		
 	</mx:VBox>
