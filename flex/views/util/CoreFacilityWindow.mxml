@@ -120,6 +120,8 @@
 					return;
 				}
 				
+				this.enabled = false;
+				
 				var params:Object = new Object();
 				params.idCoreFacility = coreList.selectedItem.@idCoreFacility;
 				params.sortOrder = coreList.selectedItem.@sortOrder != null ? coreList.selectedItem.@sortOrder : 99;
@@ -139,6 +141,7 @@
 			}
 			
 			private function onSaveCoreFacility(event:ResultEvent): void {
+				this.enabled = true;
 				if (saveCoreFacility.lastResult.name() == "SUCCESS") {
 					this.idCoreFacility = saveCoreFacility.lastResult.@idCoreFacility;
 					theViews.selectedIndex = 0;
