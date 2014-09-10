@@ -2027,6 +2027,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 
   `qubitConcentration` DECIMAL(8, 3) NULL,
+  `groupName` VARCHAR(200) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
