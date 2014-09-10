@@ -951,7 +951,7 @@
 						delete cn[i];       
 						return true;
 					}
-				}    
+				}
 				return false;
 			}
 			
@@ -975,7 +975,7 @@
 				// Show the default "drop line" in the Tree control
 				//downloadTree.showDropFeedback(event);
 				// Cancel default behaviors
-				
+
 				var r:int = downloadTree.calculateDropIndex(event);
 				if (r > 0) { 
 					r--;
@@ -1172,6 +1172,12 @@
 			
 			private function createSeqRunFolder():void{
 				var seqRunNumberNode:XML = <SeqRunNumber />;
+				for each(var child:XML in samplesTree.selectedItem.children()){
+					if(child.name() == this.SEQ_RUN_FOLDER_NAME && child.children().length() == 0){
+						return;
+					}
+				}
+				
 				samplesTree.selectedItem.appendChild(seqRunNumberNode);
 			}
 			
