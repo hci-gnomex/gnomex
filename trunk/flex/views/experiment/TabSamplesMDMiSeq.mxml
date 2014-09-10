@@ -568,7 +568,8 @@
 								
 					if (parentDocument.isEditState() ||
 						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
+						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ||
+						(parentDocument.sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && parentDocument.sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
 						seqLibProtocolCol.visible = !isExternal;
 					} else {
 						seqLibProtocolCol.visible = false;

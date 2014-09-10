@@ -4707,7 +4707,8 @@
 					show = false;
 				} else if (this.isEditState()) {
     				show = true;
-    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
+    			} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+						   (sampleSetupView.currentState == "MDMiSeqState" && sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N") ) {
 					show = true;
 				} 	
     		}
@@ -4728,7 +4729,8 @@
 					show = false;
 				} else if (this.isEditState()) {
 					show = true;
-				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
+				} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+					(sampleSetupView.currentState == "MDMiSeqState" && sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
 					show = true;
 				} 	
 			}
