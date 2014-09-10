@@ -1493,7 +1493,7 @@
 											 dropEnabled="true"  		                
 											 dragEnabled="true"  
 											 dragMoveEnabled="true"
-											 allowMultipleSelection="true" dataTipFunction="showFileNameToolTip"
+											 allowMultipleSelection="false" dataTipFunction="showFileNameToolTip"
 											 itemClick="{this.experimentFilesTree.selectedItem = null;}" mouseDown="getClickedItem(event)">
 							<mx:dataProvider>
 								<mx:HierarchicalData id="sampleHierarchy" source="{sampleList}"/>
