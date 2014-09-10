@@ -813,6 +813,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         String billedAccountName = requestParser.getRequest().getBillingAccountName();
         String contactEmail = lab.getContactEmail();
         String ccEmail = "";
+        if (lab.getBillingContactEmail() != null && lab.getBillingContactEmail().length() > 0) {
+          ccEmail = lab.getBillingContactEmail() + ", ";
+        }
         for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
           AppUser manager = (AppUser)i1.next();
           if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
