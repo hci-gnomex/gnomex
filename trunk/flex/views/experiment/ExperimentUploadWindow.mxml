@@ -634,6 +634,11 @@
 							clickedItems = new XMLListCollection();
 							return;
 						}
+						if (di.name() == this.SAMPLE_GROUP_FOLDER_NAME && this.checkRecursiveParent(di, dropNode)) {
+							Alert.show("A folder may not be dragged into one of it's subfolders");
+							clickedItems = new XMLListCollection();
+							return;
+						}
 					}
 				} else if(dropNode.name() == this.SEQ_RUN_FOLDER_NAME || dropNode.name() == this.SAMPLE_NAME){
 					for each(var dropItem:XML in draggedItems){
@@ -654,6 +659,15 @@
 				
 			}
 			
+			private function checkRecursiveParent(dragItem:XML, dropNode:XML):Boolean {
+				if (dropNode.name() == "SampleList") {
+					return false;
+				}
+				if (dropNode.parent().@displayName == dragItem.@displayName) {
+					return true;
+				}
+				return checkRecursiveParent(dragItem, dropNode.parent());
+			}
 			
 			private function onDragDropSamples(event:DragEvent, dropNode:XML, draggedItems:Array):void{
 				event.preventDefault();
