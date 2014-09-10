@@ -46,7 +46,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
   private Integer                        idRequest;
   private StringBuffer                   queryBuf = new StringBuffer();
   private String                         serverName;
-  private SortedMap<String, List<Element>>     sampleGroups = new TreeMap<String, List<Element>>(new MyComparator());
+  private SortedMap<String, TreeMap<String, Element>>     sampleGroups = new TreeMap<String, TreeMap<String, Element>>(new MyComparator());
 
   public void validate() {
   }
@@ -135,13 +135,13 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
         for(Iterator j = sampleGroups.keySet().iterator(); j.hasNext();) {
           String displayName = (String)j.next();
           if(groupName.equals(displayName)) {
-            List<Element> temp = sampleGroups.get(displayName);
-            temp.add(sampleNode);
+            TreeMap<String, Element> temp = sampleGroups.get(displayName);
+            temp.put(sampleNode.getAttributeValue("number"), sampleNode);
             sampleGroups.put(groupName, temp);
             break;
           } else if(groupName.contains(displayName)) {
-            List<Element> temp = sampleGroups.get(displayName);
-            temp.add(sampleNode);
+            TreeMap<String, Element> temp = sampleGroups.get(displayName);
+            temp.put(sampleNode.getAttributeValue("number"), sampleNode);
             sampleGroups.put(groupName, temp);
             sampleGroups.remove(displayName);
             break;
@@ -149,8 +149,8 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
         }
 
         if(!sampleGroups.containsKey(groupName)){
-          List<Element> temp = new ArrayList();
-          temp.add(sampleNode);
+          TreeMap<String, Element> temp = new TreeMap<String, Element>(new MyComparator());
+          temp.put(sampleNode.getAttributeValue("number"), sampleNode);
           sampleGroups.put(groupName, temp);
         }
       }
@@ -178,16 +178,17 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       for(Iterator i = sampleGroups.keySet().iterator(); i.hasNext();) {
         String groupName = (String)i.next();
         String restingNode = "";
-        List<Element> sampleNodes = sampleGroups.get(groupName);
+        TreeMap<String, Element> sampleNodes = sampleGroups.get(groupName);
         if(groupName.equals("*||*")) {
-          for(Element sNode : sampleNodes) {
-            doc.getRootElement().addContent(sNode);
+          for(String sampleNumber : sampleNodes.keySet()) {
+            doc.getRootElement().addContent(sampleNodes.get(sampleNumber));
           }
           continue;
         }
         String[] nameArray = groupName.split("/");
         Element group = alreadyCreated.get(nameArray[0]);
-        for(Element samp : sampleNodes) {
+        for(String sampleNumber : sampleNodes.keySet()) {
+          Element samp = sampleNodes.get(sampleNumber);
           String sampGroup = samp.getAttributeValue("groupName");
           restingNode = sampGroup.substring(sampGroup.lastIndexOf("/") + 1);
           recurseAddChildren(restingNode, group, samp);
