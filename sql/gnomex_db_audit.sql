@@ -981,12 +981,6 @@ DROP TRIGGER IF EXISTS TrAU_Visibility_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Visibility_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_VisitLog_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_VisitLog_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_VisitLog_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_WorkItem_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_WorkItem_FER
@@ -3105,8 +3099,8 @@ CREATE TABLE IF NOT EXISTS `Application_Audit` (
  ,`hasCaptureLibDesign`  char(1)  NULL DEFAULT NULL
  ,`coreSteps`  varchar(5000)  NULL DEFAULT NULL
  ,`coreStepsNoLibPrep`  varchar(5000)  NULL DEFAULT NULL
- ,`onlyForLabPrepped`  char(1)  NULL DEFAULT NULL
  ,`codeApplicationType`  varchar(10)  NULL DEFAULT NULL
+ ,`onlyForLabPrepped`  char(1)  NULL DEFAULT NULL
  ,`samplesPerBatch`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -3131,8 +3125,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch )
   SELECT
   'No Context'
@@ -3149,8 +3143,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   FROM Application
   WHERE NOT EXISTS(SELECT * FROM Application_Audit)
@@ -3178,8 +3172,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -3196,8 +3190,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.onlyForLabPrepped
   , NEW.codeApplicationType
+  , NEW.onlyForLabPrepped
   , NEW.samplesPerBatch );
 END;
 $$
@@ -3220,8 +3214,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -3238,8 +3232,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.onlyForLabPrepped
   , NEW.codeApplicationType
+  , NEW.onlyForLabPrepped
   , NEW.samplesPerBatch );
 END;
 $$
@@ -3262,8 +3256,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -3280,8 +3274,8 @@ BEGIN
   , OLD.hasCaptureLibDesign
   , OLD.coreSteps
   , OLD.coreStepsNoLibPrep
-  , OLD.onlyForLabPrepped
   , OLD.codeApplicationType
+  , OLD.onlyForLabPrepped
   , OLD.samplesPerBatch );
 END;
 $$
@@ -4027,7 +4021,10 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`accountNumberAu`  varchar(10)  NULL DEFAULT NULL
  ,`accountNumberYear`  varchar(10)  NULL DEFAULT NULL
  ,`idFundingAgency`  int(10)  NULL DEFAULT NULL
+ ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
  ,`isPO`  char(1)  NULL DEFAULT NULL
+ ,`isCreditCard`  char(1)  NULL DEFAULT NULL
+ ,`ZipCode`  varchar(20)  NULL DEFAULT NULL
  ,`isApproved`  char(1)  NULL DEFAULT NULL
  ,`approvedDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -4036,16 +4033,13 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`totalDollarAmount`  decimal(12,2)  NULL DEFAULT NULL
  ,`purchaseOrderForm`  longblob  NULL DEFAULT NULL
  ,`orderFormFileType`  varchar(10)  NULL DEFAULT NULL
+ ,`orderFormFileSize`  bigint(20)  NULL DEFAULT NULL
  ,`shortAcct`  varchar(10)  NULL DEFAULT NULL
  ,`startDate`  datetime  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`custom1`  varchar(50)  NULL DEFAULT NULL
  ,`custom2`  varchar(50)  NULL DEFAULT NULL
  ,`custom3`  varchar(50)  NULL DEFAULT NULL
- ,`isCreditCard`  varchar(1)  NULL DEFAULT NULL
- ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
- ,`orderFormFileSize`  bigint(20)  NULL DEFAULT NULL
- ,`zipCode`  varchar(20)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -4073,7 +4067,10 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4082,16 +4079,13 @@ INSERT INTO BillingAccount_Audit
   , totalDollarAmount
   , purchaseOrderForm
   , orderFormFileType
+  , orderFormFileSize
   , shortAcct
   , startDate
   , idCoreFacility
   , custom1
   , custom2
-  , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , orderFormFileSize
-  , zipCode )
+  , custom3 )
   SELECT
   'No Context'
   , 'L'
@@ -4111,7 +4105,10 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4120,16 +4117,13 @@ INSERT INTO BillingAccount_Audit
   , totalDollarAmount
   , purchaseOrderForm
   , orderFormFileType
+  , orderFormFileSize
   , shortAcct
   , startDate
   , idCoreFacility
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , orderFormFileSize
-  , zipCode
   FROM BillingAccount
   WHERE NOT EXISTS(SELECT * FROM BillingAccount_Audit)
 $$
@@ -4160,7 +4154,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4169,16 +4166,13 @@ BEGIN
   , totalDollarAmount
   , purchaseOrderForm
   , orderFormFileType
+  , orderFormFileSize
   , shortAcct
   , startDate
   , idCoreFacility
   , custom1
   , custom2
-  , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , orderFormFileSize
-  , zipCode )
+  , custom3 )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -4198,7 +4192,10 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
+  , NEW.idCreditCardCompany
   , NEW.isPO
+  , NEW.isCreditCard
+  , NEW.ZipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4207,16 +4204,13 @@ BEGIN
   , NEW.totalDollarAmount
   , NEW.purchaseOrderForm
   , NEW.orderFormFileType
+  , NEW.orderFormFileSize
   , NEW.shortAcct
   , NEW.startDate
   , NEW.idCoreFacility
   , NEW.custom1
   , NEW.custom2
-  , NEW.custom3
-  , NEW.isCreditCard
-  , NEW.idCreditCardCompany
-  , NEW.orderFormFileSize
-  , NEW.zipCode );
+  , NEW.custom3 );
 END;
 $$
 
@@ -4242,7 +4236,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4251,16 +4248,13 @@ BEGIN
   , totalDollarAmount
   , purchaseOrderForm
   , orderFormFileType
+  , orderFormFileSize
   , shortAcct
   , startDate
   , idCoreFacility
   , custom1
   , custom2
-  , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , orderFormFileSize
-  , zipCode )
+  , custom3 )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -4280,7 +4274,10 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
+  , NEW.idCreditCardCompany
   , NEW.isPO
+  , NEW.isCreditCard
+  , NEW.ZipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4289,16 +4286,13 @@ BEGIN
   , NEW.totalDollarAmount
   , NEW.purchaseOrderForm
   , NEW.orderFormFileType
+  , NEW.orderFormFileSize
   , NEW.shortAcct
   , NEW.startDate
   , NEW.idCoreFacility
   , NEW.custom1
   , NEW.custom2
-  , NEW.custom3
-  , NEW.isCreditCard
-  , NEW.idCreditCardCompany
-  , NEW.orderFormFileSize
-  , NEW.zipCode );
+  , NEW.custom3 );
 END;
 $$
 
@@ -4324,7 +4318,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4333,16 +4330,13 @@ BEGIN
   , totalDollarAmount
   , purchaseOrderForm
   , orderFormFileType
+  , orderFormFileSize
   , shortAcct
   , startDate
   , idCoreFacility
   , custom1
   , custom2
-  , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , orderFormFileSize
-  , zipCode )
+  , custom3 )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -4362,7 +4356,10 @@ BEGIN
   , OLD.accountNumberAu
   , OLD.accountNumberYear
   , OLD.idFundingAgency
+  , OLD.idCreditCardCompany
   , OLD.isPO
+  , OLD.isCreditCard
+  , OLD.ZipCode
   , OLD.isApproved
   , OLD.approvedDate
   , OLD.createDate
@@ -4371,16 +4368,13 @@ BEGIN
   , OLD.totalDollarAmount
   , OLD.purchaseOrderForm
   , OLD.orderFormFileType
+  , OLD.orderFormFileSize
   , OLD.shortAcct
   , OLD.startDate
   , OLD.idCoreFacility
   , OLD.custom1
   , OLD.custom2
-  , OLD.custom3
-  , OLD.isCreditCard
-  , OLD.idCreditCardCompany
-  , OLD.orderFormFileSize
-  , OLD.zipCode );
+  , OLD.custom3 );
 END;
 $$
 
@@ -4516,7 +4510,7 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`codeBillingStatus`  varchar(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`idPrice`  int(10)  NULL DEFAULT NULL
- ,`idRequest`  int(11)  NULL DEFAULT NULL
+ ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`percentagePrice`  decimal(3,2)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
@@ -4525,7 +4519,7 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`splitType`  char(1)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
- ,`idDiskUsageByMonth`  int(11)  NULL DEFAULT NULL
+ ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -8824,11 +8818,11 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`notes`  varchar(200)  NULL DEFAULT NULL
  ,`barcode`  varchar(100)  NULL DEFAULT NULL
  ,`codeSequencingPlatform`  varchar(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
  ,`runNumber`  int(10)  NULL DEFAULT NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
- ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -8850,11 +8844,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   SELECT
   'No Context'
   , 'L'
@@ -8868,11 +8862,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
   , side
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
 $$
@@ -8897,11 +8891,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -8915,11 +8909,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed );
+  , NEW.side );
 END;
 $$
 
@@ -8939,11 +8933,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -8957,11 +8951,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed );
+  , NEW.side );
 END;
 $$
 
@@ -8981,11 +8975,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -8999,11 +8993,11 @@ BEGIN
   , OLD.notes
   , OLD.barcode
   , OLD.codeSequencingPlatform
+  , OLD.idCoreFacility
+  , OLD.idNumberSequencingCyclesAllowed
   , OLD.runNumber
   , OLD.idInstrument
-  , OLD.side
-  , OLD.idCoreFacility
-  , OLD.idNumberSequencingCyclesAllowed );
+  , OLD.side );
 END;
 $$
 
@@ -9262,8 +9256,8 @@ CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
  ,`coordTestRange`  varchar(100)  NULL DEFAULT NULL
  ,`coordAuthority`  varchar(50)  NULL DEFAULT NULL
  ,`ucscName`  varchar(100)  NULL DEFAULT NULL
- ,`dataPath`  varchar(500)  NULL DEFAULT NULL
  ,`igvName`  varchar(50)  NULL DEFAULT NULL
+ ,`dataPath`  varchar(500)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -9291,8 +9285,8 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , igvName )
+  , igvName
+  , dataPath )
   SELECT
   'No Context'
   , 'L'
@@ -9312,8 +9306,8 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
   , igvName
+  , dataPath
   FROM GenomeBuild
   WHERE NOT EXISTS(SELECT * FROM GenomeBuild_Audit)
 $$
@@ -9344,8 +9338,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -9365,8 +9359,8 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.dataPath
-  , NEW.igvName );
+  , NEW.igvName
+  , NEW.dataPath );
 END;
 $$
 
@@ -9392,8 +9386,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -9413,8 +9407,8 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.dataPath
-  , NEW.igvName );
+  , NEW.igvName
+  , NEW.dataPath );
 END;
 $$
 
@@ -9440,8 +9434,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -9461,8 +9455,8 @@ BEGIN
   , OLD.coordTestRange
   , OLD.coordAuthority
   , OLD.ucscName
-  , OLD.dataPath
-  , OLD.igvName );
+  , OLD.igvName
+  , OLD.dataPath );
 END;
 $$
 
@@ -10941,10 +10935,10 @@ CREATE TABLE IF NOT EXISTS `IScanChip_Audit` (
  ,`name`  varchar(500)  NULL DEFAULT NULL
  ,`costPerSample`  decimal(5,2)  NULL DEFAULT NULL
  ,`samplesPerChip`  int(10)  NULL DEFAULT NULL
+ ,`chipsPerKit`  int(10)  NULL DEFAULT NULL
  ,`markersPerSample`  varchar(100)  NULL DEFAULT NULL
  ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
- ,`chipsPerKit`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -10962,10 +10956,10 @@ INSERT INTO IScanChip_Audit
   , name
   , costPerSample
   , samplesPerChip
+  , chipsPerKit
   , markersPerSample
   , catalogNumber
-  , isActive
-  , chipsPerKit )
+  , isActive )
   SELECT
   'No Context'
   , 'L'
@@ -10975,10 +10969,10 @@ INSERT INTO IScanChip_Audit
   , name
   , costPerSample
   , samplesPerChip
+  , chipsPerKit
   , markersPerSample
   , catalogNumber
   , isActive
-  , chipsPerKit
   FROM IScanChip
   WHERE NOT EXISTS(SELECT * FROM IScanChip_Audit)
 $$
@@ -10999,10 +10993,10 @@ BEGIN
   , name
   , costPerSample
   , samplesPerChip
+  , chipsPerKit
   , markersPerSample
   , catalogNumber
-  , isActive
-  , chipsPerKit )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -11012,10 +11006,10 @@ BEGIN
   , NEW.name
   , NEW.costPerSample
   , NEW.samplesPerChip
+  , NEW.chipsPerKit
   , NEW.markersPerSample
   , NEW.catalogNumber
-  , NEW.isActive
-  , NEW.chipsPerKit );
+  , NEW.isActive );
 END;
 $$
 
@@ -11031,10 +11025,10 @@ BEGIN
   , name
   , costPerSample
   , samplesPerChip
+  , chipsPerKit
   , markersPerSample
   , catalogNumber
-  , isActive
-  , chipsPerKit )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -11044,10 +11038,10 @@ BEGIN
   , NEW.name
   , NEW.costPerSample
   , NEW.samplesPerChip
+  , NEW.chipsPerKit
   , NEW.markersPerSample
   , NEW.catalogNumber
-  , NEW.isActive
-  , NEW.chipsPerKit );
+  , NEW.isActive );
 END;
 $$
 
@@ -11063,10 +11057,10 @@ BEGIN
   , name
   , costPerSample
   , samplesPerChip
+  , chipsPerKit
   , markersPerSample
   , catalogNumber
-  , isActive
-  , chipsPerKit )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -11076,10 +11070,10 @@ BEGIN
   , OLD.name
   , OLD.costPerSample
   , OLD.samplesPerChip
+  , OLD.chipsPerKit
   , OLD.markersPerSample
   , OLD.catalogNumber
-  , OLD.isActive
-  , OLD.chipsPerKit );
+  , OLD.isActive );
 END;
 $$
 
@@ -13108,7 +13102,7 @@ CREATE TABLE IF NOT EXISTS `OligoBarcodeSchemeAllowed_Audit` (
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idOligoBarcodeSchemeAllowed`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeScheme`  int(10)  NULL DEFAULT NULL
- ,`idSeqLibProtocol`  int(11)  NULL DEFAULT NULL
+ ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`isIndexGroupB`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -19220,8 +19214,8 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`idSampleDropOffLocation`  int(10)  NULL DEFAULT NULL
  ,`codeRequestStatus`  varchar(10)  NULL DEFAULT NULL
  ,`idSubmitter`  int(10)  NULL DEFAULT NULL
- ,`numberIScanChips`  int(11)  NULL DEFAULT NULL
- ,`idIScanChip`  int(11)  NULL DEFAULT NULL
+ ,`numberIScanChips`  int(10)  NULL DEFAULT NULL
+ ,`idIScanChip`  int(10)  NULL DEFAULT NULL
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
@@ -20700,6 +20694,7 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`idOligoBarcodeB`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequenceB`  varchar(20)  NULL DEFAULT NULL
  ,`qubitConcentration`  decimal(8,3)  NULL DEFAULT NULL
+ ,`groupName`  varchar(200)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -20761,7 +20756,8 @@ INSERT INTO Sample_Audit
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
-  , qubitConcentration )
+  , qubitConcentration
+  , groupName )
   SELECT
   'No Context'
   , 'L'
@@ -20816,6 +20812,7 @@ INSERT INTO Sample_Audit
   , idOligoBarcodeB
   , barcodeSequenceB
   , qubitConcentration
+  , groupName
   FROM Sample
   WHERE NOT EXISTS(SELECT * FROM Sample_Audit)
 $$
@@ -20880,7 +20877,8 @@ BEGIN
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
-  , qubitConcentration )
+  , qubitConcentration
+  , groupName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -20934,7 +20932,8 @@ BEGIN
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
-  , NEW.qubitConcentration );
+  , NEW.qubitConcentration
+  , NEW.groupName );
 END;
 $$
 
@@ -20994,7 +20993,8 @@ BEGIN
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
-  , qubitConcentration )
+  , qubitConcentration
+  , groupName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -21048,7 +21048,8 @@ BEGIN
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
-  , NEW.qubitConcentration );
+  , NEW.qubitConcentration
+  , NEW.groupName );
 END;
 $$
 
@@ -21108,7 +21109,8 @@ BEGIN
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
-  , qubitConcentration )
+  , qubitConcentration
+  , groupName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -21162,7 +21164,8 @@ BEGIN
   , OLD.meanLibSizeActual
   , OLD.idOligoBarcodeB
   , OLD.barcodeSequenceB
-  , OLD.qubitConcentration );
+  , OLD.qubitConcentration
+  , OLD.groupName );
 END;
 $$
 
