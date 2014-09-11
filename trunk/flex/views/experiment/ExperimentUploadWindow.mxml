@@ -685,6 +685,8 @@
 					
 				}
 				
+				samplesTree.selectedItem = null;
+				
 			}
 			
 			
@@ -778,6 +780,7 @@
 						}
 					}
 					event.target.hideDropFeedback(event);
+					samplesTree.selectedItem = null;
 					
 				}
 				
