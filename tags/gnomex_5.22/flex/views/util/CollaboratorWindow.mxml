@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+				width="400"  showCloseButton="true" close="cancel()" creationComplete="centerMe()"
+				paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" height="294" verticalGap="4" titleIcon="@Embed(source='../../assets/group.png')" headerHeight="19">
+	
+	<mx:HTTPService  
+		id="getLab" 
+		url="GetLab.gx"
+		destination="getLab"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idLab>{analysisOrExpObject.@idLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>	
+	
+	<mx:HTTPService  
+		id="saveAnalysis" 
+		url="SaveAnalysis.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="saveExistingRequest" 
+		url="SaveRequest.gx"
+		destination="saveExistingRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveExistingRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		
+		<![CDATA[
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.managers.FocusManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.util.GNomExStringUtil;
+			
+			
+			[Bindable]
+			public var users:XMLListCollection;
+			
+			[Bindable]
+			public var analysisOrExpObject:Object;
+			
+			[Bindable]
+			private var collaborators:XMLListCollection;
+			
+			[Bindable]
+			private var possibleCollaborators:XMLListCollection;
+			
+			
+			public function init(title:String, collaborators:XMLListCollection, analysisOrExpObject:Object):void {
+				this.title = title;
+				this.collaborators = collaborators;
+				this.analysisOrExpObject = analysisOrExpObject
+				
+				getLab.send();
+					
+			}
+			
+			
+			private function save():void{
+				// Get rid of de-selected users
+				if (this.collaborators != null) {
+					collaborators.removeAll();
+				}
+				
+				// Add selected users
+				for each(var theUser:XML in users) {
+					if (theUser.@isSelected == 'Y') {
+						collaborators.addItem(theUser.copy());
+					}
+				}
+				var idanalysis:String = analysisOrExpObject.@idAnalysis;
+				var idRequest:String = analysisOrExpObject.@idRequest;
+				if ( idanalysis != "" ) {
+					saveAnalysisCollabs();
+				} else if ( idRequest != "" ) {
+					saveRequestCollabs();
+				}
+				
+				cancel();
+			}
+			
+			public function saveAnalysisCollabs():void {
+				
+				var params:Object = new Object();
+				
+				params.idAnalysis         = analysisOrExpObject.@idAnalysis;
+				params.description        = GNomExStringUtil.cleanRichTextHTML(analysisOrExpObject.@description);
+				params.name               = analysisOrExpObject.@name;
+				params.idLab  			  = analysisOrExpObject.@idLab;
+				params.idAppUser 		  = analysisOrExpObject.@idAppUser;	
+				params.idAnalysisType     = analysisOrExpObject.@idAnalysisType;
+				params.idAnalysisProtocol = analysisOrExpObject.@idAnalysisProtocol;
+				params.idOrganism         = analysisOrExpObject.@idOrganism;
+				params.idGenomeBuild      = analysisOrExpObject.@idGenomeBuild;
+				params.codeVisibility     = analysisOrExpObject.@codeVisibility;
+				if (params.codeVisibility == 'INST') {
+					params.idInstitution      = analysisOrExpObject.@idInstitution;				
+				}
+				params.privacyExpirationDate = analysisOrExpObject.@privacyExpirationDate;
+				
+				// Collaborators
+				params.collaboratorsXMLString = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+				
+				saveAnalysis.send(params);			
+			}   	
+			
+			private function onSaveAnalysis(event:ResultEvent):void {
+				if (saveAnalysis.lastResult.name() == "SUCCESS") {
+					parentApplication.navAnalysisView.onBrowseTree();
+					cancel();
+				} else {
+					
+					Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+			private function saveRequestCollabs():void {
+				
+				// Collaborators
+				if (analysisOrExpObject.toString().indexOf("<collaborators>") >= 0) {
+					analysisOrExpObject.replace("collaborators", <collaborators></collaborators>);
+				} else{
+					analysisOrExpObject.appendChild("<collaborators></collaborators>");
+				}
+				for each(var collaborator:Object in collaborators) {
+					analysisOrExpObject.collaborators.appendChild(collaborator);
+				}
+				
+				var params:Object = new Object();
+				params.requestXMLString = analysisOrExpObject.toXMLString();
+				params.description = GNomExStringUtil.cleanRichTextHTML(analysisOrExpObject.@description);;	
+				
+				saveExistingRequest.send(params);	
+			}
+			
+			private function onSaveExistingRequest(event:ResultEvent):void {
+				if (saveExistingRequest.lastResult.name() == "SUCCESS") {
+					parentApplication.navExperimentView.onBrowseTree();
+					cancel();
+					
+				} else {
+					Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+			private function cancel():void{
+				PopUpManager.removePopUp(this);
+			}
+	
+
+			private function centerMe():void{
+				PopUpManager.centerPopUp(this);
+				checkboxGrid.setFocus();
+			}
+			
+			private function toggleCheck(event:ListEvent):void {
+				if (event.columnIndex == 1 ) {
+					
+					if (checkboxGrid.selectedItem.@isSelected == "Y") {
+						checkboxGrid.selectedItem.@isSelected = "N";
+					} else {
+						checkboxGrid.selectedItem.@isSelected = "Y";
+					}
+					
+				}
+				if (checkboxGrid.selectedItem.@isSelected == "N") {
+					checkboxGrid.selectedItem.@canUploadData = "N";
+					checkboxGrid.selectedItem.@canUpdate = "N";
+				}
+				
+			}
+			
+			private function selectAll():void {
+				for each(var u:Object in users) {
+					u.@isSelected = 'Y';
+				}
+				selectAllStack.selectedIndex = 1;
+			}
+			private function unselectAll():void {
+				for each(var u:Object in users) {
+					u.@isSelected = 'N';
+					u.@canUploadData = 'N';
+					u.@canUpdate = 'N';
+				}
+				selectAllStack.selectedIndex = 0;
+			}
+			
+			private function onGetLab(event:ResultEvent):void {
+				if (getLab.lastResult.name() == "OpenLabList") {
+					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+					
+					users = new XMLListCollection();
+					var user:XML = null;
+					for each(var u:XML in possibleCollaborators) {
+						var theUser:XML = u.copy();
+						var isSelected:Boolean = false;
+						var canUpload:Boolean = false;
+						var canUpdate:Boolean = false;
+						if (this.collaborators != null) {
+							for each(var collaborator:XML  in this.collaborators) {
+								if (theUser.@idAppUser == collaborator.@idAppUser) {
+									isSelected = true;
+									canUpload = collaborator.@canUploadData != null ? collaborator.@canUploadData == "Y" : false;
+									canUpdate = collaborator.@canUpdate != null ? collaborator.@canUpdate == "Y" : false;
+									break;
+								}
+							}
+						}
+						theUser.@isSelected = isSelected ? "Y" : "N";
+						theUser.@canUploadData = canUpload ? "Y" : "N";;
+						theUser.@canUpdate = canUpdate ? "Y" : "N";;
+						users.addItem(theUser);
+					}
+					
+					var idanalysis:String = analysisOrExpObject.@idAnalysis;
+					var idRequest:String = analysisOrExpObject.@idRequest;
+					var item:XML;
+					if ( idanalysis != "" ) {
+						for each ( item in users ) {
+							item.setName("AnalysisCollaborator");
+						}
+					} else if ( idRequest != "" ) {
+						for each ( item in users ) {
+							item.setName("ExperimentCollaborator");
+						}
+					}
+				}
+			}
+				
+		]]>
+		
+	</mx:Script>
+	
+	
+	<mx:ViewStack id="selectAllStack" width="80" paddingBottom="0" paddingTop="0">
+		<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
+			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll()"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+		</mx:HBox>
+		<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
+			<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll()"  paddingTop="0" paddingBottom="0"/>
+		</mx:HBox>			    	
+	</mx:ViewStack>
+	
+	<mx:DataGrid id="checkboxGrid" dataProvider="{users}" 
+				 width="100%"  showHeaders="true"
+				 itemClick="toggleCheck(event)" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn headerText=""  
+							   width="25" 
+							   editable="true"                        	
+							   dataField="@isSelected" 
+							   editorDataField="selected"
+							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null,true)}">			 
+			</mx:DataGridColumn>
+			<mx:DataGridColumn dataField="@idAppUser" width="200" headerText="Collaborator" editable="false"
+							   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.getAppUserList.lastResult.AppUser, '@displayName', '@idAppUser', '@idAppUser')}" />  
+			<mx:DataGridColumn headerText="Upload" 
+							   width="65" 
+							   editable="true"                        	
+							   dataField="@canUploadData" 
+							   editorDataField="selected" sortable="false"
+							   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
+			<mx:DataGridColumn headerText="Update" 
+							   width="65" 
+							   editable="true"                        	
+							   dataField="@canUpdate" 
+							   editorDataField="selected" sortable="false"
+							   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	<mx:HBox  horizontalAlign="left" width="100%" id="searchButtonView" verticalAlign="middle">
+		<mx:Button label="Update" click="save()">
+		</mx:Button>
+		<mx:Button label="Cancel"  click="cancel()">
+		</mx:Button>
+	</mx:HBox>
+	
+</mx:TitleWindow>
