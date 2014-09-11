@@ -486,6 +486,10 @@
 				
 				if ( parentDocument.isClinicalSequenomState() ) {
 					this.sampleNameCol.visible = false;
+				} else {
+					this.sampleNameCol.visible = true;
+					showCCNumberCheckbox.selected = false;
+					showCCNumberCheckbox.enabled = true;
 				}
 				
 				if (!parentDocument.isEditState()) {

@@ -35,8 +35,13 @@
 			
 			private function init():void {
 				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
-				if(sampleTypeRadioGroup.selectedValue == null) {
-					sampleTypeDNARNAHBox.styleName = 'requiredBox';}
+				if(sampleTypeRadioGroup.selectedValue == null ) {
+					sampleTypeDNARNAHBox.styleName = 'requiredBox';
+				}
+				if ( coreToExtractDNACheckBox.visible && coreToExtractDNACheckBox.selected ) {
+					sampleTypeDNARNAHBox.styleName = '';
+					sampleTypeRadioGroup.enabled = false;
+				} 
 				sampleSetupCanvas.verticalScrollPosition = 0;
 				if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
 					initIllumina();
@@ -466,9 +471,12 @@
 					}
 					
 				} else if (parentDocument.isClinicalSequenomState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-						this.sampleTypeRadioGroup.selectedValue) {
-						isComplete = true;	        	    	
+					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
+						if ( coreToExtractDNACheckBox.selected ) {
+							isComplete  = dnaPrepTypeCombo.selectedItem != null && dnaPrepTypeCombo.selectedIndex > 0;
+						} else {
+							isComplete = this.sampleTypeRadioGroup.selectedValue;
+						}	        	    	
 					}
 				} else if (parentDocument.isIsolationState()) {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
@@ -497,7 +505,7 @@
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
 				}
-				parentDocument.enableNextButtons();
+				
 				
 				callLater(postSampleSetupCompleteness, [isComplete]);
 				
@@ -539,6 +547,7 @@
 					return;
 				}
 				if (!isComplete) {
+					parentDocument.samplesView.enabled = false;
 					if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
 						parentDocument.hybSetupView.enabled = false;
 					} 
@@ -558,7 +567,7 @@
 						parentDocument.samplesView.checkSamplesCompleteness();
 					}
 				}
-				
+				parentDocument.enableNextButtons();
 			}
 			
 			private function handleInvalidConcentration(eventObject:Event):void {
@@ -1264,10 +1273,9 @@
 					<mx:HBox horizontalGap="0" verticalAlign="middle" > 
 						<util:ContextHelp context1="SampleDetailsSequenomDNAExtract" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="DNA Extraction Help"
 										  label="(2) Would you like the core facility to isolate the DNA?" labelPlacement="left" id="sequenomDNAExtractLabel" width="340"/>
-						<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9"/>		
+						<mx:CheckBox label="Yes" id="coreToExtractDNACheckBox" change="onCoreToExtractDNACheckBoxChanged()" width="100%" paddingRight="9" selected="false"/>		
 					</mx:HBox>
-					<mx:HBox horizontalGap="0" verticalAlign="middle" 
-							 visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}" > 
+					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{coreToExtractDNACheckBox.selected}" includeInLayout="{coreToExtractDNACheckBox.selected}" > 
 						<mx:Label text="DNA prep type?" paddingRight="51" width="340" textAlign="right" id="label1"/>	
 						<mx:ComboBox labelField="@display" id="dnaPrepTypeCombo"
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry}"
@@ -2098,7 +2106,6 @@
 			<mx:AddChild relativeTo="{bisulfideConversionBox}" position="before" target="{dnaPrepBox}"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
-			<mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
 			<mx:AddChild relativeTo="{hbox7}" position="lastChild">
 				<mx:Text text="{parentDocument.applicationName}" 
 						 id="seqApplicationText"/>
@@ -2113,7 +2120,8 @@
 			<mx:SetProperty target="{sequenomPlateNamesBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox3}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox3}" name="includeInLayout" value="false"/>
-			
+			<mx:SetProperty target="{coreToExtractDNACheckBox}" name="selected" value="true"/>
+			<mx:SetProperty target="{sampleTypeRadioGroup}" name="enabled" value="false"/>
 		</mx:State>
 		<mx:State name="MDMiSeqState" basedOn="SolexaSetupState">
 			<mx:SetProperty target="{dnaPrepBox}" name="visible" value="true"/>
