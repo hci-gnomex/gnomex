@@ -43,7 +43,7 @@ print MYOUTFILE "delimiter \$\$\n\n";
 $tQry = "SELECT t.table_name ".
           "FROM information_schema.tables t ".
          "WHERE t.table_schema = '$tgtDb' ".
-           "AND t.table_name NOT IN ('dtproperties','TransferLog') ".
+           "AND t.table_name NOT IN ('dtproperties','TransferLog','VisitLog','SampleTypeApplication') ".
            "AND t.table_name NOT LIKE '%\_Audit' ESCAPE '\' ".
          "ORDER BY t.table_name";
 
