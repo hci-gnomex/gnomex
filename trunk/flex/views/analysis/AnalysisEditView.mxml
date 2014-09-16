@@ -126,12 +126,12 @@
 			import views.protocol.ProtocolsView;
 			import views.topics.NavTopicsView;
 			import views.util.AnalysisProtocolsEvent;
+			import views.util.DateUtils;
 			import views.util.FileUtil;
 			import views.util.GNomExStringUtil;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
-			import views.util.DateUtils;
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -429,9 +429,12 @@
 				} 
 				
 				
-				
-				if(!analysisProperties.requiredAnnotationsEntered()) {
-					return;		
+				if(parentDocument is NavAnalysisView){
+					if(parentDocument.isDragDrop == false && !analysisProperties.requiredAnnotationsEntered()) {
+						return;		
+					} else{
+						parentDocument.isDragDrop = false;
+					}	
 				}
 				
 				

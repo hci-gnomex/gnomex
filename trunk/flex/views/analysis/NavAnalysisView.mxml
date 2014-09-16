@@ -141,6 +141,8 @@
 			
 			public var selectedIdLab:String;
 			
+			public var isDragDrop:Boolean = false;
+			
 			public var selectedNode:Object;
 			
 			public var parentIdLab:Object = null;
@@ -999,6 +1001,7 @@
 			
 			private function browseTreeDrop(e:DragEvent):void {
 				e.preventDefault();
+				isDragDrop = true;
 				
 				if(browseTree.selectedItems.length > 1){
 					Alert.show("Sorry, you may only move one analysis item at a time");
