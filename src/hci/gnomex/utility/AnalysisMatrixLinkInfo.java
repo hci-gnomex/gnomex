@@ -3,6 +3,11 @@ package hci.gnomex.utility;
 import java.io.Serializable;
 
 public class AnalysisMatrixLinkInfo extends MatrixLinkInfoBase implements Serializable {
+  
+  public String analysisProtocol;
+  public String analysisType;
+  public String genomeBuilds;
+  public String groups;
 
   @Override
   public String getNumberArg() {
@@ -24,4 +29,19 @@ public class AnalysisMatrixLinkInfo extends MatrixLinkInfoBase implements Serial
     return true;
   }
 
+  public String getAnalysisProtocol() {
+    return analysisProtocol;
+  }
+  
+  public String getAnalysisType() {
+    return analysisType;
+  }
+  
+  public String getGenomeBuilds() {
+    return genomeBuilds;
+  }
+  
+  public String getGroups() {
+    return groups;
+  }
 }

@@ -3,6 +3,8 @@ package hci.gnomex.utility;
 import java.io.Serializable;
 
 public class ExperimentMatrixLinkInfo extends MatrixLinkInfoBase implements Serializable {
+  public String requestCategory;
+  public String application;
 
   @Override
   public String getNumberArg() {
@@ -24,6 +26,12 @@ public class ExperimentMatrixLinkInfo extends MatrixLinkInfoBase implements Seri
     return false;
   }
   
+  public String getRequestCategory() {
+    return requestCategory;
+  }
   
+  public String getApplication() {
+    return application;
+  }
 }
 

@@ -5,7 +5,7 @@
 <%@ page language="java" import="java.util.TreeMap"%>
 <%@ page language="java" import="hci.gnomex.utility.MatrixLinkInfoBase"%>
 <%@ page language="java" import="hci.gnomex.utility.ExperimentMatrixLinkInfo"%>
-<%@ page language="java" import="hci.gnomex.utility.ExperimentMatrixLinkInfo"%>
+<%@ page language="java" import="hci.gnomex.utility.AnalysisMatrixLinkInfo"%>
 
 <!--  These are the session objects passed into this jsp -->
 <jsp:useBean id="orgMap" class="java.util.TreeMap" scope="request"/>
@@ -31,6 +31,7 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/reportBootstrap.css">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script type='text/javascript'>
 $(window).load(function(){
@@ -46,7 +47,16 @@ $('#experiment-links-modal').on('show.bs.modal', function(e) {
     document.getElementById('exp-links').innerHTML = expLinks;
 });
 });
-
+/*
+$(document).ready(function() {
+	$('.collapse').on('shown.bs.collapse', function(e){
+	$(this).parent().find(".glyphicon-chevron-down").removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+	})
+	$('.collapse').on('hidden.bs.collapse', function(e){
+	$(this).parent().find(".glyphicon-chevron-up").removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+	});
+});
+*/
 </script>
 
 <style>
@@ -139,6 +149,7 @@ for (Object orgColKey : orgColMap.keySet()) {
 <%
 // Tab content
 firstTime = true;
+Integer accordionId=0;
 for (Object orgColKey : orgColMap.keySet()) {
 	String[] orgTokens = ((String)orgColKey).split(DELIM);
 	String orgSortOrder = orgTokens[0];
@@ -209,6 +220,7 @@ for (Object orgColKey : orgColMap.keySet()) {
 				TreeMap expMap = (TreeMap)platformMap.get(platformKey);
 				Integer expCount = 0;
 				Integer anCount = 0;
+	  			accordionId++;
 %>
 				<td><a href="#experiment-links-modal" data-toggle="modal" 
 				data-org-name="<%=orgName%>" 
@@ -216,24 +228,110 @@ for (Object orgColKey : orgColMap.keySet()) {
 				data-property="<%=propertyKey%>"
 				data-annot="<%=annotKey%>"
 				data-exp-links="
-				<ul class='list-group' >
+				<div class='container-fluid' >
+				  <div class='accordion' id='accordion<%=accordionId%>'>
 <% 
 				if (expMap != null) {
 					for (Object expKey : expMap.keySet()) {
 						MatrixLinkInfoBase li = (MatrixLinkInfoBase)expMap.get(expKey);
+%>
+						<div class='accordion-group'>
+						  <div class='accordion-heading'>
+<% 
+							if (!li.isRestricted()) {
+%>
+						    <a class='accordion-toggle collapsed' data-toggle='collapse' data-parent='#accordion<%=accordionId%>' href='#collapse<%=accordionId%><%=li.number%>'> </a>
+<% 
+							}
+%>
+						    &nbsp;&nbsp;<%=li.getLabel()%>&nbsp;&nbsp;<a href='<%=li.getURL()%>'>View in GNomEx</a>
+                          </div>
+                          <div id='collapse<%=accordionId%><%=li.number%>' class='accordion-body collapse' style='height: 0px; '>
+                            <div class='accordion-inner'>
+<%
 						if (li.isExperiment()) {
 						    expCount++;
+						    if (!li.isRestricted()) {
+						        ExperimentMatrixLinkInfo eli = (ExperimentMatrixLinkInfo)li;
+%>
+                              <div class='container'>
+                                <div class='row'>
+                                  <div class='col-md-2'>Exp. Name</div>
+                                  <div class='col-md-4'><%=eli.getName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Owner</div>
+                                  <div class='col-md-4'><%=eli.getOwnerName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Lab</div>
+                                  <div class='col-md-4'><%=eli.getLabName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Experiment</div>
+                                  <div class='col-md-4'><%=eli.getRequestCategory()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'></div>
+                                  <div class='col-md-4'><%=eli.getApplication()%></div>
+                                </div>
+                              </div>
+                              <div class='description'>
+                              	<%=eli.getDescription()%>
+                              </div>
+<%
+						    }
 						} else if (li.isAnalysis()) {
 						    anCount++;
+						    if (!li.isRestricted()) {
+						        AnalysisMatrixLinkInfo ali = (AnalysisMatrixLinkInfo)li;
+%>
+                              <div class='container'>
+                                <div class='row'>
+                                  <div class='col-md-2'>Analysis Name</div>
+                                  <div class='col-md-4'><%=ali.getName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Owner</div>
+                                  <div class='col-md-4'><%=ali.getOwnerName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Lab</div>
+                                  <div class='col-md-4'><%=ali.getLabName()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Type</div>
+                                  <div class='col-md-4'><%=ali.getAnalysisType()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Protocol</div>
+                                  <div class='col-md-4'><%=ali.getAnalysisProtocol()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Genome Builds</div>
+                                  <div class='col-md-8'><%=ali.getGenomeBuilds()%></div>
+                                </div>
+                                <div class='row'>
+                                  <div class='col-md-2'>Groups</div>
+                                  <div class='col-md-8'><%=ali.getGroups()%></div>
+                                </div>
+                              </div>
+                              <div class='description'>
+                              	<%=ali.getDescription()%>
+                              </div>
+<%
+						    }
 						}
 %>
-						<li class='list-group-item'><%=li.getLink()%></li>
-<% 
+                            </div>
+                          </div>
+                        </div
+<%
 					}
 				}
 				String linkName = (expCount > 0 || anCount > 0) ? expCount.toString() + "/" + anCount.toString() : ""; 
 %>
-				</ul>">
+				</div></div>">
 				<%=linkName%>
 				</a></td>
 <% 

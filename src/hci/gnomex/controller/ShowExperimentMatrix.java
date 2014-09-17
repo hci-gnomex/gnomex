@@ -2,6 +2,10 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.model.AnalysisProtocol;
+import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Visibility;
@@ -14,6 +18,8 @@ import hci.report.utility.ReportCommand;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -79,7 +85,11 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
   public TreeMap<String, Map>                      orgColMap      = new TreeMap<String, Map>();
   public TreeMap<String, String>                   platformColMap = new TreeMap<String, String>();
   
- 
+  public HashMap<Integer, AnalysisType>            analysisTypeMap;
+  public HashMap<Integer, AnalysisProtocol>        analysisProtocolMap;
+  public HashMap<Integer, String>                  analysisGenomeBuilds;
+  public HashMap<Integer, String>                  analysisGroups;
+  
   public void validate() {
   }
   
@@ -103,11 +113,7 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
          
       sess = HibernateGuestSession.currentGuestSession("guest");
       
-      // Get the site name (property driven);
-      siteName = (String)sess.createQuery("SELECT p.propertyValue FROM PropertyDictionary p where p.propertyName = '" + PropertyDictionary.SITE_TITLE + "'").uniqueResult();
-      if (siteName == null) {
-        siteName = "";
-      }
+      initDictionaryMaps(sess);
       
       // Get the property that contains a comma separated list of all of the annotations you want
       // to see down the y-axis (rows in the matrix).
@@ -133,6 +139,11 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
           + "r.number, "
           + "r.name, "
           + "r.codeVisibility, "
+          + "r.description, "
+          + "rCat.requestCategory, "
+          + "rApp.application, "
+          + "rOwner.firstName, "
+          + "rOwner.lastName, "
           + "lab.lastName, "
           + "lab.firstName, "
           + "a.idAnalysis, "
@@ -140,7 +151,12 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
           + "a.name as analysisName, "
           + "a.codeVisibility as analysisVisibility, "
           + "aLab.lastName as analysisLabLastName, "
-          + "aLab.firstName as analysisLabFirstName "
+          + "aLab.firstName as analysisLabFirstName, "
+          + "a.idAnalysisProtocol, "
+          + "a.idAnalysisType, "
+          + "a.description, "
+          + "aOwner.firstName, "
+          + "aOwner.lastName "
           );
       queryBuf.append(" from Request r");
       queryBuf.append(" join r.application app");
@@ -153,6 +169,10 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
       queryBuf.append(" left join r.analysisExperimentItems aei");
       queryBuf.append(" left join aei.analysis a");
       queryBuf.append(" left join a.lab aLab");
+      queryBuf.append(" left join r.requestCategory rCat");
+      queryBuf.append(" left join r.application rApp");
+      queryBuf.append(" left join r.appUser rOwner");
+      queryBuf.append(" left join a.appUser aOwner");
       queryBuf.append(" where");
       queryBuf.append(" (  (p.codePropertyType = 'OPTION' and (po.option is not null and  po.option != '' and po.option != 'n/a' and  po.option != 'NA' and  po.option != ' NA'and po.option != 'none'))");
       queryBuf.append("   or"); 
@@ -201,6 +221,11 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
         String requestNumber    = (String)row[idx++];
         String requestName      = (String)row[idx++];
         String codeVisibility   = (String)row[idx++];
+        String requestDesc      = (String)row[idx++];
+        String requestCategory  = (String)row[idx++];
+        String requestApp       = (String)row[idx++];
+        String requestOwnerFirst= (String)row[idx++];
+        String requestOwnerLast = (String)row[idx++];
         String labLastName      = (String)row[idx++];
         String labFirstName     = (String)row[idx++];
         Integer idAnalysis      = (Integer)row[idx++];
@@ -209,6 +234,11 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
         String analysisVisibility = (String)row[idx++];
         String analysisLabLastName = (String)row[idx++];
         String analysisLabFirstName = (String)row[idx++];
+        Integer idAnalysisProtocol = (Integer)row[idx++];
+        Integer idAnalysisType = (Integer)row[idx++];
+        String analysisDesc    = (String)row[idx++];
+        String analysisOwnerFirst = (String)row[idx++];
+        String analysisOwnerLast = (String)row[idx++];
         
         String orgKey = orgSortOrder + DELIM + organismName;
         propertyMap = (TreeMap<String, Map>)orgMap.get(orgKey);
@@ -239,23 +269,35 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
         if (expMap == null) {
           expMap = new TreeMap<String, MatrixLinkInfoBase>();
         }
-        if (!expMap.containsKey(requestNumber)) {
+        if (!expMap.containsKey(requestNumber) && (codeVisibility.equals(Visibility.VISIBLE_TO_PUBLIC) || !scope.equals("PUBLIC"))) {
           ExperimentMatrixLinkInfo linkInfo = new ExperimentMatrixLinkInfo();
           linkInfo.number = requestNumber;
           linkInfo.name = requestName;
+          linkInfo.description = requestDesc;
           linkInfo.labLastName = labLastName;
           linkInfo.labFirstName = labFirstName;
           linkInfo.codeVisibility = codeVisibility;
+          linkInfo.requestCategory = requestCategory;
+          linkInfo.application = requestApp;
+          linkInfo.ownerFirstName = requestOwnerFirst;
+          linkInfo.ownerLastName = requestOwnerLast;
           
           expMap.put(requestNumber, linkInfo);
         }
-        if (analysisNumber != null && !expMap.containsKey(analysisNumber)) {
+        if (analysisNumber != null && !expMap.containsKey(analysisNumber) && (analysisVisibility.equals(Visibility.VISIBLE_TO_PUBLIC) || !scope.equals("PUBLIC"))) {
           AnalysisMatrixLinkInfo linkInfo = new AnalysisMatrixLinkInfo();
           linkInfo.number = analysisNumber;
           linkInfo.name = analysisName;
           linkInfo.labLastName = analysisLabLastName;
           linkInfo.labFirstName = analysisLabFirstName;
           linkInfo.codeVisibility = analysisVisibility;
+          linkInfo.description = analysisDesc;
+          linkInfo.ownerFirstName = analysisOwnerFirst;
+          linkInfo.ownerLastName = analysisOwnerLast;
+          linkInfo.analysisProtocol = this.analysisProtocolMap.get(idAnalysisProtocol) == null ? "" : this.analysisProtocolMap.get(idAnalysisProtocol).getAnalysisProtocol();
+          linkInfo.analysisType = this.analysisTypeMap.get(idAnalysisType) == null ? "" : this.analysisTypeMap.get(idAnalysisType).getAnalysisType();
+          linkInfo.genomeBuilds = this.analysisGenomeBuilds.containsKey(idAnalysis) ? this.analysisGenomeBuilds.get(idAnalysis) : "";
+          linkInfo.groups = this.analysisGroups.containsKey(idAnalysis) ? this.analysisGroups.get(idAnalysis) : "";
           
           expMap.put(analysisNumber, linkInfo);
         }
@@ -307,6 +349,57 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
     return this;
   }
   
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private void initDictionaryMaps(Session sess) {
+    // Get the site name (property driven);
+    siteName = (String)sess.createQuery("SELECT p.propertyValue FROM PropertyDictionary p where p.propertyName = '" + PropertyDictionary.SITE_TITLE + "'").uniqueResult();
+    if (siteName == null) {
+      siteName = "";
+    }
+
+    // Get analysis types
+    this.analysisTypeMap = new HashMap<Integer, AnalysisType>();
+    List atList = sess.createQuery("select at from AnalysisType at").list();
+    for (AnalysisType at : (List<AnalysisType>)atList) {
+      this.analysisTypeMap.put(at.getIdAnalysisType(), at);
+    }
+
+    // Get analysis protocols
+    this.analysisProtocolMap = new HashMap<Integer, AnalysisProtocol>();
+    List apList = sess.createQuery("select ap from AnalysisProtocol ap").list();
+    for (AnalysisProtocol ap : (List<AnalysisProtocol>)apList) {
+      this.analysisProtocolMap.put(ap.getIdAnalysisProtocol(), ap);
+    }
+    
+    // GenomeBuilds for analyses
+    this.analysisGenomeBuilds = new HashMap<Integer, String>();
+    List<Object[]> gbList = (List<Object[]>)sess.createQuery("select a.idAnalysis, gb.genomeBuildName from Analysis a join a.genomeBuilds gb order by gb.genomeBuildName").list();
+    for (Object[] row : gbList) {
+      Integer idAnalysis = (Integer)row[0];
+      String genomeBuild = (String)row[1];
+      String list = "";
+      if (this.analysisGenomeBuilds.containsKey(idAnalysis)) {
+        list = this.analysisGenomeBuilds.get(idAnalysis) + ",";
+      }
+      list += genomeBuild;
+      this.analysisGenomeBuilds.put(idAnalysis, list);
+    }
+    
+    // Groups for analyses
+    this.analysisGroups = new HashMap<Integer, String>();
+    List<Object[]> agList = (List<Object[]>)sess.createQuery("select a.idAnalysis, ag.name from Analysis a join a.analysisGroups ag order by ag.name").list();
+    for (Object[] row : agList) {
+      Integer idAnalysis = (Integer)row[0];
+      String group = (String)row[1];
+      String list = "";
+      if (this.analysisGroups.containsKey(idAnalysis)) {
+        list = this.analysisGroups.get(idAnalysis) + ",";
+      }
+      list += group;
+      this.analysisGroups.put(idAnalysis, list);
+    }
+
+  }
 
   /* (non-Javadoc)
    * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
