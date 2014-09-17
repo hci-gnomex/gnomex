@@ -837,7 +837,7 @@
 		}
 		
 		private function showFundAgencyCombo():void{
-			if(parentApplication.getCoreFacilityProperty(coreCombo.data.@idCoreFacility, parentApplication.PROPERTY_SHOW_FUNDING_AGENCY) == 'Y' && !creditCardCheckbox.selected){
+			if(parentApplication.getCoreFacilityProperty(coreCombo.selectedItem.@value, parentApplication.PROPERTY_SHOW_FUNDING_AGENCY) == 'Y' && !creditCardCheckbox.selected){
 				fundingAgencyHBox.visible = true;
 				fundingAgencyHBox.includeInLayout = true;
 			} else{
@@ -866,7 +866,7 @@
 	<mx:VBox height="100%" width="100%" verticalGap="4" styleName="form" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" horizontalGap="4" id="poHBox">
 			<mx:Label text="Type of Account" width="120" styleName="formLabel"/>
-			<mx:RadioButtonGroup id="typeRadioGroup"/>
+			<mx:RadioButtonGroup id="typeRadioGroup" change="showFundAgencyCombo();"/>
 			<mx:RadioButton id="internalCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO !='Y' &amp;&amp; ba.@isCreditCard != 'Y'}" click="{toggleType(0); }" label="{parentApplication.isUnivUserAuth ? 'Chartfield' : 'Internal'}"/>   
 			<mx:RadioButton id="poCheckbox" group="{typeRadioGroup}" selected="{ba.@isPO=='Y'}" click="{toggleType(1)}" label="PO"/>   
 			<mx:RadioButton id="creditCardCheckbox" group="{typeRadioGroup}" selected="{ba.@isCreditCard=='Y'}" click="{toggleType(2)}" label="Credit Card"/>   
