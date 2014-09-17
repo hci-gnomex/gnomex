@@ -102,6 +102,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
          
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       
       // Find request
       boolean newRequest = false;
@@ -116,8 +117,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.canUpdate(true);
         request.setCanDeleteSample(true);
         request.setCanUpdateSamples(true);
-        
-        PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
         
         // Set the default visibility if there is a property
         String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_EXPERIMENT);
@@ -929,10 +928,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
   }
   
   public static Request getRequestFromRequestNumber(Session sess, String  requestNumber) {
+    // Make sure dictionary is loaded.
+    PropertyDictionaryHelper.getInstance(sess);
+
     Request request = null;
     String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
     StringBuffer buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
     List requests = sess.createQuery(buf.toString()).list();
+
     if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
       // If nothing returned then try with "R" appended
       requestNumberBase = requestNumberBase + "R";

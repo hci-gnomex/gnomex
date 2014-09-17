@@ -41,7 +41,7 @@ import java.util.Comparator;
         String number1         = tokens[tokens.length - 1];
         String[] numberTokens  = number1.split(seqLaneNumberSeparator);
         sampleNumber1          = numberTokens[0];
-        seqNumber1             = numberTokens[1];        
+        seqNumber1             = numberTokens.length > 1 ? numberTokens[1] : "-1";        
       } else {
         String[] tokens = l1.getNumber().split("L");
         requestNumber1         = tokens[0];
@@ -58,7 +58,7 @@ import java.util.Comparator;
         String number2         = tokens[tokens.length - 1];
         String[] numberTokens  = number2.split(seqLaneNumberSeparator);
         sampleNumber2          = numberTokens[0];
-        seqNumber2             = numberTokens[1];        
+        seqNumber2             = numberTokens.length > 1 ? numberTokens[1] : "-1";        
       } else {
         String[] tokens        = l2.getNumber().split("L");
         requestNumber2         = tokens[0];
