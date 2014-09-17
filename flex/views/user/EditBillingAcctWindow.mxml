@@ -219,6 +219,7 @@
 				coreCombo.includeInLayout = false;
 				ba.@idCoreFacility = parentApplication.myCoreFacilities[0].@idCoreFacility;
 			}
+			
 		}
 		
 		private function changeCoreComboVis(vis:Boolean):void {
@@ -381,6 +382,10 @@
 				ba.@expirationDateOther = expirationDatePicker.text;
 			}
 			
+			if(fundingAgencyHBox.visible == false){
+				ba.@idFundingAgency = '';
+			}
+			
 			if (isEdit) {
 				parentView.setDirtyBillingAccount( ba );
 				mx.managers.PopUpManager.removePopUp(this);
@@ -427,6 +432,9 @@
 		}
 		
 		private function getSelectedCoreFacilities():XMLListCollection {
+			if(coreFacilityCheckbox == null){
+				return null;
+			}
 			var facilities:XMLListCollection = new XMLListCollection();
 			for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
 				if (coreFacilityCheckbox[x].selected) { 
@@ -562,7 +570,7 @@
 					}
 				}
 			} else {
-				if(ba.@idFundingAgency == '')
+				if(fundingAgencyHBox.visible && fundingAgencyCombo.selectedIndex <= 0)
 					errorMessage += "- Please select a funding agency.\n";
 				
 				if(ba.@expirationDateOther == "")
@@ -796,6 +804,48 @@
 		}
 		
 		
+		private function showFundAgency(event:Event):void{
+			var checkBox:CheckBox = CheckBox(event.currentTarget);
+			var data:Object = event.currentTarget.getRepeaterItem();
+			if(checkBox.selected && !creditCardCheckbox.selected){
+				data.@isSelected = 'Y';
+				if(parentApplication.getCoreFacilityProperty(data.@idCoreFacility, parentApplication.PROPERTY_SHOW_FUNDING_AGENCY) == 'Y'){
+					fundingAgencyHBox.visible = true;
+					fundingAgencyHBox.includeInLayout = true;
+				}
+			} else{
+				data.@isSelected = 'N';
+				fundingAgencyHBox.visible = false;
+				fundingAgencyHBox.includeInLayout = false;
+			}
+			
+			coreFacilityRepeater.dataProvider = coreFacilities;
+			
+		}
+		
+		private function preloadFundAgency():void{
+			if(getSelectedCoreFacilities() == null){
+				return;
+			}
+			for each(var core:XML in getSelectedCoreFacilities()){
+				if(parentApplication.getCoreFacilityProperty(core.@idCoreFacility, parentApplication.PROPERTY_SHOW_FUNDING_AGENCY) == 'Y'){
+					fundingAgencyHBox.visible = true;
+					fundingAgencyHBox.includeInLayout = true;
+					break;
+				}
+			}
+		}
+		
+		private function showFundAgencyCombo():void{
+			if(parentApplication.getCoreFacilityProperty(coreCombo.data.@idCoreFacility, parentApplication.PROPERTY_SHOW_FUNDING_AGENCY) == 'Y' && !creditCardCheckbox.selected){
+				fundingAgencyHBox.visible = true;
+				fundingAgencyHBox.includeInLayout = true;
+			} else{
+				fundingAgencyHBox.visible = false;
+				fundingAgencyHBox.includeInLayout = false;
+			}
+		}
+
 	]]>
 </mx:Script>
 	<mx:XMLListCollection id="fundingAgencies" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FundingAgency').DictionaryEntry}"/>
@@ -831,7 +881,7 @@
 			<renderers:FilterComboBox width="492" id="labCombo"
 									  labelField="@name" 
 									  prompt="Select a lab..."
-									  close="{groupSelected()}"
+									  close="{groupSelected();}"
 									  dataProvider="{parentApplication.workAuthLabList}">
 			</renderers:FilterComboBox>
 		</mx:HBox>
@@ -855,12 +905,12 @@
 								  title="Core Facility Information" label="Help me choose" id="coreFacilityHelp"/>
 			</mx:VBox>
 			<mx:ComboBox width="597" id="coreCombo" labelFunction="coreFacilityLabel" itemRenderer="mx.controls.Label"
-						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value}"/>
+						 dataProvider="{coreFacilities}" change="{ba.@idCoreFacility = coreCombo.selectedItem.@value; showFundAgencyCombo();}"/>
 			<mx:VBox id="coreCheckboxBox">
-				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" recycleChildren="true">
-					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox"
+				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" repeatEnd="preloadFundAgency()" >
+					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox" change="showFundAgency(event);"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="597" fontSize="11"
-								 selected="{coreFacilities.length == 1 || ba.@idCoreFacility==coreFacilityRepeater.currentItem.@idCoreFacility}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
+								 selected="{coreFacilities.length == 1 || ba.@idCoreFacility==coreFacilityRepeater.currentItem.@idCoreFacility || coreFacilityRepeater.currentItem.@isSelected == 'Y'}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
 					</mx:CheckBox> 
 				</mx:Repeater>
 			</mx:VBox>
@@ -918,10 +968,11 @@
 		</mx:VBox>
 		
 		<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" 
-				 horizontalGap="4" id="fundingAgencyHBox" visible="{!creditCardCheckbox.selected}"  includeInLayout="{!creditCardCheckbox.selected}">
+				 horizontalGap="4" id="fundingAgencyHBox" visible="{false}" 
+				 includeInLayout="{false}">
 			<mx:Label text="Funding Agency" width="120" id="fundingAgencyLabel" styleName="formLabel"/>
 			<mx:ComboBox width="597" id="fundingAgencyCombo" labelField="@display"
-						 			  dataProvider="{fundingAgencies}" 
+						 			  dataProvider="{fundingAgencies}"
 						              change="{if (fundingAgencyCombo.selectedItem != null) ba.@idFundingAgency = fundingAgencyCombo.selectedItem.@value; else ba.@idFundingAgency='';}"/>
 		</mx:HBox>
 
