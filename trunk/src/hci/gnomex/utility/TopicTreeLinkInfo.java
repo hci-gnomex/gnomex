@@ -16,6 +16,7 @@ public class TopicTreeLinkInfo implements Serializable {
   private Boolean hasChildren;
   private Integer numExperiments;
   private Integer numAnalyses;
+  private String lab;
 
   public TopicTreeLinkInfo(Topic topic, Integer treeLevel) {
     idTopic = topic.getIdTopic();
@@ -28,6 +29,7 @@ public class TopicTreeLinkInfo implements Serializable {
     hasChildren = topic.getTopics().size() > 0;
     numExperiments = topic.getRequests() == null ? 0 : topic.getRequests().size();
     numAnalyses = topic.getAnalyses() == null ? 0 : topic.getAnalyses().size();
+    lab = topic.getLab().getName();
   }
   
   public Integer getIdTopic() {
@@ -47,7 +49,11 @@ public class TopicTreeLinkInfo implements Serializable {
   }
   
   public String getDescription() { 
-    return description;
+    if (description == null || description.trim().length() == 0) {
+      return "No Description";
+    }  else {
+      return description.replace("\"", "&quot;");
+    }
   }
   
   public Boolean getIsPublic() {
@@ -68,6 +74,10 @@ public class TopicTreeLinkInfo implements Serializable {
   
   public Integer getNumAnalyses() {
     return numAnalyses;
+  }
+  
+  public String getLab() {
+    return lab;
   }
   
   public String getURL() {
