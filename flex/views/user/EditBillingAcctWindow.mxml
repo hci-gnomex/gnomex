@@ -845,6 +845,14 @@
 				fundingAgencyHBox.includeInLayout = false;
 			}
 		}
+		
+		private function clickCoreFacility(cb:CheckBox):void {
+			for each (var obj:Object in coreFacilities) {
+				if (coreFacilityLabel(obj) == cb.label) {
+					obj.@isSelected = cb.selected ? 'Y' : 'N';
+				}
+			}
+		}
 
 	]]>
 </mx:Script>
@@ -910,6 +918,7 @@
 				<mx:Repeater id="coreFacilityRepeater" dataProvider="{coreFacilities}" repeatEnd="preloadFundAgency()" >
 					<mx:CheckBox label="{coreFacilityLabel(coreFacilityRepeater.currentItem)}"  id="coreFacilityCheckbox" change="showFundAgency(event);"
 								 horizontalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1" verticalGap="0" width="597" fontSize="11"
+								 click="{clickCoreFacility(CheckBox(event.currentTarget))}"
 								 selected="{coreFacilities.length == 1 || ba.@idCoreFacility==coreFacilityRepeater.currentItem.@idCoreFacility || coreFacilityRepeater.currentItem.@isSelected == 'Y'}" toolTip="{coreFacilityLabel(coreFacilityRepeater.currentItem)}" >
 					</mx:CheckBox> 
 				</mx:Repeater>
