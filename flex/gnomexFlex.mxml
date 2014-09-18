@@ -4034,6 +4034,7 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
@@ -4167,6 +4168,7 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
+			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
 			<menuitem label="Protocols" icon="iconProtocol" />
