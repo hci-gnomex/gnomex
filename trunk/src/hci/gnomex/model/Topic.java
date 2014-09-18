@@ -108,7 +108,7 @@ public class Topic extends DetailObject implements Serializable, VisibilityInter
   public boolean hasVisibility(String codeVisibility) {
     boolean hasVisibility = false;
     for(Iterator<?> i = this.topics.iterator(); i.hasNext();) {
-      DataTrack a = DataTrack.class.cast(i.next());
+      Topic a = Topic.class.cast(i.next());
       if (a.getCodeVisibility().equals(codeVisibility)) {
         hasVisibility = true;
         break;
