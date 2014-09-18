@@ -108,7 +108,7 @@ public class ShowTopicTree extends ReportCommand implements Serializable {
   private void getTopicsForParent(List<Topic> topics, Integer idParent, Integer level) {
     for (Topic topic : topics) {
       if ((topic.getIdParentTopic() == null && idParent == null) || (topic.getIdParentTopic() != null && topic.getIdParentTopic().equals(idParent))) {
-        TopicTreeLinkInfo link = new TopicTreeLinkInfo(topic, level);
+        TopicTreeLinkInfo link = new TopicTreeLinkInfo(topic, level, isAllScope);
         topicTree.add(link);
         level++;
         getTopicsForParent(topics, topic.getIdTopic(), level);
