@@ -10,7 +10,7 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Experiment Matrix></title>
+<title>Topic Tree</title>
 
 <!-- Force latest IE rendering engine or ChromeFrame if installed -->
 <!--[if IE]>
@@ -18,7 +18,7 @@
 <![endif]-->
 <meta charset="utf-8">
 
-<title><%=siteName%> Experiment Matrix</title>
+<title><%=siteName%> Topic Tree</title>
 
 <link href='http://fonts.googleapis.com/css?family=Raleway:300,400' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400' rel='stylesheet' type='text/css'>
@@ -29,6 +29,7 @@
 
 
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/reportBootstrap.css">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script type='text/javascript'>
 $(window).load(function(){
@@ -132,11 +133,17 @@ padding-bottom: 1em;
       if (top.getIsPublic()) {
 %>
    <div class='row'>
-     <div class='col-xs-12'><%=top.getDescription() == null || top.getDescription().length() == 0 ? "No Description" : top.getDescription().replace("\"", "&quot;")%></div>
+     <div class='col-xs-12'><%=top.getDescription()%></div>
   </div>
   <div class='row'><hr></div>
    <div class='row'>
-     <div class='col-xs-5'>Owner:<%=top.getOwner()%></div>
+     <div class='col-xs-3'>Owner</div>
+     <div class='col-xs-4'><%=top.getOwner()%></div>
+   </div>
+   <div class='row'>
+     <div class='col-xs-3'>Lab</div>
+     <div class='col-xs-8'><%=top.getLab()%></div>
+   </div>
 <%
       } else {
 %>
@@ -144,12 +151,16 @@ padding-bottom: 1em;
     <div class='col-xs-8'>**Restricted**</div>
   </div>
   <div class='row'><hr></div>
-   <div class='row'>
 <%
       }
 %>
-    <div class='col-xs-3'># Experiments: <%=top.getNumExperiments().toString()%></div>
-    <div class='col-xs-3'># Analyses: <%=top.getNumAnalyses().toString()%></div>
+  <div class='row'>
+    <div class='col-xs-3'># Experiments</div>
+    <div class='col-xs-2'><%=top.getNumExperiments().toString()%></div>
+  </div>
+  <div class='row'>
+    <div class='col-xs-3'># Analyses</div>
+    <div class='col-xs-2'><%=top.getNumAnalyses().toString()%></div>
   </div>
 				">
 				<%=top.getNumber() + " - " + top.getName()%><%=top.getIsPublic() ? "" : "(Restricted)"%>
