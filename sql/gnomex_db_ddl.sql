@@ -736,6 +736,7 @@ CREATE TABLE `gnomex`.`ProductOrder` (
   `quoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
   `uuid` VARCHAR(36) NULL,
+  `idBillingAccount` INT(10) NULL,
   PRIMARY KEY (`idProductOrder`),
   CONSTRAINT `FK_ProductOrder_AppUser` FOREIGN KEY `FK_ProductOrder_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
