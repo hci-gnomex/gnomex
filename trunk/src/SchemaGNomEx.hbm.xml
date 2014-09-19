@@ -2187,6 +2187,7 @@
     <property name="quoteNumber" column="quoteNumber" type="string"/>
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
     <property name="uuid" column="uuid" type="string"/>
+    <property name="idBillingAccount" column="idBillingAccount" type="integer"/>
     
     <set name="productLineItems" table="ProductLineItem" lazy="true" cascade="none" order-by="idProductLineItem">
       <key column="idProductOrder"/>

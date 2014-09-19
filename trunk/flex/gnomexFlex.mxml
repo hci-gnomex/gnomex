@@ -2221,6 +2221,7 @@
 				hideMenusByProperties(navMenu);
 				
 				addNewExperimentMenus(navMenu);
+				addProductOrderMenus(navMenu);
 			}
 						
 			private function addNewExperimentMenus(navMenu:XMLList):void {
@@ -2258,6 +2259,43 @@
 					children += xml;
 				}
 				
+				return children;
+			}
+			
+			private function addProductOrderMenus(navMenu:XMLList):void {
+				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
+					for(var i:int; i < navMenu.length(); i++) {
+						var children:XMLList = new XMLList();
+						var changed:Boolean = false;
+						for each (var child:XML in navMenu[i].children()) {
+							if (child.@context == "newProductOrder") {
+								children = addCoreProductOrders(child, children);
+								changed = true;
+							} else {
+								children += child;
+							}
+						}
+						if (changed) {
+							navMenu[i].setChildren(children);
+						}
+					}
+				}
+			}
+			
+			private function addCoreProductOrders(template:XML, children:XMLList):XMLList {
+				for each(var core:Object in myCoreFacilities) {
+					for each(var pt:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.ProductType")){
+						if(pt.@idCoreFacility == core.@idCoreFacility){
+							var label:String = template.@label + " for " + core.@facilityName;
+							var xml:XML = new XML("<menuitem/>");
+							xml.@label = label;
+							xml.@icon = template.@icon;
+							xml.@idCoreFacility = core.@idCoreFacility;
+							children += xml;
+							break;
+						}
+					}
+				}
 				return children;
 			}
 			
@@ -3670,6 +3708,11 @@
 					theViews.selectedChild = sequencerOverview;					
 				} else if (label == "Overview"){
 					theViews.selectedChild = expOverview;
+				} else if (GNomExStringUtil.startsWith(label, "Order Products")){
+					productOrderView.coreFacilityName = dictionaryManager.getEntryDisplay('hci.gnomex.model.CoreFacility', idCoreFacility);
+					productOrderView.idCoreFacility = idCoreFacility;
+					productOrderView.init();
+					theViews.selectedChild = productOrderView;
 				} else if (label == "Product Orders") {
 					theViews.selectedChild = navProductOrderView;
 				} else if (label == "Configure Core Facilities") {
@@ -3880,6 +3923,7 @@
 		</menuitem>
 		
 		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
 			<menuitem label="Product Orders" icon="iconOrders"   />
 			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
 			<menuitem label="Configure Products" icon="iconConfig" />
@@ -4442,7 +4486,10 @@
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
 					
-					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0" >
+					<product:ProductOrderView id="productOrderView" width="100%" height="100%" backgroundAlpha="1.0">
+					</product:ProductOrderView>
+					
+					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0">
 					</product:NavProductOrderView>
 					
 				</mx:ViewStack>
