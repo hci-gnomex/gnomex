@@ -932,7 +932,8 @@ Test City, UT 12345',
  (120,'file_max_viewable_size','50','Maximum size of file in mb that can be viewed via "view" link in the file download tab','N'),
  (121,'billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y'),
  (122,'billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y'),
- (123,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N');
+ (123,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
+ (124,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y');
 
  
 
