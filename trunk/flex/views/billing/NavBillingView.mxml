@@ -202,8 +202,6 @@
  	<![CDATA[
 		import flash.utils.setTimeout;
 		
-		import mx.collections.SortField;
-		
 		import hci.flex.controls.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		
@@ -211,6 +209,7 @@
 		import mx.collections.IHierarchicalCollectionView;
 		import mx.collections.IViewCursor;
 		import mx.collections.Sort;
+		import mx.collections.SortField;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.controls.DateField;
@@ -1916,10 +1915,16 @@
 			
 			
 			var billingPeriods:XMLListCollection = new XMLListCollection();
+			var approvedItemCount:int = 0;
 			for each(var r:Object in this.billingItemsDisplayed) {
 				for each(var billingItem:Object in r.BillingItem) {
 					if (billingItem.@idRequest != requestNode.@idRequest) {
 						continue; 
+					}
+					if(billingItem.@codeBillingStatus == "APPROVED" ||
+						billingItem.@codeBillingStatus == "APPROVEDCC" || 
+						billingItem.@codeBillingStatus == "APPROVEDEX"){
+						approvedItemCount++;
 					}
 					var foundBillingPeriod:Boolean = false;
 					for each(var bp:Object in billingPeriods) {
@@ -1944,17 +1949,21 @@
 				Alert.show("Please select a billing period from the dropdown first.");
 				return;
 			}
+			
 			var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
 			
 			
 			var reassignWindow:BillingReassignView = BillingReassignView(mx.managers.PopUpManager.createPopUp(this, BillingReassignView, true));
         	mx.managers.PopUpManager.centerPopUp(reassignWindow);
         	reassignWindow.setFocus();
+			reassignWindow.approvedCount = approvedItemCount;
         	reassignWindow.request = requestNode;
         	reassignWindow.idBillingPeriod = idBillingPeriod;
         	reassignWindow.initializeData();
 
 		}
+		
+
 		
 		private function onBillingTabChange():void {
 			if (billingTabNavigator.selectedChild == this.priceTab) {
