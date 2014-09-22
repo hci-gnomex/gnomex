@@ -2070,9 +2070,6 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
 							 visible="true"  
 							 includeInLayout="true">
-						<mx:Label text="{this.selectedExperiment.@trimAdapter == 'Y' ? 'Adapter Trimming on Illumina Sequence Reads Requested' : 'No Adapter Trimming on Illumina Sequence Reads Desired'}" 
-								  styleName="formLabel"/>
-						<mx:Spacer height="10"/>
 						<mx:Label text="{'Organism: ' + this.selectedExperiment.@organismName}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
