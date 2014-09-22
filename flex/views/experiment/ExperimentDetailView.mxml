@@ -388,7 +388,7 @@
 			private function setWorkflowStatus():void {
 				var x:int = 0;
 				for each(var progressInfo:Object in selectedExperiment.workflowStatus.Progress) {
-					this.workflowProgressBar[x].setProgress(progressInfo.@stepNumber, selectedExperiment.workflowStatus.@numberOfSteps);	
+					this.workflowProgressBar[x].setProgress(progressInfo.@stepNumber, selectedExperiment.workflowStatus.@numberOfSteps );	
 					x++;
 				} 
 				
@@ -1609,7 +1609,7 @@
 					</mx:HBox>
 					<mx:HBox  verticalGap="0">
 						<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
-							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="105" fontSize="9" id="text1"/>
+							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="89" fontSize="9" id="text1"/>
 						</mx:Repeater>
 					</mx:HBox>
 					<mx:VBox >
