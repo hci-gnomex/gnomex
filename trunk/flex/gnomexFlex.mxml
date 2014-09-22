@@ -1161,7 +1161,6 @@
 			public var PROPERTY_ANNOTATION_OPTION_EQUIVALENTS:String      = "annotation_option_equivalents";
 			public var PROPERTY_HIDE_INSTITUTIONS:String     			  = "hide_institutions";
 			public var PROPERTY_HIDE_EXCLUDE_USAGE_FLAG:String     		  = "hide_exclude_usage_flag";
-			public var PROPERTY_CHOOSE_ADAPTER_TRIM_DEFAULT:String        = "choose_adapter_trim_default";
 			public var PROPERTY_SHOW_FUNDING_AGENCY:String				  = "show_funding_agency";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";

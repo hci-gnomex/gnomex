@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 public class PropertyDictionary extends DictionaryEntry implements Serializable {
-  
+
   public static final String        CONTACT_EMAIL_CORE_FACILITY         = "contact_email_core_facility";
   public static final String        CONTACT_EMAIL_BIOINFORMATICS        = "contact_email_bioinformatics";
   public static final String        CONTACT_NAME_CORE_FACILITY          = "contact_name_core_facility";
@@ -114,7 +114,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY = "illumina_libprep_default_price_category";
   public static final String        ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY = "illumina_seqoption_default_price_category";
   public static final String        FILE_MAX_VIEWABLE_SIZE              = "file_max_viewable_size";
-  
+
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
@@ -136,7 +136,6 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_GL_BLANK_YEAR               = "billing_gl_blank_year";
   public static final String        FISCAL_YEAR_BREAK_MONTH             = "fiscal_year_break_month";
   public static final String        FISCAL_YEAR_BREAK_DAY               = "fiscal_year_break_day";
-  public static final String        CHOOSE_ADAPTER_TRIM_DEFAULT         = "choose_adapter_trim_default";
 
 
   private Integer       idPropertyDictionary;
@@ -150,15 +149,15 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public Integer getIdPropertyDictionary() {
     return idPropertyDictionary;
   }
-  
+
   public void setIdPropertyDictionary(Integer idPropertyDictionary) {
     this.idPropertyDictionary = idPropertyDictionary;
   }
-  
+
   public String getValue() {
     return idPropertyDictionary.toString();
   }
- 
+
   public String getDisplay() {
     String postfix = "";
     if (getIdCoreFacility() != null) {
@@ -172,42 +171,42 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
     return getPropertyName() + postfix;
   }
 
-  
+
   public String getPropertyName() {
     return propertyName;
   }
 
-  
+
   public void setPropertyName(String propertyName) {
     this.propertyName = propertyName;
   }
 
-  
+
   public String getPropertyValue() {
     return propertyValue;
   }
 
-  
+
   public void setPropertyValue(String propertyValue) {
     this.propertyValue = propertyValue;
   }
 
-  
+
   public String getPropertyDescription() {
     return propertyDescription;
   }
 
-  
+
   public void setPropertyDescription(String propertyDescription) {
     this.propertyDescription = propertyDescription;
   }
 
-  
+
   public String getForServerOnly() {
     return forServerOnly;
   }
 
-  
+
   public void setForServerOnly(String forServerOnly) {
     this.forServerOnly = forServerOnly;
   }
@@ -215,17 +214,17 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public Integer getIdCoreFacility() {
     return idCoreFacility;
   }
-  
+
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
   }
 
-  
+
   public String getCodeRequestCategory() {
     return codeRequestCategory;
   }
 
-  
+
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
   }
