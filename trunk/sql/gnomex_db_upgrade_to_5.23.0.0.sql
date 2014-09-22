@@ -12,3 +12,6 @@ alter table ProductOrder add idBillingAccount int null;
 --Property to specify where purchase order forms are stored.
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 	VALUES('product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y', null, null);
+
+--Delete trim adapter question property.  No longer needed.	
+delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default';
