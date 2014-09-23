@@ -16,5 +16,7 @@ insert into PropertyDictionary (propertyName, propertyValue, propertyDescription
 --Delete trim adapter question property.  No longer needed.	
 delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default';
 
---Remove trimAdapter column
+--Remove trimAdapter column from table and audit table
 alter table Request Drop column trimAdapter;
+
+alter table Request_Audit DROP COLUMN trimAdapter;
