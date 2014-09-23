@@ -74,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -809,23 +810,36 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
       }
       if (this.invoicePrice.length() > 0) {
+        HashSet <String> emails = new HashSet <String>();
         Lab lab = requestParser.getRequest().getLab();
         String billedAccountName = requestParser.getRequest().getBillingAccountName();
-        String contactEmail = lab.getContactEmail();
-        String ccEmail = "";
+        emails.add(lab.getContactEmail());
+        //String contactEmail = lab.getContactEmail();
+        //String ccEmail = "";
         if (lab.getBillingContactEmail() != null && lab.getBillingContactEmail().length() > 0) {
-          ccEmail = lab.getBillingContactEmail() + ", ";
+          emails.add(lab.getBillingContactEmail());
+          //ccEmail = lab.getBillingContactEmail() + ", ";
         }
         for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
           AppUser manager = (AppUser)i1.next();
           if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
             if(manager.getEmail() != null) {
-              ccEmail = ccEmail + manager.getEmail() + ", ";
+              //ccEmail = ccEmail + manager.getEmail() + ", ";
+              emails.add(manager.getEmail());
             }
           }
         }
-        if((contactEmail != null && contactEmail.length() > 0) || ccEmail.length() > 0) {
+        if(emails.size() > 0) {
           try {
+            String contactEmail = "";
+            String ccEmail = "";
+            for(Iterator i = emails.iterator(); i.hasNext();) {
+              String address = (String)i.next();
+              contactEmail += address;
+              if(i.hasNext()) {
+                contactEmail += ", ";
+              }
+            }
             sendInvoicePriceEmail(sess, contactEmail, ccEmail, billedAccountName);
           } catch (Exception e) {
             String msg = "Unable to send estimated charges notification for request "
@@ -1039,8 +1053,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       // if this is a new request, create QC work items for each sample
       if (!requestParser.isExternalExperiment() && 
           ( RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || 
-            RequestCategory.isQCRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
-            RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()))) {
+              RequestCategory.isQCRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
+              RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()))) {
         if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
           WorkItem workItem = new WorkItem();
           workItem.setIdRequest(requestParser.getRequest().getIdRequest());
