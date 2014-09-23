@@ -224,13 +224,20 @@
 					createDateTo = dateFormatter.format( this.pickDateRangeButton.toDate );
 				}
 				
+				var customColumnIDs:String = "";
+				for each(var col:XML in customColumns){
+					if(col.@isSelected == "true"){
+						customColumnIDs += col.@idAnnotationReportField + ",";
+					}
+				}
+				
 				// Call the backend servlet that generates the excel spreadsheet
 				var showUrl:URLRequest = new URLRequest('ShowAnnotationReport.gx' +			
 					'?idLab=' +  (this.browseLabCombo.selectedItem != null ? this.browseLabCombo.selectedItem.@idLab : "") +
 					'&target=' +  this.annotationRadioGroup1.selectedValue +
 					'&idProperties=' + idProperties +
 					'&codeRequestCategories=' + codeRequestCategories +
-					'&customColumnString= <customColumns>' + customColumns.toXMLString() + '</customColumns>' +
+					'&customColumnString=' + customColumnIDs +
 					'&createDateFrom=' + createDateFrom + 
 					'&createDateTo=' + createDateTo);
 				navigateToURL(showUrl, '_blank');
