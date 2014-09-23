@@ -110,7 +110,9 @@ public class SaveCoreFacility extends GNomExCommand implements Serializable {
     coreFacility.setContactPhone( coreFacilityScreen.getContactPhone() );
     coreFacility.setSortOrder( coreFacilityScreen.getSortOrder() );
     coreFacility.setContactImage( coreFacilityScreen.getContactImage() );
-
+    coreFacility.setLabRoom( coreFacilityScreen.getLabRoom() );
+    coreFacility.setContactRoom( coreFacilityScreen.getContactRoom() );
+    coreFacility.setLabPhone( coreFacilityScreen.getLabPhone() );
   }
   
   

@@ -27,6 +27,9 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   private String   contactPhone;
   private Integer  sortOrder;
   private String   contactImage;
+  private String   contactRoom;
+  private String   labRoom;
+  private String   labPhone;
   
   public String getDisplay() {
     String display = this.getNonNullString(getFacilityName());
@@ -148,6 +151,34 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
   
   public void setContactImage( String contactImage ) {
     this.contactImage = contactImage;
+  }
+
+  
+  public String getLabRoom() {
+    return labRoom;
+  }
+
+  
+  public void setLabRoom( String labRoom ) {
+    this.labRoom = labRoom;
+  }
+  
+  public String getContactRoom() {
+    return contactRoom;
+  }
+
+  
+  public void setContactRoom( String contactRoom ) {
+    this.contactRoom = contactRoom;
+  }
+  
+  public String getLabPhone() {
+    return labPhone;
+  }
+
+  
+  public void setLabPhone( String labPhone ) {
+    this.labPhone = labPhone;
   }
 
   public void registerMethodsToExcludeFromXML() {
