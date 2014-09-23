@@ -166,6 +166,9 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
         facilityNode.setAttribute("shortDescription", cf.getShortDescription() != null ? cf.getShortDescription() : "");
         facilityNode.setAttribute("contactImage", cf.getContactImage() != null ? cf.getContactImage() : "");
         facilityNode.setAttribute("sortOrder", cf.getSortOrder() != null ? cf.getSortOrder().toString() : "");
+        facilityNode.setAttribute("labRoom", cf.getLabRoom() != null ? cf.getLabRoom().toString() : "");
+        facilityNode.setAttribute("contactRoom", cf.getContactRoom() != null ? cf.getContactRoom().toString() : "");
+        facilityNode.setAttribute("labPhone", cf.getLabPhone() != null ? cf.getLabPhone().toString() : "");
       }
     }
   }

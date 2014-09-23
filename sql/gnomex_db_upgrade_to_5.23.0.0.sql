@@ -13,6 +13,16 @@ alter table ProductOrder add idBillingAccount int null;
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 	VALUES('product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y', null, null);
 
+	
+	--Add columns to CoreFacility  
+ALTER TABLE CoreFacility add labPhone VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add labPhone VARCHAR(200) NULL');
+ALTER TABLE CoreFacility add contactRoom VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add contactRoom VARCHAR(200) NULL');
+ALTER TABLE CoreFacility add labRoom VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacility_Audit add labRoom VARCHAR(200) NULL');
+
+
 --Delete trim adapter question property.  No longer needed.	
 delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default';
 

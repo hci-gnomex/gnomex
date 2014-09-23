@@ -897,6 +897,9 @@ CREATE TABLE `gnomex`.`CoreFacility` (
   `contactPhone` varchar(200) NULL,
   `sortOrder` INT(10),
   `contactImage` varchar(200) NULL,
+  `labPhone` varchar(200) NULL,
+  `contactRoom` varchar(200) NULL,
+  `labRoom` varchar(200) NULL,
   PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;

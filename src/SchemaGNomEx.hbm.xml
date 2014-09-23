@@ -392,6 +392,9 @@
     <property name="contactPhone" column="contactPhone" type="string" />
     <property name="sortOrder" column="sortOrder" type="integer" />
     <property name="contactImage" column="contactImage" type="string" />
+    <property name="labPhone" column="labPhone" type="string" />
+    <property name="contactRoom" column="contactRoom" type="string" />
+    <property name="labRoom" column="labRoom" type="string" />
 	</class>
 
 
@@ -2168,6 +2171,9 @@
     </id>
     <property name="idProductOrder" column="idProductOrder" type="integer"/>
     <property name="idProduct" column="idProduct" type="integer"/>
+    <many-to-one name="product" column="idProduct"
+      class="hci.gnomex.model.Product" cascade="none" insert="false"
+      update="false" />
     <property name="qty" column="qty" type="integer"/>
     <property name="unitPrice" column="unitPrice" type="big_decimal"/>
   </class>  
@@ -2178,7 +2184,12 @@
       <generator class="native"/>
     </id>
     <property name="idAppUser" column="idAppUser" type="integer"/>
+    <many-to-one name="submitter" column="idAppUser"
+      class="hci.gnomex.model.AppUser" cascade="none" insert="false"
+      update="false" />
     <property name="idLab" column="idLab" type="integer"/>
+    <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab"
+      cascade="none" insert="false" update="false" />
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="submitDate" column="submitDate" type="date"/>
     <property name="codeProductType" column="codeProductType" type="string"/>
