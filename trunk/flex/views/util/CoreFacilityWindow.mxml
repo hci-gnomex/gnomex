@@ -4,7 +4,7 @@
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				showCloseButton="true" close="{closeWindow()}"
-				title="Edit Core Facility" height="650">
+				title="Edit Core Facility" height="655">
 	
 	<mx:HTTPService  
 		id="saveCoreFacility" 
@@ -104,6 +104,9 @@
 					" contactEmail=''" + 
 					" shortDescription=''" +
 					" description=''" +
+					" contactRoom=''" + 
+					" labRoom=''" + 
+					" labPhone=''" + 
 					" />");
 				coreFacilities.addItemAt(newCoreFacility, 0);
 				
@@ -131,6 +134,9 @@
 				params.facilityName = facilityName.text; 
 				params.contactEmail = contactEmail.text;
 				params.shortDescription = shortDescription.text;
+				params.contactRoom = contactRoom.text; 
+				params.labRoom = labRoom.text; 
+				params.labPhone = labPhone.text; 
 				params.description = GNomExStringUtil.cleanRichTextHTML(description.htmlText);
 				params.isActive = this.isActive.selected ? "Y" : "N";
 				params.showProjectAnnotations = this.showProjectAnnotations.selected ? "Y" : "N";
@@ -178,8 +184,6 @@
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.coreFacilitiesICanManage}"  sort="{sortOrderSort}"/>
 	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
 	
-	<mx:PhoneFormatter id="phoneFormatter" formatString="###-###-####"/> 
-	
 	<mx:VBox width="100%" height="100%" verticalGap="0">
 		
 		<mx:HBox width="100%" backgroundSize="100%" verticalAlign="middle" visible="{parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isSuperAdmin}">
@@ -197,24 +201,35 @@
 				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
 					<mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="6">			 
 						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-							<mx:Label text="Name"  width="130"  styleName="formLabel"/>
+							<mx:Label text="Director Name"  width="130"  styleName="formLabel"/>
 							<mx:TextInput  text="{coreList.selectedItem.@contactName}" change="{setDirty()}" width="100%" id="coreContactName"  maxChars="100" />
 							
 						</mx:HBox>		 
 						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-							<mx:Text text="Contact Email"  width="130" styleName="formLabel"/>
+							<mx:Text text="Director Email"  width="130" styleName="formLabel"/>
 							<mx:TextInput text="{coreList.selectedItem.@contactEmail}" change="{setDirty()}" width="100%" id="contactEmail"  maxChars="100"/>
 							
 						</mx:HBox>
 						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-							<mx:Text text="Contact Phone"  width="130" styleName="formLabel"/>
-							<mx:TextInput text="{coreList.selectedItem.@contactPhone}" change="{setDirty()}" width="100%" id="contactPhone"  maxChars="100"
-										  focusOut="{contactPhone.text=phoneFormatter.format(contactPhone.text);}"/>
+							<mx:Text text="Director Phone"  width="130" styleName="formLabel"/>
+							<mx:TextInput text="{coreList.selectedItem.@contactPhone}" change="{setDirty()}" width="100%" id="contactPhone"  maxChars="100"/>
 						</mx:HBox>	
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Director Room"  width="130" styleName="formLabel"/>
+							<mx:TextInput text="{coreList.selectedItem.@contactRoom}" change="{setDirty()}" width="100%" id="contactRoom"  maxChars="200"/>
+						</mx:HBox>
 						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 							<mx:Text text="Facility Name"  width="130" styleName="formLabel"/>
 							<mx:TextInput text="{coreList.selectedItem.@facilityName}" change="{setDirty()}" width="100%" id="facilityName"  maxChars="100"/>
 						</mx:HBox>	
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Lab Room"  width="130" styleName="formLabel"/>
+							<mx:TextInput text="{coreList.selectedItem.@labRoom}" change="{setDirty()}" width="100%" id="labRoom"  maxChars="200"/>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Lab Phone"  width="130" styleName="formLabel"/>
+							<mx:TextInput text="{coreList.selectedItem.@labPhone}" change="{setDirty()}" width="100%" id="labPhone"  maxChars="100"/>
+						</mx:HBox>
 						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 							<mx:Text text="Contact Image File Name" width="130" styleName="formLabel"/>
 							<mx:TextInput text="{coreList.selectedItem.@contactImage}" 
@@ -236,7 +251,7 @@
 											   borderThicknessRight="0" borderThicknessLeft="0" 
 											   borderThicknessBottom="0" borderThickness="0" 
 											   borderThicknessTop="0"
-											   creationComplete="removeRichTextButtons();"/>
+											   creationComplete="removeRichTextButtons();" height="225"/>
 						</mx:HBox>
 						<mx:HBox width="100%">
 							<mx:Spacer width="130" />
