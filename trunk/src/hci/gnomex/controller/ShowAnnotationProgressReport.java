@@ -166,7 +166,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
 
       // Write a query to get all samples for all experiments.
       // (Row for each sample)
-      StringBuffer queryBuf = sampleFilter.getQuery(secAdvisor, IS_CREATE_REPORT);
+      StringBuffer queryBuf = sampleFilter.getQuery(secAdvisor, IS_CREATE_REPORT, new ArrayList());
       List<Object[]> sampleRows = (List<Object[]>)sess.createQuery(queryBuf.toString()).list();
 
       // Write a query to get all sample annotations for all experiments
