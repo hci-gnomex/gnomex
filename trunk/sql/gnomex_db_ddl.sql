@@ -1781,7 +1781,6 @@ CREATE TABLE `gnomex`.`Request` (
   `bioinformaticsAssist` CHAR(1) NULL,
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
-  `trimAdapter` CHAR(1) null,
   `codeRNAPrepType` varchar(10) NULL,
   `includeBisulfideConversion` CHAR(1) NULL,
   `includeQubitConcentration` CHAR(1) NULL,
