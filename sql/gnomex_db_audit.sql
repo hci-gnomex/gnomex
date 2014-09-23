@@ -19226,7 +19226,6 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
- ,`trimAdapter`  char(1)  NULL DEFAULT NULL
  ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
  ,`includeBisulfideConversion`  char(1)  NULL DEFAULT NULL
  ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
