@@ -101,8 +101,8 @@
 		]]>
 	</mx:Script>
 	<mx:VBox id="bioNoteHBox" width="100%" verticalGap="0" height="100%" >
+		<mx:Label text="{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_HEADER)}" fontWeight="bold"/>
 		<mx:HBox  horizontalAlign="left" id="vbox4" width="100%">
-			<mx:Label text="{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_HEADER)}" fontWeight="bold"/>
 			<mx:HBox backgroundColor="#FFFEC3">
 				<mx:TextArea editable="false" borderColor="#FFFEC3" change="{parentDocument.dirty.setDirty();}" backgroundColor="#FFFEC3" text="{'Questions?  Please Contact the ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_GROUP) + ' at: '}" wordWrap="true" height="20" id="textarea1" width="388"/>
 				<mx:LinkButton label="{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
