@@ -3410,7 +3410,8 @@
 			if (request.toString().indexOf("<collaborators") >= 0) {
 				request.replace("collaborators", <collaborators></collaborators>);
 			} else{
-				request.appendChild("<collaborators></collaborators>");
+				var collabNode:XML = <collaborators/>;
+				request.appendChild(collabNode);
 			}
 			for each(var collaborator:Object in visibilityView.getCollaborators()) {
 				request.collaborators.appendChild(collaborator);
