@@ -41,7 +41,7 @@
 			}
 
 			public function propagateGenomeBuild():void {
-				parentDocument.request.@idGenomeBuildAlignTo = alignCheckBox.selected ? genomeBuildCombo.selectedItem.@value : "";
+				parentDocument.request.@idGenomeBuildAlignTo = alignCheckBox.selected && genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@value : "";
 				for each (var lane:Object in parentDocument.lanes) {
 					if (this.genomeBuildCombo.selectedItem != null) {
 						if(!alignCheckBox.selected) {
