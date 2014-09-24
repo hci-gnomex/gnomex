@@ -30,3 +30,7 @@ delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default
 alter table Request Drop column trimAdapter;
 
 alter table Request_Audit DROP COLUMN trimAdapter;
+
+--new isolation prep type custom annotations
+insert into AnnotationReportField values('REQUEST', 'codeDNAPrepType', 'DNA prep type', 'N', null, 'hci.gnomex.model.DNAPrepType');
+insert into AnnotationReportField values('REQUEST', 'codeRNAPrepType', 'RNA prep type', 'N', null, 'hci.gnomex.model.RNAPrepType');
