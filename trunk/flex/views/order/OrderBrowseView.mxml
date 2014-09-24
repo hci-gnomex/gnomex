@@ -176,8 +176,8 @@
 					params.hasRedo = 'Y';
 				}
 				
-				if ( requestCategoryRadioGroup != null && requestCategoryRadioGroup.selectedValue != null && requestCategoryRadioGroup.selectedValue != ''){
-					params.codeRequestCategory = requestCategoryRadioGroup.selectedValue;
+				if ( requestCategoryComboBox != null && requestCategoryComboBox.selectedItem != null && requestCategoryComboBox.selectedLabel != ''){
+					params.codeRequestCategory = requestCategoryComboBox.selectedItem.@codeRequestCategory;
 				}
 				
 				if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
@@ -257,7 +257,7 @@
 				if ( this.redoCheckbox.selected) {
 					return false ;
 				}
-				if ( requestCategoryRadioGroup != null && requestCategoryRadioGroup.selectedValue != null && requestCategoryRadioGroup.selectedValue != ''){
+				if ( requestCategoryComboBox != null && requestCategoryComboBox.selectedItem != null && requestCategoryComboBox.selectedLabel != ''){
 					return false;
 				}
 				if ( this.coreFacilityCombo != null && this.coreFacilityCombo.selectedItem != null) {
@@ -439,18 +439,15 @@
 				
 			}
 			
-			private var currentSelectedValue:String = null;
-			
-			private function radioClick(event:MouseEvent):void {
-				if ( event.currentTarget.value == currentSelectedValue ) {
-					requestCategoryRadioGroup.selectedValue = null;
-					currentSelectedValue = null;
-					event.stopImmediatePropagation();
-				} else { 
-					currentSelectedValue = event.currentTarget.value;
+			private function coreSelected():void{
+				if ( requestCategoryComboBox!=null){
+					requestCategoryComboBox.selectedItem = null;
 				}
+				this.requestNoLookupField.text = "";
 				getList();
+				requestCategories.refresh();
 			}
+			
 			
 		]]>
 	</mx:Script>    	
@@ -610,25 +607,20 @@
 									 labelField="@display" prompt="Core facility..." 
 									 fontSize="10" paddingRight="3"
 									 visible="{!parentApplication.isExternalDataSharingSite}" 
-									 includeInLayout="{!parentApplication.isExternalDataSharingSite}">
-							<mx:change>requestCategoryRadioGroup.selectedValue = null;this.requestNoLookupField.text = "";getList();requestCategories.refresh();</mx:change>
+									 includeInLayout="{!parentApplication.isExternalDataSharingSite}"
+									 change="{coreSelected()}">
 						</mx:ComboBox>
 						
 						<mx:VRule height = "20"  />
+						
+						<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
+												  dataProvider="{requestCategories}" 
+												  labelField="@display" prompt="Experiment Type.."
+												  includeInLayout="{requestCategories.length > 1}" 
+												  visible="{requestCategories.length > 1}" 
+												  change="{getList()}"/>
 					</mx:HBox>
 					
-					<mx:RadioButtonGroup id = "requestCategoryRadioGroup" />     
-					<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
-						
-							<mx:RadioButton id="radioRequestCategory" groupName="requestCategoryRadioGroup"
-											label="{requestCategoryRepeater.currentItem.@display}" 
-											value="{requestCategoryRepeater.currentItem.@value}" 
-											fontSize="11" paddingRight="5" horizontalGap="1" 
-											click="radioClick(event)" />
-						
-					</mx:Repeater>
-					
-				<mx:RadioButton id="nullSelection" groupName="requestCategoryRadioGroup" visible="false" width="0" /> 
 			</mx:HBox>
 			
 		</mx:VBox>
