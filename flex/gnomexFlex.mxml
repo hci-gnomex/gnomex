@@ -3387,6 +3387,10 @@
 					return iconGreenBullet;
 				} else if (item.name() == "Hybridization") {
 					return iconRedBullet;
+				} else if (item.name() == "ProductOrder") {
+					return iconCategory;
+				} else if (item.name() == "Product") {
+					return iconGreenBullet;
 				} else {
 					return null;
 				}
