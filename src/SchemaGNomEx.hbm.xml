@@ -724,6 +724,7 @@
 		<property name="isCcsgMember" column="isCCSGMember" type="string" />
 		<property name="isActive" column="isActive" type="string" />
 		<property name="excludeUsage" column="excludeUsage" type="string" />
+		<property name="billingContactPhone" column="billingContactPhone" type="string" />
 		<property name="billingContactEmail" column="billingContactEmail"
 			type="string" />
 		<set name="members" table="LabUser" lazy="true" cascade="none">
