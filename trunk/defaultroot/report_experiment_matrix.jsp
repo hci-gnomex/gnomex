@@ -325,7 +325,7 @@ for (Object orgColKey : orgColMap.keySet()) {
 %>
                             </div>
                           </div>
-                        </div
+                        </div>
 <%
 					}
 				}
