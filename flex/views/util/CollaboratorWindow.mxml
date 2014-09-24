@@ -144,7 +144,8 @@
 				if (analysisOrExpObject.toString().indexOf("<collaborators>") >= 0) {
 					analysisOrExpObject.replace("collaborators", <collaborators></collaborators>);
 				} else{
-					analysisOrExpObject.appendChild("<collaborators></collaborators>");
+					var collabNode:XML = <collaborators/>;
+					request.appendChild(collabNode);
 				}
 				for each(var collaborator:Object in collaborators) {
 					analysisOrExpObject.collaborators.appendChild(collaborator);
