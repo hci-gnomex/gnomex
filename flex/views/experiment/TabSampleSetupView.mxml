@@ -246,6 +246,11 @@
 						
 						isComplete = true;
 					}
+					if ( parentDocument.filteredAppList.length > 0 ) {
+						if (this.radioGroupApp.selectedValue == null ){
+							isComplete = false;
+						}
+					}
 				} else if (currentState == 'MicroarrayAmendState') {
 					if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
 						isComplete = true;
@@ -617,6 +622,30 @@
 					this.parentDocument.applicationName = application.@display;
 				} else {
 					this.seqAppBox.styleName = 'requiredBox';
+					this.parentDocument.applicationName = '';
+				}
+				if ( this.checkSampleSetupCompleteness() ) {
+					parentDocument.samplesView.initializeSamplesGrid();
+				}
+			}
+			
+			private function pickApp():void {
+				if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
+					panelContainer.visible = true;
+					panelContainer.includeInLayout = true;
+					applicationDesc.styleName = 'requiredBox';
+				} else {
+					panelContainer.visible = false;
+					panelContainer.includeInLayout = false;
+					applicationDesc.styleName = 'normalBox';
+					applicationDesc.text = '';
+				}
+				if (this.radioGroupApp.selectedValue != null) {
+					this.appBox.styleName = 'normalBox';
+					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupApp.selectedValue);
+					this.parentDocument.applicationName = application.@display;
+				} else {
+					this.appBox.styleName = 'requiredBox';
 					this.parentDocument.applicationName = '';
 				}
 				if ( this.checkSampleSetupCompleteness() ) {
@@ -1139,6 +1168,22 @@
 						this.sequenomApplicationDesc.styleName = "requiredBox";
 					}
 				} else if (this.radioGroupSeqApp.selectedValue != null ){
+					parentDocument.request.@applicationDescription = "";
+				}
+				if ( this.checkSampleSetupCompleteness() ) {
+					parentDocument.samplesView.initializeSamplesGrid();
+				}
+			}
+			
+			private function onGenAppDescChanged():void{
+				if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
+					parentDocument.request.@applicationDescription = this.applicationDesc != null ? this.applicationDesc.text : "";
+					if ( this.applicationDesc.text != '' ) {
+						this.applicationDesc.styleName = "normalBox";
+					} else {
+						this.applicationDesc.styleName = "requiredBox";
+					}
+				} else if (this.radioGroupApp.selectedValue != null ){
 					parentDocument.request.@applicationDescription = "";
 				}
 				if ( this.checkSampleSetupCompleteness() ) {
@@ -2138,11 +2183,36 @@
 			<mx:SetProperty target="{text1}" name="width" value="340"/>
 			<mx:SetProperty target="{samplePoolingLabel}" name="width" value="340"/>
 			<mx:SetProperty target="{samplesToBePreppedCheckbox}" name="selected" value="false"/>
-			
 		</mx:State>
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
+			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
+				<mx:HBox width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
+					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Application Help"
+									  label="(4) Select an application." labelPlacement="left" id="labelApplication" width="340"/>
+					<mx:VBox verticalGap="2" id="appContainerVBox">
+						<mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="appBox">
+							<mx:RadioButtonGroup id="radioGroupApp"/>
+							<mx:Repeater id="appRepeater" dataProvider="{parentDocument.filteredAppList}"> 
+								<mx:HBox verticalAlign="middle">
+									<mx:RadioButton  label="{appRepeater.currentItem.@display}" 
+													 paddingLeft="1" paddingRight="1"
+													 value="{appRepeater.currentItem.@value}"
+													 groupName="radioGroupApp"
+													 click="{pickApp()}"
+													 width="200"/>
+								</mx:HBox>
+							</mx:Repeater>
+						</mx:VBox>
+						<mx:HBox id="panelContainer" width="400" verticalAlign="middle" paddingBottom="5" visible="false" includeInLayout="false">
+							<mx:Spacer width="22"/>
+							<mx:Label text="Please specify" id="panelLabel"/>
+							<mx:TextInput width="100%" id="applicationDesc" styleName="requiredBox" focusOut="onGenAppDescChanged()" />
+						</mx:HBox>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	
