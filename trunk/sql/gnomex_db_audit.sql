@@ -12012,6 +12012,7 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
  ,`version`  bigint(20)  NULL DEFAULT NULL
  ,`contactAddress2`  varchar(200)  NULL DEFAULT NULL
  ,`contactCountry`  varchar(200)  NULL DEFAULT NULL
+ ,`billingContactPhone` varchar(50) NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -19290,7 +19291,6 @@ INSERT INTO Request_Audit
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
-  , trimAdapter
   , codeRNAPrepType
   , includeBisulfideConversion
   , includeQubitConcentration )

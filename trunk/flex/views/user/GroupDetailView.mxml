@@ -746,6 +746,7 @@
 				params.contactCountry = this.contactCountry.text;
 				params.contactPhone = this.contactPhone.text;
 				params.contactEmail = this.contactEmail.text;
+				params.billingContactPhone = this.billingContactPhone.text;
 				params.isExternalPricing = this.isExternalPricingAcademicButton.selected ? "Y" : "N";
 				params.isExternalPricingCommercial = this.isExternalPricingCommercialButton.selected ? "Y" : "N";
 				params.excludeUsage = parentApplication.getProperty(parentApplication.PROPERTY_HIDE_EXCLUDE_USAGE_FLAG) != 'Y' ? (this.excludeUsageCheckBox.selected ? "Y" : "N") : parentDocument.fullLab.@excludeUsage ; 
@@ -1589,6 +1590,8 @@
 											 text="{parentDocument.fullLab.@billingContactEmail}" width="100%" change="dirty.setDirty()" height="50" 
 											 toolTip="{parentDocument.fullLab.@billingContactEmail}"
 											 styleName="{billingContactEmail.text==null || billingContactEmail.text == '' ? 'missingInfo' : 'normalBackground'}"/>
+					<mx:Label text="Billing Contact Phone #" styleName="formLabel" paddingBottom="0"/>
+					<mx:TextInput id="billingContactPhone" text="{parentDocument.fullLab.@billingContactPhone}" width="100%" change="dirty.setDirty()"/>
 					<mx:Label text="Department"  styleName="formLabel" paddingBottom="0"/>
 					<mx:TextInput id="department" text="{parentDocument.fullLab.@department}" width="100%" change="dirty.setDirty()"/>
 					<mx:Label text="Address"  styleName="formLabel" paddingBottom="0"/>

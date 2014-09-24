@@ -1278,6 +1278,7 @@ CREATE TABLE `gnomex`.`Lab` (
   `version` BIGINT(20) NOT NULL DEFAULT 0,
   `contactAddress2` varchar(200) NULL,
   `contactCountry` varchar(200) NULL,
+  `billingContactPhone` varchar(50) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
