@@ -3303,6 +3303,10 @@
 					request.@codeApplication = filteredAppList[0].@value;
 					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
+				if (this.isGenericState()) {
+					request.@applicationNotes = filteredAppList.length > 0 ? sampleSetupView.applicationDesc.text : '';
+					request.@codeApplication = filteredAppList.length > 0 ? sampleSetupView.radioGroupApp.selectedValue : '';
+				}
 				if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState' && !isIsolationState()) {
 					request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
 				}						

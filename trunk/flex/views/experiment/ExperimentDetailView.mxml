@@ -302,7 +302,7 @@
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
 					}	
-				}  else if (this.selectedExperiment.@codeRequestCategory == 'IONTOR') {
+				}  else if (this.selectedExperiment.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
 					this.currentState = "IonTorrentState";
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	

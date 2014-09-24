@@ -17,7 +17,6 @@
 			import mx.controls.AdvancedDataGrid;
 			import mx.core.mx_internal;
 			
-			import views.util.AnnotationDataGridColumn;
 			
 			[Bindable]
 			private var longDescriptionRowCount:int = 0;
@@ -77,6 +76,9 @@
 				}
 				this.label1.text = 'Samples (' + filteredSamples.length + ')';
 				
+			}
+			
+			override protected function rebuildSamplesGrid():void {
 			}
 			
 			override public function getSamplesGrid():Object {
