@@ -28,19 +28,32 @@
 	</mx:Script>
 	<mx:HBox width="100%" verticalAlign="middle">
 		
-		<mx:Image id="contactImage" horizontalAlign="center" source="{coreFacility.@contactImage}" scaleContent="true"  height="75" smoothBitmapContent="true"/>	
+		<mx:Image id="contactImage" horizontalAlign="center" source="{coreFacility.@contactImage}" scaleContent="true"  height="75%" smoothBitmapContent="true"/>	
 		
-		<mx:VBox horizontalAlign="center" width="100%" >
-			<mx:Label text="{coreFacility.@facilityName+ ' Core'}" fontSize="14"/>
-			<mx:Text text="{coreFacility.@contactName}" fontWeight="bold"/>
-			<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:Text text="Phone: " fontStyle="italic"/>
-				<mx:Text text="{coreFacility.@contactPhone}" />
-				<mx:Text paddingLeft="4" paddingRight="0" text="Email: " fontStyle="italic"/>
-				<mx:LinkButton id="emailLink" label="{coreFacility.@contactEmail}" 
-							   click="navigateToURL(new URLRequest('mailto:' + coreFacility.@contactEmail));event.stopImmediatePropagation()" 
-							   textDecoration="underline" color="#0000ff" paddingTop="1"/>
+		<mx:VBox horizontalAlign="center" width="100%" verticalGap="1">
+			<mx:Label text="{coreFacility.@facilityName}" fontSize="14" fontWeight="bold" color="#0A4894"/>
+			<mx:HBox horizontalGap="10" verticalAlign="middle" height="75">
+				<mx:VBox verticalGap="0" horizontalAlign="{coreFacility.@room!=''&amp;&amp;coreFacility.@labPhone!=''?'right':'center'}" id="directorInfoVBox">
+					<mx:Text text="{'Director: ' + coreFacility.@contactName}" fontWeight="bold"/>
+					<mx:Text text="{coreFacility.@contactRoom}"/>
+					<mx:Text text="{coreFacility.@contactPhone}"/>
+				</mx:VBox>
+				<mx:VRule visible="{coreFacility.@room!=''&amp;&amp;coreFacility.@labPhone!=''}"
+						  includeInLayout="{coreFacility.@room!=''&amp;&amp;coreFacility.@labPhone!=''}" height="80%"/>
+				<mx:VBox verticalGap="0" horizontalAlign="left"
+						 
+						 id="labInfoVBox"
+						 visible="{coreFacility.@room!=''&amp;&amp;coreFacility.@labPhone!=''}"
+						 includeInLayout="{coreFacility.@room!=''&amp;&amp;coreFacility.@labPhone!=''}">
+					<mx:Text text="Lab Info:" fontWeight="bold"/>
+					<mx:Text text="{coreFacility.@labRoom}"/>
+					<mx:Text text="{coreFacility.@labPhone}"/>
+				</mx:VBox>
 			</mx:HBox>
+			<mx:LinkButton id="emailLink" label="{coreFacility.@contactEmail}" 
+						   paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
+						   click="navigateToURL(new URLRequest('mailto:' + coreFacility.@contactEmail));event.stopImmediatePropagation()" 
+						   textDecoration="underline" color="#0000ff" />
 		</mx:VBox>
 	</mx:HBox>
 	<mx:HRule width="100%"/>
@@ -52,7 +65,7 @@
 		<mx:Text text="or" />
 		<mx:LinkButton id="workAuthLink" label="billing account" 
 					   click="{parentApplication.showWorkAuthWindow(null, coreFacility.@idCoreFacility);event.stopImmediatePropagation()}" 
-					   textDecoration="underline" color="#0000ff" paddingLeft="0" paddingRight="0"/>
+					   textDecoration="underline" color="#0000ff" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"/>
 		<mx:Text text="{'to ' + coreFacility.@facilityName}"/>
 	</mx:HBox>
 	
