@@ -5,11 +5,10 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
-
-import org.jdom.Document;
-import org.jdom.Element;
+import java.util.List;
 
 public class RequestSampleFilter extends DetailObject {
 
@@ -19,9 +18,8 @@ public class RequestSampleFilter extends DetailObject {
   private Integer               idAppUser;
   private Integer               idLab;
   private Date                  createDateFrom;
-  private Date                  createDateTo; 
+  private Date                  createDateTo;
   private String                codeRequestCategories;
-  private Document              customColumnDoc = null;
 
   private String                lastWeek = "N";
   private String                lastMonth = "N";
@@ -56,21 +54,18 @@ public class RequestSampleFilter extends DetailObject {
   public static final int       COL_PROPERTY_VALUE = 6;
   public static final int       COL_PROPERTY_MULTI_VALUE = 7;
   public static final int       COL_PROPERTY_OPTION = 8;
+  public static final int       COL_PROPERTY_SORT_ORDER = 9;
 
 
   public RequestSampleFilter() {
 
   }
 
-  public RequestSampleFilter(Document doc) {
-    this.customColumnDoc = doc;
-  }
-
   public StringBuffer getQuery(SecurityAdvisor secAdvisor){
-    return getQuery(secAdvisor, false);
+    return getQuery(secAdvisor, false, new ArrayList());
   }
 
-  public StringBuffer getQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport) {
+  public StringBuffer getQuery(SecurityAdvisor secAdvisor, Boolean isCreateReport, List customColumnList) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
@@ -91,24 +86,17 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" req.codeApplication ");
     //Custom sample columns below
 
-    if(customColumnDoc != null) {
-      for(Iterator i = customColumnDoc.getRootElement().getContent().iterator(); i.hasNext();) {
-        Element e = (Element)i.next();
-        if(e.getAttributeValue("isSelected") != null && e.getAttributeValue("isSelected").equals("true")) {
-          queryBuf.append(" , ");
-          if(e.getAttributeValue("isCustom").equals("Y")) {
-            handleCustomAnnotationField(e);
-          } else if(e.getAttributeValue("source").equals(AnnotationReportField.SOURCE_TYPE_SAMPLE)) {
-            queryBuf.append(" sample." + e.getAttributeValue("fieldName"));
-          } else if(e.getAttributeValue("source").equals(AnnotationReportField.SOURCE_TYPE_REQUEST)) {
-            queryBuf.append(" req." + e.getAttributeValue("fieldName"));
-          }
-        }
-
+    for(Iterator i = customColumnList.iterator(); i.hasNext();) {
+      AnnotationReportField arf = (AnnotationReportField)i.next();
+      queryBuf.append(" , ");
+      if(arf.getIsCustom().equals("Y")) {
+        handleCustomAnnotationField(arf);
+      } else if(arf.getSource().equals(AnnotationReportField.SOURCE_TYPE_SAMPLE)) {
+        queryBuf.append(" sample." + arf.getFieldName());
+      } else if(arf.getSource().equals(AnnotationReportField.SOURCE_TYPE_REQUEST)) {
+        queryBuf.append(" req." + arf.getFieldName());
       }
     }
-
-
 
     if(isCreateReport){
       this.isCreateReport = true;
@@ -120,12 +108,12 @@ public class RequestSampleFilter extends DetailObject {
     return queryBuf;
 
   }
-  
-  private void handleCustomAnnotationField(Element e) {
-    if(e.getAttributeValue("fieldName").equals("turnAroundTime")) {
+
+  private void handleCustomAnnotationField(AnnotationReportField arf) {
+    if(arf.getFieldName().equals("turnAroundTime")) {
       queryBuf.append(" '' ");
     }
-    
+
   }
 
   public StringBuffer getAnnotationQuery(SecurityAdvisor secAdvisor){
@@ -146,7 +134,8 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" prop.name, ");
     queryBuf.append(" propEntry.value, ");
     queryBuf.append(" value.value, ");
-    queryBuf.append(" option.option ");
+    queryBuf.append(" option.option, ");
+    queryBuf.append(" prop.sortOrder ");
 
     if(isCreateReport){
       this.isCreateReport = true;
@@ -287,39 +276,39 @@ public class RequestSampleFilter extends DetailObject {
 
 
   private void addRequestCriteria() {
-    // Search by request number 
+    // Search by request number
     if (number != null && !number.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" req.number like '");
       queryBuf.append(number);
       queryBuf.append("%'");
-    } 
-    // Search by lab 
+    }
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
     }
-    // Search by user 
+    // Search by user
     if (idAppUser != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateFrom != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateTo != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate <= '");
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
+    }
     // Search last week
     if (lastWeek.equals("Y")) {
 
