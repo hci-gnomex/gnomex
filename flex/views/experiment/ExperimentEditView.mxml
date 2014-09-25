@@ -2000,7 +2000,7 @@
 			request.@idRequest = "0";
 			request.@number = "";
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
-			request.@idSubmitter= parentApplication.getIdAppUser();
+			request.@idSubmitter= setupView.idAppUser;
 			request.@idAppUser = setupView.idAppUser;
 			request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 			request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
@@ -2428,7 +2428,7 @@
 				addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
-			request.@idSubmitter = parentApplication.getIdAppUser();
+			request.@idSubmitter = setupView.idAppUser;
 			request.@idAppUser = setupView.idAppUser;
 			
 			if (theTab.contains(this.annotationView)) {
@@ -3263,7 +3263,7 @@
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
 			if (!this.isEditState()) {
-				request.@idSubmitter = parentApplication.getIdAppUser();
+				request.@idSubmitter = this.getIdAppUserOwner();
 				request.@idAppUser = this.getIdAppUserOwner();
 			}
 			
