@@ -2325,12 +2325,18 @@
 			}
 			
 			if (theTab.contains(visibilityView)) {
-				if (request.@canUpdateVisibility == 'Y') {
+				if( requestCategory.@isOwnerOnly=='Y' ) {
+					theTab.removeChild(visibilityView);
+				} else if (request.@canUpdateVisibility == 'Y') {
 					this.visibilityView.currentState = "EditState";	
 					this.visibilityView.enabled = true;
 				} else {
 					this.visibilityView.enabled = false;
 				}
+			} else {
+				if ( requestCategory.@isOwnerOnly!='Y' && requestCategory.@type == 'SEQUENOM' ) { 
+					theTab.addChild(visibilityView);
+				} 
 			}
 
 			this.getRequestCategoryName();
@@ -5736,7 +5742,6 @@
 			<mx:RemoveChild target="{sampleSetupView}"/>
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
-			<mx:RemoveChild target="{visibilityView}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
