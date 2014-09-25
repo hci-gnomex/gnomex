@@ -904,7 +904,7 @@
 													 sortable="false" 
 													 editable="true" 
 													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode', true, true)}">
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode', true, true, 0xFFFFB9)}">
 					<util:itemEditor>
 						<mx:Component>
 							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
