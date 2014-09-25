@@ -454,7 +454,7 @@
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
 					" displayName='" + memberCombo.selectedItem.@displayName + "'" +
-					" isActive='Y'/>");
+					" isActive='Y' newMember='Y'/>");
 				members.addItem(node);
 				memberCombo.selectedIndex = -1;
 			}

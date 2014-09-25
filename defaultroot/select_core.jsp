@@ -95,7 +95,7 @@ try {
     <h3>Select Core Facility</h3>
     
     <div id="coreFacilityDiv"><div class="col1"><div class="left">
-      <table border="0" width="800" class="facilities">
+      <table border="0" width="800" class="facilities" rules="rows">
         
         <%
           Iterator facilityIter = facilities.iterator();
@@ -103,30 +103,27 @@ try {
             CoreFacility f = (CoreFacility) facilityIter.next();
         %>
         <tr height="35">
-          <td width="250">
+          <td width="250" style="padding-bottom:5; padding-top:5">
             <a class="button" href="register_user.jsp?idFacility=<%=f.getIdCoreFacility()%><%=idCoreParm.replace("?","&")%>"><%=f.getDisplay()%></a>
           </td>
           
-          <td >
+          <td style="padding-bottom:5; padding-top:5">
             <%
               if (f.getDescription() != null) {%>
                   <%=f.getDescription()%>
             <%}%>
           </td>
-        </tr> 
+        </tr>
             <%}%>
       </table>
       
     </div></div></div>       
   
     <div class="empty"></div>
-    
-      
+
   </div>
 
-
 </div>
-
 
 </body>
 </html>
