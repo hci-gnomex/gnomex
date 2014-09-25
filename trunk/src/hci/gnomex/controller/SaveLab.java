@@ -435,6 +435,13 @@ public class SaveLab extends GNomExCommand implements Serializable {
           // Save the members who are still part of the lab
           lab.setMembers(members);
 
+          //Notify newly added members
+          ArrayList emails = labMemberParser.getNewMemberEmailList();
+          for(Iterator i = emails.iterator(); i.hasNext();) {
+            String email = (String)i.next();
+            newMemberNotificationEmail(sess, email, lab.getName(false, true));
+          }
+
           sess.flush();
 
 
@@ -617,6 +624,25 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+
+  private void newMemberNotificationEmail(Session sess, String email, String labName) {
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+    String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    StringBuffer body = new StringBuffer();
+    String gnomexURL =  "<a href='" + this.launchAppURL + "'>Click here</a> to login.";
+    body.append("This is to notify you that you have been added to the " + labName + " and can now start submitting experiments.<br><br>");
+    body.append(gnomexURL);
+
+    if(!MailUtil.isValidEmail(email)){
+      log.error("Invalid Email Address " + email);
+    }
+
+    try {
+      MailUtil.send(email, null, fromAddress, "You've been added to a new GNomEx lab", body.toString(), true);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   private void initializeUserProjectMap(HashMap<Integer, List<Project>> userProjectMap, HashMap<Integer, AppUser> userMap, Set<AppUser> theUsers) {

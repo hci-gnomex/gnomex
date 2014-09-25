@@ -35,12 +35,12 @@ import org.hibernate.Session;
 
 
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PublicSaveSelfRegisteredAppUser.class);
-  
+
 
   private AppUser        appUserScreen;
   private PropertyDictionaryHelper propertyHelper = null;
@@ -56,10 +56,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private String         department = null;
   private String         serverName;
   private List           activeFacilities;
-  
+
   public String responsePageSuccess = null;
   public String responsePageError = null;
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     serverName = request.getServerName();
     this.requestURL = request.getRequestURL(); 
@@ -75,7 +75,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       uofuAffiliate = false;
       appUserScreen.setuNID("");
     }
-    
+
     // Trim uNID, external user name, removing trailing spaces
     if (appUserScreen.getuNID() != null) {
       appUserScreen.setuNID(appUserScreen.getuNID().trim());
@@ -83,7 +83,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (appUserScreen.getUserNameExternal() != null) {
       appUserScreen.setUserNameExternal(appUserScreen.getUserNameExternal().trim());
     }
-    
+
     if (request.getParameter("labDropdown") != null && Integer.parseInt(request.getParameter("labDropdown")) != 0 ) {
       existingLab = true;
       requestedLabId = Integer.parseInt(request.getParameter("labDropdown"));
@@ -94,45 +94,45 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       department = request.getParameter( "department" );
       appUserScreen.setDepartment( department );
     }
-    
+
     if (request.getParameter("idFacility") != null && !request.getParameter("idFacility").equals("") ) {
       idFacility = request.getParameter("idFacility");
     } else {
       this.addInvalidField("facilityRqrd", "Please select a core facility");
     }
-    
-    
+
+
     if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
         (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
         (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) ||
         ((requestedLabName == null || requestedLabName.equals("")) && requestedLabId == null)) {
       this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
     }
-    
+
     if(appUserScreen.getFirstName() != null && appUserScreen.getLastName() != null){
       //if(!appUserScreen.getFirstName().matches("[A-Za-z]+") || !appUserScreen.getLastName().matches("[A-Za-z]+")){
       if(appUserScreen.getFirstName().matches(".*[0-9].*") || appUserScreen.getLastName().matches(".*[0-9].*")){
         this.addInvalidField("improperName", "First and last names may not contain digits");
       }
     }
-    
+
     if (uofuAffiliate && (appUserScreen.getuNID() == null || this.appUserScreen.getuNID().equals(""))) {
       this.addInvalidField("userNameRequiredField", "University Id is required");        
     }
-    
+
     if(appUserScreen.getuNID() != null && !appUserScreen.getuNID().equals("") ){
       if(appUserScreen.getuNID().charAt(0) != 'u' || appUserScreen.getuNID().trim().length() != 8 || !appUserScreen.getuNID().trim().substring(1).matches("[0-9]+")){
         this.addInvalidField("incorrectUNIDFormat", "Your University ID must start with lowercase 'u' followed by 7 digits");
       }
     }
-     
+
     if (!uofuAffiliate && (appUserScreen.getUserNameExternal() == null || this.appUserScreen.getUserNameExternal().equals(""))) {
       this.addInvalidField("userNameRequiredField", "User name is required");
     }
 
     if (!uofuAffiliate) {
       if (appUserScreen.getPasswordExternal() == null || appUserScreen.getPasswordExternal().equals(""))
-      this.addInvalidField("passwordRqrd", "Password is required");
+        this.addInvalidField("passwordRqrd", "Password is required");
     }
 
     if (request.getParameter("responsePageSuccess") != null && !request.getParameter("responsePageSuccess").equals("")) {
@@ -141,7 +141,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (request.getParameter("responsePageError") != null && !request.getParameter("responsePageError").equals("")) {
       responsePageError = request.getParameter("responsePageError");
     }
-    
+
     if (appUserScreen.getEmail() != null && !appUserScreen.getEmail().equals("")) {
       try {
         InternetAddress addresses[] = InternetAddress.parse(appUserScreen.getEmail(), true);
@@ -164,12 +164,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       Session sess = HibernateSession.currentSession(this.getUsername());
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       EncryptionUtility passwordEncrypter = new EncryptionUtility();
-      
+
       String disableSignup = propertyHelper.getProperty(PropertyDictionary.DISABLE_USER_SIGNUP);
       if (disableSignup != null && disableSignup.equals("Y")) {
         this.addInvalidField("Signup disabled", "User signup is disabled");
       }
-      
+
       // Get core facilities.
       activeFacilities = CoreFacility.getActiveCoreFacilities(sess);
       if (activeFacilities.size() == 1) {
@@ -178,7 +178,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         Integer id = Integer.parseInt(idFacility);
         facility = (CoreFacility)sess.load(CoreFacility.class, id);
       }
-      
+
       AppUser appUser = null;
 
       if(!uofuAffiliate) {
@@ -194,7 +194,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       if (nameEmailAlreadyExists(sess, appUserScreen)) {
         this.addInvalidField("Name/Email", "The combination of name and email already exists.  Please verify you do not have an existing account.");
       }
-      
+
       if (existingLab) {
         requestedLab = (Lab)sess.load(Lab.class, requestedLabId);
         requestedLabName = requestedLab.getName();
@@ -212,7 +212,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
         coreFacilityEmail = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(),PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
       }
-      
+
       if (this.isValid()) {
         // Send user email before storing app user so if it fails we can give error without
         // throwing exception
@@ -224,7 +224,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           this.addInvalidField("email", "Unable to send email.  Please check your email address and try again.");
         }
       }
-      
+
       if (this.isValid()) {
         appUser = appUserScreen;
 
@@ -245,10 +245,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           }
 
         }
-        
+
         // Default to inactive
         appUser.setIsActive("N");
-        
+
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
 
@@ -266,10 +266,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         sendAdminEmail(appUser, sess);    
         sendLabManagerEmail(appUser, sess);
       }
-      
+
       if (this.isValid()) {
         sess.flush();
-        
+
         this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
         setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
       } else {
@@ -288,7 +288,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       }
     }
-    
+
     return this;
   }
 
@@ -320,19 +320,23 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     return body.toString();
   }
-  
+
   private void sendUserEmail(AppUser appUser)  throws NamingException, MessagingException {
     StringBuffer intro = new StringBuffer();
     intro.append("Thank you for signing up for a GNomEx account.  We will send you an email once your user account has been activated.<br><br>");
-    
+    if(!existingLab) {
+      intro.append("**Please note that you have requested a new lab in GNomEx.  You will not be able to submit experiments until your lab is verified and approved by the core facility manager.  You will be notified when you have been added to the lab.**.<br><br>");
+    }
+
+
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
     }
-    
+
     if(!MailUtil.isValidEmail(appUser.getEmail())){
       log.error("Invalid Email Address " + appUser.getEmail());
     }
-    
+
 
     MailUtil.send(
         appUser.getEmail(),
@@ -341,9 +345,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         "Your GNomEx user account has been created",
         intro.toString() + getEmailBody(appUser),
         true
-      );
+    );
   }
-  
+
   private void sendAdminEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
     //This is to send it to the right application server, without hard coding
     String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
@@ -370,17 +374,17 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
       }
     }
-    
+
     if (!dictionaryHelper.isProductionServer(serverName)) {
       subject = subject + "  (TEST)";
       testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
-    
+
     if(toAddress.equals("")){
       return;
     }
-    
+
     url = url + Constants.LAUNCH_APP_JSP + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail&idCore=" + facility.getIdCoreFacility().toString();
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
@@ -392,10 +396,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         subject,
         testEmailInfo + introForAdmin.toString() + getEmailBody(appUser),
         true
-      );
+    );
 
   }
-  
+
   private void sendLabManagerEmail(AppUser appUser, Session sess) throws NamingException, MessagingException{
     String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -403,7 +407,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
     }
-    
+
     String toAddress = "";
     String subject = "GNomEx user account requested for " + appUser.getFirstName() + " " + appUser.getLastName();
     String testEmailInfo = "";
@@ -414,7 +418,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
         toAddress += requestedLab.getContactEmail();
       }
-      
+
       for(Iterator managerIter = requestedLab.getManagers().iterator(); managerIter.hasNext();){
         AppUser manager = (AppUser)managerIter.next();
         String managerEmail = manager.getEmail();
@@ -426,18 +430,18 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         }
       } 
     }
-    
+
     //Abort the send if the to address is still empty to avoid empty recipient error
     if(toAddress.equals("")){
       return;
     }
-    
+
     if (!dictionaryHelper.isProductionServer(serverName)) {
       subject = subject + "  (TEST)";
       testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
-    
+
     StringBuffer introForAdmin = new StringBuffer();
     introForAdmin.append("This email is being sent to notify you that the following person has signed up for a GNomEx user account and has requested to be a member of your lab.<br><br>");
     MailUtil.send(
@@ -447,9 +451,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         subject,
         testEmailInfo + introForAdmin.toString() + getEmailBody(appUser),
         true
-      );
+    );
   }
-  
+
   public void validate() {
     // See if we have a valid form
     if (isValid()) {
@@ -458,17 +462,17 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
     }
   }
-  
+
   private class AppUserComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       AppUser u1 = (AppUser)o1;
       AppUser u2 = (AppUser)o2;
-      
+
       return u1.getIdAppUser().compareTo(u2.getIdAppUser());
-      
+
     }
   }
-  
+
   private static boolean userNameAlreadyExists(Session sess, String userNameExternal, Integer idAppUser) {
     if (userNameExternal == null || userNameExternal.equals("")) {
       return false;
@@ -483,7 +487,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     List users = sess.createQuery(buf.toString()).list();
     return users.size() > 0;    
   }
-  
+
   private static boolean uNID_AlreadyExists(Session sess, String uNID, Integer idAppUser) {
     if (uNID == null || uNID.equals("")) {
       return false;
@@ -498,7 +502,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     List users = sess.createQuery(buf.toString()).list();
     return users.size() > 0;    
   }
-  
+
   private static boolean nameEmailAlreadyExists(Session sess, AppUser appUser) {
     if (appUser.getFirstName() == null || appUser.getLastName() == null || appUser.getEmail() == null) {
       return false;
@@ -511,16 +515,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if (appUser.getIdAppUser() != null) {
       buf.append(" AND a.idAppUser != :idAppUser");
     }
-    
+
     Query usersQuery = sess.createQuery(buf.toString());
-    
+
     usersQuery.setParameter("firstName", appUser.getFirstName());
     usersQuery.setParameter("lastName", appUser.getLastName());
     usersQuery.setParameter("email", appUser.getEmail());
     if (appUser.getIdAppUser() != null) {
       usersQuery.setParameter("idAppUser", appUser.getIdAppUser());
     }
-    
+
     List users = usersQuery.list();
     return users.size() > 0;
   }
