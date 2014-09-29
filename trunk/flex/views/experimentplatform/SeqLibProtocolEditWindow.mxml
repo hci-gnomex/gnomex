@@ -62,8 +62,8 @@
 					protocol.name = defaultName;
 					protocolName.text = defaultName;  // not sure why bindable doesn't handle this, so kludge.
 					protocol.url = "";
-					protocol.adapterSequenceRead1 = "";
-					protocol.adapterSequenceRead2 = "";
+					protocol.adapterSequenceThreePrime = "";
+					protocol.adapterSequenceFivePrime = "";
 					protocolDescription = "";
 					protocol.isActive = "Y";
 					isActive.selected = true;
@@ -143,12 +143,12 @@
 		<mx:VBox left="10" top="360" right="10"  verticalGap="0" id="adapterSequenceBox"  width="100%">
 			<mx:HBox verticalAlign="middle" width="100%">
 				<mx:VBox width="100%">
-					<mx:Label text="Read 1 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
-					<mx:TextInput text="{protocol.adapterSequenceRead1}" width="100%" id="adapterSequenceRead1Input" change="dirty.setDirty()" />
+					<mx:Label text="Read 1 Adapter Sequence" fontWeight="normal" width="140" styleName="formLabel" height="18"/>
+					<mx:TextInput text="{protocol.adapterSequenceThreePrime}" width="100%" id="adapterSequenceRead1Input" change="dirty.setDirty()" />
 				</mx:VBox>
 				<mx:VBox width="100%">
-					<mx:Label text="Read 2 Adapter Sequence" fontWeight="normal" width="120" styleName="formLabel" height="18"/>
-					<mx:TextInput text="{protocol.adapterSequenceRead2}" width="100%" id="adapterSequenceRead2Input" change="dirty.setDirty()" />
+					<mx:Label text="Read 2 Adapter Sequence" fontWeight="normal" width="140" styleName="formLabel" height="18"/>
+					<mx:TextInput text="{protocol.adapterSequenceFivePrime}" width="100%" id="adapterSequenceRead2Input" change="dirty.setDirty()" />
 				</mx:VBox>
 			</mx:HBox>
 		</mx:VBox>
