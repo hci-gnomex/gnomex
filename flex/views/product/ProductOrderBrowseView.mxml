@@ -195,8 +195,8 @@
 									   itemRenderer = "views.renderers.CheckBoxIsSelectedToggle"
 									   headerRenderer = "views.renderers.CheckBoxHeader"/>-->
 			<mx:AdvancedDataGridColumn headerText="ID"
-									   dataField="@idProductOrder" 
-									   width="60"/>
+									   dataField="@nodeDisplay" 
+									   width="175"/>
 			<mx:AdvancedDataGridColumn headerText="Lab"
 									   dataField="@labName"/>
 			<mx:AdvancedDataGridColumn headerText="Submitter"
@@ -221,33 +221,17 @@
 									   textAlign="right" 
 									   wordWrap="false"
 									   itemRenderer="views.renderers.LabelPercentage" />                              
-			<mx:AdvancedDataGridColumn headerText="Type" 
+			<!--<mx:AdvancedDataGridColumn headerText="Type" 
 									   dataField="@codeBillingChargeKind" 
 									   editable="true" 
 									   wordWrap="false" 
 									   editorDataField="value" 
 									   rendererIsEditor="false"
 									   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
-									   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>						
+									   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>-->						
 			<mx:AdvancedDataGridColumn headerText="Price Category" 
 									   dataField="@category" 
 									   editable="false" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
-			<mx:AdvancedDataGridColumn headerText="Description" 
-									   dataField="@description" 
-									   editable="true" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
-			<mx:AdvancedDataGridColumn  id = "cDate"  
-										headerText="Complete Date"
-										dataField="@completeDate"
-										itemEditor="views.renderers.CompleteDateFieldEditor"
-										itemRenderer="views.renderers.BillingADGItemRenderer" 
-										rendererIsEditor="false" 
-										labelFunction="getCompleteDateString"
-										editorDataField="selectedDate"/>													
-			<mx:AdvancedDataGridColumn headerText="Notes" 
-									   dataField="@notes" 
-									   editable="true" 
 									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
 			<mx:AdvancedDataGridColumn headerText="Unit price" 
 									   dataField="@unitPrice"  
@@ -275,7 +259,19 @@
 									   editorDataField="value"  
 									   rendererIsEditor="false"
 									   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
-									   itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>                 
+									   itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>    
+			<mx:AdvancedDataGridColumn id = "cDate"  
+									   headerText="Complete Date"
+									   dataField="@completeDate"
+									   itemEditor="views.renderers.CompleteDateFieldEditor"
+									   itemRenderer="views.renderers.BillingADGItemRenderer" 
+									   rendererIsEditor="false" 
+									   labelFunction="getCompleteDateString"
+									   editorDataField="selectedDate"/>													
+			<mx:AdvancedDataGridColumn headerText="Notes" 
+									   dataField="@notes" 
+									   editable="true" 
+									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
 		</mx:columns>
 	</mx:AdvancedDataGrid>
 </mx:VBox>

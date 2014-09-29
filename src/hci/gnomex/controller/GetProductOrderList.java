@@ -101,6 +101,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
         
         // Set all attributes obtained above
         poNode.setAttribute("idProductOrder", toString(idProductOrder));
+        poNode.setAttribute("nodeDisplay", "Order " + toString(idProductOrder));
         poNode.setAttribute("idAppUser", toString(idAppUser));
         poNode.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
         poNode.setAttribute("idLab", toString(idLab));
@@ -185,6 +186,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
           Element productNode = product.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
           
           // Add line item details
+          productNode.setAttribute( "nodeDisplay", "Line Item" );
           productNode.setAttribute( "qty", qty != null ? qty.toString() : "" );
           productNode.setAttribute( "unitPrice", unitPrice != null ? "$" + unitPrice.toString() : "" );
           // Calculate total price for that product
@@ -234,6 +236,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
           if ( bi.getIdPrice().toString().equals( node.getAttributeValue( "idPrice" ) ) ) {
             Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
             billingItemNode.setAttribute("billingAccountName", ba.getAccountNameDisplay() );
+            billingItemNode.setAttribute( "nodeDisplay", "Billing Item" );
             // Add the billing item node to the product node
             node.addContent(billingItemNode);
           }
@@ -271,7 +274,8 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
           Integer idProductOrder        = (Integer)lineItemRow[0];
           ProductOrderFile file         = (ProductOrderFile)lineItemRow[1];
           Element fileNode = file.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-          
+          fileNode.setAttribute( "nodeDisplay", "File");
+          fileNode.setAttribute( "display", file.getFileName() != null ? file.getFileName() : "" );
           // Add file node to product order
           node.addContent(fileNode);
          
