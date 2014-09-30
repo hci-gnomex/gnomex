@@ -70,6 +70,9 @@
 			[Bindable]
 			private var genomeBuild:String = "";
 			
+			[Bindable]
+			private var alignToGenomeBuild:String = "N";
+			
 			public var defaultTab:Container = null;
 			
 			public function isCapSeqState():Boolean {
@@ -175,6 +178,12 @@
 				
 				if(selectedExperiment.sequenceLanes.SequenceLane[0] != null && selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo != null){
 					genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo);
+				}
+				
+				if (selectedExperiment.@alignToGenomeBuild != null && selectedExperiment.@alignToGenomeBuild != '') {
+					this.alignToGenomeBuild = selectedExperiment.@alignToGenomeBuild.toString();
+				} else {
+					this.alignToGenomeBuild = 'N';
 				}
 				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
@@ -2073,6 +2082,8 @@
 						<mx:Label text="{'Organism: ' + this.selectedExperiment.@organismName}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
+						<mx:Label text="{'Align to GenomeBuild: ' + alignToGenomeBuild}"
+								  styleName="formLabel"/>
 						<mx:Label text="{'Genome Build: ' + genomeBuild}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>

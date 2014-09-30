@@ -98,6 +98,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer         numPrePooledTubes;
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
+  private String          alignToGenomeBuild;
 
   // permission field
   private boolean     canUpdateVisibility;
@@ -1427,6 +1428,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.includeQubitConcentration = includeQubitConcentration;
   }
 
+  public String getAlignToGenomeBuild() {
+    return alignToGenomeBuild;
+  }
+  
+  public void setAlignToGenomeBuild(String alignToGenomeBuild) {
+    this.alignToGenomeBuild = alignToGenomeBuild;
+  }
+  
   public String getTurnAroundTime() {
     if(this.createDate != null && this.completedDate != null) {
       long difference = ((this.completedDate.getTime() - this.createDate.getTime()) / (1000 * 60 * 60 * 24));

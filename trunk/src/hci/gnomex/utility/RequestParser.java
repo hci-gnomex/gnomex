@@ -312,6 +312,12 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("includeQubitConcentration") != null && !n.getAttributeValue("includeQubitConcentration").equals(""))
       request.setIncludeQubitConcentration(n.getAttributeValue("includeQubitConcentration"));
 
+    if (n.getAttributeValue("alignToGenomeBuild") != null && !n.getAttributeValue("alignToGenomeBuild").equals("")) {
+      request.setAlignToGenomeBuild(n.getAttributeValue("alignToGenomeBuild"));
+    } else {
+      request.setAlignToGenomeBuild("N");
+    }
+
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest && !this.isExternalExperiment()) {
