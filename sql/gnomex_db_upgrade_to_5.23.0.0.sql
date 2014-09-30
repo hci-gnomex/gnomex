@@ -7,6 +7,7 @@ insert into PropertyDictionary (propertyName, propertyValue, propertyDescription
 
 --Add billing account to ProductOrder	
 alter table ProductOrder add idBillingAccount int null;
+call ExecuteIfTableExists('gnomex','ProductOrder_Audit','ALTER TABLE ProductOrder_Audit add idBillingAccount int null');
 
 
 --Property to specify where purchase order forms are stored.
@@ -28,9 +29,12 @@ delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default
 
 --Remove trimAdapter column from table and audit table
 alter table Request Drop column trimAdapter;
-
-alter table Request_Audit DROP COLUMN trimAdapter;
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN trimAdapter');
 
 --new isolation prep type custom annotations
 insert into AnnotationReportField values('REQUEST', 'codeDNAPrepType', 'DNA prep type', 'N', null, 'hci.gnomex.model.DNAPrepType');
 insert into AnnotationReportField values('REQUEST', 'codeRNAPrepType', 'RNA prep type', 'N', null, 'hci.gnomex.model.RNAPrepType');
+
+-- new align to genome build.
+ALTER TABLE Request add alignToGenomeBuild CHAR(1) NULL;
+call ExecuteIfTableExists('gnomex','Request_Audit','ALTER TABLE Request_Audit add alignToGenomeBuild CHAR(1) NULL');

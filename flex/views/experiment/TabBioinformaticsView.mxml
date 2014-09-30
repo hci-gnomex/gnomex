@@ -7,20 +7,28 @@
 			
 			private function init():void {
 				if (parentDocument != null && parentDocument.request != null
-					&& parentDocument.request.multiplexSequenceLanes.hasOwnProperty("@idGenomeBuildAlignTo")
-					&& parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo != null
-					&& parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo != '') {
+					&& parentDocument.request.hasOwnProperty("@alignToGenomeBuild")
+					&& parentDocument.request.@alignToGenomeBuild == 'Y') {
+
 					alignCheckBox.selected = true;
-					for each(var obj:Object in parentDocument.filteredGenomeBuildList) {
-						if (obj.@idGenomeBuild == parentDocument.request.multiplexSequenceLanes.@idGenomeBuildAlignTo) {
-							genomeBuildCombo.selectedItem = obj;
-							genomeBuildCombo.enabled = true;
+					genomeBuildCombo.selectedIndex = 0;
+					for each(var lane:XML in parentDocument.lanes) {
+						if (lane.hasOwnProperty("@idGenomeBuildAlignTo")
+							&& lane.@idGenomeBuildAlignTo != null
+							&& lane.@idGenomeBuildAlignTo != '') {
+							for each(var obj:Object in parentDocument.filteredGenomeBuildList) {
+								if (obj.@idGenomeBuild == lane.@idGenomeBuildAlignTo) {
+									genomeBuildCombo.selectedItem = obj;
+									genomeBuildCombo.enabled = true;
+									break;
+								}
+							}
 							break;
 						}
 					}
 				} else {
 					alignCheckBox.selected = false;
-					genomeBuildCombo.selectedIndex = -1;
+					genomeBuildCombo.selectedIndex = 0;
 					genomeBuildCombo.enabled = false;
 				}
 				
@@ -74,10 +82,12 @@
 				if (!alignCheckBox.selected) {
 					genomeBuildCombo.selectedIndex = 0;
 					genomeBuildCombo.enabled = false;
+					parentDocument.request.@alignToGenomeBuild='N';
 					propagateGenomeBuild();
 				} else {
 					genomeBuildCombo.enabled = true;
-					if (genomeBuildCombo.selectedIndex == 0) {
+					parentDocument.request.@alignToGenomeBuild='Y';
+					if (genomeBuildCombo != null && genomeBuildCombo.selectedIndex <= 0) {
 						this.selectDefaultGenomeBuild();
 					}
 				}

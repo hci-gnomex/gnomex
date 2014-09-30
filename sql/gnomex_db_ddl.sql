@@ -1788,6 +1788,7 @@ CREATE TABLE `gnomex`.`Request` (
   `codeRNAPrepType` varchar(10) NULL,
   `includeBisulfideConversion` CHAR(1) NULL,
   `includeQubitConcentration` CHAR(1) NULL,
+  `alignToGenomeBuild` CHAR(1) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
