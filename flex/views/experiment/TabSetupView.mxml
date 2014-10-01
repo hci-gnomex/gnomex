@@ -320,7 +320,7 @@
 						}
 					}
 					idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != '' ? this.appUserCombo.selectedItem.@idAppUser : '';
-				} else if(parentApplication.hasPermission('canSubmitForOtherCores')){
+				} else if(parentApplication.hasPermission('canSubmitForOtherCores') && parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION)){
 					this.currentState = "AdminState";
 					idAppUser = this.appUserCombo.selectedItem != null && this.appUserCombo.selectedItem.@idAppUser != '' ? this.appUserCombo.selectedItem.@idAppUser : '';
 				} else {
