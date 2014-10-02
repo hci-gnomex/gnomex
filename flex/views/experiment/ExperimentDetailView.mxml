@@ -1117,7 +1117,7 @@
 						isControlCol.visible = false;
 						this.qc260Col.visible = true;
 						this.qc260280Col.visible = false;
-						this.qcConcCol.visible = false;
+						this.qcConcCol.visible = true;
 						this.qcRINCol.visible = true;
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
@@ -1768,7 +1768,7 @@
 							</mx:Component>
 						</mx:headerRenderer> 
 					</mx:AdvancedDataGridColumn>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="organismCol" headerText="Organism" visible="{true}"  width="80" dataField="@@idOrganism'"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="organismCol" headerText="Organism" visible="{true}"  width="80" dataField="@idOrganism'"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
 					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
