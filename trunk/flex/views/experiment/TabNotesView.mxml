@@ -53,6 +53,9 @@
 	private function propagateName():void {
 		parentDocument.request.@name = experimentName.text;
 	}
+	private function propagateAdminInstructions():void {
+		parentDocument.request.@adminNotes = noteToAdmin.text;
+	}
 			
 		
 	public function setExternalNoteVisibility():void {
@@ -112,6 +115,14 @@
 			<mx:Label text="(3) Enter a note for the Core Facility. (optional)"  id="label2"/>
 			<util:TextAreaWorkaround id="noteToSeq" text="{parentDocument.request.@corePrepInstructions}" focusOut="propagatePrepInstructions()" 
 					width ="100%" height="50%"/>
+		</mx:VBox>
+		
+		<mx:VBox id="adminNoteBox" width="100%" includeInLayout="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}" 
+				 visible="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}">
+			<mx:Spacer height="10" id="adminSpace" />
+			<mx:Label text="Administration notes"  id="label3"/>
+			<util:TextAreaWorkaround id="noteToAdmin" text="{parentDocument.request.@adminNotes}" focusOut="propagateAdminInstructions()" 
+									 width ="100%" height="50%"/>
 		</mx:VBox>
 	</mx:VBox>
 

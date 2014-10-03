@@ -1162,6 +1162,8 @@
 			public var PROPERTY_HIDE_INSTITUTIONS:String     			  = "hide_institutions";
 			public var PROPERTY_HIDE_EXCLUDE_USAGE_FLAG:String     		  = "hide_exclude_usage_flag";
 			public var PROPERTY_SHOW_FUNDING_AGENCY:String				  = "show_funding_agency";
+			public var PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST:String		  = "show_admin_notes_on_request";
+			public var PROPERTY_IS_PLATE_BASED_CORE:String		  		  = "is_plate_based_core";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -2924,7 +2926,7 @@
 						result = properties[name];
 					}
 					if (result == null) {
-						result = "";
+						result = "";	
 					}
 				}
 				return result;

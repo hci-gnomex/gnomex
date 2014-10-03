@@ -8,15 +8,15 @@ import java.sql.Date;
 import java.util.Calendar;
 
 public class RequestFilter extends DetailObject {
-  
-  
+
+
   // Criteria
   private String                number;
   private Integer               idAppUser;
   private Integer               idLab;
   private Date                  createDateFrom;
   private Date                  createDateTo;
-  
+
 
   private String                lastWeek = "N";
   private String                lastMonth = "N";
@@ -26,19 +26,19 @@ public class RequestFilter extends DetailObject {
   private String                codeRequestCategory;
   private String                status;
   private Integer               idCoreFacility;
-  
+
   private String                hasRedo = "N";
-  
+
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
-  
-  
+
+
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
-    
+
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append(" req.idRequest, ");
     queryBuf.append(" req.number, ");
@@ -56,8 +56,9 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" req.idLab, ");
     queryBuf.append(" req.idCoreFacility, ");
     queryBuf.append(" req.corePrepInstructions, ");
-    queryBuf.append(" count(sample.idSample) ");
-    
+    queryBuf.append(" count(sample.idSample), ");
+    queryBuf.append(" req.adminNotes ");
+
     getQueryBody(queryBuf);
 
     queryBuf.append(" GROUP BY ");
@@ -76,79 +77,80 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" req.idAppUser, ");
     queryBuf.append(" req.idLab, ");
     queryBuf.append(" req.idCoreFacility, ");
-    queryBuf.append(" req.corePrepInstructions ");
-    
+    queryBuf.append(" req.corePrepInstructions, ");
+    queryBuf.append(" req.adminNotes ");
+
     queryBuf.append(" order by req.idRequest ");
 
     return queryBuf;
-    
+
   }
 
   public StringBuffer getReactionPlateQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
-    
+
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append(" req.idRequest, ");
     queryBuf.append(" plate.label, ");
     queryBuf.append(" run.idInstrumentRun, ");
     queryBuf.append(" run.label ");
-    
+
     getReactionPlateQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
-  
+
   public StringBuffer getSourcePlateQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
-    
+
     queryBuf.append( "SELECT distinct req.idRequest, plate.idPlate ");
-    
+
     getSourcePlateQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
-  
-  
+
+
   public void getQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        req.submitter as submitter ");
     queryBuf.append(" JOIN        req.lab as lab ");
-    
+
     if (hasRedo.equals("Y")) {
       queryBuf.append(" JOIN        sample.wells as well ");
     }
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
-    
+
     addRequestCriteria();
     addWellCriteria();
     addSecurityCriteria();
-    
-  
+
+
   }
-  
+
 
   public void getReactionPlateQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        sample.wells as well ");
     queryBuf.append(" JOIN        well.plate as plate ");
     queryBuf.append(" LEFT JOIN   plate.instrumentRun as run ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
-    
+
     addRequestCriteria();
     addReactionPlateCriteria();
     addSecurityCriteria();
   }
-  
+
 
   public void getSourcePlateQueryBody(StringBuffer queryBuf) {
 
@@ -156,7 +158,7 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        sample.wells as well ");
     queryBuf.append(" JOIN        well.plate as plate ");
-    
+
     addRequestCriteria();
     addSourcePlateCriteria();
     addSecurityCriteria();
@@ -264,7 +266,7 @@ public class RequestFilter extends DetailObject {
       queryBuf.append(idCoreFacility);
     } 
   }
-  
+
   private void addWellCriteria() {
     // Search by redoFlag
     if (hasRedo.equals("Y")){
@@ -276,20 +278,20 @@ public class RequestFilter extends DetailObject {
   } 
 
   private void addReactionPlateCriteria() {
-      this.addWhereOrAnd();
-      queryBuf.append(" plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
+    this.addWhereOrAnd();
+    queryBuf.append(" plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
   }   
-  
+
   private void addSourcePlateCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
-    
+
   }
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
-    
-  
+
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -300,104 +302,104 @@ public class RequestFilter extends DetailObject {
     return addWhere;
   }
 
-  
+
   public Integer getIdLab() {
     return idLab;
   }
 
-  
+
   public Integer getIdUser() {
     return idAppUser;
   }
 
-  
+
   public String getNumber() {
     return number;
   }
 
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
 
-  
+
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
-  
+
   public void setNumber(String number) {
     this.number = number;
   }
 
-  
+
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
 
 
-  
+
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
   }
 
-  
+
   public Date getCreateDateTo() {
     return createDateTo;
   }
 
-  
+
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
 
-  
-  
+
+
   public String getLastWeek() {
     return lastWeek;
   }
 
-  
+
   public void setLastWeek( String lastWeek ) {
     this.lastWeek = lastWeek;
   }
 
-  
+
   public String getLastMonth() {
     return lastMonth;
   }
 
-  
+
   public void setLastMonth( String lastMonth ) {
     this.lastMonth = lastMonth;
   }
 
-  
+
   public String getLastThreeMonths() {
     return lastThreeMonths;
   }
 
-  
+
   public void setLastThreeMonths( String lastThreeMonths ) {
     this.lastThreeMonths = lastThreeMonths;
   }
 
-  
+
   public String getLastYear() {
     return lastYear;
   }
 
-  
+
   public void setLastYear( String lastYear ) {
     this.lastYear = lastYear;
   }
 
-  
+
   public String getCodeRequestCategory() {
     return codeRequestCategory;
   }
 
-  
+
   public void setCodeRequestCategory( String codeRequestCategory ) {
     this.codeRequestCategory = codeRequestCategory;
   }
@@ -406,7 +408,7 @@ public class RequestFilter extends DetailObject {
     return status;
   }
 
-  
+
   public void setStatus( String status ) {
     this.status = status;
   }
@@ -422,11 +424,11 @@ public class RequestFilter extends DetailObject {
   public Integer getIdCoreFacility() {
     return idCoreFacility;
   }
-  
+
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
   }
 
-  
-  
+
+
 }

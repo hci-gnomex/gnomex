@@ -1020,6 +1020,7 @@
 		<property name="numPrePooledTubes" column="numPrePooledTubes"
 			type="integer" />
 		<property name="alignToGenomeBuild" column="alignToGenomeBuild" type="string" />
+		<property name="adminNotes" column="adminNotes" type="string" />
 		<set name="samples" table="Sample" lazy="true" cascade="delete"
 			sort="hci.gnomex.utility.SampleNumberComparator">
 			<key column="idRequest" />

@@ -99,6 +99,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
   private String          alignToGenomeBuild;
+  private String          adminNotes;
 
   // permission field
   private boolean     canUpdateVisibility;
@@ -1431,11 +1432,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public String getAlignToGenomeBuild() {
     return alignToGenomeBuild;
   }
-  
+
   public void setAlignToGenomeBuild(String alignToGenomeBuild) {
     this.alignToGenomeBuild = alignToGenomeBuild;
   }
-  
+
   public String getTurnAroundTime() {
     if(this.createDate != null && this.completedDate != null) {
       long difference = ((this.completedDate.getTime() - this.createDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -1443,5 +1444,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
 
     return "";
+  }
+  public String getAdminNotes() {
+    return adminNotes;
+  }
+  public void setAdminNotes(String adminNotes) {
+    this.adminNotes = adminNotes;
   }
 }
