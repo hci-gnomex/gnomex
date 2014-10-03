@@ -341,6 +341,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("corePrepInstructions") != null && !n.getAttributeValue("corePrepInstructions").equals(""))
       request.setCorePrepInstructions(n.getAttributeValue("corePrepInstructions"));
 
+    if (n.getAttributeValue("adminNotes") != null && !n.getAttributeValue("adminNotes").equals(""))
+      request.setAdminNotes(n.getAttributeValue("adminNotes"));
+
     if (n.getAttributeValue("codeProtocolType") != null && !n.getAttributeValue("codeProtocolType").equals("")) {
       request.setCodeProtocolType(n.getAttributeValue("codeProtocolType"));
     }

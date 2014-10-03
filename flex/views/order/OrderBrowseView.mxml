@@ -692,8 +692,7 @@
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "55" />
 					
 					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="65"
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; (coreFacilityCombo.selectedItem.@value == '2'||coreFacilityCombo.selectedItem.@value == '4') )||
-									   parentApplication.isCoreFacilityIManage(2) || parentApplication.isCoreFacilityIManage(4)}"
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
@@ -707,24 +706,23 @@
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
 					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "60" />
 					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
-									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
+									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
-									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
+									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
 					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="50" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
-									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
+									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
 					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"   
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
-									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
-					
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null)}"/>
+					<mx:DataGridColumn dataField = "@adminNotes" headerText = "Admin notes"  
+									   visible="{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; 
+									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}" />
 				</mx:columns>
-				
 			</mx:DataGrid>
-			
 		</mx:VBox>
 		
 		

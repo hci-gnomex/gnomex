@@ -1789,6 +1789,7 @@ CREATE TABLE `gnomex`.`Request` (
   `includeBisulfideConversion` CHAR(1) NULL,
   `includeQubitConcentration` CHAR(1) NULL,
   `alignToGenomeBuild` CHAR(1) NULL,
+  `adminNotes` VARCHAR(5000) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)

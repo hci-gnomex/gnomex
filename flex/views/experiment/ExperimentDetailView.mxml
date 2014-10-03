@@ -1661,6 +1661,14 @@
 					<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 				</mx:VBox>
 			</mx:VBox>
+			<mx:VBox width="100%" height="100%" id="adminNoteBox" includeInLayout="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(this.selectedExperiment.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}"
+					 visible="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(this.selectedExperiment.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}">
+				<mx:Spacer height="4" />
+				<mx:VBox verticalGap="0" width="100%" height="100%" id="adminNotes" visible="true" includeInLayout="true">
+					<mx:Label text="Administration Notes"  styleName="formLabel"/>
+					<util:TextAreaWorkaround id="noteToAdmin" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@adminNotes}" width ="100%" height="100%"  />
+				</mx:VBox>
+			</mx:VBox>
 		</mx:VBox>
 		<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 			

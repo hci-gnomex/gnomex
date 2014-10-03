@@ -38,3 +38,13 @@ insert into AnnotationReportField values('REQUEST', 'codeRNAPrepType', 'RNA prep
 -- new align to genome build.
 ALTER TABLE Request add alignToGenomeBuild CHAR(1) NULL;
 call ExecuteIfTableExists('gnomex','Request_Audit','ALTER TABLE Request_Audit add alignToGenomeBuild CHAR(1) NULL');
+
+
+-- new adminNotes to Request
+ALTER TABLE Request add adminNotes VARCHAR(5000) NULL;
+call ExecuteIfTableExists('gnomex','Request_Audit','ALTER TABLE Request_Audit add adminNotes VARCHAR(5000) NULL');
+
+-- new properties for order review screen and experiment edit screen.
+insert into PropertyDictionary values ('is_plate_based_core', 'N', 'Does the core facility deal with plates for experiment submissions?', 'N', null, null);
+insert into PropertyDictionary values ('show_admin_notes_on_request', 'N', 'Show admin notes box on description tab when editing an experiment', 'N', null, null);
+
