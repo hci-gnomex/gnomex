@@ -191,7 +191,7 @@
 							   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
 							   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
 							   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>
-			<mx:DataGridColumn headerText="Library Name"  
+			<mx:DataGridColumn headerText="Sequencing Application"  
 							   itemRenderer="views.renderers.LabelActive"
 							   rendererIsEditor="false" width="{appGrid.width - 55 - 45 - 200 - 35 - 20}"
 							   editable="true" wordWrap="true" dataField="@display" >
