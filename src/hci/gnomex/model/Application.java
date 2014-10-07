@@ -38,6 +38,7 @@ public class Application extends DictionaryEntry implements Serializable {
   private String codeApplicationType;
   private String onlyForLabPrepped;
   private Integer samplesPerBatch;
+  private Integer idCoreFacility;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -165,5 +166,13 @@ public class Application extends DictionaryEntry implements Serializable {
   
   public void setSamplesPerBatch( Integer samplesPerBatch ) {
     this.samplesPerBatch = samplesPerBatch;
+  }
+  
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
+  
+  public void setIdCoreFacility(Integer id) {
+    idCoreFacility = id;
   }
 }

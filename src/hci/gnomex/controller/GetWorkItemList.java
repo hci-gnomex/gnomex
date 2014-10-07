@@ -133,12 +133,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         for (Iterator i1 = rows.iterator(); i1.hasNext();) {
           Object[] row = (Object[]) i1.next();
           
-          String requestNumber    = (String) row[1];
-          String status           = (String) row[8];
-          String sampleNumber     = (String) row[10];
-          String itemNumber       = (String) row[12];
+          String requestNumber    = (String) row[WorkItemFilter.REQ_NUMBER];
+          String status           = (String) row[WorkItemFilter.WI_STATUS];
+          String sampleNumber     = (String) row[WorkItemFilter.SAMPLE_NUMBER];
+          String itemNumber       = (String) row[WorkItemFilter.SEQ_NUMBER];
           
-          if (idsToSkip.get((Integer)row[0]) != null) {
+          if (idsToSkip.get((Integer)row[WorkItemFilter.ID_REQUEST]) != null) {
             // skip for BSTX Security
             continue;
           }
@@ -154,21 +154,21 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
-            Integer idLabel         = row[17] == null || row[19].equals("") ? null : (Integer)row[19];
-            Integer idLabeledSample = row[19] == null || row[21].equals("") ? null : (Integer)row[21];
+            Integer idLabel         = row[WorkItemFilter.LABELING_FAILED] == null || row[WorkItemFilter.ID_LABEL].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABEL];
+            Integer idLabeledSample = row[WorkItemFilter.ID_LABEL] == null || row[WorkItemFilter.ID_LABELED_SAMPLE].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABELED_SAMPLE];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
                       filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
-            FlowCell fc = (FlowCell)row[16];
-            FlowCellChannel ch = (FlowCellChannel)row[17];
+            FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
+            FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
-            FlowCell fc = (FlowCell)row[16];
-            FlowCellChannel ch = (FlowCellChannel)row[17];
+            FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
+            FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
             key = flowCellNumber + "," + flowCellChannelNumber; 
@@ -176,7 +176,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
 
-            String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "";
+            String multiplexGroupNumber = row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM] != null ? ((Integer)row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM]).toString() : "";
             // Sort the 'On hold' items so they are at the bottom of the list
             // for cluster gen
             key = (status != null && !status.equals("") ? status : " ") + "," + requestNumber + "," + multiplexGroupNumber + "," + itemNumber;
@@ -187,7 +187,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            Integer idSample = (Integer)row[9];
+            Integer idSample = (Integer)row[WorkItemFilter.ID_SAMPLE];
             idSamples.put(idSample, null);
           }
 
@@ -238,8 +238,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.HISEQ_QC) ||
               filter.getCodeStepNext().equals(Step.MISEQ_QC)) {
             
-            String codeRequestStatus = (String)row[29] != null ? (String)row[29] : "";
-            Integer idCoreFacility = (Integer)row[30];
+            String codeRequestStatus = (String)row[WorkItemFilter.CODE_REQUEST_STATUS] != null ? (String)row[WorkItemFilter.CODE_REQUEST_STATUS] : "";
+            Integer idCoreFacility = (Integer)row[WorkItemFilter.REQ_ID_CORE_FACILITY];
             if(idCoreFacility != null) {
               String statusToStartWorkflow = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility,PropertyDictionary.STATUS_TO_START_WORKFLOW);
               if(statusToStartWorkflow != null && !statusToStartWorkflow.equals("") && !codeRequestStatus.equals(statusToStartWorkflow)) {
@@ -248,15 +248,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             }
           }
           
-          Integer idRequest = (Integer)row[0];
-          String requestNumber = (String)row[1];
-          String codeRequestCategory = row[3] == null ? "" :  (String)row[3];
+          Integer idRequest = (Integer)row[WorkItemFilter.ID_REQUEST];
+          String requestNumber = (String)row[WorkItemFilter.REQ_NUMBER];
+          String codeRequestCategory = row[WorkItemFilter.CODE_REQUEST_CATEGORY] == null ? "" :  (String)row[WorkItemFilter.CODE_REQUEST_CATEGORY];
           String flowCellNumber = null; 
           labName = "";
           
           if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
               filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
-            FlowCell fc = (FlowCell)row[16];
+            FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
             flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
@@ -265,7 +265,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) || 
                       filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
-            FlowCell fc = (FlowCell)row[16];
+            FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
             flowCellNumber            = fc.getNumber();
             if (flowCellNumber != null && !flowCellNumber.equals(prevFlowCellNumber)) {
               alt = !alt;
@@ -281,7 +281,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           
           
           // Create a WorkItem XML node.
-          Element n = createWorkItemNode(row, key, alt);
+          Element n = createWorkItemNode(row, key, alt, dh);
           
           
           // Fill the XML node with the specific fields for the worklist step.
@@ -310,10 +310,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
                       filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
                       filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
             
-            String labLastName = (String)row[23];            
-            String labFirstName = (String)row[24];
+            String labLastName = (String)row[WorkItemFilter.CLSTR_LAB_LAST_NAME];            
+            String labFirstName = (String)row[WorkItemFilter.CLSTR_LAB_FIRST_NAME];
             labName = Lab.formatLabName(labLastName, labFirstName);
-            String multiplexGroupNumber = row[22] != null ? ((Integer)row[22]).toString() : "-1";
+            String multiplexGroupNumber = row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM] != null ? ((Integer)row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM]).toString() : "-1";
 
             clusterGenKey = requestNumber + DELIM + codeRequestCategory + DELIM + labName + DELIM + idRequest + DELIM + multiplexGroupNumber;
             
@@ -435,44 +435,45 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 	  return numberSequencingCyclesAllowedMap;
 }
 
-private Element createWorkItemNode(Object[] row, String key, boolean alt) {
+private Element createWorkItemNode(Object[] row, String key, boolean alt, DictionaryHelper dh) {
     Element n = new Element("WorkItem");
     n.setAttribute("key",                    key);
     n.setAttribute("isSelected",             "N");
     n.setAttribute("altColor",               new Boolean(alt).toString());
     
-    n.setAttribute("idRequest",              row[0] == null ? "" : ((Integer)row[0]).toString());
-    n.setAttribute("requestNumber",          row[1] == null ? "" : (String)row[1]);
-    n.setAttribute("createDate",             row[2] == null ? "" :  this.formatDate((java.util.Date)row[2]));
-    n.setAttribute("codeRequestCategory",    row[3] == null ? "" :  (String)row[3]);
-    n.setAttribute("codeRequestCategory1",   row[3] == null ? "" :  (String)row[3]);
-    n.setAttribute("idAppUser",              row[4] == null ? "" :  ((Integer)row[4]).toString());
-    n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
-    n.setAttribute("idWorkItem",            ((Integer)row[6]).toString());
-    n.setAttribute("codeStepNext",           row[7] == null ? "" :  (String)row[7]);
+    n.setAttribute("idRequest",              row[WorkItemFilter.ID_REQUEST] == null ? "" : ((Integer)row[WorkItemFilter.ID_REQUEST]).toString());
+    n.setAttribute("requestNumber",          row[WorkItemFilter.REQ_NUMBER] == null ? "" : (String)row[WorkItemFilter.REQ_NUMBER]);
+    n.setAttribute("createDate",             row[WorkItemFilter.REQ_CREATE_DATE] == null ? "" :  this.formatDate((java.util.Date)row[WorkItemFilter.REQ_CREATE_DATE]));
+    n.setAttribute("codeRequestCategory",    row[WorkItemFilter.CODE_REQUEST_CATEGORY] == null ? "" :  (String)row[WorkItemFilter.CODE_REQUEST_CATEGORY]);
+    n.setAttribute("codeRequestCategory1",   row[WorkItemFilter.CODE_REQUEST_CATEGORY] == null ? "" :  (String)row[WorkItemFilter.CODE_REQUEST_CATEGORY]);
+    n.setAttribute("idCoreFacility",         row[WorkItemFilter.CODE_REQUEST_CATEGORY] == null ? "" :  dh.getRequestCategoryObject((String)row[WorkItemFilter.CODE_REQUEST_CATEGORY]).getIdCoreFacility().toString());
+    n.setAttribute("idAppUser",              row[WorkItemFilter.ID_APP_USER] == null ? "" :  ((Integer)row[WorkItemFilter.ID_APP_USER]).toString());
+    n.setAttribute("idLab",                  row[WorkItemFilter.ID_LAB] == null ? "" :  ((Integer)row[WorkItemFilter.ID_LAB]).toString());
+    n.setAttribute("idWorkItem",            ((Integer)row[WorkItemFilter.ID_WORK_ITEM]).toString());
+    n.setAttribute("codeStepNext",           row[WorkItemFilter.CODE_STEP_NEXT] == null ? "" :  (String)row[WorkItemFilter.CODE_STEP_NEXT]);
 
-    n.setAttribute("idSample",               row[9] == null ? "" :  ((Integer)row[9]).toString());
-    n.setAttribute("sampleNumber",           row[10] == null ? "" :  (String)row[10]);
-    n.setAttribute("idHybridization",        row[11] == null ? "" :  ((Integer)row[11]).toString());
+    n.setAttribute("idSample",               row[WorkItemFilter.ID_SAMPLE] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SAMPLE]).toString());
+    n.setAttribute("sampleNumber",           row[WorkItemFilter.SAMPLE_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SAMPLE_NUMBER]);
+    n.setAttribute("idHybridization",        row[WorkItemFilter.ID_HYBRIDIZATION] == null ? "" :  ((Integer)row[WorkItemFilter.ID_HYBRIDIZATION]).toString());
     if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
         filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
         filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-      n.setAttribute("laneNumber",           row[12] == null ? "" :  (String)row[12]);              
-      n.setAttribute("number",               row[12] == null ? "" :  (String)row[12]);  
+      n.setAttribute("laneNumber",           row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);              
+      n.setAttribute("number",               row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);  
     } else {
-      n.setAttribute("hybNumber",            row[12] == null ? "" :  (String)row[12]);
+      n.setAttribute("hybNumber",            row[WorkItemFilter.HYB_NUMBER] == null ? "" :  (String)row[WorkItemFilter.HYB_NUMBER]);
     }
-    n.setAttribute("workItemCreateDate",     row[13] == null ? "" :  this.formatDate((java.sql.Date)row[13]));
+    n.setAttribute("workItemCreateDate",     row[WorkItemFilter.WI_CREATE_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.WI_CREATE_DATE]));
     
     String appUserName = "";
-    if (row[14] != null) {
-      appUserName = (String)row[14];
+    if (row[WorkItemFilter.USER_LAST_NAME] != null) {
+      appUserName = (String)row[WorkItemFilter.USER_LAST_NAME];
     }
-    if (row[15] != null) {
+    if (row[WorkItemFilter.USER_FIRST_NAME] != null) {
       if (appUserName.length() > 0) {
         appUserName += ", ";
       }
-      appUserName += (String)row[15];
+      appUserName += (String)row[WorkItemFilter.USER_FIRST_NAME];
     }
     n.setAttribute("appUserName",            appUserName);
     n.setAttribute("isDirty","N");
@@ -482,20 +483,20 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
   }
   
   private void fillQC(Element n, Object[] row, String codeRequestCategory) {
-    n.setAttribute("qualDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-    n.setAttribute("qualCompleted",              row[16] == null ? "N" : "Y");
-    n.setAttribute("qualFailed",                 row[17] == null ? "" :  (String)row[17]);
-    n.setAttribute("qual260nmTo280nmRatio",      row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-    n.setAttribute("qual260nmTo230nmRatio",      row[19] == null ? "" :  ((BigDecimal)row[19]).toString());
-    n.setAttribute("qualCalcConcentration",      row[20] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[20]));
-    n.setAttribute("qual28sTo18sRibosomalRatio", row[21] == null ? "" :  ((BigDecimal)row[21]).toString());
-    n.setAttribute("qualRINNumber",              row[22] == null ? "" :  ((String)row[22]));
-    n.setAttribute("qualBypassed",               row[23] == null ? "" :  (String)row[23]);
-    n.setAttribute("qualCodeBioanalyzerChipType",row[24] == null ? "" :  (String)row[24]);
-    n.setAttribute("qualFragmentSizeFrom",       row[25] == null ? "" :  ((Integer)row[25]).toString());
-    n.setAttribute("qualFragmentSizeTo",         row[26] == null ? "" :  ((Integer)row[26]).toString());
-    n.setAttribute("requestCategoryType",        row[28] == null ? "" :  (String)row[28]);
-    Integer idSampleType                       = row[27] == null ? 0 : (Integer)row[27];
+    n.setAttribute("qualDate",                   row[WorkItemFilter.SAMPLE_QUAL_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.SAMPLE_QUAL_DATE]));
+    n.setAttribute("qualCompleted",              row[WorkItemFilter.SAMPLE_QUAL_DATE] == null ? "N" : "Y");
+    n.setAttribute("qualFailed",                 row[WorkItemFilter.SAMPLE_QUAL_FAILED] == null ? "" :  (String)row[WorkItemFilter.SAMPLE_QUAL_FAILED]);
+    n.setAttribute("qual260nmTo280nmRatio",      row[WorkItemFilter.QUAL_260_280_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_260_280_RATIO]).toString());
+    n.setAttribute("qual260nmTo230nmRatio",      row[WorkItemFilter.QUAL_260_230_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_260_230_RATIO]).toString());
+    n.setAttribute("qualCalcConcentration",      row[WorkItemFilter.QUAL_CALC_CONC] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[WorkItemFilter.QUAL_CALC_CONC]));
+    n.setAttribute("qual28sTo18sRibosomalRatio", row[WorkItemFilter.QUAL_28_18_RIBO_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_28_18_RIBO_RATIO]).toString());
+    n.setAttribute("qualRINNumber",              row[WorkItemFilter.QUAL_RIN_NUMBER] == null ? "" :  ((String)row[WorkItemFilter.QUAL_RIN_NUMBER]));
+    n.setAttribute("qualBypassed",               row[WorkItemFilter.QUAL_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.QUAL_BYPASSED]);
+    n.setAttribute("qualCodeBioanalyzerChipType",row[WorkItemFilter.CODE_BIO_CHIP_TYPE] == null ? "" :  (String)row[WorkItemFilter.CODE_BIO_CHIP_TYPE]);
+    n.setAttribute("qualFragmentSizeFrom",       row[WorkItemFilter.QUAL_FRAG_SIZE_FROM] == null ? "" :  ((Integer)row[WorkItemFilter.QUAL_FRAG_SIZE_FROM]).toString());
+    n.setAttribute("qualFragmentSizeTo",         row[WorkItemFilter.QUAL_FRAG_SIZE_TO] == null ? "" :  ((Integer)row[WorkItemFilter.QUAL_FRAG_SIZE_TO]).toString());
+    n.setAttribute("requestCategoryType",        row[WorkItemFilter.REQUEST_CATEGORY_TYPE] == null ? "" :  (String)row[WorkItemFilter.REQUEST_CATEGORY_TYPE]);
+    Integer idSampleType                       = row[WorkItemFilter.ID_SAMPLE_TYPE] == null ? 0 : (Integer)row[WorkItemFilter.ID_SAMPLE_TYPE];
 
     String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
     n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
@@ -521,23 +522,23 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("qualBypassed").equals("Y")) {
       qualStatus = Constants.STATUS_BYPASSED;
     } else {
-      qualStatus = row[8] == null ? "" :  (String)row[8];
+      qualStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("qualStatus", qualStatus);
     
   }
   
   private void fillLabeling(Element n, Object[] row, String codeRequestCategory) {
-    n.setAttribute("labelingDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-    n.setAttribute("labelingCompleted",          row[16] == null ? "N" : "Y");
-    n.setAttribute("labelingFailed",             row[17] == null ? "" :  (String)row[17]).toString();
-    n.setAttribute("labelingYield",              row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-    n.setAttribute("idLabel",                    row[19] == null ? "" :  ((Integer)row[19]).toString());
-    n.setAttribute("idLabelingProtocol",         row[20] == null ? "" :  ((Integer)row[20]).toString());
-    n.setAttribute("idLabeledSample",            row[21] == null ? "" :  ((Integer)row[21]).toString());
-    n.setAttribute("codeLabelingReactionSize",   row[22] == null ? "" :  (String)row[22]);
-    n.setAttribute("numberOfReactions",          row[23] == null ? "" :  ((Integer)row[23]).toString());
-    n.setAttribute("labelingBypassed",           row[24] == null ? "" :  (String)row[24]);
+    n.setAttribute("labelingDate",               row[WorkItemFilter.LABELING_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.LABELING_DATE]));
+    n.setAttribute("labelingCompleted",          row[WorkItemFilter.LABELING_DATE] == null ? "N" : "Y");
+    n.setAttribute("labelingFailed",             row[WorkItemFilter.LABELING_FAILED] == null ? "" :  (String)row[WorkItemFilter.LABELING_FAILED]).toString();
+    n.setAttribute("labelingYield",              row[WorkItemFilter.LABELING_YIELD] == null ? "" :  ((BigDecimal)row[WorkItemFilter.LABELING_YIELD]).toString());
+    n.setAttribute("idLabel",                    row[WorkItemFilter.ID_LABEL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_LABEL]).toString());
+    n.setAttribute("idLabelingProtocol",         row[WorkItemFilter.LABELING_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.LABELING_PROTOCOL]).toString());
+    n.setAttribute("idLabeledSample",            row[WorkItemFilter.ID_LABELED_SAMPLE] == null ? "" :  ((Integer)row[WorkItemFilter.ID_LABELED_SAMPLE]).toString());
+    n.setAttribute("codeLabelingReactionSize",   row[WorkItemFilter.CODE_LABELING_REACTION_SIZE] == null ? "" :  (String)row[WorkItemFilter.CODE_LABELING_REACTION_SIZE]);
+    n.setAttribute("numberOfReactions",          row[WorkItemFilter.NUMBER_OF_REACTIONS] == null ? "" :  ((Integer)row[WorkItemFilter.NUMBER_OF_REACTIONS]).toString());
+    n.setAttribute("labelingBypassed",           row[WorkItemFilter.LABELING_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.LABELING_BYPASSED]);
     
     String labelingStatus = "";
     if (n.getAttributeValue("labelingCompleted").equals("Y")) {
@@ -547,7 +548,7 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("labelingBypassed").equals("Y")) {
       labelingStatus = Constants.STATUS_BYPASSED;
     } else {
-      labelingStatus = row[8] == null ? "" :  (String)row[8];
+      labelingStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     
     n.setAttribute("labelingStatus", labelingStatus);
@@ -555,18 +556,18 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
   }
   
   private void fillHyb(Element n, Object[] row, String codeRequestCategory) {
-    n.setAttribute("hybDate",                   row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-    n.setAttribute("hybCompleted",              row[16] == null ? "N" : "Y");
-    n.setAttribute("hybFailed",                 row[17] == null ? "" :  (String)row[17]);
-    n.setAttribute("idHybProtocol",             row[18] == null ? "" :  ((Integer)row[18]).toString());
-    n.setAttribute("idSlide",                   row[19] == null ? "" :  ((Integer)row[19]).toString());
-    n.setAttribute("slideBarcode",              row[20] == null ? "" :  (String)row[20]);
-    n.setAttribute("idSlideDesign",             row[21] == null ? "" :  ((Integer)row[21]).toString());
-    n.setAttribute("idArrayCoordinate",         row[22] == null ? "" :  ((Integer)row[22]).toString());
-    n.setAttribute("arrayCoordinate",           row[23] == null ? "" :  (String)row[23]);
-    n.setAttribute("hybBypassed",               row[24] == null ? "" :  (String)row[24]);
-    n.setAttribute("slideDesignName",           row[25] == null ? "" :  (String)row[25]);
-    n.setAttribute("arraysPerSlide",            row[26] == null ? "" :  ((Integer)row[26]).toString());
+    n.setAttribute("hybDate",                   row[WorkItemFilter.HYB_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.HYB_DATE]));
+    n.setAttribute("hybCompleted",              row[WorkItemFilter.HYB_DATE] == null ? "N" : "Y");
+    n.setAttribute("hybFailed",                 row[WorkItemFilter.HYB_FAILED] == null ? "" :  (String)row[WorkItemFilter.HYB_FAILED]);
+    n.setAttribute("idHybProtocol",             row[WorkItemFilter.ID_HYB_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_HYB_PROTOCOL]).toString());
+    n.setAttribute("idSlide",                   row[WorkItemFilter.ID_SLIDE] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SLIDE]).toString());
+    n.setAttribute("slideBarcode",              row[WorkItemFilter.SLIDE_BARCODE] == null ? "" :  (String)row[WorkItemFilter.SLIDE_BARCODE]);
+    n.setAttribute("idSlideDesign",             row[WorkItemFilter.ID_SLIDE_DESIGN] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SLIDE_DESIGN]).toString());
+    n.setAttribute("idArrayCoordinate",         row[WorkItemFilter.ID_ARRAY_COORDINATE] == null ? "" :  ((Integer)row[WorkItemFilter.ID_ARRAY_COORDINATE]).toString());
+    n.setAttribute("arrayCoordinate",           row[WorkItemFilter.ARRAY_COORDINATE_NAME] == null ? "" :  (String)row[WorkItemFilter.ARRAY_COORDINATE_NAME]);
+    n.setAttribute("hybBypassed",               row[WorkItemFilter.HYB_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.HYB_BYPASSED]);
+    n.setAttribute("slideDesignName",           row[WorkItemFilter.SLIDE_DESIGN_NAME] == null ? "" :  (String)row[WorkItemFilter.SLIDE_DESIGN_NAME]);
+    n.setAttribute("arraysPerSlide",            row[WorkItemFilter.ARRAYS_PER_SLIDE] == null ? "" :  ((Integer)row[WorkItemFilter.ARRAYS_PER_SLIDE]).toString());
   
     String hybStatus = "";
     if (n.getAttributeValue("hybCompleted").equals("Y")) {
@@ -576,19 +577,19 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("hybBypassed").equals("Y")) {
       hybStatus = Constants.STATUS_BYPASSED;
     } else {
-      hybStatus = row[8] == null ? "" :  (String)row[8];
+      hybStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     
     n.setAttribute("hybStatus", hybStatus);
   }
 
   private void fillExtraction(Element n, Object[] row, String codeRequestCategory) {
-    n.setAttribute("extractionDate",               row[16] == null ? "" :  this.formatDate((java.sql.Date)row[16]));
-    n.setAttribute("extractionCompleted",          row[16] == null ? "N" : "Y");
-    n.setAttribute("idScanProtocol",               row[17] == null ? "" :  ((Integer)row[17]).toString());
-    n.setAttribute("idFeatureExtractionProtocol",  row[18] == null ? "" :  ((Integer)row[18]).toString());
-    n.setAttribute("extractionFailed",             row[19] == null ? "" :  (String)row[19]);
-    n.setAttribute("extractionBypassed",           row[20] == null ? "" :  (String)row[20]);
+    n.setAttribute("extractionDate",               row[WorkItemFilter.EXTRACTION_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.EXTRACTION_DATE]));
+    n.setAttribute("extractionCompleted",          row[WorkItemFilter.EXTRACTION_DATE] == null ? "N" : "Y");
+    n.setAttribute("idScanProtocol",               row[WorkItemFilter.ID_SCAN_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SCAN_PROTOCOL]).toString());
+    n.setAttribute("idFeatureExtractionProtocol",  row[WorkItemFilter.ID_FEATURE_EXTRACTION_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_FEATURE_EXTRACTION_PROTOCOL]).toString());
+    n.setAttribute("extractionFailed",             row[WorkItemFilter.EXTRACTION_FAILED] == null ? "" :  (String)row[WorkItemFilter.EXTRACTION_FAILED]);
+    n.setAttribute("extractionBypassed",           row[WorkItemFilter.EXTRACTION_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.EXTRACTION_BYPASSED]);
     
 
     String extractionStatus = "";
@@ -599,24 +600,24 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("extractionBypassed").equals("Y")) {
       extractionStatus = Constants.STATUS_BYPASSED;
     } else {
-      extractionStatus = row[8] == null ? "" :  (String)row[8];
+      extractionStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("extractionStatus", extractionStatus);
   }
 
   private void fillSeqPrep(Element n, Object[] row, String codeRequestCategory, HashMap<String, Integer> seqLibProtocolMap) {
-    n.setAttribute("idSeqLibProtocol",                  row[16] == null ? "" :  ((Integer)row[16]).toString());
-    n.setAttribute("seqPrepByCore",                     row[17] == null ? "" :  (String)row[17]);
-    n.setAttribute("seqPrepLibConcentration",           row[18] == null ? "" :  ((BigDecimal)row[18]).toString());
-    n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[19] == null ? "" :  (String)row[19]);
-    n.setAttribute("seqPrepGelFragmentSizeFrom",        row[20] == null ? "" :  ((Integer)row[20]).toString());
-    n.setAttribute("seqPrepGelFragmentSizeTo",          row[21] == null ? "" :  ((Integer)row[21]).toString());
-    n.setAttribute("seqPrepDate",                       row[22] == null ? "" :  this.formatDate((java.sql.Date)row[22]));
-    n.setAttribute("seqPrepFailed",                     row[23] == null ? "" :  (String)row[23]);
-    n.setAttribute("seqPrepBypassed",                   row[24] == null ? "" :  (String)row[24]);
-    n.setAttribute("idSampleType",                      row[25] == null ? "" :  ((Integer)row[25]).toString());
+    n.setAttribute("idSeqLibProtocol",                  row[WorkItemFilter.ID_SEQ_LIB_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SEQ_LIB_PROTOCOL]).toString());
+    n.setAttribute("seqPrepByCore",                     row[WorkItemFilter.SEQ_PREP_BY_CORE] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_BY_CORE]);
+    n.setAttribute("seqPrepLibConcentration",           row[WorkItemFilter.SEQ_PREP_LIB_CONC] == null ? "" :  ((BigDecimal)row[WorkItemFilter.SEQ_PREP_LIB_CONC]).toString());
+    n.setAttribute("seqPrepQualCodeBioanalyzerChipType",row[WorkItemFilter.SEQ_QUAL_BIO_CHIP_TYPE] == null ? "" :  (String)row[WorkItemFilter.SEQ_QUAL_BIO_CHIP_TYPE]);
+    n.setAttribute("seqPrepGelFragmentSizeFrom",        row[WorkItemFilter.SEQ_PREP_GEL_FRAG_SIZE_FROM] == null ? "" :  ((Integer)row[WorkItemFilter.SEQ_PREP_GEL_FRAG_SIZE_FROM]).toString());
+    n.setAttribute("seqPrepGelFragmentSizeTo",          row[WorkItemFilter.SEQ_PREP_GEL_FRAG_SIZE_TO] == null ? "" :  ((Integer)row[WorkItemFilter.SEQ_PREP_GEL_FRAG_SIZE_TO]).toString());
+    n.setAttribute("seqPrepDate",                       row[WorkItemFilter.SEQ_PREP_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.SEQ_PREP_DATE]));
+    n.setAttribute("seqPrepFailed",                     row[WorkItemFilter.SEQ_PREP_FAILED] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_FAILED]);
+    n.setAttribute("seqPrepBypassed",                   row[WorkItemFilter.SEQ_PREP_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_BYPASSED]);
+    n.setAttribute("idSampleType",                      row[WorkItemFilter.PREP_ID_SAMPLE_TYPE] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_SAMPLE_TYPE]).toString());
     // Fill in the seq lib protocol with the default specified in dictionary
-    String codeApplication = (String)row[26];
+    String codeApplication = (String)row[WorkItemFilter.PREP_CODE_APPLICATION];
     if (codeApplication != null) {
       Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
       if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
@@ -625,12 +626,12 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
         n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
       }              
     }
-    n.setAttribute("idOligoBarcode",                      row[27] == null ? "" :  ((Integer)row[27]).toString());
-    n.setAttribute("barcodeSequence",                     row[28] == null ? "" :  ((String)row[28]));
-    n.setAttribute("multiplexGroupNumber",                row[29] == null ? "" :  ((Integer)row[29]).toString());
-    n.setAttribute("meanLibSizeActual",                row[30] == null ? "" :  ((Integer)row[30]).toString());
-    n.setAttribute("idOligoBarcodeB",                     row[31] == null ? "" :  ((Integer)row[31]).toString());
-    n.setAttribute("barcodeSequenceB",                     row[32] == null ? "" :  ((String)row[32]));
+    n.setAttribute("idOligoBarcode",                      row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_A] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_A]).toString());
+    n.setAttribute("barcodeSequence",                     row[WorkItemFilter.PREP_BARCODE_SEQUENCE_A] == null ? "" :  ((String)row[WorkItemFilter.PREP_BARCODE_SEQUENCE_A]));
+    n.setAttribute("multiplexGroupNumber",                row[WorkItemFilter.MULTIPLEX_GROUP_NUM] == null ? "" :  ((Integer)row[WorkItemFilter.MULTIPLEX_GROUP_NUM]).toString());
+    n.setAttribute("meanLibSizeActual",                   row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL] == null ? "" :  ((Integer)row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL]).toString());
+    n.setAttribute("idOligoBarcodeB",                     row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B]).toString());
+    n.setAttribute("barcodeSequenceB",                    row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B] == null ? "" :  ((String)row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B]));
     
 
 
@@ -642,17 +643,17 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("seqPrepBypassed").equals("Y")) {
       seqPrepStatus = Constants.STATUS_BYPASSED;
     } else {
-      seqPrepStatus = row[8] == null ? "" :  (String)row[8];
+      seqPrepStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("seqPrepStatus", seqPrepStatus);
   }
   
   private void fillFlowCellStock(Element n, Object[] row, String codeRequestCategory) {
-    n.setAttribute("seqPrepStockLibVol",         row[16] == null ? "" :  ((BigDecimal)row[16]).toString());
-    n.setAttribute("seqPrepStockEBVol",          row[17] == null ? "" :  ((BigDecimal)row[17]).toString());
-    n.setAttribute("seqPrepStockDate",           row[18] == null ? "" :  this.formatDate((java.sql.Date)row[18]));
-    n.setAttribute("seqPrepStockFailed",         row[19] == null ? "" :  (String)row[19]);
-    n.setAttribute("seqPrepStockBypassed",       row[20] == null ? "" :  (String)row[20]);
+    n.setAttribute("seqPrepStockLibVol",         row[WorkItemFilter.SEQ_PREP_STOCK_LIB_VOL] == null ? "" :  ((BigDecimal)row[WorkItemFilter.SEQ_PREP_STOCK_LIB_VOL]).toString());
+    n.setAttribute("seqPrepStockEBVol",          row[WorkItemFilter.SEQ_PREP_STOCK_EB_VOL] == null ? "" :  ((BigDecimal)row[WorkItemFilter.SEQ_PREP_STOCK_EB_VOL]).toString());
+    n.setAttribute("seqPrepStockDate",           row[WorkItemFilter.SEQ_PREP_STOCK_DATE] == null ? "" :  this.formatDate((java.sql.Date)row[WorkItemFilter.SEQ_PREP_STOCK_DATE]));
+    n.setAttribute("seqPrepStockFailed",         row[WorkItemFilter.SEQ_PREP_STOCK_FAILED] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_STOCK_FAILED]);
+    n.setAttribute("seqPrepStockBypassed",       row[WorkItemFilter.SEQ_PREP_STOCK_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_STOCK_BYPASSED]);
 
     String seqPrepStockStatus = "";
     if (!n.getAttributeValue("seqPrepStockDate").equals("")) {
@@ -662,7 +663,7 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("seqPrepStockBypassed").equals("Y")) {
       seqPrepStockStatus = Constants.STATUS_BYPASSED;
     } else {
-      seqPrepStockStatus = row[8] == null ? "" :  (String)row[8];
+      seqPrepStockStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("seqPrepStockStatus", seqPrepStockStatus);
   
@@ -670,30 +671,30 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
   }
 
   private void fillSeqAssemble(Element n, Object[] row, String codeRequestCategory, DictionaryHelper dh, Map relatedFlowCellInfoMap, String clusterGenKey, String theLabName) {
-    n.setAttribute("idSequenceLane",               row[16] == null ? "" :  ((Integer)row[16]).toString());
-    n.setAttribute("idSeqRunType",                 row[17] == null ? "" :  ((Integer)row[17]).toString());
-    n.setAttribute("idOrganism",                   row[18] == null ? "" :  ((Integer)row[18]).toString());
-    n.setAttribute("idNumberSequencingCycles",     row[19] == null ? "" :  ((Integer)row[19]).toString());
-    n.setAttribute("numberSequencingCycles",       row[19] == null ? "" : dh.getNumberSequencingCycles((Integer)row[19]));
-    n.setAttribute("idOligoBarcode",               row[20] == null ? "" :  ((Integer)row[20]).toString());
-    n.setAttribute("barcodeSequence",              row[21] == null ? "" :  ((String)row[21]));
-    n.setAttribute("multiplexGroupNumber",         row[22] == null ? "" :  ((Integer)row[22]).toString());
+    n.setAttribute("idSequenceLane",               row[WorkItemFilter.CLSTR_ID_SEQUENCE_LANE] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_SEQUENCE_LANE]).toString());
+    n.setAttribute("idSeqRunType",                 row[WorkItemFilter.CLSTR_ID_SEQ_RUN_TYPE] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_SEQ_RUN_TYPE]).toString());
+    n.setAttribute("idOrganism",                   row[WorkItemFilter.CLSTR_ID_ORGANISM] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_ORGANISM]).toString());
+    n.setAttribute("idNumberSequencingCycles",     row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES]).toString());
+    n.setAttribute("numberSequencingCycles",       row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES] == null ? "" : dh.getNumberSequencingCycles((Integer)row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES]));
+    n.setAttribute("idOligoBarcode",               row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_A] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_A]).toString());
+    n.setAttribute("barcodeSequence",              row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_A] == null ? "" :  ((String)row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_A]));
+    n.setAttribute("multiplexGroupNumber",         row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM]).toString());
     n.setAttribute("isControl",                    "false");            
-    n.setAttribute("assembleStatus",               row[8] == null ? "" :  (String)row[8]);
-    n.setAttribute("idOligoBarcodeB",               row[26] == null ? "" :  ((Integer)row[26]).toString());
-    n.setAttribute("barcodeSequenceB",              row[27] == null ? "" :  ((String)row[27]));
-    n.setAttribute("idNumberSequencingCyclesAllowed", row[28] == null ? "" : ((Integer)row[28]).toString());
+    n.setAttribute("assembleStatus",               row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS]);
+    n.setAttribute("idOligoBarcodeB",               row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_B] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_B]).toString());
+    n.setAttribute("barcodeSequenceB",              row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_B] == null ? "" :  ((String)row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_B]));
+    n.setAttribute("idNumberSequencingCyclesAllowed", row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES_ALLOWED] == null ? "" : ((Integer)row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES_ALLOWED]).toString());
     
-    if(row[28] == null) {
+    if(row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES_ALLOWED] == null) {
 	    String numberSequencingCyclesAllowedKey = n.getAttributeValue("idNumberSequencingCycles") + "\t" + codeRequestCategory + "\t" +  n.getAttributeValue("idSeqRunType");
 	    String numberSequencingCyclesAllowed = numberSequencingCyclesAllowedMap.get(numberSequencingCyclesAllowedKey);
 	    n.setAttribute("idNumberSequencingCyclesAllowed", numberSequencingCyclesAllowed);
     }
     
     n.setAttribute("labName", theLabName);
-    n.setAttribute("idLab",                  row[5] == null ? "" :  ((Integer)row[5]).toString());
+    n.setAttribute("idLab",                  row[WorkItemFilter.ID_LAB] == null ? "" :  ((Integer)row[WorkItemFilter.ID_LAB]).toString());
 
-    SequenceLane lane = (SequenceLane)row[25];
+    SequenceLane lane = (SequenceLane)row[WorkItemFilter.CLSTR_SEQ_LANE_OBJECT];
     List theLanes = clusterGenLaneMap.get(clusterGenKey);
     if (theLanes == null) {
       theLanes = new ArrayList();
@@ -702,8 +703,8 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     theLanes.add(lane);
     
     
-    Integer idSample = (Integer)row[9];
-    Integer idSequenceLane = (Integer)row[16];
+    Integer idSample = (Integer)row[WorkItemFilter.ID_SAMPLE];
+    Integer idSequenceLane = (Integer)row[WorkItemFilter.CLSTR_ID_SEQUENCE_LANE];
     
     StringBuffer infoBuf = new StringBuffer();
     List infoList = (List)relatedFlowCellInfoMap.get(idSample);
@@ -727,8 +728,8 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
   }
 
   private void fillSeqRun(Element n, Object[] row, String codeRequestCategory) {
-    FlowCell fc = (FlowCell)row[16];
-    FlowCellChannel ch = (FlowCellChannel)row[17];
+    FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
+    FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
     
     n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
     n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType() != null ? fc.getIdSeqRunType().toString() : "");
@@ -769,7 +770,7 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("lastCycleFailed").equals("Y")) {
       lastCycleStatus = Constants.STATUS_TERMINATED;
     }  else {
-      lastCycleStatus = row[8] == null ? "" :  (String)row[8];
+      lastCycleStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("lastCycleStatus", lastCycleStatus);
 
@@ -777,8 +778,8 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
 
   private void fillSeqDataPipeline(Element n, Object[] row, String codeRequestCategory) {
 
-    FlowCell fc = (FlowCell)row[16];
-    FlowCellChannel ch = (FlowCellChannel)row[17];
+    FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
+    FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
    
     n.setAttribute("idFlowCellChannel",            ch.getIdFlowCellChannel().toString());
     n.setAttribute("idSeqRunType",                 fc.getIdSeqRunType().toString());
@@ -805,7 +806,7 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt) {
     } else if (n.getAttributeValue("pipelineFailed").equals("Y")) {
       pipelineStatus = Constants.STATUS_TERMINATED;
     } else {
-      pipelineStatus = row[8] == null ? "" :  (String)row[8];
+      pipelineStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
        
     

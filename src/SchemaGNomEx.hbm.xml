@@ -1458,6 +1458,7 @@
 			type="string" />
 		<property name="samplesPerBatch" column="samplesPerBatch"
 			type="integer" />
+		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.ApplicationTheme -->

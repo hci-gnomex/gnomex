@@ -449,6 +449,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       app.setCoreStepsNoLibPrep(node.getAttributeValue("coreStepsNoLibPrep"));
       app.setSortOrder(sortOrder != null && sortOrder.length() > 0 ? Integer.valueOf(sortOrder) : 0);
       app.setSamplesPerBatch(samplesPerBatch != null && !samplesPerBatch.equals("") ? Integer.valueOf(samplesPerBatch) : null);
+      app.setIdCoreFacility(rc.getIdCoreFacility());
       sess.save(app);
 
       applicationMap.put(app.getCodeApplication(), null);

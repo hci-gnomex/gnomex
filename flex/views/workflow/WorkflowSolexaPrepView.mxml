@@ -46,9 +46,12 @@
     <mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
     <mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 
+	<mx:XMLListCollection id="seqLibProtocols" source="{parentApplication.seqLibProtocolsWithAppFilters.copy()}" filterFunction="filterSeqLibProtocols" />
 
     <mx:Script>
         <![CDATA[
+			import hci.flex.util.DictionaryManager;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -61,6 +64,7 @@
 			import mx.validators.NumberValidator;
 			
 			import views.renderers.ComboBox;
+			import views.util.DictionaryHelper;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -76,11 +80,11 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
-           
+			
         private function init():void {
         	barcodes.refresh();
         }
-			
+
 		public function titleInit():void {
 			if(codeStepNext == 'SEQPREP') {
 				titleLabel.text = 'Illumina GAIIx Library Prep';
@@ -469,7 +473,18 @@
 				}
 			}
 
-
+			private function filterSeqLibProtocols(item:Object):Boolean {
+				if (item.@value == "") {
+					return true;
+				}
+				if (item.@codeApplicationType != 'Illumina') {
+					return false;
+				}
+				if (!parentApplication.isCoreFacilityIManage(item.@idCoreFacility)) {
+					return false;
+				}
+				return true;
+			}
         ]]>
     </mx:Script> 
     
@@ -524,7 +539,7 @@
 									   itemRenderer="mx.controls.Label"		
 									   labelFunction="getSeqLibProtocol" 
 									   sortable="false"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
+									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(seqLibProtocols,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
 
 					<mx:DataGridColumn headerText="Index A"  width="20" id="indexTagACol"
 										dataField="@idOligoBarcode" 
