@@ -32,7 +32,7 @@
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
 
-	<Dictionary displayName="Sample Category" className="hci.gnomex.model.ApplicationTheme" >
+	<Dictionary displayName="Sequencing Application Theme" className="hci.gnomex.model.ApplicationTheme" >
 	</Dictionary>
 	<Dictionary displayName="Application Type" className="hci.gnomex.model.ApplicationType" editable="N" />
 	<Dictionary displayName="Application" className="hci.gnomex.model.Application"  editable="N" >
