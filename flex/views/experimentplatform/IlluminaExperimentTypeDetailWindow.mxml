@@ -228,7 +228,7 @@
 		</mx:HBox>
 
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
-			<mx:Text text="Library Category" styleName="formLabel" width="100"/>
+			<mx:Text text="Sequencing Application Theme" styleName="formLabel" width="100"/>
 			<mx:ComboBox id="themeCombo" width="400" dataProvider="{parentApplication.dictionaryManager.getEntries('hci.gnomex.model.ApplicationTheme')}"
 						 labelField="@display" close="{this.dirty.setDirty();}" />
 		</mx:HBox>

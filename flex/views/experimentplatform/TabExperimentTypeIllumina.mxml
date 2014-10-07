@@ -186,7 +186,7 @@
 					</mx:Component>
 				</mx:headerRenderer>
 			</mx:DataGridColumn>
-			<mx:DataGridColumn headerText="Library Category" id="applicationThemeCol" dataField="@idApplicationTheme"
+			<mx:DataGridColumn headerText="Sequencing Application Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
 							   width="200"
 							   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
 							   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
