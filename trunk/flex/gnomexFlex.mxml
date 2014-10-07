@@ -1064,6 +1064,9 @@
 			[Bindable]
 			public var otherAccountFieldsConfigurationList:XMLListCollection;
 			
+			[Bindable]
+			public var seqLibProtocolsWithAppFilters:XMLListCollection;
+			
 			private var properties:Object;
 			
 			public var requestCategoryTypeMap:Object;
@@ -2771,6 +2774,8 @@
 				
 				setDefaultSubmissionState();
 				
+				// Build seq lib protocol list with app filters.
+				buildSeqLibProtocolListWithAppFilters();
 				
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
@@ -2786,8 +2791,21 @@
 					this.useConfigurableBillingAccounts = false;
 				}
 				
-
 				getSessionTimeout.send();
+			}
+			
+			private function buildSeqLibProtocolListWithAppFilters():void {
+				this.seqLibProtocolsWithAppFilters = new XMLListCollection();
+				var dh:DictionaryHelper = new DictionaryHelper(this.dictionaryManager);
+				for each (var s:XML in dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol')) {
+					var seq:XML = s.copy();
+					var app:Object = dh.getApplicationForProtocol(seq.@idSeqLibProtocol);
+					if (app != null) {
+						seq.@idCoreFacility = app.@idCoreFacility;
+						seq.@codeApplicationType = app.@codeApplicationType;
+					}
+					this.seqLibProtocolsWithAppFilters.addItem(seq);
+				}
 			}
 			
 			private function doesManagePlateBasedWorkflow():Boolean {

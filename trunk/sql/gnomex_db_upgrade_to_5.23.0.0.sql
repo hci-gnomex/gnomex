@@ -48,3 +48,14 @@ call ExecuteIfTableExists('gnomex','Request_Audit','ALTER TABLE Request_Audit ad
 insert into PropertyDictionary values ('is_plate_based_core', 'N', 'Does the core facility deal with plates for experiment submissions?', 'N', null, null);
 insert into PropertyDictionary values ('show_admin_notes_on_request', 'N', 'Show admin notes box on description tab when editing an experiment', 'N', null, null);
 
+-- add idCoreFacility to Application
+Alter Table Application add idCoreFacility INT(10) NULL;
+call ExecuteIfTableExists('gnomex','Request_Audit','Alter Table Application_Audit add idCoreFacility INT(10) NULL');
+alter table Application add 
+  CONSTRAINT `FK_Application_CoreFacility` FOREIGN KEY `FK_Application_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+
+
+

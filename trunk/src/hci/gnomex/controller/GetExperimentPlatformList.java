@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +58,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
+  private HashMap<Integer, ApplicationTheme> applicationThemeMap = new HashMap<Integer, ApplicationTheme>();
   private Map<String, List<Element>> applicationToRequestCategoryMap = new HashMap<String, List<Element>>();
   
   private final static String PRICE_INTERNAL            = "internal";
@@ -127,8 +130,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         applicationToRequestCategoryMap = this.getApplicationRequestCategoryMap(sess, dh);
         for(Application a : this.getApplications(rc, rct)) {
           this.getSecAdvisor().flagPermissions(a);
-          String curTheme = DictionaryManager.getDisplay("hci.gnomex.model.ApplicationTheme", 
-              a.getIdApplicationTheme() == null ? "" : a.getIdApplicationTheme().toString());
+          ApplicationTheme theme = applicationThemeMap.get(a.getIdApplicationTheme());
+          String curTheme = (theme == null ? (a.getIdApplicationTheme() == null ? "" : a.getIdApplicationTheme().toString()) : theme.getApplicationTheme());
           Integer curThemeId = a.getIdApplicationTheme();
           if (!prevTheme.equals(curTheme) && rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
             if (parentNode != listNode) {
@@ -137,6 +140,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             Element themeNode = new Element("ApplicationTheme");
             themeNode.setAttribute("applicationTheme", curTheme == null ? "" : curTheme);
             themeNode.setAttribute("idApplicationTheme", curThemeId == null ? "" : curThemeId.toString());
+            themeNode.setAttribute("sortOrder", theme == null ? "-1" : theme.getSortOrder().toString());
             parentNode = themeNode;
             listNode.addContent(themeNode);
             prevTheme = curTheme;
@@ -149,6 +153,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           Element applicationNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           parentNode.addContent(applicationNode);
           applicationNode.setAttribute("applicationThemeDisplay", curTheme);
+          applicationNode.setAttribute("applicationThemeSortOrder", theme == null ? "-1" : theme.getSortOrder().toString());
           applicationNode.setAttribute("isSelected", isAssociated(rc, a) ? "Y" : "N");
           applicationNode.setAttribute("idSeqLibProtocols", getIdSeqLibProtocols(a));
           RequestCategoryApplication x = (RequestCategoryApplication)getRequestCategoryApplication(rc, a);
@@ -373,6 +378,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       allowedList.add(x);
       numberSeqCyclesAllowedMap.put(x.getCodeRequestCategory(), allowedList);
     }
+    
+    Set themes = DictionaryManager.getDictionaryEntries("hci.gnomex.model.ApplicationTheme");
+    for(Iterator i = themes.iterator(); i.hasNext();) {
+      Object obj = i.next();
+      if (obj instanceof NullDictionaryEntry) {
+        continue;
+      }
+      ApplicationTheme theme = (ApplicationTheme)obj;
+      applicationThemeMap.put(theme.getIdApplicationTheme(), theme);
+    }
   }
   
   private List<Application> getApplications(RequestCategory rc, RequestCategoryType rct) {
@@ -385,6 +400,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         continue;
       }
 
+      if (!a.getIdCoreFacility().equals(rc.getIdCoreFacility())) {
+        continue;
+      }
+      
       if (isAssociated(rc, a)) {
         selectedThemes.put(a.getIdApplicationTheme(), a.getIdApplicationTheme());
       }

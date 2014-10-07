@@ -1454,6 +1454,7 @@ CREATE TABLE `gnomex`.`Application` (
   `codeApplicationType` varchar(10) NULL,
   `onlyForLabPrepped` char(1) not null default 'N',
   `samplesPerBatch` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -1462,6 +1463,11 @@ CREATE TABLE `gnomex`.`Application` (
   CONSTRAINT FK_Application_ApplicationType 
     FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
     REFERENCES gnomex.ApplicationType (codeApplicationType)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT FK_Application_CoreFacility 
+    FOREIGN KEY FK_Application_CoreFacility (idCoreFacility)
+    REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
