@@ -78,17 +78,11 @@
 
 				sampleOrganismConfirmColumn.visible = true;
 				
-				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
-				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-				
 				this.sampleRowNumberCol.visible = true;
 
 				// externals never show organism column, mulitplex group number or number sequencing lanes in sample
 				if (parentDocument.request!=null && parentDocument.request.@isExternal == "Y") {
 					this.sampleOrganismConfirmColumn.visible = false;
-					this.multiplexGroupNumberColumn.visible = false;
-					this.numberSequencingLanes.visible = false;
 				}
 			}
 			
@@ -102,11 +96,6 @@
 					return "";
 				}
 			}
-			
-			override public function setBarcodeColVisibility(visibility:Boolean):void {
-				this.barcodeColumn.visible = false;
-			}
-			
 			
 			override public function setChannel2ColVisibility(visibility:Boolean):void {
 			}
