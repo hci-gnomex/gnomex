@@ -729,7 +729,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     body.append("\n");
     body.append("\n");
-    body.append("Lab:               " + lab.getName() + "\n");
+    body.append("Lab:               " + lab.getName(false, false) + "\n");
     body.append("Account:           " + billingAccount.getAccountName() + "\n");
     if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
       body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
@@ -794,7 +794,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     body.append("\n");
     body.append("\n");
-    body.append("Lab:               " + lab.getName() + "\n");
+    body.append("Lab:               " + lab.getName(false, false) + "\n");
     body.append("Core Facility      " + facility.getDisplay() + "\n");
     body.append("Account:           " + billingAccount.getAccountName() + "\n");
     body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
