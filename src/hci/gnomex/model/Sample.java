@@ -790,17 +790,17 @@ public class Sample extends HibernateDetailObject {
 
       }
     } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
-      int lastStep = 4;
-      TreeMap<String, String> hybStatusMap = getHybWorkflowStep(4);
+      int lastStep = 5;
+      TreeMap<String, String> hybStatusMap = getHybWorkflowStep(5);
       if (hybStatusMap.size() > 0) {
         step = hybStatusMap.lastKey();
         if (hybStatusMap.size() > 1) {
           step += ",partial";
         }
       } else if (this.getQualDate() != null) {
-        step = new Integer(lastStep - 2).toString();
-      } else {
         step = new Integer(lastStep - 3).toString();
+      } else {
+        step = new Integer(lastStep - 4).toString();
       }
     } else if (request.getRequestCategory().getType().equals(RequestCategoryType.TYPE_QC)) {
       if (this.getQualDate() != null) {
