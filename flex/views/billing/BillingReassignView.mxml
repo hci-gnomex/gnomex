@@ -117,6 +117,8 @@
 		private function hasApprovedItems():void{
 			if(approvedCount > 0){
 				Alert.show("This experiment has items that have already been approved. Are you sure you want to reassign the billing account?", "Confirm", Alert.YES | Alert.NO, this, isBillingReassign);
+			} else {
+				save();
 			}
 		}
 		
