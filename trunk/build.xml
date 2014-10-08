@@ -424,6 +424,9 @@
 		<echo>+ ===================================================== +</echo>		
 		<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/> 	
 		
+		<!-- delete version.as if it still exists -->
+		<delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
+
 		<!-- create flexAppVersion class -->	
 		<echo>Flex Version ${gnomex_version}.${gnomex_build}</echo>
 		<copy file="${flexapp.dir}/views/util/FlexAppVersion.as.template" tofile="${flexapp.dir}/views/util/FlexAppVersion.as" />
@@ -454,7 +457,7 @@
 		      output="${build.dir}"/>
 		
 		<!-- delete version.as -->
-		<delete file="${flexapp.dir}/views/util/Version.as" />
+		<delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
 		
 		<!-- add version number to swf -->
 		<replace file="${build.dir}/${flexapp.name}.html" 
