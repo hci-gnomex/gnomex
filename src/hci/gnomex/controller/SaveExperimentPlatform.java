@@ -541,9 +541,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }
 
     // Remove applications
-    for (Iterator i = sess.createQuery("SELECT a from Application a").list().iterator(); i.hasNext();) {
+    String appRemoveString = "SELECT a from Application a where idCoreFacility=:id";
+    Query appRemoveQuery = sess.createQuery(appRemoveString);
+    appRemoveQuery.setParameter("id", rc.getIdCoreFacility());
+    for (Iterator i = appRemoveQuery.list().iterator(); i.hasNext();) {
       Application application = (Application)i.next();
-      if (application.isApplicableApplication(rct) && !applicationMap.containsKey(application.getCodeApplication())) {
+      if (application.isApplicableApplication(rct, rc.getIdCoreFacility()) && !applicationMap.containsKey(application.getCodeApplication())) {
 
         boolean deleteApplication = true;
         List experiments = sess.createQuery("select count(*)from Request r where r.codeApplication = '" + application.getCodeApplication() + "'").list();
