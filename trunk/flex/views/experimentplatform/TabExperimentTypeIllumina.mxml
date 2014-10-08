@@ -109,7 +109,16 @@
 					}
 				}
 				newNode.setChildren(rcApps);
-				applications.addItemAt(newNode, 0);
+				if (applications.length == 0) {
+					var apps:XMLList = new XMLList();
+					apps += newNode;
+					state.requestCategory.applications.setChildren(apps);
+					applications.source = state.requestCategory.applications..Application;
+					applications.refresh();
+					newNode = applications[0];
+				} else {
+					applications.addItemAt(newNode, 0);
+				}
 				appGrid.selectedItem = newNode;
 				appGrid.scrollToIndex(0);
 				showEditExperimentTypeWindow(newNode);
