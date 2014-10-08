@@ -201,7 +201,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       if (existingLab) {
         requestedLab = (Lab)sess.load(Lab.class, requestedLabId);
-        requestedLabName = requestedLab.getName();
+        requestedLabName = requestedLab.getName(false, false);
       }
 
       if (facility == null) {
