@@ -140,7 +140,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             Element themeNode = new Element("ApplicationTheme");
             themeNode.setAttribute("applicationTheme", curTheme == null ? "" : curTheme);
             themeNode.setAttribute("idApplicationTheme", curThemeId == null ? "" : curThemeId.toString());
-            themeNode.setAttribute("sortOrder", theme == null ? "-1" : theme.getSortOrder().toString());
+            themeNode.setAttribute("sortOrder", (theme == null || theme.getSortOrder() == null) ? "-1" : theme.getSortOrder().toString());
             parentNode = themeNode;
             listNode.addContent(themeNode);
             prevTheme = curTheme;
@@ -153,7 +153,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           Element applicationNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           parentNode.addContent(applicationNode);
           applicationNode.setAttribute("applicationThemeDisplay", curTheme);
-          applicationNode.setAttribute("applicationThemeSortOrder", theme == null ? "-1" : theme.getSortOrder().toString());
+          applicationNode.setAttribute("applicationThemeSortOrder", (theme == null || theme.getSortOrder() == null) ? "-1" : theme.getSortOrder().toString());
           applicationNode.setAttribute("isSelected", isAssociated(rc, a) ? "Y" : "N");
           applicationNode.setAttribute("idSeqLibProtocols", getIdSeqLibProtocols(a));
           RequestCategoryApplication x = (RequestCategoryApplication)getRequestCategoryApplication(rc, a);
