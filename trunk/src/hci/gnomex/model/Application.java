@@ -146,12 +146,14 @@ public class Application extends DictionaryEntry implements Serializable {
 	  this.onlyForLabPrepped = onlyForLabPrepped;
 	}
 	
-	public Boolean isApplicableApplication(RequestCategoryType rct) {
+	public Boolean isApplicableApplication(RequestCategoryType rct, Integer idCoreFacility) {
 	  Boolean isApplicable = true;
     String appType = ApplicationType.getCodeApplicationType(rct);
     if (getCodeApplicationType() == null && !appType.equals(ApplicationType.TYPE_OTHER)) {
       isApplicable = false;
     } else if (!getCodeApplicationType().equals(appType)) {
+      isApplicable = false;
+    } else if (!getIdCoreFacility().equals(idCoreFacility)) {
       isApplicable = false;
     }
 

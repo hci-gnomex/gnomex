@@ -396,11 +396,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     for(Iterator i1 = applications.iterator(); i1.hasNext();) {
       Application a = (Application)i1.next();
       // Skip applications not of right application type for this request category.
-      if (!a.isApplicableApplication(rct)) {
-        continue;
-      }
-
-      if (!a.getIdCoreFacility().equals(rc.getIdCoreFacility())) {
+      if (!a.isApplicableApplication(rct, rc.getIdCoreFacility())) {
         continue;
       }
       
@@ -462,7 +458,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     for (RequestCategory rc : (List<RequestCategory>)rcList) {
       Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       for(Application app : (List<Application>)apps) {
-        if (app.isApplicableApplication(rc.getCategoryType())) {
+        if (app.isApplicableApplication(rc.getCategoryType(), rc.getIdCoreFacility())) {
           Element rcaNode = (Element)node.clone();
           rcaNode.setName("RequestCategoryApplication");
           String key = app.getCodeApplication() + "\t" + rc.getCodeRequestCategory();
