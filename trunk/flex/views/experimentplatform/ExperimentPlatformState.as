@@ -71,6 +71,10 @@ package views.experimentplatform {
 			return _selectedType != null && _selectedType.@value == 'SEQUENOM';
 		}
 		
+		public function get isNanoString():Boolean {
+			return _selectedType != null && _selectedType.@value == 'NANOSTRING';
+		}
+		
 		public function get runModeOptions():XMLList {
 			return _runModeOptions;
 		}

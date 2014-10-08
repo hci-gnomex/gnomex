@@ -213,6 +213,9 @@
 					</mx:Component>
 				</mx:itemRenderer>
 			</mx:DataGridColumn>
+			<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
+							   visible="{state != null &amp;&amp; state.isNanoString}" 
+							   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
 		</mx:columns>
 	</mx:DataGrid>
 </mx:VBox>

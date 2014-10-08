@@ -665,7 +665,13 @@
 				return false;
 			}
 		}
-			
+		public function isNanoStringState():Boolean {
+			if (currentState == 'NanoStringState' || currentState == 'NanoStringEditState') {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		public function isClinicalSequenomState():Boolean {
 			if (currentState == 'ClinicalSequenomState' || currentState == 'ClinicalSequenomEditState') {
 				return true;
@@ -1279,6 +1285,16 @@
 				isolationTypeList.sort = dictionarySorter;
 				isolationTypeList.refresh();
 				
+			} else if (requestCategory.@type == parentApplication.TYPE_NANOSTRING) {
+				
+				this.currentState = "NanoStringState";
+				this.sampleSetupView.currentState = 'NanoStringState';		
+				this.samplesView.showHideColumns();						
+				this.samplesView.checkSamplesCompleteness();	
+								
+				filteredAppList.filterFunction = filterApplication;
+				filteredAppList.refresh();
+								
 			} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 				this.currentState = "ClinicalSequenomState";
 				this.sampleSetupView.currentState = 'ClinicalSequenomState';
@@ -5770,6 +5786,13 @@
 		</mx:State>
 		<mx:State name="ClinicalSequenomEditState" basedOn="SequenomEditState">
 			<mx:RemoveChild target="{notesView}"/>
+		</mx:State>
+		<mx:State name="NanoStringState">
+			<mx:RemoveChild target="{hybSetupView}"/>
+			<mx:RemoveChild target="{hybsView}"/>
+			<mx:RemoveChild target="{notesView}"/>
+			<mx:RemoveChild target="{seqSetup1View}"/>
+			<mx:SetProperty target="{seqSetupView}" name="label" value="Assay Type"/>
 		</mx:State>
         <mx:State name="SolexaBaseState">
             <mx:RemoveChild target="{hybSetupView}"/>

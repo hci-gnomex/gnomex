@@ -52,7 +52,13 @@ package views.experiment
 				} else {
 					return new TabSamplesSequenom();
 				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
+			} else if (requestCategoryType.@codeRequestCategoryType == 'NANOSTRING') {
+				if (existingTab is TabSamplesNanoString) {
+					return existingTab;
+				} else {
+					return new TabSamplesNanoString();
+				}
+			}else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
 				if (existingTab is TabSamplesIsolation) {
 					return existingTab;
 				} else {
