@@ -55,6 +55,12 @@ package views.experiment
 				} else {
 					return new TabConfirmSequenom();
 				}
+			} else if (requestCategoryType.@codeRequestCategoryType == 'NANOSTRING') {
+				if (existingTab is TabConfirmNanoString) {
+					return existingTab;
+				} else {
+					return new TabConfirmNanoString();
+				}
 			} else {
 				if (existingTab is TabConfirmView) {
 					return existingTab;
