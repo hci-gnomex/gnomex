@@ -1090,6 +1090,7 @@
 			public  var TYPE_ISOLATION:String     = "ISOLATION";
 			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
 			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
+			public  var TYPE_NANOSTRING:String    = "NANOSTRING";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";
 			public  const TYPE_DISK_USAGE:String  = "DISKUSAGE"; // For disk usage in billing items.  Not used by requests.
 			

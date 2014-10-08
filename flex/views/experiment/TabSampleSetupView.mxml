@@ -283,6 +283,22 @@
 						}
 					}
 					
+				} else if (parentDocument.isNanoStringState()) {
+					nanoSampleCountWarning.text = "";
+					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
+						if ( parseInt(this.numberOfSamples.text) % 12 != 0 ) {
+							nanoSampleCountWarning.text = " Nano string runs in batches of 12 samples. Please note you will be responsible to pay for unused wells.";
+						}
+						isComplete = true;
+						if ( coreToExtractDNACheckBox.selected ) {
+							isComplete  = isComplete && ( dnaPrepTypeCombo.selectedItem != null && dnaPrepTypeCombo.selectedIndex > 0 );
+						} else {
+							isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
+						}
+						isComplete = isComplete && (hasOrganism() && this.otherSamplePrepMethod.text.length > 0); 
+							
+						parentDocument.seqLibProtocolList.refresh();
+					}		
 				} else if (parentDocument.isQCState()) {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 						this.sampleTypeRadioGroup.selectedValue &&
@@ -503,7 +519,7 @@
 					isComplete = false;    	
 				}
 				
-				if (parentDocument.isSolexaState()) {
+				if (parentDocument.isSolexaState() || parentDocument.isNanoStringState()) {
 					parentDocument.seqSetupView.enabled = isComplete; 
 				}
 				
@@ -2211,6 +2227,17 @@
 							<mx:TextInput width="100%" id="applicationDesc" styleName="requiredBox" focusOut="onGenAppDescChanged()" />
 						</mx:HBox>
 					</mx:VBox>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="NanoStringState" basedOn="MDMiSeqState">
+			<mx:SetProperty target="{isPreppedContainer}" name="visible" value="false"/>
+			<mx:SetProperty target="{isPreppedContainer}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePooledSamplesHBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{prePooledSamplesHBox}" name="visible" value="false"/>
+			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
+				<mx:HBox width="100%">
+					<mx:Text id="nanoSampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
