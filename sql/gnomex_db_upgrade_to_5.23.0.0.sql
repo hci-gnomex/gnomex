@@ -50,12 +50,14 @@ insert into PropertyDictionary values ('show_admin_notes_on_request', 'N', 'Show
 
 -- add idCoreFacility to Application
 Alter Table Application add idCoreFacility INT(10) NULL;
-call ExecuteIfTableExists('gnomex','Request_Audit','Alter Table Application_Audit add idCoreFacility INT(10) NULL');
+call ExecuteIfTableExists('gnomex','Application_Audit','Alter Table Application_Audit add idCoreFacility INT(10) NULL');
 alter table Application add 
   CONSTRAINT `FK_Application_CoreFacility` FOREIGN KEY `FK_Application_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 
+Alter Table LAB add billingContactPhone varchar(50) null;
+call ExecuteIfTableExists('gnomex','Lab_Audit','Alter Table Lab_Audit add billingContactPhone varchar(50) null');
 
 
