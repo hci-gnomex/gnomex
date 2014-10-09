@@ -59,7 +59,6 @@ public class ProjectRequestFilter extends DetailObject {
   private String                showEmptyProjectFolders = "N";
   private String                excludeClinicResearch = "N";
   private String                ccNumber;
-  private Integer               idSubmitter;
 
 
 
@@ -103,8 +102,7 @@ public class ProjectRequestFilter extends DetailObject {
         (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
         (projectDescriptionText4 != null && !projectDescriptionText4.equals("")) ||
         (experimentDesignCodes != null && experimentDesignCodes.size() > 0) ||
-        (experimentFactorCodes != null && experimentFactorCodes.size() > 0) ||
-        (idSubmitter != null)) {
+        (experimentFactorCodes != null && experimentFactorCodes.size() > 0)) {
       hasLimitingCriteria = true;
     } 
 
@@ -348,15 +346,14 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" collab.idAppUser = ");
       queryBuf.append(idAppUser);
     } else if (idAppUser != null){
-      // Search by user
+      // Search by user/submitter
       this.addWhereOrAnd();
+      queryBuf.append(" ( ");
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-      queryBuf.append(" ) ");
-    } else if(idSubmitter != null) {
-      this.addWhereOrAnd();
+      this.addWhereOrOr();
       queryBuf.append(" req.idSubmitter = ");
-      queryBuf.append(idSubmitter);
+      queryBuf.append(idAppUser);
       queryBuf.append(" ) ");
     }
     //  Search by idRequest 
@@ -1118,16 +1115,6 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
-  }
-
-
-  public Integer getIdSubmitter() {
-    return idSubmitter;
-  }
-
-
-  public void setIdSubmitter(Integer idSubmitter) {
-    this.idSubmitter = idSubmitter;
   }
 
 
