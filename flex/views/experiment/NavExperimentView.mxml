@@ -1032,9 +1032,6 @@
 					if (browseUserCombo.selectedItem != null) {
 						params.idAppUser = browseUserCombo.selectedItem.@idAppUser;
 					}
-					if (browseSubmitterCombo.selectedItem != null) {
-						params.idSubmitter = browseSubmitterCombo.selectedItem.@idAppUser;
-					}
 				} else if (currentState != "GuestState") {
 					if (myExperimentsCheckbox.selected) {
 						params.idAppUser = parentApplication.getIdAppUser();
@@ -1096,7 +1093,6 @@
 				}
 			} else if (this.currentState == "AdminState") {
 				this.browseUserCombo.selectedItem = null;
-				this.browseSubmitterCombo.selectedItem = null;
 			}
 		}
 		
@@ -1314,8 +1310,6 @@
 			this.browseUserCombo.dropdown.dataProvider = appUsers;  
 	        this.browseUserCombo.selectedIndex = 0;
 			
-			this.browseSubmitterCombo.dropdown.dataProvider = appUsers;
-			this.browseSubmitterCombo.selectedIndex = 0;
 		}	    
 
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -1354,14 +1348,10 @@
 		if (currentState == "AdminState") {
 			if (this.allExperimentsCheckbox.selected) {
 				this.browseLabCombo.enabled = false;
-				this.browseUserCombo.enabled = false;
-				this.browseSubmitterCombo.enabled = false;
-				
+				this.browseUserCombo.enabled = false;		
 			} else {
 				this.browseLabCombo.enabled = true;
 				this.browseUserCombo.enabled = true;
-				this.browseSubmitterCombo.enabled = true;
-				
 			}
 		} 
 	}
@@ -1385,7 +1375,6 @@
 		if(browseLabCombo.selectedIndex >= 0) {
 			this.allExperimentsCheckbox.selected = false;
 			this.browseUserCombo.selectedIndex = 0;
-			this.browseSubmitterCombo.selectedIndex = 0;
 			selectedIdLab=null;
 			selectedIdProject=null;
 			selectedIdRequest=null;
@@ -1395,8 +1384,6 @@
 		else{
 			browseUserCombo.dataProvider = new XMLListCollection;
 			browseUserCombo.dropdown.dataProvider = new XMLListCollection;
-			browseSubmitterCombo.dataProvider = new XMLListCollection;
-			browseSubmitterCombo.dropdown.dataProvider = new XMLListCollection;
 		}
 	}
 	
@@ -1752,20 +1739,12 @@
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6" visible="{!parentApplication.hasPermission('canSubmitForOtherCores')}" includeInLayout="{!parentApplication.hasPermission('canSubmitForOtherCores')}">
-					<mx:Label id="userLabel" visible="true" text="Owner" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
+					<mx:Label id="userLabel" visible="true" text="Owner/Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
 					<mx:ComboBox id="browseUserCombo" 
 						labelField="@displayName"
 						dataProvider="{appUsers}"
-						 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;browseSubmitterCombo.selectedIndex = -1;"  
+						 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;"  
 						 visible="true"  width="130" fontSize="10">
-					</mx:ComboBox>
-					
-					<mx:Label id="submitterLabel" visible="true" text="Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
-					<mx:ComboBox id="browseSubmitterCombo" 
-								 labelField="@displayName"
-								 dataProvider="{appUsers}"
-								 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;browseUserCombo.selectedIndex = -1;"  
-								 visible="true"  width="130" fontSize="10">
 					</mx:ComboBox>
 				</mx:HBox>
 			</mx:AddChild>
