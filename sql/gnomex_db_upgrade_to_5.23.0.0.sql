@@ -27,10 +27,6 @@ call ExecuteIfTableExists('gnomex','CoreFacility_Audit','ALTER TABLE CoreFacilit
 --Delete trim adapter question property.  No longer needed.	
 delete from PropertyDictionary where propertyName = 'choose_adapter_trim_default';
 
---Remove trimAdapter column from table and audit table
-alter table Request Drop column trimAdapter;
-call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN trimAdapter');
-
 --new isolation prep type custom annotations
 insert into AnnotationReportField values('REQUEST', 'codeDNAPrepType', 'DNA prep type', 'N', null, 'hci.gnomex.model.DNAPrepType');
 insert into AnnotationReportField values('REQUEST', 'codeRNAPrepType', 'RNA prep type', 'N', null, 'hci.gnomex.model.RNAPrepType');
