@@ -155,6 +155,14 @@
 				}
 			}
 			
+			public function isNanoStringState():Boolean {
+				if (currentState == 'NanoStringState') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
 			public function checkSecurity():void {
 				
 				if (parentApplication.isGuestMode()) {
@@ -316,6 +324,11 @@
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
 					}	
+				} else if (requestCategory.@type == 'NANOSTRING') {
+					this.currentState = "NanoStringState";
+					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
+						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'NanoStringState';	
+					}	
 				} else if (requestCategory.@type == 'GENERIC') {
 					this.currentState = "GenericState";
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
@@ -414,7 +427,7 @@
 				var showSampleCustomBarcode:Boolean = false;
 				var showPlates:Boolean = false;
 				for each (var s:Object in samples) {
-					if (s.@multiplexGroupNumber != '') {
+					if (s.@multiplexGroupNumber != '' && !isNanoStringState()) {
 						showSampleMultiplexGroup = true;
 					}
 					if (((isCapSeqState() || isSequenomState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
@@ -2380,6 +2393,12 @@
 			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="IonTorrentState" basedOn="GenericState"/>
+		<mx:State name="NanoStringState" basedOn="SequenomState">
+			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{bisulfideConversionBox}" name="visible" value="false"/>
+			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
+		</mx:State>
 	</mx:states>
 	
 </mx:VBox>

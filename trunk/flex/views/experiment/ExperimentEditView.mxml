@@ -2337,10 +2337,12 @@
 
 			this.initializeData();
 			
-			if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem") && this.analysisButton!=null) {
-				this.analysisButton.enabled = true;
-			} else {
-				this.analysisButton.enabled = false;
+			if ( this.analysisButton!=null ) {
+				if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
+					this.analysisButton.enabled = true;
+				} else {
+					this.analysisButton.enabled = false;
+				}
 			}
 			
 			if (theTab.contains(visibilityView)) {
@@ -2931,7 +2933,7 @@
 				var unusedSampleList:String = '';
 				var unusedSampleCount:int = 0;
 				var target:String = "";
-				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState() && !isGenericState()) {
+				if (!isQCState() && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && !isIsolationState() && !isGenericState() && !isNanoStringState()) {
 					for each(var sample:Object in samples) {
 						var useCount:int = 0;
 						if (isSolexaState()) {
@@ -3368,7 +3370,11 @@
 				} else {
 					request.@codeApplication = setupView.getApp();						
 				}
-			}
+			} else if (this.isNanoStringState()) {
+				if (parentApplication.submitInternalExperiment()) {
+					request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+				}	
+			} 
 			if (this.isIScanState()) {
 				request.@codeApplication = "";	
 				request.@codeBioanalyzerChipType = "";

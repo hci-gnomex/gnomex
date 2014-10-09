@@ -210,9 +210,12 @@
 							   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>
 			<mx:DataGridColumn headerText="Sequencing Application"  
 							   itemRenderer="views.renderers.LabelActive"
-							   rendererIsEditor="false" width="{appGrid.width - 55 - 45 - 200 - 35 - 20}"
+							   rendererIsEditor="false" width="{state != null &amp;&amp; state.isNanoString ? appGrid.width - 55 - 45 - 200 - 35 - 20 -80 : appGrid.width - 55 - 45 - 200 - 35 - 20}"
 							   editable="true" wordWrap="true" dataField="@display" >
 			</mx:DataGridColumn>
+			<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
+							   visible="{state != null &amp;&amp; state.isNanoString}" 
+							   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
 			<mx:DataGridColumn headerText="" width="35" editable="false">
 				<mx:itemRenderer>
 					<mx:Component>
@@ -222,9 +225,6 @@
 					</mx:Component>
 				</mx:itemRenderer>
 			</mx:DataGridColumn>
-			<mx:DataGridColumn headerWordWrap="true" headerText="Samples Per Batch"  id="samplesPerBatchCol"  
-							   visible="{state != null &amp;&amp; state.isNanoString}" 
-							   dataField="@samplesPerBatch" sortable="false" editable="true" width="80" />	
 		</mx:columns>
 	</mx:DataGrid>
 </mx:VBox>

@@ -156,8 +156,7 @@
 						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
 						" idOrganism='"  + idOrganism + "'" +				
 						" otherOrganism='" + otherOrganism + "'" 	+
-						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
-						" multiplexGroupNumber='1'" +
+						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +
 						"/>"
 					emptyNode = new XML(xmlString);
 				
@@ -425,13 +424,6 @@
 				
 				setSamplesGridDataProvider();
 				
-				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
-				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-				this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
-				
 				this.samplesGrid.validateNow();
 				callLater(this.checkSamplesCompleteness);
 				
@@ -491,8 +483,6 @@
 				
 				// Edit columns shown
 				
-				seqPrepStatus.visible = isEditState && !isExternal;
-								
 				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 				
 				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
@@ -750,6 +740,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
+				
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="80"
@@ -801,101 +792,7 @@
 										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
 
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
-													 id="barcodeColumn" 
-													 visible="true" 
-													 headerText="Index Tag A" 
-													 width="130" 
-													 dataField="@idOligoBarcode"
-													 editorDataField="value"
-													 sortable="false" 
-													 editable="true" 
-													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode', true, true, 0xFFFFB9)}">
-					<util:itemEditor>
-						<mx:Component>
-							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
-																  parentApp="{outerDocument.parentApplication}"
-																  fontSize="10"
-																  prompt="{null}"
-																  indexTagLetter="A"
-																  filterString="{outerDocument.getIndexTagName(data)}"
-																  text="{outerDocument.getIndexTagName(data)}"
-																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
-						</mx:Component>
-					</util:itemEditor> 					
-					<util:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleIndexTagA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag A Help" showEdit="{parentApplication.isAdminState}"
-												  label="Index Tag A" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</util:headerRenderer>
-				</util:AdvancedDataGridColumnWithType>
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
-													 id="barcodeColumnB" 
-													 headerText="Index Tag B" 
-													 visible="true" 
-													 width="130" 
-													 dataField="@idOligoBarcodeB" 
-													 sortable="false" 
-													 editable="true"
-													 editorDataField="value"
-													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB', false, true)}">
-					<util:itemEditor>
-						<mx:Component>
-							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
-																  parentApp="{outerDocument.parentApplication}"
-																  fontSize="10"
-																  prompt="{null}"
-																  indexTagLetter="B"
-																  filterString="{outerDocument.getIndexTagNameB(data)}"
-																  text="{outerDocument.getIndexTagNameB(data)}"
-																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
-						</mx:Component>
-					</util:itemEditor> 					
-					<util:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleIndexTagB" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag B Help" showEdit="{parentApplication.isAdminState}"
-												  label="Index Tag B" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</util:headerRenderer>
-				</util:AdvancedDataGridColumnWithType>
-				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="false" visible="true"
-										   width="85"
-										   itemRenderer="mx.controls.Label"               
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-									<util:ContextHelp context1="sampleIndexTagSequenceA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence A Help" showEdit="{parentApplication.isAdminState}"
-													  label="Index Tag&#13;Sequence A" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="false" visible="true"
-										   width="85"
-										   itemRenderer="mx.controls.Label"               
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleIndexTagSequenceB" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence B Help" showEdit="{parentApplication.isAdminState}"
-												  label="Index Tag&#13;Sequence B" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn> 
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
@@ -926,16 +823,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleMeanLibSizeActual" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Actual Ave Lib Size Help" showEdit="{parentApplication.isAdminState}"
-												  label="Actual Ave.&#13;Lib. Size" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
+				
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/230" 
@@ -953,6 +841,22 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+										   headerText="QC RIN" 
+										   width="70" 
+										   dataField="@qualRINNumber" 
+										   id="qualRINCol" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualRINCol" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
 										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}">
@@ -966,18 +870,6 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
-											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
-											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
-												  label="Seq Prep Status" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				
 			</util:columns>
 		</util:AdvancedDataGridWithCustomRowColors>

@@ -26,22 +26,7 @@
 				submitterName.text = parentDocument.getSubmitterName();
 				this.clientPrepLib.visible = false;
 				this.clientPrepLib.includeInLayout = false;
-				for each (var s1:Object in parentDocument.samples) {
-					var nsca:Object = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed').(@value == s1.@idNumberSequencingCyclesAllowed);
-					this.seqLaneTypeLabel.text = nsca.@display.toString();
-					
-					if (s1.@seqPrepByCore == 'N') {
-						this.clientPrepLib.visible = true;
-						this.clientPrepLib.includeInLayout = true;
-						
-						this.clientPrepLib.text = "Library Prepared By Client"
-						if (parentDocument.request.@hasPrePooledLibraries == 'Y' && parentDocument.request.@numPrePooledTubes != null && parentDocument.request.@numPrePooledTubes != '') {
-							this.clientPrepLib.text += ", " + parentDocument.request.@numPrePooledTubes.toString() + " Pre-Pooled Tubes";
-						}
-					}
-					break;
-				}
-
+				
 				longDescriptionRowCount = 0;
 				for each (var s:Object in parentDocument.samples) {
 					if (s.@description.toString().length > 30) {
@@ -134,7 +119,7 @@
 			<mx:VBox width="100%" verticalGap="0" id="billingContainer">
 				<mx:VBox width="100%" id="chargesHeaderBox" verticalGap="0">
 					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" styleName="confirmHeaderLabel" paddingTop="4"/>	
-					<mx:Label text="The pricing listed below includes sample Quality (Qubit and BioAnalyzer) and NanoString analysis.  The pricing does NOT include the cost of code sets and master kits (purchased separately)." styleName="confirmHeaderLabel" paddingTop="0"/>								    	
+					<mx:Label text="The pricing listed below includes sample Quality (Qubit and BioAnalyzer) and NanoString analysis.  The pricing does NOT include the cost of code sets and master kits (purchased separately)." paddingTop="0" fontStyle="italic"  color="Green"/>								    	
 				</mx:VBox>
 				<mx:VBox width="100%" id="vbox1">
 					<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"  horizontalScrollPolicy="off"
