@@ -3285,7 +3285,7 @@
 			request.@idCoreFacility = getRequestCategory().@idCoreFacility;
 			
 			if (!this.isEditState()) {
-				request.@idSubmitter = setupView.idAppUser;
+				request.@idSubmitter = this.getIdAppUserOwner();
 				if(parentApplication.hasPermission("canSubmitForOtherCores")){
 					request.@idSubmitter = parentApplication.idAppUser
 				}
