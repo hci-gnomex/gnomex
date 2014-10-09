@@ -197,7 +197,7 @@
 			var isComplete:Boolean = false;
 			if (parentDocument.isEditState() && parentDocument.request.@captureLibDesignId != "") {
 				isComplete = true;
-			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState()) {
+			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState() || parentDocument.isNanoStringState()) {
 				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
 					
 					if (libraryDesign.visible) {
@@ -254,10 +254,12 @@
 				}
 	        	parentDocument.confirmView.enabled = false;
     		} else {
-    			if (parentDocument.theTab.contains(parentDocument.samplesView)) {
+    			if (parentDocument.theTab.contains(parentDocument.seqSetup1View)) {
 					parentDocument.seqSetup1View.enabled = true;
 		    		parentDocument.seqSetup1View.checkSeqSetup1Completeness();
-		    	}
+		    	} else if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = true;
+				}
     		}
         	
         }

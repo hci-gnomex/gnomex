@@ -875,6 +875,7 @@
 					<item label="" icon="assets/sequenom_plate.png" />
 					<item label="" icon="assets/DNA_test_tube.png" />
 					<item label="" icon="assets/data-accept.png" />
+					<item label="" icon="assets/nano.png" />
 					<item label="" icon="assets/flask.png" />
 				</items>    
 			);

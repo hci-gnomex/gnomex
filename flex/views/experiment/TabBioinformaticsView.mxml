@@ -4,6 +4,8 @@
 		<![CDATA[
 			[Bindable]
 			private var organismString:String;
+			[Bindable]
+			private var questionNumber:String;
 			
 			private function init():void {
 				if (parentDocument != null && parentDocument.request != null
@@ -37,6 +39,20 @@
 					&& parentDocument.request.hasOwnProperty("@bioinformaticsAssist")
 					&& parentDocument.request.@bioinformaticsAssist == 'Y') {
 					this.bioAssistCheckBox.selected = true;
+				}
+				
+				if ( parentDocument.isNanoStringState() ) {
+					questionNumber = '1';
+					genomeBuildBox.visible = false;
+					genomeBuildBox.includeInLayout = false;
+					spacer.visible = false;
+					spacer.includeInLayout = false;
+				} else {
+					questionNumber = '2'; 
+					genomeBuildBox.visible = true;
+					genomeBuildBox.includeInLayout = true;
+					spacer.visible = true;
+					spacer.includeInLayout = true;
 				}
 				
 				organismString = 'Organism: ' + parentDocument.getOrganism() != null ? parentDocument.getOrganism().@organism : "N/A";
@@ -134,9 +150,9 @@
 				</mx:ComboBox>
 			</mx:HBox>
 		</mx:VBox>
-		<mx:Spacer height="10" />
+		<mx:Spacer height="10" id="spacer"/>
 		<util:ContextHelp context1="bioAnalysisAssistance" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Analysis Assistance Help"
-						  label="{'(2) Would you like the ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_GROUP) + ' to assist you with analysis?'}" 
+						  label="{'(' + questionNumber + ') Would you like the ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ANALYSIS_ASSISTANCE_GROUP) + ' to assist you with analysis?'}" 
 						  labelPlacement="left" id="bioAnalysisAssistanceLabel"/>
 		<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 			<mx:Spacer width="12"/>
