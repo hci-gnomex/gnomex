@@ -2017,7 +2017,7 @@
 			request.@number = "";
 			request.@idLab = setupView.labCombo.selectedItem.@idLab;
 			request.@idSubmitter = setupView.idAppUser;
-			if(parentApplication.hasPermission("canSubmitForOtherCores") && parentApplication.getCoreFacilityProperty(request.@idCoreFacility, parentApplication.PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION)){
+			if(parentApplication.hasPermission("canSubmitForOtherCores")){
 				request.@idSubmitter = parentApplication.idAppUser
 			}
 			request.@idAppUser = setupView.idAppUser;
@@ -2448,7 +2448,7 @@
 			}			
 			request = getNewRequest.lastResult..Request.(@idRequest = '0');
 			request.@idSubmitter = setupView.idAppUser;
-			if(parentApplication.hasPermission("canSubmitForOtherCores") && parentApplication.getCoreFacilityProperty(request.@idCoreFacility, parentApplication.PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION)){
+			if(parentApplication.hasPermission("canSubmitForOtherCores")){
 				request.@idSubmitter = parentApplication.idAppUser
 			}
 			request.@idAppUser = setupView.idAppUser;
@@ -3286,7 +3286,7 @@
 			
 			if (!this.isEditState()) {
 				request.@idSubmitter = setupView.idAppUser;
-				if(parentApplication.hasPermission("canSubmitForOtherCores") && parentApplication.getCoreFacilityProperty(request.@idCoreFacility, parentApplication.PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION) == 'Y'){
+				if(parentApplication.hasPermission("canSubmitForOtherCores")){
 					request.@idSubmitter = parentApplication.idAppUser
 				}
 				request.@idAppUser = this.getIdAppUserOwner();
