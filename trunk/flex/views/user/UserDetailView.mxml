@@ -266,8 +266,8 @@
 					  </mx:HBox>
 				  </mx:Repeater>
 			  </mx:VBox>
-				<mx:VBox visible="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected || this.isAdminPermissionLevel.selected)}" 
-						 includeInLayout="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected || this.isAdminPermissionLevel.selected)}" 
+				<mx:VBox visible="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected)}" 
+						 includeInLayout="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected)}" 
 						 borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
 					<mx:HBox verticalAlign="middle" width="100%">
 						<mx:Label text="Submit experiments in all labs in core" id="text1" styleName="formLabel"/>
