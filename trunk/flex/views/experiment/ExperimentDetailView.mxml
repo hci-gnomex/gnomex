@@ -1136,6 +1136,8 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = false;
 						
+						this.concentrationCol.headerText = 'Conc. (ng/ul)';
+						
 					}  else if (isGenericState()) {
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = true;
@@ -1797,7 +1799,7 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" dataField="@codeBioanalyzerChipType"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					
-					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
+					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. (ng/uL)" width="80" dataField="@qualCalcConcentration"/>
 					<mx:AdvancedDataGridColumn id="qc260Col" visible="false" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
 					<mx:AdvancedDataGridColumn id="qc260280Col" visible="false" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
 					<mx:AdvancedDataGridColumn id="qubitConcentrationCol" headerText="Qubit Conc." width="65" visible="true"  dataField="@qubitConcentration"/>
