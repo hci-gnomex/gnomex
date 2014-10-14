@@ -750,7 +750,7 @@
 			// If this is an FDT download, make the request to download the 
 			// FDT webstart application
 			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');	
-			url.contentType = "text/xml";
+			url.contentType = "text/plain";
 			url.method = URLRequestMethod.GET;
 			navigateToURL(url, '_self');	
 		} 
