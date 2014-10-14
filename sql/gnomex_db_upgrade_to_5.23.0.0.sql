@@ -48,7 +48,7 @@ alter table Application add
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 
-Alter Table LAB add billingContactPhone varchar(50) null;
+Alter Table Lab add billingContactPhone varchar(50) null;
 call ExecuteIfTableExists('gnomex','Lab_Audit','Alter Table Lab_Audit add billingContactPhone varchar(50) null');
 
 
