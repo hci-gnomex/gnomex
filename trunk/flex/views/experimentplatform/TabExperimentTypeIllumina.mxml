@@ -101,11 +101,14 @@
 				var rcApps:XMLList = new XMLList();
 				for each (var rc:Object in state.dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 					var rct:Object = parentApplication.requestCategoryTypeMap[rc.@type];
-					if (rct.@isIllumina == 'Y' && rc.@idCoreFacility == state.requestCategory.@idCoreFacility) {
-						var rcApp:XML = XML(rc).copy();
-						rcApp.setName("RequestCategoryApplication");
-						rcApp.@isSelected = rcApp.@isActive;
-						rcApps += rcApp;
+					if (rc.@idCoreFacility == state.requestCategory.@idCoreFacility) {
+						if ((rct.@isIllumina == 'Y' && state.selectedType.@isIllumina == 'Y')
+							|| (state.selectedType.@isIllumina != 'Y' && rc.@codeRequestCategory == state.requestCategory.@codeRequestCategory)) {
+							var rcApp:XML = XML(rc).copy();
+							rcApp.setName("RequestCategoryApplication");
+							rcApp.@isSelected = rcApp.@isActive;
+							rcApps += rcApp;
+						}
 					}
 				}
 				newNode.setChildren(rcApps);
