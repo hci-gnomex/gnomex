@@ -71,7 +71,9 @@
 			public function init():void {
 				var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
 				promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.coreFacilitiesICanManage));
-
+				if (promptedMyCoreFacilities.length == 2) {
+					coreFacilityCombo.selectedItem = promptedMyCoreFacilities[1];
+				}
 				getList();
 			}
 			
