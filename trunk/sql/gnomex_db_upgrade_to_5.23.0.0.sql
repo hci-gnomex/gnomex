@@ -51,4 +51,10 @@ alter table Application add
 Alter Table Lab add billingContactPhone varchar(50) null;
 call ExecuteIfTableExists('gnomex','Lab_Audit','Alter Table Lab_Audit add billingContactPhone varchar(50) null');
 
-
+-- New core facility fields
+Alter Table CoreFacility add labPhone varchar(200) null;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','Alter Table CoreFacility_Audit add labPhone varchar(200) null');
+Alter Table CoreFacility add contactRoom varchar(200) null;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','Alter Table CoreFacility_Audit add contactRoom varchar(200) null');
+Alter Table CoreFacility add labRoom varchar(200) null;
+call ExecuteIfTableExists('gnomex','CoreFacility_Audit','Alter Table CoreFacility_Audit add labRoom varchar(200) null');
