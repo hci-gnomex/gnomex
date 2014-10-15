@@ -615,14 +615,14 @@
 						</mx:ComboBox>
 						
 						<mx:VRule height = "20"  />
-						
-						<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
-												  dataProvider="{requestCategories}" 
-												  labelField="@display" prompt="Experiment Type.."
-												  includeInLayout="{requestCategories.length > 1}" 
-												  visible="{requestCategories.length > 1}" 
-												  change="{getList()}"/>
 					</mx:HBox>
+				
+				<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
+										  dataProvider="{requestCategories}" 
+										  labelField="@display" prompt="Experiment Type.."
+										  includeInLayout="{requestCategories.length > 1}" 
+										  visible="{requestCategories.length > 1}" 
+										  change="{getList()}"/>
 					
 			</mx:HBox>
 			
