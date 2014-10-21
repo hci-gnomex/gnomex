@@ -3572,6 +3572,7 @@
 			
 			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 			request.@idAppUser = ownerCombo.selectedItem.@idAppUser;
+			request.@idSubmitter = submitterCombo.selectedItem.@idAppUser;
 			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
 			}
@@ -4143,6 +4144,15 @@
 					}
 				}
 				ownerCombo.enabled = true;
+				
+				submitterCombo.selectedItem = emptyNode;
+				for each(var a2:Object in appUsersForLab) {
+					if (a2.@idAppUser == request.@idSubmitter) {
+						submitterCombo.selectedItem = a2;
+						break;
+					}
+				}
+				submitterCombo.enabled = true;
 			}			
 
 		}
@@ -5526,9 +5536,14 @@
 									 width="500"/>
 					</mx:HBox>
 					
-					<mx:HBox verticalGap="0" horizontalGap="0" width="330" >
+					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Text text="Submitted by"  fontWeight="normal" width="100" styleName="formLabel"/>
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@submitterName}" />
+						<util:ComboBoxDatProvChangeFix id="submitterCombo"
+													   labelField="@displayName" 
+													   change="this.dirty.setDirty();" 
+													   dataProvider="{appUsersForLab}" 
+													   enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
+													   width="500"/>
 					</mx:HBox>
 
 					<mx:HBox horizontalGap="0">
