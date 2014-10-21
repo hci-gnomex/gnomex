@@ -2832,7 +2832,7 @@
 				} 
 				if (this.isSolexaEditState()) {
 					if (this.requestApplicationComboBox.selectedItem == null || this.requestApplicationComboBox.selectedItem.@value == '') {
-						errorMessage += "Application must be specified.\n\n";
+						errorMessage += "Experiment Type must be specified.\n\n";
 					}
 				}
 
@@ -5867,7 +5867,7 @@
             </mx:AddChild>
 			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
-					<mx:Text text="Application" width="100" id="labelApplication" styleName="formLabel"/>
+					<mx:Text text="Experiment Type" width="100" id="labelApplication" styleName="formLabel"/>
 					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" enabled="{parentApplication.isAdminState ? true : false}">							
 						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
 					</mx:ComboBox>

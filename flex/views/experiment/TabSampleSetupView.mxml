@@ -1438,8 +1438,8 @@
 			<mx:SetProperty target="{label8}" name="width" value="340"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
-					<util:ContextHelp context1="sampleDetailsQCApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Quality Application Help"
-									  label="(1) Select a sample quality application." labelPlacement="left" id="labelQCApplication" width="340"/>
+					<util:ContextHelp context1="sampleDetailsQCApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Quality Experiment Type Help"
+									  label="(1) Select a sample quality Experiment Type." labelPlacement="left" id="labelQCApplication" width="340"/>
 					<mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="qcAppBox">
 						<mx:RadioButtonGroup id="radioGroupQCApp"/>
 						<mx:Repeater id="qcAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
@@ -2024,8 +2024,8 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0" id="hbox7">
-					<util:ContextHelp context1="SampleDetailsSequenomSeqApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Application Help"
-									  label="(1) Select an application." labelPlacement="left" id="labelSeqApplication" width="340"/>
+					<util:ContextHelp context1="SampleDetailsSequenomSeqApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+									  label="(1) Select an experiment type." labelPlacement="left" id="labelSeqApplication" width="340"/>
 					<mx:VBox verticalGap="2" id="appAndPanelContainerVBox">
 						<mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
 							<mx:RadioButtonGroup id="radioGroupSeqApp"/>
@@ -2205,8 +2205,8 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
-					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Application Help"
-									  label="(4) Select an application." labelPlacement="left" id="labelApplication" width="340"/>
+					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+									  label="(4) Select an experiment type." labelPlacement="left" id="labelApplication" width="340"/>
 					<mx:VBox verticalGap="2" id="appContainerVBox">
 						<mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="appBox">
 							<mx:RadioButtonGroup id="radioGroupApp"/>

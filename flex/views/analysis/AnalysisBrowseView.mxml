@@ -55,7 +55,7 @@
     
     private var selectedIdAnalysis:int;
 		
-	private var analysisToDelete:XMLListCollection = new XMLListCollection;
+	private var analysisToDelete:XMLListCollection = new XMLListCollection();
 
 
         
@@ -162,7 +162,7 @@
 			params.idAnalysis = analysis.@idAnalysis;
 			deleteAnalysis.send(params);
 		}
-		analysisToDelete = new XMLListCollection;
+		analysisToDelete = new XMLListCollection();
 		
 	}
 		
