@@ -65,7 +65,7 @@
 		private var endRank:Object =  20;
 		
 		[Bindable]
-		private var coreFacilities:XMLListCollection = new XMLListCollection;
+		private var coreFacilities:XMLListCollection = new XMLListCollection();
 		
 		
 		private function init():void {
@@ -302,7 +302,7 @@
 					<mx:LinkButton label="Experiments" textDecoration="underline" click="{chartStack.selectedChild = experimentsByLabPanel;buttonStack.selectedIndex = 1}" paddingLeft="8" id="linkbutton1"/>
 					<mx:Label text="Overall Activity" paddingTop="10" fontWeight="bold" paddingLeft="4" id="label2"/>
 					<mx:LinkButton label="Experiments by Type" textDecoration="underline" click="{chartStack.selectedChild = experimentsByTypePanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton2"/>
-					<mx:LinkButton label="Illumina Sequencing Application" textDecoration="underline" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton3"/>
+					<mx:LinkButton label="Illumina Sequencing Experiment Type" textDecoration="underline" click="{chartStack.selectedChild = seqExperimentsByAppPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton3"/>
 					<mx:LinkButton label="Activity By Week" textDecoration="underline" click="{chartStack.selectedChild = activityByWeekPanel;buttonStack.selectedIndex = 2}"  paddingLeft="8" id="linkbutton4"/>
 					<mx:LinkButton label="Disk Space By Year" textDecoration="underline" click="{chartStack.selectedChild = diskSpaceByYearPanel;buttonStack.selectedIndex = 0}"  paddingLeft="8" id="linkbutton5"/>
 				</mx:VBox>
@@ -650,11 +650,11 @@
 				<mx:VBox id="seqExperimentsByAppPanel" width="100%" height="100%" styleName="form" 
 						 paddingLeft="4" paddingTop="0" paddingRight="4" paddingBottom="0" verticalGap="2">
 					<mx:HBox width="100%">
-						<mx:Label text="Seq Experiments by Application" fontWeight="bold"/>
+						<mx:Label text="Seq Experiments by Experiment Type" fontWeight="bold"/>
 						<mx:Spacer width="100%"/>
 						<mx:Label text="{'Total: ' + numberFormatter.format(getUsageData.lastResult.SummarySeqExperimentsByApp.@experimentCount)}" fontWeight="bold"/> 
 					</mx:HBox>
-					<mx:PieChart  name="Seq Experiments by Application" id="seqExperimentsByAppChart"  
+					<mx:PieChart  name="Seq Experiments by Experiment Type" id="seqExperimentsByAppChart"  
 								  dataProvider="{getUsageData.lastResult.SummarySeqExperimentsByApp.Entry}" showDataTips="true" width="100%" height="100%">
 						<mx:series>
 							<mx:PieSeries 

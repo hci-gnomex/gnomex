@@ -206,12 +206,12 @@
 					</mx:Component>
 				</mx:headerRenderer>
 			</mx:DataGridColumn>
-			<mx:DataGridColumn headerText="Sequencing Application Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
+			<mx:DataGridColumn headerText="Sequencing Experiment Type Theme" id="applicationThemeCol" dataField="@idApplicationTheme"
 							   width="200"
 							   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
 							   itemRenderer="{DropdownLabel.getFactory(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
 							   itemEditor="{views.renderers.ComboBox.create(state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>
-			<mx:DataGridColumn headerText="Sequencing Application"  
+			<mx:DataGridColumn headerText="Sequencing Experiment Type"  
 							   itemRenderer="views.renderers.LabelActive"
 							   rendererIsEditor="false" width="{state != null &amp;&amp; state.isNanoString ? appGrid.width - 55 - 45 - 200 - 35 - 20 -80 : appGrid.width - 55 - 45 - 200 - 35 - 20}"
 							   editable="true" wordWrap="true" dataField="@display" >
