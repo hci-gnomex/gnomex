@@ -144,6 +144,14 @@ package views.experiment
 			}
 		}
 		
+		public function getPropertyOptions(idProperty:String):XMLList {
+			var includeInactive:Boolean = true;
+			if (parentDocument != null) {
+				includeInactive = parentDocument.isEditState();
+			}
+			return parentApplication.getPropertyOptions(idProperty, includeInactive);
+		}
+		
 		private function setSampleVisibility(dc:Object, vis:Boolean):void {
 			if (dc is AdvancedDataGridColumn) {
 				AdvancedDataGridColumn(dc).visible = vis;
