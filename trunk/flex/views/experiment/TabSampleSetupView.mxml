@@ -287,7 +287,7 @@
 					nanoSampleCountWarning.text = "";
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 						if ( parseInt(this.numberOfSamples.text) % 12 != 0 ) {
-							nanoSampleCountWarning.text = " Nano string runs in batches of 12 samples. Please note you will be responsible to pay for unused wells.";
+							nanoSampleCountWarning.text = parentApplication.getProperty(parentApplication.PROPERTY_NANO_STRING_BATCH_WARNING);
 						}
 						isComplete = true;
 						if ( coreToExtractDNACheckBox.selected ) {

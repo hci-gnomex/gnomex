@@ -119,7 +119,7 @@
 			<mx:VBox width="100%" verticalGap="0" id="billingContainer">
 				<mx:VBox width="100%" id="chargesHeaderBox" verticalGap="0">
 					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" styleName="confirmHeaderLabel" paddingTop="4"/>	
-					<mx:Label text="The pricing listed below includes sample Quality (Qubit and BioAnalyzer) and NanoString analysis.  The pricing does NOT include the cost of code sets and master kits (purchased separately)." paddingTop="0" fontStyle="italic"  color="Green"/>								    	
+					<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_NANO_CODE_SET_COST_WARNING)}" paddingTop="0" fontStyle="italic"  color="Green"/>								    	
 				</mx:VBox>
 				<mx:VBox width="100%" id="vbox1">
 					<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"  horizontalScrollPolicy="off"
