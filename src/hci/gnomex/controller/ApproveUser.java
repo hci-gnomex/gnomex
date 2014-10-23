@@ -38,6 +38,7 @@ public class ApproveUser extends HttpServlet {
       guid = ( String ) ( ( request.getParameter( "guid" ) != null ) ? request.getParameter( "guid" ) : "" );
       idAppUser = ( String ) ( ( request.getParameter( "idAppUser" ) != null ) ? request.getParameter( "idAppUser" ) : "" );
 
+      deleteUser = false;
       if(request.getParameter("deleteUser") != null && !request.getParameter("deleteUser").equals("") && request.getParameter("deleteUser").equals("Y")) {
         deleteUser = true;
       }
