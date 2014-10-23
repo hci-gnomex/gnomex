@@ -488,6 +488,10 @@
 	    <replace file="${build.dir}/${flexapp.guest.name}.jsp"
 	                         token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
 	                         value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+		
+		<!--  Version swf so we don't get caching -->
+		<replace file="${build.dir}/AC_OETags.js" token=".swf" value=".swf?v=${gnomex_version}.${gnomex_build}" />
+		
 		<!-- Copy the image files in the assets directory -->
 		<copy todir="${build.dir}/assets" overwrite="true">
 					<fileset dir="${flexapp.dir}/assets">
