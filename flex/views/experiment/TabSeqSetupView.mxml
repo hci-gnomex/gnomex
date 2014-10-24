@@ -344,8 +344,9 @@
 		<util:ContextHelp context1="seqSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
 						  label="Select a sequencing experiment type." labelPlacement="left" id="labelApplication" width="400" paddingTop="10" paddingBottom="10"/>
 		<mx:HBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalScrollPolicy="off">
+			<mx:RadioButtonGroup id="radioGroupApplicationTheme"/>
 			<mx:Repeater id="applicationThemeRepeater" dataProvider="{themeList}">
-				<mx:RadioButton label="{applicationThemeRepeater.currentItem.@display}" fontWeight="bold" click="chooseTheme(event.currentTarget.getRepeaterItem())" enabled="true" visible="true" />
+				<mx:RadioButton label="{applicationThemeRepeater.currentItem.@display}" groupName="radioGroupApplicationTheme" fontWeight="bold" click="chooseTheme(event.currentTarget.getRepeaterItem())" enabled="true" visible="true" />
 			</mx:Repeater>
 		</mx:HBox>
 		<mx:HBox id="mainBox" width="100%" height="100%" verticalGap="2" paddingTop="0" horizontalScrollPolicy="off">
