@@ -2061,6 +2061,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         String idSampleString = (String)i.next();
         List lanes = (List)sampleToLaneMap.get(idSampleString);
 
+        Integer idSample = (Integer)idSampleMap.get(idSampleString);
+        Sample s = null;
+        if(idSample != null) {
+          s = (Sample)sess.load(Sample.class, idSample); 
+        }
+
         int lastSampleSeqCount = 0;
 
 
@@ -2096,10 +2102,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             existingLanesSaved.put(lane.getIdSequenceLane(), lane);
           }
 
-          // if this is a not a new request, but these is a new sequence lane,
-          // create a work item for the Cluster Gen (Assemble) worklist.
-          // Also ignore this if this is a QC Amend as seqPrep work items were created above.
-          if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane)) {
+          //           if this is a not a new request, but these is a new sequence lane,
+          //           create a work item for the Cluster Gen (Assemble) worklist.
+          //           Also ignore this if this is a QC Amend as seqPrep work items were created above.
+          if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null && s.getWorkItems().size() == 0)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
             workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
@@ -2111,9 +2117,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               codeStepNext = Step.MISEQ_CLUSTER_GEN;
             }
             workItem.setCodeStepNext(codeStepNext);
+            workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
             sess.save(workItem);
           }
-
 
           if (isNewLane) {
             lastSampleSeqCount++;
