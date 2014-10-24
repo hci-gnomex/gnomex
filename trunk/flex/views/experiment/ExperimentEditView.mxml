@@ -428,6 +428,7 @@
 				this.theTab.selectedChild = defaultTab;
 				defaultTab = null;
 			}
+			
 		}
 
 		private function enableTabs(enable:Boolean):void {
@@ -905,9 +906,19 @@
 			if ( setupView.appUserCombo != null ){
 				setupView.appUserCombo.selectedIndex = -1;
 			}
-			setupView.requestTypeGroup.selectedValue = '';
+			
+			setupView.requestTypeGroup.selection = null;
 
-			samplesView.enabled = false;			
+			samplesView.enabled = false;
+			
+			if(theTab.contains(seqSetupView)){
+				seqSetupView.radioGroupSeqApp.selection = null;
+				seqSetupView.radioGroupApplicationTheme.selection = null;
+			}
+			
+			if(theTab.contains(seqSetup1View)){
+				seqSetup1View.numberSequencingCyclesRadioGroup.selection = null;
+			}
 			
 			if (theTab.contains(hybsView)) {
 				hybsView.enabled = false;
