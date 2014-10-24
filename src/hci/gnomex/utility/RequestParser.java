@@ -69,6 +69,7 @@ public class RequestParser implements Serializable {
   private Map<String, String> cherryPickDestinationWells = new HashMap<String, String>();
   private Boolean hasPlates = false;
   private Boolean forDownload = false;
+  private String seqPrepByCore = null;
 
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestNode = requestDoc.getRootElement();
@@ -192,6 +193,11 @@ public class RequestParser implements Serializable {
       request = (Request)sess.load(Request.class, idRequest);
       originalIdLab = request.getIdLab();
       saveReuseOfSlides = true;
+
+      //If it is an existing request we want to set any new samples to have same seqPrepByCore vaule as old samples.
+      if(request.getSamples().size() > 0) {
+        seqPrepByCore = ((Sample)request.getSamples().iterator().next()).getSeqPrepByCore();
+      }
 
       // Reset the complete date
       // a QC request to a microarray or sequencing request
@@ -592,11 +598,15 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdSeqLibProtocol(null);
     }
-    if (n.getAttributeValue("seqPrepByCore") != null && !n.getAttributeValue("seqPrepByCore").equals("")) {
+
+    if(seqPrepByCore != null) {
+      sample.setSeqPrepByCore(seqPrepByCore);
+    } else if (n.getAttributeValue("seqPrepByCore") != null && !n.getAttributeValue("seqPrepByCore").equals("")) {
       sample.setSeqPrepByCore(n.getAttributeValue("seqPrepByCore"));
     } else {
-      sample.setSeqPrepByCore("N");
+      sample.setSeqPrepByCore("Y");
     }
+
     if (n.getAttributeValue("fragmentSizeFrom") != null && !n.getAttributeValue("fragmentSizeFrom").equals("")) {
       sample.setFragmentSizeFrom(new Integer(n.getAttributeValue("fragmentSizeFrom")));
     } else {
