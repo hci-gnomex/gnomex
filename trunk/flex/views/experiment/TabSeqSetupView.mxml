@@ -355,9 +355,9 @@
 			       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 			       </mx:RadioButtonGroup> 
 			       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox" horizontalScrollPolicy="off">
-					   <mx:Label text="" id="chosenThemeLabel" width="400" fontWeight="bold" />
+					   <mx:Label text="" id="chosenThemeLabel" width="400" fontWeight="bold" visible="{radioGroupApplicationTheme.selectedValue != null}" includeInLayout="{radioGroupApplicationTheme.selectedValue != null}" />
 					   <mx:Repeater id="applicationRepeater" dataProvider="{preparedAppList}">
-						   	<mx:HBox verticalAlign="middle" width="100%" id="applicationRepeaterHBox" visible="false" includeInLayout="false">
+						   	<mx:HBox verticalAlign="middle" width="100%" id="applicationRepeaterHBox" visible="{radioGroupApplicationTheme.selectedValue != null}" includeInLayout="{radioGroupApplicationTheme.selectedValue != null}">
 							   <mx:RadioButton id="applicationButton" groupName="radioGroupSeqApp" 
 											   label="{applicationRepeater.currentItem.@display}" 
 											   value="{applicationRepeater.currentItem.@value}" 
