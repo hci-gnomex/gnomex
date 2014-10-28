@@ -1054,7 +1054,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       if (!requestParser.isExternalExperiment() && 
           ( RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || 
               RequestCategory.isQCRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
-              RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()))) {
+              RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
+              RequestCategory.isNanoStringRequestCategoryType(requestParser.getRequest().getCodeRequestCategory()))) {
         if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
           WorkItem workItem = new WorkItem();
           workItem.setIdRequest(requestParser.getRequest().getIdRequest());
