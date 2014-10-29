@@ -586,6 +586,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (protocolMap.keySet().size() == 0) {
       SeqLibProtocol protocol = new SeqLibProtocol();
       protocol.setSeqLibProtocol(app.getApplication());
+      protocol.setIsActive("Y");
       sess.save(protocol);
       sess.flush();
       protocolMap.put(protocol.getIdSeqLibProtocol(), null);
