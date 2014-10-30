@@ -97,7 +97,8 @@
 			private var flowCellChannelsCount:int = 0
 			private var isValid:Boolean = true;			
 			private var warningMessage:String = "";
-			
+			private var hasError:Boolean = false;
+			private var errorMessage:String = "";
 		]]>
 	</mx:Script>
 	<!--							Initialize and Refresh Functions				-->
@@ -365,6 +366,7 @@
 			private function save():void {								
 				warningMessage = "";
 				isValid = true;
+				hasError = false;
 				if(flowCellProtocol.selectedItem == null) {
 					isValid = false;
 					warningMessage += "Please choose a sequencing protocol for the flow cell.\n\n";
@@ -379,10 +381,13 @@
 					//validateSeqRunType();
 					//validateNumberSequencingCycles();
 				}
-				if (isValid) {
+				if (isValid && !hasError) {
 					saveWorkItems();				    
-				} else {
+				} else if (!hasError) {
 					promptForWarning();
+				} else {
+					Alert.show(errorMessage, "Error");
+					return;
 				}
 			}
 			private function validateNumberOfLanes():void {
@@ -434,6 +439,10 @@
 				for each(var wi:XML in assembleFlowCellWorkList) {
 					if(wi.name() == "DictionaryEntry") {
 						continue;
+					}
+					if (wi.@idNumberSequencingCyclesAllowed == '' || wi.@idNumberSequencingCyclesAllowed == null) {
+						errorMessage = "One or more samples have no sequencing protocol.  Please correct sequence lanes before continuing.";
+						hasError = true;
 					}
 					if(wi.@idNumberSequencingCyclesAllowed != flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed) {
 						warningMessage += "One or more samples have different protocols from the flow cell.\n\n";
