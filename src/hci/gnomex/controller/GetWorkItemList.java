@@ -688,7 +688,7 @@ private Element createWorkItemNode(Object[] row, String key, boolean alt, Dictio
     if(row[WorkItemFilter.CLSTR_ID_NUM_SEQ_CYCLES_ALLOWED] == null) {
 	    String numberSequencingCyclesAllowedKey = n.getAttributeValue("idNumberSequencingCycles") + "\t" + codeRequestCategory + "\t" +  n.getAttributeValue("idSeqRunType");
 	    String numberSequencingCyclesAllowed = numberSequencingCyclesAllowedMap.get(numberSequencingCyclesAllowedKey);
-	    n.setAttribute("idNumberSequencingCyclesAllowed", numberSequencingCyclesAllowed);
+	    n.setAttribute("idNumberSequencingCyclesAllowed", numberSequencingCyclesAllowed == null ? "" : numberSequencingCyclesAllowed);
     }
     
     n.setAttribute("labName", theLabName);
