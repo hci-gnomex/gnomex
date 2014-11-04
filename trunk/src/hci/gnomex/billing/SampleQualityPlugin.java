@@ -11,11 +11,13 @@ import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -48,7 +50,15 @@ public class SampleQualityPlugin implements BillingPlugin {
       return billingItems;
     }
     
-
+    // skip qc billing if request category property indicates this.  Note this was introduced since Brian includes qc billing in lib prep for illumina.
+    if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+      String skipQC = pdh.getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_QC_IN_LIB_PREP);
+      if (skipQC != null && skipQC.equals("Y")) {
+        return billingItems;
+      }
+    }
+    
     // Count up number of samples for each codeBioanalyzerChipType
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();

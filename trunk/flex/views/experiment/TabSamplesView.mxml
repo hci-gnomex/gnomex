@@ -717,7 +717,7 @@
 								reqdAnnotationsEntered(sample) ) {
 								
 								if (!parentDocument.isEditState() &&
-									parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
+									parentDocument.sampleSetupView.applicationHasChipTypes()) {
 									if (isEntered(sample, "@codeBioanalyzerChipType")) {
 										completeCount++;       				
 									} 
@@ -1165,9 +1165,10 @@
 					this.otherOrganismCol.visible = false;
 					
 					if (parentDocument.isEditState()) {
-						chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
+						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', parentDocument.request.@codeApplication);
+						chipTypeColumn.visible = application.@hasChipTypes == 'Y' ? true : false;		
 					} else {
-						chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState' ? true : false;
+						chipTypeColumn.visible = parentDocument.sampleSetupView.applicationHasChipTypes();
 					}
 					labelColumn.visible = false;
 					
@@ -1307,11 +1308,24 @@
 				}
 				
 			}
+			
+			private function filterChipTypeList(item:Object):Boolean {
+				if (parentDocument == null || parentDocument.request.@codeApplication == null || parentDocument.request.@codeApplication == '') {
+					return false;
+				}
+				var codeApplication:String = parentDocument.request.@codeApplication;
+				if (item.@value == "" || item.@isActive != 'Y' || item.@codeApplication != codeApplication) {
+					return false;
+				}
+				
+				return true;
+			}  
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
 	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 	<mx:XMLList id="barcodeList"/>
+	<mx:XMLListCollection id="filteredChipTypeList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry}" filterFunction="filterChipTypeList" />
 	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">

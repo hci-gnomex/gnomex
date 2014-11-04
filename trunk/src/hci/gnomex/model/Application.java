@@ -39,6 +39,7 @@ public class Application extends DictionaryEntry implements Serializable {
   private String onlyForLabPrepped;
   private Integer samplesPerBatch;
   private Integer idCoreFacility;
+  private String hasChipTypes;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -176,5 +177,14 @@ public class Application extends DictionaryEntry implements Serializable {
   
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
+  }
+  
+  public String getHasChipTypes() {
+    return hasChipTypes;
+  }
+
+  
+  public void setHasChipTypes(String hasChipTypes) {
+    this.hasChipTypes = hasChipTypes;
   }
 }

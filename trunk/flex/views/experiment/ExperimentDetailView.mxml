@@ -951,7 +951,8 @@
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
 						otherSamplePrepMethodCol.visible = true;
-						chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
+						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
+						chipTypeCol.visible = (application != null && application.@hasChipTypes == 'Y' ? true : false);
 						concentrationUnitCol.visible = true;
 						plateNameCol.visible = false;
 						wellNameCol.visible = false;
