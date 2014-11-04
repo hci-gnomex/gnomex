@@ -5,6 +5,18 @@
 		   xmlns:renderers="views.renderers.*"
 		   width="100%" height="100%" show="{init();}" >
 	
+	<mx:HTTPService  
+		id="getQCChipTypePriceList" 
+		url="GetQCChipTypePriceList.gx"
+		destination="getQCChipTypePriceList" 
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetQCChipTypePriceList(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get QC Chip Type price list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.Sort;
@@ -27,11 +39,14 @@
 			public var configuredCodeRequestCategory:String = "";
 			private var configuredEditState:String = "";
 			
-			public var selectedIdLab:String = null;
-			public var selectedCodeRequestCategory:String = null;
-			private var loadedIdLab:String = null;
-			public var loadedCodeRequestCategory:String = null;
-			private var priceMap:Dictionary = new Dictionary();
+			private var loadedPriceIdLab:String = "";
+			private var loadedPriceCodeRequestCategory:String = "";
+			private var selectedPriceIdLab:String = "";
+			private var selectedPriceCodeRequestCategory:String = "";
+			private var selectedQCApplication:Object = null;
+			[Bindable]
+			private var filteredChipTypeList:XMLListCollection = null;
+			private var priceMap:Dictionary = null;
 			
 			private function init():void {
 				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
@@ -47,7 +62,15 @@
 					initIllumina();
 				}
 				if ( qcInstructions != null ) {
-					qcInstructions.text = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS);
+					var qcInstText:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory,parentApplication.PROPERTY_QC_INSTRUCTIONS);
+					if (qcInstText != null && qcInstText != '') {
+						qcInstructions.text = qcInstText;
+						hbox5.visible = true;
+						hbox5.includeInLayout = true;
+					} else {
+						hbox5.visible = false;
+						hbox5.includeInLayout = false;
+					}
 				}
 				
 				this.pickSequenomType();
@@ -61,6 +84,23 @@
 				//Since old values are not cleared out when creating second experiment in same session
 				//Check to make sure that the old values are valid enough to enable the next button right away.
 				parentDocument.enableNextButtons();
+			}
+			
+			public function initQC():void {
+				this.currentState = 'QCSetupState';
+				this.chipTypeVBox.visible = false;
+				this.chipTypeVBox.includeInLayout = false;
+				this.selectedQCApplication = null;
+				this.loadedPriceIdLab = "";
+				this.loadedPriceCodeRequestCategory = "";
+			}
+			
+			private function buildChipTypeKey(obj:Object):String {
+				var key:String = "";
+				if (obj != null) {
+					key = obj.@codeApplication.toString() + "&" + obj.@codeBioanalyzerChipType.toString();
+				}
+				return key;
 			}
 			
 			public function setPrimerDefaults():void {
@@ -91,9 +131,16 @@
 				}
 			}
 			
+			public function applicationHasChipTypes():Boolean {
+				if (selectedQCApplication == null || selectedQCApplication.@hasChipTypes != 'Y') {
+					return false;
+				} else {
+					return true;
+				}
+			}
 			public function getSelectedCodeBioanalyzerChipType():String {
 				var selectedCode:String = '';
-				if (this.currentState == 'QCSetupBioanalyzerState') {
+				if (applicationHasChipTypes()) {
 					for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
 						if (item.@isSelected != null && item.@isSelected == "true") {
 							selectedCode = item.@value;
@@ -306,7 +353,7 @@
 						
 						// Only need to check if chip type selected if this is 
 						// a bioanalyzer qc request.
-						if (this.currentState == 'QCSetupBioanalyzerState') {
+						if (applicationHasChipTypes()) {
 							for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
 								if (chipType.@isSelected == "true") {
 									isComplete = true;
@@ -600,19 +647,22 @@
 				this.checkSampleSetupCompleteness();
 			}
 			
-			private function pickQCApp():void {
-				if (this.radioGroupQCApp.selectedValue != null && this.radioGroupQCApp.selectedValue == "BIOAN") {
-					this.currentState = "QCSetupBioanalyzerState";
+			private function pickQCApp(evt:Event):void {
+				this.selectedQCApplication = RadioButton(evt.currentTarget).getRepeaterItem();
+				if (applicationHasChipTypes()) {
+					this.chipTypeVBox.visible = true;
+					this.chipTypeVBox.includeInLayout = true;
 					this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
+					filteredChipTypeList.refresh();
 				} else {
-					this.currentState = "QCSetupState";
+					this.chipTypeVBox.visible = false;
+					this.chipTypeVBox.includeInLayout = false;
 					this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
 				}
 				
 				if (this.radioGroupQCApp.selectedValue != null) {
 					this.qcAppBox.styleName = 'normalBox';
-					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupQCApp.selectedValue);
-					this.parentDocument.applicationName = application.@display;
+					this.parentDocument.applicationName = selectedQCApplication.@display;
 				} else {
 					this.qcAppBox.styleName = 'requiredBox';
 					this.parentDocument.applicationName = '';
@@ -1277,6 +1327,59 @@
 					}
 				}
 			}
+			
+			private function filterChipTypeList(item:Object):Boolean {
+				if (selectedQCApplication == null) {
+					return false;
+				}
+				var codeApplication:String = this.selectedQCApplication.@codeApplication;
+				if (item.@value == "" || item.@price == '' || item.@isActive != 'Y' || item.@codeApplication != codeApplication) {
+					return false;
+				}
+				
+				return true;
+			}  
+			
+			public function loadPriceList(idLab:String, codeRequestCategory:String):void {
+				if (idLab != null && codeRequestCategory != null && (loadedPriceIdLab != idLab || loadedPriceCodeRequestCategory != codeRequestCategory)) {
+					priceMap = new Dictionary();
+					var parms:Object = new Object();
+					parms.idLab = idLab;
+					parms.codeRequestCategory = codeRequestCategory;
+					getQCChipTypePriceList.send(parms);
+					selectedPriceIdLab = idLab;
+					selectedPriceCodeRequestCategory = codeRequestCategory;
+				}
+			}
+			
+			private function onGetQCChipTypePriceList(event:ResultEvent):void {
+				priceMap = new Dictionary();
+				for each (var price:Object in getQCChipTypePriceList.lastResult.Price) {
+					var key:String = buildChipTypeKey(price);
+					priceMap[key] = currencyFormatter.format(price.@price.toString());
+				}
+				
+				loadedPriceIdLab = selectedPriceIdLab;
+				loadedPriceCodeRequestCategory = selectedPriceCodeRequestCategory;
+				initChipTypeList();
+			}
+			
+			private function initChipTypeList():void {
+				filteredChipTypeList = new XMLListCollection();
+				for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.BioanalyzerChipType')) {
+					var item:Object = i.copy();
+					var key:String = buildChipTypeKey(item);
+					if (priceMap != null && priceMap[key] != null) {
+						item.@price = priceMap[key];
+					} else {
+						item.@price = "";
+					}
+					
+					filteredChipTypeList.addItem(item);
+				}
+				filteredChipTypeList.filterFunction = filterChipTypeList;
+				filteredChipTypeList.refresh();
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
@@ -1414,13 +1517,33 @@
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
-					<mx:HBox width="100%" horizontalGap="0" id="hbox4">
-					</mx:HBox>
+					<mx:VBox width="100%" horizontalGap="0" id="chipTypeVBox">
+						<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bioanalyzer Chip Type Help"
+										  label="(5) Select a Bioanalyzer Chip Type." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
+						<mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
+							<mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
+								<mx:dataProvider>{filteredChipTypeList}</mx:dataProvider>
+								<mx:columns>
+									<mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
+													   width="20" 
+													   editable="true"                        	
+													   dataField="@isSelected" 
+													   editorDataField="selected"
+													   itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
+									<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
+									<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
+									<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+									<mx:DataGridColumn headerText="Cost per Sample" dataField="@price"/>
+									<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+									
+								</mx:columns>
+							</mx:DataGrid>
+						</mx:HBox>
+					</mx:VBox>
 					<mx:HBox width="100%" horizontalAlign="center"  id="hbox5">
 						<mx:HBox borderStyle="none" backgroundColor="#ffffff" width="90%" verticalAlign="middle" 
 								 horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="5">
 							<mx:Text width="100%" id="qcInstructions" styleName="submitNote">									
-								<mx:text>{parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility,parentApplication.PROPERTY_QC_INSTRUCTIONS)}</mx:text>
 							</mx:Text>
 						</mx:HBox>
 					</mx:HBox>
@@ -1448,7 +1571,7 @@
 											 paddingTop="0" paddingBottom="0"
 											 value="{qcAppRepeater.currentItem.@value}"
 											 groupName="radioGroupQCApp"
-											 click="{pickQCApp()}"/>
+											 click="{pickQCApp(event)}"/>
 						</mx:Repeater>
 					</mx:VBox>
 					
@@ -1511,33 +1634,6 @@
 			
 		</mx:State>
 		<mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
-		</mx:State>
-		<mx:State name="QCSetupBioanalyzerState" basedOn="QCSetupState">
-			<mx:AddChild relativeTo="{hbox4}" position="lastChild">
-				<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bioanalyzer Chip Type Help"
-								  label="(5) Select a Bioanalyzer Chip Type." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox5}" position="before">
-				<mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
-					<mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
-						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' &amp;&amp; @costPerSample != &quot;&quot; &amp;&amp; @isActive == 'Y')}</mx:dataProvider>
-						<mx:columns>
-							<mx:DataGridColumn id = "isSelectedChipType" headerText=" " 
-											   width="20" 
-											   editable="true"                        	
-											   dataField="@isSelected" 
-											   editorDataField="selected"
-											   itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
-							<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
-							<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
-							<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
-							<mx:DataGridColumn headerText="Cost per Sample" dataField="@costPerSample"/>
-							<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
-							
-						</mx:columns>
-					</mx:DataGrid>
-				</mx:HBox>
-			</mx:AddChild>
 		</mx:State>
 		<mx:State name="MicroarrayAmendState">
 			<mx:SetProperty target="{label7}" name="label">

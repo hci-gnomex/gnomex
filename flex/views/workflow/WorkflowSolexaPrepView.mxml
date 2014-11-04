@@ -331,10 +331,6 @@
         } 
 
            
-		private function getBioanalyzerChipType(item:Object,col:DataGridColumn):String
-        {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@seqPrepQualCodeBioanalyzerChipType);
-        }
 		private function getSeqLibProtocol(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);

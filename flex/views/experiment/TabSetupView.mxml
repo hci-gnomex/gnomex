@@ -347,13 +347,6 @@
 				}
 				setOrganismValidatorSource();
 
-				//Reset the following two variables on seqSetup1View so that it will show updated Pricing info in case the Pricing scheme changed for the lab.
-				//(ie: From internal pricing to external commercial pricing)
-				if (parentDocument.sampleSetupView != null) {
-					parentDocument.sampleSetupView.configuredCodeRequestCategory = ""; 
-					parentDocument.sampleSetupView.loadedCodeRequestCategory = "";
-				}
-				
 				parentDocument.filteredLabList.refresh();
 			}
 			

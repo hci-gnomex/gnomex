@@ -1459,6 +1459,7 @@
 		<property name="samplesPerBatch" column="samplesPerBatch"
 			type="integer" />
 		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
+		<property name="hasChipTypes" column="hasChipTypes" type="string" />
 	</class>
 
 	<!-- hci.gnomex.model.ApplicationTheme -->
@@ -1528,12 +1529,12 @@
 			type="string" />
 		<property name="maxSampleBufferStrength" column="maxSampleBufferStrength"
 			type="string" />
-		<property name="costPerSample" column="costPerSample" type="big_decimal" />
 		<property name="sampleWellsPerChip" column="sampleWellsPerChip"
 			type="integer" />
 		<property name="codeConcentrationUnit" column="codeConcentrationUnit"
 			type="string" />
 		<property name="isActive" column="isActive" type="string" />
+		<property name="codeApplication" column="codeApplication" type="string" />
 	</class>
 
 	<!-- hci.gnomex.model.BillingChargeKind -->
