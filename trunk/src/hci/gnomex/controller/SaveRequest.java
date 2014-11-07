@@ -387,25 +387,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
 
 
-        // Only admins should be deleting samples unless dna sequencing then based on status.
-        if (this.samplesDeleted.size() > 0) {
-          if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
-            this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
-            throw new RollBackCommandException("Insufficient permission to delete samples.");
-          } else {
-
-            // delete wells for deleted samples
-            deleteWellsForDeletedSamples(sess);
-
-            for(Iterator i = samplesDeleted.iterator(); i.hasNext();) {
-              Sample s = (Sample)i.next();
-              sess.delete(s);
-            }
-
-          }
-        }
-
-
         // Save the samples
         saveSamples(sess);
         requestParser.getRequest().setSamples(samples);
@@ -521,6 +502,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         Map existingLanesSaved = saveSequenceLanes(this.getSecAdvisor(), requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
 
         // Delete sequence lanes (edit request only)
+        ArrayList samplesNotToDelete = new ArrayList();
         if (!requestParser.isAmendRequest()) {
           for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
             SequenceLane lane = (SequenceLane)i.next();
@@ -529,19 +511,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
               if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
                 this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
-                canDelete = false;
+                canDeleteLane = false;
               }
 
               buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
               List analysis = sess.createQuery(buf.toString()).list();
               if (analysis != null && analysis.size() > 0) {
-                canDelete = false;
+                canDeleteLane = false;
                 this.addInvalidField("deleteLaneError1", "Cannot delete lane " +
                     lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
 
               }
               if (lane.getFlowCellChannel() != null) {
-                canDelete = false;
+                canDeleteLane = false;
                 this.addInvalidField("deleteLaneError2", "Cannot delete lane " +
                     lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
               }
@@ -549,7 +531,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
                 List workItems = sess.createQuery(buf.toString()).list();
                 if (workItems != null && workItems.size() > 0) {
-                  canDelete = false;
+                  canDeleteLane = false;
                   this.addInvalidField("deleteLaneError3", "Cannot delete lane " +
                       lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
                 }
@@ -559,7 +541,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if (canDeleteLane) {
                 sequenceLanesDeleted.add(lane);
                 sess.delete(lane);
-
+              } else {
+                /*If it is a sample we can't delete because of linked data we need to add the idSample back to the list of idSamples
+                and we need to add the sample to the sample map, this way the samples idRequest won't be set to null in the following 
+                code starting on line 558*/
+                if(!requestParser.getSampleIds().contains(lane.getIdSample())) {
+                  Sample s = (Sample)sess.load(Sample.class, lane.getIdSample());
+                  samplesNotToDelete.add(s);
+                  for(Iterator it = samplesDeleted.iterator(); it.hasNext();) {
+                    Sample sd = (Sample)it.next();
+                    if(sd.getIdSample() == s.getIdSample()) {
+                      samplesDeleted.remove(s);
+                      break;
+                    }
+                  }
+                }
               }
 
 
@@ -567,6 +563,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
 
         }
+
+        //Add the samples we can't delete back to the sample set on the request
+        for(Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
+          Sample s = (Sample)i.next();
+          requestParser.getRequest().getSamples().add(s);
+        }
+
+        // Only admins should be deleting samples unless dna sequencing then based on status.
+        if (this.samplesDeleted.size() > 0) {
+          if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
+            this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
+            throw new RollBackCommandException("Insufficient permission to delete samples.");
+          } else {
+
+            // delete wells for deleted samples
+            deleteWellsForDeletedSamples(sess);
+
+            for(Iterator i = samplesDeleted.iterator(); i.hasNext();) {
+              Sample s = (Sample)i.next();
+              sess.delete(s);
+            }
+
+          }
+        }
+
 
         // Set the seq lib treatments
         Set seqLibTreatments = new TreeSet();
@@ -1130,26 +1151,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
 
-    setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample,
-        (Map)requestParser.getSampleAnnotationMap().get(idSampleString),
-        requestParser.getOtherCharacteristicLabel(), propertyMap);
-    addStandardSampleProperties(sess, requestParser, idSampleString, sample);
+    if(requestParser.getSampleAnnotationMap() != null && propertyMap != null) {
+      setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample,
+          (Map)requestParser.getSampleAnnotationMap().get(idSampleString),
+          requestParser.getOtherCharacteristicLabel(), propertyMap);
+      addStandardSampleProperties(sess, requestParser, idSampleString, sample);
 
-    // Delete the existing sample treatments
-    if (!isNewSample && sample.getTreatmentEntries() != null) {
-      for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
-        TreatmentEntry entry = (TreatmentEntry)i.next();
-        sess.delete(entry);
+      // Delete the existing sample treatments
+      if (!isNewSample && sample.getTreatmentEntries() != null) {
+        for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
+          TreatmentEntry entry = (TreatmentEntry)i.next();
+          sess.delete(entry);
+        }
       }
-    }
 
-    // Add treatment
-    String treatment = (String)requestParser.getSampleTreatmentMap().get(idSampleString);
-    if(requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
-      TreatmentEntry entry = new TreatmentEntry();
-      entry.setIdSample(sample.getIdSample());
-      entry.setTreatment(treatment);
-      sess.save(entry);
+      // Add treatment
+      String treatment = (String)requestParser.getSampleTreatmentMap().get(idSampleString);
+      if(requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
+        TreatmentEntry entry = new TreatmentEntry();
+        entry.setIdSample(sample.getIdSample());
+        entry.setTreatment(treatment);
+        sess.save(entry);
+      }
     }
 
 
@@ -1192,7 +1215,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (!isNewSample) {
       for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
         PropertyEntry entry = (PropertyEntry)i.next();
-        if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
+        if (propertiesToDelete != null && propertiesToDelete.get(entry.getIdProperty()) != null) {
           for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
             PropertyEntryValue v = (PropertyEntryValue)i1.next();
             sess.delete(v);
