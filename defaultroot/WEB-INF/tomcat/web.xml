@@ -297,6 +297,13 @@
       hci.gnomex.controller.ApproveUser
     </servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>ApproveBillingAccount</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.ApproveBillingAccount
+    </servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>CreateAnalysisServlet</servlet-name>
@@ -518,6 +525,11 @@
   <servlet-mapping>
     <servlet-name>ApproveUser</servlet-name>
     <url-pattern>/ApproveUser.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ApproveBillingAccount</servlet-name>
+    <url-pattern>/ApproveBillingAccount.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
