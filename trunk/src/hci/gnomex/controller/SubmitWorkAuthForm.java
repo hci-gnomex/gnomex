@@ -38,9 +38,9 @@ import org.jdom.input.SAXBuilder;
 
 
 public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubmitWorkAuthForm.class);
 
@@ -48,26 +48,27 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   private BillingAccount                 billingAccount;
   private String                         serverName;
   private String                         launchAppURL;
+  private StringBuffer                   requestURL;
   private Lab                            lab;
   private CoreFacility                   facility;
   private LabCoreFacilityParser             coreFacilityParser;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     billingAccountScreen = new BillingAccount();
     HashMap errors = this.loadDetailObject(request, billingAccountScreen);
     this.addInvalidFields(errors);
-    
+
     if (request.getParameter("totalDollarAmountDisplay") != null && !request.getParameter("totalDollarAmountDisplay").equals("")) {
       String tda = request.getParameter("totalDollarAmountDisplay");
       tda = tda.replaceAll("\\$", "");
       tda = tda.replaceAll(",", "");
       billingAccountScreen.setTotalDollarAmount(new BigDecimal(tda));
     }
-    
+
     String coreFacilitiesXMLString = "";
     if (request.getParameter("coreFacilitiesXMLString") != null && !request.getParameter("coreFacilitiesXMLString").equals("")) {
       coreFacilitiesXMLString = request.getParameter("coreFacilitiesXMLString");
@@ -77,13 +78,13 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         Document coreFacilitiesDoc = sax.build(reader);
         coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
-  
+
       } catch (JDOMException je ) {
         log.error( "Cannot parse coreFacilitiesXMLString", je );
         this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
       }
     }
-    
+
     try {
       launchAppURL = this.getLaunchAppURL(request);  
     } catch (Exception e) {
@@ -91,17 +92,18 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     }
 
     serverName = request.getServerName();
+    this.requestURL = request.getRequestURL();
 
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
+
       lab = (Lab)sess.load(Lab.class, billingAccountScreen.getIdLab());
-      
+
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       String configurable = pdh.getProperty(PropertyDictionary.CONFIGURABLE_BILLING_ACCOUNTS);
       boolean hasActivity = (billingAccountScreen.getAccountNumberActivity() != null && billingAccountScreen.getAccountNumberActivity().length() > 0);
@@ -114,7 +116,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             ((billingAccountScreen.getAccountNumberProject() == null || billingAccountScreen.getAccountNumberProject().equals("")) && (billingAccountScreen.getAccountNumberActivity() == null || billingAccountScreen.getAccountNumberActivity().length() !=5)) ||
             ((billingAccountScreen.getAccountNumberActivity() == null || billingAccountScreen.getAccountNumberActivity().equals("")) && (billingAccountScreen.getAccountNumberProject() == null || billingAccountScreen.getAccountNumberProject().length() !=8)) ||
             billingAccountScreen.getExpirationDate() == null || billingAccountScreen.getStartDate() == null) {
-          
+
           this.addInvalidField("Billing Account Error", "Please make sure all fields are entered and that the correct number of digits are used for each account number field.");
           this.setResponsePage(this.ERROR_JSP);
         }
@@ -122,80 +124,82 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
       if (this.isValid()) {
         if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_WORK_AUTH_FORMS)) {
-  
+
           billingAccountScreen.setSubmitterUID(this.getSecAdvisor().getUID());
           billingAccountScreen.setIsApproved("N");
           billingAccountScreen.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-          
-          
+
+
           if (coreFacilityParser != null) {
             coreFacilityParser.parse(sess);
           }
-          
+
           for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
             Integer idCoreFacility = (Integer)i.next();
             facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
-          
+
             billingAccount = new BillingAccount();
             billingAccount.copyFieldsFrom( billingAccountScreen );
-            
+
             billingAccount.setIdBillingAccount( null );
             billingAccount.setIdCoreFacility( idCoreFacility );
-            
+
             sess.save(billingAccount);
-            
+
             sess.flush();
-    
+
             String emailWarning = "";
             try {
               this.sendConfirmationEmail(sess, facility);
             } catch (MessagingException me) {
               emailWarning = "**Due to an invalid email address, GNomEx was unable to send an email notifying " + me.getMessage() + " that a billing account was submitted.";
             }
-    
+
             this.xmlResult = "<SUCCESS idBillingAccount=\"" + billingAccount.getIdBillingAccount() + "\" coreFacilityName=\"" + facility.getDisplay() + "\" emailWarning=\"" + emailWarning + "\"" + "/>";
-                    
+
           }
-          
-          
+
+
           setResponsePage(this.SUCCESS_JSP);
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to submit billing account form.");
           setResponsePage(this.ERROR_JSP);
         }
       }
-      
+
     }catch (Exception e){
       log.error("An exception has occurred in SubmitWorkAuthForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
 
   private void sendConfirmationEmail(Session sess, CoreFacility facility) throws NamingException, MessagingException {
     StringBuffer invalidEmails = new StringBuffer();
-    
+
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
-    
-    String launchBillingAccountDetail = Util.addURLParameter(this.launchAppURL, "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab());  
-    
+
+    String launchBillingAccountDetail = Util.addURLParameter(this.launchAppURL, "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab());
+    String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
+    approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approveAccount=Y";
+
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer coreNote= new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " submitted";    
-    String coreSubject      = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " pending";    
-    
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " submitted";    
+    String coreSubject      = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " pending";    
+
     boolean send = false;
     boolean testEmail = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
@@ -204,12 +208,12 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error(emailRecipients);
     }
-    
+
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (facilityEmail == null || facilityEmail.equals("")) {
       facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     }
-      
+
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -220,21 +224,22 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
       emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
-    
+
     submitterNote.append("The following billing account " +
         "has been submitted to the " + facility.getDisplay() + " Core" +  
         ".  After the account information is reviewed and approved, " +
         "you will be notified by email that experiment " +
-        "requests can now be submitted against this account in GNomEx.");
+    "requests can now be submitted against this account in GNomEx.");
 
     coreNote.append("The following billing account " +
         "has been submitted to the " + facility.getDisplay() + " Core" +  
-        " and is pending approval in GNomEx " + launchBillingAccountDetail + ".");
+        " and is pending approval.  You can quickly approve this account by clicking <a href=" + approveBillingAccountURL + ">here</a> or you can view the account in more detail in " +
+        "<a href=" + launchBillingAccountDetail + ">GNomEx</a>.");
 
     body.append("<br />");
     body.append("<br />");
     body.append("<table border=0>");
-    body.append("<tr><td>Lab:</td><td>" + lab.getName() + "</td></tr>");
+    body.append("<tr><td>Lab:</td><td>" + lab.getName(false, true) + "</td></tr>");
     body.append("<tr><td>Core Facility:</td><td>" + facility.getDisplay() + "</td></tr>");
     body.append("<tr><td>Account:</td><td>" + billingAccount.getAccountName() + "</td></tr>");
     body.append("<tr><td>Chartfield:</td><td>" + billingAccount.getAccountNumber() + "</td></tr>");
@@ -250,9 +255,9 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     body.append("<tr><td>Submitter UID:</td><td>" + billingAccount.getSubmitterUID() + "</td></tr>");
     body.append("<tr><td>Submitter Email:</td><td>" + billingAccount.getSubmitterEmail() + "</td></tr>");
     body.append("</table>");
-    
+
     String replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    
+
     if (send) {
       if(!MailUtil.isValidEmail(replyEmail)){
         replyEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
@@ -270,14 +275,14 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         log.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
       }
-      
+
       // Email lab contact email address(es)
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
         String contactEmail = lab.getWorkAuthSubmitEmail();
         if(!MailUtil.isValidEmail(contactEmail)){
           log.error("Invalid email " + contactEmail);
         }
-        
+
         if (testEmail) {
           emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>"; 
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
@@ -291,7 +296,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
       }
 
-      
+
       // Email core facility
       if (!facilityEmail.equals("")) {
         if(!MailUtil.isValidEmail(facilityEmail)){
@@ -308,11 +313,11 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
             emailInfo + coreNote.toString() + body.toString(),
             true);           
       }
-      
-     
+
+
 
     }
-    
+
   }
 
 
