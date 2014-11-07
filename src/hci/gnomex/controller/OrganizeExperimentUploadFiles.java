@@ -57,6 +57,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
   private Document                     filesToUnlinkDoc;
   private String                       filesToUnlinkXMLString;
   private List                         directoryFilesToUnlink = new ArrayList();
+  private List                         deletedSefEntries = new ArrayList();
 
   private String                       serverName;
 
@@ -368,6 +369,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                       }
 
                       if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                        deletedSefEntries.add(sef.getIdSampleExperimentFile());
                         sess.delete(sef);
                       } else {
                         sess.save(sef);
@@ -416,6 +418,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   }
 
                   if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                    deletedSefEntries.add(sef.getIdSampleExperimentFile());
                     sess.delete(sef);
                   } else {
                     sess.save(sef);
@@ -448,6 +451,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   }
 
                   if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
+                    deletedSefEntries.add(sef.getIdSampleExperimentFile());
                     sess.delete(sef);
                   } else {
                     sess.update(sef);
@@ -516,11 +520,17 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 if(seqRunNode.getAttributeValue("idSampleExperimentFile") != null) {
                   idSampleExperimentFile = Integer.parseInt(seqRunNode.getAttributeValue("idSampleExperimentFile"));
                 }
+
+                //If we have already deleted the sef in above code.  Don't bother doing anything else.
+                if(deletedSefEntries.contains(idSampleExperimentFile)) {
+                  continue;
+                }
+
                 seqRunNumber = seqRunNumber + 1;
                 if(idSampleExperimentFile != null && !idSampleExperimentFile.equals("")) {
                   sef = (SampleExperimentFile)sess.load(SampleExperimentFile.class, idSampleExperimentFile);
                 }
-                Integer idExperimentFile = null;
+
                 fileCount = 1;
                 for(Iterator l = seqRunNode.getChildren().iterator(); l.hasNext();) {
                   Element expFile = (Element)l.next();
@@ -528,10 +538,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
                   if(expFileDictionary.containsKey(expFile.getAttributeValue("zipEntryName").replace("\\", "/"))){ //Is it in the dictionary?  Use it
                     ef = (ExperimentFile)expFileDictionary.get(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
-                    idExperimentFile = ef.getIdExperimentFile();
                   } else if(expFile.getAttributeValue("idExperimentFile") != null && !expFile.getAttributeValue("idExperimentFile").equals("")) {
                     ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
-                    idExperimentFile = ef.getIdExperimentFile();
                   } else {
                     java.util.Date d = new java.util.Date();
                     ef.setIdRequest(this.idRequest);
