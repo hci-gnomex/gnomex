@@ -198,6 +198,7 @@
 				this.theViews.selectedIndex = 0;
 				this.theTabs.selectedIndex = 0;
 				this.theTabsIllumina.selectedIndex = 0;
+				this.theTabsQC.selectedIndex = 0;
 			}
 			
 			private function removePlatform():void {
@@ -252,6 +253,11 @@
 						sampleTypeIllumina.init(state);
 						experimentTypeIllumina.init(state);
 						illuminaSeq.init(state);
+					} else if (state.isQC) {
+						tabStack.selectedIndex = 2;
+						experimentPlatformQC.init(state);
+						sampleTypeQC.init(state);
+						experimentTypeQC.init(state);
 					} else {
 						tabStack.selectedIndex = 0;
 						experimentPlatform.init(state);
@@ -355,6 +361,11 @@
 							<experimentplatform:TabSampleType id="sampleTypeIllumina"/>
 							<experimentplatform:TabExperimentTypeIllumina id="experimentTypeIllumina"/>
 							<experimentplatform:TabIlluminaSeq id="illuminaSeq"/>
+						</mx:TabNavigator>
+						<mx:TabNavigator  id="theTabsQC" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
+							<experimentplatform:TabExperimentPlatform id="experimentPlatformQC"/>
+							<experimentplatform:TabSampleType id="sampleTypeQC"/>
+							<experimentplatform:TabExperimentTypeQC id="experimentTypeQC"/>
 						</mx:TabNavigator>
 					</mx:ViewStack>
 					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">

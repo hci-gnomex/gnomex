@@ -9,6 +9,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationTheme;
 import hci.gnomex.model.ApplicationType;
+import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
@@ -80,6 +81,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
   }
 
+  @SuppressWarnings("rawtypes")
   public Command execute() throws RollBackCommandException {
 
     try {
@@ -95,9 +97,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       List<ApplicationTheme> emptyThemes = this.getEmptyApplicationThemes(sess);
       Map<String, Integer> seqLibProtocolToBarcodeSchemeMap = this.getSeqLibProtocolBarCodeSchemeMap(sess);
-      Map<String, Price> applicationToLibPrepPriceMap = getApplicationToLibPrepPriceMap(sess);
+      Map<String, Price> illuminaApplicationToLibPrepPriceMap = getIlluminaApplicationToLibPrepPriceMap(sess);
       Map<String, Price> seqOptionsToPriceMap = getSeqOptionsToPriceMap(sess);
       Map<String, String> requestCategoryToPriceSheetMap = getRequestCategoryToPriceSheetMap(sess);
+      Map<String, Price> qcApplicationPriceMap = getQCApplicationPriceMap(sess);
+      Map<String, Price> qcChipTypePriceMap = getQCChipTypePriceMap(sess); 
+      Map<String, List<BioanalyzerChipType>> qcApplicationToChipTypeMap = getQCApplicationToChipTypeMap(sess);
       for(Iterator i = platforms.iterator(); i.hasNext();) {
         RequestCategory rc = (RequestCategory)i.next();
         this.getSecAdvisor().flagPermissions(rc);
@@ -164,9 +169,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("selectedInOtherCategory", "N");
           applicationNode.setAttribute("idBarcodeSchemeA", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "A"));
           applicationNode.setAttribute("idBarcodeSchemeB", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "B"));
-          applicationNode.setAttribute("unitPriceInternal", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_INTERNAL));
-          applicationNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_EXTERNAL_ACADEMIC));
-          applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(applicationToLibPrepPriceMap, a, rc, this.PRICE_EXTERNAL_COMMERCIAL));
+          if (rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
+            applicationNode.setAttribute("unitPriceInternal", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_INTERNAL));
+            applicationNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_EXTERNAL_ACADEMIC));
+            applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_EXTERNAL_COMMERCIAL));
+          } else if (rct.getCodeRequestCategoryType() != null && rct.getCodeRequestCategoryType().equals("QC")) {
+            applicationNode.setAttribute("unitPriceInternal", getUnitPrice(qcApplicationPriceMap, a, rc, PRICE_INTERNAL));
+            applicationNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(qcApplicationPriceMap, a, rc, PRICE_EXTERNAL_ACADEMIC));
+            applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(qcApplicationPriceMap, a, rc, PRICE_EXTERNAL_COMMERCIAL));
+            applicationNode.setAttribute("hasChipTypes", a.getHasChipTypes() == null ? "" : a.getHasChipTypes());
+          }
           
           List<Element> rcAppList = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
           if (rcAppList != null) {
@@ -177,6 +189,22 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
                 applicationNode.setAttribute("selectedInOtherCategory", "Y");
               }
               applicationNode.addContent(rcAppNode);
+            }
+          }
+          // Add any bioanalyzer chip types
+          List<BioanalyzerChipType> chipTypeList = qcApplicationToChipTypeMap.get(a.getCodeApplication());
+          if (chipTypeList != null && chipTypeList.size() > 0) {
+            Element chipTypes = new Element("ChipTypes");
+            applicationNode.addContent(chipTypes);
+            for(BioanalyzerChipType bct : chipTypeList) {
+              Element chipTypeNode = bct.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+              chipTypeNode.setAttribute("unitPriceInternal", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_INTERNAL));
+              chipTypeNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_ACADEMIC));
+              chipTypeNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_COMMERCIAL));
+              chipTypeNode.setAttribute("unitPriceDisplay", chipTypeNode.getAttributeValue("unitPriceInternal") + "/"
+                                                            + chipTypeNode.getAttributeValue("unitPriceExternalAcademic") + "/"
+                                                            + chipTypeNode.getAttributeValue("unitPriceExternalCommercial"));
+              chipTypes.addContent(chipTypeNode);
             }
           }
         }
@@ -310,6 +338,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private String getUnitPrice(Map<String, Price> seqOptionsToPriceMap, NumberSequencingCyclesAllowed n, RequestCategory rc, String priceType) {
     String key = rc.getCodeRequestCategory() + "\t" + n.getIdNumberSequencingCyclesAllowed().toString();
     return getUnitPrice(seqOptionsToPriceMap.get(key), priceType);
+  }
+
+  private String getUnitPrice(Map<String, Price> priceMap, Application a, BioanalyzerChipType bct, RequestCategory rc, String priceType) {
+    String priceAsString = "";
+    String key = rc.getCodeRequestCategory() + "\t" + a.getCodeApplication() + "\t" + bct.getCodeBioanalyzerChipType();
+    return getUnitPrice(priceMap.get(key), priceType);
   }
 
   private String getUnitPrice(Price p, String priceType) {
@@ -499,7 +533,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     return map;
   }
   
-  private Map<String, Price> getApplicationToLibPrepPriceMap(Session sess) {
+  private Map<String, Price> getIlluminaApplicationToLibPrepPriceMap(Session sess) {
     String queryString = 
         "select rc, p, crit " +
         " from PriceSheet ps " +
@@ -520,6 +554,34 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       
       String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
       map.put(key, price);
+    }
+    
+    return map;
+  }
+  
+  private Map<String, Price> getQCApplicationPriceMap(Session sess) {
+    // Assumes a single price defined for QC
+    String queryString = 
+        "select rc, p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where crit.filter1 is not null and crit.filter2 is null";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    Map<String, Price> map = new HashMap<String, Price>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      RequestCategory requestCategory = (RequestCategory)objects[0];
+      if (requestCategory.isQCRequestCategory()) {
+        Price price = (Price)objects[1];
+        PriceCriteria priceCriteria = (PriceCriteria)objects[2];
+      
+        String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
+        map.put(key, price);
+      }
     }
     
     return map;
@@ -551,21 +613,72 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     return map;
   }
   
-  private Map<String, String> getRequestCategoryToPriceSheetMap(Session sess) {
+  private Map<String, Price> getQCChipTypePriceMap(Session sess) {
     String queryString = 
-        "select rc " +
+        "select rc, p, crit " +
         " from PriceSheet ps " +
         " join ps.requestCategories rc " +
-        " where ps.isActive = 'Y'";
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where crit.filter1 is not null and crit.filter2 is not null";
+    Query query = sess.createQuery(queryString);
+    List l = query.list();
+    Map<String, Price> map = new HashMap<String, Price>();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      RequestCategory requestCategory = (RequestCategory)objects[0];
+      if (requestCategory.isQCRequestCategory()) {
+        Price price = (Price)objects[1];
+        PriceCriteria priceCriteria = (PriceCriteria)objects[2];
+        
+        String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1() + "\t" + priceCriteria.getFilter2();
+        map.put(key, price);
+      }
+    }
+    
+    return map;
+  }
+  
+  private Map<String, String> getRequestCategoryToPriceSheetMap(Session sess) {
+    String queryString = 
+        "select rc.codeRequestCategory, rc.idCoreFacility, COUNT(*) " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " where ps.isActive = 'Y' " +
+        " group by rc.codeRequestCategory, rc.idCoreFacility";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, String> map = new HashMap<String, String>();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
-      RequestCategory rc = (RequestCategory)i.next();
-      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY) != null
-          && PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY) != null) {
-        map.put(rc.getCodeRequestCategory(), rc.getCodeRequestCategory());
+      Object[] row = (Object[])i.next();
+      String codeRequestCategory = (String)row[0];
+      Integer idCoreFacility = (Integer)row[1];
+      Integer cnt = (Integer)row[2];
+      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(idCoreFacility, codeRequestCategory, PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY) != null
+          && PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(idCoreFacility, codeRequestCategory, PropertyDictionary.ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY) != null) {
+        map.put(codeRequestCategory, codeRequestCategory);
+      } else if (cnt.equals(1)) {
+        map.put(codeRequestCategory, codeRequestCategory);
       }
+    }
+    
+    return map;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private Map<String, List<BioanalyzerChipType>> getQCApplicationToChipTypeMap(Session sess) {
+    String queryString = "select ct from BioanalyzerChipType ct where ct.isActive = 'Y' ";
+    Query query = sess.createQuery(queryString);
+    List<BioanalyzerChipType> l = (List<BioanalyzerChipType>)query.list();
+    Map<String, List<BioanalyzerChipType>> map = new HashMap<String, List<BioanalyzerChipType>>(); 
+    for(BioanalyzerChipType bct: l) {
+      List<BioanalyzerChipType> ctl = map.get(bct.getCodeApplication());
+      if (ctl == null) {
+        ctl = new ArrayList<BioanalyzerChipType>();
+        map.put(bct.getCodeApplication(), ctl);
+      }
+      ctl.add(bct);
     }
     
     return map;
