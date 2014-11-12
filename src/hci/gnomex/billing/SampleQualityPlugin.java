@@ -60,6 +60,11 @@ public class SampleQualityPlugin implements BillingPlugin {
     }
     
     // Count up number of samples for each codeBioanalyzerChipType
+    Application application = null;
+    if (request.getCodeApplication() != null) {
+      application = (Application)sess.get(Application.class, request.getCodeApplication());
+    }
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
@@ -72,17 +77,11 @@ public class SampleQualityPlugin implements BillingPlugin {
         }
       }
       
-
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      String application = null;
-      if (request.getCodeApplication() != null) {
-        application = dh.getApplication(request.getCodeApplication());
-      }
       
       if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-        if (application != null && application.indexOf("RNA") >= 0) {
+        if (application != null && application.getCodeApplication().indexOf("RNA") >= 0) {
           filter2 = BioanalyzerChipType.RNA_NANO;
         } else  {
           filter1 = Application.QUBIT_PICOGREEN_QC;
@@ -104,26 +103,23 @@ public class SampleQualityPlugin implements BillingPlugin {
                   request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
         filter1 = Application.DNA_GEL_QC;
       } else if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        if (request.getCodeApplication() != null && request.getCodeApplication().equals(Application.QUBIT_PICOGREEN_QC)) {
-          filter1 = Application.QUBIT_PICOGREEN_QC;
-        } else {
-
-          filter1 = Application.BIOANALYZER_QC;
+        filter1 = application.getCodeApplication(); 
+        filter2 = null;
+        if (application.getHasChipTypes() != null && application.getHasChipTypes().equals("Y")) {
           filter2 = sample.getCodeBioanalyzerChipType();
-          // If we don't have a chip type assigned yet on the sample,
-          // use the default based on the sample type
-          if ( filter1.equals(Application.BIOANALYZER_QC)) {
-            if (filter2 == null || filter2.equals("")) {
-              if (dh.getSampleType(sample).indexOf("RNA") >= 1) {
-                filter2 = BioanalyzerChipType.RNA_NANO;
-              } else {
-                filter2 = BioanalyzerChipType.DNA1000;
-              }
+        }
+        
+        // If we don't have a chip type assigned yet on the sample,
+        // use the default based on the sample type
+        if ( filter1.equals(Application.BIOANALYZER_QC)) {
+          if (filter2 == null || filter2.equals("")) {
+            if (dh.getSampleType(sample).indexOf("RNA") >= 1) {
+              filter2 = BioanalyzerChipType.RNA_NANO;
+            } else {
+              filter2 = BioanalyzerChipType.DNA1000;
             }
           }
-          
         }
-   
       }        
       
 

@@ -663,9 +663,11 @@
 				if (this.radioGroupQCApp.selectedValue != null) {
 					this.qcAppBox.styleName = 'normalBox';
 					this.parentDocument.applicationName = selectedQCApplication.@display;
+					this.parentDocument.request.@codeApplication = selectedQCApplication.@value;
 				} else {
 					this.qcAppBox.styleName = 'requiredBox';
 					this.parentDocument.applicationName = '';
+					this.parentDocument.request.@codeApplication = '';
 				}
 				
 				this.checkSampleSetupCompleteness();

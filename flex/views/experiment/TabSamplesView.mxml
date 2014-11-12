@@ -1172,6 +1172,9 @@
 					}
 					labelColumn.visible = false;
 					
+					// refresh filteredChipTypeList
+					filteredChipTypeList.refresh();
+					chipTypeColumn.itemEditor = views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredChipTypeList, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '');
 				} else {
 					numberSequencingLanesCol.visible = false;
 					sampleOrganismColumn.editable = !isExternal;
@@ -1672,15 +1675,15 @@
 				</mx:AdvancedDataGridColumn> 
 				
 				
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Assay" width="150" dataField="@codeBioanalyzerChipType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredChipTypeList, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
-												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
+								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Assay Help" showEdit="{parentApplication.isAdminState}"
+												  label="Assay" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</util:headerRenderer>
