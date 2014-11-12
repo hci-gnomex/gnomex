@@ -1009,7 +1009,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         return;
       }
       price = new Price();
-      price.setName(app.getApplication());
+      if (chipType != null) {
+        price.setName(chipType.getBioanalyzerChipType());
+      } else {
+        price.setName(app.getApplication());
+      }
       price.setDescription("");
       price.setIdPriceCategory(defaultCategoryId);
       price.setIsActive("Y");

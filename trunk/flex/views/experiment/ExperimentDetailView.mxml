@@ -1797,7 +1797,7 @@
 					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
 					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="105" dataField="@otherSamplePrepMethod"/>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" dataField="@codeBioanalyzerChipType"
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Assay"  width="120" dataField="@codeBioanalyzerChipType"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					
 					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. (ng/uL)" width="80" dataField="@qualCalcConcentration"/>
