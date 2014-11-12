@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationType;
+import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.OligoBarcodeSchemeAllowed;
 import hci.gnomex.model.Price;
@@ -396,7 +397,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     
     Map<String, Price> illuminaLibPrepPriceMap = getIlluminaLibPrepPriceMap(sess, rc);
     Integer idPriceCategoryDefault = getDefaultLibPrepPriceCategoryId(sess, rc);
-    
+    Map<String, Price> qcLibPrepPriceMap = getQCLibPrepPriceMap(sess, rc);
+    Integer idQCPriceCategoryDefault = getDefaultQCLibPrepPriceCategoryId(sess, rc);
+
     //
     // Save applications
     //
@@ -432,6 +435,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       app.setOnlyForLabPrepped(node.getAttributeValue("onlyForLabPrepped"));
       if (app.getOnlyForLabPrepped() == null) {
         app.setOnlyForLabPrepped("Y");
+      }
+      app.setHasChipTypes(node.getAttributeValue("hasChipTypes"));
+      if (app.getHasChipTypes() == null || (!app.getHasChipTypes().equals("Y") && !app.getHasChipTypes().equals("N"))) {
+        app.setHasChipTypes("N");
       }
       app.setApplication(node.getAttributeValue("display"));
       if (app.getIsActive() != null && app.getIsActive().equals("Y") && !node.getAttributeValue("isActive").equals("Y")) {
@@ -536,6 +543,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       
       saveOligoBarcodeSchemesAllowed(sess, rc, app, node, protocolMap);
       saveIlluminaLibPrepPrices(sess, rc, app, node, illuminaLibPrepPriceMap, idPriceCategoryDefault);
+      saveQCLibPrepPrices(sess, rc, app, null, node, qcLibPrepPriceMap, idQCPriceCategoryDefault);
+      saveQCChipTypes(sess, rc, app, node, qcLibPrepPriceMap, idQCPriceCategoryDefault);
       
       sess.flush();
     }
@@ -566,6 +575,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         existingsAssociations = sess.createQuery("SELECT x from RequestCategoryApplication x where codeApplication = '" + application.getCodeApplication() + "'").list();
         for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
           RequestCategoryApplication x = (RequestCategoryApplication)i1.next();
+          sess.delete(x);
+        }
+        existingsAssociations = sess.createQuery("SELECT x from BioanalyzerChipType x where codeApplication = '" + application.getCodeApplication() + "'").list();
+        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
+          BioanalyzerChipType x = (BioanalyzerChipType)i1.next();
           sess.delete(x);
         }
 
@@ -663,6 +677,99 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     return id;
   }
   
+  private void saveQCChipTypes(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> qcLibPrepPriceMap, Integer idQCPriceCategoryDefault) {
+    if (!RequestCategory.isQCRequestCategory(rc.getCodeRequestCategory()) || !app.getHasChipTypes().equals("Y") || !app.getIsActive().equals("Y")) {
+      return;
+    }
+    //
+    // Save BioanalyzerChipTypeRows for QC applications (assays)
+    //
+    String existQueryString = "SELECT x from BioanalyzerChipType x where codeApplication = :codeApp";
+    Query existQuery = sess.createQuery(existQueryString);
+    existQuery.setParameter("codeApp", app.getCodeApplication());
+    List existingChipTypes = existQuery.list();
+    Map<String, BioanalyzerChipType> existMap = new HashMap<String, BioanalyzerChipType>();
+    for(Iterator existIter = existingChipTypes.iterator(); existIter.hasNext();) {
+      BioanalyzerChipType chipType = (BioanalyzerChipType)existIter.next();
+      existMap.put(chipType.getCodeBioanalyzerChipType(), chipType);
+    }
+    
+    Map<String, String> foundChipTypes = new HashMap<String, String>();
+    for (Iterator appIter = node.getChildren().iterator(); appIter.hasNext();) {
+      Element appChild = (Element)appIter.next();
+      if (appChild.getName() == "ChipTypes") {
+        for (Iterator chipIter = appChild.getChildren().iterator(); chipIter.hasNext();) {
+          Element chipNode = (Element)chipIter.next();
+          BioanalyzerChipType chip = existMap.get(chipNode.getAttributeValue("codeBioanalyzerChipType"));
+          if(chip == null) {
+            chip = new BioanalyzerChipType();
+            chip.setCodeBioanalyzerChipType(getNextUnassignedCodeBioanalyzerChipType(sess));
+          } else {
+            foundChipTypes.put(chip.getCodeBioanalyzerChipType(), "");
+          }
+          setBioanalyzerChipType(chip, app, chipNode);
+          sess.save(chip);
+          saveQCLibPrepPrices(sess, rc, app, chip, chipNode, qcLibPrepPriceMap, idQCPriceCategoryDefault);
+          sess.flush();
+        }
+      }
+    }
+    
+    // Remove ones that were removed
+    for(Iterator existIter = existingChipTypes.iterator(); existIter.hasNext();) {
+      BioanalyzerChipType chipType = (BioanalyzerChipType)existIter.next();
+      if (foundChipTypes.get(chipType.getCodeBioanalyzerChipType()) == null && chipType.getIsActive().equals("Y")) {
+        removeChipType(chipType, sess);
+      }
+    }
+    sess.flush();
+  }
+
+  private void setBioanalyzerChipType(BioanalyzerChipType chip, Application app, Element chipNode) {
+    chip.setIsActive("Y");
+    chip.setCodeApplication(app.getCodeApplication());
+    chip.setBioanalyzerChipType(chipNode.getAttributeValue("bioanalyzerChipType"));
+    chip.setConcentrationRange(chipNode.getAttributeValue("concentrationRange"));
+    chip.setMaxSampleBufferStrength(chipNode.getAttributeValue("maxSampleBufferStrength"));
+    if (chipNode.getAttributeValue("sampleWellsPerChip") != null) {
+      try {
+        Integer wells = Integer.parseInt(chipNode.getAttributeValue("sampleWellsPerChip"));
+        chip.setSampleWellsPerChip(wells);
+      } catch(Exception ex) {
+        // couldn't convert wells.
+      }
+    }
+  }
+
+  private void removeChipType(BioanalyzerChipType chipType, Session sess) {
+    // Determine if used.
+    Boolean used = false;
+    Query q = sess.createQuery("Select codeBioanalyzerChipType from Request where codeBioanalyzerChipType=:code");
+    q.setParameter("code", chipType.getCodeBioanalyzerChipType());
+    if (q.list().size() > 0) {
+      used = true;
+    }
+    if (!used) {
+      q = sess.createQuery("Select codeBioanalyzerChipType from Sample where codeBioanalyzerChipType=:code");
+      q.setParameter("code", chipType.getCodeBioanalyzerChipType());
+      if (q.list().size() > 0) {
+        used = true;
+      }
+    }
+    if (!used) {
+      q = sess.createQuery("Select codeBioanalyzerChipType from SubmissionInstruction where codeBioanalyzerChipType=:code");
+      q.setParameter("code", chipType.getCodeBioanalyzerChipType());
+      if (q.list().size() > 0) {
+        used = true;
+      }
+    }
+    if (used) {
+      chipType.setIsActive("N");
+    } else {
+      sess.delete(chipType);
+    }
+  }
+  
   private Map<String, Price> getIlluminaLibPrepPriceMap(Session sess, RequestCategory rc) {
     if (!hasPriceSheet(sess, rc)) {
       return null;
@@ -689,6 +796,38 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       PriceCriteria priceCriteria = (PriceCriteria)objects[1];
       
       String key = priceCriteria.getFilter1();
+      map.put(key, price);
+    }
+
+    return map;
+  }
+  
+  private Map<String, Price> getQCLibPrepPriceMap(Session sess, RequestCategory rc) {
+    if (!hasPriceSheet(sess, rc)) {
+      return null;
+    }
+    
+    
+    Map<String, Price> map = new HashMap<String, Price>();
+    String queryString = 
+        "select p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where crit.filter1 is not null" +
+        "     and rc.codeRequestCategory = :code" +
+        "     and p.isActive = 'Y'";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
+    List l = query.list();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      Price price = (Price)objects[0];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[1];
+      
+      String key = priceCriteria.getFilter1() + "&" + (priceCriteria.getFilter2() != null ? priceCriteria.getFilter2() : "");
       map.put(key, price);
     }
 
@@ -828,6 +967,82 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }
   }
   
+  private Integer getDefaultQCLibPrepPriceCategoryId(Session sess, RequestCategory rc) {
+    Integer id = null;
+    String queryString = 
+        "select pc " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pspc " +
+        " join pspc.priceCategory pc " +
+        " where rc.codeRequestCategory = :code";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
+    try {
+      PriceCategory cat = (PriceCategory)query.uniqueResult();
+      if (cat != null) {
+        id = cat.getIdPriceCategory();
+      } else {
+        log.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory());
+        return null;
+      }
+    } catch(HibernateException e) {
+      log.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory(), e);
+      return null;
+    }
+
+    return id;
+  }
+  
+  private void saveQCLibPrepPrices(Session sess, RequestCategory rc, Application app, BioanalyzerChipType chipType, Element node, Map<String, Price> map, Integer defaultCategoryId) {
+    // Only save lib prep prices for qc request categories that have price sheet defined.
+    if (!RequestCategory.isQCRequestCategory(rc.getCodeRequestCategory()) || map == null || !priceModified(node)) {
+      return;
+    }
+
+    Boolean modified = false;
+    Price price = map.get(app.getCodeApplication() + "&" + (chipType != null ? chipType.getCodeBioanalyzerChipType() : ""));
+    if (price == null) {
+      if (defaultCategoryId == null) {
+        // no default price category -- can't store new price.
+        log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
+        return;
+      }
+      price = new Price();
+      price.setName(app.getApplication());
+      price.setDescription("");
+      price.setIdPriceCategory(defaultCategoryId);
+      price.setIsActive("Y");
+      price.setUnitPrice(BigDecimal.ZERO);
+      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
+      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      sess.save(price);
+      sess.flush();
+      PriceCriteria crit = new PriceCriteria();
+      crit.setIdPrice(price.getIdPrice());
+      crit.setFilter1(app.getCodeApplication());
+      if (chipType != null) {
+        crit.setFilter2(chipType.getCodeBioanalyzerChipType());
+      }
+      sess.save(crit);
+      modified = true;
+    }
+
+    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
+      modified = true;
+    }
+    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
+      modified = true;
+    }
+    
+    if (modified) {
+      sess.flush();
+    }
+  }
+
   private void saveRequestCategoryApplications(Session sess) {
     if (requestCategoryApplicationsDoc == null || requestCategoryApplicationsDoc.getRootElement().getChildren().size() == 0) {
       return;
@@ -1097,6 +1312,24 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       }
     }
     return lastNumber + 1;
+  }
+  
+  private String getNextUnassignedCodeBioanalyzerChipType(Session sess) {
+    Integer lastNumber = 0;
+    List apps = sess.createQuery("SELECT b.codeBioanalyzerChipType from BioanalyzerChipType b where b.codeBioanalyzerChipType like 'BCT%'").list();
+    for(Iterator i = apps.iterator(); i.hasNext();) {
+      String codeBioanalyzerChipType = (String)i.next();
+      String theNumber = codeBioanalyzerChipType.substring(3);
+      try {
+        int number = Integer.parseInt(theNumber);
+        if (number > lastNumber) {
+          lastNumber = number;
+        }
+      } catch (Exception e) {
+      }
+    }
+    lastNumber = lastNumber + 10000001;
+    return "BCT" + lastNumber.toString().substring(1);
   }
   
   private Integer getNextAssignedRequestCategoryNumber(Session sess) {

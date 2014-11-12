@@ -75,6 +75,10 @@ package views.experimentplatform {
 			return _selectedType != null && _selectedType.@value == 'NANOSTRING';
 		}
 		
+		public function get isQC():Boolean {
+			return _selectedType != null && selectedType.@value == 'QC';
+		}
+		
 		public function get runModeOptions():XMLList {
 			return _runModeOptions;
 		}
