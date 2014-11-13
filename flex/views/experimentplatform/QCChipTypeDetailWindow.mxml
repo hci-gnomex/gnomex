@@ -33,6 +33,23 @@
 				this.selectedItem = selectedItem;
 				this.parentDirty = parentDirty;
 				
+				var hideBufferStrength:String = parentApplication.getCoreFacilityProperty(state.requestCategory.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH);
+				if (hideBufferStrength != null && hideBufferStrength == "Y") {
+					this.maxSampleBufferStrengthHBox.visible = false;
+					this.maxSampleBufferStrengthHBox.includeInLayout = false;
+				} else {
+					this.maxSampleBufferStrengthHBox.visible = true;
+					this.maxSampleBufferStrengthHBox.includeInLayout = true;
+				}
+				var hideWellsPerChip:String = parentApplication.getCoreFacilityProperty(state.requestCategory.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP);
+				if (hideWellsPerChip != null && hideWellsPerChip == "Y") {
+					this.sampleWellsPerChipHBox.visible = false;
+					this.sampleWellsPerChipHBox.includeInLayout = false;
+				} else {
+					this.sampleWellsPerChipHBox.visible = true;
+					this.sampleWellsPerChipHBox.includeInLayout = true;
+				}
+
 				initValues(selectedItem);
 			}
 			
@@ -117,11 +134,11 @@
 			<mx:Text text="Concentration" styleName="formLabel" width="120"/>
 			<mx:TextInput id="concentration" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
 		</mx:HBox>
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4" id="maxSampleBufferStrengthHBox">
 			<mx:Text text="Max Sample Buffer Strength" styleName="formLabel" width="120"/>
 			<mx:TextInput id="bufferStrength" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
 		</mx:HBox>
-		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4" id="sampleWellsPerChipHBox">
 			<mx:Text text="Sample Wells Per Chip" styleName="formLabel" width="120"/>
 			<mx:TextInput id="wells" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" restrict="0-9" maxChars="2" />
 		</mx:HBox>

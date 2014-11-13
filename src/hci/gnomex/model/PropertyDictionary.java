@@ -114,6 +114,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY = "illumina_libprep_default_price_category";
   public static final String        ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY = "illumina_seqoption_default_price_category";
   public static final String        FILE_MAX_VIEWABLE_SIZE              = "file_max_viewable_size";
+  public static final String        QC_ASSAY_HIDE_BUFFER_STRENGTH       = "qc_assay_hide_buffer_strength";
+  public static final String        QC_ASSAY_HIDE_WELLS_PER_CHIP        = "qc_assay_hide_wells_per_chip";
 
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
