@@ -114,7 +114,7 @@
 					return;
 				}
 				
-				// refresh applications -- necessary as appTree update requestCategory.applications.
+				// refresh applications -- necessary as appTree updates requestCategory.applications.
 				var applications:XMLListCollection = new XMLListCollection(state.requestCategory.applications..Application);
 
 				var params:Object = new Object();
