@@ -93,6 +93,18 @@
 				this.selectedQCApplication = null;
 				this.loadedPriceIdLab = "";
 				this.loadedPriceCodeRequestCategory = "";
+				var hideBufferStrength:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH);
+				if (hideBufferStrength != null && hideBufferStrength == "Y") {
+					this.maxSampleBufferStrengthCol.visible = false;
+				} else {
+					this.maxSampleBufferStrengthCol.visible = true;
+				}
+				var hideWellsPerChip:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP);
+				if (hideWellsPerChip != null && hideWellsPerChip == "Y") {
+					this.sampleWellsPerChipCol.visible = false;
+				} else {
+					this.sampleWellsPerChipCol.visible = true;
+				}
 			}
 			
 			private function buildChipTypeKey(obj:Object):String {
@@ -1534,9 +1546,9 @@
 													   itemRenderer="{views.renderers.CheckBoxIsSelectedChipType.create()}" />
 									<mx:DataGridColumn headerText="Chip Type" dataField="@bioanalyzerChipType"/>
 									<mx:DataGridColumn headerText="Concentration Range" dataField="@concentrationRange"/>
-									<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength"/>
+									<mx:DataGridColumn headerText="Max Sample Buffer Strength" dataField="@maxSampleBufferStrength" id="maxSampleBufferStrengthCol"/>
 									<mx:DataGridColumn headerText="Cost per Sample" dataField="@price"/>
-									<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip"/>
+									<mx:DataGridColumn headerText="Sample Wells per Chip" dataField="@sampleWellsPerChip" id="sampleWellsPerChipCol"/>
 									
 								</mx:columns>
 							</mx:DataGrid>

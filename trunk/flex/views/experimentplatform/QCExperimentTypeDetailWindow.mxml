@@ -29,6 +29,22 @@
 				this.state = state;
 				this.selectedItem = selectedItem;
 				
+				nameCol.width = 250;
+				var hideBufferStrength:String = parentApplication.getCoreFacilityProperty(state.requestCategory.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH);
+				if (hideBufferStrength != null && hideBufferStrength == "Y") {
+					this.maxSampleBufferStrengthCol.visible = false;
+					nameCol.width += 50;
+				} else {
+					this.maxSampleBufferStrengthCol.visible = true;
+				}
+				var hideWellsPerChip:String = parentApplication.getCoreFacilityProperty(state.requestCategory.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP);
+				if (hideWellsPerChip != null && hideWellsPerChip == "Y") {
+					this.sampleWellsPerChipCol.visible = false;
+					nameCol.width += 50;
+				} else {
+					this.sampleWellsPerChipCol.visible = true;
+				}
+				
 				initValues(selectedItem);
 			}
 			
@@ -244,9 +260,9 @@
 						 dataProvider="{chipTypes}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
 						 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
 				<mx:columns>
-					<mx:DataGridColumn headerText="Name"  
+					<mx:DataGridColumn headerText="Name" id="nameCol"
 									   itemRenderer="views.renderers.LabelActive"
-									   rendererIsEditor="false"  width="130"
+									   rendererIsEditor="false"  width="250"
 									   editable="true" wordWrap="true" dataField="@bioanalyzerChipType" >
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Conc. Range"  
@@ -254,18 +270,18 @@
 									   rendererIsEditor="false"  width="100"
 									   editable="true" wordWrap="true" dataField="@concentrationRange" >
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Max Sample Buf. Str."  
+					<mx:DataGridColumn headerText="Max Sample Buf. Str." id="maxSampleBufferStrengthCol"
 									   itemRenderer="views.renderers.LabelActive"
 									   rendererIsEditor="false"  width="150"
 									   editable="true" wordWrap="true" dataField="@maxSampleBufferStrength" >
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="Wells"  
+					<mx:DataGridColumn headerText="Wells" id="sampleWellsPerChipCol"
 									   itemRenderer="views.renderers.LabelActive"
 									   rendererIsEditor="false"  width="50"
 									   editable="true" wordWrap="true" dataField="@sampleWellsPerChip" >
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Pricing"  
-									   width="150"   
+									   width="120"   
 									   editable="false"                      	
 									   dataField="@unitPriceDisplay" 
 									   editorDataField="selected" textAlign="center" />
