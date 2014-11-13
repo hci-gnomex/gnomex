@@ -106,6 +106,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     } else if (req.getParameter("requestNumber") != null && !req.getParameter("requestNumber").equals("")) {
       requestNumber = req.getParameter("requestNumber");
     }
+    
     // Get the fileName parameter
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
       fileName = req.getParameter("fileName");
