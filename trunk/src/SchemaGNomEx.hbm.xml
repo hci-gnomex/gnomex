@@ -2459,26 +2459,6 @@
 			type="string" />
 	</class>
 
-	<!-- hci.gnomex.model.SampleTypeApplication -->
-	<class name="hci.gnomex.model.SampleTypeApplication" table="SampleTypeApplication">
-		<id name="idSampleTypeApplication" column="idSampleTypeApplication"
-			type="integer">
-			<generator class="native" />
-		</id>
-		<property name="idSampleType" column="idSampleType" type="integer" />
-		<property name="codeApplication" column="codeApplication"
-			type="string" />
-		<property name="idLabelingProtocolDefault" column="idLabelingProtocolDefault"
-			type="integer" />
-		<property name="idHybProtocolDefault" column="idHybProtocolDefault"
-			type="integer" />
-		<property name="idScanProtocolDefault" column="idScanProtocolDefault"
-			type="integer" />
-		<property name="idFeatureExtractionProtocolDefault" column="idFeatureExtractionProtocolDefault"
-			type="integer" />
-		<property name="isActive" column="isActive" type="string" />
-	</class>
-
 	<!-- hci.gnomex.model.NucleotideType -->
 	<class name="hci.gnomex.model.NucleotideType" table="NucleotideType">
 		<id name="codeNucleotideType" column="codeNucleotideType" type="string">

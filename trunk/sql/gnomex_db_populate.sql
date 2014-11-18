@@ -1122,31 +1122,6 @@ VALUES (1, 'DNA', 3, 'Y', 'DNA'),
   (11, 'cap RNA', 6, 'Y', 'RNA'),
   (12, 'small RNA', 10, 'Y', 'RNA');
 
-INSERT INTO `gnomex`.`SampleTypeApplication`(`idSampleTypeApplication`, `idSampleType`, `codeApplication`, `isActive`)
-VALUES (2, 5, 'EXP',  'Y'),
-  (3, 4, 'EXP',  'Y'),
-  (4, 3, 'EXP', 'Y'),
-  (5, 2, 'EXP',  'N'),
-  (6, 1, 'CGH', 'Y'),
-  (7, 6, 'CGH', 'Y'),
-  (8, 7, 'CHIP',  'Y'),
-  (9, 1, 'METH',  'Y'),
-  (10, 7, 'METH', 'Y'),
-  (11, 1, 'SNP',  'Y'),
-  (12, 5, 'WTRANSCRP', 'Y'),
-  (13, 5, 'MIRNA',  'Y'),
-  (14, 7, 'CHIPSEQ',  'Y'),
-  (15, 4, 'DMRNASEQ',  'Y'),
-  (16, 1, 'DNASEQ',  'Y'),
-  (17, 1, 'TDNASEQ', 'Y'),
-  (18, 4, 'MRNASEQ', 'Y'),
-  (19, 12, 'SMRNASEQ',  'Y'),
-  (20, 1, 'DNAMETHSEQ',  'Y'),
-  (21, 1, 'MONNUCSEQ',  'Y'),
-  (22, 4, 'TSCRPTSEQ',  'Y'),
-  (23, 9, 'MRNASEQ', 'Y'),
-  (24, 9, 'TSCRPTSEQ',  'Y');
-
 INSERT INTO `gnomex`.`SampleTypeRequestCategory`(`idSampleTypeRequestCategory`, `idSampleType`, `codeRequestCategory`)
 VALUES (1, 1, 'AGIL'),
   (2, 2, 'AGIL'),

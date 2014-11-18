@@ -23,9 +23,6 @@ delimiter ';'
 -- Add unique constraint
 alter table SampleExperimentFile add constraint UN_SampleExperimentFile UNIQUE (idSample, idExperimentFile);
 
--- remove SampleTypeApplication
-drop table SampleTypeApplication;
-
 -- Categorize SampleType by Nucleotide type
 create table gnomex.NucleotideType (
   codeNucleotideType varchar(50), 
