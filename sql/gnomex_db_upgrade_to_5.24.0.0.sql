@@ -31,3 +31,6 @@ call ExecuteIfTableExists('gnomex','Application_Audit','alter table Application_
 update Application set hasChipTypes='N' where codeApplicationType='QC';
 update Application set hasChipTypes='Y' where codeApplication='BIOAN';
 
+-- really remove SampleTypeApplication
+drop table SampleTypeApplication;
+

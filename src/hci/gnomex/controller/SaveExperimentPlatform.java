@@ -15,7 +15,6 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryApplication;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.SampleTypeRequestCategory;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibProtocolApplication;
@@ -366,10 +365,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
         
         if (deleteSampleType) {
-          List applications = sess.createQuery("select a from SampleTypeApplication a where a.idSampleType = " + sampleType.getIdSampleType()).list();
-          for (SampleTypeApplication a : (List<SampleTypeApplication>)applications) {
-            sess.delete(a);
-          }
           List catToDelete = sess.createQuery("select r from SampleTypeRequestCategory r where r.idSampleType = " + sampleType.getIdSampleType()).list();
           for (SampleTypeRequestCategory r : (List<SampleTypeRequestCategory>)catToDelete) {
             sess.delete(r);
