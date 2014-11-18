@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Library Prep" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="QC Assay" 
 		  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 	<mx:Script>
 		<![CDATA[
