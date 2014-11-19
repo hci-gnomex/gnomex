@@ -35,9 +35,13 @@
 		[Bindable]
 		private var priceCategory:Object;
 		
-		public function init(price:Object, priceCategory:Object):void {
+		[Bindable]
+		private var coreFacility:Object;
+		
+		public function init(price:Object, priceCategory:Object, coreFacility:Object):void {
 			this.price = price;
 			this.priceCategory = priceCategory;
+			this.coreFacility = coreFacility;
 			this.criteriaList = new XMLListCollection(price..PriceCriteria);
 			
 			if (priceCategory.@dictionaryClassNameFilter1 == 'text') {
@@ -45,7 +49,7 @@
 				filter1Col.visible = false;
 			} else {
 				var filter1Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter1).@displayName;
-				var filter1Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter1);
+				var filter1Entries:XMLList = filterEntries(parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter1));
 				if (filter1Name != null) {
 					this.filter1Col.headerText = filter1Name.toString();
 					this.filter1Col.rendererIsEditor = false;
@@ -63,7 +67,7 @@
 			} else {
 				if (priceCategory.@dictionaryClassNameFilter2 != "") {
 					var filter2Name:Object = parentApplication.dictionaryManager.xml.Dictionary.(@className == priceCategory.@dictionaryClassNameFilter2).@displayName;
-					var filter2Entries:XMLList = parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter2);
+					var filter2Entries:XMLList = filterEntries(parentApplication.dictionaryManager.getEntries(priceCategory.@dictionaryClassNameFilter2));
 					if (filter2Name != null && filter2Name != "") {
 						this.filter2Col.headerText = filter2Name.toString();
 						this.filter2Col.rendererIsEditor = false;
@@ -80,6 +84,21 @@
 			
 			
 		}
+		
+		private function filterEntries(inputList:XMLList):XMLList {
+			var newList:XMLList = new XMLList();
+			for each (var entry:XML in inputList) {
+				if (entry.hasOwnProperty("@idCoreFacility")) {
+					if (entry.@idCoreFacility == coreFacility.@idCoreFacility) {
+						newList += entry;
+					}
+				} else {
+					newList += entry;
+				}
+			}
+			return newList;
+		}
+		
 	    private function save():void {
 	    	var params:Object = new Object();
 	    	params.name = priceName.text;
