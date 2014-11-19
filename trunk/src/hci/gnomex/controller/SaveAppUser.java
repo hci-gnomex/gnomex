@@ -144,6 +144,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         boolean isManageFacilityError = false;
         boolean isNullEmail = false;
         boolean isBadEmail = false;
+        Boolean isNoLogon = false;
         Object [] user = null;
         
         if (appUserScreen.getuNID() != null && 
@@ -220,6 +221,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             isBadEmail = true; 
           }
           
+          if (appUserScreen.getIsActive().equals("Y")) {
+            if ((appUserScreen.getUserNameExternal() == null || appUserScreen.getPasswordExternal() == null) && appUserScreen.getuNID() == null) {
+              this.addInvalidField("No Logon", "Please enter a user name and a password for an external user or a UNID for a university user.");
+              isNoLogon = true;
+            }
+          }
 
           
           if (this.isValid()) {
@@ -302,7 +309,6 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           }
 
         }
-        
         if (this.isValid()) {
           setManagingCoreFacilities(sess, appUser);
           setSubmittingCoreFacilities(sess, appUser);
@@ -310,7 +316,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail) {
+          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail || isNoLogon) {
             if (isWebForm.equals("Y")) {
               String outMsg = "";
               if(isUsedUsername) {
@@ -319,6 +325,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
               } else if (isManageFacilityError) {
                 outMsg = "You may only change core facility permissions for the core facilities you manage.";
+              } else if (isNoLogon) {
+                outMsg = "Please enter a user name and a password for an external user or a UNID for a university user.";
               } else if (isNullEmail){
                 outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
                 sess.flush();
