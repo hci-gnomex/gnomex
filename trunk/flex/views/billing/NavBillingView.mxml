@@ -1658,7 +1658,7 @@
 	       		var priceWindow:PriceView = PriceView(mx.managers.PopUpManager.createPopUp(this, PriceView, true));
             	mx.managers.PopUpManager.centerPopUp(priceWindow);
             	priceWindow.setFocus();
-                priceWindow.init(price, priceCategory);
+                priceWindow.init(price, priceCategory, coreFacilityCombo.selectedItem);
                 priceWindow.priceName.setFocus();				        	
             }
 		}
