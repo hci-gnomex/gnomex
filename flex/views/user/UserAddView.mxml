@@ -13,7 +13,7 @@
             <lastName>{lastName.text}</lastName>
             <firstName>{firstName.text}</firstName>
             <codeUserPermissionKind>LAB</codeUserPermissionKind>
-            <isActive>Y</isActive>
+            <isActive>N</isActive>
 		    <isWebForm>N</isWebForm>
     </mx:request>
     </mx:HTTPService >
@@ -51,6 +51,7 @@
 				params.idAppUser = savedIdAppUser; 
 	 			getAppUser.send(params);
 				PopUpManager.removePopUp(this);
+				Alert.show("The user has been saved but is inactive.  You must fill in login information and activate the user before the user can log in.");
 			} else {
 				Alert.show("An error occurred while saving the user record.");
 			}			
