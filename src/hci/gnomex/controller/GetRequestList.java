@@ -94,7 +94,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         String adminNotes               = (String)row[17];
 
         String requestStatus = dh.getRequestStatus(codeRequestStatus);
-        String labName = Lab.formatLabName(labLastName, labFirstName);
+        String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
         String ownerName = AppUser.formatName(submitterLastName, submitterFirstName);
         RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
 

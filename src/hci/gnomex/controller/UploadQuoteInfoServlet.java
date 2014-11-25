@@ -282,7 +282,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       throw new MessagingException( "Request or Acct is null" );
     }
 
-    String labName = lab.getName()!=null ? lab.getName() : "";
+    String labName = lab.getName(false, true)!=null ? lab.getName(false, true) : "";
     String submitterName = user.getFirstLastDisplayName()!=null ? user.getFirstLastDisplayName() : "";
     String acctName = acct.getAccountName() != null ? acct.getAccountName() : "";
     String acctNumber = acct.getAccountNumber() != null ? acct.getAccountNumber() : "";

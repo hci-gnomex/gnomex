@@ -44,7 +44,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
 
   private static DeleteOldExperimentAndAnalysisFiles  app = null;
   private static BigDecimal               gigabyte = new BigDecimal(1000000000);
-  
+
   // Not making this static from paranoia.  SimpleDateFormat is not thread safe.
   private SimpleDateFormat                ymdFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -68,13 +68,13 @@ public class DeleteOldExperimentAndAnalysisFiles {
   private String                          baseURL = null;
   private String                          baseAnalysisDirectory;
   private String                          baseExperimentDirectory;
-  
+
   private String                          coreFacilityContactName;
   private String                          coreFacilityContactPhone;
 
   private Date                            runDate;
   private BillingPeriod                   billingPeriod;
-  
+
   private Map<Integer, Lab>               labsForDeletion;
   private Map<Integer, Request>           requestMap;
   private Map<Integer, Analysis>          analysisMap;
@@ -91,9 +91,9 @@ public class DeleteOldExperimentAndAnalysisFiles {
   private BatchDataSource                 dataSource;
   private Session                         sess;
   private Transaction                     tx;
-  
+
   private List<String>                    errorList;
-  
+
   private Properties                      mailProps;
 
   public DeleteOldExperimentAndAnalysisFiles(String[] args) {
@@ -125,7 +125,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
         err = true;
       }
     }
-    
+
     if (err || !checkParameters()) {
       printError("Run aborted due to previous errors");
       sendErrorReport();
@@ -141,14 +141,14 @@ public class DeleteOldExperimentAndAnalysisFiles {
       System.out.println(msg);
       err = true;
     }
-    
+
     if (renamePath != null && renamePath.length() > 0 && !deleteFiles) {
       String msg = "If copyDeletedFilesTo is specified then deleteFiles must be specified.";
       printError(msg);
       System.out.println(msg);
       err = true;
     }
-    
+
     if (renamePath != null && renamePath.length() > 0) {
       File f = new File(renamePath);
       if (!f.exists()) {
@@ -164,10 +164,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
         err = true;
       }
     }
-    
+
     return !err;
   }
-  
+
   private void showHelp() {
     System.out.println("This program runs in two modes.  It either deletes old experiment and analysis files or sends reports to lab managers showing files that will be deleted.");
     System.out.println("The 'disk_usage_for_analysis' and 'disk_usage_for_experiments' properties control if deletion is done for the core facility.");
@@ -186,7 +186,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
     System.out.println("   -testEmailAddress - Overrides all lab emails with this email address.  Used for testing.");
     System.out.println("   -help - gives this message.  Note no other processing is performed if the -help switch is specified.");
   }
-  
+
   /**
    * @param args
    */
@@ -210,13 +210,13 @@ public class DeleteOldExperimentAndAnalysisFiles {
       if (sendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
       }
-      
+
       Query coreQuery = sess.createQuery("select c from CoreFacility c");
       List coreFacilities = coreQuery.list();
-      
+
       for(Iterator i = coreFacilities.iterator(); i.hasNext(); ) {
         CoreFacility f = (CoreFacility)i.next();
-        
+
         errorList = new ArrayList<String>();
         app.initialize(f);
         if (diskUsageForExperiments || diskUsageForAnalysis) {
@@ -231,7 +231,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
 
     } catch (Exception e) {
-            
+
       this.sendErrorReport(e);
 
     } finally {
@@ -245,10 +245,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
     }
     System.out.println("   " + new Date() + " processing complete");
   }
-  
+
   private void doFileDeletion(CoreFacility facility) {
     buildFileMaps(facility);
-    
+
     filesActuallyDeletedMap = new HashMap<Integer, TreeMap<String, Object>>();
     Integer numLabs = 0;
     Integer numFiles = 0;
@@ -279,13 +279,13 @@ public class DeleteOldExperimentAndAnalysisFiles {
         }
       }
     }
-    
+
     sendWarningReportEmails(facility, filesActuallyDeletedMap, false);
     this.sendNotifyEmails();
-    
+
     System.out.println("   Deleted " + numFiles.toString() + " files for " + numLabs.toString() + " labs.  " + numDeleteErrors.toString() + " files skipped due to errors.");
   }
-  
+
   private boolean deleteFile(Lab lab, AnalysisFile file) {
     boolean success = true;
     tx = sess.beginTransaction();
@@ -294,7 +294,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
 
       // delete data track files if any.
       deleteDataTracksForAnalysisFile(analysis, file);
-      
+
       // If the analysis has any comments, warn the app user that it was deleted.
       if (file.getComments() != null && !file.getComments().trim().equals("")) {
         hashForNotification(analysis, file, null);
@@ -308,15 +308,15 @@ public class DeleteOldExperimentAndAnalysisFiles {
           break;
         }
       }
-      
+
       sess.flush();
-      
+
       // Delete the file on disk
       String filePath = file.getFullPathName();
       File f = new File(filePath);
       if (f.exists()) {
         if (!deleteOrRename(filePath, "AnalysisData", this.baseAnalysisDirectory)) {
-          printError("Unable to delete file " + filePath + " for Analysis " + analysis.getNumber() + " and lab " + lab.getFormattedLabName() + ".");
+          printError("Unable to delete file " + filePath + " for Analysis " + analysis.getNumber() + " and lab " + lab.getName() + ".");
           success = false;
         } else {
           String placeHolderExtension = createPlaceHolderFile(filePath);
@@ -334,7 +334,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
     } catch(Exception ex) {
       Analysis analysis = analysisMap.get(file.getIdAnalysis());
-      printError("Unable to delete file " + file.getFullPathName() + " for Analysis " + analysis.getNumber() + " and lab " + lab.getFormattedLabName() + ". Exception: " + ex.getMessage());
+      printError("Unable to delete file " + file.getFullPathName() + " for Analysis " + analysis.getNumber() + " and lab " + lab.getName() + ". Exception: " + ex.getMessage());
       success = false;
     }
 
@@ -343,31 +343,31 @@ public class DeleteOldExperimentAndAnalysisFiles {
     } else {
       tx.rollback();
     }
-    
+
     return success;
   }
-  
+
   private void deleteDataTracksForAnalysisFile(Analysis analysis, AnalysisFile file) {
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
     queryBuf.append("JOIN dt.dataTrackFiles dtf ");
     queryBuf.append("WHERE dtf.idAnalysisFile = ");
     queryBuf.append( file.getIdAnalysisFile() );
-    
+
     // Run the Query
     List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
-    
+
     // Data tracks were found, so delete them and warn the owners
     if ( dataTrackFiles.size() > 0 ) {
-      
+
       // Delete the DataTrackFiles and DataTracks 
       for (Iterator i4 = dataTrackFiles.iterator(); i4.hasNext();) {
         Object[] row = (Object[]) i4.next();
         DataTrackFile dtf = (DataTrackFile) row[0];
         DataTrack dt = (DataTrack) row[1];
-        
+
         hashForNotification(analysis, file, dt);
-        
+
         sess.delete( dtf );
         sess.flush();
       }
@@ -386,15 +386,15 @@ public class DeleteOldExperimentAndAnalysisFiles {
       } catch(IOException ex) {
         printError("Unable to create place holder file '" + path + "'(" + ex.getMessage() + ")");
       }
-      
+
       if (fileCreated) {
         return extension;
       }
     }
-    
+
     return null;
   }
-  
+
   private Boolean deleteOrRename(String path, String medianDirectory, String basePath) {
     if (renamePath != null && renamePath.length() > 0) {
       if (!path.startsWith(basePath)) {
@@ -405,7 +405,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       if (newPath.startsWith("/") || newPath.startsWith("\\")) {
         newPath = newPath.substring(1);
       }
-        
+
       if (!renamePath.endsWith("/") && !renamePath.endsWith("\\")) {
         renamePath += "/";
       }
@@ -415,7 +415,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       return new File(path).delete();
     }
   }
-  
+
   public Boolean renameFile(String oldName, String newName) {
     File srcFile = new File(oldName);
     File destFile = new File(newName);
@@ -448,13 +448,13 @@ public class DeleteOldExperimentAndAnalysisFiles {
         }
       }
     }
-    
+
     return success;
   }
-  
+
   private void hashForNotification(Analysis a, AnalysisFile af, DataTrack dt) {
     String emailAddress = getEmailAddress(a, af, dt);
-    
+
     Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
     if (analysisNumbers == null) {
       analysisNumbers = new TreeMap<String, String>();
@@ -462,7 +462,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
     }
     analysisNumbers.put(af.getAnalysis().getNumber(), null);
     emailAnalysisMap.put(emailAddress, analysisNumbers);
-    
+
     List fileInfos = analysisFileMap.get(af.getAnalysis().getNumber());
     if (fileInfos == null) {
       fileInfos = new ArrayList<AnalysisFileInfo>();
@@ -471,10 +471,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
     fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(), 
         af.getQualifiedFileName() + "/" + af.getFileName(), 
         dt, af.getComments()));
-    
-    
+
+
   }
-  
+
   private String getEmailAddress(Analysis a, AnalysisFile af, DataTrack dt) {
     AppUser user = null;
     Lab lab = null;
@@ -497,7 +497,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
     if (emailAddress == null ||  emailAddress.equals( "" ) ) {
       emailAddress = this.gnomexSupportEmail;
     }
-    
+
     return emailAddress;
   }
 
@@ -515,12 +515,12 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
       sess.delete(file);
       sess.flush();
-      
+
       String filePath = this.baseExperimentDirectory + request.getCreateYear() + "/" + file.getFileName();
       File f = new File(filePath);
       if (f.exists()) {
         if (!deleteOrRename(filePath, "ExperimentData", this.baseExperimentDirectory)) {
-          printError("Unable to delete file " + filePath + " for Request " + request.getNumber() + " and lab " + lab.getFormattedLabName() + ".");
+          printError("Unable to delete file " + filePath + " for Request " + request.getNumber() + " and lab " + lab.getName() + ".");
           success = false;
         } else {
           String placeHolderExtension = createPlaceHolderFile(filePath);
@@ -536,7 +536,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
     } catch(Exception ex) {
       Request request = requestMap.get(file.getIdRequest());
-      printError("Unable to delete file " + file.getFileName() + " for Request " + request.getNumber() + " and lab " + lab.getFormattedLabName() + ".  Exception: " + ex.getMessage());
+      printError("Unable to delete file " + file.getFileName() + " for Request " + request.getNumber() + " and lab " + lab.getName() + ".  Exception: " + ex.getMessage());
       success = false;
     }
 
@@ -545,16 +545,16 @@ public class DeleteOldExperimentAndAnalysisFiles {
     } else {
       tx.rollback();
     }
-    
+
     return success;
   }
-  
+
   private void doWarningReports(CoreFacility facility) {
     buildFileMaps(facility);
-    
+
     sendWarningReportEmails(facility, fileDeletionMap, true);
   }
-  
+
   private void sendWarningReportEmails(CoreFacility facility, Map<Integer, TreeMap<String, Object>> deletionMap, boolean forWarning) {
     Integer numLabs = 0;
     for(Integer idLab : labsForDeletion.keySet()) {
@@ -566,10 +566,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
         numLabs++;
       }
     }
-    
+
     System.out.println("   Sent emails to " + numLabs.toString() + " labs.");
   }
-  
+
   private void sendEmail(CoreFacility facility, Lab lab, TreeMap<String, Object> filesToDelete, boolean forWarning) {
     String emailAddress = lab.getContactEmail();
     if (testEmailAddress.length() > 0) {
@@ -589,12 +589,12 @@ public class DeleteOldExperimentAndAnalysisFiles {
         experimentFiles.add((ExperimentFile)file);
       }
     }
-    
+
     DeleteOldExperimentAndAnalysisFilesEmailFormatter formatter = new DeleteOldExperimentAndAnalysisFilesEmailFormatter(facility, lab, analysisMap, analysisFiles, 
-      requestMap, experimentFiles, billingPeriod, this.coreFacilityContactName, this.coreFacilityContactPhone, baseURL, forWarning);
+        requestMap, experimentFiles, billingPeriod, this.coreFacilityContactName, this.coreFacilityContactPhone, baseURL, forWarning);
     String subject = formatter.getSubject();
     String body = formatter.format();
-    
+
     if (sendMail) {
       try {
         MailUtil.send( mailProps,
@@ -604,21 +604,21 @@ public class DeleteOldExperimentAndAnalysisFiles {
             subject,
             body,
             true
-          );
+        );
       } catch(Exception ex) {
-        printError("Unable to send email to lab " + lab.getFormattedLabName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
+        printError("Unable to send email to lab " + lab.getName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
       }
     }
 
   }
-  
+
   private void buildFileMaps(CoreFacility facility) {
     this.fileDeletionMap = new HashMap<Integer, TreeMap<String, Object>>();
     mapAnalysisFilesToDelete(facility);
     mapExperimentFilesToDelete(facility);
     trimFileMapToMaxDisk(facility);
   }
-  
+
   private void mapAnalysisFilesToDelete(CoreFacility facility) {
     // Determine latest date for files to delete
     Calendar deleteDateCal = Calendar.getInstance();
@@ -626,61 +626,61 @@ public class DeleteOldExperimentAndAnalysisFiles {
     deleteDateCal.add(Calendar.MONTH, analysisGracePeriod * -1);
 
     String queryString = "select a, af "
-        + " from Analysis a "
-        + " join a.files af "
-        + " where case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :deleteDate"
-        + "     and a.idLab in (:labIds)"
-        + " order by a.idLab, a.number, af.idAnalysisFile";
+      + " from Analysis a "
+      + " join a.files af "
+      + " where case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :deleteDate"
+      + "     and a.idLab in (:labIds)"
+      + " order by a.idLab, a.number, af.idAnalysisFile";
     Query query = sess.createQuery(queryString);
     query.setDate("deleteDate", deleteDateCal.getTime());
     query.setParameterList("labIds", labsForDeletion.keySet());
     List files = query.list();
-    
+
     analysisMap = new HashMap<Integer, Analysis>();
     for(Iterator i = files.iterator(); i.hasNext(); ) {
       Object[] row = (Object[])i.next();
       Analysis analysis = (Analysis)row[0];
       AnalysisFile file = (AnalysisFile)row[1];
       Integer idLab = analysis.getIdLab();
-      
+
       analysisMap.put(analysis.getIdAnalysis(), analysis);
-      
+
       addDeletionFile(fileDeletionMap, idLab, buildFileSortKey(file.getEffectiveCreateDate(), "A", file.getIdAnalysisFile()), file);
     }
   }
-  
+
   private void mapExperimentFilesToDelete(CoreFacility facility) {
     Calendar deleteDateCal = Calendar.getInstance();
     deleteDateCal.setTime(billingPeriod.getEndDate());
     deleteDateCal.add(Calendar.MONTH, experimentGracePeriod * -1);
-    
+
     String queryString = "select distinct r, ef "
-        + " from Request r "
-        + " join r.requestCategory rc"
-        + " join r.files ef "
-        + " where rc.idCoreFacility = :idCoreFacility and case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :deleteDate"
-        + "     and rc.refrainFromAutoDelete is not null and rc.refrainFromAutoDelete != 'Y'"
-        + "     and r.idLab in (:labIds)"
-        + " order by r.idLab, r.number, ef.idExperimentFile ";
+      + " from Request r "
+      + " join r.requestCategory rc"
+      + " join r.files ef "
+      + " where rc.idCoreFacility = :idCoreFacility and case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :deleteDate"
+      + "     and rc.refrainFromAutoDelete is not null and rc.refrainFromAutoDelete != 'Y'"
+      + "     and r.idLab in (:labIds)"
+      + " order by r.idLab, r.number, ef.idExperimentFile ";
     Query query = sess.createQuery(queryString);
     query.setDate("deleteDate", deleteDateCal.getTime());
     query.setInteger("idCoreFacility", facility.getIdCoreFacility());
     query.setParameterList("labIds", labsForDeletion.keySet());
     List files = query.list();
-    
+
     requestMap = new HashMap<Integer, Request>();
     for(Iterator i = files.iterator(); i.hasNext(); ) {
       Object[] row = (Object[])i.next();
       Request req = (Request)row[0];
       Integer idLab = req.getIdLab();
       ExperimentFile file = (ExperimentFile)row[1];
-      
+
       requestMap.put(req.getIdRequest(), req);
 
       addDeletionFile(fileDeletionMap, idLab, buildFileSortKey(file.getCreateDate(), "F", file.getIdExperimentFile()), file);
     }
   }
-  
+
   private void trimFileMapToMaxDisk(CoreFacility facility) {
     for(Integer idLab : labsForDeletion.keySet()) {
       Lab lab = labsForDeletion.get(idLab);
@@ -709,7 +709,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
     }
   }
-  
+
   private void addDeletionFile(Map<Integer, TreeMap<String, Object>> map, Integer idLab, String sortKey, Object file) {
     TreeMap<String, Object> filesForDeletion = map.get(idLab);
     if (filesForDeletion == null) {
@@ -721,7 +721,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
 
   private String buildFileSortKey(Date sortDate, String objectType, Integer id) {
     StringBuffer buf = new StringBuffer();
-   
+
     if (sortDate == null) {
       buf.append("3999-12-31"); // should never happen -- weaned out in the query.
     } else {
@@ -732,10 +732,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
     buf.append("-");
     Integer leadingId = 1000000000 + id;
     buf.append(leadingId.toString());
-    
+
     return buf.toString();
   }
-  
+
   private void mapLabsForDeletion(CoreFacility facility) {
     // find active billing accounts
     Map<Integer, BillingAccount> billingAccountMap = new HashMap<Integer, BillingAccount>();
@@ -747,11 +747,11 @@ public class DeleteOldExperimentAndAnalysisFiles {
       BillingAccount account = (BillingAccount)i.next();
       billingAccountMap.put(account.getIdLab(), account);
     }
-    
+
     // get disk usage
     diskUsageMap = ComputeMonthlyDiskUsage.getDiskUsage(diskUsageForExperiments, diskUsageForAnalysis, sess, 
         billingPeriod, experimentGracePeriod, analysisGracePeriod, facility);
-    
+
     // find candidate labs
     labsForDeletion = new HashMap<Integer, Lab>();
     queryString = "select distinct lab from Lab lab join lab.coreFacilities core where core.idCoreFacility = :idCoreFacility";
@@ -789,7 +789,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
           body.append("\n\t" + info.analysisFileName + "\t" + info.comment + "\t" + info.dataTrackNumber);
         }
       }
-      
+
       if (sendMail) {
         try {
           MailUtil.send( mailProps,
@@ -799,7 +799,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
               "GNomEx Analysis file(s) removed from file system",
               body.toString(),
               false
-            );
+          );
         } catch(Exception ex) {
           printError("Unable to send analysis notification email to email address " + emailAddress + " because of exception: " + ex.getMessage());
         }
@@ -848,7 +848,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
     // Set todays date
     Calendar calendar = Calendar.getInstance();
     runDate = calendar.getTime();
- 
+
     gnomexSupportEmail = ph.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
     if (gnomexSupportEmail == null) {
       gnomexSupportEmail = ph.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
@@ -898,20 +898,20 @@ public class DeleteOldExperimentAndAnalysisFiles {
     String computeDateString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
     Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
     billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
-    
+
     this.mapLabsForDeletion(facility);
-    
+
     if (diskUsageForExperiments || diskUsageForAnalysis) {
       if (hasError) {
         diskUsageForExperiments = false;
         diskUsageForAnalysis = false;
       }
-      
+
     }
-    
+
     processingStatement = "";
     if (!diskUsageForExperiments && !diskUsageForAnalysis) {
-       processingStatement += "Core Facility " + facility.getFacilityName() + " skipped.";
+      processingStatement += "Core Facility " + facility.getFacilityName() + " skipped.";
     } else  {
       if (this.deleteFiles) {
         processingStatement += "Deleting files for ";
@@ -936,15 +936,15 @@ public class DeleteOldExperimentAndAnalysisFiles {
     }
     return localServerName;
   }
-  
+
   private void sendErrorReport(Exception e)  {
     String msg = "DeleteOldExperimentAndAnalysisFiles could not process on server " + getDisplayServerName() + ". Transaction rolled back:   " + e.toString() + "\n\t";
-    
+
     StackTraceElement[] stack = e.getStackTrace();
     for (StackTraceElement s : stack) {
       msg = msg + s.toString() + "\n\t\t";
     }
-    
+
     try {
       if (tx != null) {
         tx.rollback();
@@ -957,16 +957,16 @@ public class DeleteOldExperimentAndAnalysisFiles {
         msg = msg + s.toString() + "\n\t\t";
       }
     } finally {}
-    
+
     String errorMessageString = errorMessagePrefixString;
     if ( !errorMessageString.equals( "" )) {
       errorMessageString += "\n";
     }
     errorMessageString += msg;
-    
+
     sendErrorReport(errorMessageString);
   }
-  
+
   private void sendErrorReport() {
     if (errorList.size() > 0) {
       String msg = "DeleteOldExperimentAndAnalysisFiles process finished on server " + getDisplayServerName() + " but had following errors:\n\t";
@@ -976,10 +976,10 @@ public class DeleteOldExperimentAndAnalysisFiles {
       sendErrorReport(msg);
     }
   }
-  
+
   private void sendErrorReport(String errorMessageString) {
     printError(errorMessageString);
-    
+
     String toAddress = gnomexSupportEmail;
     if (testEmailAddress.length() > 0) {
       toAddress = testEmailAddress;
@@ -987,12 +987,12 @@ public class DeleteOldExperimentAndAnalysisFiles {
     try {
       if (sendMail) {
         MailUtil.send( mailProps,
-          toAddress,
-          null,
-          fromEmailAddress,
-          "ComputeMonthlyDiskUsage Error",
-          errorMessageString,
-          false
+            toAddress,
+            null,
+            fromEmailAddress,
+            "ComputeMonthlyDiskUsage Error",
+            errorMessageString,
+            false
         );
       }
     } catch (Exception e1) {
@@ -1005,12 +1005,12 @@ public class DeleteOldExperimentAndAnalysisFiles {
   {
     sess = dataSource.connect();
   }
-  
+
   private void disconnect() 
   throws Exception {
     sess.close();
   }
-  
+
   private void printError(String message) {
     String msg = "\n" + new Date() + " " + message;
     System.err.println(msg);

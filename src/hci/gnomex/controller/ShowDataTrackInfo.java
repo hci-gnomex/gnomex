@@ -25,17 +25,17 @@ import org.hibernate.Session;
 
 
 public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowDataTrackInfo.class);
-  
+
   public String SUCCESS_JSP = "/getHTML.jsp";
 
   private Integer idDataTrack = null;
   private String baseURL = "";
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idDataTrack") != null) {
@@ -43,7 +43,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("org.dom4j.io", "org.dom4j.io is required");
     }
-    
+
     baseURL = "";
     StringBuffer fullPath = request.getRequestURL();
     String extraPath = request.getServletPath() + request.getPathInfo();
@@ -54,14 +54,14 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     Session sess = null;
     try {
-      
-   
+
+
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
-     
+
+
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
       DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
@@ -125,7 +125,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 
       row   = table.addElement("TR");     
       row.addElement("TD").addText("User Group").addAttribute("CLASS", "label");
-      row.addElement("TD").addCDATA(dataTrack.getLab() != null ? dataTrack.getLab().getName() : "&nbsp;");
+      row.addElement("TD").addCDATA(dataTrack.getLab() != null ? dataTrack.getLab().getName(false, true) : "&nbsp;");
 
       row   = table.addElement("TR");      
       row.addElement("TD").addText("User Group contact").addAttribute("CLASS", "label");
@@ -190,7 +190,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
       e.printStackTrace();
       Document doc = DocumentHelper.createDocument();
 
-      
+
       Element root = doc.addElement("HTML");
 
       Element head = root.addElement("HEAD");
@@ -203,17 +203,17 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
       this.xmlResult = doc.asXML();
 
     } finally {
-        try {
-          HibernateGuestSession.closeGuestSession();
-        } catch(Exception ex) {
-          log.error("Unable to close guest session in ShowDataTrackInfo");
-        }
+      try {
+        HibernateGuestSession.closeGuestSession();
+      } catch(Exception ex) {
+        log.error("Unable to close guest session in ShowDataTrackInfo");
+      }
     }
-    
+
     return this;
   }
-  
-  
+
+
 
 
   /**
@@ -227,6 +227,6 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
   public HttpServletResponse setResponseState(HttpServletResponse response) {
     return response;
   } 
- 
+
 
 }

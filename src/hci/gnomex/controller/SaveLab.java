@@ -699,7 +699,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved"; 
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved"; 
 
     boolean send = false;
     String PIEmail = lab.getContactEmail();
@@ -760,7 +760,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName() + " approved";    
+    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved";    
 
     boolean send = false;
     String submitterEmail = billingAccount.getSubmitterEmail();

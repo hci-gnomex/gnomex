@@ -44,7 +44,7 @@ public class ComputeMonthlyDiskUsage {
   private Session                         sess;
 
   private Transaction                     tx;
-  
+
   private Properties                      mailProps;
   private Boolean                         sendMail = true;
 
@@ -53,7 +53,7 @@ public class ComputeMonthlyDiskUsage {
   private static BigDecimal               gigabyte = new BigDecimal(1000000000);
 
   private String                          errorMessagePrefixString = "Error in ComputeMonthlyDiskUsage";
-  
+
   private Boolean                         computeForPreviousMonth = false;
   private Boolean                         overrideAutoPreviousMonth = false;
   private Boolean                         storeBillingItems = true;
@@ -61,7 +61,7 @@ public class ComputeMonthlyDiskUsage {
   private String                          orionPath = "";
   private String                          testEmailAddress = "";
   private String                          baseURL = null;
-  
+
   private Boolean                         diskUsageForExperiments = false;
   private Boolean                         diskUsageForAnalysis = false;
   private BigDecimal                      diskUsageIncrement;
@@ -74,12 +74,12 @@ public class ComputeMonthlyDiskUsage {
   private Price                           price;
   private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
-  
+
   private Date                            runDate;
   private BillingPeriod                   billingPeriod;
-  
+
   private String                          processingStatement;
-  
+
   public ComputeMonthlyDiskUsage(String[] args) {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-computeForPreviousMonth")) {
@@ -106,7 +106,7 @@ public class ComputeMonthlyDiskUsage {
       } 
     }
   }
-  
+
   private void showHelp() {
     System.out.println("Computes monthly disk charges creating both DiskUsageByMonth rows and BillingItem rows.");
     System.out.println("The 'disk_usage_for_analysis' and 'disk_usage_for_experiments' properties control if charges are computed for the core facility.");
@@ -122,13 +122,13 @@ public class ComputeMonthlyDiskUsage {
     System.out.println("   -testEmailAddress - Overrides all lab emails with this email address.  Used for testing.");
     System.out.println("   -help - gives this message.  Note no other processing is performed if the -help switch is specified.");
   }
-  
+
   /**
    * @param args
    */
   public static void main(String[] args) {
     app  = new ComputeMonthlyDiskUsage(args);
-    
+
     app.run();
   }
 
@@ -146,13 +146,13 @@ public class ComputeMonthlyDiskUsage {
       if (sendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
       }
-      
+
       Query coreQuery = sess.createQuery("select c from CoreFacility c");
       List coreFacilities = coreQuery.list();
-      
+
       for(Iterator i = coreFacilities.iterator(); i.hasNext(); ) {
         CoreFacility f = (CoreFacility)i.next();
-        
+
         // if disk usage properties are set for the core facility then compute the space.
         app.initialize(f);
         System.out.println("\n" + new Date() + ": " + this.processingStatement);
@@ -160,7 +160,7 @@ public class ComputeMonthlyDiskUsage {
       }
 
     } catch (Exception e) {
-            
+
       this.sendErrorReport(e);
 
     } finally {
@@ -173,12 +173,12 @@ public class ComputeMonthlyDiskUsage {
       }
     }
 
-      
+
   }
-  
+
   private void initialize(CoreFacility facility) throws Exception {
     InternalAccountFieldsConfiguration.reloadConfigurations(sess);
-    
+
     PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
     String diskUsageForExperimentsString = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_FOR_EXPERIMENTS, serverName, facility.getIdCoreFacility());
     String diskUsageForAnalysisString = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_FOR_ANALYSIS, serverName, facility.getIdCoreFacility());
@@ -240,11 +240,11 @@ public class ComputeMonthlyDiskUsage {
       priceCategory = null;
       price = null;
     }
-    
+
     // Set string for todays date
     Calendar calendar = Calendar.getInstance();
     runDate = calendar.getTime();
-    
+
     // Determine billing period we are running for.
     if (computeForPreviousMonth) {
       // Explicitly asked to compute for the previous month.
@@ -258,7 +258,7 @@ public class ComputeMonthlyDiskUsage {
     String computeDateString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
     Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
     billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
-    
+
     gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility());
     if (gnomexSupportEmail == null) {
       gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName, facility.getIdCoreFacility());
@@ -271,10 +271,10 @@ public class ComputeMonthlyDiskUsage {
     if (!baseURL.endsWith("/")) {
       baseURL += "/";
     }
-    
+
     processingStatement = "Processing " + facility.getFacilityName();
     if (!diskUsageForExperiments && !diskUsageForAnalysis) {
-       processingStatement += " to remove existing usage if any.";
+      processingStatement += " to remove existing usage if any.";
     } else if (diskUsageForExperiments && diskUsageForAnalysis) {
       processingStatement += " for experiment and analysis files.";
     } else if (diskUsageForExperiments) {
@@ -283,7 +283,7 @@ public class ComputeMonthlyDiskUsage {
       processingStatement += " for analysis files only.";
     }
   }
-  
+
   private void computeDiskUsage(CoreFacility facility) {
     Map<Integer, Lab> labMap = getLabMap(facility);
     Map<Integer, DiskUsageByMonth> newUsageMap = getDiskUsage(diskUsageForExperiments, diskUsageForAnalysis, sess, 
@@ -291,9 +291,9 @@ public class ComputeMonthlyDiskUsage {
     Map<Integer, DiskUsageByMonth> existingUsageMap = getExistingDiskUsage(facility);
     Map<Integer, BillingAccount> billingAccountMap = getBillingAccountMap(facility);
     Map<Integer, Invoice> invoiceMap = getInvoiceMap(facility);
-    
+
     tx = sess.beginTransaction();
-    
+
     List<DiskUsageByMonth> modifiedUsages = storeUsage(facility, newUsageMap, existingUsageMap, billingAccountMap);
     if (storeBillingItems) {
       storeBillingItems(modifiedUsages, labMap, billingAccountMap, invoiceMap);
@@ -302,10 +302,10 @@ public class ComputeMonthlyDiskUsage {
       sendReports(modifiedUsages, labMap, billingAccountMap, facility);
     }
     removeUsage(facility, newUsageMap, existingUsageMap);
-    
+
     tx.commit();
   }
-  
+
   private Map<Integer, Lab> getLabMap(CoreFacility facility) {
     Map<Integer, Lab> labMap = new HashMap<Integer, Lab>();
     String queryString = "select distinct l from Lab l";
@@ -315,53 +315,53 @@ public class ComputeMonthlyDiskUsage {
       Lab lab = (Lab)i.next();
       labMap.put(lab.getIdLab(), lab);
     }
-    
+
     return labMap;
   }
-  
+
   // Public static because also used by DeleteOldExperimentAndAnalysisFiles
   public static Map<Integer, DiskUsageByMonth> getDiskUsage(Boolean diskUsageForExperiments, Boolean diskUsageForAnalysis, Session sess, 
       BillingPeriod billingPeriod, Integer experimentGracePeriod, Integer analysisGracePeriod, CoreFacility facility) {
     Map<Integer, DiskUsageByMonth> usageMap = new HashMap<Integer, DiskUsageByMonth>();
-    
+
     if (diskUsageForExperiments) {
       loadExperimentUsageData(sess, billingPeriod, experimentGracePeriod, usageMap, facility);
     }
-    
+
     if (diskUsageForAnalysis) {
       loadAnalysisUsageData(sess, billingPeriod, analysisGracePeriod, usageMap, facility);
     }
-    
+
     return usageMap;
   }
-  
+
   private static void loadAnalysisUsageData(Session sess, BillingPeriod billingPeriod,  Integer analysisGracePeriod, Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
     // Figure grace period.
     Calendar assessDateCal = Calendar.getInstance();
     assessDateCal.setTime(billingPeriod.getEndDate());
     assessDateCal.add(Calendar.MONTH, analysisGracePeriod * -1);
-    
+
     String queryString = "select distinct a.idLab, SUM(af.fileSize) as totalDiskUsage, "
-        + " SUM(case when case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :assessDate then af.fileSize else 0 end) as diskUsageInPeriod "
-        + " from Analysis a "
-        + " join a.lab l"
-        + " join l.coreFacilities c"
-        + " join a.files af "
-        + " where c.idCoreFacility = :idCoreFacility and case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :asOfDate"
-        + " group by a.idLab ";
+      + " SUM(case when case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :assessDate then af.fileSize else 0 end) as diskUsageInPeriod "
+      + " from Analysis a "
+      + " join a.lab l"
+      + " join l.coreFacilities c"
+      + " join a.files af "
+      + " where c.idCoreFacility = :idCoreFacility and case when af.uploadDate is null then case when af.createDate is null then '3999-12-31' else af.createDate end else af.uploadDate end <= :asOfDate"
+      + " group by a.idLab ";
     Query query = sess.createQuery(queryString);
     query.setDate("assessDate", assessDateCal.getTime());
     query.setInteger("idCoreFacility", facility.getIdCoreFacility());
     query.setDate("asOfDate", billingPeriod.getEndDate());
 
     List usageList = query.list();
-    
+
     for(Iterator i = usageList.iterator(); i.hasNext(); ) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
       BigDecimal totalDiskUsage = (BigDecimal)row[1];
       BigDecimal assessedDiskUsage = (BigDecimal)row[2];
-      
+
       DiskUsageByMonth usage = null;
       if (usageMap.containsKey(idLab)) {
         usage = usageMap.get(idLab);
@@ -373,33 +373,33 @@ public class ComputeMonthlyDiskUsage {
       usageMap.put(idLab, usage);
     }
   }
-  
+
   private static void loadExperimentUsageData(Session sess, BillingPeriod billingPeriod, Integer experimentGracePeriod, Map<Integer, DiskUsageByMonth> usageMap, CoreFacility facility) {
     // Figure grace period.
     Calendar assessDateCal = Calendar.getInstance();
     assessDateCal.setTime(billingPeriod.getEndDate());
     assessDateCal.add(Calendar.MONTH, experimentGracePeriod * -1);
-    
+
     String queryString = "select distinct r.idLab, SUM(ef.fileSize) as totalDiskUsage, "
-        + " SUM(case when case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :assessDate then ef.fileSize else 0 end) as diskUsageInPeriod "
-        + " from Request r "
-        + " join r.requestCategory rc"
-        + " join r.files ef "
-        + " where rc.idCoreFacility = :idCoreFacility and case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :asOfDate"
-        + " group by r.idLab ";
+      + " SUM(case when case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :assessDate then ef.fileSize else 0 end) as diskUsageInPeriod "
+      + " from Request r "
+      + " join r.requestCategory rc"
+      + " join r.files ef "
+      + " where rc.idCoreFacility = :idCoreFacility and case when ef.createDate is null then '3999-12-31' else ef.createDate end <= :asOfDate"
+      + " group by r.idLab ";
     Query query = sess.createQuery(queryString);
     query.setDate("assessDate", assessDateCal.getTime());
     query.setInteger("idCoreFacility", facility.getIdCoreFacility());
     query.setDate("asOfDate", billingPeriod.getEndDate());
 
     List usageList = query.list();
-    
+
     for(Iterator i = usageList.iterator(); i.hasNext(); ) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
       BigDecimal totalDiskUsage = (BigDecimal)row[1];
       BigDecimal assessedDiskUsage = (BigDecimal)row[2];
-      
+
       DiskUsageByMonth usage = null;
       if (usageMap.containsKey(idLab)) {
         usage = usageMap.get(idLab);
@@ -411,7 +411,7 @@ public class ComputeMonthlyDiskUsage {
       usageMap.put(idLab, usage);
     }
   }
-  
+
   private Map<Integer, DiskUsageByMonth> getExistingDiskUsage(CoreFacility facility) {
     String queryString = "Select d from DiskUsageByMonth d where d.idCoreFacility = :idCoreFacility and d.idBillingPeriod = :idBillingPeriod";
     Query query = sess.createQuery(queryString);
@@ -423,10 +423,10 @@ public class ComputeMonthlyDiskUsage {
       DiskUsageByMonth usage = (DiskUsageByMonth)i.next();
       usageMap.put(usage.getIdLab(), usage);
     }
-    
+
     return usageMap;
   }
-  
+
   private Map<Integer, BillingAccount> getBillingAccountMap(CoreFacility facility) {
     // The order by clause is to make sure the selected (first) account is:
     // 1. The most recent by startdate
@@ -435,7 +435,7 @@ public class ComputeMonthlyDiskUsage {
     String queryString = "select ba from BillingAccount ba where ba.idCoreFacility = :idCoreFacility order by ba.idLab, ba.startDate desc, ba.expirationDate desc, ba.idBillingAccount desc";
     Query query = sess.createQuery(queryString);
     query.setInteger("idCoreFacility", facility.getIdCoreFacility());
-    
+
     Map<Integer, BillingAccount> billingAccountMap = new HashMap<Integer, BillingAccount>();
     List billingAccountList = query.list();
     for(Iterator i = billingAccountList.iterator(); i.hasNext(); ) {
@@ -452,26 +452,26 @@ public class ComputeMonthlyDiskUsage {
         }
       }
     }
-    
+
     return billingAccountMap;
   }
-  
+
   private Map<Integer, Invoice> getInvoiceMap(CoreFacility facility) {
     String queryString = "select inv from Invoice inv where inv.idCoreFacility = :idCoreFacility and inv.idBillingPeriod = :idBillingPeriod";
     Query query = sess.createQuery(queryString);
     query.setInteger("idCoreFacility", facility.getIdCoreFacility());
     query.setInteger("idBillingPeriod", billingPeriod.getIdBillingPeriod());
-    
+
     Map<Integer, Invoice> invoiceMap = new HashMap<Integer, Invoice>();
     List invoiceList = query.list();
     for(Iterator i = invoiceList.iterator(); i.hasNext(); ) {
       Invoice inv = (Invoice)i.next();
       invoiceMap.put(inv.getIdBillingAccount(), inv);
     }
-    
+
     return invoiceMap;
   }
-  
+
   private List<DiskUsageByMonth> storeUsage(CoreFacility facility, Map<Integer, DiskUsageByMonth> newUsageMap, Map<Integer, DiskUsageByMonth> existingUsageMap, Map<Integer, BillingAccount> billingAccountMap) {
     List<DiskUsageByMonth> modifiedUsages = new ArrayList<DiskUsageByMonth>();
     Date asOfDate = runDate;
@@ -504,7 +504,7 @@ public class ComputeMonthlyDiskUsage {
       sess.save(usage);
       modifiedUsages.add(usage);
     }
-    
+
     sess.flush();
     return modifiedUsages;
   }
@@ -534,17 +534,17 @@ public class ComputeMonthlyDiskUsage {
         BillingItem bi = newBillingItem(usage, lab, totalIncrements, ba, invoice);
         usage.getBillingItems().add(bi);
       }
-      
+
       if (modified) {
         anyModified = true;
       }
     }
-    
+
     if (anyModified) {
       sess.flush();
     }
   }
-  
+
   private BillingItem newBillingItem(DiskUsageByMonth usage, Lab lab, BigDecimal totalIncrements, BillingAccount ba, Invoice invoice) {
     BillingItem bi = new BillingItem();
     bi.setCategory("Disk Usage");
@@ -571,7 +571,7 @@ public class ComputeMonthlyDiskUsage {
     bi.setIdDiskUsageByMonth(usage.getIdDiskUsageByMonth());
     return bi;
   }
-  
+
   private BigDecimal getTotalIncrements(DiskUsageByMonth usage) {
     BigDecimal totalIncrements = BigDecimal.ZERO;
 
@@ -584,10 +584,10 @@ public class ComputeMonthlyDiskUsage {
       // round increments up to total to charge
       totalIncrements = totalIncrements.setScale(0, BigDecimal.ROUND_UP);
     }
-    
+
     return totalIncrements;
   }
-  
+
   private BigDecimal getTotalCharge(BigDecimal totalIncrements, Lab lab) {
     BigDecimal totalCharge = BigDecimal.ZERO;
     BigDecimal thePrice = price.getEffectiveUnitPrice(lab);
@@ -596,7 +596,7 @@ public class ComputeMonthlyDiskUsage {
     }
     // round up to nearest dollar
     totalCharge = totalCharge.setScale(0, BigDecimal.ROUND_UP);
-    
+
     return totalCharge;
   }
 
@@ -626,29 +626,20 @@ public class ComputeMonthlyDiskUsage {
     totalSize = totalSize.setScale(0, BigDecimal.ROUND_UP);
     String chargeForDisplay = NumberFormat.getCurrencyInstance().format(totalCharge);
     String diskSizeForDisplay = NumberFormat.getNumberInstance().format(totalSize);
-    String labName = "";
-    if (lab.getFirstName() != null && lab.getFirstName().length() > 0) {
-      labName = lab.getFirstName();
-      if (lab.getLastName() != null && lab.getLastName().length() > 0) {
-        labName += " ";
-      }
-    }
-    labName += lab.getLastName();
-    labName += " ";
-    labName += "Lab";
-    
+    String labName = lab.getName(false, true);
+
     StringBuffer body = new StringBuffer();
     if (ba != null) {
       String accountName = ba.getAccountNameAndNumber();
       body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" to account '").append(accountName)
-        .append("' on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
+      .append("' on disk usage of ").append(diskSizeForDisplay).append(" gigabytes of storage.");
     } else {
       body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
-        .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
+      .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
       body.append("The lab has no active billing accounts.  Please submit a new billing account to avoid file deletions(")
-        .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">New Billing Account</a>).");
+      .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">New Billing Account</a>).");
     }
-      
+
     if (sendMail) {
       try {
         MailUtil.send( mailProps,
@@ -658,13 +649,13 @@ public class ComputeMonthlyDiskUsage {
             "GNomEx Disk Usage Charges",
             body.toString(),
             true
-          );
+        );
       } catch(Exception ex) {
-        System.err.println("Unable to send email to lab " + lab.getFormattedLabName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
+        System.err.println("Unable to send email to lab " + labName + " with email " + emailAddress + " because of exception: " + ex.getMessage());
       }
     }
   }
-  
+
   public String getLaunchWorkAuthUrl(CoreFacility facility) {
     return baseURL + Constants.LAUNCH_APP_JSP + "?launchWindow=WorkAuthForm&idCore=" + facility.getIdCoreFacility().toString();  
   }
@@ -677,21 +668,21 @@ public class ComputeMonthlyDiskUsage {
         sess.delete(toDelete);
       }
     }
-    
+
     if (modified) {
       sess.flush();
     }
   }
-  
+
   private void sendErrorReport(Exception e)  {
-    
+
     String msg = "Could not compute disk space usage. Transaction rolled back:   " + e.toString() + "\n\t";
-    
+
     StackTraceElement[] stack = e.getStackTrace();
     for (StackTraceElement s : stack) {
       msg = msg + s.toString() + "\n\t\t";
     }
-    
+
     try {
       if (tx != null) {
         tx.rollback();
@@ -704,17 +695,17 @@ public class ComputeMonthlyDiskUsage {
         msg = msg + s.toString() + "\n\t\t";
       }
     } finally {}
-    
+
     String errorMessageString = errorMessagePrefixString;
     if ( !errorMessageString.equals( "" )) {
       errorMessageString += "\n";
     }
     errorMessageString += msg;
-    
+
     System.err.println(errorMessageString);
-    
+
     if (sess != null) {
-      
+
       String toAddress = gnomexSupportEmail;
       if (testEmailAddress.length() > 0) {
         toAddress = testEmailAddress;
@@ -722,12 +713,12 @@ public class ComputeMonthlyDiskUsage {
       try {
         if (sendMail) {
           MailUtil.send( mailProps,
-            toAddress,
-            null,
-            fromEmailAddress,
-            "ComputeMonthlyDiskUsage Error",
-            errorMessageString,
-            false
+              toAddress,
+              null,
+              fromEmailAddress,
+              "ComputeMonthlyDiskUsage Error",
+              errorMessageString,
+              false
           );
         }
       } catch (Exception e1) {
@@ -735,16 +726,16 @@ public class ComputeMonthlyDiskUsage {
       }
     }
   }
-  
+
   private void connect()
   throws Exception
   {
     sess = dataSource.connect();
   }
-  
+
   private void disconnect() 
   throws Exception {
     sess.close();
   }
-  
+
 }

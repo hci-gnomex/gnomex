@@ -77,13 +77,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       } else {
         this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
       }
-      
+
       if(request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")){
         idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
       } else {
         this.addInvalidField("idCoreFacility", "idCoreFacility is required");
       }
-      
+
       if(request.getParameter("idBillingAccounts") != null && !request.getParameter("idBillingAccounts").equals("")){
         idBillingAccounts = request.getParameter("idBillingAccounts");
       }
@@ -145,10 +145,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           if(idLabs != null){
             String[] labs = idLabs.split(",");
             String[] billingAccounts = idBillingAccounts.split(",");
-              if (action.equals(ACTION_SHOW)) {
-                this.makeInvoiceReports(sess, labs, billingAccounts);
-              }
+            if (action.equals(ACTION_SHOW)) {
+              this.makeInvoiceReports(sess, labs, billingAccounts);
             }
+          }
 
           else{
             BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
@@ -420,18 +420,18 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     head.addContent(link);
 
     Element title = new Element("TITLE");
-    title.addContent("Billing Invoice - " + lab.getName() + 
+    title.addContent("Billing Invoice - " + lab.getName(false, true) + 
         " " + billingAccount.getAccountName());
     head.addContent(title);
 
     Element body = new Element("BODY");
     root.addContent(body);
-    
-    
+
+
     Element center = new Element("CENTER");
     body.addContent(center);
-      
-      
+
+
     // Show print and email link
     Element emailLink = new Element("A");
     emailLink.setAttribute("HREF",
@@ -440,7 +440,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         "&idBillingPeriod=" + idBillingPeriod +
         "&idCoreFacility=" + idCoreFacility +
         "&action=" + ACTION_EMAIL +
-        "&respondInHTML=Y");
+    "&respondInHTML=Y");
     String contactEmail = lab.getBillingNotificationEmail();
     if (contactEmail == null || contactEmail.equals("")) {
       contactEmail = "billing contact";
@@ -457,8 +457,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     cell.addContent(emailLink);    
 
     center.addContent(linkTable);
-    
-    
+
+
 
     Element center1 = new Element("CENTER");
     body.addContent(center1);
@@ -535,7 +535,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private void makeInvoiceReports(Session sess, String[] labs, String[] billingAccounts) throws Exception {
     Element root = new Element("HTML");
     Document doc = new Document(root);
-    
+
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
 
     Element head = new Element("HEAD");
@@ -574,88 +574,88 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       TreeMap relatedBillingItemMap = new TreeMap();
       cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
 
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-        cf.getFacilityName(),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
-        billingPeriod, 
-        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
+      BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
+          cf.getFacilityName(),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
+          billingPeriod, 
+          lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
 
 
-    Element center1 = new Element("CENTER");
-    body.addContent(center1);
+      Element center1 = new Element("CENTER");
+      body.addContent(center1);
 
-    center1.addContent(formatter.makeHeader());
+      center1.addContent(formatter.makeHeader());
 
-    body.addContent(new Element("BR"));
-
-    Element center2 = new Element("CENTER");
-    body.addContent(center2);
-
-    if (!billingItemMap.isEmpty()) {
-      center2.addContent(formatter.makeDetail());          
-    }
-
-    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
-      body.addContent(new Element("BR"));
-      Element hr = new Element("HR");
-      hr.setAttribute("style", "border-style:dashed");
-      hr.setAttribute("align", "center");
-      hr.setAttribute("width", "50%");
-      body.addContent(hr);
-      Element p = new Element("P");
-      p.setAttribute("align", "center");
-      p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
-      body.addContent(p);
       body.addContent(new Element("BR"));
 
-      Element wrapDiv = new Element("DIV");
-      wrapDiv.setAttribute("class", "wrap");
+      Element center2 = new Element("CENTER");
+      body.addContent(center2);
 
-      Element remitAddressDiv = new Element("DIV");
-      remitAddressDiv.setAttribute("class", "remitAddress");
-      Element h3 = new Element("H3");
-      Element u = new Element("U");
-      u.addContent("REMITTANCE ADVICE");
-      h3.addContent(u);
-      remitAddressDiv.addContent(h3);
-      Element h5 = new Element("H5");
-      h5.addContent("Your payment is due upon receipt");
-      remitAddressDiv.addContent(h5);
-      remitAddressDiv.addContent(formatter.makeRemittanceAddress());
+      if (!billingItemMap.isEmpty()) {
+        center2.addContent(formatter.makeDetail());          
+      }
 
-      wrapDiv.addContent(remitAddressDiv);
+      if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
+        body.addContent(new Element("BR"));
+        Element hr = new Element("HR");
+        hr.setAttribute("style", "border-style:dashed");
+        hr.setAttribute("align", "center");
+        hr.setAttribute("width", "50%");
+        body.addContent(hr);
+        Element p = new Element("P");
+        p.setAttribute("align", "center");
+        p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
+        body.addContent(p);
+        body.addContent(new Element("BR"));
 
-      Element labAddressDiv = new Element("DIV");
-      labAddressDiv.setAttribute("class", "labAddress");
-      Element p1 = new Element("P");
-      Element b = new Element("B");
-      b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-      p1.addContent(b);
-      labAddressDiv.addContent(p1);
-      Element p2 = new Element("P");
-      Element b1 = new Element("B");
-      b1.addContent("Amount Due: " + formatter.getGrandTotal());
-      p2.addContent(b1);
-      labAddressDiv.addContent(p2);
-      labAddressDiv.addContent(formatter.makeLabAddress());
+        Element wrapDiv = new Element("DIV");
+        wrapDiv.setAttribute("class", "wrap");
 
-      wrapDiv.addContent(labAddressDiv);
-      body.addContent(wrapDiv);
+        Element remitAddressDiv = new Element("DIV");
+        remitAddressDiv.setAttribute("class", "remitAddress");
+        Element h3 = new Element("H3");
+        Element u = new Element("U");
+        u.addContent("REMITTANCE ADVICE");
+        h3.addContent(u);
+        remitAddressDiv.addContent(h3);
+        Element h5 = new Element("H5");
+        h5.addContent("Your payment is due upon receipt");
+        remitAddressDiv.addContent(h5);
+        remitAddressDiv.addContent(formatter.makeRemittanceAddress());
+
+        wrapDiv.addContent(remitAddressDiv);
+
+        Element labAddressDiv = new Element("DIV");
+        labAddressDiv.setAttribute("class", "labAddress");
+        Element p1 = new Element("P");
+        Element b = new Element("B");
+        b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
+        p1.addContent(b);
+        labAddressDiv.addContent(p1);
+        Element p2 = new Element("P");
+        Element b1 = new Element("B");
+        b1.addContent("Amount Due: " + formatter.getGrandTotal());
+        p2.addContent(b1);
+        labAddressDiv.addContent(p2);
+        labAddressDiv.addContent(formatter.makeLabAddress());
+
+        wrapDiv.addContent(labAddressDiv);
+        body.addContent(wrapDiv);
+      }
+
+      if(i != labs.length - 1){
+        Element p3 = new Element("P");
+        p3.setAttribute("style", "page-break-after:always");
+        body.addContent(p3);
+      }
+
     }
-    
-    if(i != labs.length - 1){
-      Element p3 = new Element("P");
-      p3.setAttribute("style", "page-break-after:always");
-      body.addContent(p3);
-    }
 
-    }
-    
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     out.setOmitEncoding(true);
     this.xmlResult = out.outputString(doc);
@@ -702,7 +702,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         ccList = null;
       }     
     } else {
-      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName();
+      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
     }
 
     if (send) {
@@ -748,7 +748,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       head.addContent(link);
 
       Element title = new Element("TITLE");
-      title.addContent("Email Billing Invoice - " + lab.getName() + 
+      title.addContent("Email Billing Invoice - " + lab.getName(false, true) + 
           " " + billingAccount.getAccountName());
       head.addContent(title);
 
@@ -762,7 +762,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Element root = new Element("BillingInvoiceEmail");
       doc = new Document(root);
       root.setAttribute("note", note);
-      root.setAttribute("title", "Email Billing Invoice - " + lab.getName() + " " + billingAccount.getAccountName());
+      root.setAttribute("title", "Email Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
     }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();

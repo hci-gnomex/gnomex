@@ -31,7 +31,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetCoreCommentsForBillingPeriod.class);
 
   private BillingItemFilter billingItemFilter;
-  
+
   private Integer                  idBillingPeriod;
   private Integer                  idCoreFacility;
 
@@ -44,7 +44,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
     billingItemFilter = new BillingItemFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, billingItemFilter);
     this.addInvalidFields(errors);
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -52,7 +52,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
@@ -63,7 +63,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
       StringBuffer queryBuf = billingItemFilter.getCoreCommentsQuery();
 
       List rows = sess.createQuery(queryBuf.toString()).list();
-      
+
       Document doc = new Document(new Element("RequestList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -74,9 +74,9 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
         String corePrepInstructions     = (String)row[3];
         String labLastName              = (String)row[4];
         String labFirstName             = (String)row[5];
-        
-        String labName = Lab.formatLabName(toString(labLastName), toString(labFirstName));
-        
+
+        String labName = Lab.formatLabNameFirstLast(toString(labFirstName), toString(labLastName));
+
         Element node = new Element("Request");
 
         node.setAttribute("name", toString(name));
@@ -132,7 +132,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
       setResponsePage(this.ERROR_JSP);
     }
   }
-  
+
   private String toString(Object theValue) {
     if (theValue != null) {
       return theValue.toString();

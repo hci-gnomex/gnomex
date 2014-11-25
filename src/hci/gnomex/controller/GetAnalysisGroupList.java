@@ -28,11 +28,11 @@ import org.jdom.output.XMLOutputter;
 
 
 public class GetAnalysisGroupList extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroupList.class);
-  
+
   private static int           MAX_ANALYSIS_COUNT = 2000;
-  
+
   private AnalysisGroupFilter  filter;
   private Element              rootNode = null;
   private Element              labNode = null;
@@ -40,30 +40,30 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
   private Element              analysisNode = null;
   private String               listKind = "AnalysisGroupList";
   private String               showMyLabsAlways = "N";
-  
+
   private String               message = "";
   private int                  analysisCount = 0;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new AnalysisGroupFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
+
     if (request.getParameter("showMyLabsAlways") != null && !request.getParameter("showMyLabsAlways").equals("")) {
       showMyLabsAlways = request.getParameter("showMyLabsAlways");
     }
-    
+
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     Document doc = new Document(new Element(listKind));
     rootNode = doc.getRootElement();
     List results = null;
@@ -72,10 +72,10 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
       if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
         message = "Please select a filter";
         rootNode.setAttribute("message", message);
-        
+
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
+
         HashMap myLabMap = new HashMap();
         if (showMyLabsAlways.equals("Y")) {
           for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
@@ -85,149 +85,149 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
             }
           }
         }
-        
-//        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
-//        	filter.setIsForExternalDataSharingSite(true);
-//        }        	
-        
+
+        //        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+        //        	filter.setIsForExternalDataSharingSite(true);
+        //        }        	
+
         boolean labsWithAnalysesIsASubsetOfAllLabsInQuery = false;
         if( (filter.getLabKeys() != null && filter.getLabKeys() != "") || (filter.getSearchText() != null && filter.getSearchText() != "") ){
-        	labsWithAnalysesIsASubsetOfAllLabsInQuery = true;
+          labsWithAnalysesIsASubsetOfAllLabsInQuery = true;
         }
-        
+
         if(labsWithAnalysesIsASubsetOfAllLabsInQuery) { // queryBuf is guaranteed to not be empty & allLabsInQueryResults is guaranteed to not be empty
-        
-        StringBuffer queryBuf = filter.getAllLabsInQuery(this.getSecAdvisor());
-        log.info("Query for GetAnalysisGroupList - GetAllLabsInQuery: " + queryBuf.toString());
-        List allLabsInQueryResults = (List)sess.createQuery(queryBuf.toString()).list();
-        ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
-        for(Iterator i = allLabsInQueryResults.iterator(); i.hasNext();) {
+
+          StringBuffer queryBuf = filter.getAllLabsInQuery(this.getSecAdvisor());
+          log.info("Query for GetAnalysisGroupList - GetAllLabsInQuery: " + queryBuf.toString());
+          List allLabsInQueryResults = (List)sess.createQuery(queryBuf.toString()).list();
+          ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
+          for(Iterator i = allLabsInQueryResults.iterator(); i.hasNext();) {
             Object[] row = (Object[])i.next();          
             allLabsInQuery.add(row);
-        }       
-	
-        HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();      
-        StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-        log.info("Query for GetAnalysisGroupList: " + buf.toString());
-        results = (List)sess.createQuery(buf.toString()).list();
-        
-        //build HashMap of Labs to their Analyses for Labs with one or more Analyses
-        for(Iterator i = results.iterator(); i.hasNext();) {
+          }       
+
+          HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();      
+          StringBuffer buf = filter.getQuery(this.getSecAdvisor());
+          log.info("Query for GetAnalysisGroupList: " + buf.toString());
+          results = (List)sess.createQuery(buf.toString()).list();
+
+          //build HashMap of Labs to their Analyses for Labs with one or more Analyses
+          for(Iterator i = results.iterator(); i.hasNext();) {
             Object[] row = (Object[])i.next();
             ArrayList<Object[]> temp = labsWithAnalyses.get((Integer)row[3]);
             if(temp == null)
             {
-            	temp = new ArrayList<Object[]>();            	
-            	labsWithAnalyses.put((Integer)row[3], temp);
+              temp = new ArrayList<Object[]>();            	
+              labsWithAnalyses.put((Integer)row[3], temp);
             }
             temp.add(row);
-        }
-        
-        Integer prevIdLab            = new Integer(-1);
-        Integer prevIdAnalysisGroup  = new Integer(-1);
-        Integer prevIdAnalysis       = new Integer(-1);
-        
-        // idLab is first entry in Object[] of allLabsInQuery
-        // idLab is key in labsWithAnalyses
-        for(int i = 0; i < allLabsInQuery.size(); i++ ) {
-        	
-        	ArrayList<Object[]> temp = labsWithAnalyses.get((Integer)allLabsInQuery.get(i)[0]);
-        	// If labsWithAnalyses doesn't have an entry with this idLab then this lab has no analyses.
-        	// Create a place holder node for the tree
-        	if(temp == null) {
-        		addLabWithZeroAnalyses(allLabsInQuery.get(i));
-        		continue;
-        	}
-        	// Otherwise add the lab and each analysis corresponding to it
-        	else {
-	        	for(Object[] row : temp){
-	          
-		          Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
-		          Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
-		          Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
-		          
-		          Element n = null;
-		          if (idLab.intValue() != prevIdLab.intValue()) {
-		            // Keep track of which of users labs are in results set
-		            if (showMyLabsAlways.equals("Y")) {
-		              myLabMap.remove(idLab);            
-		            }
-		            addLabNode(row);
-		            addAnalysisGroupNode(row);
-		            if (idAnalysis.intValue() != -2) {
-		              addAnalysisNode(row);
-		            }
-		          } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
-		            addAnalysisGroupNode(row);
-		            if (idAnalysis.intValue() != -2) {
-		              addAnalysisNode(row);
-		            }
-		          } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
-		            if (idAnalysis.intValue() != -2) {
-		              addAnalysisNode(row);          
-		            }
-		          } 
-		
-		          prevIdAnalysis      = idAnalysis;
-		          prevIdAnalysisGroup = idAnalysisGroup;
-		          prevIdLab           = idLab;
-		          
-		          if (analysisCount >= MAX_ANALYSIS_COUNT) {
-		            break;
-		          }
-	        	}
-        	}
-        }
-      }else { // labsWithAnalysesIsASubsetOfAllLabsInQuery is false, don't query Labs as superset
-    	  
+          }
+
           Integer prevIdLab            = new Integer(-1);
           Integer prevIdAnalysisGroup  = new Integer(-1);
           Integer prevIdAnalysis       = new Integer(-1);
-    	               
+
+          // idLab is first entry in Object[] of allLabsInQuery
+          // idLab is key in labsWithAnalyses
+          for(int i = 0; i < allLabsInQuery.size(); i++ ) {
+
+            ArrayList<Object[]> temp = labsWithAnalyses.get((Integer)allLabsInQuery.get(i)[0]);
+            // If labsWithAnalyses doesn't have an entry with this idLab then this lab has no analyses.
+            // Create a place holder node for the tree
+            if(temp == null) {
+              addLabWithZeroAnalyses(allLabsInQuery.get(i));
+              continue;
+            }
+            // Otherwise add the lab and each analysis corresponding to it
+            else {
+              for(Object[] row : temp){
+
+                Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
+                Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
+                Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
+
+                Element n = null;
+                if (idLab.intValue() != prevIdLab.intValue()) {
+                  // Keep track of which of users labs are in results set
+                  if (showMyLabsAlways.equals("Y")) {
+                    myLabMap.remove(idLab);            
+                  }
+                  addLabNode(row);
+                  addAnalysisGroupNode(row);
+                  if (idAnalysis.intValue() != -2) {
+                    addAnalysisNode(row);
+                  }
+                } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
+                  addAnalysisGroupNode(row);
+                  if (idAnalysis.intValue() != -2) {
+                    addAnalysisNode(row);
+                  }
+                } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
+                  if (idAnalysis.intValue() != -2) {
+                    addAnalysisNode(row);          
+                  }
+                } 
+
+                prevIdAnalysis      = idAnalysis;
+                prevIdAnalysisGroup = idAnalysisGroup;
+                prevIdLab           = idLab;
+
+                if (analysisCount >= MAX_ANALYSIS_COUNT) {
+                  break;
+                }
+              }
+            }
+          }
+        }else { // labsWithAnalysesIsASubsetOfAllLabsInQuery is false, don't query Labs as superset
+
+          Integer prevIdLab            = new Integer(-1);
+          Integer prevIdAnalysisGroup  = new Integer(-1);
+          Integer prevIdAnalysis       = new Integer(-1);
+
           StringBuffer buf = filter.getQuery(this.getSecAdvisor());
           log.info("Query for GetAnalysisGroupList: " + buf.toString());
           results = (List)sess.createQuery(buf.toString()).list();
-          
+
           for(Iterator i = results.iterator(); i.hasNext();) {
-              Object[] row = (Object[])i.next();
-              
-	          Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
-	          Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
-	          Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
-	          
-	          Element n = null;
-	          if (idLab.intValue() != prevIdLab.intValue()) {
-	            // Keep track of which of users labs are in results set
-	            if (showMyLabsAlways.equals("Y")) {
-	              myLabMap.remove(idLab);            
-	            }
-	            addLabNode(row);
-	            addAnalysisGroupNode(row);
-	            if (idAnalysis.intValue() != -2) {
-	              addAnalysisNode(row);
-	            }
-	          } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
-	            addAnalysisGroupNode(row);
-	            if (idAnalysis.intValue() != -2) {
-	              addAnalysisNode(row);
-	            }
-	          } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
-	            if (idAnalysis.intValue() != -2) {
-	              addAnalysisNode(row);          
-	            }
-	          } 
-	
-	          prevIdAnalysis      = idAnalysis;
-	          prevIdAnalysisGroup = idAnalysisGroup;
-	          prevIdLab           = idLab;
-	          
-	          if (analysisCount >= MAX_ANALYSIS_COUNT) {
-	            break;
-	          }
-        	}
-        	
+            Object[] row = (Object[])i.next();
+
+            Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
+            Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
+            Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
+
+            Element n = null;
+            if (idLab.intValue() != prevIdLab.intValue()) {
+              // Keep track of which of users labs are in results set
+              if (showMyLabsAlways.equals("Y")) {
+                myLabMap.remove(idLab);            
+              }
+              addLabNode(row);
+              addAnalysisGroupNode(row);
+              if (idAnalysis.intValue() != -2) {
+                addAnalysisNode(row);
+              }
+            } else if (idAnalysisGroup.intValue() != prevIdAnalysisGroup.intValue()) {
+              addAnalysisGroupNode(row);
+              if (idAnalysis.intValue() != -2) {
+                addAnalysisNode(row);
+              }
+            } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
+              if (idAnalysis.intValue() != -2) {
+                addAnalysisNode(row);          
+              }
+            } 
+
+            prevIdAnalysis      = idAnalysis;
+            prevIdAnalysisGroup = idAnalysisGroup;
+            prevIdLab           = idLab;
+
+            if (analysisCount >= MAX_ANALYSIS_COUNT) {
+              break;
+            }
+          }
+
         }
-        
+
         // For those labs that user is member of that do not have any projects,
         // create a lab node in the XML document.
         if (showMyLabsAlways.equals("Y")) {
@@ -239,9 +239,9 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
         rootNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
         message = analysisCount == MAX_ANALYSIS_COUNT ? "First " + MAX_ANALYSIS_COUNT + " displayed" : ""; 
         rootNode.setAttribute("message", message);
-    }
-   
-      
+      }
+
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
@@ -251,14 +251,14 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
       rootNode = null;
       results = null;
       System.gc();
-      
-      
+
+
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetAnalysisGroupList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (SQLException e) {
       log.error("An exception has occurred in GetAnalysisGroupList ", e);
       e.printStackTrace(System.out);
@@ -271,16 +271,16 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
 
-  
+
   private void addLabNode(Object[] row) {
-    String labName = Lab.formatLabName((String)row[5], (String)row[6]);
+    String labName = Lab.formatLabNameFirstLast((String)row[6], (String)row[5]);
 
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            ((Integer)row[3]).toString());
@@ -292,30 +292,30 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
   private void addLabNode(Lab lab) {
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            lab.getIdLab().toString());
-    labNode.setAttribute("labName",          lab.getName());
-    labNode.setAttribute("label",            lab.getName());
+    labNode.setAttribute("labName",          lab.getName(false, true));
+    labNode.setAttribute("label",            lab.getName(false, true));
     rootNode.addContent(labNode);
   }
-  
+
   private void addAnalysisGroupNode(Object[] row) {
-    String labName = Lab.formatLabName((String)row[5], (String)row[6]);
+    String labName = Lab.formatLabNameFirstLast((String)row[6], (String)row[5]);
 
     analysisGroupNode = new Element("AnalysisGroup");
     analysisGroupNode.setAttribute("idAnalysisGroup", row[0] == null ? ""  : ((Integer)row[0]).toString());
     analysisGroupNode.setAttribute("name",            row[1] == null ? ""  : (String)row[1]);
     analysisGroupNode.setAttribute("label",           row[1] == null ? ""  : (String)row[1]);
     analysisGroupNode.setAttribute("description",     row[2] == null ? ""  : (String)row[2]);
-    
+
     analysisGroupNode.setAttribute("idLab",           row[3] == null ? "" : ((Integer)row[3]).toString());
     analysisGroupNode.setAttribute("labName",         labName);
-    
+
     labNode.addContent(analysisGroupNode);
   }
-  
+
   private void addAnalysisNode(Object[] row) {
-    String labName = Lab.formatLabName( (String)row[5], (String)row[6]);
-    
-    String aLabName = Lab.formatLabName( (String)row[13], (String)row[14]);
+    String labName = Lab.formatLabNameFirstLast( (String)row[6], (String)row[5]);
+
+    String aLabName = Lab.formatLabNameFirstLast( (String)row[14], (String)row[13]);
 
     analysisNode = new Element("Analysis");
     analysisNode.setAttribute("idAnalysis",         row[7] == null ? ""  : ((Integer)row[7]).toString());
@@ -344,16 +344,16 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
       ownerName += " " + lastName;
     }
     analysisNode.setAttribute ("ownerName", ownerName);
-    
+
     analysisNode.setAttribute("isDirty",                "N");
     analysisNode.setAttribute("isSelected",             "N");
-    
+
     if (analysisNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       analysisNode.setAttribute("requestPublicNote",          "(Public) ");
     } else {
       analysisNode.setAttribute("requestPublicNote", "");
     }
-    
+
     String createDate    = this.formatDate((java.sql.Date)row[11]);
     String analysisNumber = (String)row[8];
     String tokens[] = createDate.split("/");
@@ -369,30 +369,30 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
 
     analysisGroupNode.addContent(analysisNode);
-    
+
     analysisCount++;
   }
-  
+
   private void addLabWithZeroAnalyses(Object[] row) {
-	  
-		    String labName = Lab.formatLabName((String)row[1], (String)row[2]);
 
-		    labNode = new Element("Lab");
-		    labNode.setAttribute("idLab",            ((Integer)row[0]).toString());
-		    labNode.setAttribute("labName",          labName);
-		    labNode.setAttribute("label",            labName);
-		    rootNode.addContent(labNode);	  
-		  
+    String labName = Lab.formatLabNameFirstLast((String)row[2], (String)row[1]);
 
-//		    analysisGroupNode = new Element("AnalysisGroup");
-//		    analysisGroupNode.setAttribute("idAnalysisGroup", "");			//row[0] == null ? ""  : ((Integer)row[0]).toString());
-//		    analysisGroupNode.setAttribute("name",            "Analysis Group Name");		//row[1] == null ? ""  : (String)row[1]);
-//		    analysisGroupNode.setAttribute("label",           "Analysis Group Name");							//row[1] == null ? ""  : (String)row[1]);
-//		    analysisGroupNode.setAttribute("description",     "Analysis Group Description");							//row[2] == null ? ""  : (String)row[2]);
-//		    
-//		    analysisGroupNode.setAttribute("idLab",           row[0] == null ? "" : ((Integer)row[0]).toString());
-//		    analysisGroupNode.setAttribute("labName",         labName);
-//		    
-//		    labNode.addContent(analysisGroupNode);
- }  
+    labNode = new Element("Lab");
+    labNode.setAttribute("idLab",            ((Integer)row[0]).toString());
+    labNode.setAttribute("labName",          labName);
+    labNode.setAttribute("label",            labName);
+    rootNode.addContent(labNode);	  
+
+
+    //		    analysisGroupNode = new Element("AnalysisGroup");
+    //		    analysisGroupNode.setAttribute("idAnalysisGroup", "");			//row[0] == null ? ""  : ((Integer)row[0]).toString());
+    //		    analysisGroupNode.setAttribute("name",            "Analysis Group Name");		//row[1] == null ? ""  : (String)row[1]);
+    //		    analysisGroupNode.setAttribute("label",           "Analysis Group Name");							//row[1] == null ? ""  : (String)row[1]);
+    //		    analysisGroupNode.setAttribute("description",     "Analysis Group Description");							//row[2] == null ? ""  : (String)row[2]);
+    //		    
+    //		    analysisGroupNode.setAttribute("idLab",           row[0] == null ? "" : ((Integer)row[0]).toString());
+    //		    analysisGroupNode.setAttribute("labName",         labName);
+    //		    
+    //		    labNode.addContent(analysisGroupNode);
+  }  
 }
