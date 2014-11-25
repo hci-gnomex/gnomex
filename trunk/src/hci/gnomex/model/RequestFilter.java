@@ -256,9 +256,9 @@ public class RequestFilter extends DetailObject {
     } 
     if (codeRequestCategory != null && !codeRequestCategory.equals("")){
       this.addWhereOrAnd();
-      queryBuf.append(" req.codeRequestCategory like '");
+      queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(codeRequestCategory);
-      queryBuf.append("%'");
+      queryBuf.append("'");
     } 
     if (idCoreFacility != null){
       this.addWhereOrAnd();
