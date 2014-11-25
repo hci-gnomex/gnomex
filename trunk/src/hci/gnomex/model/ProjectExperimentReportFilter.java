@@ -5,16 +5,16 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
 public class ProjectExperimentReportFilter extends DetailObject {
-  
-  
+
+
   // Criteria
   private Integer               idAppUser;
   private Integer               idLab;
-  
+
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
-  
+
   public static final int       COL_LAB_LASTNAME = 0;
   public static final int       COL_LAB_FIRSTNAME = 1;
   public static final int       COL_SUBMITTER_LASTNAME = 2;
@@ -36,12 +36,12 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public static final int       COL_PROJECT_NAME = 18;
   public static final int       COL_PROJECT_DESCRIPTION = 19;
 
-  
+
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
-    
+
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append(" min(lab.lastName), ");
     queryBuf.append(" min(lab.firstName), ");
@@ -63,18 +63,18 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" min(req.name), ");
     queryBuf.append(" min(project.name), ");
     queryBuf.append(" min(project.description) ");
-    
+
     getQueryBody(queryBuf);
 
     queryBuf.append(" group by req.idRequest ");
-    queryBuf.append(" order by min(lab.lastName), min(lab.firstName), req.idRequest ");
+    queryBuf.append(" order by min(lab.firstName), min(lab.lastName), req.idRequest ");
 
     return queryBuf;
-    
+
   }
-  
+
   public void getQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        req.submitter as submitter ");
@@ -82,10 +82,10 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" JOIN        req.appUser as owner ");
     queryBuf.append(" JOIN        req.project as project ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
-    
+
     addRequestCriteria();
     addSecurityCriteria();
-    
+
   }
 
   private void addRequestCriteria() {
@@ -101,17 +101,17 @@ public class ProjectExperimentReportFilter extends DetailObject {
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
     }
-    
+
     if(idLab == null){
       this.addWhereOrAnd();
       queryBuf.append(" lab.excludeUsage != 'Y' ");
     }
   }
-  
+
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
-  
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -121,20 +121,20 @@ public class ProjectExperimentReportFilter extends DetailObject {
     }
     return addWhere;
   }
-  
+
   public Integer getIdLab() {
     return idLab;
   }
 
-  
+
   public Integer getIdUser() {
     return idAppUser;
   }
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-  
+
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }

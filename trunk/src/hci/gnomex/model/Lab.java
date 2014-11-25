@@ -321,8 +321,13 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     this.lastName = lastName;
   }
 
-  public String getFormattedLabName() {
-    return formatLabName(getLastName(), getFirstName());
+  public String getFormattedLabName(boolean firstLast) {
+    if(firstLast) {
+      return formatLabNameFirstLast(getFirstName(), getLastName());
+    } else {
+      return formatLabName(getLastName(), getFirstName());
+
+    }
   }
 
   public static String formatLabName(String lastName, String firstName) {
@@ -337,6 +342,23 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       }
       labName += firstName;
     }
+    if (labName.length() > 0) {
+      labName += " Lab";
+    }
+    return labName;
+  }
+
+  public static String formatLabNameFirstLast(String firstName, String lastName) {
+
+    String labName = "";
+    if (firstName != null && !firstName.equals("")) {
+      labName = firstName;
+    }
+
+    if (lastName != null && !lastName.equals("")) {
+      labName += " " + lastName;
+    }
+
     if (labName.length() > 0) {
       labName += " Lab";
     }

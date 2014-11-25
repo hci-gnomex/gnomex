@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class AppUser extends HibernateDetailObject implements Serializable, Comparable {
   public static final String    MASKED_PASSWORD = "XXXX";
-  
+
   private Integer idAppUser;
   private String  firstName;
   private String  lastName;
@@ -34,10 +34,10 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     managingLabs;
   private Set     managingCoreFacilities;
   private Set     coreFacilitiesICanSubmitTo;
-  
-  
+
+
   public static String formatName(String lastName, String firstName) {
-    
+
     String name = "";
     if (lastName != null && !lastName.equals("")) {
       name = lastName;
@@ -48,10 +48,26 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
       }
       name += firstName;
     }
-    
+
     return name;
   }
-  
+
+  public static String formatNameFirstLast(String firstName, String lastName) {
+
+    String name = "";
+    if (firstName != null && !firstName.equals("")) {
+      name = firstName;
+    }
+    if (lastName != null && !lastName.equals("")) {
+      if (name.length() > 0) {
+        name += ", ";
+      }
+      name += lastName;
+    }
+
+    return name;
+  }
+
   public static String formatShortName(String lastName, String firstName) {
     String name = "";
     if (firstName != null && !firstName.equals("")) {
@@ -62,117 +78,117 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return name.toLowerCase();    
   }
-  
+
   public String getDepartment() {
     return department;
   }
-  
+
   public void setDepartment(String department) {
     this.department = department;
   }
-  
+
   public String getEmail() {
     return email;
   }
-  
+
   public void setEmail(String email) {
     this.email = email;
   }
-  
+
   public String getFirstName() {
     return firstName;
   }
-  
+
   public void setFirstName(String firstName) {
     this.firstName = firstName;
   }
-  
+
   public Integer getIdAppUser() {
     return idAppUser;
   }
-  
+
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
-  
+
   public String getInstitute() {
     return institute;
   }
-  
+
   public void setInstitute(String institute) {
     this.institute = institute;
   }
-  
+
   public String getIsActive() {
     return isActive;
   }
-  
+
   public void setIsActive(String isActive) {
     this.isActive = isActive;
   }
-  
+
   public String getJobTitle() {
     return jobTitle;
   }
-  
+
   public void setJobTitle(String jobTitle) {
     this.jobTitle = jobTitle;
   }
-  
+
   public String getLastName() {
     return lastName;
   }
-  
+
   public void setLastName(String lastName) {
     this.lastName = lastName;
   }
-  
+
   public String getPhone() {
     return phone;
   }
-  
+
   public void setPhone(String phone) {
     this.phone = phone;
   }
-  
+
   public String getuNID() {
     return uNID;
   }
-  
+
   public void setuNID(String uNID) {
     this.uNID = uNID;
   }
-  
+
   public Set getLabs() {
     return labs;
   }
 
-  
+
   public void setLabs(Set labs) {
     this.labs = labs;
   }
- 
 
-  
+
+
   public String getCodeUserPermissionKind() {
     return codeUserPermissionKind;
   }
 
-  
+
   public void setCodeUserPermissionKind(String codeUserPermissionKind) {
     this.codeUserPermissionKind = codeUserPermissionKind;
   }
-  
+
   public String getPasswordExternal() {
     return passwordExternal;
   }
 
-  
+
   public void setPasswordExternal(String passwordExternal) {
     this.passwordExternal = passwordExternal;
   }
 
-  
+
   public String getSalt() {
     return salt;
   }
@@ -209,26 +225,26 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     return userNameExternal;
   }
 
-  
+
   public void setUserNameExternal(String userNameExternal) {
     this.userNameExternal = userNameExternal;
   }
 
-  
+
   public Set getCollaboratingLabs() {
     return collaboratingLabs;
   }
 
-  
+
   public void setCollaboratingLabs(Set collaboratingLabs) {
     this.collaboratingLabs = collaboratingLabs;
   }
 
-  
+
   public Set getManagingLabs() {
     return managingLabs;
   }
-  
+
   public String getPasswordExternalEntered() {
     if (this.passwordExternal != null && !this.passwordExternal.equals("")) {
       return MASKED_PASSWORD;      
@@ -237,18 +253,18 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
   }
 
-  
+
   public void setManagingLabs(Set managingLabs) {
     this.managingLabs = managingLabs;
   }
-  
+
   public Set getManagingCoreFacilities() {
     return managingCoreFacilities;
   }
   public void setManagingCoreFacilities(Set facilities) {
     managingCoreFacilities = facilities;
   }
-  
+
   public Set getCoreFacilitiesICanSubmitTo() {
     return coreFacilitiesICanSubmitTo;
   }
@@ -266,7 +282,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return isExternal;
   }
-  
+
   public String getQualifiedDisplayName() {
     if (getIsExternalUser().equals("Y")) {
       return getDisplayName() + " (external user)";
@@ -294,7 +310,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return name;
   }
-  
+
   public String getFirstLastDisplayName() {
     String name = "";
     if (firstName != null && !firstName.equals("")) {
@@ -308,7 +324,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return name;
   }
-  
+
   public int compareTo(Object o) {
     if (o instanceof AppUser) {
       AppUser other = (AppUser)o;      
@@ -327,7 +343,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   public void setUcscUrl(String ucscUrl) {
     this.ucscUrl = ucscUrl;
   }  
-  
+
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getPasswordExternal");
   }

@@ -264,7 +264,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         try {
           sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, true);        
         } catch (Exception e) {
-          log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
+          log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
         }
 
       }
@@ -272,7 +272,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       try {
         sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, false);        
       } catch (Exception e) {
-        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
+        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
       }
       //log.error("Unable to send invoice email to billing contact for lab " + lab.getName());      
     }
@@ -315,7 +315,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       notifyCoreFacilityOfEmptyBillingEmail = true;
       //emailInfo += "Please note that we could not send the following invoice to the lab specified because the lab has no email address on file.  Please update the lab's information.<br><br>";
       missingBillingEmailNote = "Please note that the invoice for the account " + billingAccount.getAccountNameDisplay() + 
-      ", assigned to the " + lab.getName() + ", under the billing period " + 
+      ", assigned to the " + lab.getName(false, true) + ", under the billing period " + 
       billingPeriod.getDisplay() + 
       " has not been delivered because no billing contact email or P.I. email was on file for the lab.  Please update the lab's billing contact information for the future.<br><br>";
 

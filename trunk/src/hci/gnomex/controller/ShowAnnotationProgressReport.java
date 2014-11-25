@@ -212,7 +212,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         Integer idOrganism = (Integer)row[RequestSampleFilter.COL_SAMPLE_ID_ORGANISM];
         String codeRequestCategory = (String)row[RequestSampleFilter.COL_CODE_REQUEST_CATEGORY];
         String codeApplication = (String)row[RequestSampleFilter.COL_CODE_APPLICATION];
-        String labName = Lab.formatLabName(labLastName, labFirstName);
+        String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
         String sampleNumber = (String)row[RequestSampleFilter.COL_SAMPLE_NUMBER];
 
 

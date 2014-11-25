@@ -308,8 +308,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   }
 
   private void addLabNode(Object[] row) {
-    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
-    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
+    String labName = Lab.formatLabNameFirstLast((String)row[18], (String)row[17]);
+    String projectLabName = Lab.formatLabNameFirstLast((String)row[21], (String)row[20]);
 
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            ((Integer)row[11]).toString());
@@ -322,9 +322,9 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private void addLabNode(Lab lab) {
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            lab.getIdLab().toString());
-    labNode.setAttribute("labName",          lab.getName());
-    labNode.setAttribute("projectLabName",   lab.getName());
-    labNode.setAttribute("label",            lab.getName());
+    labNode.setAttribute("labName",          lab.getName(false, true));
+    labNode.setAttribute("projectLabName",   lab.getName(false, true));
+    labNode.setAttribute("label",            lab.getName(false, true));
     rootNode.addContent(labNode);
   }
 
@@ -358,8 +358,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
   private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper) {
     experimentCount++;
-    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
-    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
+    String labName = Lab.formatLabNameFirstLast((String)row[18], (String)row[17]);
+    String projectLabName = Lab.formatLabNameFirstLast((String)row[21], (String)row[20]);
 
 
     String codeRequestCategory =  row[15] == null ? "" : ((String)row[15]).toString();

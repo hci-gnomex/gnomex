@@ -29,17 +29,17 @@ import org.hibernate.Session;
 
 
 public class GenerateUserAccountEmail extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroup.class);
-  
+
   private Integer idLab;
   private String  serverName;
   private int     emailCount = 0;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idLab") != null) {
@@ -48,7 +48,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
       this.addInvalidField("permission", "Insufficient permissions to generate lab account emails.");
     }
-    
+
 
     serverName = request.getServerName();
 
@@ -57,10 +57,10 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
   public Command execute() throws RollBackCommandException {
     emailCount = 0;
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-      
+
       List<Lab> labs = new ArrayList<Lab>();
       if (this.idLab != null) {
         Lab lab = (Lab)sess.load(Lab.class, idLab);
@@ -68,25 +68,25 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       } else {
         labs = (List<Lab>)sess.createQuery("SELECT l from Lab as l ORDER BY l.lastName, l.firstName ").list();
       }
-      
+
       for (Iterator i = labs.iterator(); i.hasNext();) {
         Lab l = (Lab)i.next();
-        
+
         // Bypass labs without contact email
         if (l.getContactEmail() == null || l.getContactEmail().equals("")) {
           log.warn("Bypassing email of user accounts to lab " + l.getName() + ". Contact email not filled in.");
           continue;
         }
-        
+
         String sendTo = null;
         String[] tokens = l.getContactEmail().split(",", 2);
         if (tokens.length > 0) {
           sendTo = tokens[0];
         }
-        
-        
-        
-        
+
+
+
+
         TreeMap<String, String> managers = new TreeMap<String, String>();
         for(Iterator i1 = l.getManagers().iterator(); i1.hasNext();) {
           AppUser manager = (AppUser)i1.next();
@@ -111,45 +111,36 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
           }
         }          
 
-        String labName = "";
-        if (l.getFirstName() != null && !l.getFirstName().equals("")) {
-          labName = l.getFirstName();
-        }
-        if (l.getLastName() != null && !l.getLastName().equals("")) {
-          if (labName.length() > 0) {
-            labName += " ";
-          }
-          labName += l.getLastName();
-        }
+        String labName =  l.getName(false, true);
 
         // Bypass labs without any user accounts
         if (managers.isEmpty() && members.isEmpty() && collaborators.isEmpty()) {
           log.warn("Bypassing email of user accounts to lab " + labName + ". No user accounts exist for this lab.");
           continue;
         }
-        
+
         // Format email body
         VerifyLabUsersEmailFormatter emailFormatter = new VerifyLabUsersEmailFormatter(sess, l, labName, managers, members, collaborators);
         String emailBody = emailFormatter.format(this.getSecAdvisor().getAppUser());
-        
-        
+
+
         String subject = "GNomEx user accounts for " + labName + (labName.contains("Lab") || labName.contains("lab") ? "" : " Lab");
         this.sendEmail(sess, pdh, sendTo, null, emailBody, subject, l);
       }
-      
-    
+
+
       if (isValid()) {
         this.xmlResult = "<SUCCESS emailCount='" + emailCount + "'" + "/>";
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (NamingException e){
       log.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
@@ -170,20 +161,20 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException {
-    
-   
+
+
     boolean send = false;
     String theSubject = "";
     String emailInfo = "";
-    
+
     if(!MailUtil.isValidEmail(sendTo)){
       log.error("Invalid email " + sendTo);
     }
@@ -198,7 +189,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       sendTo = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       ccTo = null;
     }
-    
+
     String from = dictionaryHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     if (this.getSecAdvisor().getAppUser().getEmail()!=null) {
       from = this.getSecAdvisor().getAppUser().getEmail();
@@ -215,7 +206,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
           true);
       emailCount++;
     }
-    
+
   }
 
 }

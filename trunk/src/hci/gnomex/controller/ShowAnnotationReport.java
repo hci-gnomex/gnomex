@@ -204,7 +204,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
               continue;
             }
 
-            String labName = Lab.formatLabName(labLastName, labFirstName);
+            String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
             String submitterName = AppUser.formatName(submitterLastName, submitterFirstName);
 
             String organism = idOrganism != null ? dh.getOrganism(idOrganism) : "";
@@ -248,7 +248,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             String folderName = (String)row[AnalysisGroupFilter.COL_ID_ANALYSIS_GROUP_NAME];
             Integer idAnalysisType = (Integer)row[AnalysisGroupFilter.COL_ID_ANALYSIS_TYPE];
 
-            String labName = Lab.formatLabName(labLastName, labFirstName);
+            String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
             String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
             String organism = idOrganism != null ? dh.getOrganism(idOrganism) : "";
             String analysisType = idAnalysisType != null ? dh.getAnalysisType(idAnalysisType) : "";
@@ -267,7 +267,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
               Organism organism = (Organism)row[DataTrackQuery.COL_ORGANISM];
               GenomeBuild genomeBuild = (GenomeBuild)row[DataTrackQuery.COL_GENOME_BUILD];
 
-              String labName = dataTrack.getLab() != null ? dataTrack.getLab().getName() : "";
+              String labName = dataTrack.getLab() != null ? dataTrack.getLab().getName(false, true) : "";
               String ownerName = dataTrack.getAppUser() != null ? dataTrack.getAppUser().getDisplayName() : "";
 
 
