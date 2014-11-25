@@ -12,24 +12,24 @@ public class ChromatogramFilter extends DetailObject {
   // Criteria
   private Integer               idChromatogram;
   private Integer               idRequest;
-  
+
   private String                requestNumber;
   private Integer               idInstrumentRun;
   private String                runName;
   private String                plateName;
-  
+
   private String                getAll = "N";
 
   private String                lastWeek = "N";
   private String                lastMonth = "N";
   private String                lastThreeMonths = "N";
   private String                lastYear = "N";
-  
+
   private String                released = "";
-  
+
   private String                capSeq = "";
   private String                mitSeq = "";
-  
+
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
@@ -70,7 +70,7 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        pw.position, ");
     queryBuf.append("        plate.quadrant, ");
     queryBuf.append("        sample.idSampleType ");
-        
+
     getQueryBody(queryBuf);
 
     return queryBuf;
@@ -80,13 +80,13 @@ public class ChromatogramFilter extends DetailObject {
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
-    if (released.equals("Y") &&
+    if ((released.equals("Y") || released.equals("")) &&
         (lastWeek.equals("N") && lastMonth.equals("N") && lastThreeMonths.equals("N")) &&
         (plateName == null || plateName.equals("")) &&
         (runName == null || runName.equals("")) &&
         (requestNumber == null || requestNumber.equals("")) &&
         (idRequest == null)) {
-      // If we are showing both released as unreleased, make sure that we have another
+      // If we are showing both released and unreleased, make sure that we have another
       // filter to limit the results
       hasLimitingCriteria = false;
     } else if (idChromatogram != null ||
@@ -95,8 +95,8 @@ public class ChromatogramFilter extends DetailObject {
         idInstrumentRun != null ||
         (runName != null && !runName.equals("")) ||
         (plateName != null && !plateName.equals("")) ||
-//        (capSeq != null && capSeq.equals("Y")) ||
-//        (mitSeq != null && mitSeq.equals("Y")) ||
+        //        (capSeq != null && capSeq.equals("Y")) ||
+        //        (mitSeq != null && mitSeq.equals("Y")) ||
         (lastWeek != null && lastWeek.equals("Y")) ||
         (lastMonth != null && lastMonth.equals("Y")) ||
         (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
@@ -118,7 +118,7 @@ public class ChromatogramFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM                Chromatogram as c ");
-    
+
     queryBuf.append("LEFT JOIN    c.plateWell as pw ");
     queryBuf.append("LEFT JOIN    pw.plate as plate ");
     queryBuf.append("LEFT JOIN    plate.instrumentRun as run ");
@@ -127,7 +127,7 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("LEFT JOIN    req.appUser as submitter ");
 
     addCriteria();
-    
+
     queryBuf.append(" order by run.idInstrumentRun, plate.quadrant, pw.position, c.idRequest");
   }
 
@@ -181,41 +181,41 @@ public class ChromatogramFilter extends DetailObject {
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }    
-    
+
     if (requestNumber != null) {
       this.addWhereOrAnd();
-      
+
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "' OR req.number like '" + requestNumberBase + "R[0-9]' OR req.number = '" + requestNumberBase + "R') ");
     }
-    
+
     if (idChromatogram != null){
       this.addWhereOrAnd();
       queryBuf.append(" c.idChromatogram = ");
       queryBuf.append(idChromatogram);
     } 
-    
+
     if (idInstrumentRun != null){
       this.addWhereOrAnd();
       queryBuf.append(" run.idInstrumentRun = ");
       queryBuf.append(idInstrumentRun);
     }
-    
-    
+
+
     if (runName != null){
       this.addWhereOrAnd();
       queryBuf.append(" run.label like '");
       queryBuf.append(runName);
       queryBuf.append("%' ");
     }
-    
+
     if (plateName != null){
       this.addWhereOrAnd();
       queryBuf.append(" plate.label like '");
       queryBuf.append(plateName);
       queryBuf.append("%' ");
     }
-    
+
     // Cap seq
     if (capSeq.equals("Y")) {
       this.addWhereOrAnd();
@@ -230,7 +230,7 @@ public class ChromatogramFilter extends DetailObject {
       queryBuf.append(ReactionType.MITO_DLOOP_REACTION_TYPE);
       queryBuf.append("' ");
     }
-    
+
     if (idRequest != null){
       this.addWhereOrAnd();
       queryBuf.append(" c.idRequest = ");
@@ -246,7 +246,7 @@ public class ChromatogramFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" c.releaseDate is null ");
     } 
-    
+
   }
 
 
@@ -399,7 +399,7 @@ public class ChromatogramFilter extends DetailObject {
   public void setPlateName(String plateName) {
     this.plateName = plateName;
   }
-  
+
 
 
 }
