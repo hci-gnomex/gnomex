@@ -102,7 +102,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   }
 
   public String getSubject() {
-    return lab.getFormattedLabName() + " GNomEx File Deletion Warning";
+    return lab.getFormattedLabName(true) + " GNomEx File Deletion Warning";
   }
   
   private String getCascadingStyleSheet() {
