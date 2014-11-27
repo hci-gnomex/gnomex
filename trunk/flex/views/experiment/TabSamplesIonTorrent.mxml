@@ -432,7 +432,8 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn visible="{!isExternal}" 
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}"
+										   editable="{parentApplication.isAdminState}"
 										   headerText="QC 260/230" 
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
@@ -467,8 +468,9 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn visible="{!isExternal}" 
-										   headerText="QC RIN" 
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+										   headerText="QC RIN"
+										   editable="{parentApplication.isAdminState}"
 										   width="70" 
 										   dataField="@qualRINNumber" 
 										   id="qualRINCol" 
