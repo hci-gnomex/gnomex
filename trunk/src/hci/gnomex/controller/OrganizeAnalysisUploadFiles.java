@@ -237,7 +237,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     af.setFileName(new File(fileName).getName());
                     af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
                   }
-                    
+
                   if(duplicateUpload){
                     af.setFileSize(new BigDecimal(new File(mostRecentFile).length()));
                     Boolean firstUpload = true;
@@ -390,6 +390,20 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
             }
           }
+
+          //clean up ghost files
+          List ghostFiles = sess.createQuery( "SELECT af from AnalysisFile af where af.idAnalysis = " + idAnalysis).list();
+
+          for(Iterator i = ghostFiles.iterator(); i.hasNext();) {
+            AnalysisFile af  = (AnalysisFile) i.next();
+            String filePath = af.getBaseFilePath() + File.separator + af.getQualifiedFilePath() + File.separator + af.getFileName();
+
+            if(!new File(filePath).exists()) {
+              analysis.getFiles().remove(af);
+            }
+          }
+
+          sess.flush();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";
