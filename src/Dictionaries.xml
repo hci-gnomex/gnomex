@@ -64,7 +64,7 @@
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
   <Dictionary displayName="Sample Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
-  <Dictionary displayName="Sample Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
+  <Dictionary displayName="Sample QC Assay/Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
   </Dictionary>
   <Dictionary displayName="Submission Instructions" className="hci.gnomex.model.SubmissionInstruction" >
