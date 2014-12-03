@@ -129,6 +129,10 @@ public class GetLab extends GNomExCommand implements Serializable {
         }
 
 
+        //Get product qty counts and append to lab node below
+        buf = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
+        List productQuantity = sess.createQuery(buf.toString()).list();
+
 
         Document doc = new Document(new Element("OpenLabList"));
         theLab.excludeMethodFromXML("getApprovedBillingAccounts");  // Added explicitly below
@@ -145,6 +149,7 @@ public class GetLab extends GNomExCommand implements Serializable {
         this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode, theLab);
+        this.appendProductCount(labNode, productQuantity);
 
         doc.getRootElement().addContent(labNode);
 
@@ -184,6 +189,9 @@ public class GetLab extends GNomExCommand implements Serializable {
           Hibernate.initialize(ba.getUsers());
         }
 
+        //Get product qty counts and append to lab node below
+        StringBuffer buf = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
+        List productQuantity = sess.createQuery(buf.toString()).list();
 
         Document doc = new Document(new Element("OpenLabList"));
         Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -192,6 +200,7 @@ public class GetLab extends GNomExCommand implements Serializable {
         }
         this.appendSubmitters(labNode, theLab);
         this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
+        this.appendProductCount(labNode, productQuantity);
         doc.getRootElement().addContent(labNode);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -256,6 +265,26 @@ public class GetLab extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+
+  private void appendProductCount(Element labNode, List productQuantities) {
+    Element productCounts = new Element("productCounts");
+
+    for(Iterator i = productQuantities.iterator(); i.hasNext();) {
+      Element product = new Element("product");
+      Object[] row = (Object[])i.next();
+      Integer idProduct = (Integer)row[0];
+      Integer qty = (Integer)row[1];
+
+      product.setAttribute("idProduct", idProduct.toString());
+      product.setAttribute("qty", qty.toString());
+
+      productCounts.addContent(product);
+    }
+
+    labNode.addContent(productCounts);
+
+
   }
 
   private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {

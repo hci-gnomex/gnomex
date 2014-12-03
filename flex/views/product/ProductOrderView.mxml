@@ -191,8 +191,29 @@
 				
 			}
 			
-			private function onGetLab(event:ResultEvent):void {			
-				lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+			private function onGetLab(event:ResultEvent):void {
+				if(getLab.lastResult.name() == 'OpenLabList'){
+					lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+					var found:Boolean = false;
+					for each(var product:XML in productList){
+						found = false;
+						for each(var labProduct:XML in lab.productCounts.product){
+							if(product.@idProduct == labProduct.@idProduct){
+								product.@currentProductCount = labProduct.@qty;
+								found = true;
+								break;
+							}
+						}
+						if(!found){
+							product.@currentProductCount = "0";
+						}
+					}
+					productList.refresh();
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error getting orders" );
+				}
+				
+				
 			}
 			
 			private function onSaveProductOrder(event:ResultEvent):void {			
@@ -383,7 +404,8 @@
 			<mx:Label text="Product Type" textDecoration="underline" width="187"/>
 			<mx:Label text="Quantity" textDecoration="underline" width="165"/>
 			<mx:Label text="Price" textDecoration="underline" width="159"/>
-			<mx:Label text="Total" textDecoration="underline" />
+			<mx:Label text="Total" textDecoration="underline"  width="106"/>
+			<mx:Label text="Current Product Count" textDecoration="underline" width="152" id="text4"/>
 		</mx:HBox>
 		
 		<mx:VBox width="100%" id="repeaterBox" visible="{billingAccountCombo.selectedIndex > -1}">
@@ -397,6 +419,8 @@
 					<mx:Spacer width="20"/>
 					<mx:Text text=" = " width="53" id="text2"/>
 					<mx:Label id="productTotal" text="{'$' + String(int(productRepeater.currentItem.@quantity) * int(getUnitPrice(productRepeater.currentItem)))}" />
+					<mx:Spacer width="120"/>
+					<mx:Label id="productCount" textAlign="center" color="{productRepeater.currentItem.@currentProductCount != '0' ? 0x197319 : 0x000000}" text="{productRepeater.currentItem.@currentProductCount}" />
 				</mx:HBox>
 			</mx:Repeater>
 		</mx:VBox>
