@@ -31,9 +31,9 @@ import org.jdom.output.XMLOutputter;
 
 
 
-public class GetProductOrderList extends GNomExCommand implements Serializable {
+public class GetProductOrderLineItemList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderList.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderLineItemList.class);
 
   private ProductOrderFilter productOrderFilter;
   private HashMap<Integer, List<Object[]>> lineItemMap = new HashMap<Integer, List<Object[]>>();
@@ -64,7 +64,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("ProductOrderList"));
 
       StringBuffer buf = productOrderFilter.getProductOrderQuery();
-      log.info("Query for GetProductOrderList: " + buf.toString());
+      log.info("Query for GetProductOrderLineItemList: " + buf.toString());
       
       List productOrders = sess.createQuery(buf.toString()).list();
 
@@ -131,15 +131,15 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetProductOrderList ", e);
+      log.error("An exception has occurred in GetProductOrderLineItemList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetProductOrderList ", e);
+      log.error("An exception has occurred in GetProductOrderLineItemList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetProductOrderList ", e);
+      log.error("An exception has occurred in GetProductOrderLineItemList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
