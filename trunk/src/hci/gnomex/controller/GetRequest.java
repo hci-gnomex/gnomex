@@ -496,6 +496,19 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
           
+          TreeMap<Integer, Integer> map1 = new TreeMap<Integer, Integer>();
+          for(Iterator i5 = request.getSequenceLanes().iterator(); i5.hasNext();) {
+            SequenceLane seq = (SequenceLane)i5.next();
+            if (seq.getIdNumberSequencingCyclesAllowed() != null && !map1.containsKey(seq.getIdNumberSequencingCyclesAllowed())) {
+              map1.put(seq.getIdNumberSequencingCyclesAllowed(), 1);
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", seq.getIdNumberSequencingCyclesAllowed().toString());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.NumberSequencingCyclesAllowed");
+              protocolNode.setAttribute("label", dh.getIlluminaSequencingProtocol(seq.getIdNumberSequencingCyclesAllowed()));
+            }
+          }
+          
           // If user has write permission, show billing items for this request
           // Organize split accounts by lab
           if (this.getSecAdvisor().canUpdate(request)) {

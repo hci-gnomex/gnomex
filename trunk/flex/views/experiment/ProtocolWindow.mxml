@@ -3,14 +3,33 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
+			
+			public function init(obj:Object):void {
+				title = obj.name;
+				protocolDescription.text = obj.description;
+				if (obj.hasAdapters == "Y") {
+					ThreePrimeAdapter.text = obj.adapterSequenceThreePrime;
+					FivePrimeAdapter.text = obj.adapterSequenceFivePrime;
+					setAdapterVisibility(true);
+				} else {
+					setAdapterVisibility(false);
+				}
+			}
+			
+			private function setAdapterVisibility(visibility:Boolean):void {
+				read1AdapterHBox.visible = visibility;
+				read1AdapterHBox.includeInLayout = visibility;
+				read2AdapterHBox.visible = visibility;
+				read2AdapterHBox.includeInLayout = visibility;
+			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" verticalGap="2" backgroundColor="#FFFFFF" >
-		<mx:HBox width="100%" height="2%">
+		<mx:HBox width="100%" height="2%" id="read1AdapterHBox">
 			<mx:Label text="Read 1 Adapter" width="10%" height="100%"/>
 			<mx:TextArea id="ThreePrimeAdapter"  width="90%" height="100%" backgroundColor="#FFFFFF" editable="false" />
 		</mx:HBox>
-		<mx:HBox width="100%" height="2%">
+		<mx:HBox width="100%" height="2%" id="read2AdapterHBox">
 			<mx:Label text="Read 2 Adapter" width="10%" height="100%"/>
 			<mx:TextArea id="FivePrimeAdapter"  width="90%" height="100%" backgroundColor="#FFFFFF" editable="false" />
 		</mx:HBox>		
