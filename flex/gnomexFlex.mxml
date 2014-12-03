@@ -1094,6 +1094,7 @@
 			public  var TYPE_NANOSTRING:String    = "NANOSTRING";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";
 			public  const TYPE_DISK_USAGE:String  = "DISKUSAGE"; // For disk usage in billing items.  Not used by requests.
+			public  const TYPE_PRODUCT_ORDER:String  = "PRODUCTORDER"; // For product orders in billing items.  Not used by requests.
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 			public var CORE_FACILITY_GENOMICS:String = "Microarray and Genomic Analysis";
