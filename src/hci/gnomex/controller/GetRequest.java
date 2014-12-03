@@ -831,7 +831,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
 
           // Augment sample with sample type name so that imports can lookup idSampeType based
-          // on the name.  Do the same for organism.
+          // on the name.  Do the same for organism.  Also add in codeApplication from the request
+          // so it can be displayed for experiments with application but no seq lib protocol.
           for (Iterator i1 = requestNode.getChild("samples").getChildren("Sample").iterator(); i1.hasNext();) {
             Element sampleNode = (Element)i1.next();
             String idSampleTypeString = sampleNode.getAttributeValue("idSampleType");
@@ -850,6 +851,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 sampleNode.setAttribute("organism", organismName);
               }
             }
+            sampleNode.setAttribute("codeApplication", request.getCodeApplication() == null ? "" : request.getCodeApplication());
           }
           
           // Augment sequence lane node with organism and genome build names.
