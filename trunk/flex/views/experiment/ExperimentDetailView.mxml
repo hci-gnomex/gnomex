@@ -854,6 +854,7 @@
 				this.cherrySourcePlateCol.visible = false;
 				this.cherrySourceWellCol.visible = false;
 				this.sampleSourceCol.visible = false;
+				applicationCol.visible = false;
 				reactionPlateCol.visible = false;
 				redoFlagCol.visible = false;
 				this.sampleNameColumn.visible = true;
@@ -1136,6 +1137,7 @@
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = false;
+						applicationCol.visible = true;
 						
 						this.concentrationCol.headerText = 'Conc. (ng/ul)';
 						
@@ -1157,6 +1159,7 @@
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = false;
+						applicationCol.visible = true;
 						
 					}  else {
 						concentrationCol.visible = true; 
@@ -1813,6 +1816,8 @@
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION"  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" dataField="@idSeqLibProtocol"
 												itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
+					<util:AdvancedDataGridColumnWithType id="applicationCol" propertyType="OPTION"  visible="false" headerText="Application"  width="120" dataField="@codeApplication"
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceCol" headerText="Sample Source"  width="105" visible="{false}" dataField="@idSampleSource"
