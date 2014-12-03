@@ -7,10 +7,10 @@
 		 verticalGap="3">
 		
 	<mx:HTTPService 
-		id="getProductOrderList" 
-		url="GetProductOrderList.gx"
+		id="getProductOrderLineItemList" 
+		url="GetProductOrderLineItemList.gx"
 		resultFormat="e4x"
-		result="onGetProductOrderList(event)"
+		result="onGetProductOrderLineItemList(event)"
 		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Unable to get order list', event)"
 		method="POST"
@@ -46,11 +46,11 @@
 			}
 		
 			public function getList():void {
-				getProductOrderList.send(getOrderParameters());
+				getProductOrderLineItemList.send(getOrderParameters());
 			}
 			
-			private function onGetProductOrderList(event:ResultEvent):void{
-				if ( getProductOrderList.lastResult.name() == "ProductOrderList"){
+			private function onGetProductOrderLineItemList(event:ResultEvent):void{
+				if ( getProductOrderLineItemList.lastResult.name() == "ProductOrderList"){
 					this.productOrderGrid.dataProvider = new HierarchicalData(orderList);
 					selectedOrders.refresh();
 					return;
@@ -144,8 +144,8 @@
 		]]>
 	</mx:Script>    	
 	
-	<mx:XMLListCollection id = "orderList" source = "{getProductOrderList.lastResult.ProductOrder}" />
-	<mx:XMLListCollection id = "selectedOrders" source="{getProductOrderList.lastResult.ProductOrder}" filterFunction="selectedFilterFunc"/>
+	<mx:XMLListCollection id = "orderList" source = "{getProductOrderLineItemList.lastResult.ProductOrder}" />
+	<mx:XMLListCollection id = "selectedOrders" source="{getProductOrderLineItemList.lastResult.ProductOrder}" filterFunction="selectedFilterFunc"/>
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
