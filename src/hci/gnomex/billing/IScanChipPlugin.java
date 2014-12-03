@@ -8,6 +8,7 @@ import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
@@ -107,13 +108,18 @@ public class IScanChipPlugin implements BillingPlugin {
         return billingItems;
       }
 
-      // Find the price for iScanChip - there is only one
+      // Find the price for product order
       Price price = null;
       for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
         Price p = (Price)i1.next();
         if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
-          price = p;
-          break;
+          for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+            PriceCriteria criteria = (PriceCriteria)i2.next();
+            if (criteria.getFilter1().equals(po.getCodeProductType())) {          
+              price = p;
+              break;            
+            }
+          }
         }
       }
 
@@ -142,7 +148,7 @@ public class IScanChipPlugin implements BillingPlugin {
         billingItem.setCategory(priceCategory.getName());
         billingItem.setIdCoreFacility(po.getIdCoreFacility());
         billingItem.setIdProductOrder(po.getIdProductOrder());
-
+        billingItem.setIdProductLineItem(lineItem.getIdProductLineItem());
 
         billingItems.add(billingItem);
 
