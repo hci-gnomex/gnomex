@@ -403,8 +403,8 @@
 		<mx:HBox width="100%" visible="{billingAccountCombo.selectedIndex > -1}" id="headerBox">
 			<mx:Label text="Product Type" textDecoration="underline" width="187"/>
 			<mx:Label text="Quantity" textDecoration="underline" width="165"/>
-			<mx:Label text="Price" textDecoration="underline" width="159"/>
-			<mx:Label text="Total" textDecoration="underline"  width="106"/>
+			<mx:Label text="Price" textDecoration="underline" width="162"/>
+			<mx:Label text="Total" textDecoration="underline"  width="120"/>
 			<mx:Label text="Current Product Count" textDecoration="underline" width="152" id="text4"/>
 		</mx:HBox>
 		
@@ -414,13 +414,11 @@
 					<mx:CheckBox id="productCheckBox" label="{productRepeater.currentItem.@name}" selected="{productRepeater.currentItem.@isSelected == 'Y'}" change="{selectProduct(event); dirty.setDirty();}" width="194"/>
 					<mx:TextInput id="productQuantity" text="{productRepeater.currentItem.@quantity}" enabled="{productRepeater.currentItem.@isSelected == 'Y'}" change="{updateQuantity(event); dirty.setDirty(); checkSetupCompleteness()}"  width="42"/>
 					<mx:Spacer width="20"/>
-					<mx:Text text=" x " width="81" id="text3"/>
+					<mx:Text text=" x " width="72" id="text3"/>
 					<mx:Label id="priceLabel" text="{getUnitPrice(productRepeater.currentItem)}" width="80"/>
-					<mx:Spacer width="20"/>
-					<mx:Text text=" = " width="53" id="text2"/>
-					<mx:Label id="productTotal" text="{'$' + String(int(productRepeater.currentItem.@quantity) * int(getUnitPrice(productRepeater.currentItem)))}" />
-					<mx:Spacer width="120"/>
-					<mx:Label id="productCount" textAlign="center" color="{productRepeater.currentItem.@currentProductCount != '0' ? 0x197319 : 0x000000}" text="{productRepeater.currentItem.@currentProductCount}" />
+					<mx:Text text=" = " width="90" id="text2"/>
+					<mx:Label id="productTotal" width="146" text="{'$' + String(int(productRepeater.currentItem.@quantity) * int(getUnitPrice(productRepeater.currentItem)))}" />
+					<mx:Label id="productCount" textAlign="left" color="{productRepeater.currentItem.@currentProductCount != '0' ? 0x197319 : 0x000000}" text="{productRepeater.currentItem.@currentProductCount}" />
 				</mx:HBox>
 			</mx:Repeater>
 		</mx:VBox>
