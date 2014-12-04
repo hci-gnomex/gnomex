@@ -387,8 +387,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           requestNode = new Element("Request");
           requestNode.setAttribute("idRequest", idProductOrder.toString());
           requestNode.setAttribute("idLab", billingItem.getIdLab().toString());
-          requestNode.setAttribute("requestNumber", "Product Order");
-          requestNode.setAttribute("label", "Product Order");
+          requestNode.setAttribute("requestNumber", idProductOrder.toString());
+          requestNode.setAttribute("label", "Product Order " + idProductOrder.toString());
           requestNode.setAttribute("codeRequestCategory", ProductOrder.PRODUCT_ORDER_REQUEST_CATEGORY);        
           requestNode.setAttribute("idCoreFacility", idCoreFacility != null ? idCoreFacility.toString() : "");
           requestNode.setAttribute("icon", ProductOrder.PRODUCT_ORDER_ICON);
@@ -408,6 +408,10 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           invoicePrice.setScale(2);
           totalPrice = new BigDecimal(0);
           totalPrice.setScale(2);
+
+          prevIdProductOrder = idProductOrder;
+          prevIdLab = billingItem.getIdLab();
+          prevIdBillingAccount = billingItem.getIdBillingAccount();
         }
 
         // Attach the billing item

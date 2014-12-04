@@ -486,38 +486,35 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           }
         }
 
-        //we only want to show one entry per lab
-        if(!labNames.contains(labBillingName)) {
-          Element node = new Element("Request");
-          node.setAttribute("idRequest", idProductOrder.toString());
-          node.setAttribute("label", "Product Order");        
-          node.setAttribute("requestNumber", "Product Order");        
-          node.setAttribute("toolTip", toolTip);
-          node.setAttribute("codeRequestCategory", ProductOrder.PRODUCT_ORDER_REQUEST_CATEGORY);
-          node.setAttribute("icon", ProductOrder.PRODUCT_ORDER_ICON);
-          node.setAttribute("type", "Product Order");
-          node.setAttribute("submitter", "");
-          node.setAttribute("labBillingName", labBillingName);
-          node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
-          node.setAttribute("labName", labName != null ? labName : "");
-          node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
-          node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
-          node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
-          node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
-          if (idInvoice != null) {
-            node.setAttribute("idInvoice", idInvoice.toString());
-          }
-
-          // There can be multiple requests nodes for a given request number when
-          // the request's billing items are split among multiple billing 
-          // accounts.  This should never happen for disk usage, but keeping the code anyway.
-          TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
-          if (requestNodes == null) {
-            requestNodes = new TreeMap(new RequestNumberBilledComparator());
-            requestNodeMap.put(requestNumberBilled, requestNodes);
-          }
-          requestNodes.put(requestNumberBilled, node);
+        Element node = new Element("Request");
+        node.setAttribute("idRequest", idProductOrder.toString());
+        node.setAttribute("label", "Product Order " + idProductOrder.toString());        
+        node.setAttribute("requestNumber", idProductOrder.toString());        
+        node.setAttribute("toolTip", toolTip);
+        node.setAttribute("codeRequestCategory", ProductOrder.PRODUCT_ORDER_REQUEST_CATEGORY);
+        node.setAttribute("icon", ProductOrder.PRODUCT_ORDER_ICON);
+        node.setAttribute("type", "Product Order");
+        node.setAttribute("submitter", "");
+        node.setAttribute("labBillingName", labBillingName);
+        node.setAttribute("idLab", idLab != null ? idLab.toString() : "");
+        node.setAttribute("labName", labName != null ? labName : "");
+        node.setAttribute("idBillingAccount", billingAcct.getIdBillingAccount().toString());
+        node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
+        node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+        node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        if (idInvoice != null) {
+          node.setAttribute("idInvoice", idInvoice.toString());
         }
+
+        // There can be multiple requests nodes for a given request number when
+        // the request's billing items are split among multiple billing 
+        // accounts.  This should never happen for disk usage, but keeping the code anyway.
+        TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
+        if (requestNodes == null) {
+          requestNodes = new TreeMap(new RequestNumberBilledComparator());
+          requestNodeMap.put(requestNumberBilled, requestNodes);
+        }
+        requestNodes.put(requestNumberBilled, node);
 
         labNames.add(labBillingName);
 
