@@ -2506,7 +2506,7 @@
         			sortExpertMode="true" 
         			sortableColumns="false"   
         			id="billingItemGrid" 
-        			dropEnabled="true"  
+        			dropEnabled="{(requestTree.selectedItem.@label).indexOf('Product Order') == -1}"  
         			dragDrop="onDragDropBillingItemGrid(event)"
                     allowMultipleSelection="true" 
                     iconFunction="parentApplication.getTreeIcon" 
