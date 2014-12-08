@@ -53,9 +53,6 @@
 			import mx.controls.TextInput;
 			import mx.rpc.events.ResultEvent;
 			
-			
-			
-			//public var coreFacility:Object = <CoreFacility idCoreFacility='4' />;
 			public var idCoreFacility:String = null;
 			
 			[Bindable]
