@@ -57,7 +57,7 @@
 			<mx:HBox width="100%" >
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Products for Product Order ' + this.idProductOrder}" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Product Order ' + this.idProductOrder}" />			
 				</mx:HBox>
 			</mx:HBox>
 			
