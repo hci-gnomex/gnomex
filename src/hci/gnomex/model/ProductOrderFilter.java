@@ -78,7 +78,7 @@ public class ProductOrderFilter extends DetailObject {
     addWhere = true;
     queryBuf = new StringBuffer();
 
-    queryBuf.append("SELECT po.idProductOrder, lab.lastName, lab.firstName FROM ProductOrder po JOIN po.lab as lab");
+    queryBuf.append("SELECT po.idProductOrder, lab.idLab FROM ProductOrder po JOIN po.lab as lab");
     this.addPOCriteria();
     this.addSecurityCriteria("po");
     return queryBuf;
