@@ -27,7 +27,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
 
   private ProductOrderFilter productOrderFilter;
 
-  private HashMap<String, List<Integer>> labOrders = new HashMap<String, List<Integer>>();
+  private HashMap<Integer, List<Integer>> labOrders = new HashMap<Integer, List<Integer>>();
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
     productOrderFilter = new ProductOrderFilter(this.getSecAdvisor());
@@ -55,24 +55,26 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       for(Iterator i = productOrders.iterator(); i.hasNext();) {
         Object row[] = (Object[])i.next();
         Integer idProductOrder = (Integer)row[0];
-        String lastName = (String)row[1];
-        String firstName = (String)row[2];
-        String fullName = Lab.formatLabNameFirstLast(firstName, lastName);
-        if(labOrders.containsKey(fullName)) {
-          labOrders.get(fullName).add(idProductOrder);
+        Integer idLab = (Integer)row[1];
+        if(labOrders.containsKey(idLab)) {
+          labOrders.get(idLab).add(idProductOrder);
         } else {
           List<Integer> labsPO = new ArrayList();
-          labsPO.add(idProductOrder); 
-          labOrders.put(fullName, labsPO);
+          labsPO.add(idProductOrder);
+          labOrders.put(idLab, labsPO);
         }
       }
 
       for(Iterator j = labOrders.keySet().iterator(); j.hasNext();) {
-        String labName = (String)j.next();
-        List productOrderIDs = labOrders.get(labName);
+        Integer idLab = (Integer)j.next();
+        Lab l = (Lab)sess.load(Lab.class, idLab);
+        List productOrderIDs = labOrders.get(idLab);
+
 
         Element lab = new Element("Lab");
-        lab.setAttribute("display", labName);
+        lab.setAttribute("display", l.getName(false, true));
+        lab.setAttribute("idLab", idLab.toString());
+
         lab.setAttribute("icon", "assets/group.png");
         for(Iterator k = productOrderIDs.iterator(); k.hasNext();) {
           Integer id = (Integer)k.next();
