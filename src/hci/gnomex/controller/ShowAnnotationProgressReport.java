@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +216,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
         String sampleNumber = (String)row[RequestSampleFilter.COL_SAMPLE_NUMBER];
         String codeVisibility = (String)row[RequestSampleFilter.COL_CODE_VISIBILITY];
-
+        Date createDate = (Date)row[RequestSampleFilter.COL_CREATE_DATE];
 
         // Get sample source
         Map<String, String>annotationMap = this.propertyEntryAnnotationMap.get(idSample);
@@ -231,7 +232,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         experimentInfo.submitter           = AppUser.formatName(submitterLastName, submitterFirstName);
         experimentInfo.sampleSource        = sampleSource;
         experimentInfo.codeVisibility      = codeVisibility;
-
+        experimentInfo.createDate          = createDate;
 
 
 
@@ -513,14 +514,15 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       columns.add(makeReportColumn("Samples", 3));
       columns.add(makeReportColumn("Experiment Type", 4));
       columns.add(makeReportColumn("Organism", 5));
-      columns.add(makeReportColumn("Visibility", 6));
-      columns.add(makeReportColumn("Sample Source", 7));
+      columns.add(makeReportColumn("Registered", 6));
+      columns.add(makeReportColumn("Visibility", 7));
+      columns.add(makeReportColumn("Sample Source", 8));
 
 
 
       // Show missing annotation columns
       if (reportType.equals(REPORT_DETAIL_INCOMPLETE)) {
-        int colNbr = 8;
+        int colNbr = 9;
 
         // Stage is a special case.  Add it to the list of required properties.
         Property stageProp = new Property();
@@ -587,6 +589,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       values.add(Integer.valueOf(expInfo.sampleCount).toString());
       values.add(dh.getApplication(expInfo.codeApplication));
       values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+      values.add(expInfo.createDate != null ? this.formatDate(expInfo.createDate, DATE_OUTPUT_SLASH) : "");
       values.add(expInfo.codeVisibility != null ? dh.getVisibility(expInfo.codeVisibility) : "");
 
       if (expInfo.sampleSource == null || expInfo.sampleSource.equals("")) {
@@ -691,6 +694,8 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       values.add(Integer.valueOf(expInfo.sampleCount).toString());
       values.add(dh.getApplication(expInfo.codeApplication));
       values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+      values.add(expInfo.createDate != null ? this.formatDate(expInfo.createDate, DATE_OUTPUT_SLASH) : "");
+      values.add(expInfo.codeVisibility != null ? dh.getVisibility(expInfo.codeVisibility) : "");
       values.add(expInfo.sampleSource);
 
       values.add("");  // blank for fully annotated experiment (shows missing annotation names)
@@ -760,6 +765,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     public String         codeVisibility;
     public String         sampleSource;
     public int            sampleCount;
+    public Date           createDate;
     public Map<String,    List<String>> missingAnnotationMapForExperiment;
     public List<Property> requiredPropertiesForExperiment;
 
