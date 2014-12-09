@@ -214,6 +214,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         String codeApplication = (String)row[RequestSampleFilter.COL_CODE_APPLICATION];
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
         String sampleNumber = (String)row[RequestSampleFilter.COL_SAMPLE_NUMBER];
+        String codeVisibility = (String)row[RequestSampleFilter.COL_CODE_VISIBILITY];
 
 
         // Get sample source
@@ -229,6 +230,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         experimentInfo.labName             = labName;
         experimentInfo.submitter           = AppUser.formatName(submitterLastName, submitterFirstName);
         experimentInfo.sampleSource        = sampleSource;
+        experimentInfo.codeVisibility      = codeVisibility;
 
 
 
@@ -511,13 +513,14 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       columns.add(makeReportColumn("Samples", 3));
       columns.add(makeReportColumn("Experiment Type", 4));
       columns.add(makeReportColumn("Organism", 5));
-      columns.add(makeReportColumn("Sample Source", 6));
+      columns.add(makeReportColumn("Visibility", 6));
+      columns.add(makeReportColumn("Sample Source", 7));
 
 
 
       // Show missing annotation columns
       if (reportType.equals(REPORT_DETAIL_INCOMPLETE)) {
-        int colNbr = 7;
+        int colNbr = 8;
 
         // Stage is a special case.  Add it to the list of required properties.
         Property stageProp = new Property();
@@ -584,6 +587,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
       values.add(Integer.valueOf(expInfo.sampleCount).toString());
       values.add(dh.getApplication(expInfo.codeApplication));
       values.add(expInfo.idOrganism != null ? dh.getOrganism(expInfo.idOrganism) : "");
+      values.add(expInfo.codeVisibility != null ? dh.getVisibility(expInfo.codeVisibility) : "");
 
       if (expInfo.sampleSource == null || expInfo.sampleSource.equals("")) {
         if (!this.experimentWithFileMap.containsKey(expInfo.idRequest)) {
@@ -753,6 +757,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     public Integer        idOrganism;
     public String         codeRequestCategory;
     public String         codeApplication;
+    public String         codeVisibility;
     public String         sampleSource;
     public int            sampleCount;
     public Map<String,    List<String>> missingAnnotationMapForExperiment;

@@ -42,7 +42,7 @@ int     PALLETE_GREEN_INDEX = 48;
 
 
 // Column numbers of significance (requires special logic)
-int     FIRST_COL_FOR_ANNOTS = 5;
+int     FIRST_COL_FOR_ANNOTS = 6;
 int     SAMPLE_COUNT_COL = 2;
 int     LAB_COL = 0;
 
