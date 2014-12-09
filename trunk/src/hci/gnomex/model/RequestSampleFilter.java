@@ -45,8 +45,9 @@ public class RequestSampleFilter extends DetailObject {
   public static final int       COL_SAMPLE_ID_ORGANISM = 11;
   public static final int       COL_CODE_APPLICATION = 12;
   public static final int       COL_CODE_VISIBILITY = 13;
+  public static final int       COL_CREATE_DATE = 14;
 
-  public static final int       COL_OFFSET = 14;
+  public static final int       COL_OFFSET = 15;
 
   public static final int       PROPCOL_ID_SAMPLE = 2;
   public static final int       COL_ID_PROPERTY = 3;
@@ -85,7 +86,8 @@ public class RequestSampleFilter extends DetailObject {
     queryBuf.append(" sample.description, ");
     queryBuf.append(" sample.idOrganism, ");
     queryBuf.append(" req.codeApplication, ");
-    queryBuf.append(" req.codeVisibility ");
+    queryBuf.append(" req.codeVisibility, ");
+    queryBuf.append(" req.createDate ");
     //Custom sample columns below
 
     for(Iterator i = customColumnList.iterator(); i.hasNext();) {
