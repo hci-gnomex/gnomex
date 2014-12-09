@@ -366,6 +366,14 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getVisibility(String codeVisibility) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeVisibility != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.Visibility", codeVisibility);
+    }
+    return name;
+  }
   public String getSampleSource(Integer idSampleSource) {
     lazyLoadManagedDictionaries();
     String name = "";
