@@ -73,6 +73,9 @@
 			}
 			
 			private function onBrowseTree():void{
+				if(browseTree.selectedItem == null ) {
+					return;
+				}
 				
 				if(browseTree.selectedItem.name() == "Lab"){
 					this.productOrderOverView.titleLabel.text = "Product Orders for " + browseTree.selectedItem.@display;
@@ -170,8 +173,13 @@
 					Alert.show(changeProductOrderStatus.lastResult..ACTMESSAGE.@TEXT);
 				} else{
 					Alert.show("Product status updated");
-					getProductOrders();
-					onBrowseTree();
+					if ( toggleBar.selectedIndex==1 ) {
+						getProductOrders();
+						onBrowseTree();
+					} else {
+						browseView.getList();	
+					}
+					statusComboBox.selectedItem = null;
 				}
 			}
 			
@@ -284,7 +292,7 @@
 							   icon = "@Embed('../../assets/bullet_go.png')"
 							   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 							   toolTip = "Change status of selected orders" 
-							   click="{changeStatus_handler()}" enabled="{atLeastOneSelection &amp;&amp; statusComboBox.selectedIndex > 0}"/>
+							   click="{changeStatus_handler()}" enabled="{((toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) ) &amp;&amp; statusComboBox.selectedIndex > 0}"/>
 				
 				<!--<mx:LinkButton textDecoration="underline"
 							   label="Delete"
