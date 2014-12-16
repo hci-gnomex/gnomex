@@ -43,6 +43,7 @@ int     PALLETE_GREEN_INDEX = 48;
 
 // Column numbers of significance (requires special logic)
 int     FIRST_COL_FOR_ANNOTS = 7;
+int     VISIBILITY_LEGEND_COLUMN = 1;
 int     SAMPLE_COUNT_COL = 2;
 int     LAB_COL = 0;
 
@@ -241,11 +242,15 @@ successStyle.setTopBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIn
 successStyle.setBottomBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
 successStyle.setLeftBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
 successStyle.setRightBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
+successStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+successStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 
 HSSFCellStyle successLegendStyle = workbook.createCellStyle();
 successLegendStyle.setFillForegroundColor(palette.getColor(PALLETE_GREEN_INDEX).getIndex());
 successLegendStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
 successLegendStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+successLegendStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+successLegendStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 
 HSSFCellStyle successTopBorderStyle = workbook.createCellStyle();
 successTopBorderStyle.setFillForegroundColor(palette.getColor(PALLETE_GREEN_INDEX).getIndex());
@@ -257,7 +262,8 @@ successTopBorderStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
 successTopBorderStyle.setBottomBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
 successTopBorderStyle.setLeftBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
 successTopBorderStyle.setRightBorderColor(palette.getColor(PALLETE_CELL_BORDER_INDEX).getIndex());
-
+successTopBorderStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+successTopBorderStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 
 // Blank row style
 HSSFCellStyle blankStyle = workbook.createCellStyle();
@@ -345,16 +351,28 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 	}
 	
 	
-	// Show the Legend for the Missing Annotation worksheet
+	// Show the Legends for the Missing Annotation worksheet
 	if (sheetIndex == MISSING_ANNOT_SHEET) {
-		// Legend
+		// Legends
 		HSSFRow titleRow2 = sheet.createRow(rowNumber++);
-		cell = titleRow2.createCell(FIRST_COL_FOR_ANNOTS );
-		cell.setCellValue("LEGEND");
+		cell = titleRow2.createCell(VISIBILITY_LEGEND_COLUMN);
+		cell.setCellValue("VIS. LEGEND");
 		cell.setCellStyle(leftTopBorderStyle);
 		
+		cell = titleRow2.createCell(VISIBILITY_LEGEND_COLUMN+1);
+		cell.setCellStyle(errorLegendStyle);
+		
+		cell = titleRow2.createCell(VISIBILITY_LEGEND_COLUMN+2);
+		cell.setCellValue("Owner or Lab Member Visibility");
+		cell.setCellStyle(rightTopBorderStyle);
+
+		cell = titleRow2.createCell(FIRST_COL_FOR_ANNOTS );
+		cell.setCellValue("ANNOT. LEGEND");
+		cell.setCellStyle(leftTopBorderStyle);
+
 		cell = titleRow2.createCell(FIRST_COL_FOR_ANNOTS + 1);
 		cell.setCellStyle(errorLegendStyle);
+		
 		cell = titleRow2.createCell(FIRST_COL_FOR_ANNOTS + 2);
 		cell.setCellValue("Missing Annotation");
 		cell.setCellStyle(topBorderStyle);
@@ -364,7 +382,10 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		titleRow2.createCell(FIRST_COL_FOR_ANNOTS + 6).setCellStyle(topBorderStyle);
 		titleRow2.createCell(FIRST_COL_FOR_ANNOTS + 7).setCellStyle(topBorderStyle);
 		titleRow2.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightTopBorderStyle);
-		for (int x = 0; x < FIRST_COL_FOR_ANNOTS; x++) {
+		for (int x = 0; x < VISIBILITY_LEGEND_COLUMN; x++) {
+			titleRow2.createCell(x).setCellStyle(blankStyle);
+		}
+		for (int x = VISIBILITY_LEGEND_COLUMN+3; x < FIRST_COL_FOR_ANNOTS; x++) {
 			titleRow2.createCell(x).setCellStyle(blankStyle);
 		}
 		for (int x = FIRST_COL_FOR_ANNOTS + 9; x < tray.getColumns().size(); x++) {
@@ -372,8 +393,15 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		}
 		sheet.addMergedRegion(new CellRangeAddress( 3, 3, FIRST_COL_FOR_ANNOTS + 2, FIRST_COL_FOR_ANNOTS + 8));
 
-
 		HSSFRow titleRow3 = sheet.createRow(rowNumber++);
+		cell = titleRow3.createCell(VISIBILITY_LEGEND_COLUMN+1);
+		cell.setCellValue("INST");
+		cell.setCellStyle(successLegendStyle);
+		
+		cell = titleRow3.createCell(VISIBILITY_LEGEND_COLUMN+2);
+		cell.setCellValue("Institution Visibility");
+		cell.setCellStyle(rightBorderStyle);
+		
 		cell = titleRow3.createCell(FIRST_COL_FOR_ANNOTS + 1);
 		cell.setCellValue("n");
 		cell.setCellStyle(partialErrorLegendStyle);
@@ -385,7 +413,11 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		titleRow3.createCell(FIRST_COL_FOR_ANNOTS + 6).setCellStyle(blankStyle);
 		titleRow3.createCell(FIRST_COL_FOR_ANNOTS + 7).setCellStyle(blankStyle);
 		titleRow3.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightBorderStyle);
-		for (int x = 0; x < FIRST_COL_FOR_ANNOTS; x++) {
+		titleRow3.createCell(1).setCellStyle(blankStyle);
+		for (int x = 0; x < VISIBILITY_LEGEND_COLUMN; x++) {
+			titleRow3.createCell(x).setCellStyle(blankStyle);
+		}
+		for (int x = VISIBILITY_LEGEND_COLUMN+3; x < FIRST_COL_FOR_ANNOTS; x++) {
 			titleRow3.createCell(x).setCellStyle(blankStyle);
 		}
 		for (int x = FIRST_COL_FOR_ANNOTS + 9; x < tray.getColumns().size(); x++) {
@@ -395,6 +427,14 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 
 
 		HSSFRow titleRow4 = sheet.createRow(rowNumber++);
+		cell = titleRow4.createCell(VISIBILITY_LEGEND_COLUMN+1);
+		cell.setCellValue("");
+		cell.setCellStyle(successLegendStyle);
+
+		cell = titleRow4.createCell(VISIBILITY_LEGEND_COLUMN + 2);
+		cell.setCellValue("Public Visibility");
+		cell.setCellStyle(rightBottomBorderStyle);
+
 		cell = titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 1);
 		cell.setCellValue("");
 		cell.setCellStyle(warningLegendStyle);
@@ -406,7 +446,11 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 6).setCellStyle(blankStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 7).setCellStyle(blankStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS + 8).setCellStyle(rightBorderStyle);
-		for (int x = 0; x < FIRST_COL_FOR_ANNOTS; x++) {
+		titleRow4.createCell(1).setCellStyle(blankStyle);
+		for (int x = 0; x < VISIBILITY_LEGEND_COLUMN; x++) {
+			titleRow4.createCell(x).setCellStyle(blankStyle);
+		}
+		for (int x = VISIBILITY_LEGEND_COLUMN+3; x < FIRST_COL_FOR_ANNOTS; x++) {
 			titleRow4.createCell(x).setCellStyle(blankStyle);
 		}
 		for (int x = FIRST_COL_FOR_ANNOTS + 9; x < tray.getColumns().size(); x++) {
@@ -438,12 +482,16 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		}
 		sheet.addMergedRegion(new CellRangeAddress( 6, 6, FIRST_COL_FOR_ANNOTS + 2, FIRST_COL_FOR_ANNOTS + 8));
 
-
 		// Rest of the Legend, need border before merging cells
 		titleRow3.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBorderStyle);
 		titleRow4.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBottomBorderStyle);
 		titleRow5.createCell(FIRST_COL_FOR_ANNOTS).setCellStyle(leftBottomBorderStyle);
 		sheet.addMergedRegion(new CellRangeAddress( 3, 6, FIRST_COL_FOR_ANNOTS, FIRST_COL_FOR_ANNOTS));
+
+		titleRow3.createCell(VISIBILITY_LEGEND_COLUMN).setCellStyle(leftBorderStyle);
+		titleRow4.createCell(VISIBILITY_LEGEND_COLUMN).setCellStyle(leftBottomBorderStyle);
+		sheet.addMergedRegion(new CellRangeAddress( 3, 5, VISIBILITY_LEGEND_COLUMN, VISIBILITY_LEGEND_COLUMN));
+
 
 		
 		// Blank Row
@@ -495,6 +543,7 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 			// Is this an annotation cell?
 			boolean isStandardAnnotCell = (sheetIndex == MISSING_ANNOT_SHEET && colNumber > FIRST_COL_FOR_ANNOTS) ? true : false;
 			boolean isSampleSourceAnnotCell =  (sheetIndex == MISSING_ANNOT_SHEET && colNumber == FIRST_COL_FOR_ANNOTS) ? true : false;
+			boolean isVisibilityCell = (sheetIndex == MISSING_ANNOT_SHEET && colNumber == FIRST_COL_FOR_ANNOTS-1) ? true : false;
 			
 			
 			// Is this cell numeric?
@@ -575,6 +624,17 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 			 	}  else {
 			 		cell.setCellStyle(isLabBreak ? successTopBorderStyle : successStyle);
 			 	}
+			} else if (isVisibilityCell) {
+			  	if (val.equals("Owner") || val.equals("All Lab Members")) {
+			    	cell.setCellValue("");
+					cell.setCellStyle(isLabBreak ? errorTopBorderStyle : errorStyle);
+			  	} else if (val.equals("Institution")) {
+			    	cell.setCellValue("INST");
+					cell.setCellStyle(isLabBreak ? successTopBorderStyle : successStyle);
+			  	} else { /* public */
+			    	cell.setCellValue("");
+		 			cell.setCellStyle(isLabBreak ? successTopBorderStyle : successStyle);
+			  	}
 			}
 		  
 	 	} // end of loop through cells 
