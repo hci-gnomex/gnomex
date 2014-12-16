@@ -726,6 +726,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     chip.setBioanalyzerChipType(chipNode.getAttributeValue("bioanalyzerChipType"));
     chip.setConcentrationRange(chipNode.getAttributeValue("concentrationRange"));
     chip.setMaxSampleBufferStrength(chipNode.getAttributeValue("maxSampleBufferStrength"));
+    chip.setProtocolDescription(chipNode.getAttributeValue("protocolDescription"));
     if (chipNode.getAttributeValue("sampleWellsPerChip") != null) {
       try {
         Integer wells = Integer.parseInt(chipNode.getAttributeValue("sampleWellsPerChip"));

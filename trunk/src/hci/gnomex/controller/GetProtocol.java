@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AnalysisProtocol;
+import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.FeatureExtractionProtocol;
 import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
@@ -28,6 +29,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
 
   private static Logger log = Logger.getLogger(GetProtocol.class);
   private Integer idProtocol;
+  private String codeProtocol;
   private String protocolClassName;
   
   public Command execute() throws RollBackCommandException {
@@ -50,7 +52,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       String adapterSequenceFivePrime = null;
       String hasAdapters = "N";
       
-      if (this.idProtocol != null || this.idProtocol.intValue() != 0) {
+      if ((this.idProtocol != null && this.idProtocol.intValue() != 0) || (this.codeProtocol != null && this.codeProtocol.length() > 0)) {
         if (this.protocolClassName.equals(FeatureExtractionProtocol.class.getName())) {
           FeatureExtractionProtocol fep = (FeatureExtractionProtocol) sess.load(FeatureExtractionProtocol.class, this.idProtocol);
           id = fep.getIdFeatureExtractionProtocol().toString();
@@ -141,6 +143,16 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canRead   = seq.canRead() ? "Y" : "N";
           canUpdate = seq.canUpdate() ? "Y" : "N";
           canDelete = seq.canDelete() ? "Y" : "N";
+        } else if (this.protocolClassName.equals(BioanalyzerChipType.class.getName())) {
+          BioanalyzerChipType qc = (BioanalyzerChipType) sess.load(BioanalyzerChipType.class,this.codeProtocol);
+          id = qc.getCodeBioanalyzerChipType();
+          protocolName = qc.getBioanalyzerChipType();
+          description = qc.getProtocolDescription();
+          url = "";
+          isActive = qc.getIsActive();
+          canRead   = "N";
+          canUpdate = "N";
+          canDelete = "N";
         }
         
         Element root = new Element("Protocol");
@@ -219,7 +231,11 @@ public class GetProtocol extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     if (request.getParameter("id") != null && !request.getParameter("id").equals("")) {
-      this.idProtocol = new Integer(request.getParameter("id"));
+      try {
+        this.idProtocol = new Integer(request.getParameter("id"));
+      } catch (NumberFormatException ex) {
+        this.codeProtocol = request.getParameter("id");
+      }
     } else {
       this.addInvalidField("Protocol Id", "Protocol ID is required.");
     }

@@ -22,6 +22,7 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
   private Integer     sampleWellsPerChip;
   private String      isActive;
   private String      codeApplication;
+  private String      protocolDescription;
   
   public String getDisplay() {
     String display = this.getNonNullString(getBioanalyzerChipType());
@@ -113,4 +114,10 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
     this.codeApplication = codeApplication;
   }
 
+  public String getProtocolDescription() {
+    return protocolDescription;
+  }
+  public void setProtocolDescription(String protocolDescription) {
+    this.protocolDescription = protocolDescription;
+  }
 }

@@ -513,12 +513,6 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
 
 
 
-INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`)
-VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/ul', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul'),
-  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/ul', '10mM TE', 7.00, 12, 'Y', 'ng/ul'),
-  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/ul', '10 mM TE', 8.00, 11, 'Y', 'pg/ul'),
-  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/ul', NULL, NULL, 11, 'Y', 'pg/ul');
-
 INSERT INTO `gnomex`.`ConcentrationUnit`(`codeConcentrationUnit`, `concentrationUnit`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`)
 VALUES ('ng/ul', 'ng/ul', NULL, NULL, 'Y'),
   ('pg/ul', 'pg/ul', NULL, NULL, 'Y');
@@ -643,28 +637,34 @@ insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
   ('Sequenom', 'Sequenom'),
   ('Other', 'Other');
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`, idCoreFacility)
-VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray', 1),
-  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL, 'Microarray', 1),
-  ('EXON', 'Exon', 'Y', 3, NULL, 'Microarray', 1),
-  ('EXP', 'Gene Expression', 'Y', 3, NULL, 'Microarray', 1),
-  ('METH', 'DNA Methylation', 'Y', 3, NULL, 'MicroArray', 1),
-  ('MIRNA', 'miRNA', 'Y', 3, NULL, 'MicroArray', 1),
-  ('SNP', 'SNP', 'Y', 3, NULL, 'MicroArray', 1),
-  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL, 'MicroArray', 1),
-  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4, 'Illumina', 1),
-  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2, 'Illumina', 1),
-  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1, 'Illumina', 1),
-  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3, 'Illumina', 1),
-  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1, 'Illumina', 1),
-  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4, 'Illumina', 1),
-  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL, 'QC', 1),
-  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL, 'QC', 1),
-  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL, 'Other', 1),
-  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2, 'Illumina', 1),
-  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5, 'Illumina', 1),
-  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3, 'Illumina', 1),
-  ('OTHER', 'Custom', 'Y', NULL, 100, 'Other', 1);
+INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`, idCoreFacility, hasChipTypes)
+VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray', 1, 'N'),
+  ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL, 'Microarray', 1, 'N'),
+  ('EXON', 'Exon', 'Y', 3, NULL, 'Microarray', 1, 'N'),
+  ('EXP', 'Gene Expression', 'Y', 3, NULL, 'Microarray', 1, 'N'),
+  ('METH', 'DNA Methylation', 'Y', 3, NULL, 'MicroArray', 1, 'N'),
+  ('MIRNA', 'miRNA', 'Y', 3, NULL, 'MicroArray', 1, 'N'),
+  ('SNP', 'SNP', 'Y', 3, NULL, 'MicroArray', 1, 'N'),
+  ('WTRANSCRP', 'HybMap', 'Y', 3, NULL, 'MicroArray', 1, 'N'),
+  ('CHIPSEQ', 'ChIP-Seq', 'Y', 1, 4, 'Illumina', 1, 'N'),
+  ('DMRNASEQ', 'Directional mRNA Sequencing', 'Y', 2, 2, 'Illumina', 1, 'N'),
+  ('DNASEQ', 'Genomic DNA Sequencing', 'Y', 1, 1, 'Illumina', 1, 'N'),
+  ('TDNASEQ', 'Targeted Genomic Resequencing', 'Y', 1, 3, 'Illumina', 1, 'N'),
+  ('MRNASEQ', 'mRNA Sequencing', 'Y', 2, 1, 'Illumina', 1, 'N'),
+  ('SMRNASEQ', 'Small mRNA Sequencing', 'Y', 2, 4, 'Illumina', 1, 'N'),
+  ('BIOAN', 'Bioanalyzer', 'Y', 4, NULL, 'QC', 1, 'Y'),
+  ('QUBIT', 'Qubit picoGreen', 'Y', 4, NULL, 'QC', 1, 'N'),
+  ('DNAGEL', 'DNA Gel', 'Y', 4, NULL, 'Other', 1, 'N'),
+  ('DNAMETHSEQ', 'DNA Methylation Analysis', 'Y', 1, 2, 'Illumina', 1, 'N'),
+  ('MONNUCSEQ', 'Mononucleosome sequencing', 'Y', 1, 5, 'Illumina', 1, 'N'),
+  ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3, 'Illumina', 1, 'N'),
+  ('OTHER', 'Custom', 'Y', NULL, 100, 'Other', 1, 'N');
+
+INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`,`codeApplication`)
+VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/ul', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul', `BIOAN`),
+  ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/ul', '10mM TE', 7.00, 12, 'Y', 'ng/ul', `BIOAN`),
+  ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/ul', '10 mM TE', 8.00, 11, 'Y', 'pg/ul', `BIOAN`),
+  ('SMALLRNA', 'Small RNA Chip', '1-20 ng/ul', NULL, NULL, 11, 'Y', 'pg/ul', `BIOAN`);
 
 -- Populate InstrumentRunStatus dictionary
 insert into gnomex.InstrumentRunStatus 

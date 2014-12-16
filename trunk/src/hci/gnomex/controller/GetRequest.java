@@ -430,6 +430,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
           // Show list of protocols used on this experiment
           Element protocolsNode = new Element("protocols");
           requestNode.addContent(protocolsNode);
+          Boolean isFirst = true;
           for(Iterator i0 = request.getLabeledSamples().iterator(); i0.hasNext();) {
             LabeledSample ls = (LabeledSample)i0.next();
             if (ls.getIdLabelingProtocol() != null) {
@@ -437,10 +438,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", ls.getIdLabelingProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.LabelingProtocol");
-              protocolNode.setAttribute("label", dh.getLabelingProtocol(ls.getIdLabelingProtocol()));
+              protocolNode.setAttribute("name", dh.getLabelingProtocol(ls.getIdLabelingProtocol()));
+              protocolNode.setAttribute("label", isFirst ? "Label Protocols" : "");
+              isFirst = false;
               break;
             }
           }
+          isFirst = true;
           for(Iterator i1 = request.getHybridizations().iterator(); i1.hasNext();) {
             Hybridization hyb = (Hybridization)i1.next();
             if (hyb.getIdHybProtocol() != null) {
@@ -448,10 +452,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", hyb.getIdHybProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.HybProtocol");
-              protocolNode.setAttribute("label", dh.getHybProtocol(hyb.getIdHybProtocol()));
+              protocolNode.setAttribute("name", dh.getHybProtocol(hyb.getIdHybProtocol()));
+              protocolNode.setAttribute("label", isFirst ? "Hyb. Protocols" : "");
+              isFirst = false;
               break;
             }
           }
+          isFirst = true;
           for(Iterator i2 = request.getHybridizations().iterator(); i2.hasNext();) {
             Hybridization hyb = (Hybridization)i2.next();
             if (hyb.getIdScanProtocol() != null) {
@@ -459,10 +466,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", hyb.getIdScanProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.ScanProtocol");
-              protocolNode.setAttribute("label", dh.getScanProtocol(hyb.getIdScanProtocol()));
+              protocolNode.setAttribute("name", dh.getScanProtocol(hyb.getIdScanProtocol()));
+              protocolNode.setAttribute("label", isFirst ? "Scan Protocols" : "");
+              isFirst = false;
               break;
             }
           }
+          isFirst = true;
           for(Iterator i3 = request.getHybridizations().iterator(); i3.hasNext();) {
             Hybridization hyb = (Hybridization)i3.next();
             if (hyb.getIdFeatureExtractionProtocol() != null) {
@@ -470,11 +480,29 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", hyb.getIdFeatureExtractionProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.FeatureExtractionProtocol");
-              protocolNode.setAttribute("label", dh.getFeatureExtractionProtocol(hyb.getIdFeatureExtractionProtocol()));
+              protocolNode.setAttribute("name", dh.getFeatureExtractionProtocol(hyb.getIdFeatureExtractionProtocol()));
+              protocolNode.setAttribute("label", isFirst ? "Extract. Protocols" : "");
+              isFirst = false;
               break;
             }
           }
+          TreeMap<String, String> map2 = new TreeMap<String, String>();
+          isFirst = true;
+          for(Iterator i4 = request.getSamples().iterator(); i4.hasNext();) {
+            Sample s = (Sample)i4.next();
+            if (s.getCodeBioanalyzerChipType() != null && !(map2.containsKey(s.getCodeBioanalyzerChipType()))) {
+              map2.put(s.getCodeBioanalyzerChipType(), "1");
+              Element protocolNode = new Element("Protocol");
+              protocolsNode.addContent(protocolNode);
+              protocolNode.setAttribute("idProtocol", s.getCodeBioanalyzerChipType());
+              protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.BioanalyzerChipType");
+              protocolNode.setAttribute("name", dh.getBioanalyzerChipType(s.getCodeBioanalyzerChipType()));
+              protocolNode.setAttribute("label", isFirst ? "QC Protocols" : "");
+              isFirst = false;
+            }
+          }
           TreeMap<Integer, Sample> map = new TreeMap<Integer, Sample>();
+          isFirst = true;
           for(Iterator i4 = request.getSamples().iterator(); i4.hasNext();) {
             Sample s = (Sample)i4.next();
             if (s.getIdSeqLibProtocol() != null && !(map.containsKey(s.getIdSeqLibProtocol()))) {
@@ -483,20 +511,20 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", s.getIdSeqLibProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.SeqLibProtocol");
-              protocolNode.setAttribute("label", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
+              protocolNode.setAttribute("name", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
+              protocolNode.setAttribute("label", isFirst ? "Lib. Prep. Protocols" : "");
               
               String fivePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceFivePrime();
               protocolNode.setAttribute("Adapter5Prime", fivePrime != null ? fivePrime : "");
                             
               String threePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceThreePrime();
               protocolNode.setAttribute("Adapter3Prime", threePrime != null ? threePrime : "");
-             
-              
-             //break;
+              isFirst = false;
             }
           }
           
           TreeMap<Integer, Integer> map1 = new TreeMap<Integer, Integer>();
+          isFirst = true;
           for(Iterator i5 = request.getSequenceLanes().iterator(); i5.hasNext();) {
             SequenceLane seq = (SequenceLane)i5.next();
             if (seq.getIdNumberSequencingCyclesAllowed() != null && !map1.containsKey(seq.getIdNumberSequencingCyclesAllowed())) {
@@ -505,7 +533,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", seq.getIdNumberSequencingCyclesAllowed().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.NumberSequencingCyclesAllowed");
-              protocolNode.setAttribute("label", dh.getIlluminaSequencingProtocol(seq.getIdNumberSequencingCyclesAllowed()));
+              protocolNode.setAttribute("name", dh.getIlluminaSequencingProtocol(seq.getIdNumberSequencingCyclesAllowed()));
+              protocolNode.setAttribute("label", isFirst ? "Seq. Protocols" : "");
+              isFirst = false;
             }
           }
           

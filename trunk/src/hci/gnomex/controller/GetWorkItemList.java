@@ -492,6 +492,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("qual28sTo18sRibosomalRatio", row[WorkItemFilter.QUAL_28_18_RIBO_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_28_18_RIBO_RATIO]).toString());
     n.setAttribute("qualRINNumber",              row[WorkItemFilter.QUAL_RIN_NUMBER] == null ? "" :  ((String)row[WorkItemFilter.QUAL_RIN_NUMBER]));
     n.setAttribute("qualBypassed",               row[WorkItemFilter.QUAL_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.QUAL_BYPASSED]);
+    n.setAttribute("qualCodeApplication",        row[WorkItemFilter.QUAL_APPLICATION_CODE] == null ? "" :  (String)row[WorkItemFilter.QUAL_APPLICATION_CODE]);
     n.setAttribute("qualCodeBioanalyzerChipType",row[WorkItemFilter.CODE_BIO_CHIP_TYPE] == null ? "" :  (String)row[WorkItemFilter.CODE_BIO_CHIP_TYPE]);
     n.setAttribute("qualFragmentSizeFrom",       row[WorkItemFilter.QUAL_FRAG_SIZE_FROM] == null ? "" :  ((Integer)row[WorkItemFilter.QUAL_FRAG_SIZE_FROM]).toString());
     n.setAttribute("qualFragmentSizeTo",         row[WorkItemFilter.QUAL_FRAG_SIZE_TO] == null ? "" :  ((Integer)row[WorkItemFilter.QUAL_FRAG_SIZE_TO]).toString());

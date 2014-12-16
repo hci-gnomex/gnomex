@@ -17,20 +17,28 @@ INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription
 	
 -- code application added to BioanalyzerChipType
 alter table BioanalyzerChipType add column codeApplication varchar(10) null;
-call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table BioanalyzerChipType_Audit add column codeApplication varchar(10) null')
+call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table BioanalyzerChipType_Audit add column codeApplication varchar(10) null');
 alter table BioanalyzerChipType add 
   CONSTRAINT `FK_BioanalyzerChipType_Application` FOREIGN KEY `FK_BioanalyzerChipType_Application` (`codeApplication`)
     REFERENCES `gnomex`.`Application` (`codeApplication`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 update BioanalyzerChipType set codeApplication='BIOAN';
-
+alter table BioanalyzerChipType add column protocolDescription LONGTEXT null;
+call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table BioanalyzerChipType_Audit add column protocolDescription LONGTEXT null');
+alter table Sample add column qcCodeApplication VARCHAR(10) NULL;
+call ExecuteIfTableExists('gnomex','Sample_Audit','alter table Sample_Audit add column qcCodeApplication VARCHAR(10) NULL');
+update Sample
+  join BioanalyzerChipType on BioanalyzerChipType.codeBioanalyzerChipType=Sample.codeBioanalyzerChipType
+  set Sample.qcCodeApplication=BioanalyzerChipType.codeApplication;
+ 
 -- add hasChipTypes property
 alter table Application add column hasChipTypes char(1) null;
-call ExecuteIfTableExists('gnomex','Application_Audit','alter table Application_Audit add column hasChipTypes char(1) null')
+call ExecuteIfTableExists('gnomex','Application_Audit','alter table Application_Audit add column hasChipTypes char(1) null');
 update Application set hasChipTypes='N' where codeApplicationType='QC';
 update Application set hasChipTypes='Y' where codeApplication='BIOAN';
 
 -- really remove SampleTypeApplication
 drop table SampleTypeApplication;
+
 

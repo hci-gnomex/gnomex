@@ -110,7 +110,9 @@ public class BillingItemAutoComplete {
     public Boolean canAdd(BillingItem newBi) {
       Boolean add = true;
       
-      if (!newBi.getQty().equals(qty)) {
+      if (newBi == null) {
+        add = false;
+      } else if (newBi.getQty() == null || !newBi.getQty().equals(qty)) {
         add = false;
       } else {
         for(BillingItem bi : billingItems) {

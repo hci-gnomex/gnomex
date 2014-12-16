@@ -1052,7 +1052,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
       }
 
-
+      // set the qc code application as required
+      if (sample.getCodeBioanalyzerChipType() != null) {
+        sample.setQcCodeApplication(dh.getBioanalyzerCodeApplication(sample.getCodeBioanalyzerChipType()));
+      } else if (sample.getQcCodeApplication() == null) {
+        if (requestCategory.isQCRequestCategory()) {
+          sample.setQcCodeApplication(requestParser.getRequest().getCodeApplication());
+        }
+      }
 
       // handle plates and plate wells for Cap Seq And Sequenom
       updatePlates(sess, requestParser, sample, idSampleString);

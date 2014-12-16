@@ -79,6 +79,7 @@ public class Sample extends HibernateDetailObject {
   private Set         workItems;
   private BigDecimal  qubitConcentration;
   private String      groupName;
+  private String      qcCodeApplication;
 
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -940,5 +941,12 @@ public class Sample extends HibernateDetailObject {
 
   public void setGroupName(String groupName) {
     this.groupName = groupName;
+  }
+  
+  public String getQcCodeApplication() {
+    return qcCodeApplication;
+  }
+  public void setQcCodeApplication(String qcCodeApplication) {
+    this.qcCodeApplication = qcCodeApplication;
   }
 }

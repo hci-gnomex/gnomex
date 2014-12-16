@@ -550,8 +550,13 @@ public class RequestParser implements Serializable {
     } else {
       sample.setQubitConcentration(null);
     }
+    if (n.getAttributeValue("qcCodeApplication") != null && !n.getAttributeValue("qcCodeApplication").equals("")) {
+      sample.setQcCodeApplication(n.getAttributeValue("qcCodeApplication"));      
+    } else {
+      sample.setQcCodeApplication(null);
+    }
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
-      sample.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
+      sample.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));
     } else {
       sample.setCodeBioanalyzerChipType(null);
     }
