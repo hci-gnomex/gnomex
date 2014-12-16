@@ -13,7 +13,6 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
@@ -27,7 +26,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 
-import javax.mail.internet.AddressException;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;

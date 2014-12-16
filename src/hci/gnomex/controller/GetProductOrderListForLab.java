@@ -1,6 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductOrder;
