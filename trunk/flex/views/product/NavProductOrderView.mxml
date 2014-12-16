@@ -107,7 +107,7 @@
 				if(browseLabCombo.selectedItem != null){
 					params.idLab = browseLabCombo.selectedItem.@idLab;
 				}
-				if(orderStatusCombo.selectedItem != null){
+				if(toggleBar.selectedIndex==1 && orderStatusCombo.selectedItem != null){
 					params.codeProductOrderStatus = orderStatusCombo.selectedItem.@codeProductOrderStatus;
 				}
 				
@@ -152,11 +152,15 @@
 			
 			private function changeStatus():void{
 				var params:Object = new Object();
-				var orderCollection:XMLListCollection = new XMLListCollection();
-				for(var key:String in selectedOrders){
-					orderCollection.addItem(selectedOrders[key]);
+				if ( toggleBar.selectedIndex==0 ){
+					var orderCollection:XMLListCollection = new XMLListCollection();
+					for(var key:String in selectedOrders){
+						orderCollection.addItem(selectedOrders[key]);
+					}
+					params.selectedOrders = "<selectedOrders>" + orderCollection.toXMLString() + "</selectedOrders>";
+				} else {
+					params.selectedLineItems = "<selectedLineItems>" + browseView.selectedOrders.toXMLString() + "</selectedLineItems>";
 				}
-				params.selectedOrders = "<selectedOrders>" + orderCollection.toXMLString() + "</selectedOrders>";
 				params.codeProductOrderStatus = statusComboBox.selectedItem.@codeProductOrderStatus; 
 				changeProductOrderStatus.send(params);
 			}
@@ -199,7 +203,7 @@
 						</renderers:FilterComboBox>
 					</mx:HBox>
 					
-					<mx:HBox>
+					<mx:HBox visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}">
 						<mx:Label text="Status:"/>
 						<mx:ComboBox id="orderStatusCombo"
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductOrderStatus').DictionaryEntry}"

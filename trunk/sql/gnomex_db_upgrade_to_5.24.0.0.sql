@@ -41,4 +41,15 @@ update Application set hasChipTypes='Y' where codeApplication='BIOAN';
 -- really remove SampleTypeApplication
 drop table SampleTypeApplication;
 
+-- Remove status column from ProductOrder table and audit table
+alter table ProductOrder Drop column codeProductOrderStatus;
+call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit DROP COLUMN codeProductOrderStatus');
 
+-- Add status to ProductLineItem
+alter table ProductLineItem add column codeProductOrderStatus VARCHAR(10) NULL;
+alter table ProductLineItem add 
+   CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
+    REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    

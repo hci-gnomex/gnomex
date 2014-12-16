@@ -2,7 +2,6 @@ package hci.gnomex.controller;
 
 import java.io.Serializable;
 
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
@@ -41,7 +40,6 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
 
         Element root = new Element("ProductOrder");
         if(po != null) {
-          String orderStatus = DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", po.getCodeProductOrderStatus());
           String billingAccountName = "";
 
           if(po.getIdBillingAccount() != null) {
@@ -52,7 +50,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
           root.setAttribute("submitter", po.getSubmitter().getFirstLastDisplayName());
           root.setAttribute("labName", po.getLab().getFormattedLabName(true));
           root.setAttribute("submitDate", po.getSubmitDate() != null ? po.getSubmitDate().toString() : "");
-          root.setAttribute("orderStatus", orderStatus);
+          root.setAttribute("orderStatus", po.getStatus());
           root.setAttribute("quoteNumber", po.getQuoteNumber() != null ? po.getQuoteNumber() : "");
           root.setAttribute("quoteReceivedDate", po.getQuoteReceivedDate() != null ? po.getQuoteReceivedDate().toString() : "");
           root.setAttribute("billingAccount", billingAccountName);

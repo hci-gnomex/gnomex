@@ -73,7 +73,9 @@
 					<mx:AdvancedDataGridColumn headerText="Unit Price"
 											   dataField="@unitPrice"/>
 					<mx:AdvancedDataGridColumn headerText="Total Price"
-											   dataField="@totalPrice"/>													
+											   dataField="@totalPrice"/>
+					<mx:AdvancedDataGridColumn headerText="Status" 
+											   dataField="@status"/>  
 				</mx:columns>
 			</mx:AdvancedDataGrid>
 			

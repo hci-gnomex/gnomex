@@ -148,11 +148,11 @@
 			<mx:DataGridColumn headerText="Unit price" 
 							   dataField="@unitPrice"  
 							   textAlign="right" 
-							   editable="true" 
+							   editable="false" 
 							   wordWrap="false" />
 			<mx:DataGridColumn headerText="Qty" 
 							   dataField="@qty" 
-							   editable="true" 
+							   editable="false" 
 							   textAlign="right" 
 							   wordWrap="false" />
 			<mx:DataGridColumn headerText="Total price" 
@@ -163,8 +163,8 @@
 							   rendererIsEditor="false"
 							   itemRenderer="views.renderers.LabelInvoicePrice" />
 			<mx:DataGridColumn headerText="Status" 
-							   dataField="@codeBillingStatus" 
-							   editable="true" 
+							   dataField="@status" 
+							   editable="false" 
 							   wordWrap="false"
 							   editorDataField="value"  
 							   rendererIsEditor="false"/>  
