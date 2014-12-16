@@ -15,6 +15,7 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
   private Product     product;
   private Integer     qty;
   private BigDecimal  unitPrice;
+  private String      codeProductOrderStatus;
  
   
   public String getDisplay() {
@@ -86,4 +87,14 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
     this.unitPrice = unitPrice;
   }
 
+  public String getCodeProductOrderStatus() {
+    return codeProductOrderStatus;
+  }
+
+
+  public void setCodeProductOrderStatus( String codeProductOrderStatus ) {
+    this.codeProductOrderStatus = codeProductOrderStatus;
+  }
+
+  
 }

@@ -5,7 +5,7 @@
 		 xmlns:renderers="views.renderers.*"
 		 xmlns:util="views.util.*"  
 		 verticalGap="3">
-		
+	
 	<mx:HTTPService 
 		id="getProductOrderLineItemList" 
 		url="GetProductOrderLineItemList.gx"
@@ -22,6 +22,7 @@
 		<![CDATA[
 			import hci.flex.controls.ComboBox;
 			
+			import mx.core.ScrollPolicy;
 			import mx.collections.HierarchicalData;
 			import mx.collections.Sort;
 			import mx.controls.Alert;
@@ -32,57 +33,20 @@
 			
 			[Bindable]
 			public var parentView:NavProductOrderView;
-
-			[Bindable]
-			private var billingPeriods:XMLListCollection = new XMLListCollection();
 			
 			
-			public function init():void {
-				billingPeriods = new XMLListCollection(parentApplication.dictionaryManager.getEntries("hci.gnomex.model.BillingPeriod"));
-				var billingPeriodSort:Sort = new Sort();
-				billingPeriodSort.compareFunction = this.sortBillingPeriods;	   
-				billingPeriods.sort = billingPeriodSort;  
-				billingPeriods.refresh();
-			}
-		
 			public function getList():void {
-				getProductOrderLineItemList.send(getOrderParameters());
+				getProductOrderLineItemList.send(parentView.getParams());
 			}
 			
 			private function onGetProductOrderLineItemList(event:ResultEvent):void{
-				if ( getProductOrderLineItemList.lastResult.name() == "ProductOrderList"){
-					this.productOrderGrid.dataProvider = new HierarchicalData(orderList);
+				if ( getProductOrderLineItemList.lastResult.name() == "LineItems"){
 					selectedOrders.refresh();
 					return;
 				}
 				
-				Alert.show( event.result..ERROR.@message.toString(), "Error getting orders" );
+				Alert.show( event.result..ERROR.@message.toString(), "Error getting line items" );
 				
-			}
-			
-			private function getOrderParameters():Object {
-				var params:Object = new Object;
-				
-				if ( checkEmptyFilter() ) {
-					params.number = 0;
-					return params;
-				}
-				
-				if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
-					params.submitDateFrom = dateFormatter.format( this.pickDateRangeButton.fromDate );
-					params.submitDateTo = dateFormatter.format( this.pickDateRangeButton.toDate );
-				}
-								
-				return params;
-			}
-			
-			private function checkEmptyFilter():Boolean {
-				
-				if ( this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null ) {
-					return false;
-				}
-				
-				return true;
 			}
 			
 			private function gridItemClick(event:ListEvent):void {
@@ -144,134 +108,68 @@
 		]]>
 	</mx:Script>    	
 	
-	<mx:XMLListCollection id = "orderList" source = "{getProductOrderLineItemList.lastResult.ProductOrder}" />
-	<mx:XMLListCollection id = "selectedOrders" source="{getProductOrderLineItemList.lastResult.ProductOrder}" filterFunction="selectedFilterFunc"/>
+	<mx:XMLListCollection id="orderList" source = "{getProductOrderLineItemList.lastResult.LineItem}" />
+	<mx:XMLListCollection id="selectedOrders" source="{getProductOrderLineItemList.lastResult.LineItem}" filterFunction="selectedFilterFunc"/>
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
-	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%" >
-		<mx:HBox width="100%" >
-			<mx:HBox horizontalGap="0" verticalAlign="middle">
-				<mx:Image source="assets/review.png"/>
-				<mx:Label id="titleLabel" styleName="titleLabel" text="Product Orders" />			
-			</mx:HBox>
-			<mx:HBox height="100%" verticalAlign="middle">
-				<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" toolTip="Click 'Refresh' after selecting a date range to update the results." />
-			</mx:HBox>
-			<mx:Spacer width="100%" id="spacer1"/>
-			
-			<mx:LinkButton textDecoration = "underline"
-						   label = "Refresh"
-						   click = "{this.getList();}"
-						   icon = "@Embed('../../assets/action_refresh.gif')"
-						   toolTip = "Refresh order list"  styleName="labelSmall" id="linkbutton1"/>
-		</mx:HBox>
-		
-	</mx:VBox>
-	
-	<mx:AdvancedDataGrid id="productOrderGrid" width="100%" height="100%"
-						 fontSize="9"
-						 sortableColumns="false"
-						 sortExpertMode="true"
-						 wordWrap="true" 
-						 showDataTips="true"
-						 headerWordWrap="true" 
-						 selectionMode="singleRow" 
-						 designViewDataType="tree"
-						 iconFunction="parentApplication.getTreeIcon" 
-						 allowMultipleSelection="true"
-						 itemClick = "gridItemClick(event)"
-						 click="{selectedOrders.refresh()}">
+	<mx:DataGrid id="productOrderGrid" 
+				 width="100%" height="100%"
+				 minWidth="0" horizontalScrollPolicy="{ScrollPolicy.AUTO}"
+				 dataProvider="{orderList}"
+				 fontSize="9"
+				 sortableColumns="false"
+				 wordWrap="true" 
+				 showDataTips="true"
+				 allowMultipleSelection="true"
+				 itemClick = "gridItemClick(event)"
+				 click="{selectedOrders.refresh()}">
 		<mx:columns>
-			<!--<mx:AdvancedDataGridColumn id = "checkBoxColumn"
-									   textAlign = "center"
-									   width = "30"
-									   resizable = "false"
-									   sortable = "false"
-									   editable = "true"
-									   rendererIsEditor = "true"
-									   dataField = "@isSelected"
-									   editorDataField = "selected"
-									   itemRenderer = "views.renderers.CheckBoxIsSelectedToggle"
-									   headerRenderer = "views.renderers.CheckBoxHeader"/>-->
-			<mx:AdvancedDataGridColumn headerText="ID"
-									   dataField="@nodeDisplay" 
-									   width="175"/>
-			<mx:AdvancedDataGridColumn headerText="Lab"
-									   dataField="@labName"/>
-			<mx:AdvancedDataGridColumn headerText="Submitter"
-									   dataField="@submitter"/>
-			<mx:AdvancedDataGridColumn headerText="Product"
-									   dataField="@display"/>
-			<mx:AdvancedDataGridColumn headerText="Acct" 
-									   dataField="@billingAccountName" 
-									   editable="false" 
-									   wordWrap="false" />
-			<mx:AdvancedDataGridColumn headerText="Period" 
-									   dataField="@idBillingPeriod" 
-									   editable="true" 
-									   wordWrap="false"
-									   editorDataField="value"  
-									   rendererIsEditor="false"   
-									   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"                              
-									   itemEditor="{views.renderers.ComboBoxBillingPeriod.create(billingPeriods, '@display', '@value', '@idBillingPeriod', null, true)}"/>                 
-			<mx:AdvancedDataGridColumn headerText="%" 
-									   dataField="@percentageDisplay" 
-									   editable="false" 
-									   textAlign="right" 
-									   wordWrap="false"
-									   itemRenderer="views.renderers.LabelPercentage" />                              
-			<!--<mx:AdvancedDataGridColumn headerText="Type" 
-									   dataField="@codeBillingChargeKind" 
-									   editable="true" 
-									   wordWrap="false" 
-									   editorDataField="value" 
-									   rendererIsEditor="false"
-									   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind')}"                              
-									   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingChargeKind').DictionaryEntry,'@display', '@value', '@codeBillingChargeKind', true)}"/>-->						
-			<mx:AdvancedDataGridColumn headerText="Price Category" 
-									   dataField="@category" 
-									   editable="false" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
-			<mx:AdvancedDataGridColumn headerText="Unit price" 
-									   dataField="@unitPrice"  
-									   textAlign="right" 
-									   editable="true" 
-									   wordWrap="false" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
-			<mx:AdvancedDataGridColumn headerText="Qty" 
-									   dataField="@qty" 
-									   editable="true" 
-									   textAlign="right" 
-									   wordWrap="false" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
-			<mx:AdvancedDataGridColumn headerText="Total price" 
-									   dataField="@totalPriceDisplay" 
-									   textAlign="right" 
-									   editable="false" 
-									   wordWrap="false"
-									   rendererIsEditor="false"
-									   itemRenderer="views.renderers.LabelInvoicePrice" />
-			<mx:AdvancedDataGridColumn headerText="Status" 
-									   dataField="@codeBillingStatus" 
-									   editable="true" 
-									   wordWrap="false"
-									   editorDataField="value"  
-									   rendererIsEditor="false"
-									   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry,'@display', '@value', '@codeBillingStatus')}"                              
-									   itemEditor="{ComboBoxBillingStatus.create('@codeBillingStatus')}"/>    
-			<mx:AdvancedDataGridColumn id = "cDate"  
-									   headerText="Complete Date"
-									   dataField="@completeDate"
-									   itemEditor="views.renderers.CompleteDateFieldEditor"
-									   itemRenderer="views.renderers.BillingADGItemRenderer" 
-									   rendererIsEditor="false" 
-									   labelFunction="getCompleteDateString"
-									   editorDataField="selectedDate"/>													
-			<mx:AdvancedDataGridColumn headerText="Notes" 
-									   dataField="@notes" 
-									   editable="true" 
-									   itemRenderer="views.renderers.BillingADGItemRenderer"/>
+			<mx:DataGridColumn id = "checkBoxColumn"
+							   textAlign = "center"
+							   width = "30"
+							   resizable = "false"
+							   sortable = "false"
+							   editable = "true"
+							   draggable="false"
+							   rendererIsEditor = "true"
+							   dataField = "@isSelected"
+							   editorDataField = "selected"
+							   itemRenderer = "views.renderers.CheckBoxIsSelectedToggle"
+							   headerRenderer = "views.renderers.CheckBoxHeader"/>
+			<mx:DataGridColumn headerText="Product Order #"
+							   dataField="@idProductOrder" />
+			<mx:DataGridColumn headerText="Lab"
+							   dataField="@labName"/>
+			<mx:DataGridColumn headerText="Submitter"
+							   dataField="@submitter"/>
+			<mx:DataGridColumn headerText="Product"
+							   dataField="@name"/>
+			<mx:DataGridColumn headerText="Unit price" 
+							   dataField="@unitPrice"  
+							   textAlign="right" 
+							   editable="true" 
+							   wordWrap="false" />
+			<mx:DataGridColumn headerText="Qty" 
+							   dataField="@qty" 
+							   editable="true" 
+							   textAlign="right" 
+							   wordWrap="false" />
+			<mx:DataGridColumn headerText="Total price" 
+							   dataField="@totalPrice" 
+							   textAlign="right" 
+							   editable="false" 
+							   wordWrap="false"
+							   rendererIsEditor="false"
+							   itemRenderer="views.renderers.LabelInvoicePrice" />
+			<mx:DataGridColumn headerText="Status" 
+							   dataField="@codeBillingStatus" 
+							   editable="true" 
+							   wordWrap="false"
+							   editorDataField="value"  
+							   rendererIsEditor="false"/>  
 		</mx:columns>
-	</mx:AdvancedDataGrid>
+	</mx:DataGrid>
+	
+	
 </mx:VBox>

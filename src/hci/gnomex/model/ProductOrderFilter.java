@@ -4,7 +4,6 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.sql.Date;
-import java.util.Calendar;
 
 public class ProductOrderFilter extends DetailObject {
 
@@ -42,38 +41,6 @@ public class ProductOrderFilter extends DetailObject {
     return true;
   }
 
-  //  public StringBuffer getProductOrderQuery() {
-  //    addWhere = true;
-  //    queryBuf = new StringBuffer();
-  //
-  //    queryBuf.append(" SELECT     po.idProductOrder, ");
-  //    queryBuf.append(" po.idAppUser, ");
-  //    queryBuf.append(" submitter, ");
-  //    queryBuf.append(" po.idLab, ");
-  //    queryBuf.append(" lab.firstName, ");
-  //    queryBuf.append(" lab.lastName, ");
-  //    queryBuf.append(" po.idCoreFacility, ");
-  //    queryBuf.append(" po.submitDate, ");
-  //    queryBuf.append(" po.codeProductType, ");
-  //    queryBuf.append(" po.codeProductOrderStatus, ");
-  //    queryBuf.append(" po.quoteNumber, ");
-  //    queryBuf.append(" po.quoteReceivedDate, ");
-  //    queryBuf.append(" po.uuid ");
-  //
-  //    queryBuf.append(" FROM       ProductOrder as po ");
-  //    queryBuf.append(" JOIN       po.submitter as submitter ");
-  //    queryBuf.append(" JOIN       po.lab as lab ");
-  //
-  //    // TODO: Add criteria
-  //
-  //    this.addPOCriteria();
-  //
-  //    this.addSecurityCriteria("po");
-  //
-  //    return queryBuf;
-  //
-  //  }
-
   public StringBuffer getProductOrderQuery() {
     addWhere = true;
     queryBuf = new StringBuffer();
@@ -100,13 +67,12 @@ public class ProductOrderFilter extends DetailObject {
     return queryBuf;
   }
 
-  public StringBuffer getLineItemQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getLineItemQuery() {
     addWhere = true;
-    this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
 
     queryBuf.append(" SELECT DISTINCT ");
-    queryBuf.append(" po.idProductOrder, ");
+    queryBuf.append(" po, ");
     queryBuf.append(" lineItem.qty, ");
     queryBuf.append(" lineItem.unitPrice, ");
     queryBuf.append(" product, ");
@@ -126,11 +92,12 @@ public class ProductOrderFilter extends DetailObject {
 
     addPOCriteria();
     addSecurityCriteria("po");
+    
+    //queryBuf.append(" group by po.idProductOrder ");
   }
 
-  public StringBuffer getBillingItemQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getBillingItemQuery() {
     addWhere = true;
-    this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
 
     queryBuf.append(" SELECT DISTINCT ");
@@ -158,9 +125,8 @@ public class ProductOrderFilter extends DetailObject {
     addSecurityCriteria("po");
   }
 
-  public StringBuffer getFilesQuery(SecurityAdvisor secAdvisor) {
+  public StringBuffer getFilesQuery() {
     addWhere = true;
-    this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
 
     queryBuf.append(" SELECT DISTINCT ");

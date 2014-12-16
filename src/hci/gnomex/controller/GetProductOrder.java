@@ -7,8 +7,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderStatus;
-import hci.gnomex.utility.DictionaryHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

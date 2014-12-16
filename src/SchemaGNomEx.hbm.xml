@@ -2182,6 +2182,7 @@
       update="false" />
     <property name="qty" column="qty" type="integer"/>
     <property name="unitPrice" column="unitPrice" type="big_decimal"/>
+    <property name="codeProductOrderStatus" column="codeProductOrderStatus" type="string"/>
   </class>  
   
   <!-- hci.gnomex.model.ProductOrder -->

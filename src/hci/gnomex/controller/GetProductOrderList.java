@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderFilter;
 import hci.gnomex.security.SecurityAdvisor;
 
