@@ -263,10 +263,6 @@ package views.experiment
 				propertyNode.@isSelected = 'true';
 			}
 			
-			/*if ( parentDocument.isSequenomState() && propertyNode.@isRequired == "true") {
-				propertyNode.@isSelected = parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null && parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'true' : 'false';
-			}*/
-			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
 			

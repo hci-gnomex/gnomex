@@ -270,8 +270,8 @@
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
 					
-							if (isEntered(sample, "@name") &&
-								(parentDocument.sampleSetupView.coreToExtractDNACheckBox==null || parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected || (!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected && isEntered(sample, "@idSampleType"))) &&	
+							if (isEntered(sample, "@name") && 
+								isEntered(sample, "@idSampleType") &&	
 								isEntered(sample, "@idOrganism") &&
 								reqdAnnotationsEntered(sample))   
 								{
@@ -550,9 +550,8 @@
 								
 				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
 				
-				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
-				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
-				
+				this.sampleTypeCol.visible = true; 
+				this.concentrationCol.visible = true;
 				this.sampleOrganismColumn.visible = !isExternal;
 				this.otherSamplePrepMethodCol.visible = !isExternal;
 				this.seqLibProtocolCol.visible = false;

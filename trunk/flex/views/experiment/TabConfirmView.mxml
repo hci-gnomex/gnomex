@@ -204,11 +204,7 @@
 					this.sampleNameColumn.visible = false;
 				} else if ( parentDocument.isIScanState() ) {
 					this.sampleTypeColumn.visible = false;
-				} else if ( parentDocument.isSequenomState() ) {
-					this.sampleTypeColumn.visible =  (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
-					this.concentrationCol.visible = (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
-					
-				}
+				} 
 				
 			} else if (parentDocument.currentState == 'QCState') {
 				sampleOrganismConfirmColumn.visible = false;
@@ -296,18 +292,6 @@
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isSequencingState()}"/>
 					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" 
 							 id="appLabel0" width="140" />
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
-						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
-								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}"/>
-						<mx:Text  text="{parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'Yes' : 'No'}" 
-								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}" />
-					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
-							 includeInLayout="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}" 
-							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
-						<mx:Label text="Prep type:" textAlign="left" />
-						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedIndex > 0 ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
-					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
