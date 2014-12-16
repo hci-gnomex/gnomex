@@ -835,6 +835,8 @@ CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `sampleWellsPerChip` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   `codeConcentrationUnit` VARCHAR(10) NULL,
+  `codeApplication` VARCHAR(10) null,
+  `protocolDescription` LONGTEXT null,
   PRIMARY KEY (`codeBioanalyzerChipType`)
 )
 ENGINE = INNODB;
@@ -1455,6 +1457,7 @@ CREATE TABLE `gnomex`.`Application` (
   `onlyForLabPrepped` char(1) not null default 'N',
   `samplesPerBatch` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
+  `hasChipTypes` CHAR(1) null,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -2040,6 +2043,7 @@ CREATE TABLE `gnomex`.`Sample` (
   `barcodeSequenceB` VARCHAR(20) NULL, 
   `qubitConcentration` DECIMAL(8, 3) NULL,
   `groupName` VARCHAR(200) NULL,
+  `qcCodeApplication` VARCHAR(10) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)

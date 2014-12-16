@@ -6,6 +6,7 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
@@ -437,6 +438,24 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  
+  public String getBioanalyzerCodeApplication(String codeBioanalyzerChipType) {
+    String codeApplication = null;
+    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.BioanalyzerChipType").iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      BioanalyzerChipType chip = (BioanalyzerChipType)de;
+      if (chip.getCodeBioanalyzerChipType().equals(codeBioanalyzerChipType)) {
+        codeApplication = chip.getCodeApplication();
+        break;
+      }
+    }
+    return codeApplication;
+  }
+  
   public String getApplication(String code) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -581,6 +600,14 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SeqLibProtocol", id.toString());
+    }
+    return name;
+  }   
+  public String getBioanalyzerChipType(String code) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (code != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", code);
     }
     return name;
   }   

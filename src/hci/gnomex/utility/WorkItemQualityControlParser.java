@@ -134,6 +134,12 @@ public class WorkItemQualityControlParser implements Serializable {
     } else {
       sample.setCodeBioanalyzerChipType(null);
     }    
+    
+    if (n.getAttributeValue("qualCodeApplication") != null && !n.getAttributeValue("qualCodeApplication").equals("")) {
+      sample.setQcCodeApplication(n.getAttributeValue("qualCodeApplication"));
+    } else {
+      sample.setQcCodeApplication(null);
+    }    
   }
 
   

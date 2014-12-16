@@ -3921,6 +3921,52 @@
 				var coreFacility:Object = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', idCoreFacility);
 				return coreFacility.@facilityName.toString();
 			}
+			
+			public function getQCRequestCategoryForCore(idCoreFacility:String):Object {
+				var retObj:Object = null;
+				for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+					if (rc.@idCoreFacility == idCoreFacility && rc.@type == 'QC') {
+						retObj = rc;
+						break;
+					}
+				}
+				return retObj;
+			}
+			
+			public function getQCAppCodesForCore(idCoreFacility:String):ArrayCollection {
+				var rc:Object = getQCRequestCategoryForCore(idCoreFacility);
+				var appCodes:ArrayCollection = new ArrayCollection();
+				for each (var apprc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryApplication")) {
+					if (apprc.@codeRequestCategory == rc.@codeRequestCategory) {
+						appCodes.addItem(apprc.@codeApplication);
+					}
+				}
+				return appCodes;
+			}
+			
+			public function applicationHasChipTypes(codeApplication:String):Boolean {
+				for each (var app:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.Application")) {
+					if (app.@codeApplication.toString() == codeApplication) {
+						if (app.@hasChipTypes.toString() == 'Y') {
+							return true;
+						} else {
+							return false;
+						}
+					}
+				}
+				return false;	
+			}
+			
+			public function getCodeApplicationForBioanalyzerChipType(codeBioanalyzerChipType:String):String {
+				var code:String = "";
+				for each (var ct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.BioanalyzerChipType")) {
+					if (ct.@codeBioanalyzerChipType.toString() == codeBioanalyzerChipType) {
+						code = ct.@codeApplication;
+						break;
+					}
+				}
+				return code;	
+			}
 		]]>
 	</mx:Script>
 	

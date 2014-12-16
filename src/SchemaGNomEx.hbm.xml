@@ -1184,6 +1184,7 @@
 		<property name="qubitConcentration" column="qubitConcentration"
 			type="big_decimal" />
 		<property name="groupName" column="groupName" type="string" />
+		<property name="qcCodeApplication" column="qcCodeApplication" type="string" />
 		<set name="propertyEntries" table="PropertyEntry" lazy="true"
 			cascade="delete">
 			<key column="idSample" />
@@ -1536,6 +1537,7 @@
 			type="string" />
 		<property name="isActive" column="isActive" type="string" />
 		<property name="codeApplication" column="codeApplication" type="string" />
+		<property name="protocolDescription" column="protocolDescription" type="string" />
 	</class>
 
 	<!-- hci.gnomex.model.BillingChargeKind -->

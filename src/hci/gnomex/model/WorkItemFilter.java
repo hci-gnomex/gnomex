@@ -58,6 +58,7 @@ public class WorkItemFilter extends DetailObject {
   public static int            REQUEST_CATEGORY_TYPE   = 28; 
   public static int            CODE_REQUEST_STATUS     = 29; 
   public static int            REQ_ID_CORE_FACILITY    = 30;
+  public static int            QUAL_APPLICATION_CODE   = 31;
   
   // Labeling specific
   public static int            LABELING_DATE           = 16;
@@ -303,7 +304,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.idSampleType, ");
       queryBuf.append("    rc.type, ");
       queryBuf.append("    req.codeRequestStatus, ");
-      queryBuf.append("    req.idCoreFacility ");
+      queryBuf.append("    req.idCoreFacility, ");
+      queryBuf.append("    s.qcCodeApplication ");
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       queryBuf.append("      , ");
       queryBuf.append("    ls.labelingDate, ");

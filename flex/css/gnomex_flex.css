@@ -428,7 +428,7 @@ TextArea {
 .formLinkProtocolButton {
 	textDecoration: underline;
 	color: #0000ff;
-	fontSize: 9;	
+	fontSize: 12;	
 }
 
 .formLinkSmallButton {
