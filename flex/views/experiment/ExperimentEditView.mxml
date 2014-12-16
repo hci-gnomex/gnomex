@@ -2636,7 +2636,6 @@
 						break;
 					}
 				}
-				this.sampleSetupView.coreToExtractDNACheckBox.selected = request.@coreToExtractDNA == 'Y' ? true : false;
 				this.sampleSetupView.bisulfideConversionCheckBox.selected = request.@includeBisulfideConversion == 'Y' ? true : false;
 				if (this.isSequenomState() ){
 					this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
@@ -3346,13 +3345,11 @@
 				if (this.isSequenomState()) {
 					request.@applicationNotes = sampleSetupView.sequenomApplicationDesc.text;
 					request.@codeApplication = sampleSetupView.radioGroupSeqApp.selectedValue;
-					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 					request.@includeBisulfideConversion = this.sampleSetupView.bisulfideConversionCheckBox.selected ? 'Y' : 'N';
 				}
 				if (this.isClinicalSequenomState()) {
 					request.@applicationNotes = '';
 					request.@codeApplication = filteredAppList[0].@value;
-					request.@coreToExtractDNA = sampleSetupView.coreToExtractDNACheckBox.selected ? 'Y' : 'N';
 				}
 				if (this.isGenericState()) {
 					request.@applicationNotes = filteredAppList.length > 0 ? sampleSetupView.applicationDesc.text : '';

@@ -480,9 +480,9 @@
 												
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
-				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
-				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
-				this.qc_260_280Column.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+				this.sampleTypeCol.visible = true;		
+				this.concentrationCol.visible = true;
+				this.qc_260_280Column.visible = true;
 				
 				if ( parentDocument.isClinicalSequenomState() ) {
 					this.sampleNameCol.visible = false;
