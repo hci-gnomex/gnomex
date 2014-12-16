@@ -244,7 +244,7 @@ for (Object orgColKey : orgColMap.keySet()) {
 <% 
 							}
 %>
-						    &nbsp;&nbsp;<%=li.getLabel()%>&nbsp;&nbsp;<a href='<%=li.getURL()%>'>View in GNomEx</a>
+						    &nbsp;&nbsp;<%=li.getLabel()%>&nbsp;&nbsp;<a href='<%=li.getURL()%>' target='_blank'>View in GNomEx</a>
                           </div>
                           <div id='collapse<%=accordionId%><%=li.number%>' class='accordion-body collapse' style='height: 0px; '>
                             <div class='accordion-inner'>
