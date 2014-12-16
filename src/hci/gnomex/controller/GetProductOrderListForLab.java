@@ -58,7 +58,7 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
 
           String owner = dh.getAppUserObject(po.getIdAppUser()).getDisplayName();
           String productType = dh.getProductTypeObject(po.getCodeProductType()).getDisplay();
-          String orderStatus = DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", po.getCodeProductOrderStatus());
+          String orderStatus = po.getStatus();
 
           e.setAttribute("display", "Product Order " + po.getIdProductOrder());
           e.setAttribute("owner", owner);

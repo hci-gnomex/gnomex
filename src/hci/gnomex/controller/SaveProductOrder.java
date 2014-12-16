@@ -228,7 +228,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
   private void initializeProductOrder(ProductOrder po, String codeProductType) {
     po.setSubmitDate(new Date(System.currentTimeMillis()));
     po.setCodeProductType(codeProductType);
-    po.setCodeProductOrderStatus(ProductOrderStatus.NEW);
     po.setQuoteNumber("");
     po.setUuid(UUID.randomUUID().toString());
     po.setIdAppUser(idAppUser);

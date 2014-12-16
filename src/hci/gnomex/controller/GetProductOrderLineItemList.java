@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Product;
@@ -23,7 +24,6 @@ import org.jdom.output.XMLOutputter;
 public class GetProductOrderLineItemList extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderLineItemList.class);
 
-  private Integer idProductOrder;
   private ProductOrderFilter productOrderFilter;
 
   
@@ -32,13 +32,6 @@ public class GetProductOrderLineItemList extends GNomExCommand implements Serial
     productOrderFilter = new ProductOrderFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, productOrderFilter);
     this.addInvalidFields(errors);
-
-    
-   /* if(request.getParameter("idProductOrder") != null && !request.getParameter("idProductOrder").equals("")) {
-      idProductOrder = Integer.parseInt(request.getParameter("idProductOrder"));
-    } else {
-      this.addInvalidField("Missing idProductOrder", "idProductOrder required");
-    }*/
 
   }
 
@@ -58,11 +51,13 @@ public class GetProductOrderLineItemList extends GNomExCommand implements Serial
 
         for(Iterator i = lineItemRows.iterator(); i.hasNext();) {
           Object row[] = (Object[])i.next();
+          
           ProductOrder po = (ProductOrder) row[0];
           Integer qty = (Integer) row[1];
           BigDecimal unitPrice = (BigDecimal) row[2];
           Product product = (Product) row[3];
           Integer idProductLineItem = (Integer) row[4];
+          String codeProductOrderStatus = (String) row[5];
           
           Element e = new Element("LineItem");
           e.setAttribute("idProductOrder", getNonNullString( po.getIdProductOrder() ));
@@ -73,6 +68,7 @@ public class GetProductOrderLineItemList extends GNomExCommand implements Serial
           e.setAttribute("totalPrice", getNonNullString( unitPrice.multiply(new BigDecimal(qty)) ));
           e.setAttribute( "labName", po.getLab().getFormattedLabName( true ) );
           e.setAttribute( "submitter", po.getSubmitter().getDisplayName() );
+          e.setAttribute( "status", codeProductOrderStatus != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", codeProductOrderStatus) : "" );
           
           doc.getRootElement().addContent(e);
         }

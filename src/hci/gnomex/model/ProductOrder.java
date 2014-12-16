@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -23,7 +24,6 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   private Integer     idBillingAccount;
   private Date        submitDate;
   private String      codeProductType;
-  private String      codeProductOrderStatus;
   private String      quoteNumber;
   private Date        quoteReceivedDate;
   private String      uuid;
@@ -87,7 +87,6 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
     return lab;
   }
 
-
   public void setLab( Lab lab ) {
     this.lab = lab;
   }
@@ -96,12 +95,9 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
     return idCoreFacility;
   }
 
-
   public void setIdCoreFacility( Integer idCoreFacility ) {
     this.idCoreFacility = idCoreFacility;
   }
-
-
 
   public Date getSubmitDate() {
     return submitDate;
@@ -116,22 +112,21 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
     return codeProductType;
   }
 
-
   public void setCodeProductType( String codeProductType ) {
     this.codeProductType = codeProductType;
   }
 
-
-  public String getCodeProductOrderStatus() {
-    return codeProductOrderStatus;
+  public String getStatus() {
+    String status = ProductOrderStatus.COMPLETED;
+    for (ProductLineItem li : (Set<ProductLineItem>) getProductLineItems()) {
+      if ( li.getCodeProductOrderStatus().equals( ProductOrderStatus.NEW ) || li.getCodeProductOrderStatus().equals( ProductOrderStatus.PENDING ) ) {
+        status = ProductOrderStatus.PENDING;
+        break;
+      }
+    }
+    return  status != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", status) : "";
   }
-
-
-  public void setCodeProductOrderStatus( String codeProductOrderStatus ) {
-    this.codeProductOrderStatus = codeProductOrderStatus;
-  }
-
-
+  
   public String getQuoteNumber() {
     return quoteNumber;
   }

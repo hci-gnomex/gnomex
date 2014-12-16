@@ -732,7 +732,6 @@ CREATE TABLE `gnomex`.`ProductOrder` (
   `idCoreFacility` INT(10) NULL,
   `submitDate` DATETIME NULL,
   `codeProductType` VARCHAR(10) NULL,
-  `codeProductOrderStatus` VARCHAR(10) NULL,
   `quoteNumber` VARCHAR(50) NULL,
   `quoteReceivedDate` DATETIME NULL,
   `uuid` VARCHAR(36) NULL,
@@ -748,10 +747,6 @@ CREATE TABLE `gnomex`.`ProductOrder` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_ProductOrder_Lab` FOREIGN KEY `FK_ProductOrder_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
-    REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_ProductOrder_ProductType` FOREIGN KEY `FK_ProductOrder_ProductType` (`codeProductType`)
@@ -796,6 +791,7 @@ CREATE TABLE `gnomex`.`ProductLineItem` (
   `idProduct` INT(10) NULL,
   `qty` INT(10) NULL,
   `unitPrice` DECIMAL(7, 2) NULL,
+  `codeProductOrderStatus` VARCHAR(10) NULL,
   PRIMARY KEY (`idProductLineItem`),
   CONSTRAINT `FK_ProductLineItem_Product` FOREIGN KEY `FK_ProductLineItem_Product` (`idProduct`)
     REFERENCES `gnomex`.`Product` (`idProduct`)
@@ -803,6 +799,10 @@ CREATE TABLE `gnomex`.`ProductLineItem` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_ProductLineItem_ProductOrder` FOREIGN KEY `FK_ProductLineItem_ProductOrder` (`idProductOrder`)
     REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
+    REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

@@ -2202,7 +2202,6 @@
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="submitDate" column="submitDate" type="date"/>
     <property name="codeProductType" column="codeProductType" type="string"/>
-    <property name="codeProductOrderStatus" column="codeProductOrderStatus" type="string"/>
     <property name="quoteNumber" column="quoteNumber" type="string"/>
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
     <property name="uuid" column="uuid" type="string"/>

@@ -73,10 +73,11 @@ public class ProductOrderFilter extends DetailObject {
 
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append(" po, ");
-    queryBuf.append(" lineItem.qty, ");
-    queryBuf.append(" lineItem.unitPrice, ");
+    queryBuf.append(" pli.qty, ");
+    queryBuf.append(" pli.unitPrice, ");
     queryBuf.append(" product, ");
-    queryBuf.append(" lineItem.idProductLineItem ");
+    queryBuf.append(" pli.idProductLineItem, ");
+    queryBuf.append(" pli.codeProductOrderStatus ");
 
     getLineItemQueryBody(queryBuf);
 
@@ -87,10 +88,11 @@ public class ProductOrderFilter extends DetailObject {
   public void getLineItemQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM        ProductOrder as po ");
-    queryBuf.append(" JOIN        po.productLineItems as lineItem ");
-    queryBuf.append(" JOIN        lineItem.product as product ");
+    queryBuf.append(" JOIN        po.productLineItems as pli ");
+    queryBuf.append(" JOIN        pli.product as product ");
 
     addPOCriteria();
+    addLineItemCriteria();
     addSecurityCriteria("po");
     
     //queryBuf.append(" group by po.idProductOrder ");
@@ -212,6 +214,18 @@ public class ProductOrderFilter extends DetailObject {
       queryBuf.append(" po.idProductOrder = ");
       queryBuf.append(idProductOrder);
     }
+  }
+  
+  private void addLineItemCriteria() {
+
+    // Search by product order status
+    if (codeProductOrderStatus != null && !codeProductOrderStatus.equals("")) {
+      this.addWhereOrAnd();
+      queryBuf.append(" pli.codeProductOrderStatus like '");
+      queryBuf.append(codeProductOrderStatus);
+      queryBuf.append("%'");
+    }
+   
   }
 
   private void addSecurityCriteria(String classShortName) {
