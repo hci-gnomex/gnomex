@@ -187,13 +187,6 @@ public class ProductOrderFilter extends DetailObject {
           + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL)
           + " 23:59:59'");
     }
-    // Search by product order status
-    if (codeProductOrderStatus != null && !codeProductOrderStatus.equals("")) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.codeProductOrderStatus like '");
-      queryBuf.append(codeProductOrderStatus);
-      queryBuf.append("%'");
-    }
     // Search by product order type
     if (codeProductType != null && !codeProductType.equals("")) {
       this.addWhereOrAnd();
