@@ -127,7 +127,7 @@ padding-bottom: 1em;
 %>
 <li><a href="#topic-links-modal" data-toggle="modal" 
 				data-topic-name="<%=top.getNumber() + " - " + top.getName()%>" 
-				data-gnomex-link="<a href='<%=top.getURL() %>' style='float:left'>View Topic in GNomEx</a>"
+				data-gnomex-link="<a href='<%=top.getURL() %>' target='_blank' style='float:left'>View Topic in GNomEx</a>"
 				data-content="
 <%
       if (top.getIsPublic()) {
