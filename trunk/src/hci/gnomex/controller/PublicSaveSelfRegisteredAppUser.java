@@ -299,7 +299,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     return this;
   }
 
-  private String getEmailBody(AppUser appUser) {
+  private String getEmailBody(AppUser appUser, Boolean isAdmin) {
     StringBuffer body = new StringBuffer();
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
@@ -309,7 +309,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
       }
     } else {
-      body.append("</td></tr><tr><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+      if(isAdmin) {
+        body.append("</td></tr><tr style=\"color:red\"><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+      } else {
+        body.append("</td></tr><tr><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+      }
       body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
       if (activeFacilities.size() > 1) {
         body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
@@ -350,7 +354,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         "",
         coreFacilityEmail,
         "Your GNomEx user account has been created",
-        intro.toString() + getEmailBody(appUser),
+        intro.toString() + getEmailBody(appUser, false),
         true
     );
   }
@@ -422,7 +426,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         "",
         coreFacilityEmail,
         subject,
-        testEmailInfo + introForAdmin.toString() + getEmailBody(appUser),
+        testEmailInfo + introForAdmin.toString() + getEmailBody(appUser, true),
         true
     );
 
