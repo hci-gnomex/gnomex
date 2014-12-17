@@ -27,6 +27,7 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   private String      quoteNumber;
   private Date        quoteReceivedDate;
   private String      uuid;
+  private String      productOrderNumber;
 
   private Set         productLineItems = new TreeSet();  
   private Set         billingItems = new TreeSet();  
@@ -189,6 +190,16 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
 
   public void setIdBillingAccount(Integer idBillingAccount) {
     this.idBillingAccount = idBillingAccount;
+  }
+
+  
+  public String getProductOrderNumber() {
+    return productOrderNumber;
+  }
+
+  
+  public void setProductOrderNumber( String productOrderNumber ) {
+    this.productOrderNumber = productOrderNumber;
   }
 
 

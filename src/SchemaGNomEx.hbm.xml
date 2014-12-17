@@ -2210,7 +2210,7 @@
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
     <property name="uuid" column="uuid" type="string"/>
     <property name="idBillingAccount" column="idBillingAccount" type="integer"/>
-    
+    <property name="productOrderNumber" column="productOrderNumber" type="string"/>
     <set name="productLineItems" table="ProductLineItem" lazy="true" cascade="none" order-by="idProductLineItem">
       <key column="idProductOrder"/>
       <one-to-many class="hci.gnomex.model.ProductLineItem" />

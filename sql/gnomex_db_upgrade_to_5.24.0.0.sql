@@ -47,9 +47,14 @@ call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrde
 
 -- Add status to ProductLineItem
 alter table ProductLineItem add column codeProductOrderStatus VARCHAR(10) NULL;
+call ExecuteIfTableExists('gnomex','ProductLineItem_Audit','alter table ProductLineItem_Audit add column codeProductOrderStatus VARCHAR(10) null');
 alter table ProductLineItem add 
    CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
     REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+    
+-- Add number to ProductOrder
+alter table ProductOrder add column productOrderNumber VARCHAR(10) NULL;
+call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit add column productOrderNumber VARCHAR(10) null');
     
