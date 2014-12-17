@@ -58,6 +58,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
   private BillingPeriod   billingPeriod;
   private Integer   idCoreFacility;
   private Document  productDoc;
+  private String    codeProductOrderStatus;
 
   private IScanChipPlugin iscanPlugin = new IScanChipPlugin();
 
@@ -97,6 +98,12 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
       idLab = Integer.parseInt(request.getParameter("idLab"));
     } else {
       this.addInvalidField("idLab", "Missing idLab");
+    }
+
+    if(request.getParameter("codeProductOrderStatus") != null && !request.getParameter("codeProductOrderStatus").equals("")) {
+      codeProductOrderStatus = request.getParameter("codeProductOrderStatus");
+    } else {
+      this.addInvalidField("codeProductOrderStatus", "Missing codeProductOrderStatus");
     }
 
 
@@ -241,7 +248,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     pi.setIdProduct(Integer.parseInt(n.getAttributeValue("idProduct")));
     pi.setQty(Integer.parseInt(n.getAttributeValue("quantity")));
     pi.setUnitPrice(unitPrice);
-    pi.setCodeProductOrderStatus(ProductOrderStatus.NEW);
+    pi.setCodeProductOrderStatus(codeProductOrderStatus);
   }
 
   private boolean sendIlluminaEmail(Session sess, ProductOrder po) throws NamingException, MessagingException {

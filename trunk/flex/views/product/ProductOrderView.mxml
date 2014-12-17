@@ -52,6 +52,8 @@
 			import mx.controls.CheckBox;
 			import mx.controls.TextInput;
 			import mx.rpc.events.ResultEvent;
+			import views.experiment.ChooseWorkAuthorizationTypeWindow;
+			import mx.managers.PopUpManager;
 			
 			public var idCoreFacility:String = null;
 			
@@ -185,6 +187,9 @@
 			}
 			
 			private function showNewWorkAuthForm():void{
+				var newAuth:ChooseWorkAuthorizationTypeWindow = ChooseWorkAuthorizationTypeWindow(PopUpManager.createPopUp(this, ChooseWorkAuthorizationTypeWindow, true));
+				newAuth.init(lab, parentDocument.coreFacility);
+				PopUpManager.centerPopUp(newAuth);
 				
 			}
 			
@@ -268,12 +273,18 @@
 			}
 			
 			private function save():void{
+				
+				if(iAgree.selected == false){
+					Alert.show("Please agree to the terms.", "Warning");
+					return;
+				}
 				var params:Object = new Object();
 				params.productListXMLString = "<productList>" + productList.toXMLString() + "</productList>";
 				params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
 				params.idAppUser = idAppUser;
 				params.idLab = labCombo.selectedItem.@idLab;
 				params.idCoreFacility = idCoreFacility;
+				params.codeProductOrderStatus = parentApplication.CODE_PRODUCT_ORDER_STATUS_NEW;
 				
 				saveProductOrder.send(params);
 				
@@ -398,7 +409,7 @@
 		<mx:Spacer height="5%" />
 		
 		<mx:HBox width="100%" visible="{billingAccountCombo.selectedIndex > -1}" id="headerBox">
-			<mx:Label text="Product Type" textDecoration="underline" width="187"/>
+			<mx:Label text="Product" textDecoration="underline" width="187"/>
 			<mx:Label text="Quantity" textDecoration="underline" width="165"/>
 			<mx:Label text="Price" textDecoration="underline" width="162"/>
 			<mx:Label text="Total" textDecoration="underline"  width="120"/>
@@ -424,6 +435,13 @@
 			<mx:Label text="Grand Total: " paddingLeft="450"/>
 			<mx:Label id="grandTotalLabel" text="$0"  paddingLeft="10"/>
 		</mx:HBox>
+		
+		<mx:Spacer height="20"/>
+		
+		<mx:VBox verticalGap="0" width="50%" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1}">
+			<mx:Text text="As the Principal Investigator (P.I.) or authorized personnel of the account listed above I authorize the Core Facility to charge the account for work performed on my laboratory’s behalf during the dates indicated, not to exceed the dollar amount.  I understand that this account will be billed automatically and that I will receive a detailed statement of services for any month in which my account was charged." width="100%"/>
+			<mx:CheckBox label="I agree" color="#1500DA" enabled="true" fontSize="11" width="100%" textAlign="center" id="iAgree"  fontWeight="bold" textRollOverColor="#3320E6" textSelectedColor="#3320E6"/>
+		</mx:VBox>
 		
 		<mx:Spacer height="100%"/>
 		<mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1">
