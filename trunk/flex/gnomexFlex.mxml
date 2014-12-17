@@ -3747,6 +3747,9 @@
 					theViews.selectedChild = navProductOrderView;
 				} else if (label == "Configure Core Facilities") {
 					showCoreFacilityWindow();				
+				} else if(label == "Product Ledger"){
+					navProductLedgerView.init();
+					theViews.selectedChild = navProductLedgerView;
 				} 
 			}
 			
@@ -4001,6 +4004,7 @@
 		<menuitem label="Products..."  icon="iconCategory" >
 			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
 			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
 			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
 			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
@@ -4564,6 +4568,9 @@
 					
 					<product:ProductOrderView id="productOrderView" width="100%" height="100%" backgroundAlpha="1.0">
 					</product:ProductOrderView>
+					
+					<product:NavLedgerView id="navProductLedgerView" width="100%" height="100%" backgroundAlpha="1.0">
+					</product:NavLedgerView>
 					
 					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0">
 					</product:NavProductOrderView>
