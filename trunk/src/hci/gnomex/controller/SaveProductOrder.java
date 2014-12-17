@@ -13,6 +13,7 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
@@ -240,6 +241,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     pi.setIdProduct(Integer.parseInt(n.getAttributeValue("idProduct")));
     pi.setQty(Integer.parseInt(n.getAttributeValue("quantity")));
     pi.setUnitPrice(unitPrice);
+    pi.setCodeProductOrderStatus(ProductOrderStatus.NEW);
   }
 
   private boolean sendIlluminaEmail(Session sess, ProductOrder po) throws NamingException, MessagingException {
