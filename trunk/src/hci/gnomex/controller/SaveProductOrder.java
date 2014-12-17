@@ -13,7 +13,6 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
@@ -32,7 +31,9 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -156,10 +158,12 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           ArrayList<Element> products = productTypes.get(codeProductTypeKey);
           Set productLineItems = new TreeSet();
           ProductOrder po = new ProductOrder();
-
+          
           if(products.size() > 0) {
             initializeProductOrder(po, codeProductTypeKey);
             sess.save(po);
+            po.setProductOrderNumber( getNextPONumber(po, sess) );
+            
             for(Element n : products) {
               if(n.getAttributeValue("isSelected").equals("Y") && n.getAttributeValue("quantity") != null && !n.getAttributeValue("quantity").equals("") && !n.getAttributeValue("quantity").equals("0")) {
                 ProductLineItem pi = new ProductLineItem();
@@ -230,6 +234,35 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return this;
   }
 
+  public static String getNextPONumber(ProductOrder po, Session sess) throws SQLException {
+    String poNumber = "";
+    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(
+        po.getIdCoreFacility(),
+        PropertyDictionary.GET_PO_NUMBER_PROCEDURE);
+    if (procedure != null && procedure.length() > 0) {
+      Connection con = sess.connection();
+      String queryString = "";
+      if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+        queryString = "exec " + procedure;
+      } else {
+        queryString = "call " + procedure;
+      }
+      SQLQuery query = sess.createSQLQuery(queryString);
+      List l = query.list();
+      if (l.size() != 0) {
+        Object o = l.get(0);
+        if (o.getClass().equals(String.class)) {
+          poNumber = (String)o;
+          poNumber = poNumber.toUpperCase();
+        }
+      }
+    }
+    if (poNumber.length() == 0) {
+      poNumber = po.getIdProductOrder().toString();
+    }
+
+    return poNumber;
+  }
 
   private void initializeProductOrder(ProductOrder po, String codeProductType) {
     po.setSubmitDate(new Date(System.currentTimeMillis()));

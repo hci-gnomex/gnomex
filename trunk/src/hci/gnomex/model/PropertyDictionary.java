@@ -74,6 +74,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_DEFAULT_VIEW             = "experiment_default_view";
   public static final String        EXPERIMENT_VIEW_LIMIT               = "experiment_view_limit";
   public static final String        GET_REQUEST_NUMBER_PROCEDURE        = "get_request_number_procedure";
+  public static final String        GET_PO_NUMBER_PROCEDURE             = "get_po_number_procedure";
   public static final String        ID_DEFAULT_INSTITUTION              = "id_default_institution";
   public static final String        SITE_LOGO                           = "site_logo";
   public static final String        SITE_SPLASH                         = "site_splash";
