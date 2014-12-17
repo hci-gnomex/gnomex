@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -9,8 +10,10 @@ import java.util.Set;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisExperimentItem;
+import hci.gnomex.model.ProductLedger;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -88,6 +91,9 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             Element n = (Element)i.next();
             Integer idProductLineItem = Integer.valueOf(n.getAttributeValue("idProductLineItem"));
             ProductLineItem pli = (ProductLineItem)sess.load(ProductLineItem.class, idProductLineItem);
+            ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, pli.getIdProductOrder());
+            String oldStatus = pli.getCodeProductOrderStatus();
+            updateLedger(pli, po, oldStatus, codeProductOrderStatus, sess);
             pli.setCodeProductOrderStatus(codeProductOrderStatus);
             sess.update(pli);
           }
@@ -110,7 +116,19 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
     return this;
   }
 
-
+  public void updateLedger(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
+    // Check that old status is something other than completed and new status is completed.  
+    if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
+      ProductLedger ledger = new ProductLedger();
+      ledger.setIdLab( po.getIdLab() );
+      ledger.setIdProduct( pli.getIdProduct() );
+      ledger.setQty( pli.getProduct().getOrderQty() * pli.getQty() );
+      ledger.setTimeStamp( new Date( System.currentTimeMillis() ) );
+      ledger.setIdProductOrder( po.getIdProductOrder() );
+      sess.save( ledger );
+    }
+  }
+  
   public void validate() {
 
   }

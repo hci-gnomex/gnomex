@@ -119,7 +119,7 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   public String getStatus() {
     String status = ProductOrderStatus.COMPLETED;
     for (ProductLineItem li : (Set<ProductLineItem>) getProductLineItems()) {
-      if ( li.getCodeProductOrderStatus() == null || li.getCodeProductOrderStatus().equals( ProductOrderStatus.NEW ) || li.getCodeProductOrderStatus().equals( ProductOrderStatus.PENDING ) ) {
+      if ( li.getCodeProductOrderStatus() == null || !li.getCodeProductOrderStatus().equals( ProductOrderStatus.COMPLETED ) ) {
         status = ProductOrderStatus.PENDING;
         break;
       }
