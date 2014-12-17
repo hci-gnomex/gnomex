@@ -173,7 +173,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       buf.append(" ORDER BY lab.lastName, SUM(pl.qty) ");
 
     } else {
-      buf.append("SELECT lab.firstName, lab.lastName, SUM(pl.qty), pl.idProduct, prod.name ");
+      buf.append("SELECT lab.firstName, lab.lastName, SUM(pl.qty), pl.idProduct, prod.name, lab.idLab ");
       buf.append(" FROM ProductLedger as pl ");
       buf.append(" JOIN pl.lab as lab ");
       buf.append(" JOIN pl.product as prod ");
