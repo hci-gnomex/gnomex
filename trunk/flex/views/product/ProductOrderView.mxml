@@ -188,7 +188,7 @@
 			
 			private function showNewWorkAuthForm():void{
 				var newAuth:ChooseWorkAuthorizationTypeWindow = ChooseWorkAuthorizationTypeWindow(PopUpManager.createPopUp(this, ChooseWorkAuthorizationTypeWindow, true));
-				newAuth.init(lab, parentDocument.coreFacility);
+				newAuth.init(lab, null);
 				PopUpManager.centerPopUp(newAuth);
 				
 			}
