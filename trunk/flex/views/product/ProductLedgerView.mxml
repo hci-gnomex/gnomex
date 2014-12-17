@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Ledger">
+	
+	
+	<mx:HTTPService 
+		id="getProductLedgerEntries" 
+		url="GetProductLedgerEntries.gx"
+		resultFormat="e4x"
+		result="onGetProductLedgerEntries(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get ledger entries', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	
+	<mx:Script> 
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			public var idLab:String;
+			public var idProduct:String;
+			public var productName:String;
+			[Bindable]
+			public var productCount:String = "";
+			
+			public function init():void{
+				var params:Object = new Object();
+				params.idProduct = idProduct;
+				params.idLab = idLab;
+				getProductLedgerEntries.send(params);
+				
+			}
+			
+			private function onGetProductLedgerEntries(event:ResultEvent):void{
+				if(getProductLedgerEntries.lastResult.name() != "ledgerEntries"){
+					Alert.show( event.result..ERROR.@message.toString(), "Error getting ledger items" );
+				}
+				
+			}
+			
+			private function showAddLedgerEntryWindow():void{
+				
+				var ledgerEntryWindow:AddLedgerEntryWindow = new AddLedgerEntryWindow();
+				//				ledgerEntryWindow.productName = this.productName;
+				//				ledgerEntryWindow.idProduct = idProduct;
+				//				ledgerEntryWindow.idLab = idLab;
+				//				ledgerEntryWindow.productCount = productCount;
+				ledgerEntryWindow.parentWindow = this;
+				
+				PopUpManager.addPopUp(ledgerEntryWindow,this, true)
+				PopUpManager.centerPopUp(ledgerEntryWindow);
+				this.setFocus();
+			}
+			
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="ledgerEntries" source="{getProductLedgerEntries.lastResult..entry}"/>
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:VBox width="100%">
+			<mx:HBox width="100%">
+				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+					<mx:Image source="assets/review.png"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Current Product Count: ' + productCount}" />
+					<mx:Spacer width="100%"/>
+					<mx:LinkButton id="addLedgerEntryButton" label="Add row" icon="@Embed('../../assets/add.png')" enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selecteItem.name() == 'Product'}" click="showAddLedgerEntryWindow()"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		
+		
+		<mx:VBox width="100%" height="100%" styleName="panelBox"   backgroundSize="100%" >
+			
+			<mx:DataGrid id="ledgerGrid" width="100%" height="100%" dataProvider="{ledgerEntries}" >
+				
+				<mx:columns>
+					<mx:DataGridColumn dataField="@productOrder" headerText="Product Order" />
+					<mx:DataGridColumn dataField="@requestNumber" headerText="Request Number" />
+					<mx:DataGridColumn dataField="@comment" headerText="Comment" />
+					<mx:DataGridColumn dataField="@date" headerText="Operation Date"/>
+					<mx:DataGridColumn dataField="@qty" id="quantity" headerText="Quantity" >
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label color="{int(data.@qty) &lt; 0 ? 0xFF0000 : 0x197319}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+			
+		</mx:VBox>
+		
+	</mx:VBox>
+	
+</mx:Canvas>
