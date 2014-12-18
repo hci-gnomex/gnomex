@@ -176,6 +176,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     columns.add(makeReportColumn("Description", 13));
     columns.add(makeReportColumn("Organism", 14));
     columns.add(makeReportColumn("# Samples", 15));
+    columns.add(makeReportColumn("Public Date", 16));
 
 
     tray.setColumns(columns);
@@ -222,6 +223,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
     String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
     String projectName = (String)row[ProjectExperimentReportFilter.COL_PROJECT_NAME];
+    Date privacyExpirationDate = (Date)row[ProjectExperimentReportFilter.COL_PRIVACY_EXPIRATION_DATE];
 
     String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
     String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
@@ -233,6 +235,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String visibility = DictionaryManager.getDisplay("hci.gnomex.model.Visibility", codeVisibility);
     String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
     String organism = dh.getOrganism(idOrganism);
+    String privacyExpirationDateString = privacyExpirationDate != null ? dateFormat.format(privacyExpirationDate) : "N/A";
 
     values.add(surroundWithQuotes(projectName) );
     values.add(surroundWithQuotes(projectDescription) );
@@ -249,6 +252,8 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     values.add(surroundWithQuotes(description) );
     values.add(surroundWithQuotes(organism) );
     values.add(surroundWithQuotes(numSamples.toString()) );
+    values.add(surroundWithQuotes(privacyExpirationDateString) );
+
 
     reportRow.setValues(values);
 
