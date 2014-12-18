@@ -98,6 +98,10 @@ public class GetLab extends GNomExCommand implements Serializable {
       Hibernate.initialize(theLab.getProjects());
       Hibernate.initialize(theLab.getCoreFacilities());
 
+      //Get product qty counts and append to lab node below
+      StringBuffer buf1 = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
+      List productQuantity = sess.createQuery(buf1.toString()).list();
+
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) ||
           this.getSecAdvisor().canUpdate(theLab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP) || this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
 
@@ -127,11 +131,6 @@ public class GetLab extends GNomExCommand implements Serializable {
           ba.excludeMethodFromXML("getUsers");
           Hibernate.initialize(ba.getUsers());
         }
-
-
-        //Get product qty counts and append to lab node below
-        buf = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
-        List productQuantity = sess.createQuery(buf.toString()).list();
 
 
         Document doc = new Document(new Element("OpenLabList"));
@@ -188,10 +187,6 @@ public class GetLab extends GNomExCommand implements Serializable {
           ba.excludeMethodFromXML("getUsers");
           Hibernate.initialize(ba.getUsers());
         }
-
-        //Get product qty counts and append to lab node below
-        StringBuffer buf = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
-        List productQuantity = sess.createQuery(buf.toString()).list();
 
         Document doc = new Document(new Element("OpenLabList"));
         Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
