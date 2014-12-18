@@ -35,6 +35,7 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public static final int       COL_REQUEST_NAME = 17;
   public static final int       COL_PROJECT_NAME = 18;
   public static final int       COL_PROJECT_DESCRIPTION = 19;
+  public static final int       COL_PRIVACY_EXPIRATION_DATE = 20;
 
 
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -62,7 +63,8 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" min(owner.firstName), ");
     queryBuf.append(" min(req.name), ");
     queryBuf.append(" min(project.name), ");
-    queryBuf.append(" min(project.description) ");
+    queryBuf.append(" min(project.description), ");
+    queryBuf.append(" min(req.privacyExpirationDate) ");
 
     getQueryBody(queryBuf);
 
