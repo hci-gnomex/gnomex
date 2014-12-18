@@ -253,7 +253,7 @@
 					isComplete = false;
 				}
 				
-				if(iAgree.selected){
+				if(!iAgree.selected){
 					isComplete = false;
 				}
 				
