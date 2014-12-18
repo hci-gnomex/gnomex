@@ -89,6 +89,7 @@
 					theViews.selectedChild = this.theTab;
 					detailTab.idProductOrder = browseTree.selectedItem.@idProductOrder;
 					lineItemTab.idProductOrder = browseTree.selectedItem.@idProductOrder;
+					lineItemTab.productOrder = browseTree.selectedItem;
 					lineItemTab.init();
 					detailTab.init();
 				}
@@ -138,8 +139,8 @@
 			}
 			
 			private function changeStatus_handler():void{
-				if(isLabSelected == true){
-					Alert.show("You have selected an entire Lab, do you want to change the status of all orders in that Lab?", "Warning",(Alert.YES | Alert.NO), this, changeStatus_impl, parentApplication.iconWarning);
+				if(toggleBar.selectedIndex==0 && isLabSelected == true){
+					Alert.show("You have selected an entire Lab, do you want to change the status of all orders in that lab?", "Warning",(Alert.YES | Alert.NO), this, changeStatus_impl, parentApplication.iconWarning);
 				} else{
 					changeStatus();
 				}	
@@ -293,22 +294,6 @@
 							   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 							   toolTip = "Change status of selected orders" 
 							   click="{changeStatus_handler()}" enabled="{((toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) ) &amp;&amp; statusComboBox.selectedIndex > 0}"/>
-				
-				<!--<mx:LinkButton textDecoration="underline"
-							   label="Delete"
-							   icon="@Embed('../../assets/delete.png')"
-							   toolTip="Delete selected orders"
-							   click="{promptToDelete()}" 
-							   disabledIcon="@Embed('../../assets/delete_disable.png')"
-							   enabled="{selectedOrders.length>0}"/>
-				
-				<mx:LinkButton textDecoration="underline"
-							   label="Email"
-							   icon="@Embed('../../assets/email_go.png')"
-							   toolTip="Email GNomEx users"
-							   click="{showEmailWindow()}" 
-							   disabledIcon="@Embed('../../assets/email_go_disable.png')"
-							   enabled="{selectedOrders.length>0}"/>-->
 				<mx:Spacer width="100%"/>
 				<mx:Label text="{'(' + browseView.orderList.length + ' line items)'}" visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 			</mx:ControlBar>

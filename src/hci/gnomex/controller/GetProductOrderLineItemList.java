@@ -61,6 +61,7 @@ public class GetProductOrderLineItemList extends GNomExCommand implements Serial
           
           Element e = new Element("LineItem");
           e.setAttribute("idProductOrder", getNonNullString( po.getIdProductOrder() ));
+          e.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString());
           e.setAttribute("idProductLineItem", getNonNullString( idProductLineItem ));
           e.setAttribute("name", getNonNullString(product.getName()));
           e.setAttribute("qty", getNonNullString( qty ));

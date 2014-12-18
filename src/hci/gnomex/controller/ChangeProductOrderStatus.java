@@ -1,24 +1,21 @@
 package hci.gnomex.controller;
 
-import java.io.Serializable;
-import java.io.StringReader;
-import java.sql.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.ProductLedger;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderStatus;
 
+import java.io.Serializable;
+import java.io.StringReader;
+import java.sql.Date;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -126,7 +123,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setQty( pli.getProduct().getOrderQty() * pli.getQty() );
       ledger.setTimeStamp( new Date( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
-      ledger.setComment( "Product order number " + po.getProductOrderNumber() + " changed to Completed status." );
+      ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " changed to completed status." );
       sess.save( ledger );
     }
     // Check for old status is completed and new status is not.  
@@ -138,7 +135,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setQty( -pli.getProduct().getOrderQty() * pli.getQty() );
       ledger.setTimeStamp( new Date( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
-      ledger.setComment( "Product order number " + po.getProductOrderNumber() + " reverted from Completed status." );
+      ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " reverted from completed status." );
       sess.save( ledger );
     }
   }

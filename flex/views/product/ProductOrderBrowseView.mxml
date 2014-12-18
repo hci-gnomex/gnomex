@@ -138,7 +138,7 @@
 							   itemRenderer = "views.renderers.CheckBoxIsSelectedToggle"
 							   headerRenderer = "views.renderers.CheckBoxHeader"/>
 			<mx:DataGridColumn headerText="Product Order #"
-							   dataField="@idProductOrder" />
+							   dataField="@productOrderNumber" />
 			<mx:DataGridColumn headerText="Lab"
 							   dataField="@labName"/>
 			<mx:DataGridColumn headerText="Submitter"

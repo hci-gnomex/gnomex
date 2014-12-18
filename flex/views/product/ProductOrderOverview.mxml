@@ -46,7 +46,7 @@
 	<mx:DataGrid id="overviewGrid" width="100%" height="100%" dataProvider="{productOrderList}">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Order" dataField="@display"/>
-			<mx:DataGridColumn headerText="Owner" dataField="@owner"/>
+			<mx:DataGridColumn headerText="Submitter" dataField="@submitter"/>
 			<mx:DataGridColumn headerText="Submit Date" dataField="@submitDate"/>
 			<mx:DataGridColumn headerText="Order Status" dataField="@status"/>
 			

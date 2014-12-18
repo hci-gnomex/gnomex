@@ -27,6 +27,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
   private ProductOrderFilter productOrderFilter;
 
   private HashMap<Integer, List<Integer>> labOrders = new HashMap<Integer, List<Integer>>();
+  private HashMap<Integer, String> productOrderMap = new HashMap<Integer, String>();
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
     productOrderFilter = new ProductOrderFilter(this.getSecAdvisor());
@@ -54,7 +55,9 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       for(Iterator i = productOrders.iterator(); i.hasNext();) {
         Object row[] = (Object[])i.next();
         Integer idProductOrder = (Integer)row[0];
-        Integer idLab = (Integer)row[1];
+        String  productOrderNumber = (String)row[1];
+        productOrderMap.put( idProductOrder, productOrderNumber!=null ? productOrderNumber:"" );
+        Integer idLab = (Integer)row[2];
         if(labOrders.containsKey(idLab)) {
           labOrders.get(idLab).add(idProductOrder);
         } else {
@@ -77,11 +80,13 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
         lab.setAttribute("icon", "assets/group.png");
         for(Iterator k = productOrderIDs.iterator(); k.hasNext();) {
           Integer id = (Integer)k.next();
-          String display = "Product Order " + id.toString();
+          String number = productOrderMap.get( id );
+          String display = "Product Order " + (!number.equals("")?number:id.toString());
           Element po = new Element("ProductOrder");
           po.setAttribute("display", display);
           po.setAttribute("icon", "assets/basket.png");
           po.setAttribute("idProductOrder", id.toString());
+          po.setAttribute("productOrderNumber", (!number.equals("")?number:id.toString()));
           lab.addContent(po);
         }
 

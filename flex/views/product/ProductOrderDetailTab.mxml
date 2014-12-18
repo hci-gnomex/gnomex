@@ -57,14 +57,14 @@
 			<mx:HBox width="100%" >
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Product Order ' + this.idProductOrder}" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Product Order ' + selectedProductOrder.@productOrderNumber}" />			
 				</mx:HBox>
 			</mx:HBox>
 			
 		
 		<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
 			<mx:Label text="Product Order #"  width="105"  styleName="formLabel" textAlign="left"/>
-			<mx:Text   text="{this.selectedProductOrder.@idProductOrder != null ? selectedProductOrder.@idProductOrder : ''}" width="100%"/>
+			<mx:Text   text="{selectedProductOrder.@productOrderNumber}" width="100%"/>
 		</mx:HBox>
 		
 		<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
@@ -88,6 +88,11 @@
 		</mx:HBox>
 		
 		<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
+			<mx:Label text="Billing Account"  width="105"  styleName="formLabel" textAlign="left" />
+			<mx:Text   text="{this.selectedProductOrder.@billingAccount}" width="100%"/>
+		</mx:HBox>
+			
+		<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
 			<mx:Label text="Quote Number"  width="105"  styleName="formLabel" textAlign="left" />
 			<mx:Text   text="{this.selectedProductOrder.@quoteNumber}" width="100%"/>
 		</mx:HBox>
@@ -97,10 +102,6 @@
 			<mx:Text   text="{this.selectedProductOrder.@quoteReceivedDate}" width="100%"/>
 		</mx:HBox>
 		
-		<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
-			<mx:Label text="Billing Account"  width="105"  styleName="formLabel" textAlign="left" />
-			<mx:Text   text="{this.selectedProductOrder.@billingAccount}" width="100%"/>
-		</mx:HBox>
 	</mx:VBox>
 		
 	</mx:VBox>
