@@ -54,6 +54,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
           root.setAttribute("quoteNumber", po.getQuoteNumber() != null ? po.getQuoteNumber() : "");
           root.setAttribute("quoteReceivedDate", po.getQuoteReceivedDate() != null ? po.getQuoteReceivedDate().toString() : "");
           root.setAttribute("billingAccount", billingAccountName);
+          root.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString());
         }
 
         Document doc = new Document(root);

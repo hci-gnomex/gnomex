@@ -11,18 +11,17 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService >
-	
-	
-	
-	
+		
 	
 	
 	<mx:Script> 
 		<![CDATA[
 			import mx.collections.XMLListCollection;
-			import mx.rpc.events.ResultEvent;
 			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
 			
+			[Bindable]
+			public var productOrder:Object;
 			[Bindable]
 			public var idProductOrder:String = "";
 			
@@ -51,7 +50,7 @@
 			<mx:HBox width="100%" >
 				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:Image source="assets/review.png"/>
-					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Line Items for Product Order ' + this.idProductOrder}" />			
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Line Items for Product Order ' + productOrder.@productOrderNumber}" />			
 				</mx:HBox>
 			</mx:HBox>
 			
