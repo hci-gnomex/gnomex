@@ -440,7 +440,7 @@
 			
 		</mx:VBox>
 		<mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1" verticalAlign="middle">
-			<mx:HBox verticalGap="0" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1}">
+			<mx:HBox verticalGap="0" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1}" paddingLeft="20">
 				<mx:CheckBox label="As the Principal Investigator or authorized personnel of the account listed above I authorize the Core Facility to charge the account for the products selected." 
 							 enabled="true" fontSize="11" id="iAgree"  
 							 color="#307B0B" width="100%" fontWeight="bold" textAlign="left" letterSpacing=".5" 
