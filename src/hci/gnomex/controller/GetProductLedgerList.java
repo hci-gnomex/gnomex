@@ -54,12 +54,21 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
       List ledger = new ArrayList();
       StringBuffer buf = new StringBuffer();
-      //If they are core admin, so show all labs for cores they manage
-      if(coreList.size() > 0) {
+      //If they are super admin show everything
+      if(this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        buf = new StringBuffer();
+        buf.append("SELECT lab.firstName, lab.lastName, SUM(pl.qty), pl.idProduct, prod.name, lab.idLab ");
+        buf.append(" FROM ProductLedger as pl ");
+        buf.append(" JOIN pl.lab as lab ");
+        buf.append(" JOIN pl.product as prod ");
+        buf.append(" GROUP BY lab.lastName, lab.firstName, lab.idLab, pl.idProduct, prod.name ");
+        buf.append(" ORDER BY lab.lastName, SUM(pl.qty) ");
+        ledger = sess.createQuery(buf.toString()).list();
+      } else if(coreList.size() > 0) { //Get labs in cores they manage if not super admin
         buf = generateQuery(true, coreList);
         ledger = sess.createQuery(buf.toString()).list();
 
-      } else if(userLabList.size() > 0) { //If no core facilities then add all labs that user is a part of
+      } else if(userLabList.size() > 0) { //If no admin capabilities then add all labs that user is a part of
         buf = generateQuery(false, userLabList);
         ledger = sess.createQuery(buf.toString()).list();
       }
