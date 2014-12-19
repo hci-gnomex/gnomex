@@ -18,7 +18,7 @@ public class ProductLedger extends DictionaryEntry implements Serializable {
   private String      comment;
   private Date        timeStamp;
   private Integer     idProductOrder; // To record which product order added to the ledger
-  private String      requestNumber;  // To record which request used some of the product
+  private Integer     idRequest;  // To record which request used some of the product
 
 
   public String getDisplay() {
@@ -101,13 +101,13 @@ public class ProductLedger extends DictionaryEntry implements Serializable {
   }
 
 
-  public String getRequestNumber() {
-    return requestNumber;
+  public Integer getIdRequest() {
+    return idRequest;
   }
 
 
-  public void setRequestNumber( String requestNumber ) {
-    this.requestNumber = requestNumber;
+  public void setIdRequest( Integer idRequest ) {
+    this.idRequest = idRequest;
   }
 
   public Lab getLab() {

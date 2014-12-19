@@ -35,7 +35,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
 
     if(request.getParameter("selectedOrders") != null && !request.getParameter("selectedOrders").equals("") ) {
       selectedOrdersXMLString = request.getParameter("selectedOrders");
-      
+
       StringReader reader = new StringReader(selectedOrdersXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -44,7 +44,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
         log.error( "Cannot parse selectedOrdersXMLString", je );
         this.addInvalidField( "selectedOrdersXMLString", "Invalid selectedOrders xml");
       }
-      
+
     } else if(request.getParameter("selectedLineItems") != null && !request.getParameter("selectedLineItems").equals("") ) {
       selectedlineItemsXMLString = request.getParameter("selectedLineItems");
       StringReader reader = new StringReader(selectedlineItemsXMLString);
@@ -78,6 +78,8 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             Integer idProductOrder = Integer.valueOf(n.getAttributeValue("idProductOrder"));
             ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
             for (ProductLineItem li : (Set<ProductLineItem>)po.getProductLineItems()) {
+              String oldStatus = li.getCodeProductOrderStatus();
+              updateLedger(li, po, oldStatus, codeProductOrderStatus, sess);
               li.setCodeProductOrderStatus(codeProductOrderStatus);
               sess.update(li);
             }
@@ -139,7 +141,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       sess.save( ledger );
     }
   }
-  
+
   public void validate() {
 
   }
