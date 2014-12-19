@@ -4567,8 +4567,8 @@
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
 					
-					<product:ProductOrderView id="productOrderView" width="100%" height="100%" backgroundAlpha="1.0">
-					</product:ProductOrderView>
+					<product:NewProductOrderView id="productOrderView" width="100%" height="100%" backgroundAlpha="1.0">
+					</product:NewProductOrderView>
 					
 					<product:NavLedgerView id="navProductLedgerView" width="100%" height="100%" backgroundAlpha="1.0">
 					</product:NavLedgerView>
