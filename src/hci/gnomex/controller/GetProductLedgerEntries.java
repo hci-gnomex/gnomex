@@ -4,6 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 
 import hci.gnomex.model.ProductLedger;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.Request;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -16,6 +18,8 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+
 
 public class GetProductLedgerEntries extends GNomExCommand implements Serializable {
 
@@ -57,13 +61,25 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
         ProductLedger pl = (ProductLedger)i.next();
         Element e = new Element("entry");
 
-        String productOrderLabel = pl.getIdProductOrder() != null ? "Product Order " + pl.getIdProductOrder().toString() : "";
-        String requestNumber = pl.getRequestNumber() != null ? pl.getRequestNumber() : "";
+        Integer idProductOrder = pl.getIdProductOrder();
+        Integer idRequest = pl.getIdRequest();
         String comment = pl.getComment() != null ? pl.getComment() : "";
         String date = pl.getTimeStamp() != null ? pl.getTimeStamp().toString() : "";
+        String productOrderNumber = "";
+        String requestNumber = "";
+        if(idRequest != null) {
+          Request req = (Request)sess.load(Request.class, idRequest);
+          requestNumber = req.getNumber();
+        }
+        if(idProductOrder != null) {
+          ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
+          productOrderNumber = po.getProductOrderNumber();
+        }
 
-        e.setAttribute("productOrder", productOrderLabel);
-        e.setAttribute("requestNumber", requestNumber);
+        e.setAttribute("productOrderNumber", productOrderNumber != null ? productOrderNumber : "" );
+        e.setAttribute("requestNumber", requestNumber );
+        e.setAttribute("idProductOrder", idProductOrder != null ? idProductOrder.toString() : "");
+        e.setAttribute("idRequest", idRequest != null ? idRequest.toString() : "");
         e.setAttribute("comment", comment);
         e.setAttribute("date", date);
         e.setAttribute("qty", pl.getQty().toString());
