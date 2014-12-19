@@ -51,9 +51,10 @@
 			import mx.controls.Alert;
 			import mx.controls.CheckBox;
 			import mx.controls.TextInput;
-			import mx.rpc.events.ResultEvent;
-			import views.experiment.ChooseWorkAuthorizationTypeWindow;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.experiment.ChooseWorkAuthorizationTypeWindow;
 			
 			public var idCoreFacility:String = null;
 			
@@ -317,7 +318,13 @@
 				var quantity:TextInput = TextInput(event.currentTarget);
 				var data:Object = event.currentTarget.getRepeaterItem();
 				
-				data.@quantity = quantity.text;
+				data.@quantity = quantity.text != '' ? ( isNaN(Number( quantity.text )) ? '0' : quantity.text) : '0';
+				
+				if (data.@quantity == '0' ) {
+					data.@isSelected = 'N';
+				} else {
+					data.@isSelected = 'Y';
+				}
 				productRepeater.dataProvider = productList;
 				
 				updateGrandTotal();
@@ -416,7 +423,6 @@
 						<mx:HBox width="125" horizontalAlign="left" paddingLeft="5" horizontalGap="0">
 							<mx:TextInput id="productQuantity" 
 										  text="{productRepeater.currentItem.@quantity}" 
-										  enabled="{productRepeater.currentItem.@isSelected == 'Y'}" 
 										  change="{updateQuantity(event); checkSetupCompleteness()}"  
 										  width="42"/>
 							<mx:Spacer width="10" />
@@ -449,7 +455,7 @@
 							 textRollOverColor="#3320E6" click="{checkSetupCompleteness();}"/>
 			</mx:HBox>
 			<mx:Spacer width="100%"/>
-			<mx:Button id="saveButton" label="Save" enabled="false" 
+			<mx:Button id="saveButton" label="Submit" enabled="false" 
 					   icon="@Embed('../../assets/action_save.gif')" 
 					   click="save()">
 			</mx:Button>
