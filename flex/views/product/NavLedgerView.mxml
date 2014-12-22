@@ -90,7 +90,7 @@
 			}
 			
 			private function reselectTreeItem():void{
-				var index:int = 0;
+				var index:int = 2;
 				var found:Boolean = false;
 				for each(var lab:XML in browseTree.dataProvider){
 					index++;

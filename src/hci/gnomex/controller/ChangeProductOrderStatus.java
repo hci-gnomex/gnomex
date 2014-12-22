@@ -10,6 +10,7 @@ import hci.gnomex.model.ProductOrderStatus;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -123,7 +124,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setIdLab( po.getIdLab() );
       ledger.setIdProduct( pli.getIdProduct() );
       ledger.setQty( pli.getProduct().getOrderQty() * pli.getQty() );
-      ledger.setTimeStamp( new Date( System.currentTimeMillis() ) );
+      ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
       ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " changed to completed status." );
       sess.save( ledger );
@@ -135,7 +136,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setIdLab( po.getIdLab() );
       ledger.setIdProduct( pli.getIdProduct() );
       ledger.setQty( -pli.getProduct().getOrderQty() * pli.getQty() );
-      ledger.setTimeStamp( new Date( System.currentTimeMillis() ) );
+      ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
       ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " reverted from completed status." );
       sess.save( ledger );
