@@ -4,6 +4,7 @@ import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 
 
@@ -16,7 +17,7 @@ public class ProductLedger extends DictionaryEntry implements Serializable {
   private Integer     idProduct;
   private Integer     qty;
   private String      comment;
-  private Date        timeStamp;
+  private Timestamp   timeStamp;
   private Integer     idProductOrder; // To record which product order added to the ledger
   private Integer     idRequest;  // To record which request used some of the product
 
@@ -81,12 +82,12 @@ public class ProductLedger extends DictionaryEntry implements Serializable {
   }
 
 
-  public Date getTimeStamp() {
+  public Timestamp getTimeStamp() {
     return timeStamp;
   }
 
 
-  public void setTimeStamp( Date timeStamp ) {
+  public void setTimeStamp( Timestamp timeStamp ) {
     this.timeStamp = timeStamp;
   }
 

@@ -8,6 +8,7 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Request;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
       List<ProductLedger> entries = sess.createQuery(buf.toString()).list();
 
       Document doc = new Document(new Element("ledgerEntries"));
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
 
       for(Iterator i = entries.iterator(); i.hasNext();) {
         ProductLedger pl = (ProductLedger)i.next();
@@ -64,7 +66,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
         Integer idProductOrder = pl.getIdProductOrder();
         Integer idRequest = pl.getIdRequest();
         String comment = pl.getComment() != null ? pl.getComment() : "";
-        String date = pl.getTimeStamp() != null ? pl.getTimeStamp().toString() : "";
+        String date = pl.getTimeStamp() != null ? sdf.format(pl.getTimeStamp()) : "";
         String productOrderNumber = "";
         String requestNumber = "";
         if(idRequest != null) {

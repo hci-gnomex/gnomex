@@ -6,6 +6,9 @@ import hci.gnomex.model.ProductLedger;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -67,7 +70,10 @@ public class SaveProductLedgerEntry extends GNomExCommand implements Serializabl
         pl.setQty(qty);
         pl.setComment(comment);
         pl.setIdProduct(idProduct);
-        pl.setTimeStamp(new Date(System.currentTimeMillis()));
+
+        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-mm-dd hh:mm:ss");
+
+        pl.setTimeStamp(new Timestamp(System.currentTimeMillis()));
 
         sess.save(pl);
         this.setResponsePage(this.SUCCESS_JSP);

@@ -2165,7 +2165,7 @@
     <property name="idProduct" column="idProduct" type="integer"/>
     <property name="qty" column="qty" type="integer"/>
     <property name="comment" column="comment" type="string"/>
-    <property name="timeStamp" column="timeStamp" type="date"/>
+    <property name="timeStamp" column="timeStamp" type="timestamp"/>
     <property name="idProductOrder" column="idProductOrder" type="integer"/>
     <property name="idRequest" column="idRequest" type="integer"/>
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab"
