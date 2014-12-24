@@ -33,7 +33,7 @@ import org.hibernate.Session;
 public class IlluminaSeqPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus) {
 
     List billingItems = new ArrayList<BillingItem>();
     Map seqLaneMap = new HashMap();
@@ -147,7 +147,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         if (qty > 0 && theUnitPrice != null) {
           billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));          
         }
-        billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+        billingItem.setCodeBillingStatus(billingStatus);
         billingItem.setIdRequest(request.getIdRequest());
         billingItem.setIdBillingAccount(request.getIdBillingAccount());
         billingItem.setIdLab(request.getIdLab());

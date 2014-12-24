@@ -141,6 +141,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        FISCAL_YEAR_BREAK_DAY               = "fiscal_year_break_day";
   public static final String        NOTIFY_SUPPORT_OF_NEW_USER          = "notify_support_of_new_user";
   public static final String        ILLUMINA_QC_IN_LIB_PREP             = "illumina_qc_in_lib_prep";
+  public static final String        BILLING_DURING_WORKFLOW             = "billing_during_workflow";
 
 
   private Integer       idPropertyDictionary;

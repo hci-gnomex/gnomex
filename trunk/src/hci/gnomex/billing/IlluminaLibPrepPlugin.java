@@ -26,7 +26,7 @@ import org.hibernate.Session;
 public class IlluminaLibPrepPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus) {
 
     List billingItems = new ArrayList<BillingItem>();
     
@@ -92,7 +92,7 @@ public class IlluminaLibPrepPlugin implements BillingPlugin {
       if (qty.intValue() > 0 && theUnitPrice != null) {
         billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));          
       }
-      billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+      billingItem.setCodeBillingStatus(billingStatus);
       billingItem.setIdRequest(request.getIdRequest());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());
       billingItem.setIdLab(request.getIdLab());

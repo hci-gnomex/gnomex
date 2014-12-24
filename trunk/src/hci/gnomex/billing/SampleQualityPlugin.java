@@ -33,7 +33,7 @@ import org.hibernate.Session;
 public class SampleQualityPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus) {
     
     
     List billingItems = new ArrayList<BillingItem>();
@@ -50,21 +50,17 @@ public class SampleQualityPlugin implements BillingPlugin {
       return billingItems;
     }
     
-    // skip qc billing if request category property indicates this.  Note this was introduced since Brian includes qc billing in lib prep for illumina.
-    if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
-      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-      String skipQC = pdh.getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_QC_IN_LIB_PREP);
-      if (skipQC != null && skipQC.equals("Y")) {
-        return billingItems;
-      }
-    }
+    // skip qc billing if request category property indicates this, unless qc failed.  Note this was introduced since Brian includes qc billing in lib prep for illumina.
+    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+    String illuminaQCInPrepStr = pdh.getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_QC_IN_LIB_PREP);
+    Boolean illuminaQCInPrep = illuminaQCInPrepStr != null && illuminaQCInPrepStr.equals("Y");
     
     // Count up number of samples for each codeBioanalyzerChipType
     Application application = null;
     if (request.getCodeApplication() != null) {
       application = (Application)sess.get(Application.class, request.getCodeApplication());
     }
-    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample sample = (Sample)i.next();
       
@@ -75,12 +71,16 @@ public class SampleQualityPlugin implements BillingPlugin {
         if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equals("N")) {
           continue;
         }
+        // Bypass sample quality when pricing is included in lib prep -- unless qc failed in which case we charge for it.
+        if (illuminaQCInPrep && (sample.getQualFailed() == null || !sample.getQualFailed().equals("Y"))) {
+          continue;
+        }
       }
       
       String filter1 = Application.BIOANALYZER_QC;
       String filter2 = null;
       
-      if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
+      if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory()) && sample.getQcCodeApplication() == null) {
         if (application != null && application.getCodeApplication().indexOf("RNA") >= 0) {
           filter2 = BioanalyzerChipType.RNA_NANO;
         } else  {
@@ -102,10 +102,16 @@ public class SampleQualityPlugin implements BillingPlugin {
       } else if (request.getCodeRequestCategory().equals(RequestCategory.AFFYMETRIX_MICROARRAY_REQUEST_CATEGORY) &&
                   request.getCodeApplication().equals(Application.SNP_MICROARRAY_CATEGORY)) {
         filter1 = Application.DNA_GEL_QC;
-      } else if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-        filter1 = application.getCodeApplication(); 
+      } else {
+        filter1 = null;
+        if (sample.getQcCodeApplication() != null) {
+          filter1 = sample.getQcCodeApplication();
+        } else if (application != null) {
+          filter1 = application.getCodeApplication();
+        }
+        Application qcApplication = dh.getApplicationObject(filter1);
         filter2 = null;
-        if (application.getHasChipTypes() != null && application.getHasChipTypes().equals("Y")) {
+        if (qcApplication.getHasChipTypes() != null && qcApplication.getHasChipTypes().equals("Y")) {
           filter2 = sample.getCodeBioanalyzerChipType();
         }
         
@@ -195,7 +201,7 @@ public class SampleQualityPlugin implements BillingPlugin {
         if (qty.intValue() > 0 && theUnitPrice != null) {      
           billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));
         }
-        billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+        billingItem.setCodeBillingStatus(billingStatus);
         billingItem.setIdRequest(request.getIdRequest());
         billingItem.setIdLab(request.getIdLab());
         billingItem.setIdBillingAccount(request.getIdBillingAccount());        

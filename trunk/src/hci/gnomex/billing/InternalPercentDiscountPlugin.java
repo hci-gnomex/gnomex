@@ -25,7 +25,7 @@ import org.hibernate.Session;
 
 public class InternalPercentDiscountPlugin implements BillingPlugin {
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus) {
 
     List billingItems = new ArrayList<BillingItem>();
     
@@ -65,7 +65,7 @@ public class InternalPercentDiscountPlugin implements BillingPlugin {
       billingItem.setQty(1);
       billingItem.setUnitPrice(price.getUnitPrice());
       billingItem.setPercentagePrice(new BigDecimal(1));   
-      billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+      billingItem.setCodeBillingStatus(billingStatus);
       billingItem.setIdRequest(request.getIdRequest());
       billingItem.setIdLab(request.getIdLab());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());      
