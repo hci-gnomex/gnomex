@@ -3,6 +3,8 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PropertyDictionary;
@@ -19,15 +21,20 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.SampleComparator;
 import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemQualityControlParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -99,6 +106,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
         Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
+        Map<Integer, Set<Sample>> samplesCompletedMap = new HashMap<Integer, Set<Sample>>();
 
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
@@ -170,6 +178,16 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
               // Delete qc work item
               sess.delete(workItem);
+              
+              if (sample.getQualBypassed() == null || !sample.getQualBypassed().equalsIgnoreCase("Y")) {
+                // Save sample for later creation of billing items
+                Set<Sample> sampleSet = samplesCompletedMap.get(sample.getIdRequest());
+                if (sampleSet == null) {
+                  sampleSet = new TreeSet<Sample>(new SampleComparator());
+                }
+                sampleSet.add(sample);
+                samplesCompletedMap.put(sample.getIdRequest(), sampleSet);
+              }
             }
 
 
@@ -222,23 +240,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
             }
           }
 
-          // auto complete the billing items.
-          for(Integer key : autoCompleteMap.keySet()) {
-            BillingItemAutoComplete auto = autoCompleteMap.get(key);
-            if (auto.getSkip()) {
-              continue;
-            }
-
-            Integer completedQty = 0;
-            for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
-              Sample sample = (Sample)i.next();
-              if (sample.getQualDate() != null) {
-                completedQty++;
-              }
-            }
-
-            auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
-          }
+          processBilling(sess, autoCompleteMap, samplesCompletedMap);
 
           sess.flush();
 
@@ -275,6 +277,43 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     return this;
   }
 
+  private void processBilling(Session sess, Map<Integer, BillingItemAutoComplete> autoCompleteMap, Map<Integer, Set<Sample>> samplesCompletedMap) throws Exception {
+    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    // Get the current billing period
+    BillingPeriod billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
+    if (billingPeriod == null) {
+      throw new Exception("Cannot find current billing period to create billing items");
+    }
+
+    // process billing items
+    for(Integer key : autoCompleteMap.keySet()) {
+      BillingItemAutoComplete auto = autoCompleteMap.get(key);
+      String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+      if (prop == null || !prop.equals("Y") || auto.getHasPendingBilling()) {
+        // Billing items created at submit.  Just complete items that can be completed.
+        if (!auto.getSkip()) {
+          Integer completedQty = 0;
+          for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
+            Sample sample = (Sample)i.next();
+            if (sample.getQualDate() != null || 
+                (sample.getQualFailed() != null && sample.getQualFailed().equalsIgnoreCase("Y"))) {
+              completedQty++;
+            }
+          }
+    
+          auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
+        }
+      } else {
+        // Need to create billing items at this point.
+        Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
+        if (sampleSet != null) {
+          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+        }
+      }
+    }
+  }
+  
   private void sendConfirmationEmail(Session sess, Request request, boolean isStepQualityControl) throws NamingException, MessagingException {
 
     dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -326,6 +365,4 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     }
 
   }
-
-
 }

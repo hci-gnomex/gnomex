@@ -176,13 +176,13 @@
 	    	} 	  
 	    	
 			for each (item in dirtyItems) {
-				if (item.@qualStatus == 'Completed') {
+				if (item.@qualStatus == 'Completed' || item.@qualStatus == 'Terminated') {
 					if (item.@qualCodeApplication == null || item.@qualCodeApplication == '') {
-						message += "\nPlease enter a QC Type before completing an item";
+						message += "\nPlease enter a QC Type before completing or terminating an item";
 					} else {
 						if (parentApplication.applicationHasChipTypes(item.@qualCodeApplication)) {
 							if (item.@qualCodeBioanalyzerChipType == null || item.@qualCodeBioanalyzerChipType == '') {
-								message += "\nPlease enter a QC Assay before completing an item";
+								message += "\nPlease enter a QC Assay before completing or terminating an item";
 							} else {
 								var code:String = parentApplication.getCodeApplicationForBioanalyzerChipType(item.@qualCodeBioanalyzerChipType);
 								if (code != item.@qualCodeApplication.toString()) {

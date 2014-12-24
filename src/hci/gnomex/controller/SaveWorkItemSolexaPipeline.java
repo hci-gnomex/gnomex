@@ -4,6 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.GenomeBuild;
@@ -20,6 +22,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
@@ -30,6 +33,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -104,6 +109,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
         Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
+        Map<Integer, Set<SequenceLane>> sequenceLanesCompletedMap = new HashMap<Integer, Set<SequenceLane>>();
         
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
@@ -147,6 +153,16 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
                   autoCompleteMap.put(request.getIdRequest(), auto);
                 }
                 
+                // Keep track of lanes by request to create billing items.
+                // Note that currently channel status can only be "On Hold", "Complete" or "Terminate".  We'll only
+                // get here if status is "Complete" or "Terminate" so we want to create billing items in either case.
+                Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(request.getIdRequest());
+                if (laneSet == null) {
+                  laneSet = new TreeSet<SequenceLane>(new SequenceLaneNumberComparator());
+                }
+                laneSet.add(lane);
+                sequenceLanesCompletedMap.put(request.getIdRequest(), laneSet);
+                
                 // Keep track of requests to send out a confirmation email (just once per request)
                 // (Send email if at least one sequence lane has been completed pipeline.)
                 if (channel.getPipelineDate() != null) {  
@@ -171,24 +187,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
             
           }
 
-          // auto complete the billing items.
-          for(Integer key : autoCompleteMap.keySet()) {
-            BillingItemAutoComplete auto = autoCompleteMap.get(key);
-            if (auto.getSkip()) {
-              continue;
-            }
-
-            Integer completedQty = 0;
-            Map<Integer, FlowCellChannel> channels = auto.getRequest().getFlowCellChannels();
-            for(Integer chKey : channels.keySet()) {
-              FlowCellChannel channel = channels.get(chKey);
-              if (channel != null && channel.getPipelineDate() != null) {
-                completedQty++;
-              }
-            }
-            
-            auto.completeItems(channels.size(), completedQty);
-          }
+          processBilling(sess, autoCompleteMap, sequenceLanesCompletedMap);
 
           sess.flush();
           
@@ -234,6 +233,44 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
     
     return this;
+  }
+  
+  private void processBilling(Session sess, Map<Integer, BillingItemAutoComplete> autoCompleteMap, Map<Integer, Set<SequenceLane>> sequenceLanesCompletedMap) throws Exception {
+    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    // Get the current billing period
+    BillingPeriod billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
+    if (billingPeriod == null) {
+      throw new Exception("Cannot find current billing period to create billing items");
+    }
+
+    for(Integer key : autoCompleteMap.keySet()) {
+      BillingItemAutoComplete auto = autoCompleteMap.get(key);
+      String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+      if (prop == null || !prop.equals("Y") || auto.getHasPendingBilling()) {
+        // Billing items created at submit.  Just complete items that can be completed.
+         if (auto.getSkip()) {
+          continue;
+        }
+  
+        Integer completedQty = 0;
+        Map<Integer, FlowCellChannel> channels = auto.getRequest().getFlowCellChannels();
+        for(Integer chKey : channels.keySet()) {
+          FlowCellChannel channel = channels.get(chKey);
+          if (channel != null && channel.getPipelineDate() != null) {
+            completedQty++;
+          }
+        }
+        
+        auto.completeItems(channels.size(), completedQty);
+      } else {
+        // Need to create billing items at this point.
+        Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
+        if (laneSet != null) {
+          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+        }
+      }
+    }
   }
   
   private void sendBioinformaticsAssistanceEmail(Session sess, Request r) throws NamingException, MessagingException {

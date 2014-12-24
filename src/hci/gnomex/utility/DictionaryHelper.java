@@ -5,6 +5,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.CoreFacility;
@@ -822,5 +823,22 @@ public class DictionaryHelper implements Serializable {
   public RequestCategoryType getRequestCategoryType(String type) {
     lazyLoadManagedDictionaries();
     return this.requestCategoryTypeMap.get(type); 
+  }
+  
+  public Application getApplicationObject(String code) {
+    Application app = null;
+    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.Application").iterator(); i.hasNext();) {
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      Application a = (Application)de;
+      if (a.getCodeApplication().equals(code)) {
+        app = a;
+        break;
+      }
+    }
+    return app;
   }
 }

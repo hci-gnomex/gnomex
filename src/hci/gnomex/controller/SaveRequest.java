@@ -674,7 +674,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         boolean createBillingItems = false;
         if (!requestParser.isExternalExperiment()) {
           if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-            createBillingItems = true;
+            // if we are to create billing items during workflow we don't want to create them here...
+            String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+            if (prop == null || !prop.equals("Y")) {
+              createBillingItems = true;
+            }
           } else if (!requestParser.isNewRequest() &&
               !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
               !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
@@ -2136,7 +2140,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           //           if this is a not a new request, but these is a new sequence lane,
           //           create a work item for the Cluster Gen (Assemble) worklist.
           //           Also ignore this if this is a QC Amend as seqPrep work items were created above.
-          if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null && s.getWorkItems().size() == 0)) {
+          if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null && s.getWorkItems() != null && s.getWorkItems().size() == 0)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
             workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
@@ -2258,6 +2262,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING);
+  }
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
 
     List billingItems = new ArrayList<BillingItem>();
     List discountBillingItems = new ArrayList<BillingItem>();
@@ -2292,7 +2300,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           continue;
         }
 
-
+        // If a step is provided, ignore price categories that are not available for that step
+        if (codeStepNext != null) {
+          Boolean found = false;
+          for(Step s : (Set<Step>)priceCategory.getSteps()) {
+            if (s.getCodeStep().equals(codeStepNext)) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            continue;
+          }
+        }
+        
         // Instantiate plugin for billing category
         BillingPlugin plugin = null;
         Boolean isDiscount = false;
@@ -2310,7 +2331,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Get the billing items
         if (plugin != null) {
-          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap);
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus);
           if (isDiscount) {
             discountBillingItems.addAll(billingItemsForCategory);
           } else {
