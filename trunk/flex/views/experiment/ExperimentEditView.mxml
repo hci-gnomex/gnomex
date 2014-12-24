@@ -5044,6 +5044,13 @@
 			}
 			
 			private function filterBillingAccounts(item:Object):Boolean {
+				if (item.@isActive == 'N') {
+					return false;
+				}
+				
+				if (item.@isApproved == 'N') {
+					return false;
+				}
 				var keep:Boolean = false;
 				var temp:String = flash.utils.getQualifiedClassName(parentDocument);
 				if(temp  == 'views.order::NavOrderView') {
