@@ -81,6 +81,9 @@
         
 		private var coreFacilityAppMap:Dictionary;
 			
+		[Bindable]
+		private var selectedIdCoreFacility:String = null;
+			
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkListQC.send();
@@ -236,30 +239,18 @@
         private function refreshRequestNumbers():void {
         	requestNumbers = new ArrayCollection();
 			cores = new ArrayCollection;
-
 			var blankItem:Object = new Object();
 			blankItem.data = "";
 			blankItem.label = "";
         	requestNumbers.addItem(blankItem);
 			coreFacilityAppMap = new Dictionary();
-        	
+			workList.filterFunction = null;
+			workList.refresh();
+        	var foundSelectedIdCoreFacility:Boolean = false;
         	for(var x:Number = 0; x < workList.length; x++) {
         		var item:Object = workList.getItemAt(x, 0);
         		
         		var found:Boolean = false;
-        		for(var i:Number = 0; i < requestNumbers.length; i++) {
-        			if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
-        				found = true;
-        				break;
-        			}
-        		}
-        		if (found == false) {
-	    			var newItem:Object = new Object();
-	    			newItem.data = item.@requestNumber;
-	    			newItem.label = item.@requestNumber;
-        			requestNumbers.addItem(newItem);
-        		}
-				found = false;
 				for(var j:Number = 0; j < cores.length; j++) {
 					if (cores.getItemAt(j).data == item.@idCoreFacility) {
 						found = true;
@@ -267,36 +258,81 @@
 					}
 				}
 				if (found == false) {
-					newItem = new Object();
-					newItem.data = item.@idCoreFacility;
-					newItem.label = parentApplication.getCoreFacilityName(item.@idCoreFacility);
-					cores.addItem(newItem);
-					var appCodes:ArrayCollection = parentApplication.getQCAppCodesForCore(item.@idCoreFacility);
-					coreFacilityAppMap[item.@idCoreFacility.toString()] = appCodes;
+					addCoreFacilityObject(item.@idCoreFacility);
+					if (selectedIdCoreFacility == null) {
+						selectedIdCoreFacility= item.@idCoreFacility;
+						foundSelectedIdCoreFacility = true;
+					}
+					if (!foundSelectedIdCoreFacility && selectedIdCoreFacility == item.@idCoreFacility) {
+						foundSelectedIdCoreFacility = true;
+					}
+				}
+
+				if (filterWorkListByExpType(item)) {
+					found = false;
+					for(var i:Number = 0; i < requestNumbers.length; i++) {
+						if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+							found = true;
+							break;
+						}
+					}
+					if (found == false) {
+						var newItem:Object = new Object();
+						newItem.data = item.@requestNumber;
+						newItem.label = item.@requestNumber;
+						requestNumbers.addItem(newItem);
+					}
 				}
         	}
         	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
 			requestNumberCombo.dataProvider = requestNumbers;
 			requestNumberCombo.dropdown.dataProvider = requestNumbers;
 			
+			if (!foundSelectedIdCoreFacility && selectedIdCoreFacility != null) {
+				addCoreFacilityObject(selectedIdCoreFacility);
+			}
 			coreCombo.dataProvider = cores;
 			coreCombo.dropdown.dataProvider = cores;
-			if (cores.length > 0) {
-				coreCombo.selectedItem = cores[0];
-			}
+			
 			if (cores.length > 1) {
 				coreCombo.visible = true;
 				coreCombo.includeInLayout = true;
+				for each(var c:Object in cores) {
+					if (c.data == selectedIdCoreFacility) {
+						coreCombo.selectedItem = c;
+						break;
+					}
+				}
 			} else {
 				coreCombo.visible = false;
 				coreCombo.includeInLayout = false;
+				if (cores.length == 1) {
+					coreCombo.selectedItem = cores[0];
+				}
+			}
+			
+			var hide260230:String = parentApplication.getCoreFacilityProperty(selectedIdCoreFacility, parentApplication.PROPERTY_HIDE_260_230_QC_WORKFLOW);
+			if (hide260230 != null && hide260230 == "Y") {
+				this.qual260230col.visible = false;
+			} else {
+				this.qual260230col.visible = true;
 			}
 
-			workList.filterFunction = filterWorkList;
+			workList.filterFunction = filterWorkListByExpType;
 			workList.refresh()
 			refreshAppList();
         }
         
+		private function addCoreFacilityObject(idCoreFacility:String):Object {
+			var newItem:Object = new Object();
+			newItem.data = idCoreFacility;
+			newItem.label = parentApplication.getCoreFacilityName(idCoreFacility);
+			cores.addItem(newItem);
+			var appCodes:ArrayCollection = parentApplication.getQCAppCodesForCore(idCoreFacility);
+			coreFacilityAppMap[idCoreFacility] = appCodes;
+			return newItem
+		}
+			
 		private function refreshAppList():void {
 			filteredAppList.filterFunction = filterAppList;
 			filteredAppList.refresh();
@@ -311,9 +347,9 @@
         			keep = true;
         		}
         	} else {
-				if (coreCombo.selectedItem != null && coreCombo.selectedItem.label != "") {
+				if (selectedIdCoreFacility != null && selectedIdCoreFacility != "") {
 					keep = false;
-					if (item.@idCoreFacility == coreCombo.selectedItem.data) {
+					if (item.@idCoreFacility == selectedIdCoreFacility) {
 						keep = true;
 					}
 				}				
@@ -323,20 +359,24 @@
 
 		private function filterWorkListByExpType(item:Object):Boolean {
 			var keep:Boolean = true;
-			if(worklistFilterType.length > 0) {
+			if (!filterWorkList(item)) {
 				keep = false;
-				if (worklistFilterType == 'MICROARRAY') {
-					if (item.@codeStepNext == 'QC' && item.@requestCategoryType != 'QC') {
+			} else {
+				if(worklistFilterType.length > 0) {
+					keep = false;
+					if (worklistFilterType == 'MICROARRAY') {
+						if (item.@codeStepNext == 'QC' && item.@requestCategoryType != 'QC') {
+							keep = true;
+						}
+					} else if (worklistFilterType == 'QC') {
+						if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
+							keep = true;
+						}
+					} else if (item.@codeStepNext == worklistFilterType) {
 						keep = true;
-					}
-				} else if (worklistFilterType == 'QC') {
-					if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
-						keep = true;
-					}
-				} else if (item.@codeStepNext == worklistFilterType) {
-					keep = true;
-				}				
-			}        	
+					}				
+				}
+			}
 			return keep;
 		}
 			
@@ -409,8 +449,8 @@
 			if (item.@value == "") {
 				retVal = true;
 			} else {
-				if (item.@isActive == 'Y' && coreCombo != null && coreCombo.selectedItem != null) {
-					var appCodes:ArrayCollection = ArrayCollection(coreFacilityAppMap[coreCombo.selectedItem.data.toString()]);
+				if (item.@isActive == 'Y' && selectedIdCoreFacility != null) {
+					var appCodes:ArrayCollection = ArrayCollection(coreFacilityAppMap[selectedIdCoreFacility]);
 					if (appCodes != null) {
 						for each(var c:String in appCodes) {
 							if (item.@codeApplication.toString() == c) {
@@ -433,12 +473,12 @@
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" 
 	            		dataProvider="{requestNumbers}" 
-	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
+	            		change="workList.filterFunction = filterWorkListByExpType;workList.refresh()"  
 	            		width="90">
 	            	</mx:ComboBox>
 					<mx:ComboBox id="coreCombo" visible="{cores.length&gt;1}" includeInLayout="{cores.length&gt;1}"
 								 dataProvider="{cores}"
-								 change="workList.filterFunction = filterWorkList;workList.refresh();refreshAppList();"
+								 change="selectedIdCoreFacility=coreCombo.selectedItem.data;refreshRequestNumbers();"
 								 width="200">
 					</mx:ComboBox>
             		
@@ -453,7 +493,6 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber" sortCompareFunction="sortSampleNumber"/>
-					<mx:DataGridColumn editable="false" headerText="Experiment Type" width="20" dataField="@experimentType"/>
 					<mx:DataGridColumn editable="false" headerText="Sample Type" width="20" dataField="@sampleType"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@appUserName" />
 					<mx:DataGridColumn headerText="QC Type"  width="20" dataField="@qualCodeApplication" id="qcTypeCol"
@@ -484,7 +523,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"
+					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio" id="qual260230col"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>

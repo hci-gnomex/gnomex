@@ -1175,6 +1175,7 @@
 			public var PROPERTY_NANO_CODE_SET_COST_WARNING:String		  = "nano_code_set_cost_warning";
 			public var PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH:String      = "qc_assay_hide_buffer_strength";
 			public var PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP:String       = "qc_assay_hide_wells_per_chip";
+			public var PROPERTY_HIDE_260_230_QC_WORKFLOW:String           = "qc_hide_260_230_qc_workflow";
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
