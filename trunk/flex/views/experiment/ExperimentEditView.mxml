@@ -301,6 +301,8 @@
 		public var slideDesignList:XMLListCollection;
 		[Bindable]
 		private var appUsersForLab:XMLListCollection;
+		[Bindable]
+		private var submittersForLab:XMLListCollection;
 		private var appUserSort:Sort;
 
         
@@ -4130,28 +4132,14 @@
 						}
 					}
 				}
-				
-				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
-				appUsersForLab = new XMLListCollection(lab.members.AppUser);
-				for each (var mgr:Object in lab.managers.AppUser) {
-					var mgrInLabList:Boolean = false;
-					for each(var a:Object in appUsersForLab) {
-						if (a.@idAppUser == mgr.@idAppUser) {
-							mgrInLabList = true;
-							break;
-						}
-					}
-					if (!mgrInLabList) {
-						appUsersForLab.addItem(mgr);				
-					}
-				}
-				appUsersForLab.addItemAt(emptyNode, 0);
-				
+
+				// set up Owner Combo
+				appUsersForLab = createAppUsersForLab(lab);
 				appUserSort = new Sort();
 				appUserSort.compareFunction = this.sortAppUsers;
 				appUsersForLab.sort = appUserSort;
 				appUsersForLab.refresh();
-				ownerCombo.selectedItem = emptyNode;
+				ownerCombo.selectedItem = appUsersForLab.getItemAt(0);
 				for each(var a1:Object in appUsersForLab) {
 					if (a1.@idAppUser == request.@idAppUser) {
 						ownerCombo.selectedItem = a1;
@@ -4160,8 +4148,12 @@
 				}
 				ownerCombo.enabled = true;
 				
-				submitterCombo.selectedItem = emptyNode;
-				for each(var a2:Object in appUsersForLab) {
+				// set up Submitter Combo
+				this.submittersForLab = createSubmittersForLab(lab);
+				this.submittersForLab.sort = appUserSort;
+				this.submittersForLab.refresh();
+				submitterCombo.selectedItem = submittersForLab.getItemAt(0);
+				for each(var a2:Object in submittersForLab) {
 					if (a2.@idAppUser == request.@idSubmitter) {
 						submitterCombo.selectedItem = a2;
 						break;
@@ -4170,6 +4162,42 @@
 				submitterCombo.enabled = true;
 			}			
 
+		}
+			
+		private function createAppUsersForLab(lab:Object):XMLListCollection {
+			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+			var list:XMLListCollection = new XMLListCollection(lab.members.AppUser);
+			for each (var mgr:Object in lab.managers.AppUser) {
+				var mgrInLabList:Boolean = false;
+				for each(var a:Object in appUsersForLab) {
+					if (a.@idAppUser == mgr.@idAppUser) {
+						mgrInLabList = true;
+						break;
+					}
+				}
+				if (!mgrInLabList) {
+					list.addItem(mgr);				
+				}
+			}
+			list.addItemAt(emptyNode, 0);
+			return list;
+		}
+			
+		private function createSubmittersForLab(lab:Object):XMLListCollection {
+			var list:XMLListCollection = new XMLListCollection(createAppUsersForLab(lab).copy());
+			for each (var submitter:Object in request.submitterFromOtherCores.AppUser) {
+				var submitterInLabList:Boolean = false;
+				for each(var a:Object in list) {
+					if (a.@idAppUser == submitter.@idAppUser) {
+						submitterInLabList = true;
+						break;
+					}
+				}
+				if (!submitterInLabList) {
+					list.addItem(submitter);				
+				}
+			}
+			return list;
 		}
 			
         private function onGetSlideDesignList(event:ResultEvent):void {
@@ -5563,7 +5591,7 @@
 						<util:ComboBoxDatProvChangeFix id="submitterCombo"
 													   labelField="@displayName" 
 													   change="this.dirty.setDirty();" 
-													   dataProvider="{appUsersForLab}" 
+													   dataProvider="{submittersForLab}" 
 													   enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 													   width="500"/>
 					</mx:HBox>
