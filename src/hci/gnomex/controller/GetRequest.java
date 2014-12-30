@@ -926,6 +926,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (!newRequest) {
             appendWorkflowStatusNodes(request, requestNode);
           }
+          
+          // Append valid submitters from other cores.
+          if (!newRequest) {
+            appendSubmittersFromOtherCores(sess, request, requestNode);
+          }
 
         
           doc.getRootElement().addContent(requestNode);
@@ -1099,6 +1104,25 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
   }
 
+  private void appendSubmittersFromOtherCores(Session sess, Request request, Element node) throws Exception {
+    Element subNode = new Element("submitterFromOtherCores");
+    node.addContent(subNode);
+    
+    String str = "SELECT DISTINCT au FROM AppUser au JOIN au.coreFacilitiesICanSubmitTo core where core.idCoreFacility=:idCoreFacility";
+    Query query = sess.createQuery(str);
+    query.setParameter("idCoreFacility", request.getIdCoreFacility());
+    List<AppUser> l = (List<AppUser>)query.list();
+    for(AppUser au : l) {
+      Element auNode = au.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+      if (au.getIdAppUser() == null) {
+        auNode.setAttribute("value", "-1");
+      } else {
+        auNode.setAttribute("value", au.getIdAppUser().toString());
+      }
+      auNode.setAttribute("display", au.getDisplayName());
+      subNode.addContent(auNode);
+    }
+  }
   
   private void flagPlateInfo(boolean isNewRequest, Request request, Element requestNode) {
     
