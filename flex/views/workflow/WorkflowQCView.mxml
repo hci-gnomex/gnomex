@@ -372,6 +372,10 @@
 						if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
 							keep = true;
 						}
+					} else if (worklistFilterType == 'NANO') {
+						if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'NANOSTRING') {
+							keep = true;
+						}
 					} else if (item.@codeStepNext == worklistFilterType) {
 						keep = true;
 					}				
