@@ -112,6 +112,10 @@
 					removeFromQCTabItems("qc");
 				}
 				
+				if (!parentApplication.usesExperimentType("NANOSTRING")) {
+					removeFromQCTabItems("nano");
+				}
+				
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'MISEQ');
 				miSeqFlowCellChannels = requestCategory.@numberOfChannels;
 				
@@ -297,6 +301,10 @@
 						filterType = "SEQQC";
 						windowTitle = "GAIIX ";
 						break;
+					case "nano":
+						filterType = "NANO";
+						windowTitle = "Nano String ";
+						break;
 				}
 				combinedWorkflowQCView.setWorklistFilter(filterType, windowTitle + "Sample Quality");
 				detailViews.selectedChild = combinedQCViews;  
@@ -409,6 +417,8 @@
 				   />
 		<mx:Object label="Sample Quality" code="qc"
 				    />
+		<mx:Object label="Nano String" code="nano"
+				   />
 	</mx:Array>
 	
 <mx:VBox width="100%" height="100%" verticalGap="0">
