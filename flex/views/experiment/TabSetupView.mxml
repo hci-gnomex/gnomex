@@ -568,13 +568,15 @@
 					if (currentState == "AdminState" || currentState == "AdminExternalExperimentState") {
 						idAppUser = null;
 					}
+					this.enabled = false;
 					getLab.send();				
 				} else {
 					lab = null;
 				}
 			}
 			
-			private function onGetLab(event:ResultEvent):void {			
+			private function onGetLab(event:ResultEvent):void {		
+				this.enabled = true;
 				lab = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
 				
 				if (parentDocument != null && !parentDocument.isAmendState()) {
@@ -1222,6 +1224,13 @@
 			private function scrollToPosition(position:Number):void {
 				vbox1.verticalScrollPosition = position;
 			}
+			
+			private function onLabSelected():void {
+				if (projectCombo != null) projectCombo.selectedIndex = -1;
+				if (this.sampleOrganismCombo != null) this.sampleOrganismCombo.selectedIndex = -1;
+				if (this.sampleOrganismCombo1 != null) this.sampleOrganismCombo1.selectedIndex = -1;
+				getMembersOfLab();
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
@@ -1299,7 +1308,7 @@
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="380"
-											  close="if (projectCombo != null) projectCombo.selectedIndex = -1;getMembersOfLab();" 
+											  close="onLabSelected();" 
 											  id="labCombo">
 					</renderers:FilterComboBox>
 				</mx:HBox>

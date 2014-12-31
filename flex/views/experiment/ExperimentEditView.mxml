@@ -911,6 +911,7 @@
 			}
 			
 			setupView.requestTypeGroup.selection = null;
+			this.filteredAppList.refresh();
 
 			samplesView.enabled = false;
 			

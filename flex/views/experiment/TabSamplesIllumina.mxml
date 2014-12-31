@@ -532,17 +532,21 @@
 			}
 			
 			private function onSampleChanged(event:CollectionEvent):void {
-				if (event.kind == CollectionEventKind.UPDATE) {
-					var groupNumberChanged:Boolean = false;
-					for each (var item:PropertyChangeEvent in event.items) {
-						if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
-							groupNumberChanged = true;
-							break;
+				if (parentDocument == null) {
+					event.currentTarget.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				} else {
+					if (event.kind == CollectionEventKind.UPDATE) {
+						var groupNumberChanged:Boolean = false;
+						for each (var item:PropertyChangeEvent in event.items) {
+							if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
+								groupNumberChanged = true;
+								break;
+							}
 						}
-					}
-					
-					if (groupNumberChanged && !parentDocument.isEditState()) {
-						setGridColors();
+						
+						if (groupNumberChanged && !parentDocument.isEditState()) {
+							setGridColors();
+						}
 					}
 				}
 			}
