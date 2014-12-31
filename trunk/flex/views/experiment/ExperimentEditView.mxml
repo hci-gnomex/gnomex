@@ -1794,7 +1794,7 @@
         	        	
 			var doesMatchSeqPrepByCore:Boolean = false;
 			if (doesMatchRequestCategory) {
-				if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y') {
+				if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y' || !parentApplication.isInternalExperimentSubmission) {
 					doesMatchSeqPrepByCore = true;
 				} else {
 					for each (var sample:Object in samples) {
