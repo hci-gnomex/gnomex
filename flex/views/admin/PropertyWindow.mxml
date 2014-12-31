@@ -830,7 +830,7 @@
 						</mx:VBox>
 						<mx:VBox label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
-								<mx:Text text="Only show for these platforms/applications" width="100%" styleName="formLabel"/>
+								<mx:Text text="Only show for these platforms/experiment types" width="100%" styleName="formLabel"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
 									<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
 									</mx:ComboBox>
