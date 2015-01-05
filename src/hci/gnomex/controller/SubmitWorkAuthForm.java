@@ -276,37 +276,30 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
       }
 
-      // Email lab contact email address(es)
+      // Email core facility, PI, and billing admin for lab with approve links
+      String contactEmail = "";
       if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
-        String contactEmail = lab.getWorkAuthSubmitEmail();
+        contactEmail = lab.getWorkAuthSubmitEmail();
         if(!MailUtil.isValidEmail(contactEmail)){
           log.error("Invalid email " + contactEmail);
         }
+      }
 
-        if (testEmail) {
-          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>"; 
+      if(!contactEmail.equals("")) {
+        contactEmail += ", " + facilityEmail;
+      } else {
+        contactEmail = facilityEmail;
+      }
+
+      if (!contactEmail.equals("")) {
+        if(!MailUtil.isValidEmail(contactEmail)){
+          log.error("Invalid email " + contactEmail);
+        }
+        if(testEmail){
+          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>";
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
         MailUtil.send(contactEmail, 
-            null,
-            replyEmail, 
-            submitterSubject, 
-            emailInfo + submitterNote.toString() + body.toString(),
-            true);   
-
-      }
-
-
-      // Email core facility
-      if (!facilityEmail.equals("")) {
-        if(!MailUtil.isValidEmail(facilityEmail)){
-          log.error("Invalid email " + facilityEmail);
-        }
-        if(testEmail){
-          emailInfo = "[If this were a production environment then this email would have been sent to: " + facilityEmail + "]<br><br>";
-          facilityEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        }
-        MailUtil.send(facilityEmail, 
             null,
             replyEmail,
             coreSubject,
