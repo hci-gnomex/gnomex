@@ -57,4 +57,8 @@ alter table ProductLineItem add
 -- Add number to ProductOrder
 alter table ProductOrder add column productOrderNumber VARCHAR(10) NULL;
 call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit add column productOrderNumber VARCHAR(10) null');
+
+-- Add idProductLineItem to billing item
+alter table BillingItem add column idProductLineItem INT(10) NULL;
+call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit add column idProductLineItem INT(10) null');
     
