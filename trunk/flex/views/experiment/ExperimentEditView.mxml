@@ -4160,7 +4160,7 @@
 						break;
 					}
 				}
-				submitterCombo.enabled = true;
+				//submitterCombo.enabled = true;
 			}			
 
 		}
@@ -5603,7 +5603,7 @@
 													   labelField="@displayName" 
 													   change="this.dirty.setDirty();" 
 													   dataProvider="{submittersForLab}" 
-													   enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
+													   enabled="{parentApplication.isAdminState}"
 													   width="500"/>
 					</mx:HBox>
 
