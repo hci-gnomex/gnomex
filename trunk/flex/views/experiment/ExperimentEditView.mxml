@@ -5073,6 +5073,16 @@
 			}
 			
 			private function filterBillingAccounts(item:Object):Boolean {
+				if (request.@idBillingAccount == item.@idBillingAccount) {
+					return true;
+				}
+				
+				for each(var acct:Object in request..BillingItem) {
+					if (acct.@idBillingAccount == item.@idBillingAccount) {
+						return true;
+					}
+				}
+				
 				if (item.@isActive == 'N') {
 					return false;
 				}
