@@ -191,7 +191,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(new Element("TR"));// add line break after billing address
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
-      table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
+      table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Billing"));
       if(invoice != null){
         table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
       }
