@@ -102,7 +102,7 @@ package views.util
 				}
 			}
 			if (month == 0) {
-				month = 12;
+				month = 11;
 				year--;
 			} else {
 				month--;
