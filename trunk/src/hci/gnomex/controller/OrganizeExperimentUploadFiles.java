@@ -540,6 +540,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     ef = (ExperimentFile)expFileDictionary.get(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
                   } else if(expFile.getAttributeValue("idExperimentFile") != null && !expFile.getAttributeValue("idExperimentFile").equals("")) {
                     ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
+                    //The experiment file may have been deleted from above code
+                    if(ef == null) {
+                      continue;
+                    }
                   } else {
                     java.util.Date d = new java.util.Date();
                     ef.setIdRequest(this.idRequest);
