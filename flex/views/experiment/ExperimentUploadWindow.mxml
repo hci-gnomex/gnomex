@@ -317,7 +317,7 @@
 						if(file.@type == 'dir'){
 							recurseFindFileToDelete(file.children(), fileToFind);
 						} else{
-							if(file.@displayName == fileToFind.@displayName){
+							if(file.@zipEntryName == fileToFind.@zipEntryName){
 								deleteNode(file);
 								return;
 							}
@@ -710,19 +710,7 @@
 								samplesTree.selectedItem = null;
 							} else{
 								experimentFilesTree.selectedItem = null;
-								for each(var ef:XML in experimentFileList.children()){
-									if(ef.@displayName == fd.@displayName){
-										deleteNode(ef);
-										break;
-									}
-									for each(var efChild:XML in ef.children()){
-										if(efChild.@displayName == fd.@displayName){
-											deleteNode(efChild);
-											break;
-										}
-									}
-								}
-								//experimentFileList.removeItemAt(experimentFileList.getItemIndex(fd));
+								recurseFindFileToDelete(experimentFileList.children(), fd);
 							}
 						}
 						dropNode.appendChild(seqRunNumberNode);
@@ -824,10 +812,6 @@
 					if(emptyfolder.children().length() == 0){
 						deleteNode(emptyfolder);
 					}
-				}
-				
-				for each(var fdChild:XML in experimentFileList.children()){
-					deleteEmptyFolders(fdChild);	
 				}
 				
 				clickedItems = new XMLListCollection();
@@ -1275,16 +1259,18 @@
 				}
 				
 				for each(var item:XML in clickedItems){
-					if(item.@displayName == event.currentTarget.selectedItem.@displayName){
+					if(item.@zipEntryName == event.currentTarget.selectedItem.@zipEntryName){
 						return;
 					}
 				}
 				clickedItems.addItem(event.currentTarget.selectedItem.copy());
-				var isFound:Boolean = false;
 				
+				//The following code seems redundant but it is accounting for the case when
+				//the user performs a shift click
+				var isFound:Boolean = false;	
 				for each(var si:XML in event.currentTarget.selectedItems){
 					for each(var ci:XML in clickedItems){
-						if(ci.@displayName == si.@displayName){
+						if(ci.@zipEntryName == si.@zipEntryName){
 							isFound = true;
 							break;
 						}
@@ -1315,11 +1301,11 @@
 							filesToUnlink.addItem(file.copy());
 						}
 						var fileName:String = file.@zipEntryName; 
-						fileName = fileName.substring(fileName.indexOf(request.@number));
+						var shortFileName:String = fileName.substring(fileName.indexOf(request.@number));
 						var filePart:String = fileName.split("/")[1];
 						var node:XML = null;
 						for each(var dl:XML in masterFileList.children()){
-							if(filePart == dl.@itemNumber || filePart == dl.@displayName){
+							if(filePart == dl.@itemNumber || fileName == dl.@zipEntryName){
 								node = dl.copy();
 								break;
 							}
@@ -1333,21 +1319,22 @@
 						if(node != null){
 							experimentFileList.source.appendChild(node);
 						}
-						
+						//Since we are dragging files away from the sample list,
+						//delete the appropriate file.
 						for each(var f:XML in sampleList.source..FileDescriptor){
-							if(f.@displayName == file.@displayName){
+							if(f.@zipEntryName == file.@zipEntryName){
 								deleteNode(f);
 								break;
 							}
 						}
-						for each(var ef:XML in experimentFileList.children().children()){
-							for each(var sf:XML in sampleList.source..FileDescriptor){
-								if(sf.@displayName == ef.@displayName){
-									deleteNode(ef);
-									break;
-								}
-							}
+						
+						//If the file we are dragging back is in a directory we add
+						//all files in that directory back to the experiment file list.
+						//Delete the ones we didn't actually drag over by comparing to what is still left in sample list.
+						for each(var sf:XML in sampleList.source..FileDescriptor){
+							recurseFindFileToDelete(experimentFileList.children(), sf);
 						}
+						
 						for each(var fd:XML in experimentFileList.children().children()){
 							deleteEmptyFolders(fd);	
 						}
@@ -1359,6 +1346,7 @@
 						deleteNode(emptyfolder);
 					}
 				}
+				
 				clickedItems = new XMLListCollection();
 				callLater(samplesTree.invalidateDisplayList);
 				this.dirty.setDirty();
