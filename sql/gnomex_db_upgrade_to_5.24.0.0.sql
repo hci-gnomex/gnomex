@@ -38,9 +38,6 @@ call ExecuteIfTableExists('gnomex','Application_Audit','alter table Application_
 update Application set hasChipTypes='N' where codeApplicationType='QC';
 update Application set hasChipTypes='Y' where codeApplication='BIOAN';
 
--- really remove SampleTypeApplication
-drop table SampleTypeApplication;
-
 -- Remove status column from ProductOrder table and audit table
 alter table ProductOrder Drop column codeProductOrderStatus;
 call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit DROP COLUMN codeProductOrderStatus');
