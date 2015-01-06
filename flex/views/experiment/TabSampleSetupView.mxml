@@ -1680,7 +1680,7 @@
 			<mx:SetProperty target="{hbox9}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox9}" name="includeInLayout" value="false"/>
 			<mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
-				<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="middle" width="100%">
+				<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="top" width="100%">
 					<util:ContextHelp context1="sampleDetailsIsolationMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Isolation Method Help"
 									  label="(3) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="455"/>
 					<mx:RadioButtonGroup id = "isolationTypeRadioGroup" />       	
