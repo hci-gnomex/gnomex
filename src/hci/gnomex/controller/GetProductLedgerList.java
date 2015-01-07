@@ -54,6 +54,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
       List ledger = new ArrayList();
       StringBuffer buf = new StringBuffer();
+      Boolean addWhereOrAnd = false;
       //If they are super admin show everything
       if(this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         buf = new StringBuffer();
@@ -61,6 +62,19 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         buf.append(" FROM ProductLedger as pl ");
         buf.append(" JOIN pl.lab as lab ");
         buf.append(" JOIN pl.product as prod ");
+
+        if(idLab != null) {
+          buf.append(" WHERE lab.idLab = " + idLab);
+          addWhereOrAnd = true;
+        }
+
+        if(idProduct != null) {
+          if(addWhereOrAnd) {
+            buf.append(" AND pl.idProduct = " + idProduct); 
+          } else {
+            buf.append(" WHERE pl.idProduct = " + idProduct);
+          }
+        }
         buf.append(" GROUP BY lab.lastName, lab.firstName, lab.idLab, pl.idProduct, prod.name ");
         buf.append(" ORDER BY lab.lastName, SUM(pl.qty) ");
         ledger = sess.createQuery(buf.toString()).list();
