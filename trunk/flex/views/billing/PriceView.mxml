@@ -17,14 +17,16 @@
 
 <mx:Script>
 	<![CDATA[
-		import views.renderers.ComboBox;
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.controls.Label;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.managers.PopUpManager;
-		import mx.controls.Alert;
-		import mx.collections.XMLListCollection;   
+		
+		import views.renderers.ComboBox;   
 		
 		[Bindable]
 		private var price:Object;
@@ -131,6 +133,9 @@
 			  "filter2='' " +
 			  "/>");
 			criteriaList.addItem(newCriteria);
+			
+			criteriaGrid.selectedIndex = criteriaList.length;
+			criteriaGrid.editedItemPosition = {columnIndex:0, rowIndex:criteriaList.length - 1};
 		}
 		
 		private function removePriceCriteria():void {
