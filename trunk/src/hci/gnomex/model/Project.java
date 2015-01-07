@@ -203,6 +203,14 @@ public class Project extends HibernateDetailObject {
     }
   }
 
+  public String getLabName() {
+    if (lab != null) {
+      return lab.getName();      
+    } else {
+      return "";
+    }
+  }
+
   public AppUser getAppUser() {
     return appUser;
   }

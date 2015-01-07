@@ -101,6 +101,14 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
     this.idLab = idLab;
   }
 
+  public String getLabName() {
+    if (lab != null) {
+      return lab.getName();
+    } else {
+      return "";
+    }
+  }
+
   public Lab getLab() {
     return lab;
   }
