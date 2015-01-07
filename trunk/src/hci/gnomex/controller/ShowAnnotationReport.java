@@ -137,10 +137,12 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-      String [] customCols = this.customColumnString.split(",");
-      for(int i = 0; i < customCols.length; i++) {
-        AnnotationReportField arf = (AnnotationReportField)sess.load(AnnotationReportField.class, Integer.parseInt(customCols[i]));
-        this.customColumnList.add(arf);
+      if (customColumnString != null && customColumnString.length() > 0) {
+        String [] customCols = this.customColumnString.split(",");
+        for(int i = 0; i < customCols.length; i++) {
+          AnnotationReportField arf = (AnnotationReportField)sess.load(AnnotationReportField.class, Integer.parseInt(customCols[i]));
+          this.customColumnList.add(arf);
+        }
       }
       // Create the report and define the columns
       createReportTray(sess, dh);
