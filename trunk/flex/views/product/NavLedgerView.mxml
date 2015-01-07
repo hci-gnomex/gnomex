@@ -80,12 +80,18 @@
 				if(browseTree.selectedItem.name() == "product"){
 					selectedIdLab = browseTree.selectedItem.@idLab;
 					selectedIdProduct = browseTree.selectedItem.@idProduct;
-					
 					productEntryLedgerView.idLab = browseTree.selectedItem.@idLab;
 					productEntryLedgerView.idProduct = browseTree.selectedItem.@idProduct;
 					productEntryLedgerView.productCount = browseTree.selectedItem.@qty;
 					productEntryLedgerView.productName = browseTree.selectedItem.@display;
 					productEntryLedgerView.init();
+				} else{
+					productEntryLedgerView.idLab = null;
+					productEntryLedgerView.idProduct = null;
+					productEntryLedgerView.productCount = "";
+					productEntryLedgerView.productName = "";
+					productEntryLedgerView.init();
+					
 				}
 			}
 			
