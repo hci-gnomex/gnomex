@@ -50,6 +50,14 @@ public class AnalysisGroup extends HibernateDetailObject {
     return idAnalysisGroup;
   }
 
+  public String getLabName() {
+    if (lab != null) {
+      return lab.getName();      
+    } else {
+      return "";
+    }
+  }
+
 
   public void setIdAnalysisGroup(Integer idAnalysisGroup) {
     this.idAnalysisGroup = idAnalysisGroup;
