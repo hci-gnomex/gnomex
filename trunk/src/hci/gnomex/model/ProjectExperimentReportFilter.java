@@ -36,7 +36,10 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public static final int       COL_PROJECT_NAME = 18;
   public static final int       COL_PROJECT_DESCRIPTION = 19;
   public static final int       COL_PRIVACY_EXPIRATION_DATE = 20;
+  public static final int       COL_EXPERIMENT_COST = 21;
 
+  public static final int       COL_COST_IDREQUEST = 0;
+  public static final int       COL_COST_COST = 1;
 
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
@@ -64,7 +67,8 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" min(req.name), ");
     queryBuf.append(" min(project.name), ");
     queryBuf.append(" min(project.description), ");
-    queryBuf.append(" min(req.privacyExpirationDate) ");
+    queryBuf.append(" min(req.privacyExpirationDate), ");
+    queryBuf.append(" sum(bi.invoicePrice) ");
 
     getQueryBody(queryBuf);
 
@@ -84,10 +88,39 @@ public class ProjectExperimentReportFilter extends DetailObject {
     queryBuf.append(" JOIN        req.appUser as owner ");
     queryBuf.append(" JOIN        req.project as project ");
     queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
+    queryBuf.append(" LEFT JOIN   req.billingItems as bi ");
 
     addRequestCriteria();
     addSecurityCriteria();
 
+  }
+
+  public StringBuffer getCostQuery(SecurityAdvisor secAdvisor) {
+    addWhere = true;
+    this.secAdvisor = secAdvisor;
+    queryBuf = new StringBuffer();
+
+    queryBuf.append(" SELECT ");
+    queryBuf.append(" req.idRequest, ");
+    queryBuf.append(" sum(bi.invoicePrice) ");
+
+    getCostQueryBody(queryBuf);
+
+    queryBuf.append(" group by req.idRequest ");
+    queryBuf.append(" order by min(lab.firstName), min(lab.lastName), req.idRequest ");
+
+    return queryBuf;
+
+  }
+
+  public void getCostQueryBody(StringBuffer queryBuf) {
+
+    queryBuf.append(" FROM        Request as req ");
+    queryBuf.append(" JOIN        req.lab as lab ");
+    queryBuf.append(" LEFT JOIN   req.billingItems as bi ");
+
+    addRequestCriteria();
+    secAdvisor.buildSecurityCriteria(queryBuf, "req", null, addWhere, false, true);
   }
 
   private void addRequestCriteria() {
@@ -106,7 +139,7 @@ public class ProjectExperimentReportFilter extends DetailObject {
 
     if(idLab == null){
       this.addWhereOrAnd();
-      queryBuf.append(" lab.excludeUsage != 'Y' ");
+      queryBuf.append(" case when lab.excludeUsage is null then 'N' else lab.excludeUsage end != 'Y' ");
     }
   }
 
