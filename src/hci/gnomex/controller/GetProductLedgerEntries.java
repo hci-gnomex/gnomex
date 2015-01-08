@@ -57,7 +57,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
       List<ProductLedger> entries = sess.createQuery(buf.toString()).list();
 
       Document doc = new Document(new Element("ledgerEntries"));
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
       for(Iterator i = entries.iterator(); i.hasNext();) {
         ProductLedger pl = (ProductLedger)i.next();
