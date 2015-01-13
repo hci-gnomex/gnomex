@@ -39,6 +39,7 @@ update Application set hasChipTypes='N' where codeApplicationType='QC';
 update Application set hasChipTypes='Y' where codeApplication='BIOAN';
 
 -- Remove status column from ProductOrder table and audit table
+alter table ProductOrder drop foreign key FK_ProductOrder_ProductOrderStatus;
 alter table ProductOrder Drop column codeProductOrderStatus;
 call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit DROP COLUMN codeProductOrderStatus');
 
