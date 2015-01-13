@@ -1,0 +1,21 @@
+package views.util
+{
+    /**                                                                                                                                                                 
+     *  @private                                                                                                                                                        
+     */
+    public class FlexAppVersion
+    {
+	public function getFlexAppVersion():String	{
+		return "@flexAppVersion@";
+	}
+	
+	public function getFlexBuildDate():String {
+		return "@flexBuildDate@";
+    }
+
+	public function getFlexVersionString():String {
+	    return getFlexAppVersion() + " (" + getFlexBuildDate() + ")";
+	}
+	
+	}
+}
