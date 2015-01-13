@@ -1469,7 +1469,7 @@ CREATE TABLE `gnomex`.`Application` (
     FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
     REFERENCES gnomex.ApplicationType (codeApplicationType)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT FK_Application_CoreFacility 
     FOREIGN KEY FK_Application_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
