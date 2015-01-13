@@ -50,7 +50,7 @@ alter table ProductLineItem add
    CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
     REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION;
     
 -- Add number to ProductOrder
 alter table ProductOrder add column productOrderNumber VARCHAR(10) NULL;
