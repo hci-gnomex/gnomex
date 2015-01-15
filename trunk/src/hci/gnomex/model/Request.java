@@ -86,9 +86,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
-  private String          materialQuoteNumber;
-  private Date            quoteReceivedDate;
-  private String          uuid;
   private String          codeDNAPrepType;
   private DNAPrepType     dnaPrepType;
   private String          codeRNAPrepType;
@@ -1325,30 +1322,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     requestNode.setAttribute("icon", icon);
     parentNode.addContent(requestNode);
     return requestNode;
-  }
-
-  public String getMaterialQuoteNumber() {
-    return materialQuoteNumber;
-  }
-
-  public void setMaterialQuoteNumber( String materialQuoteNumber ) {
-    this.materialQuoteNumber = materialQuoteNumber;
-  }
-
-  public Date getQuoteReceivedDate() {
-    return quoteReceivedDate;
-  }
-
-  public void setQuoteReceivedDate( Date quoteReceivedDate ) {
-    this.quoteReceivedDate = quoteReceivedDate;
-  }
-
-  public String getUuid() {
-    return uuid;
-  }
-
-  public void setUuid( String uuid ) {
-    this.uuid = uuid;
   }
 
   public String getCodeDNAPrepType() {
