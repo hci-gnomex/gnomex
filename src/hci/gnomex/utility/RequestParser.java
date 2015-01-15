@@ -303,9 +303,6 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("numberIScanChips") != null && !n.getAttributeValue("numberIScanChips").equals("")) {
       request.setNumberIScanChips(new Integer(n.getAttributeValue("numberIScanChips")));      
     }
-    if (n.getAttributeValue("materialQuoteNumber") != null && !n.getAttributeValue("materialQuoteNumber").equals("")) {
-      request.setMaterialQuoteNumber( n.getAttributeValue("materialQuoteNumber") );      
-    }
     if (n.getAttributeValue("coreToExtractDNA") != null && !n.getAttributeValue("coreToExtractDNA").equals(""))
       request.setCoreToExtractDNA(n.getAttributeValue("coreToExtractDNA"));
 

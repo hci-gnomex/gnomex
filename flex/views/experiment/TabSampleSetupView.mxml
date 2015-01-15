@@ -2033,16 +2033,6 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{numberOfSamples}" name="editable" value="false"/>
 			<mx:SetProperty target="{numberOfSamples}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
-				<mx:HBox horizontalGap="0" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}" 
-						 visible="{parentDocument.request.@idRequest != '0' &amp;&amp; parentDocument.request.@codeRequestStatus != 'NEW'}">
-					<util:ContextHelp context1="SampleDetailsIScanQuoteNumber" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Quote Number Help"
-									  label="(3) Quote number" labelPlacement="left" id="quoteNumberLabel" width="340"/>
-					<mx:TextInput width="200" id="quoteNumber" text="{parentDocument.request.@materialQuoteNumber}"
-								  change="{parentDocument.request.@materialQuoteNumber = this.quoteNumber.text}" >
-					</mx:TextInput>							
-				</mx:HBox>
-			</mx:AddChild>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:SetProperty target="{sampleOrganismContainer}" name="visible" value="false"/>

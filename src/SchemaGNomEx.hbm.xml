@@ -1009,11 +1009,6 @@
 		<property name="applicationNotes" column="applicationNotes"
 			type="string" />
 		<property name="processingDate" column="processingDate" type="date" />
-		<property name="materialQuoteNumber" column="materialQuoteNumber"
-			type="string" />
-		<property name="quoteReceivedDate" column="quoteReceivedDate"
-			type="date" />
-		<property name="uuid" column="uuid" type="string" />
 		<property name="bioinformaticsAssist" column="bioinformaticsAssist"
 			type="string" />
 		<property name="hasPrePooledLibraries" column="hasPrePooledLibraries"

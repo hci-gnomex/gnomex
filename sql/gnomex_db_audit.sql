@@ -19318,9 +19318,6 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
- ,`materialQuoteNumber`  varchar(50)  NULL DEFAULT NULL
- ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
- ,`uuid`  varchar(36)  NULL DEFAULT NULL
  ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
@@ -19384,9 +19381,6 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , materialQuoteNumber
-  , quoteReceivedDate
-  , uuid
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
@@ -19442,9 +19436,6 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , materialQuoteNumber
-  , quoteReceivedDate
-  , uuid
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
@@ -19511,9 +19502,6 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , materialQuoteNumber
-  , quoteReceivedDate
-  , uuid
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
@@ -19569,9 +19557,6 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.materialQuoteNumber
-  , NEW.quoteReceivedDate
-  , NEW.uuid
   , NEW.codeDNAPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
@@ -19633,9 +19618,6 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , materialQuoteNumber
-  , quoteReceivedDate
-  , uuid
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
@@ -19691,9 +19673,6 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.materialQuoteNumber
-  , NEW.quoteReceivedDate
-  , NEW.uuid
   , NEW.codeDNAPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
@@ -19755,9 +19734,6 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , materialQuoteNumber
-  , quoteReceivedDate
-  , uuid
   , codeDNAPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
@@ -19813,9 +19789,6 @@ BEGIN
   , OLD.coreToExtractDNA
   , OLD.applicationNotes
   , OLD.processingDate
-  , OLD.materialQuoteNumber
-  , OLD.quoteReceivedDate
-  , OLD.uuid
   , OLD.codeDNAPrepType
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries

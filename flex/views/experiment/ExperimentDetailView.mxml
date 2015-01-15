@@ -2282,18 +2282,6 @@
 					<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label text="Quote Number" width="105" styleName="formLabel"/>
-					<mx:Text text="{this.selectedExperiment.@materialQuoteNumber}" width="280" />
-				</mx:HBox>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
-					<mx:Label text="Quote Received" width="105" styleName="formLabel"/>
-					<mx:Text text="{this.selectedExperiment.@quoteReceivedDate}" width="280" />
-				</mx:HBox>
-			</mx:AddChild>
 			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
