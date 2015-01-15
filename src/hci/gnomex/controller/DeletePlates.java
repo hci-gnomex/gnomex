@@ -61,7 +61,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
     //Change this conditional to check for this.getSecurityAdvisor().hasPermission(SecurityAdvisor.canDelete())
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
         for(Iterator i = this.platesToDeleteDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element)i.next();
           Integer idPlate = Integer.parseInt(node.getText());
