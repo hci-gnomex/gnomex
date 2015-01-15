@@ -54,7 +54,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       //Change this conditional to check for this.getSecurityAdvisor().hasPermission(SecurityAdvisor.canDelete())
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
         for(Iterator i = this.chromatsToDeleteDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element)i.next();
           Integer idChromatogram = Integer.parseInt(node.getAttributeValue("idChromatogram"));

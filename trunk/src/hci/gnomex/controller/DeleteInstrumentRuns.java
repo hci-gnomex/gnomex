@@ -63,7 +63,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       //Change this conditional to check for this.getSecurityAdvisor().hasPermission(SecurityAdvisor.canDelete())
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_DNA_SEQ_CORE)) {
         for(Iterator i = this.runsToDeleteDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element)i.next();
           Integer idInstrumentRun = Integer.parseInt(node.getText());
