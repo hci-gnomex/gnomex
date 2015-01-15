@@ -1226,7 +1226,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (!isNewSample) {
       for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
         PropertyEntry entry = (PropertyEntry)i.next();
-        if (propertiesToDelete != null && propertiesToDelete.get(entry.getIdProperty()) != null) {
+        if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
           for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
             PropertyEntryValue v = (PropertyEntryValue)i1.next();
             sess.delete(v);
