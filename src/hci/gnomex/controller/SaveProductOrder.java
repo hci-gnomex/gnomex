@@ -137,7 +137,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
         for (Iterator i = productDoc.getRootElement().getChildren().iterator(); i.hasNext(); ) {
           Element n = (Element) i.next();
-          if(n.getAttribute("quantity") == null || n.getAttribute("quantity").equals("") || n.getAttribute("quantity").equals("0") ) {
+          if(n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("") || n.getAttributeValue("quantity").equals("0") ) {
             continue;
           }
           if(!productTypes.containsKey(n.getAttributeValue("codeProductType"))) {

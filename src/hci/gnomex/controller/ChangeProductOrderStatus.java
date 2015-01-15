@@ -117,13 +117,19 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
   }
 
   public void updateLedger(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
+    
+    int orderQty = 1; 
+    if ( pli.getProduct().getOrderQty() != null && pli.getProduct().getOrderQty() > 0 ) {
+      orderQty = pli.getQty();
+    }
+    
     // Check for an old status of something other than completed and new status is completed.  
     // If so, add items to ledger
     if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
       ProductLedger ledger = new ProductLedger();
       ledger.setIdLab( po.getIdLab() );
       ledger.setIdProduct( pli.getIdProduct() );
-      ledger.setQty( pli.getProduct().getOrderQty() * pli.getQty() );
+      ledger.setQty( orderQty * pli.getQty() );
       ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
       ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " changed to completed status." );
@@ -135,7 +141,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ProductLedger ledger = new ProductLedger();
       ledger.setIdLab( po.getIdLab() );
       ledger.setIdProduct( pli.getIdProduct() );
-      ledger.setQty( -pli.getProduct().getOrderQty() * pli.getQty() );
+      ledger.setQty( -orderQty * pli.getQty() );
       ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
       ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " reverted from completed status." );
