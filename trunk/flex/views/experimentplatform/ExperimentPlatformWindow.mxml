@@ -131,6 +131,7 @@
 				params.isExternal = state.requestCategory.@isExternal;
 				params.isClinicalResearch = state.requestCategory.@isClinicalResearch;
 				params.isOwnerOnly = state.requestCategory.@isOwnerOnly;
+				params.sampleBatchSize = state.requestCategory.@sampleBatchSize;
 				
 				//params.icon = this.theIcon.text;
 				params.icon = state.requestCategory.@icon;

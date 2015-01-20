@@ -52,6 +52,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String                isClinicalResearch;
   private String                isOwnerOnly;
   private RequestCategoryType   categoryType;
+  private Integer               sampleBatchSize;
 
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     DictionaryHelper dh = DictionaryHelper.getInstance(null);
@@ -339,5 +340,13 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public String getIsIlluminaType() {
     return this.getCategoryType().getIsIllumina();
+  }
+
+  public Integer getSampleBatchSize() {
+    return sampleBatchSize;
+  }
+
+  public void setSampleBatchSize(Integer sampleBatchSize) {
+    this.sampleBatchSize = sampleBatchSize;
   }
 }
