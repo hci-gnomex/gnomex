@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
+	xmlns:util="views.util.*"  show="init()" defaultButton="{findButton}">
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconFlowCell}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
@@ -194,15 +194,11 @@
 		}
 	
 		private function flowCellOrExperimentLookup():void {
-			if (lookupField.text.toUpperCase().indexOf('R') >= 0 || lookupField.text.toUpperCase().indexOf('FC') >= 0 ) { 
+			if ( lookupField.text.length == 0 || (lookupField.text.length > 0 && (lookupField.text.toUpperCase().indexOf('R') >= 0 || lookupField.text.toUpperCase().indexOf('FC') >= 0)) ) { 
 				this.getFlowCellList.send();
 			} else {
 				Alert.show("Invalid flow cell or experiment number.  Please use numbers like 111R or FC111.");
 			}
-		}
-		
-		private function clickFind():void {
-			this.getFlowCellList.send();
 		}
 	]]>
 </mx:Script>    	
@@ -213,9 +209,6 @@
       	  <mx:HBox horizontalGap="0" verticalAlign="middle">
       	      <mx:Label text="Flow Cell # or Experiment #" id="label1"/>
           	  <mx:TextInput id="lookupField" width="60" change="{setDefaultButton()}"/>     
-		      <mx:Button id="lookupButton"  
-		              	fontFamily="Arial"  height="18" width="30"
-		               	color="#400040" click="{flowCellOrExperimentLookup()}" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>
 			  <mx:TextInput id="lookupField2" width="10" visible="false" />
       	  </mx:HBox>
 
@@ -239,7 +232,7 @@
 							 height="25"
 							 label="Find"
 							 toolTip="Run Search"
-							 click="{clickFind()}" 
+							 click="{flowCellOrExperimentLookup()}" 
 							 icon="@Embed('../../assets/magnifier.png')"/>
 		  </mx:VBox>
 
