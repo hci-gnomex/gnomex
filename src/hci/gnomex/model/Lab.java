@@ -154,6 +154,10 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   public String getName() {
     return getName(true,true,true);
   }
+  
+  public String getNameFirstLast() {
+	  return getName(false, true, true);
+  }
 
   public String getName( Boolean lastNameFirst, Boolean includeLab ) {
     return getName(lastNameFirst, includeLab, false);

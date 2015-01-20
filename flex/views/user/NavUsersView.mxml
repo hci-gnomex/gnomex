@@ -437,7 +437,7 @@
 
           private function filterUser(item:Object):Boolean {
 			  if (radioSearchUserType.selectedValue == "UserName") {
-                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
+                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i")) || item.@firstLastDisplayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
 			  } else if (radioSearchUserType.selectedValue == "UserEmail") {
 				  return item.@email.toString().match(new RegExp(userEmailSearchText.text + ".*", "i"));
 			  }
@@ -464,14 +464,14 @@
 
 			  if(labString != "" && deptString != ""){
 				  if (radioSearchGroupType.selectedValue == "LabName") {
-					  return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+					  return ((item.@name.toString().match(new RegExp(labString + ".*", "i")) || item.@nameFirstLast.toString().match(new RegExp(labString + ".*", "i"))) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
 				  } else if (radioSearchGroupType.selectedValue == "Email"){
 					  return (item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
 				  }
 			  }
 			  else if(labString != ""){
 				  if (radioSearchGroupType.selectedValue == "LabName") {
-					  return item.@name.toString().match(new RegExp(labString + ".*", "i"));
+					  return item.@name.toString().match(new RegExp(labString + ".*", "i")) || item.@nameFirstLast.toString().match(new RegExp(labString + ".*", "i"));
 				  } else if (radioSearchGroupType.selectedValue == "Email"){
 					  return item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i"));  
 				  }
