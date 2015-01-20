@@ -33,6 +33,8 @@ public class EmailServlet extends GNomExCommand implements Serializable {
   private String format       = "html";
   private Document selectedRunsDoc = null;
   private String runsSelectedXMLString;
+  private Document selectedPlatesDoc = null;
+  private String platesSelectedXMLString;
   private Document selectedRequestsDoc;
   private String requestsXMLString = null;
   
@@ -59,7 +61,19 @@ public class EmailServlet extends GNomExCommand implements Serializable {
         log.error( "Cannot parse runsSelectedXMLString", je );
         this.addInvalidField( "runsSelectedXMLString", "Invalid runsSelectedXMLString");
       }
-    } 
+    }
+    
+    if (req.getParameter("platesSelectedXMLString") != null && !req.getParameter("platesSelectedXMLString").equals("")) {
+        platesSelectedXMLString = req.getParameter("platesSelectedXMLString");
+        StringReader reader = new StringReader(platesSelectedXMLString);
+        try {
+          SAXBuilder sax = new SAXBuilder();
+          selectedPlatesDoc = sax.build(reader);     
+        } catch (JDOMException je ) {
+          log.error( "Cannot parse platesSelectedXMLString", je );
+          this.addInvalidField( "platesSelectedXMLString", "Invalid platesSelectedXMLString");
+        }
+      } 
 
     if (req.getParameter("requestsXMLString") != null && !req.getParameter("requestsXMLString").equals("")) {
       requestsXMLString = req.getParameter("requestsXMLString");
@@ -73,7 +87,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       }
     } 
 
-    if ( selectedRunsDoc == null && selectedRequestsDoc == null ) {
+    if ( selectedRunsDoc == null && selectedPlatesDoc == null && selectedRequestsDoc == null ) {
       this.addInvalidField( "XMLString", "Run or Request XML required");
     }
     
@@ -111,6 +125,19 @@ public class EmailServlet extends GNomExCommand implements Serializable {
           } 
           idRequests = sess.createQuery("SELECT distinct pws.idRequest from Plate as p Left Join p.plateWells as pws Left Join p.instrumentRun as ir " + queryPart).list();
 
+        } else if ( selectedPlatesDoc != null ) {
+        	//Create where clause of sql statement for submitter's emails.
+            String queryPart = " WHERE pws.idPlate= ";
+
+            for(Iterator i = this.selectedPlatesDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+              Element node = (Element)i.next();
+              queryPart += node.getText();
+              if(i.hasNext()){
+                queryPart += " OR pws.idPlate= ";
+              }
+            } 
+            idRequests = sess.createQuery("SELECT distinct pws.idRequest from Plate as p Left Join p.plateWells as pws " + queryPart).list();
+        	
         } else if ( selectedRequestsDoc != null ) {
           for(Iterator i = this.selectedRequestsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element node = (Element)i.next();
@@ -127,7 +154,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
             senderAddress = dh.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
           }
           for (Iterator i = idRequests.iterator(); i.hasNext();) {
-            Integer nextId = (Integer) i.next();
+        	Integer nextId = (Integer) i.next();
             Request request = (Request)sess.load(Request.class, nextId );
             AppUser appUser = request.getAppUser();
             String recipientAddress = appUser.getEmail();

@@ -34,8 +34,10 @@
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.util.EmailWindowForPlates;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -219,6 +221,14 @@
 				
 			}
 			
+			private function showEmailWindow():void{
+				var emailWindow:EmailWindowForPlates = EmailWindowForPlates(PopUpManager.createPopUp(this, EmailWindowForPlates, true));
+				emailWindow.selectedPlates = this.selectedPlates;
+				PopUpManager.centerPopUp(emailWindow);
+				this.setFocus();
+				
+			}
+			
 		]]>
 	</mx:Script>    	
 	
@@ -337,6 +347,15 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedPlates.length>0}"/>
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Email"
+					   icon="@Embed('../../assets/email_go.png')"
+					   toolTip="Email GNomEx users associated with selected plates"
+					   click="{showEmailWindow()}" 
+					   disabledIcon="@Embed('../../assets/email_go_disable.png')"
+					   enabled="{selectedPlates.length>0}"/>
+		
 		<mx:Spacer width="100%" height="100%" />
 		<mx:Label text = "{'(' + plateList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		

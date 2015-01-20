@@ -4,7 +4,8 @@
 	width="652" height="430"
 	xmlns:util="views.util.*" 
 	initialize="init()"
-	defaultButton="{saveButton}" showCloseButton="true" titleIcon="@Embed(source='../../assets/email_go.png')"> 
+	defaultButton="{saveButton}" showCloseButton="true" titleIcon="@Embed(source='../../assets/email_go.png')"
+	close="{mx.managers.PopUpManager.removePopUp(this)}"> 
        
     <mx:HTTPService 
     id="sendInstrumentRunEmail" 
