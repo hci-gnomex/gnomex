@@ -256,6 +256,11 @@
 		</mx:HBox>
 	</mx:HBox>
 	
+	<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+		<mx:Label text="Sample Batch Size" width="100" styleName="formLabel"/>
+		<mx:TextInput id="sampleBatchSize" width="40" text="{state.requestCategory.@sampleBatchSize}" change="state.requestCategory.@sampleBatchSize = sampleBatchSize.text; state.dirty.setDirty()" restrict="0-9" />
+	</mx:HBox>
+	
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="organismHBox">
 		<mx:Text text="Default Organism" 
 				 width="100" visible="{isInternalCheckbox.selected}"  styleName="formLabel"/>

@@ -2318,6 +2318,7 @@
 		<many-to-one name="categoryType" column="type"
 			class="hci.gnomex.model.RequestCategoryType" cascade="none" insert="false"
 			update="false" lazy="false" />
+			<property name="sampleBatchSize" column="sampleBatchSize" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
