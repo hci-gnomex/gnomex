@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.NullDictionaryEntry;
+import hci.gnomex.utility.XMLTools;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.io.Serializable;
@@ -309,6 +310,23 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
       name += " (inactive)";
     }
     return name;
+  }
+  
+  public String getDisplayNameXMLSafe() {
+	    String name = "";
+	    if (lastName != null && !lastName.equals("")) {
+	      name = XMLTools.escapeXMLChars(lastName);
+	    }
+	    if (firstName != null && !firstName.equals("")) {
+	      if (!name.equals("")) {
+	        name += ", " ;
+	      }
+	      name += XMLTools.escapeXMLChars(firstName);
+	    }
+	    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+	      name += " (inactive)";
+	    }
+	    return name;
   }
 
   public String getFirstLastDisplayName() {

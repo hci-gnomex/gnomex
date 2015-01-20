@@ -140,7 +140,25 @@ package views.util
 			}
 			
 			return a.join( "" );
-		} 
+		}
+		
+		// Escapes any XML special characters
+		public static function makeXMLSafe( s:String ):String {
+			var pattern:RegExp;
+			var str:String = s;
+			pattern = /&/;
+			str = str.replace(pattern, "&amp;");
+			pattern = /</;
+			str = str.replace(pattern, "&lt;");
+			pattern = />/;
+			str = str.replace(pattern, "&gt;");
+			pattern = /\'/;
+			str = str.replace(pattern, "&apos;");
+			pattern = /\"/;
+			str = str.replace(pattern, "&quot;");
+			
+			return str;
+		}
 		
 		// Maps a unicode string to an ascii string.  It also replaces all non-printable ascii characters (including cr/lf) with ?.
 		public static function unicodeToAscii( str:String ):String {

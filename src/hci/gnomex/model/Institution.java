@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
+import hci.gnomex.utility.XMLTools;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -28,6 +29,9 @@ public class Institution extends DictionaryEntry implements Serializable {
   }
   public String getInstitution() {
     return institution;
+  }
+  public String getInstitutionXMLSafe() {
+	return XMLTools.escapeXMLChars(institution);
   }
   public void setInstitution(String institution) {
     this.institution = institution;

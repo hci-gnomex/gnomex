@@ -119,6 +119,7 @@
 			import views.util.BillingPeriodUtil;
 			import views.util.InstitutionWindow;
 			import views.util.PickBillingPeriodView;
+			import views.util.GNomExStringUtil;
 
 			private var dictionaryEditor:DictionaryEditor;
 			private var fileRef:FileReference = new FileReference();
@@ -357,9 +358,11 @@
 					isCreditCard = "Y";
 				}
 				
+				var accountNameText:String = GNomExStringUtil.makeXMLSafe(accountName.text);
+				
 				var node:XML = new XML("<BillingAccount " +
-					" idBillingAccount='" + "BillingAccount" + isCreditCard + isPO + accountName.text + "'" + 
-					" accountName='" + accountName.text + "'" +
+					" idBillingAccount='" + "BillingAccount" + isCreditCard + isPO + accountNameText + "'" + 
+					" accountName='" + accountNameText + "'" +
 					" idCoreFacility='" + getSelectedCoreFacilityId() + "'" +
 					" expirationDateOther=''" +
 					" startDateOther='" + todaysDate + "'" +
@@ -418,7 +421,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<Institution " +
 					" idInstitution='" + institutionCombo.selectedItem.@idInstitution + "'" +
-					" institution='" + institutionCombo.selectedItem.@institution + "'" +
+					" institution='" + institutionCombo.selectedItem.@institutionXMLSafe + "'" +
 					"/>");
 				institutions.addItem(node);
 			}
@@ -453,7 +456,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
-					" displayName='" + memberCombo.selectedItem.@displayName + "'" +
+					" displayName='" + memberCombo.selectedItem.@displayNameXMLSafe + "'" +
 					" isActive='Y' newMember='Y'/>");
 				members.addItem(node);
 				memberCombo.selectedIndex = -1;
@@ -1540,7 +1543,7 @@
 						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox width="100%">
-						<mx:VBox verticalGap="0" height="100%" borderStyle="solid" borderThickness="1" paddingTop="0" paddingRight="2" paddingLeft="2" paddingBottom="2" cornerRadius="6" width="50%"
+						<mx:VBox verticalGap="0" height="100%" borderStyle="solid" paddingTop="0" paddingRight="2" paddingLeft="2" paddingBottom="2" cornerRadius="6" width="50%"
 								 visible="{parentApplication.getProperty(parentApplication.PROPERTY_HIDE_INSTITUTIONS) != 'Y'}"
 								 includeInLayout="{parentApplication.getProperty(parentApplication.PROPERTY_HIDE_INSTITUTIONS) != 'Y'}">
 							<mx:HBox horizontalAlign="left" verticalAlign="top" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
