@@ -1105,7 +1105,6 @@
 				var params:Object = new Object();
 				params.idRequest = request.@idRequest;
 				params.idLab = request.@idLab;
-				params.lastYear = 'Y';
 				params.isMicroarray  = "N";
 				params.isNextGenSeq  = "N";
 				params.isBioanalyzer = "N";
