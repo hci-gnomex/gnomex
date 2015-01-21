@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="969" height="570"
+				width="969" height="600"
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -120,11 +120,18 @@
 			[Bindable]
 			public var filteredAppList:XMLListCollection;
 			
+			[Bindable]
+			private var filteredCoreFacilityList:XMLListCollection;
+			
 			private var filteredAppListSorter:Sort;
 			
 			private var removePropertyClick:Point;
 			
-			private var deletePropertyParams:Object
+			private var deletePropertyParams:Object;
+			
+			// Note this is set when opening window from annotation view to limit 
+			// properties to those for the core for the request.
+			public var idCoreFacilitySelected:String;
 			
 			private function setDirty():void {
 				if (saveButton.enabled) {
@@ -147,6 +154,21 @@
 				filteredAppList.sort = filteredAppListSorter;	
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
+
+				// note myCoreFacilities is already sorted appropriately.
+				filteredCoreFacilityList = new XMLListCollection();
+				for each(var c:Object in parentApplication.myCoreFacilities) {
+					if (idCoreFacilitySelected == null || c.@value == idCoreFacilitySelected) {
+						filteredCoreFacilityList.addItem(c.copy());
+					}
+				}
+				if (filteredCoreFacilityList.length < 2) {
+					this.coreFacilityHBox.visible = false;
+					this.coreFacilityHBox.includeInLayout = false;
+				} else {
+					this.coreFacilityHBox.visible = true;
+					this.coreFacilityHBox.includeInLayout = true;
+				}
 			}	
 			
 			private function onGetPropertyList(event:ResultEvent):void {
@@ -165,6 +187,20 @@
 			}
 			
 			private function filterByAnnotations(item:Object):Boolean{
+				var coreMatch:Boolean = false;
+				if (idCoreFacilitySelected != null) {
+					if (idCoreFacilitySelected == item.@idCoreFacility) {
+						coreMatch = true;
+					}
+				} else {
+					for each (var c:Object in filteredCoreFacilityList) {
+						if (c.@value == item.@idCoreFacility) {
+							coreMatch = true;
+							break;
+						}
+					}
+				}
+				
 				var criteria:Object = radioButtonGroupTarget.selectedValue;
 				var selectedOrganism:String = organismFilter.selectedLabel;
 				var selectedExpPlatform:String = experimentPlatformFilter.selectedLabel;
@@ -221,7 +257,7 @@
 					}
 				}
 				
-				if(criteriaMatch && organismMatch && analysisMatch && expPlatformMatch){
+				if(criteriaMatch && organismMatch && analysisMatch && expPlatformMatch && coreMatch){
 					return true;
 				}
 				else{
@@ -398,51 +434,41 @@
 			}
 			
 			private function addProperty():void {
-				for each(var sc:Object in getPropertyList.lastResult..Property) {
-					var thisPropName:String = StringUtil.trim(sc.@name);
-					thisPropName = thisPropName.toLowerCase();
-					
-					if(NAME_FIELD_DEFAULT.toLocaleLowerCase() == thisPropName) {
-						Alert.show('There is already an annotation with the default name ("' 
-							+ NAME_FIELD_DEFAULT.toLocaleLowerCase() 
-							+ '"). You must either rename or delete it before creating a new one.');
-						refresh(null);
-						return;
-					}
-				}			
-				theViews.selectedIndex = 0;
-				
-				var params:Object = new Object();
-				params.idProperty = '';
-				params.name = NAME_FIELD_DEFAULT;
-				params.isActive = 'Y';
-				params.isRequired = 'N';
-				params.forSample =  "Y";
-				params.forAnalysis = "N";
-				params.forDataTrack = "N";
-				
+				theViews.selectedIndex = 1;
+				var p:Object = new XML("<Property><options/><organism/><platformApplications/><analysisTypes/></Property>");
+				p.@idProperty = '';
+				p.@idCoreFacility = filteredCoreFacilityList.getItemAt(0).@value;
+				p.@canUpdate='Y';
+				p.@canDelete='Y';
+				p.@name='';
+				p.@isActive='Y';
+				p.@isRequired='N';
+				p.@sortOrder = '';
+				p.@forSample = 'N';
+				p.@forDataTrack = 'N';
+				p.@forAnalysis = 'N';
 				if(radioButtonGroupTarget.selectedValue == "analysis"){
-					params.forAnalysis = "Y";
-				}
-				else if(radioButtonGroupTarget.selectedValue == "samples"){
-					params.forSample = "Y";
+					p.@forAnalysis = "Y";
 				}
 				else if(radioButtonGroupTarget.selectedValue == "dataTracks"){
-					params.forDataTrack = "Y";
-				}
-				
-				if (parentApplication.hasPermission("canWriteDictionaries")) {
-					params.idAppUser = '';			
+					p.@forDataTrack = "Y";
 				} else {
-					params.idAppUser = parentApplication.getIdAppUser();
+					p.@forSample = "Y";
 				}
-				params.codePropertyType = 'TEXT';
-				params.optionsXMLString = "<options>"  + "</options>";
-				params.organismsXMLString = "<organisms>"  + "</organisms>";
-				params.platformsXMLString = "<platformApplications>"  + "</platformApplications>";
-				params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
-				
-				saveProperty.send(params);
+				p.@mageOntologyCode = '';
+				p.@mageOntologyDefinition = ''; 
+				p.@description = ''; 
+				if (parentApplication.hasPermission("canWriteDictionaries")) {
+					p.@idAppUser = '';			
+				} else {
+					p.@idAppUser = parentApplication.getIdAppUser();
+				}
+				p.@codePropertyType = 'TEXT';
+
+				property = p;
+				setComponentsFromProperty();
+				propertyList.selectedItem = null;
+				dirty.setDirty();
 			}
 			
 			public function removeProperty(event:MouseEvent, deleteAll:String):void {
@@ -498,14 +524,21 @@
 			
 			
 			private function save():void {
-				if (propertyList.selectedItem == null) {
+				if (property == null) {
+					return
+				}
+				
+				if (coreFacilityCombo.selectedItem == null) {
 					return;
 				}
 				
 				scName.text = StringUtil.trim(scName.text);
 				var propertyName:String = scName.text.toLowerCase();
 				
-				
+				if (scName.text.length == 0) {
+					Alert.show("Please enter a name before saving.");
+					return
+				}
 				for(var i:int=0; i<reservedSampSheetColNames.length; i++)
 				{
 					var thisSSColName:String = reservedSampSheetColNames[i];
@@ -521,15 +554,6 @@
 					return;
 				}
 				
-				for each(var sc:Object in getPropertyList.lastResult..Property) {
-					var thisPropName:String = StringUtil.trim(sc.@name);
-					thisPropName = thisPropName.toLowerCase();
-					if(propertyList.selectedItem != sc && propertyName == thisPropName) {
-						Alert.show('"' + scName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
-						return;
-					}
-				}
-				
 				var params:Object = new Object();
 				params.idProperty = property.@idProperty;
 				params.name = scName.text;
@@ -542,6 +566,7 @@
 				params.mageOntologyCode = mageOntologyCode.text;
 				params.mageOntologyDefinition = mageOntologyDefinition.text; 
 				params.description = description.text; 
+				params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
 				if (parentApplication.hasPermission("canWriteDictionaries")) {
 					params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
 				} else {
@@ -560,19 +585,39 @@
 			private function onGetProperty(event:ResultEvent): void {
 				if (getProperty.lastResult.name() == "PropertyList") {
 					property = getProperty.lastResult..Property;
-					organismCombo.selectedItem = null;
-					platformCombo.selectedItem = null;
-					analysisTypeCombo.selectedItem = null;
-					
-					setOwnerCombo();
-					
-					dirty.resetDirty();
+					setComponentsFromProperty();
 					
 				} else {
-					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
+					Alert.show(getProperty.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
+
+			private function setComponentsFromProperty(): void {
+				organismCombo.selectedItem = null;
+				platformCombo.selectedItem = null;
+				analysisTypeCombo.selectedItem = null;
+				
+				setOwnerCombo();
+				setCoreFacilityCombo();
+				
+				dirty.resetDirty();
+			}
 			
+			private function setCoreFacilityCombo():void {
+				coreFacilityCombo.selectedItem = null;
+				for each (var c:Object in filteredCoreFacilityList) {
+					if (c.@value == property.@idCoreFacility) {
+						coreFacilityCombo.selectedItem = c;
+						break;
+					}
+				}
+				if (coreFacilityCombo.selectedItem == null) {
+					Alert.show("Invalid core facility on selected Annotation.  Please contact GNomEx suppport");
+					saveButton.enabled = false;
+				} else {
+					saveButton.enabled = true;
+				}
+			}
 			
 			private function onSaveProperty(event:ResultEvent): void {
 				if (saveProperty.lastResult.name() == "SUCCESS") {
@@ -765,6 +810,10 @@
 									</mx:CheckBox>
 									<mx:Spacer width="80"/>
 								</mx:HBox>
+							</mx:HBox>
+							<mx:HBox width="100%"  verticalAlign="middle" id="coreFacilityHBox">
+								<mx:Label text="Core Facility" width="90" styleName="formLabel"/>
+								<mx:ComboBox width="300" id="coreFacilityCombo" change="{setDirty()}" labelField="@display" dataProvider="{filteredCoreFacilityList}" ></mx:ComboBox>
 							</mx:HBox>
 							<mx:HBox height="20" width="100%"  verticalAlign="middle">
 								<mx:HBox verticalAlign="middle">

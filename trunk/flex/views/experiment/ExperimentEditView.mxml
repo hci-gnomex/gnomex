@@ -1605,13 +1605,6 @@
 			if (this.getOrganism() != null) {
 				idOrganism = this.getOrganism().@idOrganism;
 			}
-			if (this.getRequestCategory() == null) {
-				keep = false;
-			} else {
-				if (this.getRequestCategory().@idCoreFacility != sce.@idCoreFacility) {
-					keep = false;
-				}
-			}
 			if (AnnotationUtility.isApplicableProperty(property, this.getRequestCategory(), idOrganism, this.codeApplication)) {
 				if (sce.@isSelected == 'true' || property.@isActive != 'N') {
 					keep = true;
@@ -5199,7 +5192,7 @@
 	
   	<mx:XMLListCollection id="propertyEntries" source="{request.PropertyEntries.PropertyEntry}" 
 	  	 sort="{propertySorter}"  filterFunction="{filterPropertyEntry}"/>
-	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="false"/>
+	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="true"/>
 
 
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>

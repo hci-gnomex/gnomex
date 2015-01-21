@@ -351,6 +351,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
             
+            // Note that requestCategory is null for new experiments as this is called before they select the request category.
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
             boolean autoSelect = false;
             boolean include = true;
@@ -361,7 +362,10 @@ public class GetRequest extends GNomExCommand implements Serializable {
                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
               include = false;
             }
-            if (prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
+            if (requestCategory != null && prop.getIdCoreFacility() != null && !requestCategory.getIdCoreFacility().equals(prop.getIdCoreFacility())) {
+              include = false;
+            }
+            if (include && prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
               include = false;
               for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
@@ -392,6 +396,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("sortOrder", prop.getSortOrder() != null ? prop.getSortOrder().toString() : "999999");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
+            peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
                 
             scParentNode.addContent(peNode);
             

@@ -2366,6 +2366,7 @@
 		<property name="forAnalysis" column="forAnalysis" type="string" />
 		<property name="forDataTrack" column="forDataTrack" type="string" />
 		<property name="sortOrder" column="sortOrder" type="integer" />
+		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
 
 		<set name="options" table="PropertyOption" lazy="false" cascade="delete"
 			order-by="sortOrder" inverse="true">

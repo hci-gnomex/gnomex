@@ -123,11 +123,12 @@
 			//
 			private function editPropertyDictionary():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
-				PopUpManager.centerPopUp(configWindow);
 				configWindow.showSampleAnnotations.selected = true;
 				configWindow.showAnalysisAnnotations.selected = false;
 				configWindow.showDataTrackAnnotations.selected = false;
 				configWindow.onPropertyRefreshed(null);
+				configWindow.idCoreFacilitySelected = parentDocument.coreFacility.@idCoreFacility;
+				PopUpManager.centerPopUp(configWindow);
 
 				
 				parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
@@ -141,6 +142,11 @@
 			
 			public function onPropertyRefreshed(event:Event):void{
 
+				if (parentDocument == null || parentDocument.request == null) {
+					parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
+						onPropertyRefreshed);
+					return;
+				}
 				parentDocument.propertyEntries.refresh();
 				
 				this.checkForRemovedAnnotations();   
@@ -271,11 +277,13 @@
 				}
 				
 				for each(var sc:Object in parentApplication.propertyList) {
-					var thisPropName:String = StringUtil.trim(sc.@name);
-					thisPropName = thisPropName.toLowerCase();
-					if(newAnnotationName.text.toLowerCase() == thisPropName) {
-						Alert.show('"' + newAnnotationName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
-						return;
+					if (sc.@idCoreFacility == parentDocument.coreFacility.@idCoreFacility) {
+						var thisPropName:String = StringUtil.trim(sc.@name);
+						thisPropName = thisPropName.toLowerCase();
+						if(newAnnotationName.text.toLowerCase() == thisPropName) {
+							Alert.show('"' + newAnnotationName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
+							return;
+						}
 					}
 				}
 				
@@ -293,6 +301,7 @@
 					params.forAnalysis = "N";
 					params.forDataTrack = "N";
 					params.forSample = "Y";
+					params.idCoreFacility = parentDocument.coreFacility.@idCoreFacility;
 					if (parentApplication.hasPermission("canWriteDictionaries")) {
 						params.idAppUser = '';			
 					} else {
