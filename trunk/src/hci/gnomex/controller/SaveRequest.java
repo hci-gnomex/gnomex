@@ -509,7 +509,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
               boolean canDeleteLane = true;
 
-              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT) && !requestParser.isExternalExperiment()) {
                 this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
                 canDeleteLane = false;
               }
