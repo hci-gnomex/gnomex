@@ -160,7 +160,9 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   
   private ColumnInfo getAnnotationColumnInfo(DictionaryHelper dh, Integer ordinal, String header) {
     ColumnInfo info = null;
-    Property p = dh.getPropertyByName(header);
+    // Hardwire to core 1 for now as that is the only one using external experiments.
+    // Likely will have to be addressed later for more flexibility.
+    Property p = dh.getPropertyByNameAndCore(header, 1);
     if (p != null && p.getIsActive().equals("Y") && p.getForSample().equals("Y")) {
       info = new ColumnInfo(ordinal, p);
     }

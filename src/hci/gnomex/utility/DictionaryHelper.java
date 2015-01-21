@@ -775,9 +775,9 @@ public class DictionaryHelper implements Serializable {
     return propertyList;
   }
   
-  public Property getPropertyByName(String name) {
+  public Property getPropertyByNameAndCore(String name, Integer idCoreFacility) {
     for(Property p : propertyList) {
-      if (p.getName().equals(name)) {
+      if (p.getName().equals(name) && p.getIdCoreFacility().equals(idCoreFacility)) {
         return p;
       }
     }
