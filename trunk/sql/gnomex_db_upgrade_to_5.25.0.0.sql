@@ -20,4 +20,18 @@ UPDATE PropertyDictionary SET propertyName = 'sample_batch_warning' WHERE proper
 ALTER TABLE RequestCategory ADD sampleBatchSize int NULL;
 call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit add column sampleBatchSize int null');
 
+-- Partition Property table (annotations) by core facility
+Alter Table Property Add Column idCoreFacility INT(10);
+call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit Add Column idCoreFacility INT(10)');
+alter table Property add 
+  CONSTRAINT `FK_Property_CoreFacility` FOREIGN KEY `FK_Property_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+alter table Property drop index name;
+update Property set idCoreFacility=1;
+
+-- unused table
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
+
 
