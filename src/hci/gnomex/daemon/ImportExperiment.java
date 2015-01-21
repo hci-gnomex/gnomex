@@ -501,6 +501,8 @@ public class ImportExperiment {
     	  prop.setForAnalysis("N");
     	  prop.setForDataTrack("N");
     	  prop.setCodePropertyType("TEXT");
+    	  // Note this assumes a single core for the target system and assumes that core has 1 as id.  If we use this outside of UGP this may need to be generalized.
+    	  prop.setIdCoreFacility(1);  
 
           //save it and flush it to assign the DB id
           sess.save(prop);

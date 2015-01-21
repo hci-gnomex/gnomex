@@ -60,7 +60,12 @@ package views.util
 					}
 				}
 			}
-			
+
+			if (keep) {
+				if (reqCategory.@idCoreFacility != property.@idCoreFacility) {
+					keep = false;
+				}
+			}
 			
 			return keep;
 		}
