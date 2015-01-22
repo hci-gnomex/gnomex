@@ -300,15 +300,8 @@
 
 		private function refreshAnalysisGroups():void {
 			if (parentApplication.navAnalysisView.currentState == "AdminState") {
-				for each(var l:Object in parentApplication.navAnalysisView.labList) {
-					if (labCombo.selectedItem != null && l.@idLab == labCombo.selectedItem.@idLab) {
-						l.@isSelected = 'true';
-						parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
-						parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
-					} else {
-						l.@isSelected = 'false';
-					}
-				}
+				parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
+				parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
 				callGetLab();
 			}
 			if ( labCombo.selectedItem != null ){
