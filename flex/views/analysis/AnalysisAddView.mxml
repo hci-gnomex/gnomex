@@ -299,7 +299,7 @@
         }
 
 		private function refreshAnalysisGroups():void {
-			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+			if (parentApplication.navAnalysisView.currentState == "AdminState" && labCombo.selectedItem != null) {
 				parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
 				parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
 				callGetLab();
