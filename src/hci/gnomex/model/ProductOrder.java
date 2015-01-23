@@ -34,8 +34,10 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   private Set         files = new TreeSet();
 
   public String getDisplay() {
-    String display = this.getNonNullString(getIdProductOrder());
-    return display;
+    if ( this.productOrderNumber != null ) {
+      return "Product Order " + this.getNonNullString( getProductOrderNumber() );
+    } 
+    return "Product Order " + this.getNonNullString(getIdProductOrder());
   }
 
   public String getValue() {

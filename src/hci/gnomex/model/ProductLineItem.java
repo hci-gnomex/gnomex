@@ -19,7 +19,7 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
  
   
   public String getDisplay() {
-    String display = this.getNonNullString(getIdProductLineItem());
+    String display = this.getNonNullString(product.getName());
     return display;
   }
 

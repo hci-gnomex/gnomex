@@ -31,6 +31,17 @@
 		useProxy="false">
 	</mx:HTTPService >
 	
+	<mx:HTTPService 
+		id="deleteProductLineItems" 
+		url="DeleteProductLineItems.gx"
+		resultFormat="e4x"
+		result="onDeleteProductLineItems(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get order list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
 	
 	<mx:Script> 
 		<![CDATA[
@@ -38,10 +49,7 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.rpc.events.ResultEvent;
-			
-			[Bindable]
-			public var selectedProductOrder:Object;
-			
+						
 			[Bindable]
 			private var selectedOrders:Object = new Object();
 			[Bindable]
@@ -74,6 +82,9 @@
 			
 			private function onBrowseTree():void{
 				if(browseTree.selectedItem == null ) {
+					detailTab.idProductOrder = lineItemTab.idProductOrder = null;
+					lineItemTab.init();
+					detailTab.init();
 					return;
 				}
 				
@@ -140,7 +151,8 @@
 			
 			private function changeStatus_handler():void{
 				if(toggleBar.selectedIndex==0 && isLabSelected == true){
-					Alert.show("You have selected an entire Lab, do you want to change the status of all orders in that lab?", "Warning",(Alert.YES | Alert.NO), this, changeStatus_impl, parentApplication.iconWarning);
+					Alert.show("You have selected an entire Lab, do you want to change the status of all orders in that lab?", 
+						"Warning",(Alert.YES | Alert.NO), this, changeStatus_impl, parentApplication.iconError);
 				} else{
 					changeStatus();
 				}	
@@ -173,14 +185,103 @@
 				if(changeProductOrderStatus.lastResult.name() != 'SUCCESS'){
 					Alert.show(changeProductOrderStatus.lastResult..ACTMESSAGE.@TEXT);
 				} else{
-					Alert.show("Product status updated");
-					if ( toggleBar.selectedIndex==1 ) {
+					Alert.show(changeProductOrderStatus.lastResult.@message);
+					if ( toggleBar.selectedIndex==0 ) {
 						getProductOrders();
 						onBrowseTree();
 					} else {
 						browseView.getList();	
 					}
 					statusComboBox.selectedItem = null;
+				}
+			}
+			
+			private function promptToDelete():void {
+				
+				var isComplete:Boolean = false;
+				var allComplete:Boolean = true;
+				
+				// Check to see if any items are completed already.
+				if ( toggleBar.selectedIndex==0 ){
+					// Really need to check if any of the product order's line items are complete.  Line items aren't returns in the tree list. 
+					// Not sure if it's worth it to return that information or just give a generic warning.
+					/* var orderCollection:XMLListCollection = new XMLListCollection();
+					for(var key:String in selectedOrders){
+						if( selectedOrders[key].@status == "Complete") {
+							isComplete = true;
+							break;
+						} else {
+							allComplete = false;
+						}
+					} */
+					if ( ( browseTree.selectedItems.length == 1 && !isLabSelected) && detailTab.selectedProductOrder.@orderStatus == "Complete"  ) {
+						if ( lineItemTab.lineItems.length > 0 ) {
+							Alert.show("All line items for the selected order are marked as complete.  Completed items cannot be deleted." );
+						} else {
+							Alert.show( "Are you sure you want to delete this product order?", 
+								"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
+						}
+					} else {
+						Alert.show("Completed items cannot be deleted.  Any line items that are already completed will be skipped. Do you wish to continue?", 
+							"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
+					}
+				} else {
+					for each (var pli:Object in browseView.selectedOrders ) {
+						if ( pli.@status == "Complete" ) {
+							isComplete = true;
+						} else {
+							allComplete = false;
+						}
+					}
+					
+					if ( allComplete ) {
+						Alert.show("The selected line item(s) is marked as complete.  Completed items cannot be deleted." );
+						
+					} else if ( isComplete ) {
+						Alert.show("At least one of the selected line items is marked as complete.  Completed items cannot be deleted and will be skipped. Do you wish to continue?", 
+							"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
+						
+					} else {
+						Alert.show( "Are you sure you want to delete these line items?", 
+							"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
+					}
+				}
+				
+				
+				
+				
+			}
+			
+			private function onPromptToDelete( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					deleteLineItems();
+				}
+			}
+			
+			private function deleteLineItems():void {
+				var params:Object = new Object();
+				if ( toggleBar.selectedIndex==0 ){
+					var orderCollection:XMLListCollection = new XMLListCollection();
+					for(var key:String in selectedOrders){
+						orderCollection.addItem(selectedOrders[key]);
+					}
+					params.productOrdersToDeleteXMLString = "<productOrdersToDeleteXMLString>" + orderCollection.toXMLString() + "</productOrdersToDeleteXMLString>";
+				} else {
+					params.productLineItemsToDeleteXMLString = "<productLineItemsToDeleteXMLString>" + browseView.selectedOrders.toXMLString() + "</productLineItemsToDeleteXMLString>";
+				}
+				
+				deleteProductLineItems.send(params);
+			}
+			
+			private function onDeleteProductLineItems(event:ResultEvent): void {
+				if (deleteProductLineItems.lastResult.name() == "SUCCESS") {
+					Alert.show(deleteProductLineItems.lastResult.@message);
+					getProductOrders();
+					browseTree.selectedItem = null;
+					onBrowseTree();
+				} else {
+					Alert.show(deleteProductLineItems.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
 			
@@ -293,7 +394,15 @@
 							   icon = "@Embed('../../assets/bullet_go.png')"
 							   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
 							   toolTip = "Change status of selected orders" 
-							   click="{changeStatus_handler()}" enabled="{((toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) ) &amp;&amp; statusComboBox.selectedIndex > 0}"/>
+							   click="{changeStatus_handler()}" 
+							   enabled="{((toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) ) &amp;&amp; statusComboBox.selectedIndex > 0}"/>
+				<mx:LinkButton textDecoration="underline"
+							   label="Delete"
+							   icon="@Embed('../../assets/delete.png')"
+							   toolTip="Delete selected orders"
+							   click="{promptToDelete()}" 
+							   disabledIcon="@Embed('../../assets/delete_disable.png')"
+							   enabled="{ (toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) }"/>
 				<mx:Spacer width="100%"/>
 				<mx:Label text="{'(' + browseView.orderList.length + ' line items)'}" visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 			</mx:ControlBar>

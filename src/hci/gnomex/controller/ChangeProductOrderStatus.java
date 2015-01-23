@@ -9,9 +9,9 @@ import hci.gnomex.model.ProductOrderStatus;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +31,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
   private String codeProductOrderStatus;
   private Document orderDoc;
   private Document lineItemDoc;
+  private String resultMessage = "";
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
 
@@ -80,9 +81,10 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
             for (ProductLineItem li : (Set<ProductLineItem>)po.getProductLineItems()) {
               String oldStatus = li.getCodeProductOrderStatus();
-              updateLedger(li, po, oldStatus, codeProductOrderStatus, sess);
-              li.setCodeProductOrderStatus(codeProductOrderStatus);
-              sess.update(li);
+              if ( updateLedger(li, po, oldStatus, codeProductOrderStatus, sess) ) {
+                li.setCodeProductOrderStatus(codeProductOrderStatus);
+                sess.update(li);
+              } 
             }
           }
         }
@@ -93,12 +95,14 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             ProductLineItem pli = (ProductLineItem)sess.load(ProductLineItem.class, idProductLineItem);
             ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, pli.getIdProductOrder());
             String oldStatus = pli.getCodeProductOrderStatus();
-            updateLedger(pli, po, oldStatus, codeProductOrderStatus, sess);
-            pli.setCodeProductOrderStatus(codeProductOrderStatus);
-            sess.update(pli);
+            if ( updateLedger(pli, po, oldStatus, codeProductOrderStatus, sess) ) {
+              pli.setCodeProductOrderStatus(codeProductOrderStatus);
+              sess.update(pli);
+            } 
           }
         }
         sess.flush();
+        this.xmlResult = "<SUCCESS message=\"" + resultMessage + "\"/>";
         this.setResponsePage(this.SUCCESS_JSP);
       } else {
         this.setResponsePage(this.ERROR_JSP);
@@ -116,13 +120,13 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
     return this;
   }
 
-  public void updateLedger(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
-    
+  public boolean updateLedger(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
+
     int orderQty = 1; 
     if ( pli.getProduct().getOrderQty() != null && pli.getProduct().getOrderQty() > 0 ) {
       orderQty = pli.getQty();
     }
-    
+
     // Check for an old status of something other than completed and new status is completed.  
     // If so, add items to ledger
     if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
@@ -132,21 +136,38 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setQty( orderQty * pli.getQty() );
       ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
       ledger.setIdProductOrder( po.getIdProductOrder() );
-      ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " changed to completed status." );
+      ledger.setComment( po.getDisplay() + " changed to completed status." );
       sess.save( ledger );
+      resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\nLedger entry created.\r\n";
     }
     // Check for old status is completed and new status is not.  
-    // If so, remove items to ledger
-    if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
-      ProductLedger ledger = new ProductLedger();
-      ledger.setIdLab( po.getIdLab() );
-      ledger.setIdProduct( pli.getIdProduct() );
-      ledger.setQty( -orderQty * pli.getQty() );
-      ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
-      ledger.setIdProductOrder( po.getIdProductOrder() );
-      ledger.setComment( "Product order number " + (po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : po.getIdProductOrder()) + " reverted from completed status." );
-      sess.save( ledger );
+    // If so, remove items in ledger
+    else if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
+      if ( pli.getIdProductOrder() != null ) {
+
+        Integer labTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + po.getIdLab() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
+        Integer poTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() ).uniqueResult();
+
+        if ( labTotal - poTotal >= 0 ) {
+          String query = "SELECT pl from ProductLedger pl where pl.idProductOrder = " + pli.getIdProductOrder();
+          List ledgerEntries = sess.createQuery(query).list();
+
+          for(Iterator i = ledgerEntries.iterator(); i.hasNext();) {
+            ProductLedger ledger = (ProductLedger)i.next();
+            sess.delete( ledger );
+            resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\nLedger entries deleted.\r\n";
+          }
+          sess.flush();
+        } else {
+          resultMessage += "Cannot revert status for " + po.getDisplay() + ", " + pli.getDisplay() + "; removing ledger entries will result in a negative balance.\r\n";
+          return false;
+        }
+      }
     }
+    else {
+      resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\r\n";
+    }
+    return true;
   }
 
   public void validate() {

@@ -78,7 +78,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
           productOrderNumber = po.getProductOrderNumber();
         }
 
-        e.setAttribute("productOrderNumber", productOrderNumber != null ? productOrderNumber : "" );
+        e.setAttribute("productOrderNumber", productOrderNumber != null ? productOrderNumber : (idProductOrder != null ? idProductOrder.toString() : "") );
         e.setAttribute("requestNumber", requestNumber );
         e.setAttribute("idProductOrder", idProductOrder != null ? idProductOrder.toString() : "");
         e.setAttribute("idRequest", idRequest != null ? idRequest.toString() : "");

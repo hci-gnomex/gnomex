@@ -51,9 +51,9 @@
 			
 			private function gridItemClick(event:ListEvent):void {
 				
-				if ( productOrderGrid.selectedItem != null ) {
+				/* if ( productOrderGrid.selectedItem != null ) {
 					parentView.selectedProductOrder = productOrderGrid.selectedItem;
-				}
+				} */
 				
 				if ( event.columnIndex != 0  ) {
 					productOrderGrid.selectedIndex = -1;
