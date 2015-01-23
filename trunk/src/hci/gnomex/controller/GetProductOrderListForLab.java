@@ -58,9 +58,8 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
           String submitter = dh.getAppUserObject(po.getIdAppUser()).getDisplayName();
           //String productType = dh.getProductTypeObject(po.getCodeProductType()).getDisplay();
           String orderStatus = po.getStatus();
-          String number = po.getProductOrderNumber()!=null ? po.getProductOrderNumber() : "";
           
-          e.setAttribute("display", "Product Order " + (!number.equals("")?number:po.getIdProductOrder()) );
+          e.setAttribute("display", po.getDisplay() );
           e.setAttribute("submitter", submitter);
           e.setAttribute("submitDate", po.getSubmitDate().toString());
           e.setAttribute("status", orderStatus);

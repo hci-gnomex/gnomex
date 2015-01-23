@@ -26,14 +26,22 @@
 			public var idProductOrder:String = "";
 			
 			public function init():void{
-				var params:Object = new Object();
-				params.idProductOrder = idProductOrder;
-				getProductOrderLineItemList.send(params);
+				if ( idProductOrder != null && idProductOrder != "" ) {
+					var params:Object = new Object();
+					params.idProductOrder = idProductOrder;
+					getProductOrderLineItemList.send(params);
+				} else {
+					lineItemGrid.dataProvider = null;
+					titleLabel.text = "";
+				}
 			}
 			
 			private function onGetProductOrderLineItemList(event:ResultEvent):void{
 				if(getProductOrderLineItemList.lastResult.name() != 'LineItems'){
 					Alert.show(getProductOrderLineItemList.lastResult..ACTMESSAGE.@TEXT);
+				} else {
+					lineItemGrid.dataProvider = lineItems;
+					titleLabel.text = 'Line Items for Product Order ' + productOrder.@productOrderNumber;
 				}
 			}
 			

@@ -448,7 +448,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       } else {
         ProductOrder po = (ProductOrder)row[0];
         allBillingItems = po.getBillingItems();
-        number = po.getProductOrderNumber();
+        number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
       BillingItem bi =  (BillingItem)row[1];
 

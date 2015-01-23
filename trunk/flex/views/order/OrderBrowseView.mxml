@@ -55,12 +55,7 @@
 			
 			import views.util.EmailWindowForRequests;
 			import views.util.PromptXMLListCollection;
-			
-			
-			// Warning Icon
-			[Embed( source = '../../assets/error.png' )]
-			[Bindable]
-			public var iconWarning:Class;
+						
 			
 			[Bindable]
 			public var parentView:NavOrderView;
@@ -206,7 +201,7 @@
 					
 				} else {
 					Alert.show( "Are you sure you want to delete these orders?", 
-						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
+						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
 				}
 				
 				

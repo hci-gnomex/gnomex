@@ -19,10 +19,7 @@ import org.hibernate.Session;
 
 
 
-
 public class DeleteProduct extends GNomExCommand implements Serializable {
-  
- 
   
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProduct.class);
@@ -51,7 +48,7 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
       Product product = (Product)sess.load(Product.class, idProduct);
       ProductType pt = dictionaryHelper.getProductTypeObject(product.getCodeProductType());
            
-      if (pt == null || pt.getIdCoreFacility() == null || this.getSecAdvisor().isCoreFacilityIManage(pt.getIdCoreFacility()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      if (pt != null && ((pt.getIdCoreFacility() != null && this.getSecAdvisor().isCoreFacilityIManage(pt.getIdCoreFacility())) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES))) {
           
         // Get and delete the corresponding price        
         Price price = GetProductList.getProductPrice( sess, product, pt );
@@ -96,8 +93,5 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
   }
   
  
-  
-  
-  
 
 }
