@@ -1171,7 +1171,7 @@
 			public var PROPERTY_SHOW_FUNDING_AGENCY:String				  = "show_funding_agency";
 			public var PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST:String		  = "show_admin_notes_on_request";
 			public var PROPERTY_IS_PLATE_BASED_CORE:String		  		  = "is_plate_based_core";
-			public var PROPERTY_NANO_STRING_BATCH_WARNING:String		  = "nano_string_batch_warning";
+			public var PROPERTY_SAMPLE_BATCH_WARNING:String		  		  = "sample_batch_warning";
 			public var PROPERTY_NANO_CODE_SET_COST_WARNING:String		  = "nano_code_set_cost_warning";
 			public var PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH:String      = "qc_assay_hide_buffer_strength";
 			public var PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP:String       = "qc_assay_hide_wells_per_chip";
