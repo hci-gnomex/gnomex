@@ -117,9 +117,9 @@
 			import views.billing.BillingInvoiceEmailWindow;
 			import views.util.BillingPeriodSelectEvent;
 			import views.util.BillingPeriodUtil;
+			import views.util.GNomExStringUtil;
 			import views.util.InstitutionWindow;
 			import views.util.PickBillingPeriodView;
-			import views.util.GNomExStringUtil;
 
 			private var dictionaryEditor:DictionaryEditor;
 			private var fileRef:FileReference = new FileReference();
@@ -798,6 +798,7 @@
 			private function onDictionariesLoaded(event:Event):void {
 				parentApplication.dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 
+				parentDocument.callGetLabList();
 				parentDocument.callGetLab();
 				
 				dirty.resetDirty();

@@ -74,7 +74,7 @@
           parentApplication.navUsersView.itemToSelect = itemToSelect;
 
           parentApplication.navUsersView.refreshGroupList();
-          parentApplication.navUsersView.labSearchText.text = parentApplication.navUsersView.fullLab.@name;
+          parentApplication.navUsersView.labSearchText.text = String(parentApplication.navUsersView.fullLab.@name).replace(" (inactive)", "");
         }
 				
 		private function checkEmailValidity(event:KeyboardEvent):void {

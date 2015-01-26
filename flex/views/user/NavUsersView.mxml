@@ -379,7 +379,7 @@
           	call.marker = "doneGetAppUser";
           }
           
-          private function callGetAppUserList():void
+          public function callGetAppUserList():void
           {
           	var call:Object = getAppUserList.send();
           	call.marker = "doneGetAppUserList";
