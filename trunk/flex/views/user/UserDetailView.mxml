@@ -103,7 +103,6 @@
 		 			
 		 			var itemToSelect:XML = new XML("<AppUser id='" + savedIdAppUser + "'/>");
 	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
-    	      		parentApplication.navUsersView.refreshAppUserList();
 					var anyChecked:Boolean = false;
 					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
 						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
@@ -112,6 +111,8 @@
 							break;
 						}
 					}
+					parentDocument.callGetAppUserList();
+					parentDocument.callGetAppUser();
 				} else { 
 					if (saveAppUser.lastResult.name() == "ERROR") {
 						Alert.show(saveAppUser.lastResult.@message);

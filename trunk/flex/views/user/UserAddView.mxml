@@ -64,7 +64,7 @@
           parentApplication.navUsersView.itemToSelect = itemToSelect;
           parentApplication.navUsersView.refreshAppUserList();
           parentApplication.navUsersView.checkSecurity();
-          parentApplication.navUsersView.userSearchText.text = parentApplication.navUsersView.fullUser.@lastName;
+          parentApplication.navUsersView.userSearchText.text = String(parentApplication.navUsersView.fullUser.@lastName).replace(" (inactive)", "");
         }
 	]]>
 </mx:Script>
