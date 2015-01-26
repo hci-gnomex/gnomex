@@ -9,6 +9,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Request;
 
 import java.math.BigDecimal;
@@ -285,8 +286,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       String number = (String)i.next();
       Request request = null;
       DiskUsageByMonth dsk = null;
+      ProductOrder po = null;
       if (number.startsWith(ShowBillingInvoiceForm.DISK_USAGE_NUMBER_PREFIX)) {
         dsk = (DiskUsageByMonth)requestMap.get(number);
+      } else if(number.startsWith(ShowBillingInvoiceForm.PRODUCT_ORDER_NUMBER_PREFIX)) {
+        po = (ProductOrder)requestMap.get(number);
       } else {
         request = (Request)requestMap.get(number);
       }
@@ -294,8 +298,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       String client = "";
       if (request != null) {
         client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";
-      } else { 
+      } else if(dsk != null) { 
         client = "Disk Usage";
+      } else {
+        client = "Product Order";
       }
 
 
@@ -305,8 +311,12 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         this.addCell(rowR, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
         this.addCell(rowR, request.getNumber());
         this.addCell(rowR, client);
-      } else {
+      } else if (dsk != null) {
         this.addCell(rowR, this.formatDate(dsk.getAsOfDate()));
+        this.addCell(rowR, client, 2);
+      } else {
+        this.addCell(rowR, this.formatDate(po.getSubmitDate()));
+        this.addCell(rowR, po.getProductOrderNumber());
         this.addCell(rowR, client, 2);
       }
       BigDecimal totalPriceForRequest = new BigDecimal(0);

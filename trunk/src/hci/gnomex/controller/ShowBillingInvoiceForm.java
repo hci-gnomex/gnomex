@@ -12,6 +12,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -46,6 +47,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private static final String     ACTION_SHOW  = "show";
   private static final String     ACTION_EMAIL = "email";
   public static final String      DISK_USAGE_NUMBER_PREFIX = "ZZZZDiskUsage"; // Leading Z's to make it sort last.
+  public static final String      PRODUCT_ORDER_NUMBER_PREFIX = "ZZZZProductOrder"; // Leading Z's to make it sort last.
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);  
 
@@ -227,6 +229,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   throws Exception {
     cacheRequestBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
     cacheDiskUsageBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+    cacheProductOrderBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
   }
 
   public static void cacheRequestBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
@@ -388,6 +391,65 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       }
       billingItems.add(bi);
     }    
+  }
+
+  public static void cacheProductOrderBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
+  throws Exception {
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT po, bi ");
+    buf.append("FROM   ProductOrder po ");
+    buf.append("JOIN   po.billingItems bi ");
+    buf.append("WHERE  bi.idLab = " + idLab + " ");
+    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
+    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
+    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
+    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
+
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+      buf.append(" AND ");
+      secAdvisor.appendCoreFacilityCriteria(buf, "po");
+      buf.append(" ");
+    }
+
+    buf.append("ORDER BY po.productOrderNumber, bi.idBillingItem ");
+
+    List results = sess.createQuery(buf.toString()).list();
+
+
+    for(Iterator i = results.iterator(); i.hasNext();) {
+      Object[] row = (Object[])i.next();
+      ProductOrder po         =  (ProductOrder)row[0];
+      BillingItem bi          =  (BillingItem)row[1];
+
+      // Exclude any disk usage that have
+      // pending billing items.  (shouldn't be any)
+      boolean hasPendingItems = false;
+      for(Iterator i1 = po.getBillingItems().iterator(); i1.hasNext();) {
+        BillingItem item = (BillingItem)i1.next();
+
+        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+            item.getIdBillingAccount().equals(idBillingAccount)) {
+          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+            hasPendingItems = true;
+            break;
+          }          
+        }
+      }
+      if (hasPendingItems) {
+        continue;
+      }
+
+      String productOrderNumber = PRODUCT_ORDER_NUMBER_PREFIX + po.getProductOrderNumber().toString();
+      requestMap.put(productOrderNumber, po);
+
+      List billingItems = (List)billingItemMap.get(productOrderNumber);
+      if (billingItems == null) {
+        billingItems = new ArrayList();
+        billingItemMap.put(productOrderNumber, billingItems);
+      }
+      billingItems.add(bi);
+    } 
+
   }
 
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
