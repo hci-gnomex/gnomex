@@ -2264,12 +2264,14 @@
 			
 			private function addCoreNewExperiments(template:XML, children:XMLList):XMLList {
 				for each(var core:Object in myCoreFacilities) {
-					var label:String = template.@label + " for " + core.@facilityName;
-					var xml:XML = new XML("<menuitem/>");
-					xml.@label = label;
-					xml.@icon = template.@icon;
-					xml.@idCoreFacility = core.@idCoreFacility;
-					children += xml;
+					if (core.@hasRequestCategories == 'Y') {
+						var label:String = template.@label + " for " + core.@facilityName;
+						var xml:XML = new XML("<menuitem/>");
+						xml.@label = label;
+						xml.@icon = template.@icon;
+						xml.@idCoreFacility = core.@idCoreFacility;
+						children += xml;
+					}
 				}
 				
 				return children;
@@ -2638,6 +2640,17 @@
 					dataTrackSupported = false;
 				}
 				
+				// Mark core facilities that do not have any request categories.
+				for each (var coreCheckReqCat:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
+					coreCheckReqCat.@hasRequestCategories='N';
+					for each (var reqCheckReqCat:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
+						if (coreCheckReqCat.@idCoreFacility == reqCheckReqCat.@idCoreFacility) {
+							coreCheckReqCat.@hasRequestCategories='Y';
+							break;
+						}
+					}
+				}
+				
 				// Determine if there are any core facilities configured for this site
 				var coreFacilities:XMLList = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
 				var coreGenomicsConfigured:Boolean = false;
@@ -2653,9 +2666,8 @@
 						idCoreFacilityDNASeq = cf.@idCoreFacility;
 					}  
 				}
-				
 				// Keep a list of core facilities associated with this user.  We will use
-				// this to filter the request categories on the Submit Request window.
+				// this to filter the request categories on the Submit Request window -- among other things.
 				if (isGuest) {
 					myCoreFacilities = null;
 					coreFacilitiesICanManage = null;

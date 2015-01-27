@@ -23,10 +23,18 @@
 				coreFacilityTile.dataProvider = coreFacilities;
 				coreFacilityTile.validateNow();
 			}
+			
+			private function filterCores(item:Object):Boolean {
+				if (item.@hasRequestCategories == 'Y') {
+					return true;
+				} else {
+					return false;
+				}
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.myCoreFacilities}"  sort="{sortOrderSort}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.myCoreFacilities}"  sort="{sortOrderSort}" filterFunction='filterCores'/>
 	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
 	
 	<mx:Label text="{coreFacilities.length > 1 ? 'GNomEx Core Facilities' : 'GNomEx Core Facility'}" fontSize="18"/>
