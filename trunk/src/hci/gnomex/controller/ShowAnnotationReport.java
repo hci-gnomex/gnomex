@@ -61,6 +61,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
   private List                      customColumnList = new ArrayList();
   private String                    target;
   private Integer                   idLab;
+  private Integer                   idCoreFacility;
   private RequestSampleFilter       sampleFilter;
   private AnalysisGroupFilter       analysisFilter;
   private DataTrackQuery            dataTrackQuery;
@@ -83,6 +84,10 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       target = request.getParameter("target");
     } else {
       this.addInvalidField("target", "target is required");
+    }
+
+    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+      idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
     }
 
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
