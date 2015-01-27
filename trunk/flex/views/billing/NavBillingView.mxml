@@ -1079,7 +1079,15 @@
 	       			dropRequestNode = dropNode.parent();
 	       		} else {
 	       			dropRequestNode = dropNode;
-	       		} 	      
+	       		}
+				
+				//Don't allow adding prices to product order
+				if(dropRequestNode.@codeRequestCategory == "PRODUCTORDER"){
+					event.preventDefault();
+					event.target.hideDropFeedback(event);
+					DragManager.showFeedback(DragManager.NONE);
+					return;
+				}
 	       	}
 	
  		   	// Initialize billing items if we have anything other than pending items
