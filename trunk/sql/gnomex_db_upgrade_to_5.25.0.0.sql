@@ -33,5 +33,6 @@ update Property set idCoreFacility=1;
 
 -- unused table
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
-
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication_Audit`;
+ 
 
