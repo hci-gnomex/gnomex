@@ -17,6 +17,7 @@ public class RequestSampleFilter extends DetailObject {
   private String                number;
   private Integer               idAppUser;
   private Integer               idLab;
+  private Integer               idCoreFacility;
   private Date                  createDateFrom;
   private Date                  createDateTo;
   private String                codeRequestCategories;
@@ -293,6 +294,12 @@ public class RequestSampleFilter extends DetailObject {
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
     }
+    // Search by core
+    if (idCoreFacility != null) {
+      this.addWhereOrAnd();
+      queryBuf.append(" req.idCoreFacility =");
+      queryBuf.append(idCoreFacility);
+    }
     // Search by user
     if (idAppUser != null){
       this.addWhereOrAnd();
@@ -406,6 +413,9 @@ public class RequestSampleFilter extends DetailObject {
     return idLab;
   }
 
+  public Integer getIdCoreFacility() {
+    return idCoreFacility;
+  }
 
   public Integer getIdUser() {
     return idAppUser;
@@ -421,6 +431,9 @@ public class RequestSampleFilter extends DetailObject {
     this.idLab = idLab;
   }
 
+  public void setIdCoreFacility(Integer idCoreFacility) {
+    this.idCoreFacility = idCoreFacility;
+  }
 
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;

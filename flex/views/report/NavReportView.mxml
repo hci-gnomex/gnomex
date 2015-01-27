@@ -74,7 +74,8 @@
 			}
 			
 			private function initData():void {
-				
+				coreFacilities = new XMLListCollection();
+				coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
 			}
 			
 			private function refreshAnnotationList():void {
@@ -91,6 +92,12 @@
 						keep = true;			
 					} else if (this.showDataTrackAnnotations.selected && prop.@forDataTrack == "Y"){
 						keep = true;
+					}
+					
+					if (keep) {
+						if (prop.@idCoreFacility != coreFacilityCombo.selectedItem.@value) {
+							keep = false;
+						}
 					}
 					
 					if (keep) {
@@ -234,6 +241,7 @@
 				// Call the backend servlet that generates the excel spreadsheet
 				var showUrl:URLRequest = new URLRequest('ShowAnnotationReport.gx' +			
 					'?idLab=' +  (this.browseLabCombo.selectedItem != null ? this.browseLabCombo.selectedItem.@idLab : "") +
+					'&idCoreFacility=' + (coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : "") +
 					'&target=' +  this.annotationRadioGroup1.selectedValue +
 					'&idProperties=' + idProperties +
 					'&codeRequestCategories=' + codeRequestCategories +
@@ -326,21 +334,28 @@
 				var experimentPlatformChooser:ExperimentPlatformChooser = ExperimentPlatformChooser(PopUpManager.createPopUp(parentApplication.theBody, ExperimentPlatformChooser, true));
 				experimentPlatformChooser.addEventListener(CloseEvent.CLOSE, updateRequestCategoryFilter);
 				experimentPlatformChooser.parentWindow = this;
+				experimentPlatformChooser.idCoreFacilitySelected = coreFacilityCombo.selectedItem.@value;
 				PopUpManager.centerPopUp(experimentPlatformChooser);
+			}
+			
+			private function clearRequestCategories():void {
+				requestCategories = null;
+				updateRequestCategoryFilter(null);
 			}
 			
 			private function updateRequestCategoryFilter(event:CloseEvent):void{
 				requestCategoryLabel.text = "";
-				for(var i:int = 0; i < requestCategories.length; i++){
-					if(requestCategories.getItemAt(i).@isSelected == 'true'){
-						var rcLabel:String = requestCategories.getItemAt(i).@display;
-						requestCategoryLabel.text += rcLabel;
-						if((i+1) < requestCategories.length){
-							requestCategoryLabel.text += ", ";
+				if (requestCategories != null) {
+					for(var i:int = 0; i < requestCategories.length; i++){
+						if(requestCategories.getItemAt(i).@isSelected == 'true'){
+							var rcLabel:String = requestCategories.getItemAt(i).@display;
+							requestCategoryLabel.text += rcLabel;
+							if((i+1) < requestCategories.length){
+								requestCategoryLabel.text += ", ";
+							}
 						}
-					}
+					}				
 				}				
-				
 			}
 			
 			private function compareColumnDisplay(obj1:Object, obj2:Object, fields:Array=null):int{
@@ -369,6 +384,7 @@
 	</mx:Script>
 	
 	<mx:XMLListCollection id="properties" />
+	<mx:XMLListCollection id="coreFacilities" />
 	<mx:XMLListCollection id="requestCategories" />
 	<mx:XMLListCollection id="customColumns" sort="{customColumnSorter}" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnnotationReportField').DictionaryEntry.(@value != '')}"/>
 	<mx:Sort id="customColumnSorter" compareFunction="compareColumnDisplay"/>
@@ -401,10 +417,17 @@
 							<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 													  labelField="@name" 
 													  prompt="Select a lab..."
-													  width="200" 
+													  width="200"
 													  id="browseLabCombo">
 							</renderers:FilterComboBox>
-							
+							<mx:Spacer width="50" />
+							<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" id="coreFacilityHBox" visible="{coreFacilities.length > 1}">
+								<mx:Label visible="true" text="Core Facility" paddingBottom="0" styleName="formLabel" paddingLeft="2" width="100"/>
+								<mx:ComboBox width="200" selectedIndex="0"
+											 dataProvider="{coreFacilities}"
+											 labelField="@display" change="{refreshAnnotationList();clearRequestCategories()}"
+											 id="coreFacilityCombo"/>
+							</mx:HBox>							
 						</mx:HBox>
 						<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 							<mx:Label text="Annotations for" styleName="formLabel" width="100"/>

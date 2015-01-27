@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" title="Filter By Experiment Platform"
-				width="400"  showCloseButton="false" creationComplete="centerMe();" show="init();"
+				width="400"  showCloseButton="false" creationComplete="init()"
 				paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" height="294" verticalGap="4" titleIcon="@Embed(source='../../assets/group.png')" headerHeight="19">
 	
 	
@@ -20,16 +20,24 @@
 			
 			public var selectedRequestCategories:XMLListCollection = new XMLListCollection();
 			public var parentWindow:Object;
+			[Bindable]
+			public var idCoreFacilitySelected:String;
 			
 			
 			public function init():void {
-//				for each(var rc:XML in requestCategories){
-//					rc.@isSelected = false;
-//				}
-			}
-			
-			private function centerMe():void{
-				PopUpManager.centerPopUp(this);
+				requestCategories.refresh();
+				if (parentWindow.requestCategories != null) {
+					for each (var selCat:Object in parentWindow.requestCategories) {
+						if ((idCoreFacilitySelected == null || selCat.@idCoreFacility == idCoreFacilitySelected) && selCat.@isSelected=='true') {
+							for each (var cat:Object in requestCategories) {
+								if (cat.@codeRequestCategory == selCat.@codeRequestCategory) {
+									cat.@isSelected = 'true';
+								}
+							}
+						}
+					}
+				}
+				requestCategoryGrid.invalidateDisplayList();
 			}
 			
 			private function close():void{
@@ -39,14 +47,18 @@
 			}
 			
 			private function filterByCoreFacility(item:Object):Boolean{
-				return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+				if (idCoreFacilitySelected != null) {
+					return item.@idCoreFacility == idCoreFacilitySelected;
+				} else {
+					return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+				}
 			}
 			
 		]]>
 		
 	</mx:Script>
 	
-	<mx:XMLListCollection id="requestCategories" filterFunction="filterByCoreFacility" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}"/>
+	<mx:XMLListCollection id="requestCategories" filterFunction="filterByCoreFacility" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '').copy()}"/>
 	
 	
 	<mx:VBox width="100%" height="100%">
