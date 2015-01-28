@@ -334,16 +334,10 @@
 					}
 					
 				} else if (parentDocument.isNanoStringState()) {
-					nanoSampleCountWarning.text = "";
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-						if ( parseInt(this.numberOfSamples.text) % 12 != 0 ) {
-							nanoSampleCountWarning.text = parentApplication.getProperty(parentApplication.PROPERTY_NANO_STRING_BATCH_WARNING);
-						}
 						isComplete = this.sampleTypeRadioGroup.selectedValue;
-						isComplete = isComplete && (hasOrganism() && this.otherSamplePrepMethod.text.length > 0); 
-							
+						isComplete = isComplete && (hasOrganism() && this.otherSamplePrepMethod.text.length > 0); 							
 						parentDocument.seqLibProtocolList.refresh();
-					}		
+						
 				} else if (parentDocument.isQCState()) {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 						this.sampleTypeRadioGroup.selectedValue &&
@@ -562,6 +556,17 @@
 				
 				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
 					parentDocument.annotationView.enabled = isComplete;
+				}
+				
+				//Check if we have a sample batch size restriction.  If so warn user.
+				sampleBatchSizeWarning.text = "";
+				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.coreFacility.@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+				
+				if(hasBatchSampleSize != null && hasBatchSampleSize == 'Y'){
+					var sampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
+					if(numberOfSamples.text != "" && int(numberOfSamples.text) % sampleSize != 0){
+						sampleBatchSizeWarning.text = "This experiment type runs in batches of " + sampleSize + ".  You will be charged for unused wells.";
+					}
 				}
 				
 				
@@ -1395,7 +1400,10 @@
 									  label="(1) How many unique samples are in this experiment order?" labelPlacement="left" id="label5" width="340"/>
 					<mx:TextInput width="40" id="numberOfSamples" >
 						<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
-					</mx:TextInput>							
+					</mx:TextInput>
+					<mx:HBox width="100%">
+						<mx:Text id="sampleBatchSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
+					</mx:HBox>
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
 					<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}" 
@@ -2239,11 +2247,6 @@
 			<mx:SetProperty target="{isPreppedContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePooledSamplesHBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePooledSamplesHBox}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
-				<mx:HBox width="100%">
-					<mx:Text id="nanoSampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
-				</mx:HBox>
-			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	
