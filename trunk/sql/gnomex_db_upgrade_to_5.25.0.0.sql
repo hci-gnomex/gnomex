@@ -36,5 +36,6 @@ DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication_Audit`;
  
 -- Remove idProductOrder column from BillingItem table and audit table
+alter table BillingItem drop foreign key FK_BillingItem_ProductOrder;
 alter table BillingItem Drop column idProductOrder;
 call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit DROP COLUMN idProductOrder');

@@ -459,7 +459,6 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `idCoreFacility` INT(10) NULL,
   `idInvoice` INT(10) NULL,
   `idDiskUsageByMonth` INT(10) NULL,
-  `idProductOrder` INT(10) NULL,
   `idProductLineItem` INT(10) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
@@ -506,8 +505,8 @@ CREATE TABLE `gnomex`.`BillingItem` (
     REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
-    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
+  CONSTRAINT `FK_BillingItem_ProductLineItem` FOREIGN KEY `FK_BillingItem_ProductLineItem` (`idProductLineItem`)
+    REFERENCES `gnomex`.`ProductLineItem` (`idProductLineItem`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     
