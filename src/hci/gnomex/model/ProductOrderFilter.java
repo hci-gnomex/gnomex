@@ -120,8 +120,8 @@ public class ProductOrderFilter extends DetailObject {
 
   public void getBillingItemQueryBody(StringBuffer queryBuf) {
 
-    queryBuf.append(" FROM        ProductOrder as po ");
-    queryBuf.append(" JOIN        po.billingItems as billingItem ");
+    queryBuf.append(" FROM        ProductLineItem as pli ");
+    queryBuf.append(" JOIN        pli.billingItems as billingItem ");
 
     addPOCriteria();
     addSecurityCriteria("po");

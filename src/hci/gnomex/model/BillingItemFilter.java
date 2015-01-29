@@ -170,6 +170,7 @@ public class BillingItemFilter extends DetailObject {
 
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append("        bi.codeBillingStatus, ");
+    queryBuf.append("        po.productOrderNumber, ");
     queryBuf.append("        po.idProductOrder, ");
     queryBuf.append("        bi.idLab, ");
     queryBuf.append("        lab.lastName, ");
@@ -181,8 +182,9 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        bi.idInvoice, ");
     queryBuf.append("        lab.contactEmail ");
 
-    queryBuf.append(" FROM        ProductOrder as po ");
-    queryBuf.append(" JOIN        po.billingItems as bi ");
+    queryBuf.append(" FROM        ProductLineItem as pli ");
+    queryBuf.append(" JOIN        pli.productOrder as po ");
+    queryBuf.append(" JOIN        pli.billingItems as bi ");
     queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     queryBuf.append(" JOIN        bi.lab as lab ");
@@ -242,6 +244,7 @@ public class BillingItemFilter extends DetailObject {
 
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append("        bi.codeBillingStatus, ");
+    queryBuf.append("        po.productOrderNumber, ");
     queryBuf.append("        po.idProductOrder, ");
     queryBuf.append("        po.idLab, ");
     queryBuf.append("        po.idCoreFacility, ");
@@ -251,8 +254,9 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        lab.isExternalPricing, ");
     queryBuf.append("        lab.isExternalPricingCommercial ");
 
-    queryBuf.append(" FROM        ProductOrder as po ");
-    queryBuf.append(" JOIN        po.billingItems as bi ");
+    queryBuf.append(" FROM        ProductLineItem as pli ");
+    queryBuf.append(" JOIN        pli.productOrder as po ");
+    queryBuf.append(" JOIN        pli.billingItems as bi ");
     queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
     queryBuf.append(" JOIN        bi.billingAccount as ba ");
     queryBuf.append(" JOIN        bi.lab as lab ");

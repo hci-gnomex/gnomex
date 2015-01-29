@@ -4,6 +4,8 @@ import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 
@@ -11,11 +13,14 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
   
   private Integer     idProductLineItem;
   private Integer     idProductOrder;
+  private ProductOrder productOrder;
   private Integer     idProduct;
   private Product     product;
   private Integer     qty;
   private BigDecimal  unitPrice;
   private String      codeProductOrderStatus;
+  
+  private Set         billingItems = new TreeSet();  
  
   
   public String getDisplay() {
@@ -48,6 +53,16 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
   }
 
   
+  
+  public ProductOrder getProductOrder() {
+    return productOrder;
+  }
+
+  
+  public void setProductOrder( ProductOrder productOrder ) {
+    this.productOrder = productOrder;
+  }
+
   public Integer getIdProduct() {
     return idProduct;
   }
@@ -96,5 +111,13 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
     this.codeProductOrderStatus = codeProductOrderStatus;
   }
 
-  
+
+  public Set getBillingItems() {
+    return billingItems;
+  }
+
+  public void setBillingItems(Set billingItems) {
+    this.billingItems = billingItems;
+  }
+
 }

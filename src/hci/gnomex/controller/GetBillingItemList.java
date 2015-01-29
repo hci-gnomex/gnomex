@@ -368,14 +368,15 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         Object[] row = (Object[])i.next();
 
         String codeBillingStatus    = (String)row[0]  == null ? ""  : (String)row[0];
-        Integer idProductOrder      = (Integer)row[1];
-        Integer idLab               = (Integer)row[2];
-        Integer idCoreFacility      = (Integer)row[3];
-        String labLastName          = (String)row[4]  == null ? ""  : (String)row[4];
-        String labFirstName         = (String)row[5]  == null ? ""  : (String)row[5];
-        BillingItem billingItem     = (BillingItem)row[6];
-        String labIsExternalPricing = (String)row[7];
-        String labIsExternalPricingCommercial = (String)row[8];
+        String  productOrderNumber  = (String)row[1] == null ? "" : (String)row[1];
+        Integer idProductOrder      = (Integer)row[2];
+        Integer idLab               = (Integer)row[3];
+        Integer idCoreFacility      = (Integer)row[4];
+        String labLastName          = (String)row[5]  == null ? ""  : (String)row[5];
+        String labFirstName         = (String)row[6]  == null ? ""  : (String)row[6];
+        BillingItem billingItem     = (BillingItem)row[7];
+        String labIsExternalPricing = (String)row[8];
+        String labIsExternalPricingCommercial = (String)row[9];
 
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
 
@@ -387,8 +388,8 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           requestNode = new Element("Request");
           requestNode.setAttribute("idRequest", idProductOrder.toString());
           requestNode.setAttribute("idLab", billingItem.getIdLab().toString());
-          requestNode.setAttribute("requestNumber", idProductOrder.toString());
-          requestNode.setAttribute("label", "Product Order " + idProductOrder.toString());
+          requestNode.setAttribute("requestNumber", productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber);
+          requestNode.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));
           requestNode.setAttribute("codeRequestCategory", ProductOrder.PRODUCT_ORDER_REQUEST_CATEGORY);        
           requestNode.setAttribute("idCoreFacility", idCoreFacility != null ? idCoreFacility.toString() : "");
           requestNode.setAttribute("icon", ProductOrder.PRODUCT_ORDER_ICON);

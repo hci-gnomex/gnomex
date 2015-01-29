@@ -30,7 +30,6 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   private String      productOrderNumber;
 
   private Set         productLineItems = new TreeSet();  
-  private Set         billingItems = new TreeSet();  
   private Set         files = new TreeSet();
 
   public String getDisplay() {
@@ -178,14 +177,6 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
 
   public void setProductLineItems( Set productLineItems ) {
     this.productLineItems = productLineItems;
-  }
-
-  public Set getBillingItems() {
-    return billingItems;
-  }
-
-  public void setBillingItems(Set billingItems) {
-    this.billingItems = billingItems;
   }
 
   public Set getFiles() {
