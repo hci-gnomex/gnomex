@@ -120,14 +120,24 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
   }
 
   public String getStatus() {
-    String status = ProductOrderStatus.COMPLETED;
+    boolean isComplete = true;
+    boolean isNew = true;
+    
     for (ProductLineItem li : (Set<ProductLineItem>) getProductLineItems()) {
       if ( li.getCodeProductOrderStatus() == null || !li.getCodeProductOrderStatus().equals( ProductOrderStatus.COMPLETED ) ) {
-        status = ProductOrderStatus.PENDING;
-        break;
+        isComplete = false;
+      }
+      if ( !li.getCodeProductOrderStatus().equals( ProductOrderStatus.NEW ) ) {
+        isNew = false;
       }
     }
-    return  status != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", status) : "";
+    String status = ProductOrderStatus.PENDING;
+    if ( isNew ) {
+      status = ProductOrderStatus.NEW;
+    } else if ( isComplete ) {
+      status = ProductOrderStatus.COMPLETED;
+    } 
+     return  status != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", status) : "";
   }
   
   public String getQuoteNumber() {

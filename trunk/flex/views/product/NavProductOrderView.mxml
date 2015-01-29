@@ -52,12 +52,16 @@
 						
 			[Bindable]
 			private var selectedOrders:Object = new Object();
+			
+			[Bindable]
+			private var selectedOrder:Object = new Object();
+			
 			[Bindable]
 			private var atLeastOneSelection:Boolean = false;
 			private var isLabSelected:Boolean = false;
 			
 			private function init():void{
-				getProductOrderList.send();
+				
 			}
 			
 			private function onGetProductOrderList(event:ResultEvent):void{
@@ -69,12 +73,21 @@
 			}
 			
 			private function expandLabNodes():void {
-				
-				browseTree.expandItem( getProductOrderList.lastResult, true );
-				
+								
 				for each ( var group:Object in getProductOrderList.lastResult..Lab ) {
 					browseTree.expandItem( group, true );
 				}
+				callLater(selectOrderOnTree);
+				
+			}
+			
+			private function selectOrderOnTree():void {
+				if ( this.selectedOrder != null ) {
+					browseTree.selectedItem = getProductOrderList.lastResult..ProductOrder.(@idProductOrder == selectedOrder.@idProductOrder)[0];
+					browseTree.scrollToIndex(browseTree.selectedIndex);
+				}
+				
+				onBrowseTree();
 				
 				browseTree.validateNow();
 				treeContainer.validateNow();
@@ -85,6 +98,7 @@
 					detailTab.idProductOrder = lineItemTab.idProductOrder = null;
 					lineItemTab.init();
 					detailTab.init();
+					this.selectedOrder = null;
 					return;
 				}
 				
@@ -93,10 +107,11 @@
 					this.productOrderOverView.idLab = browseTree.selectedItem.@idLab;
 					this.productOrderOverView.init();
 					theViews.selectedChild = this.productOrderOverView;
-					
+					this.selectedOrder = null;
 				}
 				
 				if(browseTree.selectedItem.name() == "ProductOrder"){
+					this.selectedOrder = browseTree.selectedItem;
 					theViews.selectedChild = this.theTab;
 					detailTab.idProductOrder = browseTree.selectedItem.@idProductOrder;
 					lineItemTab.idProductOrder = browseTree.selectedItem.@idProductOrder;
@@ -127,6 +142,25 @@
 				}
 				
 				return params;
+			}
+			
+			public function lookupProductOrder(productOrder:Object):void {
+				toggleBar.selectedIndex = 0;
+				selectedOrder = productOrder;
+				
+				for each ( var obj1:Object in browseLabCombo.dataProvider ) {
+					if ( obj1.@idLab == productOrder.@idLab ) {
+						browseLabCombo.selectedItem = obj1;
+						break;
+					}
+					browseLabCombo.selectedIndex = -1;
+				}
+				
+				var today:Date = new Date();
+				this.pickDateRangeButton.toDate = today;
+				this.pickDateRangeButton.fromDate = new Date(today.fullYear, today.month, today.date - 7);
+				
+				getProductOrders();
 			}
 			
 			private function selectOrders():void{
@@ -188,7 +222,6 @@
 					Alert.show(changeProductOrderStatus.lastResult.@message);
 					if ( toggleBar.selectedIndex==0 ) {
 						getProductOrders();
-						onBrowseTree();
 					} else {
 						browseView.getList();	
 					}
@@ -247,9 +280,6 @@
 					}
 				}
 				
-				
-				
-				
 			}
 			
 			private function onPromptToDelete( event:CloseEvent ):void {
@@ -303,7 +333,7 @@
 					
 					<mx:Spacer width="17"/>
 					
-					<mx:HBox>
+					<mx:HBox verticalAlign="middle">
 						<mx:Label text="Lab:"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
 												  labelField="@name" 
@@ -313,7 +343,7 @@
 						</renderers:FilterComboBox>
 					</mx:HBox>
 					
-					<mx:HBox visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}">
+					<mx:HBox visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}" verticalAlign="middle">
 						<mx:Label text="Status:"/>
 						<mx:ComboBox id="orderStatusCombo"
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductOrderStatus').DictionaryEntry}"
