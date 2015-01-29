@@ -1350,7 +1350,6 @@
 					this.showFlowCellForNumber(number);				
 				} else {
 					showExperiment(number, false);
-					
 				} 
 			}
 			
@@ -1645,6 +1644,17 @@
 				checkTopicPermission.send(parms);									
 			}
 			
+			public function showProductOrder(productOrder:Object):void {
+						
+				this.stateStack.selectedChild = theViews;
+				theViews.visible = true;
+				theViews.selectedChild = navProductOrderView;
+				
+				callLater( function():void {
+					navProductOrderView.lookupProductOrder(productOrder);
+				});
+								
+			}
 			
 			private function onCheckTopicPermission(event:ResultEvent):void {
 				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
@@ -2666,6 +2676,7 @@
 						idCoreFacilityDNASeq = cf.@idCoreFacility;
 					}  
 				}
+				
 				// Keep a list of core facilities associated with this user.  We will use
 				// this to filter the request categories on the Submit Request window -- among other things.
 				if (isGuest) {

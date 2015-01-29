@@ -25,16 +25,11 @@ import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,12 +37,18 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
@@ -131,6 +132,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     try {
       if(this.isValid()) {
         sess = HibernateSession.currentSession(this.getUsername());
+        DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+
+        Element root = new Element("SUCCESS");
+        Document outputDoc = new Document(root);
+        
         billingPeriod = DictionaryHelper.getInstance(sess).getCurrentBillingPeriod();
         Lab lab = DictionaryHelper.getInstance(sess).getLabObject(idLab);
         HashMap<String, ArrayList<Element>> productTypes = new HashMap<String, ArrayList<Element>>();
@@ -156,7 +162,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           ProductType productType = (ProductType)sess.load(ProductType.class, codeProductTypeKey);
           PriceCategory priceCategory = (PriceCategory)sess.load(PriceCategory.class, productType.getIdPriceCategory());
           ArrayList<Element> products = productTypes.get(codeProductTypeKey);
-          Set productLineItems = new TreeSet();
+          Set<ProductLineItem> productLineItems = new TreeSet<ProductLineItem>(new ProductLineItemComparator());
+          
           ProductOrder po = new ProductOrder();
           
           if(products.size() > 0) {
@@ -174,9 +181,23 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
                 sess.save(pi);
               }
             }
-
+            po.setProductLineItems( productLineItems );
+            
             sess.save(po);
+            
+            Element poNode = new Element("ProductOrder");
 
+            String submitter = dh.getAppUserObject(po.getIdAppUser()).getDisplayName();
+            String orderStatus = po.getStatus();
+            
+            poNode.setAttribute("display", po.getDisplay() );
+            poNode.setAttribute("submitter", submitter);
+            poNode.setAttribute("submitDate", po.getSubmitDate().toString());
+            poNode.setAttribute("status", orderStatus);
+            poNode.setAttribute("idLab", idLab==null?"":idLab.toString());
+            poNode.setAttribute("idProductOrder", po.getIdProductOrder()!=null?po.getIdProductOrder().toString():"");
+            outputDoc.getRootElement().addContent(poNode);
+            
             List billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems);
             for(Iterator j = billingItems.iterator(); j.hasNext();) {
               BillingItem bi = (BillingItem)j.next();
@@ -209,7 +230,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
         }
 
         sess.flush();
-        setResponsePage(this.SUCCESS_JSP);
+        
+        XMLOutputter out = new org.jdom.output.XMLOutputter();
+        out.setOmitEncoding(true);
+        this.xmlResult = out.outputString(outputDoc);
+        this.setResponsePage(SUCCESS_JSP);
 
       } else {
         this.addInvalidField("Insufficient permissions",
@@ -368,6 +393,15 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return send;
   }
 
+  public class ProductLineItemComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      ProductLineItem li1 = (ProductLineItem)o1;
+      ProductLineItem li2 = (ProductLineItem)o2;
+      return li1.getIdProduct().compareTo(li2.getIdProduct());
+      
+    }
+  }
+  
   public void validate() {
   }
 
