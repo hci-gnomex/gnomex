@@ -12,6 +12,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -396,9 +397,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   public static void cacheProductOrderBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
   throws Exception {
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT po, bi ");
-    buf.append("FROM   ProductOrder po ");
-    buf.append("JOIN   po.billingItems bi ");
+    buf.append("SELECT pli, po, bi ");
+    buf.append("FROM   ProductOrderLineItem pli ");
+    buf.append("JOIN   pli.productOrder po ");
+    buf.append("JOIN   pli.billingItems bi ");
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
@@ -418,13 +420,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
-      ProductOrder po         =  (ProductOrder)row[0];
-      BillingItem bi          =  (BillingItem)row[1];
+      ProductLineItem pli     = (ProductLineItem)row[0];
+      ProductOrder po         = (ProductOrder)row[1];
+      BillingItem bi          =  (BillingItem)row[2];
 
       // Exclude any disk usage that have
       // pending billing items.  (shouldn't be any)
       boolean hasPendingItems = false;
-      for(Iterator i1 = po.getBillingItems().iterator(); i1.hasNext();) {
+      for(Iterator i1 = pli.getBillingItems().iterator(); i1.hasNext();) {
         BillingItem item = (BillingItem)i1.next();
 
         if (item.getIdBillingPeriod().equals(idBillingPeriod) &&

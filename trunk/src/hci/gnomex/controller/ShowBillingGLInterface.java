@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
+import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -409,9 +410,10 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       buf.append("FROM   DiskUsageByMonth dsk ");
       buf.append("JOIN   dsk.billingItems bi ");
     } else {
-      buf.append("SELECT po, bi ");
-      buf.append("FROM   ProductOrder po ");
-      buf.append("JOIN   po.billingItems bi ");
+      buf.append("SELECT pli, po, bi ");
+      buf.append("FROM   ProductOrderLineItem pli ");
+      buf.append("JOIN   pli.productOrder po ");
+      buf.append("JOIN   pli.billingItems bi ");
     }
     buf.append("JOIN   bi.lab as lab ");
     buf.append("JOIN   bi.billingAccount as ba ");
@@ -446,8 +448,9 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
         allBillingItems = dsk.getBillingItems();
         number = "Disk Usage";
       } else {
-        ProductOrder po = (ProductOrder)row[0];
-        allBillingItems = po.getBillingItems();
+        ProductLineItem pli = (ProductLineItem)row[0];
+        ProductOrder po = (ProductOrder)row[1];
+        allBillingItems = pli.getBillingItems();
         number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
       BillingItem bi =  (BillingItem)row[1];

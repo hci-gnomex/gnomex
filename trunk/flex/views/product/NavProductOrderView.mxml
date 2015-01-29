@@ -54,7 +54,7 @@
 			private var selectedOrders:Object = new Object();
 			
 			[Bindable]
-			private var selectedOrder:Object = new Object();
+			private var selectedOrder:Object = null;
 			
 			[Bindable]
 			private var atLeastOneSelection:Boolean = false;
