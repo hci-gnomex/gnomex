@@ -38,7 +38,6 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idInvoice;
   private Invoice        invoice;
   private Integer        idDiskUsageByMonth;
-  private Integer        idProductOrder;
   private Integer        idProductLineItem;
 
 
@@ -351,16 +350,6 @@ public class BillingItem extends HibernateDetailObject {
   }
   public void setIdDiskUsageByMonth(Integer id) {
     idDiskUsageByMonth = id;
-  }
-
-
-  public Integer getIdProductOrder() {
-    return idProductOrder;
-  }
-
-
-  public void setIdProductOrder( Integer idProductOrder ) {
-    this.idProductOrder = idProductOrder;
   }
 
   public Integer getIdProductLineItem() {

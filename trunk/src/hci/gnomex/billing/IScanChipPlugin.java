@@ -147,7 +147,6 @@ public class IScanChipPlugin implements BillingPlugin {
         billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
         billingItem.setCategory(priceCategory.getName());
         billingItem.setIdCoreFacility(po.getIdCoreFacility());
-        billingItem.setIdProductOrder(po.getIdProductOrder());
         billingItem.setIdProductLineItem(lineItem.getIdProductLineItem());
 
         billingItems.add(billingItem);
