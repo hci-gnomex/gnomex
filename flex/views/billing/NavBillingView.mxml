@@ -745,8 +745,11 @@
 		private function onGetBillingItemList(event:ResultEvent):void {
 			if (getBillingItemList.lastResult.name() == "BillingItemList") {
 				this.billingItems = new XMLListCollection(getBillingItemList.lastResult.Request);
-				this.billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);	
-				this.pickBillingPeriodButton.label = lastSelectedBillingPeriod.@display;
+				this.billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);
+				
+				if(lastSelectedBillingPeriod != null){
+					this.pickBillingPeriodButton.label = lastSelectedBillingPeriod.@display;	
+				}
 
 				getBillingInvoiceList.send();
 				
