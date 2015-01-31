@@ -562,6 +562,10 @@
 			
 			[Bindable]
 			[Embed(source="assets/basket.png")]
+			public var iconBasket:Class;
+			
+			[Bindable]
+			[Embed(source="assets/basket.png")]
 			public var iconCategory:Class;
 			
 			[Bindable]

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="150"
+		 height="100%">
+	
+	<mx:Script>
+		
+		<![CDATA[
+						
+			[Bindable]
+			public var iconSource:Class;
+			
+			[Bindable]
+			public var titleText:String = "";
+			
+			
+		]]>
+		
+	</mx:Script>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1" >
+		<mx:Image id="iconImage" source="{iconSource}"/>
+		<mx:Label id="titleLabel" styleName="titleLabel" width="100%" text="{titleText}" />	
+	</mx:HBox>
+</mx:HBox>

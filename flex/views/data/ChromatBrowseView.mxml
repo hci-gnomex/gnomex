@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 width="100%"
-		 height="100%" backgroundAlpha="0"
+		 height="100%" backgroundAlpha="0"  cornerRadius="10"  
 		 xmlns:util="views.util.*"
 		 xmlns:renderers="views.renderers.*"
 		 initialize="init()"
@@ -100,7 +100,7 @@
 			private var dictXML:XML = <actionDictionary>
 									  <action value="RELEASE"   display="Release data to user" />
 									  <action value="REQUEUE"    display="Release and requeue samples" />
-								      </actionDictionary>;
+									  </actionDictionary>;
 			
 			
 			
@@ -221,7 +221,7 @@
 				selectedChromats.refresh();
 			}
 			
-
+			
 			private function submitActionButtonClick():void {
 				if ( selectedChromats.length > 384 ) {
 					Alert.show( "You have selected more than 384 chromatograms.  Are you sure?", "Confirm Action", ( Alert.YES | Alert.NO ), this, onPromptToGo, iconWarning );
@@ -359,7 +359,7 @@
 				}
 			}
 			
-						
+			
 			private function runNameFieldSearch():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
@@ -377,16 +377,16 @@
 				this.plateNameLookupField.text = '';
 				this.runNameLookupField.text = '';
 			}
-
+			
 			private function clearAllCheckBoxes():void {
 				this.lastMonthCheckbox.selected = false;
 				this.lastThreeMonthsCheckbox.selected = false;
 				this.lastWeekCheckbox.selected = false;
-
+				
 				this.mitSeqCheckbox.selected = false;
 				this.capSeqCheckbox.selected = false;
 			}
-
+			
 			private function plateNameFieldSearch():void {
 				if ( currentState != userState.name ) {
 					actionDictionary.source = dictXML.action; 
@@ -585,416 +585,414 @@
 	
 	<mx:XMLListCollection id="chromats" source="{getChromatogramList.lastResult.Chromatogram}" />
 	<mx:XMLListCollection id="selectedChromats" source="{getChromatogramList.lastResult.Chromatogram}" filterFunction="selectedFilterFunc" />
-	
-	<mx:VBox id="filterBox" width="100%" styleName="panelBox">
-		<mx:HBox paddingLeft="2" paddingTop="2" paddingRight="2" horizontalGap="0" verticalAlign="middle" width="100%">
-			<mx:Image source="assets/tv_chart_review.png"/>
-			<mx:Label id="titleLabel" styleName="titleLabel" text="Results"  />
-			<mx:Spacer width="30"/>
+	<mx:VBox width="100%" height="100%" horizontalAlign="left" verticalGap="2">
+		<mx:HBox width="100%" styleName="titleBox" >
+			<renderers:TitleLabel iconSource="{parentApplication.iconResults}" titleText="Results" />
 			
-			
-			
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 id="hbox1aa" paddingLeft="10" fontSize="10">
-				<mx:Label text="Plate Name" />
+			<mx:VBox id="filterBox" width="100%" verticalGap="0" paddingBottom="0" paddingLeft="0" paddingRight="4" paddingTop="0">
+				<mx:HBox paddingLeft="0" paddingTop="2" paddingRight="2" horizontalGap="0" verticalAlign="middle" width="100%">
+					
+					<mx:HBox horizontalGap="0"
+							 verticalAlign="middle"
+							 verticalGap="0"
+							 id="hbox1aa" paddingLeft="0" fontSize="10">
+						<mx:Label text="Plate Name" />
+						
+						<mx:TextInput id="plateNameLookupField"
+									  fontSize="9"
+									  height="19"
+									  width="80"
+									  enter="{plateNameFieldSearch()}" />
+					</mx:HBox>
+					
+					
+					<mx:HBox horizontalGap="0"
+							 height="100%"
+							 verticalAlign="middle"
+							 verticalGap="0"
+							 id="hbox1aaa" paddingLeft="10" fontSize="10">
+						<mx:Label text="Run Name" />
+						
+						<mx:TextInput id="runNameLookupField"
+									  fontSize="9"
+									  height="19"
+									  width="70"
+									  enter="{runNameFieldSearch()}" />
+						
+					</mx:HBox>
+					
+					
+					<mx:HBox horizontalGap="0"
+							 verticalAlign="middle"
+							 verticalGap="0"
+							 id="hbox1" paddingLeft="10">
+						<mx:Label text="Order #"  fontSize="10"/>
+						
+						<mx:TextInput id="requestNoLookupField"
+									  fontSize="9"
+									  height="19"
+									  width="50"
+									  enter="{requestNoFieldSearch()}" />
+					</mx:HBox>
+					<mx:Spacer width="100%"/>
+					<mx:LinkButton textDecoration="underline"
+								   label="Refresh"
+								   icon="@Embed('../../assets/action_refresh.gif')"
+								   toolTip="Refresh chromatogram list"
+								   click="{this.getList();}"  paddingLeft="8" id="linkbutton3" fontSize="10"/>
+					
+				</mx:HBox>
+				<mx:VBox paddingLeft="0" width="100%" verticalGap="0" id="vbox1" >
+					
+					
+					<mx:HBox id="filterBar"
+							 horizontalGap="8"
+							 paddingTop="4"
+							 paddingBottom="4"
+							 paddingLeft="0"
+							 horizontalAlign="left"
+							 verticalAlign="middle" fontSize="10">
+						
+						<mx:HBox horizontalGap="0"
+								 verticalAlign="middle"
+								 verticalGap="0"
+								 horizontalAlign="right"
+								 paddingLeft="0"
+								 paddingRight="5">
+							<mx:CheckBox id="capSeqCheckbox"
+										 label="Sanger seq"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0"
+										 selected="true" >
+								<mx:click>
+									actionDictionary.source = dictXML.action;
+									toggleReactionCheckboxes( 0 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							<mx:CheckBox id="mitSeqCheckbox"
+										 label="Mitochondrial seq"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0">
+								<mx:click>
+									toggleReactionCheckboxes( 1 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+						</mx:HBox>
+						<mx:VRule height="20" />
+						
+						<mx:HBox horizontalGap="0"
+								 verticalAlign="middle"
+								 verticalGap="0"
+								 horizontalAlign="right"
+								 paddingRight="5"
+								 paddingLeft="5">
+							<mx:CheckBox id="lastWeekCheckbox"
+										 label="Created in last week"
+										 paddingRight="0"
+										 paddingLeft="0"
+										 horizontalGap="0">
+								<mx:click>
+									toggleDateCheckboxes( 1 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id="lastMonthCheckbox"
+										 label="month"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0">
+								<mx:click>
+									toggleDateCheckboxes( 2 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id="lastThreeMonthsCheckbox"
+										 label="3 months"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0">
+								<mx:click>
+									toggleDateCheckboxes( 3 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+						</mx:HBox>
+						<mx:VRule height="20" />
+						<mx:HBox horizontalGap="0"
+								 verticalAlign="middle"
+								 verticalGap="0"
+								 horizontalAlign="right"
+								 paddingLeft="5"
+								 paddingRight="5">
+							<mx:CheckBox id="notReleasedCheckbox"
+										 label="Not released"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0" >
+								<mx:click>
+									toggleReleaseCheckboxes( 1 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							<mx:CheckBox id="releasedCheckbox"
+										 label="Released"
+										 paddingRight="0"
+										 paddingLeft="2"
+										 horizontalGap="0" >
+								<mx:click>
+									toggleReleaseCheckboxes( 2 );
+									this.getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+						</mx:HBox>
+						
+					</mx:HBox>
+				</mx:VBox>
 				
-				<mx:TextInput id="plateNameLookupField"
-							  fontSize="9"
-							  height="19"
-							  width="80"
-							  enter="{plateNameFieldSearch()}" />
-			</mx:HBox>
-			
-			
-			<mx:HBox horizontalGap="0"
-					 height="100%"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 id="hbox1aaa" paddingLeft="10" fontSize="10">
-				<mx:Label text="Run Name" />
 				
-				<mx:TextInput id="runNameLookupField"
-							  fontSize="9"
-							  height="19"
-							  width="70"
-							  enter="{runNameFieldSearch()}" />
-				
-			</mx:HBox>
+			</mx:VBox>
 			
-			
-			<mx:HBox horizontalGap="0"
-					 verticalAlign="middle"
-					 verticalGap="0"
-					 id="hbox1" paddingLeft="10">
-				<mx:Label text="Order #"  fontSize="10"/>
-				
-				<mx:TextInput id="requestNoLookupField"
-							  fontSize="9"
-							  height="19"
-							  width="50"
-							  enter="{requestNoFieldSearch()}" />
-			</mx:HBox>
-			<mx:Spacer width="100%"/>
-			<mx:LinkButton textDecoration="underline"
-						   label="Refresh"
-						   icon="@Embed('../../assets/action_refresh.gif')"
-						   toolTip="Refresh chromatogram list"
-						   click="{this.getList();}"  paddingLeft="8" id="linkbutton3" fontSize="10"/>
 			
 		</mx:HBox>
-		<mx:VBox paddingLeft="2" width="100%" verticalGap="0" id="vbox1" >
+		
+		
+		<mx:VBox width="100%" height="100%" verticalGap="3" styleName="panelBox" backgroundAlpha="0">
+			<util:DataGridAlternatingGroup id="chromatogramGrid" 
+										   horizontalScrollPolicy="{ScrollPolicy.AUTO}"
+										   allowMultipleSelection="true"
+										   itemClick="gridItemClick(event)"
+										   click="{selectedChromats.refresh();}"
+										   width="100%"
+										   height="100%"
+										   dataProvider="{chromats}"
+										   sortArrowSkin="mx.skins.ProgrammaticSkin" borderStyle="solid" fontSize="11">
+				<util:columns>
+					
+					<mx:DataGridColumn id="checkBoxColumn"
+									   textAlign="center"
+									   width="30" minWidth="30"
+									   resizable="false"
+									   sortable="false"
+									   editable="true"
+									   rendererIsEditor="true"
+									   dataField="@isSelected"
+									   editorDataField="selected"
+									   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
+									   headerRenderer="views.renderers.CheckBoxHeader"
+									   draggable="false"/>
+					
+					<mx:DataGridColumn headerText=""
+									   textAlign="center"
+									   editable="false"
+									   resizable="false"
+									   sortable="false"
+									   width="33" minWidth="33"
+									   draggable="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox horizontalAlign="center" >
+									<mx:Image source="@Embed(source='../../assets/tv_chart.png')" toolTip="Download abi file" />
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>						
+					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
+									   headerText="File"
+									   textDecoration="underline"
+									   width="175"
+									   color="#2017D8"
+									   draggable="false"
+									   showDataTips="true"
+									   dataTipFunction="labelDataTipFunc">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Label text="Label" textDecoration="none" color="#000000" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn headerText=""
+									   textAlign="center"
+									   editable="false"
+									   resizable="false"
+									   sortable="false"
+									   width="33" minWidth="33"
+									   draggable="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox horizontalAlign="center" >
+									<mx:Image source="@Embed(source='../../assets/chart_curve.png')" toolTip="View raw data" />
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>						
+					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn dataField="@idPlateWellShort"
+									   headerText="ID"
+									   width="44" />
+					<mx:DataGridColumn dataField="@plateLabel"
+									   headerText="Plate" 
+									   width="90" visible="{this.parentDocument is NavDataView}" />
+					<mx:DataGridColumn dataField="@wellPosition" 
+									   headerText="Well"
+									   width="35" visible="{this.parentDocument is NavDataView}"
+									   sortCompareFunction="fieldNumericSorter('wellPosition')"/>
+					
+					<mx:DataGridColumn dataField="@requestNumber" 
+									   headerText="Order #"
+									   visible="{this.currentState != 'userState'}"
+									   width="65" />
+					<mx:DataGridColumn dataField="@sampleName" 
+									   headerText="Sample"
+									   width="70" />
+					
+					<mx:DataGridColumn dataField="@sampleType"
+									   headerText="Type" 
+									   width="90" visible="{this.parentDocument is NavDataView}" />
+					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
+									   width="70" id="releasedCheckBox">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+									<mx:Image source="{data.@releaseDate != '' ? parentApplication.iconCheck : ''}">
+									</mx:Image> 
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					
+					<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
+									   headerText="Released"
+									   width="90"  id="datagridcolumn2"/>
+					
+					<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
+									   headerText="Releaser"
+									   width="85"/>
+					
+					<mx:DataGridColumn width="50" headerText="Redo">
+						<mx:itemRenderer>
+							<mx:Component >
+								<mx:HBox  horizontalAlign="center" horizontalGap="1" >
+									<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
+									</mx:Image> 
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn dataField="@submitter"
+									   headerText="Submitter" 
+									   width="75" />
+					
+					<mx:DataGridColumn dataField="@readLength"
+									   headerText="Len"
+									   width="50"
+									   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
+					
+					<mx:DataGridColumn dataField="@trimmedLength"
+									   headerText="Trim"
+									   width="50"
+									   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
+					
+					<mx:DataGridColumn dataField="@q20"
+									   headerText="q20"
+									   width="50"
+									   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
+					
+					<mx:DataGridColumn dataField="@q40"
+									   headerText="q40"
+									   width="50"
+									   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
+					
+					<mx:DataGridColumn dataField="@q20_len"
+									   headerText="q20/len"
+									   width="60"
+									   sortCompareFunction="fieldNumericSorter('q20_len')" />
+					
+					<mx:DataGridColumn dataField="@q40_len"
+									   headerText="q40/len"
+									   width="60"
+									   sortCompareFunction="fieldNumericSorter('q40_len')" />
+					
+					<mx:DataGridColumn headerText="Lane"
+									   dataField="@lane"
+									   width="50"/>
+					
+					<mx:DataGridColumn dataField="@aSignalStrength"
+									   headerText="A sig"
+									   width="62"
+									   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
+					
+					<mx:DataGridColumn dataField="@cSignalStrength"
+									   headerText="C sig"
+									   width="62"
+									   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
+					
+					<mx:DataGridColumn dataField="@gSignalStrength"
+									   headerText="G sig"
+									   width="62"
+									   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
+					
+					<mx:DataGridColumn dataField="@tSignalStrength"
+									   headerText="T sig"
+									   width="62"
+									   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
+					
+				</util:columns>
+				
+				
+			</util:DataGridAlternatingGroup>		
 			
-			
-			<mx:HBox id="filterBar"
-					 horizontalGap="8"
-					 paddingTop="4"
-					 paddingBottom="4"
-					 paddingLeft="0"
-					 horizontalAlign="left"
-					 verticalAlign="middle" fontSize="10">
-				
-				<mx:HBox horizontalGap="0"
-						 verticalAlign="middle"
-						 verticalGap="0"
-						 horizontalAlign="right"
-						 paddingLeft="5"
-						 paddingRight="5">
-					<mx:CheckBox id="capSeqCheckbox"
-								 label="Sanger seq"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0"
-								 selected="true" >
-						<mx:click>
-							actionDictionary.source = dictXML.action;
-							toggleReactionCheckboxes( 0 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					<mx:CheckBox id="mitSeqCheckbox"
-								 label="Mitochondrial seq"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0">
-						<mx:click>
-							toggleReactionCheckboxes( 1 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-				</mx:HBox>
-				<mx:VRule height="20" />
-				
-				<mx:HBox horizontalGap="0"
-						 verticalAlign="middle"
-						 verticalGap="0"
-						 horizontalAlign="right"
-						 paddingRight="5"
-						 paddingLeft="5">
-					<mx:CheckBox id="lastWeekCheckbox"
-								 label="Created in last week"
-								 paddingRight="0"
-								 paddingLeft="0"
-								 horizontalGap="0">
-						<mx:click>
-							toggleDateCheckboxes( 1 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastMonthCheckbox"
-								 label="month"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0">
-						<mx:click>
-							toggleDateCheckboxes( 2 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastThreeMonthsCheckbox"
-								 label="3 months"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0">
-						<mx:click>
-							toggleDateCheckboxes( 3 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-				</mx:HBox>
-				<mx:VRule height="20" />
-				<mx:HBox horizontalGap="0"
-						 verticalAlign="middle"
-						 verticalGap="0"
-						 horizontalAlign="right"
-						 paddingLeft="5"
-						 paddingRight="5">
-					<mx:CheckBox id="notReleasedCheckbox"
-								 label="Not released"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0" >
-						<mx:click>
-							toggleReleaseCheckboxes( 1 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					<mx:CheckBox id="releasedCheckbox"
-								 label="Released"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0" >
-						<mx:click>
-							toggleReleaseCheckboxes( 2 );
-							this.getList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-				</mx:HBox>
-				
-			</mx:HBox>
 		</mx:VBox>
 		
 		
+		<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" id="controlbar1">
+			<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
+			
+			<mx:ComboBox id="comboBox"
+						 prompt="- Select an action -"
+						 dataProvider="{actionDictionary}"
+						 labelField="@display" />
+			
+			<mx:LinkButton textDecoration="underline"
+						   label="Go"
+						   icon="@Embed('../../assets/bullet_go.png')"
+						   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
+						   toolTip="Submit action"
+						   click="{submitActionButtonClick()}" 
+						   enabled="{selectedChromats.length>0}"
+						   id="linkbutton1"/>
+			
+			<mx:LinkButton textDecoration="underline"
+						   label="Delete"
+						   icon="@Embed('../../assets/delete.png')"
+						   toolTip="Delete selected chromatograms"
+						   click="{promptToDelete()}" 
+						   disabledIcon="@Embed('../../assets/delete_disable.png')"
+						   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
+			<mx:Spacer width="100%" id="spacer1"/>
+			<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
+			
+		</mx:ControlBar>
 	</mx:VBox>
-	
-	
-	
-	
-	
-	<mx:VBox width="100%" height="100%" verticalGap="1">
-		<util:DataGridAlternatingGroup id="chromatogramGrid" 
-									   horizontalScrollPolicy="{ScrollPolicy.AUTO}"
-									   allowMultipleSelection="true"
-									   itemClick="gridItemClick(event)"
-									   click="{selectedChromats.refresh();}"
-									   width="100%"
-									   height="100%"
-									   dataProvider="{chromats}"
-									   sortArrowSkin="mx.skins.ProgrammaticSkin" borderStyle="solid" fontSize="11">
-			<util:columns>
-				
-				<mx:DataGridColumn id="checkBoxColumn"
-								   textAlign="center"
-								   width="30" minWidth="30"
-								   resizable="false"
-								   sortable="false"
-								   editable="true"
-								   rendererIsEditor="true"
-								   dataField="@isSelected"
-								   editorDataField="selected"
-								   itemRenderer="views.renderers.CheckBoxIsSelectedToggle"
-								   headerRenderer="views.renderers.CheckBoxHeader"
-								   draggable="false"/>
-				
-				<mx:DataGridColumn headerText=""
-								   textAlign="center"
-								   editable="false"
-								   resizable="false"
-								   sortable="false"
-								   width="33" minWidth="33"
-								   draggable="false">
-					<mx:itemRenderer>
-						<mx:Component>
-							<mx:HBox horizontalAlign="center" >
-								<mx:Image source="@Embed(source='../../assets/tv_chart.png')" toolTip="Download abi file" />
-							</mx:HBox>
-						</mx:Component>
-					</mx:itemRenderer>						
-				</mx:DataGridColumn>
-				
-				<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
-								   headerText="File"
-								   textDecoration="underline"
-								   width="175"
-								   color="#2017D8"
-								   draggable="false"
-								   showDataTips="true"
-								   dataTipFunction="labelDataTipFunc">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:Label text="Label" textDecoration="none" color="#000000" />
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:DataGridColumn>
-				
-				<mx:DataGridColumn headerText=""
-								   textAlign="center"
-								   editable="false"
-								   resizable="false"
-								   sortable="false"
-								   width="33" minWidth="33"
-								   draggable="false">
-					<mx:itemRenderer>
-						<mx:Component>
-							<mx:HBox horizontalAlign="center" >
-								<mx:Image source="@Embed(source='../../assets/chart_curve.png')" toolTip="View raw data" />
-							</mx:HBox>
-						</mx:Component>
-					</mx:itemRenderer>						
-				</mx:DataGridColumn>
-				
-				<mx:DataGridColumn dataField="@idPlateWellShort"
-								   headerText="ID"
-								   width="44" />
-				<mx:DataGridColumn dataField="@plateLabel"
-								   headerText="Plate" 
-								   width="90" visible="{this.parentDocument is NavDataView}" />
-				<mx:DataGridColumn dataField="@wellPosition" 
-								   headerText="Well"
-								   width="35" visible="{this.parentDocument is NavDataView}"
-								   sortCompareFunction="fieldNumericSorter('wellPosition')"/>
-				
-				<mx:DataGridColumn dataField="@requestNumber" 
-								   headerText="Order #"
-								   visible="{this.currentState != 'userState'}"
-								   width="65" />
-				<mx:DataGridColumn dataField="@sampleName" 
-								   headerText="Sample"
-								   width="70" />
-				
-				<mx:DataGridColumn dataField="@sampleType"
-								   headerText="Type" 
-								   width="90" visible="{this.parentDocument is NavDataView}" />
-					<mx:DataGridColumn dataField="@releaseDate" headerText="Released" visible="{this.currentState != 'userState' &amp;&amp; !this.releasedCheckbox.selected &amp;&amp; !this.notReleasedCheckbox.selected}"
-									   width="70" id="releasedCheckBox">
-					<mx:itemRenderer>
-						<mx:Component>
-							<mx:HBox  horizontalAlign="center" horizontalGap="1" >
-								<mx:Image source="{data.@releaseDate != '' ? parentApplication.iconCheck : ''}">
-								</mx:Image> 
-							</mx:HBox>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				
-				
-				<mx:DataGridColumn dataField="@releaseDate" visible="{this.releasedCheckbox.selected}"
-							   headerText="Released"
-							   width="90"  id="datagridcolumn2"/>
-			
-				<mx:DataGridColumn dataField="@releaser" visible="{this.releasedCheckbox.selected}"
-							   headerText="Releaser"
-							   width="85"/>
-				
-				<mx:DataGridColumn width="50" headerText="Redo">
-					<mx:itemRenderer>
-						<mx:Component >
-							<mx:HBox  horizontalAlign="center" horizontalGap="1" >
-								<mx:Image source="{data.@redoFlag == 'Y' ? parentApplication.iconCheck : ''}">
-								</mx:Image> 
-							</mx:HBox>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				
-				<mx:DataGridColumn dataField="@submitter"
-								   headerText="Submitter" 
-								   width="75" />
-				
-				<mx:DataGridColumn dataField="@readLength"
-								   headerText="Len"
-								   width="50"
-								   sortCompareFunction="fieldNumericSorter('readLength')"  id="datagridcolumn3"/>
-				
-				<mx:DataGridColumn dataField="@trimmedLength"
-								   headerText="Trim"
-								   width="50"
-								   sortCompareFunction="fieldNumericSorter('trimmedLength')"  id="datagridcolumn4"/>
-				
-				<mx:DataGridColumn dataField="@q20"
-								   headerText="q20"
-								   width="50"
-								   sortCompareFunction="fieldNumericSorter('q20')"  id="datagridcolumn5"/>
-				
-				<mx:DataGridColumn dataField="@q40"
-								   headerText="q40"
-								   width="50"
-								   sortCompareFunction="fieldNumericSorter('q40')"  id="datagridcolumn6"/>
-				
-				<mx:DataGridColumn dataField="@q20_len"
-								   headerText="q20/len"
-								   width="60"
-								   sortCompareFunction="fieldNumericSorter('q20_len')" />
-				
-				<mx:DataGridColumn dataField="@q40_len"
-								   headerText="q40/len"
-								   width="60"
-								   sortCompareFunction="fieldNumericSorter('q40_len')" />
-				
-				<mx:DataGridColumn headerText="Lane"
-								   dataField="@lane"
-								   width="50"/>
-				
-				<mx:DataGridColumn dataField="@aSignalStrength"
-								   headerText="A sig"
-								   width="62"
-								   sortCompareFunction="fieldNumericSorter('aSignalStrength')" />
-				
-				<mx:DataGridColumn dataField="@cSignalStrength"
-								   headerText="C sig"
-								   width="62"
-								   sortCompareFunction="fieldNumericSorter('cSignalStrength')" />
-				
-				<mx:DataGridColumn dataField="@gSignalStrength"
-								   headerText="G sig"
-								   width="62"
-								   sortCompareFunction="fieldNumericSorter('gSignalStrength')" />
-				
-				<mx:DataGridColumn dataField="@tSignalStrength"
-								   headerText="T sig"
-								   width="62"
-								   sortCompareFunction="fieldNumericSorter('tSignalStrength')" />
-				
-			</util:columns>
-			
-			
-		</util:DataGridAlternatingGroup>		
-		
-	</mx:VBox>
-	
-	
-	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" id="controlbar1">
-		<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
-		
-		<mx:ComboBox id="comboBox"
-					 prompt="- Select an action -"
-					 dataProvider="{actionDictionary}"
-					 labelField="@display" />
-		
-		<mx:LinkButton textDecoration="underline"
-					   label="Go"
-					   icon="@Embed('../../assets/bullet_go.png')"
-					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
-					   toolTip="Submit action"
-					   click="{submitActionButtonClick()}" 
-					   enabled="{selectedChromats.length>0}"
-					   id="linkbutton1"/>
-		
-		<mx:LinkButton textDecoration="underline"
-					   label="Delete"
-					   icon="@Embed('../../assets/delete.png')"
-					   toolTip="Delete selected chromatograms"
-					   click="{promptToDelete()}" 
-					   disabledIcon="@Embed('../../assets/delete_disable.png')"
-					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
-		<mx:Spacer width="100%" id="spacer1"/>
-		<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
-		
-	</mx:ControlBar>
-	
 	<mx:states>
 		<mx:State id="userState" name="userState">	
 			<mx:AddChild relativeTo="{spacer1}" position="before">

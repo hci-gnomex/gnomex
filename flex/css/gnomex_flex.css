@@ -357,6 +357,19 @@ TextArea {
 	borderColor: #D2D2D2;
 }
 
+.titleBox {
+	paddingTop: 8;
+	paddingBottom: 4; 
+	paddingLeft: 6;
+	paddingRight: 6;
+	verticalGap: 4;
+	horizontalGap: 15;
+	backgroundColor: #FFFFFF;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
+	borderThickness: 1;
+}
 
 
 .panelWelcomeBox {
