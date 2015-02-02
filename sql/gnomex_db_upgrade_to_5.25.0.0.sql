@@ -34,7 +34,11 @@ update Property set idCoreFacility=1;
 -- unused table
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
 DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication_Audit`;
- 
+
+-- Add notes to SampleType
+alter table SampleType add column notes varchar(5000) null;
+call ExecuteIfTableExists('gnomex', 'SampleType_Audit', 'alter table SampleType_Audit ADD COLUMN notes varchar(5000) NULL');
+
 -- Remove idProductOrder column from BillingItem table and audit table
 alter table BillingItem drop foreign key FK_BillingItem_ProductOrder;
 alter table BillingItem Drop column idProductOrder;

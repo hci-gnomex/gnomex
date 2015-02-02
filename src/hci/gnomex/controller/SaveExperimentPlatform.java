@@ -347,6 +347,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       st.setSampleType(node.getAttributeValue("display"));
       st.setIsActive(node.getAttributeValue("isActive"));
       st.setCodeNucleotideType(node.getAttributeValue("codeNucleotideType"));
+      st.setNotes(node.getAttributeValue("notes"));
       if (node.getAttributeValue("sortOrder") == null || node.getAttributeValue("sortOrder").length() == 0) {
         st.setSortOrder(null);
       } else {

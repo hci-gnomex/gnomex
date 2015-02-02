@@ -48,9 +48,13 @@
 			private var filteredChipTypeList:XMLListCollection = null;
 			private var priceMap:Dictionary = null;
 			
+			[Bindable]
+			private var sampleType:Object = null;
+			
 			private function init():void {
 				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
 				if(sampleTypeRadioGroup.selectedValue == null ) {
+					sampleType = null;
 					sampleTypeDNARNAHBox.styleName = 'requiredBox';
 				} 
 				sampleSetupCanvas.verticalScrollPosition = 0;
@@ -721,6 +725,8 @@
 					sampleTypeDNARNAHBox.styleName = '';
 				}
 				
+				getSampleType();
+				
 				propagateSampleType();
 				parentDocument.samplesView.initializeSamplesGrid();
 				
@@ -746,6 +752,13 @@
 					}
 				}
 				
+			}
+			
+			private function getSampleType():void {
+				sampleType = null;
+				if (sampleTypeRadioGroup.selectedValue != null && sampleTypeRadioGroup.selectedValue != '') {
+					sampleType = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', sampleTypeRadioGroup.selectedValue); 
+				}
 			}
 			
 			
@@ -1437,6 +1450,20 @@
 							</mx:Repeater>
 						</mx:VBox>
 					</mx:HBox>
+					<mx:RichTextEditor id="sampleTypeNotes"
+									   htmlText="{sampleType.@notes}"
+									   creationComplete="event.target.textArea.editable=false" 
+									   textAlign="left"
+									   borderStyle="none" headerHeight="0"
+									   visible="{sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}" 
+									   includeInLayout="{sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
+									   width="400" height="80" minWidth="1" minHeight="1" maxWidth="400" maxHeight="80"
+									   showControlBar="false"
+									   paddingLeft="0" paddingRight="0" paddingTop="0" 
+									   roundedBottomCorners="false" paddingBottom="0" 
+									   borderThicknessRight="0" borderThicknessLeft="0" 
+									   borderThicknessBottom="0" borderThickness="0" 
+									   borderThicknessTop="0" styleName="readOnly" />
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
 					<util:ContextHelp context1="SampleDetailsOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Organism Help"
