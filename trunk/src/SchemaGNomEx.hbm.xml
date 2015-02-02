@@ -2463,6 +2463,7 @@
 		<property name="isActive" column="isActive" type="string" />
 		<property name="codeNucleotideType" column="codeNucleotideType"
 			type="string" />
+		<property name="notes" column="notes" type="string" />
 	</class>
 
 	<!-- hci.gnomex.model.NucleotideType -->

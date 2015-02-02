@@ -2314,6 +2314,7 @@ CREATE TABLE `gnomex`.`SampleType` (
   `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   `codeNucleotideType` VARCHAR(50) NULL,
+  `notes` VARCHAR(5000) NULL,
   PRIMARY KEY (`idSampleType`),
   CONSTRAINT `FK_SampleType_NucleotideType` FOREIGN KEY `FK_SampleType_NucleotideType` (`codeNucleotideType`)
     REFERENCES `gnomex`.`NucleotideType` (`codeNucleotideType`)

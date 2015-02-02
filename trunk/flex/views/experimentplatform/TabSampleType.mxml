@@ -6,6 +6,7 @@
 			
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 			
 			import views.experimentplatform.ExperimentPlatformState;
 			
@@ -42,6 +43,7 @@
 					" isActive='Y'" +
 					" codeNucleotideType='DNA'" +
 					" sortOrder='99'" +
+					" notes=''" +
 					" />");
 				sampleTypes.addItemAt(newNode, 0);
 				sampleTypeGrid.selectedItem = newNode;
@@ -116,6 +118,16 @@
 				}
 				return int(sortOrder);
 			}
+			
+			public function editSampleTypeOption():void {
+				showEditSampleTypeWindow(sampleTypeGrid.selectedItem);
+			}
+			
+			private function showEditSampleTypeWindow(app:Object):void {
+				var editWindow:SampleTypeDetailWindow = SampleTypeDetailWindow(PopUpManager.createPopUp(parentApplication.theBody, SampleTypeDetailWindow, true));
+				PopUpManager.centerPopUp(editWindow);
+				editWindow.init(state, app);
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="sampleTypes" source="{state.requestCategory.sampleTypes.SampleType}" sort="{sortSampleTypes}"/>
@@ -174,6 +186,15 @@
 							<mx:TextInput restrict="0-9" maxChars="2" editable="true"/>
 						</mx:Component>
 					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="" width="35" editable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+								<mx:LinkButton label="Edit" textDecoration="underline" fontSize="9" click="outerDocument.editSampleTypeOption()" color="#0000FF"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>
 				</mx:DataGridColumn>
 			</mx:columns>
 		</mx:DataGrid>
