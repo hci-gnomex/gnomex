@@ -5,6 +5,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProjectExperimentReportFilter;
 import hci.gnomex.security.SecurityAdvisor;
@@ -45,6 +46,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
 
   private SecurityAdvisor               secAdvisor;
   private Integer                       idLab;
+  private Integer						idCoreFacility;
   private ProjectExperimentReportFilter filter;
 
   private String                        today;
@@ -55,7 +57,11 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab = Integer.valueOf(request.getParameter("idLab"));
-    } 
+    }
+    
+    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+        idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
+    }
 
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
@@ -162,7 +168,12 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
   }
 
   private void createReportTray(Session sess, DictionaryHelper dh) {
-    // Get the lab
+    // Get the core and lab
+    String coreQualifier = "";
+    if (idCoreFacility != null) {
+        CoreFacility core = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
+        coreQualifier += "_" + core.getDisplay();
+    }
     String labQualifier = "";
     if (idLab != null) {
       Lab lab = (Lab)sess.get(Lab.class, idLab);
@@ -170,7 +181,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     }
 
     String title = "GNomEx Requests";
-    String fileName = "gnomex_request" + labQualifier + "_" + today;
+    String fileName = "gnomex_request" + coreQualifier + labQualifier + "_" + today;
 
     // set up the ReportTray
     tray = new ReportTray();

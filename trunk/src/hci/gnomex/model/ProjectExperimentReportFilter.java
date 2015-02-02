@@ -10,6 +10,7 @@ public class ProjectExperimentReportFilter extends DetailObject {
   // Criteria
   private Integer               idAppUser;
   private Integer               idLab;
+  private Integer				idCoreFacility;
 
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
@@ -124,6 +125,12 @@ public class ProjectExperimentReportFilter extends DetailObject {
   }
 
   private void addRequestCriteria() {
+	// Search by core 
+	if (idCoreFacility != null){
+	  this.addWhereOrAnd();
+	  queryBuf.append(" req.idCoreFacility = ");
+	  queryBuf.append(idCoreFacility + " ");
+	}
     // Search by request number 
     if (idLab != null){
       this.addWhereOrAnd();
@@ -160,6 +167,10 @@ public class ProjectExperimentReportFilter extends DetailObject {
   public Integer getIdLab() {
     return idLab;
   }
+  
+  public Integer getIdCoreFacility() {
+	  return idCoreFacility;
+  }
 
 
   public Integer getIdUser() {
@@ -168,6 +179,10 @@ public class ProjectExperimentReportFilter extends DetailObject {
 
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
+  }
+  
+  public void setIdCoreFacility(Integer idCoreFacility) {
+	  this.idCoreFacility = idCoreFacility;
   }
 
   public void setIdUser(Integer idAppUser) {

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.RequestCategoryType;
@@ -42,6 +43,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
   
   private java.sql.Date    startDate;
   private java.sql.Date    endDate;
+  private Integer		   idCoreFacility;
   private SecurityAdvisor  secAdvisor;
   
   
@@ -77,6 +79,10 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       endDate = this.parseDate(request.getParameter("endDate"));
     } else {
       this.addInvalidField("endDate", "endDate is required");
+    }
+    
+    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+        idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
     }
     
    
@@ -142,7 +148,12 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle("Total Billing By Lab Report");
             tray.setReportDescription("Total Billing By Lab Report" + " " + this.formatDate(startDate) + " - " + this.formatDate(endDate));
-            tray.setFileName("Total Billing By Lab");
+            String coreQualifier = "";
+            if (idCoreFacility != null) {
+                CoreFacility core = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
+                coreQualifier += "_" + core.getDisplay();
+            }
+            tray.setFileName("Total Billing By Lab" + coreQualifier);
             tray.setFormat(ReportFormats.XLS);
             
             Set columns = new TreeSet();
@@ -557,6 +568,10 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     buf.append("JOIN   bi.billingPeriod as bp ");
     buf.append("WHERE  bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
     buf.append("AND    bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "' ");
+    if (idCoreFacility != null) {
+    	buf.append(" AND bi.idCoreFacility = ");
+    	buf.append(idCoreFacility + " ");
+    }
     if (requestCategoryType.equals(ILLUMINA_FLAG)) {
       buf.append("AND    rct.isIllumina = 'Y'");
     } else if (!requestCategoryType.equals(DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY)) {
@@ -569,7 +584,7 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
       buf.append(" ");
     }
     
-    buf.append("ORDER BY lab.lastName, lab.firstName ");
+    buf.append(" ORDER BY lab.lastName, lab.firstName ");
     
     List results = sess.createQuery(buf.toString()).list();
     
