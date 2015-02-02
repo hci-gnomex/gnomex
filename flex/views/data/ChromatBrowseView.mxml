@@ -993,6 +993,35 @@
 			
 		</mx:ControlBar>
 	</mx:VBox>
+	<mx:ControlBar horizontalAlign="left" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" id="controlbar1">
+		<mx:Label id="nSelectedChromats" text="{selectedChromats.length + ' selected'}" />
+		
+		<mx:ComboBox id="comboBox"
+					 prompt="- Select an action -"
+					 dataProvider="{actionDictionary}"
+					 labelField="@display" />
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Go"
+					   icon="@Embed('../../assets/bullet_go.png')"
+					   disabledIcon="@Embed('../../assets/bullet_go_disable.png')"
+					   toolTip="Submit action"
+					   click="{submitActionButtonClick()}" 
+					   enabled="{selectedChromats.length>0}"
+					   id="linkbutton1"/>
+		
+		<mx:LinkButton textDecoration="underline"
+					   label="Delete"
+					   icon="@Embed('../../assets/delete.png')"
+					   toolTip="Delete selected chromatograms"
+					   click="{promptToDelete()}" 
+					   disabledIcon="@Embed('../../assets/delete_disable.png')"
+					   enabled="{selectedChromats.length>0}" id="linkbutton2"/>
+		<mx:Spacer width="100%" id="spacer1"/>
+		<mx:Text id="messageLabel" text="{'(' + getChromatogramList.lastResult.@message + ')'}" visible="{getChromatogramList.lastResult.@message != ''}" width="100%" fontStyle="normal" fontWeight="normal" fontSize="10" textAlign="right"/>
+		<mx:Label text="{'(' + this.chromats.length + ' chromatograms)'}" fontWeight="normal" textAlign="right"  fontStyle="italic"/>
+		
+	</mx:ControlBar>
 	<mx:states>
 		<mx:State id="userState" name="userState">	
 			<mx:AddChild relativeTo="{spacer1}" position="before">

@@ -357,7 +357,8 @@
 					   enabled="{selectedPlates.length>0}"/>
 		
 		<mx:Spacer width="100%" height="100%" />
-		<mx:Label text = "{'(' + plateList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
+		<mx:Text id="messageLabel" text="{'(' + getPlateList.lastResult.@message + ')'}" visible="{getPlateList.lastResult.@message != '' &amp;&amp; plateList.length > 0}" width="100%" fontStyle="normal" fontWeight="normal" fontSize="10" textAlign="right"/>
+		<mx:Label text = "{'(' + plateList.length + ' plates)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		
 		
 	</mx:ControlBar>
