@@ -195,8 +195,6 @@
     method="POST"
     useProxy="false">
     </mx:HTTPService >    
-    
-     
 
 <mx:Script>
  	<![CDATA[
@@ -1507,7 +1505,6 @@
 				} else {
 					Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 				}
-			}
 		}
 		
 		public function showBillingSummaryWindow():void {
@@ -2629,7 +2626,5 @@
 			</mx:VBox>
 		</mx:HDividedBox>
 	</mx:VBox>
-	
-	
 	
 </mx:Canvas>
