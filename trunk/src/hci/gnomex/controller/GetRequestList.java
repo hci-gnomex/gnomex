@@ -5,11 +5,13 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestFilter;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -36,6 +38,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private RequestFilter requestFilter;
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
   private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
+  
+  private String			   message = "";
+  private int				   requestCount = 0;
+  private static final int	   DEFAULT_MAX_REQUESTS_COUNT = 100;
 
   public void validate() {
   }
@@ -65,6 +71,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       hashSourcePlates(sess);
 
       Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
+      
+      Integer maxRequests = getMaxRequests(sess);
 
       Document doc = new Document(new Element("RequestList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
@@ -136,7 +144,15 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
         doc.getRootElement().addContent(node);
 
+        requestCount++;
+        if (requestCount >= maxRequests) {
+            break;
+        }
       }
+      
+      doc.getRootElement().setAttribute("requestCount", Integer.valueOf(requestCount).toString());
+      message = requestCount == maxRequests ? "First " + maxRequests + " displayed of " + rows.size() : "";
+      doc.getRootElement().setAttribute("message", message);
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -167,6 +183,19 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+  
+  private Integer getMaxRequests(Session sess) {
+	  Integer maxRequests = DEFAULT_MAX_REQUESTS_COUNT;
+	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
+	  if (prop != null && prop.length() > 0) {
+		  try {
+			  maxRequests = Integer.parseInt(prop);
+	      }
+	      catch(NumberFormatException e) {
+	      }    
+	    }
+	    return maxRequests;
   }
 
   private String toString(Object theValue) {

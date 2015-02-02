@@ -144,7 +144,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_DURING_WORKFLOW             = "billing_during_workflow";
   public static final String        PROPERTY_HIDE_260_230_QC_WORKFLOW   = "qc_hide_260_230_qc_workflow";
   public static final String        PROPERTY_SAMPLE_BATCH_WARNING       = "sample_batch_warning";
-
+  public static final String		PLATE_AND_RUN_VIEW_LIMIT			= "plate_and_run_view_limit";
+  public static final String		CHROMATOGRAM_VIEW_LIMIT				= "chromatogram_view_limit";
 
   private Integer       idPropertyDictionary;
   private String        propertyName;

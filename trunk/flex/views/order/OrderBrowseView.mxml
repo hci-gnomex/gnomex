@@ -756,6 +756,7 @@
 						   enabled="{selectedOrders.length>0}"/>
 			<mx:Spacer width="100%"/>
 			
+			<mx:Text id="messageLabel" text="{'(' + getRequestList.lastResult.@message + ')'}" visible="{getRequestList.lastResult.@message != ''}" width="100%" fontStyle="normal" fontWeight="normal" fontSize="10" textAlign="right"/>
 			<mx:Label text = "{'(' + orderList.length + ' orders)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 			
 			

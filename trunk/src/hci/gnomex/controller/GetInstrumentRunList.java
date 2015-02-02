@@ -8,8 +8,10 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRunFilter;
 import hci.gnomex.model.Plate;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -33,7 +35,10 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
   private InstrumentRunFilter            runFilter;
   private String                         listKind = "RunList";
+  private String						 message = "";
 
+  private int							 runCount = 0;
+  private static final int				 DEFAULT_MAX_RUN_COUNT = 200;
 
   public void validate() {
   }
@@ -70,6 +75,8 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           StringBuffer buf = runFilter.getQuery( this.getSecAdvisor() );
           log.info( "Query for GetInstrumentRunList: " + buf.toString() );
           List runs = sess.createQuery( buf.toString() ).list();
+          
+          Integer maxRuns = getMaxRuns(sess);
 
           for( Iterator i = runs.iterator(); i.hasNext(); ) {
 
@@ -121,8 +128,17 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
             }
 
             doc.getRootElement().addContent( irNode );
-
+            
+            runCount++;
+            if (runCount >= maxRuns) {
+                break;
+              }
           }
+          
+          doc.getRootElement().setAttribute("runCount", Integer.valueOf(runCount).toString());
+          message = runCount == maxRuns ? "First " + maxRuns + " displayed of " + runs.size() : "";
+          doc.getRootElement().setAttribute("message", message);
+          
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -161,5 +177,18 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 
     return this;
   }
+  
+  private Integer getMaxRuns(Session sess) {
+	  Integer maxRuns = DEFAULT_MAX_RUN_COUNT;
+	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.PLATE_AND_RUN_VIEW_LIMIT);
+	  if (prop != null && prop.length() > 0) {
+		  try {
+			  maxRuns = Integer.parseInt(prop);
+	      }
+	      catch(NumberFormatException e) {
+	      }    
+	    }
+	    return maxRuns;
+  }  
 
 }

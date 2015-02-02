@@ -5,8 +5,10 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PlateFilter;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -33,6 +35,9 @@ public class GetPlateList extends GNomExCommand implements Serializable {
   private String               listKind = "PlateList";
   private Element              rootNode = null;
   private String               message = "";
+  
+  private int				   plateCount = 0;
+  private static final int	   DEFAULT_MAX_PLATE_COUNT = 200;
 
   public void validate() {
   }
@@ -65,6 +70,8 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
           log.info("Query for GetPlateList: " + buf.toString());
           List plates = sess.createQuery(buf.toString()).list();
+          
+          Integer maxPlates = getMaxPlates(sess);
 
           for(Iterator i = plates.iterator(); i.hasNext();) {
 
@@ -102,7 +109,16 @@ public class GetPlateList extends GNomExCommand implements Serializable {
 
             doc.getRootElement().addContent(pNode);
 
+            plateCount++;
+            if (plateCount >= maxPlates) {
+                break;
+            }
           }
+          
+          doc.getRootElement().setAttribute("plateCount", Integer.valueOf(plateCount).toString());
+          message = plateCount == maxPlates ? "First " + maxPlates + " displayed of " + plates.size() : "";
+          doc.getRootElement().setAttribute("message", message);
+          
         }
 
 
@@ -141,6 +157,19 @@ public class GetPlateList extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+  
+  private Integer getMaxPlates(Session sess) {
+	  Integer maxPlates = DEFAULT_MAX_PLATE_COUNT;
+	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.PLATE_AND_RUN_VIEW_LIMIT);
+	  if (prop != null && prop.length() > 0) {
+		  try {
+			  maxPlates = Integer.parseInt(prop);
+	      }
+	      catch(NumberFormatException e) {
+	      }    
+	    }
+	    return maxPlates;
   }
 
 }
