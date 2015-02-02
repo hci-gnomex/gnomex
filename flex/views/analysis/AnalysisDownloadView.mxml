@@ -442,7 +442,7 @@
 					downloadWindow = AnalysisDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, AnalysisDownloadWindow, true));
 					downloadWindow.downloadView = this;
 					downloadWindow.browseParameters = this.browseParameters;
-					PopUpManager.centerPopUp(downloadWindow);
+					downloadWindow.centerWindow();
 					downloadWindow.init();
 				}
 			}

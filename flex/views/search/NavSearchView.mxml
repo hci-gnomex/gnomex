@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?> 
-<mx:TitleWindow   
+<util:ResizableTitleWindow   
 	xmlns:mx="http://www.adobe.com/2006/mxml"   
 	xmlns:views="views.*"  
 	xmlns:util="views.util.*"  
@@ -213,25 +213,13 @@
 			}
 			shrinkWindow();
         }
-
-		private function shrinkRestoreWindow():void {
-			if (this.restoreButton.label == "Restore Window") {
-				restoreWindow();
-			} else {
-				shrinkWindow();
-			}
-		}
 		
 		private function restoreWindow():void {
 			this.windowRestore.play();	
-			this.restoreButton.label = "Shrink Window";
-			this.restoreButton.setStyle("icon", this.shrinkIcon);
 		}
 		
 		private function shrinkWindow():void {
 			this.windowShrink.play();
-			this.restoreButton.label = "Restore Window";
-			this.restoreButton.setStyle("icon", this.restoreIcon);
 		}
 		
         private function onExperimentNodeSelected():void  {
@@ -867,10 +855,10 @@
 				        	</mx:Button>
 	                    </mx:HBox>
 	                    <mx:HBox width="100%" horizontalAlign="left" id="resultButtonView" horizontalGap="20">
-							<mx:LinkButton label="Shrink Window" fontSize="10" click="shrinkRestoreWindow()" id="restoreButton" icon="{this.shrinkIcon}" textDecoration="underline"/>
+							
 	                    </mx:HBox>
                 	</mx:ViewStack>
 					
 				</mx:ControlBar>
     
-</mx:TitleWindow>
+</util:ResizableTitleWindow>
