@@ -160,189 +160,193 @@
 			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
-	
-	<mx:HTTPService 
-		id="createBillingItems" 
-		url="CreateBillingItems.gx"
-		showBusyCursor="true"
-		resultFormat="e4x"
-		result="onCreateBillingItems(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to create new billing items', event)"
-		method="POST" 
-		useProxy="false"> 
-	</mx:HTTPService >
-	
-	<mx:HTTPService 
-		id="saveBillingItemList" 
-		url="SaveBillingItemList.gx"
-		resultFormat="e4x"
-		destination="saveBillingItemList"
-		showBusyCursor="true"
-		result="onSaveBillingItemList(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to save billing items', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService >    
-	
-	<mx:HTTPService 
-		id="movePriceCategory" 
-		url="MovePriceCategory.gx"
-		resultFormat="e4x"
-		destination="movePriceCategory"
-		showBusyCursor="true"
-		result="onMovePriceCategory(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to move price category', event)"
-		method="POST"
-		useProxy="false">
-	</mx:HTTPService >    
-	
-	
-	
-	<mx:Script>
-		<![CDATA[
-			import flash.utils.setTimeout;
-			
-			import hci.flex.controls.ComboBox;
-			import hci.flex.controls.DropdownLabel;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.IHierarchicalCollectionView;
-			import mx.collections.IViewCursor;
-			import mx.collections.Sort;
-			import mx.collections.SortField;
-			import mx.collections.XMLListCollection;
-			import mx.controls.Alert;
-			import mx.controls.DateField;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-			import mx.controls.menuClasses.MenuBarItem;
-			import mx.core.DragSource;
-			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.CollectionEventKind;
-			import mx.events.DragEvent;
-			import mx.events.ListEvent;
-			import mx.events.MenuEvent;
-			import mx.events.PropertyChangeEvent;
-			import mx.formatters.CurrencyFormatter;
-			import mx.managers.DragManager;
-			import mx.managers.PopUpManager;
-			import mx.messaging.channels.StreamingAMFChannel;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
-			import views.renderers.BillingADGItemRenderer;
-			import views.renderers.ComboBoxBillingStatus;
-			import views.renderers.LabelPercentage;
-			import views.util.BillingPeriodSelectEvent;
-			import views.util.PickBillingPeriodView; 
-			
-			private const TIMEOUT_DELAY:uint = 100;
-			private const NUM_DISPLAYED_BILLING_ITEMS:uint = 25;
-			
-			private var revisionNumber:int = 1;
-			private var invoiceMap:Dictionary;
-			
-			private var billingItems:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			[Embed(source="../../assets/money.png")]
-			public var iconBilling:Class;
-			
-			[Bindable]
-			[Embed(source="../../assets/page.png")]
-			public var iconReports:Class;
-			
-			[Bindable]
-			[Embed(source="../../assets/feed_disk.png")]
-			public var iconGLInterface:Class;
-			
-			[Bindable]
-			[Embed(source="../../assets/printer.png")]
-			public var iconPrintInvoice:Class;
-			
-			[Bindable]
-			[Embed(source="../../assets/email_open.png")]
-			public var iconEmailInvoice:Class;
-			
-			[Bindable]
-			[Embed(source="../../assets/refresh.png")]
-			public var iconRefresh:Class;
-			
-			[Bindable]
-			private var billingAccounts:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var requests:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var billingTemplates:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var pricingList:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			public var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var billingPeriods:XMLListCollection = new XMLListCollection();
-			
-			private var billingItemsToRemove:XMLListCollection = new XMLListCollection();
-			
-			[Bindable]
-			private var dirtyBillingItems:XMLListCollection = null;
-			
-			private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
-			
-			private var lastSelectedItem:Object = null;
-			
-			[Bindable]
-			private var lastSelectedInvoice:Object = null;
-			
-			[Bindable]
-			private var lastSelectedBillingPeriod:Object = null;
-			
-			[Bindable]
-			private var grandTotalPrice:String = "";
-			
-			private var requestTabWidth:Number = 220;
-			private var priceTabWidth:Number = 440;
-			
-			private var pricingNodeToSelect:String = null;
-			private var pricingIdToSelect:Object = null;
-			private var selectedPrice:Object = null;
-			
-			private var minBillingYear:int = 4000;
-			private var maxBillingYear:int = 0;
-			
-			private var activeBillingPeriods:ArrayCollection;
-			
-			private var refreshBillingTimer:Timer;
-			
-			private var coreCommentsWindow:CoreCommentsWindow = null;
-			
-			
-			private function init():void {
-				refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
-				refreshBillingTimer.addEventListener(TimerEvent.TIMER, onRefreshBillingTimerTimer);
-				initializeData();
+    
+    <mx:HTTPService 
+    id="createBillingItems" 
+    url="CreateBillingItems.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onCreateBillingItems(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to create new billing items', event)"
+    method="POST" 
+    useProxy="false"> 
+    </mx:HTTPService >
+        
+    <mx:HTTPService 
+    id="saveBillingItemList" 
+    url="SaveBillingItemList.gx"
+    resultFormat="e4x"
+    destination="saveBillingItemList"
+    showBusyCursor="true"
+    result="onSaveBillingItemList(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save billing items', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+    
+    <mx:HTTPService 
+    id="movePriceCategory" 
+    url="MovePriceCategory.gx"
+    resultFormat="e4x"
+    destination="movePriceCategory"
+    showBusyCursor="true"
+    result="onMovePriceCategory(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to move price category', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >    
+    
+     
+
+<mx:Script>
+ 	<![CDATA[
+		import flash.utils.setTimeout;
+		
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.IHierarchicalCollectionView;
+		import mx.collections.IViewCursor;
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.DateField;
+		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+		import mx.controls.menuClasses.MenuBarItem;
+		import mx.core.DragSource;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.ListEvent;
+		import mx.events.MenuEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.formatters.CurrencyFormatter;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.messaging.channels.StreamingAMFChannel;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.BillingADGItemRenderer;
+		import views.renderers.ComboBoxBillingStatus;
+		import views.renderers.LabelPercentage;
+		import views.util.BillingPeriodSelectEvent;
+		import views.util.PickBillingPeriodView; 
+
+		private const TIMEOUT_DELAY:uint = 100;
+		private const NUM_DISPLAYED_BILLING_ITEMS:uint = 25;
+		
+        private var revisionNumber:int = 1;
+		private var invoiceMap:Dictionary;
+ 		
+		private var billingItems:XMLListCollection = new XMLListCollection();
+		
+		[Bindable]
+		[Embed(source="../../assets/money.png")]
+		public var iconBilling:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/page.png")]
+		public var iconReports:Class;
+				
+		[Bindable]
+		[Embed(source="../../assets/feed_disk.png")]
+		public var iconGLInterface:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/printer.png")]
+		public var iconPrintInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/email_open.png")]
+		public var iconEmailInvoice:Class;
+		
+		[Bindable]
+		[Embed(source="../../assets/refresh.png")]
+		public var iconRefresh:Class;
+		
+        [Bindable]
+        private var billingAccounts:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var requests:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingTemplates:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+		private var pricingList:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        public var billingItemsDisplayed:XMLListCollection = new XMLListCollection();
+
+        [Bindable]
+        private var billingPeriods:XMLListCollection = new XMLListCollection();
+        
+        private var billingItemsToRemove:XMLListCollection = new XMLListCollection();
+        
+        [Bindable]
+        private var dirtyBillingItems:XMLListCollection = null;
+        
+        private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+        
+        private var lastSelectedItem:Object = null;
+        
+		[Bindable]
+		private var lastSelectedInvoice:Object = null;
+		
+		[Bindable]
+        private var lastSelectedBillingPeriod:Object = null;
+        
+        [Bindable]
+        private var grandTotalPrice:String = "";
+        
+        private var requestTabWidth:Number = 220;
+        private var priceTabWidth:Number = 440;
+        
+        private var pricingNodeToSelect:String = null;
+        private var pricingIdToSelect:Object = null;
+		private var selectedPrice:Object = null;
+		
+		private var minBillingYear:int = 4000;
+		private var maxBillingYear:int = 0;
+		
+		private var activeBillingPeriods:ArrayCollection;
+		
+		private var refreshBillingTimer:Timer;
+        
+		private var coreCommentsWindow:CoreCommentsWindow = null;
+		
+		private var summaryWindow:BillingTotalByLabView = null;
+		
+		private var usageWindow:BillingUsageView = null;
+		
+		
+        private function init():void {
+			refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
+			refreshBillingTimer.addEventListener(TimerEvent.TIMER, onRefreshBillingTimerTimer);
+        	initializeData();
+        }
+
+
+      	public function initializeData():void
+      	{
+      		if (parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N") {
+				menuBar.visible = false;
+				menuBar.includeInLayout = false;
+
+				menuBarNoGLInterface.visible = true;
+				menuBarNoGLInterface.includeInLayout = true;
+			} else {
+				menuBar.visible = true;
+				menuBar.includeInLayout = true;
+
+				menuBarNoGLInterface.visible = false;
+				menuBarNoGLInterface.includeInLayout = false;
 			}
-			
-			
-			public function initializeData():void
-			{
-				if (parentApplication.getProperty(parentApplication.PROPERTY_GENERATE_GL_INTERFACE) == "N") {
-					menuBar.visible = false;
-					menuBar.includeInLayout = false;
-					
-					menuBarNoGLInterface.visible = true;
-					menuBarNoGLInterface.includeInLayout = true;
-				} else {
-					menuBar.visible = true;
-					menuBar.includeInLayout = true;
-					
-					menuBarNoGLInterface.visible = false;
-					menuBarNoGLInterface.includeInLayout = false;
-				}
 				
 				coreFacilities.refresh();
 				
@@ -1504,22 +1508,42 @@
 					Alert.show("Please select the 'Approved' or 'Approved (PO)' folder.")
 				}
 			}
-			
-			public function showBillingSummaryWindow():void {
-				var summaryWindow:BillingTotalByLabView = BillingTotalByLabView(mx.managers.PopUpManager.createPopUp(this, BillingTotalByLabView, true));
-				mx.managers.PopUpManager.centerPopUp(summaryWindow);
+		}
+		
+		public function showBillingSummaryWindow():void {
+			if (summaryWindow == null) {
+				summaryWindow = BillingTotalByLabView(mx.managers.PopUpManager.createPopUp(this, BillingTotalByLabView, true));
+				mx.managers.PopUpManager.centerPopUp(summaryWindow); 
 				summaryWindow.setFocus();
-				summaryWindow.billingPeriods = this.billingPeriods; 				
+				summaryWindow.parentView = this;
+				summaryWindow.billingPeriods = this.billingPeriods;
+			} else {
+				mx.managers.PopUpManager.centerPopUp(summaryWindow); 
+				summaryWindow.setFocus();
 			}
-			public function showBillingUsageWindow():void {
-				var usageWindow:BillingUsageView = BillingUsageView(mx.managers.PopUpManager.createPopUp(this, BillingUsageView, true));
+		}
+		public function closeBillingSummaryWindow():void {
+			mx.managers.PopUpManager.removePopUp(summaryWindow);
+			summaryWindow = null;
+		}
+		public function showBillingUsageWindow():void {
+			if (usageWindow == null) {
+				usageWindow = BillingUsageView(mx.managers.PopUpManager.createPopUp(this, BillingUsageView, true));
 				mx.managers.PopUpManager.centerPopUp(usageWindow);
 				usageWindow.setFocus();
-				usageWindow.billingPeriods = this.billingPeriods; 				
-			}
-			
-			public function showNotesToCoreWindow():void {
-				
+				usageWindow.parentView = this;
+				usageWindow.billingPeriods = this.billingPeriods;
+			} else {
+				mx.managers.PopUpManager.centerPopUp(usageWindow);
+				usageWindow.setFocus();
+			}			
+		}
+		public function closeBillingUsageWindow():void {
+			mx.managers.PopUpManager.removePopUp(usageWindow);
+			usageWindow = null;
+		}
+		
+		public function showNotesToCoreWindow():void {				
 				if (lastSelectedBillingPeriod == null ||
 					lastSelectedBillingPeriod.@value == "") {
 					Alert.show("Please select a billing period.");

@@ -265,11 +265,20 @@
 						Alert.show("Please select a lab group");
 					}
 					
-					Alert.show( "Run project/experiment report for all lab groups?",
-						"Warning",
-						(Alert.YES | Alert.NO), this, 
-						onProjectExperimentPromptToContinue,						
-						parentApplication.iconWarning);	
+					if (browseProjectExperimentCoreCombo.selectedItem == null || browseProjectExperimentCoreCombo.selectedItem.@idCoreFacility == '') {
+						Alert.show( "Run project/experiment report for all lab groups across all cores?",
+							"Warning",
+							(Alert.YES | Alert.NO), this, 
+							onProjectExperimentPromptToContinue,						
+							parentApplication.iconWarning);	
+					} else {
+						Alert.show( "Run project/experiment report for all lab groups in this core?",
+							"Warning",
+							(Alert.YES | Alert.NO), this, 
+							onProjectExperimentPromptToContinue,						
+							parentApplication.iconWarning);	
+					}
+					
 				} else {
 					runProjectExperimentReportImpl();
 				}
@@ -294,7 +303,8 @@
 				
 				// Call the backend servlet that generates the excel spreadsheet
 				var showUrl:URLRequest = new URLRequest('ShowProjectExperimentReport.gx' +			
-					'?idLab=' +  (this.browseProjectExperimentLabCombo.selectedItem != null ? this.browseProjectExperimentLabCombo.selectedItem.@idLab : ""));
+					'?idLab=' +  (this.browseProjectExperimentLabCombo.selectedItem != null ? this.browseProjectExperimentLabCombo.selectedItem.@idLab : "") +
+					'&idCoreFacility=' + (this.browseProjectExperimentCoreCombo.selectedItem != null ? this.browseProjectExperimentCoreCombo.selectedItem.@idCoreFacility : ""));
 				navigateToURL(showUrl, '_blank');
 				
 			}
@@ -538,8 +548,18 @@
 							   disabledIcon="@Embed(source='../../assets/accept_disable.png')"/>
 				</mx:HBox>
 				<mx:VBox width="100%" height="100%" verticalGap="12" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="8" id="vbox2">
+					<mx:HBox width="100%" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}">
+						<mx:Label visible="true" text="Core" paddingBottom="0" paddingLeft="2" styleName="formLabel" textAlign="left" width="100"/>
+						<renderers:FilterComboBox dataProvider="{parentApplication.coreFacilitiesICanManage}" 
+												  labelField="@display" 
+												  prompt="All Cores..."
+												  width="200" 
+												  id="browseProjectExperimentCoreCombo">
+						</renderers:FilterComboBox>
+					</mx:HBox>
+					
 					<mx:HBox width="100%">
-						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel"/>
+						<mx:Label id="experimentReportGroupLabel" visible="true" text="Lab Group" paddingBottom="0"  paddingLeft="2" styleName="formLabel" textAlign="left" width="100"/>
 						<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
 												  labelField="@name" 
 												  prompt="All Labs..."
