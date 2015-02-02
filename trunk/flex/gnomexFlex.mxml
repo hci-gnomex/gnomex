@@ -1794,8 +1794,8 @@
 			}
 			
 			public function showSearch():void {
-				navSearchView = NavSearchView(PopUpManager.createPopUp(this,  NavSearchView, false));
-				PopUpManager.centerPopUp(navSearchView);
+				navSearchView = NavSearchView(PopUpManager.createPopUp(this, NavSearchView, false));
+				navSearchView.centerWindow();
 				navSearchView.init();
 			}
 			

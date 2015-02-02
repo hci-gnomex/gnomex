@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="994" 
 				xmlns:util="views.util.*"
 				height="408" creationPolicy="all"
@@ -546,4 +546,4 @@
 		</mx:HBox>  
 	</mx:ControlBar>
 	
-</mx:TitleWindow>
+</util:ResizableTitleWindow>

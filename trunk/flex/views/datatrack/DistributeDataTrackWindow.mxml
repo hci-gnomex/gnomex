@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 				width="482" height="488" showCloseButton="true" 
 				xmlns:util="views.util.*"
 				title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
@@ -1737,4 +1737,4 @@
 		<mx:Label text="{dataTrackCount}" styleName="menuLabelSmall" />
 	</mx:ControlBar>
 
-</mx:TitleWindow>
+</util:ResizableTitleWindow>
