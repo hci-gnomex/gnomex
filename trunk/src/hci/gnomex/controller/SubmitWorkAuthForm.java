@@ -191,11 +191,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     PropertyDictionaryHelper propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
     String launchBillingAccountDetail = Util.addURLParameter(this.launchAppURL, "?launchWindow=" + Constants.WINDOW_BILLING_ACCOUNT_DETAIL + "&idLab=" + lab.getIdLab());
-    String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
-    approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approveAccount=Y";
-
     StringBuffer submitterNote = new StringBuffer();
-    StringBuffer coreNote= new StringBuffer();
     StringBuffer body = new StringBuffer();
     String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " submitted";    
     String coreSubject      = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " pending";    
@@ -214,6 +210,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     }
 
+
+
     if (dictionaryHelper.isProductionServer(serverName)) {
       send = true;
     } else {
@@ -230,11 +228,6 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         ".  After the account information is reviewed and approved, " +
         "you will be notified by email that experiment " +
     "requests can now be submitted against this account in GNomEx.");
-
-    coreNote.append("The following billing account " +
-        "has been submitted to the " + facility.getDisplay() + " Core" +  
-        " and is pending approval.  You can quickly approve this account by clicking <a href=" + approveBillingAccountURL + ">here</a> or you can view the account in more detail in " +
-        "<a href=" + launchBillingAccountDetail + ">GNomEx</a>.");
 
     body.append("<br />");
     body.append("<br />");
@@ -299,19 +292,37 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
           emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>";
           contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
-        MailUtil.send(contactEmail, 
-            null,
-            replyEmail,
-            coreSubject,
-            emailInfo + coreNote.toString() + body.toString(),
-            true);           
+
+        String[] emails = contactEmail.split(",");
+
+        //Only one email in contactEmail check
+        if(emails.length == 0) {
+          emails[0] = contactEmail;
+        }
+
+        for(int i = 0; i < emails.length; i++) {
+          StringBuffer coreNote= new StringBuffer();
+          String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
+          approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approverEmail=" + emails[i] ;
+
+          coreNote.append("The following billing account " +
+              "has been submitted to the " + facility.getDisplay() + " Core" +  
+              " and is pending approval.  You can quickly approve this account by clicking <a href=" + approveBillingAccountURL + ">here</a> or you can view the account in more detail in " +
+              "<a href=" + launchBillingAccountDetail + ">GNomEx</a>.");
+
+
+          MailUtil.send(emails[i], 
+              null,
+              replyEmail,
+              coreSubject,
+              emailInfo + coreNote.toString() + body.toString(),
+              true);                    
+        }
       }
 
-
-
     }
-
   }
+
 
 
 }

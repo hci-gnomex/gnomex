@@ -9,7 +9,7 @@ import java.util.Set;
 
 
 public class BillingAccount extends HibernateDetailObject {
- 
+
   private Integer    idBillingAccount;
   private String     accountName;
   private Date       expirationDate;
@@ -43,7 +43,9 @@ public class BillingAccount extends HibernateDetailObject {
   private String     custom1;
   private String     custom2;
   private String     custom3;
-  
+  private String     approverEmail;
+  private Integer    idApprover;
+
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
   }
@@ -62,11 +64,11 @@ public class BillingAccount extends HibernateDetailObject {
 
   // transient field used to keep track of billing accounts just approved
   private boolean isJustApproved = false;
-  
+
   // transient field use to keep track of total charges to date
   private BigDecimal totalChargesToDate;
-  
-  
+
+
   public String getAccountNumber() {
     if (InternalAccountFieldsConfiguration.getUseConfigurableBillingAccounts(null)) {
       String[] parts = new String[10];
@@ -92,7 +94,7 @@ public class BillingAccount extends HibernateDetailObject {
           }
         }
       }
-      
+
       String accountNumber = "";
       for(int i = 0; i < 10; i++) {
         if (parts[i].length() > 0) {
@@ -119,12 +121,12 @@ public class BillingAccount extends HibernateDetailObject {
       this.getAccountNumberPart(accountNumberActivity) + 
       this.getAccountNumberPart(accountNumberProject) +
       this.getAccountNumberPart(accountNumberAccount + 
-      this.getAccountNumberPart(accountNumberAu) + 
-      this.getAccountNumberPart(accountNumberYear) );      
+          this.getAccountNumberPart(accountNumberAu) + 
+          this.getAccountNumberPart(accountNumberYear) );      
     }
     return "";    
   }  
-  
+
   private String getAccountNumberPart(String part) {
     if (part != null && !part.equals("")) {
       return "-" + part;
@@ -132,31 +134,31 @@ public class BillingAccount extends HibernateDetailObject {
     return "";
   }
 
-  
+
   public Date getExpirationDate() {
     return expirationDate;
   }
-  
+
   public void setExpirationDate(Date expirationDate) {
     this.expirationDate = expirationDate;
   }
-  
+
   public Integer getIdBillingAccount() {
     return idBillingAccount;
   }
-  
+
   public void setIdBillingAccount(Integer idBillingAccount) {
     this.idBillingAccount = idBillingAccount;
   }
-  
+
   public Integer getIdLab() {
     return idLab;
   }
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-  
+
   public String getIsActive() {
     Date now = new Date(System.currentTimeMillis());
     // No expiration date - account is always active 
@@ -177,92 +179,92 @@ public class BillingAccount extends HibernateDetailObject {
     }
   }
 
-  
+
   public String getAccountName() {
     return accountName;
   }
 
-  
+
   public void setAccountName(String accountName) {
     this.accountName = accountName;
   }
 
-  
+
   public String getAccountNumberAccount() {
     return accountNumberAccount;
   }
 
-  
+
   public void setAccountNumberAccount(String accountNumberAccount) {
     this.accountNumberAccount = accountNumberAccount;
   }
 
-  
+
   public String getAccountNumberActivity() {
     return accountNumberActivity;
   }
 
-  
+
   public void setAccountNumberActivity(String accountNumberActivity) {
     this.accountNumberActivity = accountNumberActivity;
   }
 
-  
+
   public String getAccountNumberAu() {
     return accountNumberAu;
   }
 
-  
+
   public void setAccountNumberAu(String accountNumberAu) {
     this.accountNumberAu = accountNumberAu;
   }
 
-  
+
   public String getAccountNumberBus() {
     return accountNumberBus;
   }
 
-  
+
   public void setAccountNumberBus(String accountNumberBus) {
     this.accountNumberBus = accountNumberBus;
   }
 
-  
+
   public String getAccountNumberFund() {
     return accountNumberFund;
   }
 
-  
+
   public void setAccountNumberFund(String accountNumberFund) {
     this.accountNumberFund = accountNumberFund;
   }
 
-  
+
   public String getAccountNumberOrg() {
     return accountNumberOrg;
   }
 
-  
+
   public void setAccountNumberOrg(String accountNumberOrg) {
     this.accountNumberOrg = accountNumberOrg;
   }
 
-  
+
   public String getAccountNumberProject() {
     return accountNumberProject;
   }
 
-  
+
   public void setAccountNumberProject(String accountNumberProject) {
     this.accountNumberProject = accountNumberProject;
   }
 
-  
+
   public String getAccountNumberYear() {
     return accountNumberYear;
   }
 
-  
+
   public void setAccountNumberYear(String accountNumberYear) {
     this.accountNumberYear = accountNumberYear;
   }
@@ -274,12 +276,12 @@ public class BillingAccount extends HibernateDetailObject {
   public String getStartDateOther() {
     return this.formatDate(this.startDate, this.DATE_OUTPUT_SLASH);
   }
-  
+
   public Integer getIdFundingAgency() {
     return idFundingAgency;
   }
 
-  
+
   public void setIdFundingAgency(Integer idFundingAgency) {
     this.idFundingAgency = idFundingAgency;
   }
@@ -291,7 +293,7 @@ public class BillingAccount extends HibernateDetailObject {
     }
     return getAccountName() + number;
   }
- 
+
   private String getActiveDisplay() {
     if (getIsActive().equals("N")) {
       return "(inactive) ";
@@ -301,14 +303,14 @@ public class BillingAccount extends HibernateDetailObject {
       return "";
     }
   }
-  
+
   public String getAccountNameDisplay() {
     String number =  " - " + getAccountNumber();
     if (getAccountNumber().trim().length() == 0) {
       number = "";
     }    return  getActiveDisplay() + getAccountName() + number;
   }
-  
+
   public String getAccountNumberDisplay() {
     String number = getAccountNumber() + " - ";
     if (getAccountNumber().trim().length() == 0) {
@@ -318,49 +320,49 @@ public class BillingAccount extends HibernateDetailObject {
   }
 
   public String getIsPO() {
-	return isPO;
+    return isPO;
   }
 
   public void setIsPO(String isPO) {
-	this.isPO = isPO;
+    this.isPO = isPO;
   }
 
-  
+
   public String getIsApproved() {
     return isApproved;
   }
 
-  
+
   public void setIsApproved(String isApproved) {
     this.isApproved = isApproved;
   }
 
-  
+
   public Date getApprovedDate() {
     return approvedDate;
   }
 
-  
+
   public void setApprovedDate(Date approvedDate) {
     this.approvedDate = approvedDate;
   }
 
-  
+
   public Date getCreateDate() {
     return createDate;
   }
 
-  
+
   public void setCreateDate(Date createDate) {
     this.createDate = createDate;
   }
 
-  
+
   public String getSubmitterEmail() {
     return submitterEmail;
   }
 
-  
+
   public void setSubmitterEmail(String submitterEmail) {
     this.submitterEmail = submitterEmail;
   }
@@ -370,25 +372,25 @@ public class BillingAccount extends HibernateDetailObject {
     return submitterUID;
   }
 
-  
+
   public void setSubmitterUID(String submitterUID) {
     this.submitterUID = submitterUID;
   }
-  
+
   public void isJustApproved(boolean approved) {
     this.isJustApproved = approved;
   }
-  
+
   public boolean isJustApproved() {
     return isJustApproved;
   }
 
-  
+
   public BigDecimal getTotalDollarAmount() {
     return totalDollarAmount;
   }
 
-  
+
   public void setTotalDollarAmount(BigDecimal totalDollarAmount) {
     this.totalDollarAmount = totalDollarAmount;
   }
@@ -399,13 +401,13 @@ public class BillingAccount extends HibernateDetailObject {
     }
     return "";
   }
-  
+
 
   public void setTotalChargesToDate(BigDecimal totalChargesToDate) {
     this.totalChargesToDate = totalChargesToDate;
   }
-  
-  
+
+
   public String getTotalChargesToDateDisplay() {
     if (totalChargesToDate != null) {
       return NumberFormat.getCurrencyInstance().format(totalChargesToDate);
@@ -416,63 +418,63 @@ public class BillingAccount extends HibernateDetailObject {
   public Date getStartDate() {
     return startDate;
   }
-  
+
   public void setStartDate(Date date) {
     startDate = date;
   }
-  
+
   public String getShortAcct() {
     return shortAcct;
   }
-  
+
   public void setShortAcct(String acct) {
     shortAcct = acct;
   }
- 
+
   public Integer getIdCoreFacility() {
     return idCoreFacility;
   }
-  
+
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
   }
-  
+
   public Set getUsers() {
     return users;
   }
-  
+
   public void setUsers(Set users) {
     this.users = users;
   }
-  
+
   public String getCustom1() {
     return custom1;
   }
   public void setCustom1(String custom1) {
     this.custom1 = custom1;
   }
-  
+
   public String getCustom2() {
     return custom2;
   }
   public void setCustom2(String custom2) {
     this.custom2 = custom2;
   }
-  
+
   public String getCustom3() {
     return custom3;
   }
   public void setCustom3(String custom3) {
     this.custom3 = custom3;
   }
-  
+
   public BigDecimal getTotalDollarAmountRemaining() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
       return totalDollarAmount.subtract(totalChargesToDate);
     }
     return null;
   }
-  
+
   public String getTotalDollarAmountRemainingDisplay() {
     if (totalDollarAmount != null && totalChargesToDate != null) {
       return NumberFormat.getCurrencyInstance().format(totalDollarAmount.subtract(totalChargesToDate));
@@ -519,5 +521,21 @@ public class BillingAccount extends HibernateDetailObject {
     this.orderFormFileSize = orderFormFileSize;
   }
 
- 
+  public String getApproverEmail() {
+    return approverEmail;
+  }
+
+  public void setApproverEmail(String approverEmail) {
+    this.approverEmail = approverEmail;
+  }
+
+  public Integer getIdApprover() {
+    return idApprover;
+  }
+
+  public void setIdApprover(Integer idApprover) {
+    this.idApprover = idApprover;
+  }
+
+
 }

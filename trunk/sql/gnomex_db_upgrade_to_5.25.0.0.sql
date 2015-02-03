@@ -43,3 +43,14 @@ call ExecuteIfTableExists('gnomex', 'SampleType_Audit', 'alter table SampleType_
 alter table BillingItem drop foreign key FK_BillingItem_ProductOrder;
 alter table BillingItem Drop column idProductOrder;
 call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit DROP COLUMN idProductOrder');
+
+-- Add columns to keep track of who approves a billing account
+alter table BillingAccount 
+ADD approverEmail varchar(200) NULL;
+
+alter table BillingAccount
+ADD idApprover int(10) NULL,
+ADD CONSTRAINT `FK_BillingAccount_Approver` FOREIGN KEY `FK_BillingAccount_Approver`(`idApprover`)
+REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
