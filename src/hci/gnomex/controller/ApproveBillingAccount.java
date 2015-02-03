@@ -30,9 +30,9 @@ public class ApproveBillingAccount extends HttpServlet {
   private String idBillingAccount = "";
   private BillingAccount ba;
   private String message = "";
-  private Boolean approveAccount = false;
   private String serverName = "";
   private String launchAppURL = "";
+  private String approverEmail = "";
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     doPost(req, res);
@@ -43,11 +43,7 @@ public class ApproveBillingAccount extends HttpServlet {
     try {
       Session sess =  HibernateSession.currentSession("approveBillingAccountServlet");
       idBillingAccount = ( String ) ( ( request.getParameter( "idBillingAccount" ) != null ) ? request.getParameter( "idBillingAccount" ) : "" );
-      //      idAppUser = ( String ) ( ( request.getParameter( "idAppUser" ) != null ) ? request.getParameter( "idAppUser" ) : "" );
-
-      if(request.getParameter("approveAccount") != null && !request.getParameter("approveAccount").equals("") && request.getParameter("approveAccount").equals("Y")) {
-        approveAccount = true;
-      }
+      approverEmail = ( String ) ( ( request.getParameter( "approverEmail" ) != null ) ? request.getParameter( "approverEmail" ) : "" );
 
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
       String doNotReplyEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
@@ -63,6 +59,7 @@ public class ApproveBillingAccount extends HttpServlet {
         Lab lab = (Lab) sess.load(Lab.class, ba.getIdLab());
         ba.setApprovedDate(new Date(System.currentTimeMillis()));
         ba.setIsApproved("Y");
+        ba.setApproverEmail(approverEmail);
         sendApprovedBillingAccountEmail(sess, ba, lab);
 
         message = "Billing Account " + ba.getAccountNameDisplay() + " has been successfully approved.";
@@ -104,8 +101,6 @@ public class ApproveBillingAccount extends HttpServlet {
 
     CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
 
-    String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
 
     boolean isTestEmail = false;
     String emailInfo = "";
@@ -119,7 +114,7 @@ public class ApproveBillingAccount extends HttpServlet {
       isTestEmail = true;
       send = true;
       submitterSubject = submitterSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
       emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
@@ -131,18 +126,21 @@ public class ApproveBillingAccount extends HttpServlet {
 
     body.append("\n");
     body.append("\n");
-    body.append("Lab:               " + lab.getName(false, false) + "\n");
-    body.append("Core Facility      " + facility.getDisplay() + "\n");
-    body.append("Account:           " + billingAccount.getAccountName() + "\n");
-    body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
+    body.append("Lab:\t\t\t" + lab.getName(false, false) + "\n");
+    body.append("Core Facility:\t\t" + facility.getDisplay() + "\n");
+    body.append("Account:\t\t" + billingAccount.getAccountName() + "\n");
+    body.append("Chartfield:\t\t" + billingAccount.getAccountNumber() + "\n");
     if (billingAccount.getIdFundingAgency() != null) {
-      body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+      body.append("Funding Agency:\t\t" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
     }
     if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-      body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+      body.append("Effective until:\t\t" + billingAccount.getExpirationDateOther() + "\n");
     }
-    body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
-    body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
+    body.append("Submitter UID:\t\t" + billingAccount.getSubmitterUID() + "\n");
+    body.append("Submitter Email:\t" + billingAccount.getSubmitterEmail() + "\n");
+    body.append("Submit Date:\t\t" + billingAccount.getCreateDate() + "\n");
+    body.append("Approved By:\t\t" + approverEmail + "\n");
+    body.append("Approved Date:\t\t" + billingAccount.getApprovedDate() + "\n");
 
     String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
@@ -160,10 +158,19 @@ public class ApproveBillingAccount extends HttpServlet {
           false); 
 
 
-      // Email lab contact email address(es)
+      // Email people with approve power notifying them that the account has been approved and they don't have to do anything else.
       if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
         String contactEmail = lab.getBillingNotificationEmail();
+        if(lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
+          contactEmail += ", " + lab.getWorkAuthSubmitEmail();
+        }
+        String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
+        if (facilityEmail == null || facilityEmail.equals("")) {
+          facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+        }
+        contactEmail += ", " + facilityEmail;
         if (isTestEmail) {
+          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>"; 
           contactEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
         MailUtil.send(contactEmail, 

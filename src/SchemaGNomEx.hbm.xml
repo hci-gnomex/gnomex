@@ -290,6 +290,8 @@
 		<property name="custom1" column="custom1" type="string" />
 		<property name="custom2" column="custom2" type="string" />
 		<property name="custom3" column="custom3" type="string" />
+		<property name="approverEmail" column="approverEmail" type="string" />
+		<property name="idApprover" column="idApprover" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.Invoice -->

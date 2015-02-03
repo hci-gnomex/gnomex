@@ -336,6 +336,8 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `custom1` VARCHAR(50) NULL,
   `custom2` VARCHAR(50) NULL,
   `custom3` VARCHAR(50) NULL,
+  `approverEmail` VARCHAR(200) NULL,
+  `idApprover` INT(10) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)

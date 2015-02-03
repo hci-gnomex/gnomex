@@ -352,6 +352,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
           // If billing account has just been approved, send out a notification
           // email to submitter of work auth form as well as lab managers
           if (ba.isJustApproved()) {
+            ba.setIdApprover(this.getSecAdvisor().getIdAppUser());
             this.sendApprovedBillingAccountEmail(sess, ba, lab);
           }
 
@@ -757,7 +758,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
-
+    AppUser au = (AppUser)sess.load(AppUser.class, this.getSecAdvisor().getIdAppUser());
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
     String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved";    
@@ -782,7 +783,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       isTestEmail = true;
       send = true;
       submitterSubject = submitterSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
+      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
       emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
@@ -794,18 +795,26 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     body.append("\n");
     body.append("\n");
-    body.append("Lab:               " + lab.getName(false, false) + "\n");
-    body.append("Core Facility      " + facility.getDisplay() + "\n");
-    body.append("Account:           " + billingAccount.getAccountName() + "\n");
-    body.append("Chartfield:        " + billingAccount.getAccountNumber() + "\n");
+    body.append("Lab:\t\t\t" + lab.getName(false, false) + "\n");
+    body.append("Core Facility:\t\t" + facility.getDisplay() + "\n");
+    body.append("Account:\t\t" + billingAccount.getAccountName() + "\n");
+    body.append("Chartfield:\t\t" + billingAccount.getAccountNumber() + "\n");
     if (billingAccount.getIdFundingAgency() != null) {
-      body.append("Funding Agency:    " + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+      body.append("Funding Agency:\t\t" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
     }
     if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-      body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+      body.append("Effective until:\t\t" + billingAccount.getExpirationDateOther() + "\n");
     }
-    body.append("Submitter UID:     " + billingAccount.getSubmitterUID() + "\n");
-    body.append("Submitter Email:   " + billingAccount.getSubmitterEmail() + "\n");
+    body.append("Submitter UID:\t\t" + billingAccount.getSubmitterUID() + "\n");
+    body.append("Submitter Email:\t" + billingAccount.getSubmitterEmail() + "\n");
+    body.append("Submit Date:\t\t" + billingAccount.getCreateDate() + "\n");
+
+    body.append("Approved By:\t\t" + au.getDisplayName());
+    if(au.getEmail() != null && !au.getEmail().equals("")) {
+      body.append(" (" + au.getEmail() + ")" );
+    }
+    body.append("\n");
+    body.append("Approved Date:\t\t" + billingAccount.getApprovedDate() + "\n");
 
     String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
@@ -826,7 +835,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
       // Email lab contact email address(es)
       if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
         String contactEmail = lab.getBillingNotificationEmail();
+        if(lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
+          contactEmail += ", " + lab.getWorkAuthSubmitEmail();
+        }
+        facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
+        if (facilityEmail == null || facilityEmail.equals("")) {
+          facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+        }
+        contactEmail += ", " + facilityEmail;
         if (isTestEmail) {
+          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "] \n\n "; 
           contactEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
         }
         MailUtil.send(contactEmail, 
