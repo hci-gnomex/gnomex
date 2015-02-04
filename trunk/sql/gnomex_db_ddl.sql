@@ -354,6 +354,10 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   CONSTRAINT `FK_BillingAccount_CoreFacility` FOREIGN KEY `FK_BillingAccount_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_BillingAccount_Approver` FOREIGN KEY `FK_BillingAccount_Approver`(`idApprover`)
+    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
