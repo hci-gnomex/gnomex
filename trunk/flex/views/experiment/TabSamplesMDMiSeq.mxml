@@ -157,7 +157,8 @@
 						" barcodeSequenceB = ''" +
 						" codeConcentrationUnit='ng/ul'" + 
 						" idSampleType='" + idSampleType + "'" +
-						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
+						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +	
+						" seqPrepByCore = 'Y'" +
 						" idOrganism='"  + idOrganism + "'" +				
 						" otherOrganism='" + otherOrganism + "'" 	+
 						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
