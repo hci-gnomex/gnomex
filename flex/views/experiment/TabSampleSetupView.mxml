@@ -323,8 +323,11 @@
 					}
 				} else if (parentDocument.isSolexaState()) {
 					if ( this.currentState == 'MDMiSeqState' ) {
-						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-							isComplete = this.sampleTypeRadioGroup.selectedValue;
+						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+							this.sampleTypeRadioGroup.selectedValue &&
+							hasOrganism() && this.otherSamplePrepMethod.text.length > 0) {
+							
+							isComplete = checkPrePooledSamplesCompleteness();
 							parentDocument.seqLibProtocolList.refresh();
 						}					
 					} else {
