@@ -398,7 +398,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   throws Exception {
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT pli, po, bi ");
-    buf.append("FROM   ProductOrderLineItem pli ");
+    buf.append("FROM   ProductLineItem pli ");
     buf.append("JOIN   pli.productOrder po ");
     buf.append("JOIN   pli.billingItems bi ");
     buf.append("WHERE  bi.idLab = " + idLab + " ");
