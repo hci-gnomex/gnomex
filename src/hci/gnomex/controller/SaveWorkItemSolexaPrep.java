@@ -7,6 +7,7 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
@@ -195,7 +196,9 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
               }
             }
             
-                        
+            // Set the completed date on the request if all lib prep failed.
+            request.completeRequestIfFinished(sess);
+
           }
 
           processBilling(sess, autoCompleteMap, samplesCompletedMap);
@@ -248,7 +251,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
     for(Integer key : autoCompleteMap.keySet()) {
       BillingItemAutoComplete auto = autoCompleteMap.get(key);
       String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-      if (prop == null || !prop.equals("Y") || auto.getHasPendingBilling()) {
+      if (prop == null || !prop.equals("Y")) {
         // Billing items created at submit.  Just complete items that can be completed.
         if (!auto.getSkip()) {
           Integer completedQty = 0;
@@ -267,7 +270,11 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
         // Need to create billing items at this point.
         Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
         if (sampleSet != null) {
-          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          if (auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          } else {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
+          }
         }
       }
     }

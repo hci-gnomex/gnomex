@@ -19,23 +19,12 @@ public class BillingItemAutoComplete {
   private String    codeStep;
   private Request   request;
   private Boolean   skip = false;
-  private Boolean   hasPendingBilling = false;
   
   public BillingItemAutoComplete(Session sess, String codeStep, Request request) {
     this.sess     = sess;
     this.codeStep = codeStep;
     this.request  = request;
     this.skip     = false;
-    this.hasPendingBilling = computePendingBilling(sess, request);
-  }
-  
-  private Boolean computePendingBilling(Session Sess, Request request) {
-    String str = "select bi from BillingItem bi where idRequest=:idRequest and codeBillingStatus=:status";
-    Query query = sess.createQuery(str);
-    query.setParameter("idRequest", request.getIdRequest());
-    query.setParameter("status", BillingStatus.PENDING);
-    List l = query.list();
-    return l.size() > 0;
   }
   
   public void completeItems(Integer totalQty, Integer completedQty) {
@@ -107,10 +96,6 @@ public class BillingItemAutoComplete {
   
   public Request getRequest() {
     return request;
-  }
-  
-  public Boolean getHasPendingBilling() {
-    return this.hasPendingBilling;
   }
   
   private class BillingItemBucket {

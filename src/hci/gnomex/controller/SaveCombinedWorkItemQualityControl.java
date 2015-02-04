@@ -203,20 +203,11 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               autoCompleteMap.put(request.getIdRequest(), auto);
             }
 
-
             if(isStepQualityControl) {
               // If this is a QC request, check to see if all QC has been performed on
               // all samples.  If so, set complete date on request
-              if (request.isConsideredFinished() && 
-                  request.getCompletedDate() == null &&
-                  RequestCategory.isQCRequestCategory(request.getCodeRequestCategory())) {
-                request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
-                request.setCodeRequestStatus(RequestStatus.COMPLETED);
-                sess.save(request);   
-              }              
+              request.completeRequestIfFinished(sess);
             }
-
-
 
             // Send confirmation email on QC requests; send progress email
             // on Hyb requests. (Send only once for entire request and don't
@@ -290,7 +281,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     for(Integer key : autoCompleteMap.keySet()) {
       BillingItemAutoComplete auto = autoCompleteMap.get(key);
       String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-      if (prop == null || !prop.equals("Y") || auto.getHasPendingBilling()) {
+      if (prop == null || !prop.equals("Y")) {
         // Billing items created at submit.  Just complete items that can be completed.
         if (!auto.getSkip()) {
           Integer completedQty = 0;
@@ -308,7 +299,18 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
         // Need to create billing items at this point.
         Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
         if (sampleSet != null) {
-          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          Boolean allTerminated = true;
+          for(Sample s : sampleSet) {
+            if (s.getQualFailed() == null || !s.getQualFailed().equals("Y")) {
+              allTerminated = false;
+              break;
+            }
+          }
+          if (allTerminated || auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          } else {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
+          }
         }
       }
     }

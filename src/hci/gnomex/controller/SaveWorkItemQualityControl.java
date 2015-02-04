@@ -152,12 +152,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
             Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
             
             // Set complete date on QC requests
-            if (request.isConsideredFinished() && 
-                request.getCompletedDate() == null &&
-                request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
-              request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
-              request.setCodeRequestStatus(RequestStatus.COMPLETED);
-            }
+            request.completeRequestIfFinished(sess);
             
             // Send confirmation email on QC requests; send progress email
             // on Hyb requests. (Send only once for entire request and don't
