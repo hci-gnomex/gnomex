@@ -47,10 +47,11 @@ call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_
 -- Add columns to keep track of who approves a billing account
 alter table BillingAccount 
 ADD approverEmail varchar(200) NULL;
-
+call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD approverEmail varchar(200) NULL'
 alter table BillingAccount
 ADD idApprover int(10) NULL,
 ADD CONSTRAINT `FK_BillingAccount_Approver` FOREIGN KEY `FK_BillingAccount_Approver`(`idApprover`)
 REFERENCES `gnomex`.`AppUser` (`idAppUser`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION;
+call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD idApprover int(10) NULL'
