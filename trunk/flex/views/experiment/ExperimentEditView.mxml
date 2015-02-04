@@ -356,6 +356,8 @@
 		
 		public var defaultTab:Container = null;
 			
+		private var billingAccountAlreadyUpdated:Boolean = false;
+			
 		[Bindable]
 		private var labList:XMLListCollection = null;
 
@@ -3487,22 +3489,70 @@
 
 		
 		private function saveRequest():void {
+			if(!billingAccountAlreadyUpdated){
+				updateBillingAccount();	
+			} else{
+				updateRequestProperties()
+				
+				var params:Object = new Object();
+				params.requestXMLString = request.toXMLString();
+				params.idProject = request.@idProject;
+				params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
+				if (this.isMitSeqState()) {
+					params.primersXMLString = parentApplication.navExperimentView.experimentDetailView.detail.primers.toXMLString();
+				}
+				if (this.isFragAnalState()) {
+					params.assaysXMLString = this.selectedAssaysCollection;
+				}
+				
+				saveExistingRequest.send(params);
+				
+				billingAccountAlreadyUpdated = false;
+	
+			}			
+		}
 			
-			updateRequestProperties()
-
-			var params:Object = new Object();
-			params.requestXMLString = request.toXMLString();
-			params.idProject = request.@idProject;
-			params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
-			if (this.isMitSeqState()) {
-				params.primersXMLString = parentApplication.navExperimentView.experimentDetailView.detail.primers.toXMLString();
+		private function updateBillingAccount():void{
+			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+				var found:Boolean = false;
+				for each(var ba:XML in billingAccounts){
+					if(ba.@idBillingAccount == request.@idBillingAccount){
+						found = true;
+						break;
+					}
+				}
+				//if we can't find the billing account that means it is part of another lab.
+				//Check to see if this new lab can keep the other labs billing account
+				if(!found){
+					var allApproved:Boolean = true;
+					var sum:int = 0;
+					//If billing items are all approved or the sum equals $0 then we can let user keep old billing account
+					for each(var bi:XML in request.billingItems.BillingLab.BillingItem){
+						//Check for all forms of approved
+						if(bi.@codeBillingStatus != 'APPROVED' && bi.@codeBillingStatus != 'APPROVEDCC' && bi.@codeBillingStatus != 'APPROVEDEX'){
+							allApproved = false;
+						}
+						
+						sum += Number(bi.@totalPrice);
+						
+						if(!allApproved && sum != 0){
+							break;
+						} 
+					}
+					
+					if(allApproved || sum == 0){
+						Alert.show("All of the billing items are already approved or their total equals $0.  Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName, "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+					} else{
+						request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+						billingAccountAlreadyUpdated = true;
+						saveRequest();
+					}
+				} else{
+					request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+					billingAccountAlreadyUpdated = true;
+					saveRequest();
+				}
 			}
-			if (this.isFragAnalState()) {
-				params.assaysXMLString = this.selectedAssaysCollection;
-			}
-			
-			saveExistingRequest.send(params);			
-			
 		}
 			
 		private function updateRequestProperties():void {
@@ -3587,13 +3637,10 @@
 			
 			request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 			
-			
-			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 			request.@idAppUser = ownerCombo.selectedItem.@idAppUser;
 			request.@idSubmitter = submitterCombo.selectedItem.@idAppUser;
-			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
-				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;				
-			}
+			
+			request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 			request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
 			request.@name = notesView.experimentName.text;
 			
@@ -3603,7 +3650,15 @@
 					request.samples.Sample[0]["@ANNOT" + prop.@idProperty] = "";
 				}
 			}
-
+		}
+			
+		private function changeIdBillingAccount(event:CloseEvent):void{
+			if(event.detail == Alert.NO){
+				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+			}
+			
+			billingAccountAlreadyUpdated = true;
+			saveRequest();
 		}
 	
 		public function getAnnotationView():TabAnnotationView {
@@ -5459,6 +5514,10 @@
 					       	  visible="{this.request.@isExternal != 'Y'}"
 							  width="400"
 					       	  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
+						<mx:Label text="Current Account:"  
+								  visible="{this.request.@isExternal != 'Y'}"
+								  styleName="formLabel"/>
+						<mx:Text visible="{this.request.@isExternal != 'Y'}" text="{request.billingItems.BillingLab.@accountName + ' (' + request.billingItems.BillingLab.@labName + ')'}" />
 					</mx:HBox>
 					<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 					displayItemsExpanded="true"  
