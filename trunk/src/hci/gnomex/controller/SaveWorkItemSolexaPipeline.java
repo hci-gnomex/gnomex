@@ -177,10 +177,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
                 }
 
                 // Set the completed date on the request
-                if (request.isConsideredFinished() && request.getCompletedDate() == null) {
-                  request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
-                  request.setCodeRequestStatus(RequestStatus.COMPLETED);
-                }
+                request.completeRequestIfFinished(sess);
                 
               }
             }
@@ -247,7 +244,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     for(Integer key : autoCompleteMap.keySet()) {
       BillingItemAutoComplete auto = autoCompleteMap.get(key);
       String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-      if (prop == null || !prop.equals("Y") || auto.getHasPendingBilling()) {
+      if (prop == null || !prop.equals("Y")) {
         // Billing items created at submit.  Just complete items that can be completed.
          if (auto.getSkip()) {
           continue;
@@ -267,7 +264,11 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         // Need to create billing items at this point.
         Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
         if (laneSet != null) {
-          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          if (auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          } else {
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.PENDING);
+          }
         }
       }
     }

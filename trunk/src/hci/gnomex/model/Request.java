@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -377,7 +378,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     return doc;
   }
 
-
   public String getCodeBioanalyzerChipType() {
     return codeBioanalyzerChipType;
   }
@@ -555,6 +555,24 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.appUser = appUser;
   }
 
+  public void completeRequestIfFinished(Session sess) {
+    if (this.isConsideredFinished()) {
+      if (this.getCompletedDate() == null) {
+        this.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+        this.setCodeRequestStatus(RequestStatus.COMPLETED);
+        sess.save(this);
+      }
+      for (Object o : this.getBillingItems()) {
+        BillingItem bi = (BillingItem)o;
+        if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+          bi.setCodeBillingStatus(BillingStatus.COMPLETED);
+          bi.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+          sess.save(bi);
+        }
+      }
+    }
+  }
+
   public boolean isConsideredFinished() {
     boolean isFinished = false;
 
@@ -564,16 +582,21 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       int doneLaneCount = 0;
       for(Iterator i1 = this.getSequenceLanes().iterator(); i1.hasNext();) {
         SequenceLane l = (SequenceLane)i1.next();
-        if (l.getFlowCellChannel() != null) {
-          if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
-            doneLaneCount++;
-          } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
-            doneLaneCount++;
-          } else if (l.getFlowCellChannel().getPipelineFailed() != null && l.getFlowCellChannel().getPipelineFailed().equals("Y")) {
-            doneLaneCount++;
-          } else if (l.getFlowCellChannel().getPipelineDate() != null) {
-            doneLaneCount++;
-          } 
+        if ((l.getSample().getQualFailed() != null && l.getSample().getQualFailed().equalsIgnoreCase( "Y"))
+            || (l.getSample().getSeqPrepFailed() != null && l.getSample().getSeqPrepFailed().equalsIgnoreCase("Y"))) {
+          doneLaneCount++;
+        } else {
+          if (l.getFlowCellChannel() != null) {
+            if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
+              doneLaneCount++;
+            } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
+              doneLaneCount++;
+            } else if (l.getFlowCellChannel().getPipelineFailed() != null && l.getFlowCellChannel().getPipelineFailed().equals("Y")) {
+              doneLaneCount++;
+            } else if (l.getFlowCellChannel().getPipelineDate() != null) {
+              doneLaneCount++;
+            } 
+          }
         }
       }
 
