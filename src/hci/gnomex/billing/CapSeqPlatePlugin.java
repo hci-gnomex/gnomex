@@ -139,6 +139,9 @@ public class CapSeqPlatePlugin implements BillingPlugin {
         billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
       }
       billingItem.setCodeBillingStatus(billingStatus);
+      if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
+        billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+      }
       billingItem.setIdRequest(request.getIdRequest());
       billingItem.setIdLab(request.getIdLab());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());        
