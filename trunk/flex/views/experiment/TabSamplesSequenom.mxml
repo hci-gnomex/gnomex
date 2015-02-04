@@ -297,7 +297,7 @@
 				var completeCount:int = 0;
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
-					if (isEntered(sample, "@name")) {
+					if (isEntered(sample, "@name") && isEntered(sample, "@concentration")) {
 						nameCompleteCount++;
 					}
 					completeCount++;
