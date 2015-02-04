@@ -410,8 +410,8 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       buf.append("FROM   DiskUsageByMonth dsk ");
       buf.append("JOIN   dsk.billingItems bi ");
     } else {
-      buf.append("SELECT pli, po, bi ");
-      buf.append("FROM   ProductOrderLineItem pli ");
+      buf.append("SELECT pli, bi, po ");
+      buf.append("FROM   ProductLineItem pli ");
       buf.append("JOIN   pli.productOrder po ");
       buf.append("JOIN   pli.billingItems bi ");
     }
@@ -449,7 +449,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
         number = "Disk Usage";
       } else {
         ProductLineItem pli = (ProductLineItem)row[0];
-        ProductOrder po = (ProductOrder)row[1];
+        ProductOrder po = (ProductOrder)row[2];
         allBillingItems = pli.getBillingItems();
         number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
