@@ -28,7 +28,10 @@ alter table Property add
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-alter table Property drop index name;
+set @exist := (select count(*) from information_schema.statistics where table_name = 'Property' and index_name = 'name' and table_schema = database());
+set @sqlstmt := if( @exist > 0, 'alter table Property drop index name','select ''INFO: Index name already dropped''');
+PREPARE stmt FROM @sqlstmt;
+EXECUTE stmt;    
 update Property set idCoreFacility=1;
 
 -- unused table
@@ -47,11 +50,11 @@ call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_
 -- Add columns to keep track of who approves a billing account
 alter table BillingAccount 
 ADD approverEmail varchar(200) NULL;
-call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD approverEmail varchar(200) NULL'
+call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD approverEmail varchar(200) NULL');
 alter table BillingAccount
 ADD idApprover int(10) NULL,
 ADD CONSTRAINT `FK_BillingAccount_Approver` FOREIGN KEY `FK_BillingAccount_Approver`(`idApprover`)
 REFERENCES `gnomex`.`AppUser` (`idAppUser`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION;
-call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD idApprover int(10) NULL'
+call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD idApprover int(10) NULL');
