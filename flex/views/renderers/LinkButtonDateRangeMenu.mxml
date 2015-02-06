@@ -51,7 +51,7 @@
 			dateRangeMenu.labelField = "@label";
 			
 			var globalPoint:Point = this.contentToGlobal(new Point(this.x, this.y));
-			dateRangeMenu.show(this.parent.x+15, globalPoint.y+25);
+			dateRangeMenu.show(globalPoint.x+15, globalPoint.y+25);
 			
 		} 
 		
