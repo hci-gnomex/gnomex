@@ -2487,26 +2487,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory());
     String requestNumber = requestParser.getRequest().getNumber();
-    String requestCategoryMsg = "";
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
 
     String submitterName = requestParser.getRequest().getSubmitterName();
     String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
 
-    if (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-      requestCategoryMsg = "Estimated Microarray";
-    }
-
-    if (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-      requestCategoryMsg = "Estimated Illumina Sequencing";
-    }
-
-    if(requestCategoryMsg.length() == 0) {
-      // Don't send message if not Microarry or Illumina request
+    //If it isn't microarray or illumina, don't send email
+    if (!RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) && !RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
       return;
     }
-
-    requestCategoryMsg = requestCategoryMsg + " for request " + requestNumber;
 
     StringBuffer emailBody = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
@@ -2530,7 +2519,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
 
-    String subject = "Estimated Microarray charges for request " + requestNumber;
+    String subject = "Estimated " + cf.getFacilityName() + " charges for request " + requestNumber;
 
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
