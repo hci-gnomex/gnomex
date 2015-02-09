@@ -1421,7 +1421,7 @@
 						<mx:Text id="sampleBatchSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 					</mx:HBox>
 				</mx:HBox>
-				<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox">
+				<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox" width="100%">
 					<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}" 
 									  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
 									  showEdit="{parentApplication.isAdminState}" title="Sample Category Help"
@@ -1458,9 +1458,9 @@
 									   creationComplete="event.target.textArea.editable=false" 
 									   textAlign="left"
 									   borderStyle="none" headerHeight="0"
-									   visible="{sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}" 
-									   includeInLayout="{sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
-									   width="400" height="80" minWidth="1" minHeight="1" maxWidth="400" maxHeight="80"
+									   visible="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}" 
+									   includeInLayout="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
+									   width="250" height="{sampleTypeBox.height}" maxWidth="250" maxHeight="{sampleTypeBox.height}" minWidth="1" minHeight="1"
 									   showControlBar="false"
 									   paddingLeft="0" paddingRight="0" paddingTop="0" 
 									   roundedBottomCorners="false" paddingBottom="0" 
