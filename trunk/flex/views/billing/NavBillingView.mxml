@@ -271,6 +271,7 @@
 
         [Bindable]
         private var requests:XMLListCollection = new XMLListCollection();
+		private var requestsCopy:XMLList = new XMLList();
 
         [Bindable]
         private var billingTemplates:XMLListCollection = new XMLListCollection();
@@ -321,6 +322,7 @@
 		private var summaryWindow:BillingTotalByLabView = null;
 		
 		private var usageWindow:BillingUsageView = null;
+		
 		
 		
         private function init():void {
@@ -720,7 +722,8 @@
 			}
 			private function onGetBillingRequestList(event:ResultEvent):void {
 				if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
-					this.requests = new XMLListCollection(getBillingRequestList.lastResult.Status);
+					this.requests = new XMLListCollection(getBillingRequestList.lastResult.Status.copy());
+					this.requestsCopy = getBillingRequestList.lastResult.Status.copy();
 					this.requestTree.dataProvider = new HierarchicalData(requests);
 					this.requestTree.dataProvider.refresh();
 					
@@ -733,7 +736,7 @@
 					var approvedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Approved');
 					jumpApproved.visible =  approvedItems.length() ? true : false;
 					
-					for each(var status:Object in getBillingRequestList.lastResult.Status) {
+					for each(var status:Object in requests) {
 						requestTree.expandItem(status, true);
 					}
 					
@@ -748,7 +751,7 @@
 				if (getBillingItemList.lastResult.name() == "BillingItemList") {
 					this.billingItems = new XMLListCollection(getBillingItemList.lastResult.Request);
 					this.billingItems.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingBillingItemChange);	
-				
+					showFilterOptions();
 				if(lastSelectedBillingPeriod != null){
 					this.pickBillingPeriodButton.label = lastSelectedBillingPeriod.@display;
 				}
@@ -759,7 +762,95 @@
 					var message:String = getBillingItemList.lastResult.ERROR.@message;
 					Alert.show(message);
 				}			
-			} 
+			}
+		
+			private function showFilterOptions():void{
+				var filters:Dictionary = new Dictionary();
+				filters[expButton] = false;
+				filters[diskUseButton] = false;
+				filters[productButton] = false;
+				var count:int = 0;
+				for each(var bi:XML in requests.source..Request){
+					if(bi.@type == 'Product Order'){
+						filters[productButton] = true;
+					} else if(bi.@type == 'Disk Usage'){
+						filters[diskUseButton] = true;
+					} else{
+						filters[expButton] = true;
+					}
+					
+					if(filters[productButton] && filters[diskUseButton] && filters[expButton]){
+						break;
+					}
+				}
+				
+				for(var key:Object in filters){
+					if(filters[key]){
+						count++;
+					}
+				}
+				
+				if(count > 1){
+					for(var key1:Object in filters){
+						if(filters[key1]){
+							key1.visible = true;
+							key1.includeInLayout = true;	
+						}else{
+							key1.visible = false;
+							key1.includeInLayout = false;
+						}
+					}
+					this.showAllButton.visible = true;
+					this.showAllButton.includeInLayout = true;
+					this.showAllButton.selected = true;
+				} else{
+					for(var key2:Object in filters){
+						key2.visible = false;
+						key2.includeInLayout = false;
+					}
+					this.showAllButton.visible = false;
+					this.showAllButton.includeInLayout = false;
+				}
+				
+				
+			}
+		
+			private function selectFilter():void{
+				requests = new XMLListCollection(requestsCopy.copy());
+				if(billingItemFilter.selectedValue != 'all'){
+					
+					for each(var req:XML in requests){
+						filterNavTree(req, req.children(), 0);
+					}
+				}
+				
+				requestTree.dataProvider = new HierarchicalData(requests);
+				for each(var status:Object in requests) {
+					requestTree.expandItem(status, true);
+				}
+			}
+		
+			private function filterNavTree(req:XML, children:XMLList, i:int):void{
+				if(req.name() == 'Request'){
+					if(billingItemFilter.selectedValue == 'po' && req.@type != 'Product Order'){
+						delete children[--i];
+					} else if(billingItemFilter.selectedValue == 'dsk' && req.@type != 'Disk Usage'){
+						delete children[--i];
+					} else if(billingItemFilter.selectedValue == 'exp' && (req.@type == 'Product Order' || req.@type == 'Disk Usage')){
+						delete children[--i];
+						
+					}
+				}
+				
+				for(var j:int = i; j < children.length(); j++){
+					if(children[j].children().length() > 0){
+						filterNavTree(children[j], children[j].children(), 0);	
+					} else{
+						filterNavTree(children[j], children, ++i);
+					}
+				}
+				
+			}
 			
 			private function onGetBillingInvoiceList(event:ResultEvent):void {
 				if (getBillingInvoiceList.lastResult.name() == "BillingInvoiceList") {
@@ -1556,6 +1647,11 @@
 			}
 			
 			public function showBillingGLInterface():void {
+				
+				if(billingItemFilter.selectedValue != null && billingItemFilter.selectedValue != 'all'){
+					Alert.show("Please select the 'show all' filter in the billing list before running the GL interface");
+					return;
+				}
 				
 				if (lastSelectedBillingPeriod == null ||
 					lastSelectedBillingPeriod .@value == "") {
@@ -2398,19 +2494,26 @@
 			
 		</mx:HBox>
 		<mx:HDividedBox height="100%" width="100%">
-			<mx:TabNavigator height="100%" width="220" id="billingTabNavigator"
+			<mx:TabNavigator height="100%" width="275" id="billingTabNavigator"
 							 paddingTop="2" styleName="navTabNavigator" 
 							 paddingLeft="4" paddingRight="4" paddingBottom="4"
 							 change="{onBillingTabChange()}" dropShadowEnabled="false" >
-				<mx:VBox label="Experiments" height="100%" verticalGap="0" width="100%" color="#000000" id="requestTab" >
+				<mx:VBox label="Billing Items" height="100%" verticalGap="0" width="100%" color="#000000" id="requestTab" >
+					<mx:HBox>
+						<mx:RadioButtonGroup id="billingItemFilter" change="selectFilter()"/>
+						<mx:RadioButton groupName="billingItemFilter" fontSize="9" id="showAllButton" value="all" label="Show all" visible="false" includeInLayout="false"/>
+						<mx:RadioButton groupName="billingItemFilter" fontSize="9" id="expButton" value="exp" label="Experiments" visible="false" includeInLayout="false"/>
+						<mx:RadioButton groupName="billingItemFilter" fontSize="9" id="diskUseButton" value="dsk" label="Disk" visible="false" includeInLayout="false"/>
+						<mx:RadioButton groupName="billingItemFilter" fontSize="9" id="productButton" value="po" label="Products" visible="false" includeInLayout="false"/>
+					</mx:HBox>
+					
 					<mx:HBox horizontalGap="0" paddingBottom="2" paddingTop="0" color="#000000">
 						<mx:LinkButton label="Pending" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Pending&quot;)" id="jumpPending"/>
 						<mx:LinkButton label="Completed" textDecoration="underline" paddingRight="0" styleName="formLinkSmallButton" click="jumpTo(&quot;Completed&quot;)" id="jumpCompleted"/>
 						<mx:LinkButton label="Approved" textDecoration="underline" paddingRight="0"  styleName="formLinkSmallButton" click="jumpToApproved()" id="jumpApproved"/>
 						
 					</mx:HBox>
-					
-					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"  
+					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"
 										 showHeaders="false"  
 										 displayItemsExpanded="false" 
 										 dragEnabled="true" 
