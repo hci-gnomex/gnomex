@@ -118,7 +118,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           String labIsExternalPricing = (String)row[10];
           String labIsExternalPricingCommercial = (String)row[11];
 
-          String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+          String labName = Lab.formatLabName(labLastName, labFirstName);
 
 
           String toolTip = requestNumber + " " + labName;
@@ -205,7 +205,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         String contactEmail         = (String)row[14];
         String billingContactEmail  = (String)row[15];
 
-        String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+        String labName = Lab.formatLabName(labLastName, labFirstName);
         String billingEmail = Lab.formatBillingNotificationEmail(contactEmail, billingContactEmail);
 
 
@@ -324,7 +324,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Integer idInvoice           = (Integer)row[9];
         String contactEmail         = (String)row[10];
 
-        String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+        String labName = Lab.formatLabName(labLastName, labFirstName);
 
 
         String toolTip = "Disk Usage Charge for " + labName;
@@ -436,7 +436,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Integer idInvoice           = (Integer)row[10];
         String contactEmail         = (String)row[11];
 
-        String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+        String labName = Lab.formatLabName(labLastName, labFirstName);
 
 
         String toolTip = "Product Order Charge for " + labName;
