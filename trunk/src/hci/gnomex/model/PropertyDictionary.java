@@ -146,6 +146,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        PROPERTY_SAMPLE_BATCH_WARNING       = "sample_batch_warning";
   public static final String		PLATE_AND_RUN_VIEW_LIMIT			= "plate_and_run_view_limit";
   public static final String		CHROMATOGRAM_VIEW_LIMIT				= "chromatogram_view_limit";
+  public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
 
   private Integer       idPropertyDictionary;
   private String        propertyName;

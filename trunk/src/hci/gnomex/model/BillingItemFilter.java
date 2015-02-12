@@ -467,11 +467,14 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(idLab);
     }
 
+    // Note core is on the billing item and may be different than that on
+    // the disk usage.
     if (idCoreFacility != null){
       this.addWhereOrAnd();
-      queryBuf.append(" dsk.idCoreFacility =");
+      queryBuf.append(" bi.idCoreFacility =");
       queryBuf.append(idCoreFacility);
     }
+    
     // Search by billing account 
     if (idBillingAccount != null){
       this.addWhereOrAnd();

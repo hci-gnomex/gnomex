@@ -27,7 +27,7 @@ public class DiskUsageByMonth extends HibernateDetailObject {
   private Integer        idBillingPeriod;
   private Integer        idBillingAccount;
   private Integer        idCoreFacility;
-  private Set             billingItems = new TreeSet();  
+  private Set            billingItems;  
 
   public Integer getIdDiskUsageByMonth() {
     return idDiskUsageByMonth;

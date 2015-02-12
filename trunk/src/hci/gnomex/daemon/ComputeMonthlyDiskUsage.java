@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class ComputeMonthlyDiskUsage {
 
   private Properties                      mailProps;
   private Boolean                         sendMail = true;
+  private Boolean                         testEmail = false;
 
   private static String                   serverName = "";
   private static ComputeMonthlyDiskUsage  app = null;
@@ -74,6 +76,7 @@ public class ComputeMonthlyDiskUsage {
   private Price                           price;
   private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
+  private CoreFacility                    billingCoreFacility;
 
   private Date                            runDate;
   private BillingPeriod                   billingPeriod;
@@ -188,6 +191,30 @@ public class ComputeMonthlyDiskUsage {
     String analysisGracePeriodString = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_ANALYSIS_GRACE_PERIOD_IN_MONTHS, serverName, facility.getIdCoreFacility());
     String experimentGracePeriodString = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_EXPERIMENT_GRACE_PERIOD_IN_MONTHS, serverName, facility.getIdCoreFacility());
     String priceCategoryNameString = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_PRICE_CATEGORY_NAME, serverName, facility.getIdCoreFacility());
+    String billingCoreId = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.DISK_USAGE_BILLING_CORE, serverName, facility.getIdCoreFacility());
+    gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility());
+    if (gnomexSupportEmail == null) {
+      gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName, facility.getIdCoreFacility());
+    }
+    this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    testEmail = !ph.isProductionServer(serverName);
+    if (!testEmail && testEmailAddress != null && testEmailAddress.length() > 0) {
+      testEmail = true;
+    } else if (testEmail && (testEmailAddress == null || testEmailAddress.length() == 0)) {
+      testEmailAddress = ph.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    if (billingCoreId != null) {
+      try {
+        billingCoreFacility = (CoreFacility)sess.get(CoreFacility.class, Integer.parseInt(billingCoreId));
+      } catch(NumberFormatException e) {
+        throw new Exception("Unable to parse the billing core facility id specified in " + PropertyDictionary.DISK_USAGE_BILLING_CORE + " property for " + facility.getFacilityName() + " core.");
+      }
+      if (billingCoreFacility == null) {
+        throw new Exception("Unable to load the billing core facility specified in " + PropertyDictionary.DISK_USAGE_BILLING_CORE + " property for " + facility.getFacilityName() + " core.");
+      }
+    } else {
+      billingCoreFacility = facility;
+    }
     if (diskUsageForExperimentsString != null && diskUsageForExperimentsString.equals("Y")) {
       diskUsageForExperiments = true;
     } else {
@@ -250,8 +277,8 @@ public class ComputeMonthlyDiskUsage {
       // Explicitly asked to compute for the previous month.
       calendar.add(Calendar.MONTH, -1);
     } else if (!overrideAutoPreviousMonth) {
-      // By default if run in 1st 5 days of month it computes for the previous month.
-      if (calendar.get(Calendar.DAY_OF_MONTH) <= 5) {
+      // By default if run in 1st 7 days of month it computes for the previous month.
+      if (calendar.get(Calendar.DAY_OF_MONTH) <= 7) {
         calendar.add(Calendar.MONTH, -1);
       }
     }
@@ -259,11 +286,6 @@ public class ComputeMonthlyDiskUsage {
     Query billingPeriodQuery = sess.createQuery("select b from BillingPeriod b where '" + computeDateString + "' between b.startDate and b.endDate");
     billingPeriod = (BillingPeriod)billingPeriodQuery.uniqueResult();
 
-    gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility());
-    if (gnomexSupportEmail == null) {
-      gnomexSupportEmail = ph.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName, facility.getIdCoreFacility());
-    }
-    this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
 
     if (baseURL == null) {
       baseURL = (serverName.equals("localhost")  || serverName.equals("h005973") ? "http://" : "https://") + serverName + "/gnomex/";
@@ -432,9 +454,12 @@ public class ComputeMonthlyDiskUsage {
     // 1. The most recent by startdate
     // 2. If 2 have the same startdate then most recent by expiration date
     // 3. if 2 have the same expiration date then one with the largest (most recent) id
-    String queryString = "select ba from BillingAccount ba where ba.idCoreFacility = :idCoreFacility order by ba.idLab, ba.startDate desc, ba.expirationDate desc, ba.idBillingAccount desc";
+    String queryString = "select ba from BillingAccount ba where ba.idCoreFacility in (:ids) order by ba.idLab, ba.startDate desc, ba.expirationDate desc, ba.idBillingAccount desc";
     Query query = sess.createQuery(queryString);
-    query.setInteger("idCoreFacility", facility.getIdCoreFacility());
+    ArrayList<Integer> ids = new ArrayList<Integer>();
+    ids.add(facility.getIdCoreFacility());
+    ids.add(billingCoreFacility.getIdCoreFacility());
+    query.setParameterList("ids", ids);
 
     Map<Integer, BillingAccount> billingAccountMap = new HashMap<Integer, BillingAccount>();
     List billingAccountList = query.list();
@@ -445,6 +470,10 @@ public class ComputeMonthlyDiskUsage {
         BillingAccount oldBA = billingAccountMap.get(ba.getIdLab());
         if (oldBA == null) {
           // first active/approved billing account encountered for the lab
+          billingAccountMap.put(ba.getIdLab(), ba);
+        } else if (!facility.getIdCoreFacility().equals(billingCoreFacility.getIdCoreFacility()) 
+            && oldBA.getIdCoreFacility().equals(facility.getIdCoreFacility()) && ba.getIdCoreFacility().equals(billingCoreFacility.getIdCoreFacility())) {
+          // Favor accounts in billing core over those in the summing core.
           billingAccountMap.put(ba.getIdLab(), ba);
         } else if ((oldBA.getIsPO() != null && oldBA.getIsPO().equals("Y")) && (ba.getIsPO() == null || ba.getIsPO().equals("N"))) {
           // Favor non-PO billing accounts over PO billing accounts
@@ -459,7 +488,7 @@ public class ComputeMonthlyDiskUsage {
   private Map<Integer, Invoice> getInvoiceMap(CoreFacility facility) {
     String queryString = "select inv from Invoice inv where inv.idCoreFacility = :idCoreFacility and inv.idBillingPeriod = :idBillingPeriod";
     Query query = sess.createQuery(queryString);
-    query.setInteger("idCoreFacility", facility.getIdCoreFacility());
+    query.setInteger("idCoreFacility", billingCoreFacility.getIdCoreFacility());
     query.setInteger("idBillingPeriod", billingPeriod.getIdBillingPeriod());
 
     Map<Integer, Invoice> invoiceMap = new HashMap<Integer, Invoice>();
@@ -497,6 +526,8 @@ public class ComputeMonthlyDiskUsage {
       usage.setTotalExperimentDiskSpace(newUsage.getTotalExperimentDiskSpace() == null ? BigDecimal.ZERO : newUsage.getTotalExperimentDiskSpace());
       usage.setAssessedExperimentDiskSpace(newUsage.getAssessedExperimentDiskSpace() == null ? BigDecimal.ZERO : newUsage.getAssessedExperimentDiskSpace());
       if (billingAccountMap.containsKey(usage.getIdLab())) {
+        // Note at this point billing account may be from summing core instead of billing core.
+        // This indicates that new billing account will be created (via copy) when billing item is created.
         usage.setIdBillingAccount(billingAccountMap.get(usage.getIdLab()).getIdBillingAccount());
       } else {
         usage.setIdBillingAccount(null);
@@ -515,10 +546,18 @@ public class ComputeMonthlyDiskUsage {
       boolean modified = false;
       Lab lab = labMap.get(usage.getIdLab());
       BillingAccount ba = billingAccountMap.get(usage.getIdLab());
+      if (ba != null && !ba.getIdCoreFacility().equals(billingCoreFacility.getIdCoreFacility())) {
+        // Billing account is not for the billing core.  Copy it from the core it is in to allow it.
+        ba = addBillingAccount(ba, lab);
+        usage.setIdBillingAccount(ba.getIdBillingAccount());
+      }
       BigDecimal totalIncrements = getTotalIncrements(usage);
       Invoice invoice = null;
       if (ba != null) {
         invoice = invoiceMap.get(ba.getIdBillingAccount());
+      }
+      if (usage.getBillingItems() == null) {
+        usage.setBillingItems(new HashSet());
       }
       if (lab.isExternalLab() || totalIncrements.compareTo(BigDecimal.ZERO) <= 0 || ba == null) {
         // Don't need billing items if no charge and can't have them if no billing account
@@ -544,6 +583,30 @@ public class ComputeMonthlyDiskUsage {
       sess.flush();
     }
   }
+  
+  private BillingAccount addBillingAccount(BillingAccount ba, Lab lab) {
+    BillingAccount newBA = ba.getCopy(billingCoreFacility.getIdCoreFacility());
+    sess.save(newBA);
+    addBillingCoreToLab(lab);
+    sess.flush();
+    return newBA;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void addBillingCoreToLab(Lab lab) {
+    Boolean coreFound = false;
+    for(Object o : lab.getCoreFacilities()) {
+      CoreFacility core = (CoreFacility)o;
+      if (core.getIdCoreFacility().equals(billingCoreFacility.getIdCoreFacility())) {
+        coreFound = true;
+        break;
+      }
+    }
+    if (!coreFound) {
+      lab.getCoreFacilities().add(billingCoreFacility);
+      sess.save(lab);
+    }
+  }
 
   private BillingItem newBillingItem(DiskUsageByMonth usage, Lab lab, BigDecimal totalIncrements, BillingAccount ba, Invoice invoice) {
     BillingItem bi = new BillingItem();
@@ -562,7 +625,7 @@ public class ComputeMonthlyDiskUsage {
     bi.setIdLab(lab.getIdLab());
     bi.setCompleteDate(new java.sql.Date(runDate.getTime()));
     bi.setSplitType("%");
-    bi.setIdCoreFacility(usage.getIdCoreFacility());
+    bi.setIdCoreFacility(ba.getIdCoreFacility());
     if (invoice != null) {
       bi.setIdInvoice(invoice.getIdInvoice());
     } else {
@@ -607,16 +670,14 @@ public class ComputeMonthlyDiskUsage {
       BigDecimal totalIncrements = getTotalIncrements(usage);
 
       if (totalIncrements.compareTo(BigDecimal.ZERO) > 0 && !lab.isExternalLab()) {
+        addBillingCoreToLab(lab);
         sendReport(lab, ba, usage, totalIncrements, facility);
       }
     }
   }
 
   private void sendReport(Lab lab, BillingAccount ba, DiskUsageByMonth usage, BigDecimal totalIncrements, CoreFacility facility) {
-    String emailAddress = lab.getContactEmail();
-    if (testEmailAddress.length() > 0) {
-      emailAddress = testEmailAddress;
-    }
+    String emailAddress = lab.getBillingNotificationEmail();
     if (emailAddress == null || emailAddress.length() == 0) {
       emailAddress = this.gnomexSupportEmail;
     }
@@ -636,19 +697,21 @@ public class ComputeMonthlyDiskUsage {
     } else {
       body.append(labName).append(" is scheduled to receive a monthly charge of ").append(chargeForDisplay).append(" on disk usage of ")
       .append(diskSizeForDisplay).append(" gigabytes of storage.  <br><br>");
-      body.append("The lab has no active billing accounts.  Please submit a new billing account to avoid file deletions(")
-      .append("<a href=\"").append(getLaunchWorkAuthUrl(facility)).append("\">New Billing Account</a>).");
+      body.append("The lab has no active billing accounts.  Please submit a new billing account for the " + billingCoreFacility.getFacilityName() + " Core Facility to avoid file deletions(")
+      .append("<a href=\"").append(getLaunchWorkAuthUrl(billingCoreFacility, lab)).append("\">New Billing Account</a>).");
     }
 
     if (sendMail) {
       try {
-        MailUtil.send( mailProps,
+        MailUtil.sendCheckTest( mailProps,
             emailAddress,
             null,
             fromEmailAddress,
             "GNomEx Disk Usage Charges",
             body.toString(),
-            true
+            true,
+            testEmail,
+            testEmailAddress
         );
       } catch(Exception ex) {
         System.err.println("Unable to send email to lab " + labName + " with email " + emailAddress + " because of exception: " + ex.getMessage());
@@ -656,8 +719,9 @@ public class ComputeMonthlyDiskUsage {
     }
   }
 
-  public String getLaunchWorkAuthUrl(CoreFacility facility) {
-    return baseURL + Constants.LAUNCH_APP_JSP + "?launchWindow=WorkAuthForm&idCore=" + facility.getIdCoreFacility().toString();  
+  public String getLaunchWorkAuthUrl(CoreFacility facility, Lab lab) {
+    return baseURL + Constants.LAUNCH_APP_JSP + "?launchWindow=WorkAuthForm&idCore=" + facility.getIdCoreFacility().toString()
+          + "&idLab=" + lab.getIdLab().toString();  
   }
 
   private void removeUsage(CoreFacility facility, Map<Integer, DiskUsageByMonth> newUsageMap, Map<Integer, DiskUsageByMonth> existingUsageMap) {
@@ -712,13 +776,15 @@ public class ComputeMonthlyDiskUsage {
       }
       try {
         if (sendMail) {
-          MailUtil.send( mailProps,
+          MailUtil.sendCheckTest( mailProps,
               toAddress,
               null,
               fromEmailAddress,
               "ComputeMonthlyDiskUsage Error",
               errorMessageString,
-              false
+              false,
+              testEmail,
+              testEmailAddress
           );
         }
       } catch (Exception e1) {
@@ -737,5 +803,4 @@ public class ComputeMonthlyDiskUsage {
   throws Exception {
     sess.close();
   }
-
 }
