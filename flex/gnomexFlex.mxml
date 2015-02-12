@@ -1734,6 +1734,10 @@
 				
 			}
 			
+			public function showWorkAuthWindowForLaunch():void {
+				showWorkAuthWindow(getLaunchIdLab(), getLaunchIdCore());
+			}
+			
 			public function showWorkAuthWindow(idLab:String = null, idCoreFacility:String = null):void {
 				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				wa.isEdit = false;
@@ -1741,7 +1745,7 @@
 				if (this.workAuthLabList.length == 1) {
 					labLine = " idLab='" + this.workAuthLabList[0].@idLab.toString() + "'";
 				}
-				if (labLine.length == 0 && idLab != null) {
+				if (labLine.length == 0 && idLab != null && idLab != '') {
 					labLine = " idLab='" + idLab.toString() + "'";
 				}
 				wa.ba = new XML("<BillingAccount " +
@@ -2030,6 +2034,14 @@
 			public function getLaunchIdLab():String {
 				if (Application.application.parameters.idLab != null) {
 					return Application.application.parameters.idLab;
+				} else {
+					return "";
+				}
+			}
+			
+			public function getLaunchIdCore():String {
+				if (Application.application.parameters.idCore != null) {
+					return Application.application.parameters.idCore;
 				} else {
 					return "";
 				}
@@ -3233,7 +3245,7 @@
 					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
 					this.theViews.selectedChild = this.homeView;
-					callLater(showWorkAuthWindow);
+					callLater(showWorkAuthWindowForLaunch);
 				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
 					this.showUserWindow(this.getLaunchIdAppUser());
 				} else if (launchCreateExperiment()) {

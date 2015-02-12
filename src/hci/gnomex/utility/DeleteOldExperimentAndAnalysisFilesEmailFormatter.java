@@ -28,8 +28,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   private Map<Integer, Request>  requestMap;
   private List<ExperimentFile>   experimentFiles;
   private BillingPeriod          billingPeriod;
-  private String                 contactNameCoreFacility;
-  private String                 contactPhoneCoreFacility;
   private String                 baseURL;
   private boolean                forWarning;
 
@@ -38,7 +36,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   public DeleteOldExperimentAndAnalysisFilesEmailFormatter(CoreFacility facility, Lab lab, 
       Map<Integer, Analysis> analysisMap, List<AnalysisFile> analysisFiles, 
       Map<Integer, Request> requestMap, List<ExperimentFile> experimentFiles, 
-      BillingPeriod billingPeriod, String contactNameCoreFacility, String contactPhoneCoreFacility, String baseURL,
+      BillingPeriod billingPeriod, String baseURL,
       boolean forWarning) {
     this.facility                   = facility;
     this.lab                        = lab;
@@ -47,8 +45,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     this.requestMap                 = requestMap;
     this.experimentFiles            = experimentFiles;
     this.billingPeriod              = billingPeriod;
-    this.contactNameCoreFacility    = contactNameCoreFacility;
-    this.contactPhoneCoreFacility   = contactPhoneCoreFacility;
     this.baseURL                    = baseURL;  
     this.forWarning                 = forWarning;
   }
@@ -132,7 +128,20 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
       line3 = "";
     }
     String line4 = "&nbsp;";
-    String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
+    String contactString = "";
+    if (facility.getContactPhone() != null && facility.getContactPhone().length() > 0) {
+      contactString += "Phone: " + facility.getContactPhone();
+    }
+    if (facility.getContactEmail() != null && facility.getContactEmail().length() > 0) {
+      if (contactString.length() > 0) {
+        contactString += "  ";
+      }
+      contactString += "Email: " + facility.getContactEmail();
+    }
+    if (contactString.length() > 0) {
+      contactString = " (" + contactString + ")";
+    }
+    String line5 = "If you have any questions, please contact " + facility.getContactName() + contactString + ".";
      
     Element table = new Element("TABLE");   
     table.setAttribute("CELLPADDING", "0");
@@ -177,6 +186,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Analysis ID");
     this.addHeaderCell(rowh, "File");
+    this.addHeaderCell(rowh, "Size");
     
     Integer prevIdAnalysis = -1;
     for(AnalysisFile file : analysisFiles) {
@@ -204,6 +214,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     Element row = new Element("TR");
     addEmptyCell(row);
     addCell(row, file.getFileName());
+    addCell(row, file.getFileSize().toString());
     
     return row;
   }
@@ -218,6 +229,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Request ID");
     this.addHeaderCell(rowh, "File");
+    this.addHeaderCell(rowh, "Size");
     
     Integer prevIdReq = -1;
     for(ExperimentFile file : experimentFiles) {
@@ -245,6 +257,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     Element row = new Element("TR");
     addEmptyCell(row);
     addCell(row, file.getFileName());
+    addCell(row, file.getFileSize().toString());
     
     return row;
   }

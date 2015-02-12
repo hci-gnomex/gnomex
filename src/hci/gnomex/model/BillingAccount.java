@@ -319,6 +319,45 @@ public class BillingAccount extends HibernateDetailObject {
     return getActiveDisplay() + number + getAccountName();       
   }
 
+  public BillingAccount getCopy(Integer newIdCoreFacility) {
+    BillingAccount newBA = new BillingAccount();
+    newBA.setAccountName(getAccountName());
+    newBA.setAccountNumberAccount(getAccountNumberAccount());
+    newBA.setAccountNumberActivity(getAccountNumberActivity());
+    newBA.setAccountNumberAu(getAccountNumberAu());
+    newBA.setAccountNumberBus(getAccountNumberBus());
+    newBA.setAccountNumberFund(getAccountNumberFund());
+    newBA.setAccountNumberOrg(getAccountNumberOrg());
+    newBA.setAccountNumberProject(getAccountNumberProject());
+    newBA.setAccountNumberYear(getAccountNumberYear());
+    newBA.setApprovedDate(getApprovedDate());
+    newBA.setCreateDate(getCreateDate());
+    newBA.setCustom1(getCustom1());
+    newBA.setCustom2(getCustom2());
+    newBA.setCustom3(getCustom3());
+    newBA.setExpirationDate(getExpirationDate());
+    newBA.setIdCreditCardCompany(getIdCreditCardCompany());
+    newBA.setIdFundingAgency(getIdFundingAgency());
+    newBA.setIdLab(getIdLab());
+    newBA.setIsApproved(getIsApproved());
+    newBA.setIsCreditCard(getIsCreditCard());
+    newBA.setIsPO(getIsPO());
+    newBA.setOrderFormFileSize(getOrderFormFileSize());
+    newBA.setOrderFormFileType(getOrderFormFileType());
+    newBA.setPurchaseOrderForm(getPurchaseOrderForm());
+    newBA.setShortAcct(getShortAcct());
+    newBA.setStartDate(getStartDate());
+    newBA.setSubmitterEmail(getSubmitterEmail());
+    newBA.setSubmitterUID(getSubmitterUID());
+    newBA.setTotalDollarAmount(getTotalDollarAmount());
+    newBA.setTotalChargesToDate(totalChargesToDate);
+    newBA.setZipCode(getZipCode());
+
+    newBA.setIdCoreFacility(newIdCoreFacility);
+
+    return newBA;
+  }
+  
   public String getIsPO() {
     return isPO;
   }
