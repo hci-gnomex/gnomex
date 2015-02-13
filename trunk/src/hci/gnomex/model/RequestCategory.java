@@ -26,7 +26,8 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public static final String   FRAGMENT_ANALYSIS_REQUEST_CATEGORY = "FRAGANAL";
   public static final String   MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY = "MITSEQ";
   public static final String   CHERRY_PICKING_REQUEST_CATEGORY = "CHERRYPICK";
-  public static final String   ION_TORRENT_REQUEST_CATEGORY = "ISCAN";
+  public static final String   ION_TORRENT_PGM_REQUEST_CATEGORY = "IONTOR";
+  public static final String   ION_TORRENT_PROTON_REQUEST_CATEGORY = "IONTORPR";
   public static final String   ISCAN_REQUEST_CATEGORY = "ISCAN";
 
   public static final String   CLINICAL_SEQUENOM_REQUEST_CATEGORY = "CLINSEQ";
@@ -80,7 +81,9 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
         codeRequestCategory.equals(FRAGMENT_ANALYSIS_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(CHERRY_PICKING_REQUEST_CATEGORY) || 
-        codeRequestCategory.equals(ISCAN_REQUEST_CATEGORY))) {
+        codeRequestCategory.equals(ISCAN_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(ION_TORRENT_PGM_REQUEST_CATEGORY) ||
+        codeRequestCategory.equals(ION_TORRENT_PROTON_REQUEST_CATEGORY))) {
       return true;
     } else {
       return false;
