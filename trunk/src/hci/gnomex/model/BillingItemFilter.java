@@ -72,7 +72,10 @@ public class BillingItemFilter extends DetailObject {
 
     if (billingPeriod != null) {
       queryBuf.append(" AND        req.createDate >= '" + this.formatDateTime(billingPeriod.getStartDate(),  this.dateOutputStyle) + "'");
-      queryBuf.append(" AND        req.createDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");      
+      queryBuf.append(" AND        req.createDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");
+      queryBuf.append(" OR ");
+      queryBuf.append(" (        req.completedDate >= '" + this.formatDate(billingPeriod.getStartDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");
+      queryBuf.append(" AND        req.completedDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59' )");
     }
 
 
@@ -474,7 +477,7 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(" bi.idCoreFacility =");
       queryBuf.append(idCoreFacility);
     }
-    
+
     // Search by billing account 
     if (idBillingAccount != null){
       this.addWhereOrAnd();
