@@ -1045,7 +1045,7 @@
 			}
 			if (theTab.selectedChild == this.samplesView) {
 				if (!nextButton.enabled && userWarningsSamples == '') {
-					userWarningsSamples = 'Tap outside of grid cell to continue to next tab';
+					userWarningsSamples = 'When all required fields are entered, tap outside of grid cell to continue to next tab';
 				}
 				this.userWarningStack.selectedChild = this.userWarningsBoxSamples;
 			} else if (!this.isEditState() && theTab.selectedChild == this.sampleSetupView) {
@@ -3489,7 +3489,7 @@
 
 		
 		private function saveRequest():void {
-			if(!billingAccountAlreadyUpdated){
+			if(!billingAccountAlreadyUpdated && this.request.@isExternal == 'N'){
 				updateBillingAccount();	
 			} else{
 				updateRequestProperties()
@@ -3524,29 +3524,7 @@
 				//if we can't find the billing account that means it is part of another lab.
 				//Check to see if this new lab can keep the other labs billing account
 				if(!found){
-					var allApproved:Boolean = true;
-					var sum:int = 0;
-					//If billing items are all approved or the sum equals $0 then we can let user keep old billing account
-					for each(var bi:XML in request.billingItems.BillingLab.BillingItem){
-						//Check for all forms of approved
-						if(bi.@codeBillingStatus != 'APPROVED' && bi.@codeBillingStatus != 'APPROVEDCC' && bi.@codeBillingStatus != 'APPROVEDEX'){
-							allApproved = false;
-						}
-						
-						sum += Number(bi.@totalPrice);
-						
-						if(!allApproved && sum != 0){
-							break;
-						} 
-					}
-					
-					if(allApproved || sum == 0){
-						Alert.show("All of the billing items are already approved or their total equals $0.  Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName, "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-					} else{
-						request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
-						billingAccountAlreadyUpdated = true;
-						saveRequest();
-					}
+					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName, "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
 				} else{
 					request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 					billingAccountAlreadyUpdated = true;

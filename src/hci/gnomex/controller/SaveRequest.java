@@ -316,31 +316,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
         }
       }
-      //check to make sure it is okay to leave billing account the same even if lab has been changed.
-      //Requirements are to either have billing items that are all approved or billing items who total $0
-
-      if(requestParser.getRequest().getLab() != null && requestParser.getRequest().getBillingAccount() != null) {
-        if(!requestParser.getRequest().getLab().getBillingAccounts().contains(requestParser.getRequest().getBillingAccount())) {
-          BigDecimal sum = BigDecimal.ZERO;
-          boolean allApproved = true;
-          for(Iterator i = requestParser.getRequest().getBillingItems().iterator(); i.hasNext();) {
-            BillingItem bi = (BillingItem) i.next();
-            if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)) {
-              allApproved = false;
-            }
-
-            sum.add(bi.getTotalPrice());
-
-            if(!allApproved && sum.compareTo(BigDecimal.ZERO) > 0) {
-              break;
-            }
-          }
-
-          if(!allApproved && sum.compareTo(BigDecimal.ZERO) > 0) {
-            this.addInvalidField("ReassignAccountError", "Can't keep previous labs billing account because either not all items are approved or the billing items total does not equal $0.  Please select a different billing account.");
-          }
-        }
-      }
 
       if (this.isValid()) {
         List labels = sess.createQuery("SELECT label from Label label").list();
