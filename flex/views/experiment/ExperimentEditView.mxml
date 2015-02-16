@@ -534,6 +534,16 @@
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
 			}
+			
+			this.requestProperties.refresh();
+			if (this.requestProperties.length < 1) {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
+			} else {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
+			}
+			
 			this.filteredLabList.refresh();
 			
 	    	concentrationValidator.domain = "real";
@@ -1075,7 +1085,16 @@
 			request.@codeApplication = experimentApplication;
 			if (theTab.contains(annotationView) && request != null) {
 				annotationView.onPropertyRefreshed(null);
-			}			
+			}
+			
+			this.requestProperties.refresh();
+			if (this.requestProperties.length < 1) {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
+			} else {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
+			} 
 		}		
 		
 		public function setRequestCategoryName():void {
@@ -1106,6 +1125,7 @@
 			request.@coreToExtractDNA = 'N';
 			request.@includeBisulfideConversion = 'N';
 			request.@includeQubitConcentration = 'N';
+			
 			
 			if (theTab.contains(confirmView)) {
 				this.confirmView.setBarcodeColVisibility(false);        					
@@ -1419,6 +1439,15 @@
 				annotationView.onPropertyRefreshed(null);
 			}
 			
+			this.requestProperties.refresh();
+			if (this.requestProperties.length < 1) {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
+			} else {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
+			} 
+			
 			if (theTab.contains(notesView)) {
 				notesView.setExternalNoteVisibility();
 			}
@@ -1616,7 +1645,6 @@
 			return keep;
 		}
 			
-		
 		private function isIlluminaAmendRequestType():Boolean {
 			var codeRequestCategory:String = getAmendRequestCategory();
 			if (codeRequestCategory != '') {
@@ -2483,6 +2511,15 @@
 				this.annotationView.checkSecurity();
 			} 
 			
+			this.requestProperties.refresh();
+			if (this.requestProperties.length < 1) {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
+			} else {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
+			}
+			
 			initializeSubmitForm();		
 
 			if (theRequestNumber != null) {
@@ -3070,6 +3107,7 @@
 			
 			// Only submit request if it is valid
 			validateRequest();
+			errorMessage += propertiesView.requiredAnnotationsEntered(); 
 			if (errorMessage != '') {
 				this.submitButton.enabled = true;
 				Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
@@ -3085,7 +3123,7 @@
 		private function validateAndSaveRequest():void {
 			this.submitButton.enabled = false;
 			validateRequest();
-			
+			errorMessage += propertiesView.requiredAnnotationsEntered(); 
 			if (errorMessage != '') {
 				this.submitButton.enabled = true;
 				Alert.show(errorMessage);
@@ -3156,6 +3194,13 @@
 			if(exceeds500) {
 				params.invoicePrice = createBillingItems.lastResult.Request.@invoicePrice;
 			}		
+			
+			if ( this.theTab.contains( this.propertiesView )  ){
+				// Annotations
+				propertiesView.initializePropertiesFromComponents();
+				params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
+				
+			}
 			
 			saveNewRequest.send(params);			
 			
@@ -3504,6 +3549,14 @@
 				if (this.isFragAnalState()) {
 					params.assaysXMLString = this.selectedAssaysCollection;
 				}
+
+				if ( this.theTab.contains( this.propertiesView ) ){
+					// Annotations
+					propertiesView.initializePropertiesFromComponents();
+					params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
+
+				}
+				
 				
 				saveExistingRequest.send(params);
 				
@@ -4537,6 +4590,15 @@
 			if (theTab.contains(this.annotationView)) {
 				this.propertyEntries.refresh();
 			} 
+			
+			this.requestProperties.refresh();
+			if (this.requestProperties.length < 1) {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
+			} else {
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
+				this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
+			} 
 		}
 		
 		private function setAmendTitle():void {
@@ -5224,9 +5286,10 @@
 	<mx:XMLListCollection id="selectedAssaysCollection"/>
 	
   	<mx:XMLListCollection id="propertyEntries" source="{request.PropertyEntries.PropertyEntry}" 
-	  	 sort="{propertySorter}"  filterFunction="{filterPropertyEntry}"/>
+	  	 				  sort="{propertySorter}" filterFunction="{filterPropertyEntry}"/>
+	<mx:XMLListCollection id="requestProperties" source="{request.RequestProperties.PropertyEntry}" 
+						  sort="{propertySorter}" filterFunction="{filterPropertyEntry}" />
 	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="true"/>
-
 
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
 
@@ -5377,6 +5440,8 @@
 			
 			<experiment:TabNotesView id="notesView" enabled="false">
 			</experiment:TabNotesView>
+			
+			<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="true" />
 			
 			<experiment:TabSampleSetupView id="sampleSetupView">		    	
 			</experiment:TabSampleSetupView>

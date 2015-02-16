@@ -21,10 +21,11 @@ package views.util
 			
 			var filterByPlatformApplication:Boolean = false;
 			if (reqCategory != null) {
-				if (property.descendants("PropertyPlatformApplication").length() > 0 || 
-					reqCategory.@type == 'ISCAN' ||
-					reqCategory.@type == 'SEQUENOM' ||
-					reqCategory.@type == 'ISOLATION') {
+				if (( property.@forRequest != null && property.@forRequest == 'Y' ) ||
+						property.descendants("PropertyPlatformApplication").length() > 0 || 
+						reqCategory.@type == 'ISCAN' ||
+						reqCategory.@type == 'SEQUENOM' ||
+						reqCategory.@type == 'ISOLATION') {
 					filterByPlatformApplication = true;	
 				}
 			}			

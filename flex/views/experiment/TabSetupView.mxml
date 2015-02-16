@@ -828,6 +828,10 @@
 					parentDocument.enableNextButtons();
 				}
 				
+				if (parentDocument.theTab.contains(parentDocument.propertiesView)) {
+					parentDocument.propertiesView.enabled = isComplete;
+				}
+				
 				callLater(postSetupCompleteness, [isComplete]);
 				
 			}
