@@ -1080,6 +1080,11 @@
 			<key column="idRequest" />
 			<one-to-many class="hci.gnomex.model.PlateWell" />
 		</set>
+    <set name="propertyEntries" table="PropertyEntry" lazy="true"
+      cascade="delete">
+      <key column="idRequest" />
+      <one-to-many class="hci.gnomex.model.PropertyEntry" />
+    </set>
 	</class>
 
 	<!-- hci.gnomex.model.ExperimentCollaborator -->
@@ -1235,6 +1240,7 @@
 		<property name="idSample" column="idSample" type="integer" />
 		<property name="idDataTrack" column="idDataTrack" type="integer" />
 		<property name="idAnalysis" column="idAnalysis" type="integer" />
+    <property name="idRequest" column="idRequest" type="integer" />
 		<property name="value" column="valueString" type="string" />
 		<property name="otherLabel" column="otherLabel" type="string" />
 		<many-to-one name="property" column="idProperty"
@@ -2369,6 +2375,7 @@
 		<property name="forSample" column="forSample" type="string" />
 		<property name="forAnalysis" column="forAnalysis" type="string" />
 		<property name="forDataTrack" column="forDataTrack" type="string" />
+    <property name="forRequest" column="forRequest" type="string" />
 		<property name="sortOrder" column="sortOrder" type="integer" />
 		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
 

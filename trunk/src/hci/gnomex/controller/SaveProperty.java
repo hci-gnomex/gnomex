@@ -74,7 +74,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       isNewProperty = true;
     }
     
-    if (!propertyScreen.getForAnalysis().equals("Y") && !propertyScreen.getForDataTrack().equals("Y") && !propertyScreen.getForSample().equals("Y")) {
+    if (!propertyScreen.getForAnalysis().equals("Y") && !propertyScreen.getForDataTrack().equals("Y") && !propertyScreen.getForSample().equals("Y") && !propertyScreen.getForRequest().equals("Y")) {
       this.addInvalidField("AnnotationAppliesTo", "Please choose the object the annotation applies to");
     }
 
@@ -444,6 +444,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     prop.setForSample(propertyScreen.getForSample());
     prop.setForDataTrack(propertyScreen.getForDataTrack());
     prop.setForAnalysis(propertyScreen.getForAnalysis());
+    prop.setForRequest(propertyScreen.getForRequest());
     prop.setIsRequired(propertyScreen.getIsRequired());
     prop.setSortOrder(propertyScreen.getSortOrder());
     prop.setCodePropertyType(propertyScreen.getCodePropertyType());

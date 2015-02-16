@@ -297,9 +297,9 @@
 					params.name = newAnnotationName.text;
 					params.isActive = 'Y';
 					params.isRequired = 'N';
-					params.forSample =  "Y";
 					params.forAnalysis = "N";
 					params.forDataTrack = "N";
+					params.forRequest = "N";
 					params.forSample = "Y";
 					params.idCoreFacility = parentDocument.coreFacility.@idCoreFacility;
 					if (parentApplication.hasPermission("canWriteDictionaries")) {

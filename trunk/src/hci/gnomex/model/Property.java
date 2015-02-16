@@ -23,6 +23,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private String   forSample;
   private String   forAnalysis;
   private String   forDataTrack;
+  private String   forRequest;
   private Integer  sortOrder;
   private Integer  idCoreFacility;
   private Set      options = new TreeSet();
@@ -196,6 +197,16 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     this.forDataTrack = forDataTrack;
   }
   
+  
+  public String getForRequest() {
+    return forRequest;
+  }
+
+  
+  public void setForRequest( String forRequest ) {
+    this.forRequest = forRequest;
+  }
+
   public Integer getSortOrder() {
     return sortOrder;
   }

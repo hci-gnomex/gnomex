@@ -74,6 +74,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
+  private Set             propertyEntries;
   private Integer         idSampleDropOffLocation;
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
@@ -739,6 +740,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.excludeMethodFromXML("getAssays");
     this.excludeMethodFromXML("getFlowCellChannels");
     this.excludeMethodFromXML("getRedoSampleNames");
+    this.excludeMethodFromXML("getPropertyEntries");
   }
 
   public String getOwnerName() {
@@ -968,6 +970,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.files = files;
   }
 
+  public Set getPropertyEntries() {
+    return propertyEntries;
+  }
+
+  public void setPropertyEntries(Set propertyEntries) {
+    this.propertyEntries = propertyEntries;
+  }
+  
   public Date getPrivacyExpirationDate() {
     return privacyExpirationDate;
   }

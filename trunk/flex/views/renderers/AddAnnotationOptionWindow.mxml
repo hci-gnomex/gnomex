@@ -76,6 +76,7 @@
 				params.forSample = property.@forSample;
 				params.forDataTrack = property.@forDataTrack;
 				params.forAnalysis = property.@forAnalysis;
+				params.forRequest = property.@forRequest;
 				params.mageOntologyCode = property.@mageOntologyCode;
 				params.mageOntologyDefinition = property.@mageOntologyDefinition; 
 				params.description = property.@description;
