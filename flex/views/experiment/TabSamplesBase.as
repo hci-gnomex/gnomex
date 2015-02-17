@@ -270,6 +270,11 @@ package views.experiment
 			dc.dataField  = fieldName;
 			dc.headerText = propertyNode.@name;
 			dc.headerWordWrap = true;
+			if (propertyNode.@description != null && propertyNode.@description.toString() != "") {
+				dc.headerToolTip = propertyNode.@description
+			} else {
+				dc.headerToolTip = propertyNode.@name;
+			}
 			if (propertyNode.@name == "Other" && parentDocument.request.@otherLabel != null && parentDocument.request.@otherLabel != '') {
 				dc.headerText = parentDocument.request.@otherLabel;
 			}

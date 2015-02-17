@@ -40,6 +40,7 @@
 			import views.renderers.MultiselectRenderer;
 			import views.renderers.Text;
 			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridToolTipColumn;
 			import views.util.AnnotationUtility;
 			import views.util.CollaboratorWindow;
 			import views.util.GNomExStringUtil;
@@ -1315,16 +1316,20 @@
 						}
 						
 						// We already have this column.  Just set the header and visible and move on.
-						var newCol:AdvancedDataGridColumnWithType = new AdvancedDataGridColumnWithType();
+						var newCol:AdvancedDataGridToolTipColumn = new AdvancedDataGridToolTipColumn();
 						if (exists) {
-							newCol = AdvancedDataGridColumnWithType(col);
+							newCol = AdvancedDataGridToolTipColumn(col);
 						} else {
 							newCol.dataField  = "@ANNOT" + annotation.@idProperty;
 							newCol.headerText = headerName;
 							newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
-							newCol.propertyType = property.@codePropertyType;
 							newCol.headerWordWrap = true;
-							
+							if (property.@description != null && property.@description.toString() != "") {
+								newCol.headerToolTip = property.@description
+							} else {
+								newCol.headerToolTip = property.@name;
+							}
+
 							if (property.@codePropertyType == 'MOPTION') {
 								newCol.itemRenderer =  MultiselectRenderer.create(false);
 							} else if (property.@codePropertyType == 'URL') {
