@@ -53,6 +53,7 @@
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.ValidationResultEvent;
@@ -83,6 +84,10 @@
 			
 		[Bindable]
 		private var selectedIdCoreFacility:String = null;
+
+		public var VALIDATION_WARNING:String              = "Warning";
+		public var VALIDATION_ERROR:String                = "Error";
+		public var VALIDATION_SUCCESS:String              = "NoWarningsOrErrors";
 			
         private function refreshWorkList():void {
         	dirty.resetDirty();
@@ -125,8 +130,9 @@
 	    	workListGrid.selectedItem.@isDirty = "Y";
         }
         
-        private function validate():Boolean {
-        	var message:String = "";
+        private function validate():String {
+        	var errorMessage:String = "";
+			var warningMessage:String = "";
         	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
     		
     		var nv:NumberValidator = new NumberValidator();
@@ -146,7 +152,7 @@
         	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qualCalcConcentration);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\nConcentration " + item.@qualCalcConcentration + " " + vr.message;
+					errorMessage += "\nConcentration " + item.@qualCalcConcentration + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
@@ -156,14 +162,14 @@
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual260nmTo230nmRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n260/230 " + item.@qual260nmTo230nmRatio + " " + vr.message;
+					errorMessage += "\n260/230 " + item.@qual260nmTo230nmRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual260nmTo280nmRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n260/280 " + item.@qual260nmTo280nmRatio + " " + vr.message;
+					errorMessage += "\n260/280 " + item.@qual260nmTo280nmRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
@@ -173,7 +179,7 @@
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual28sTo18sRibosomalRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-		    		message += "\n28s/18s " + item.@qual28sTo18sRibosomalRatio + " " + vr.message;
+					errorMessage += "\n28s/18s " + item.@qual28sTo18sRibosomalRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 	  
@@ -181,18 +187,19 @@
 			for each (item in dirtyItems) {
 				if (item.@qualStatus == 'Completed' || item.@qualStatus == 'Terminated') {
 					if (item.@qualCodeApplication == null || item.@qualCodeApplication == '') {
-						message += "\nPlease enter a QC Type before completing or terminating an item";
+						warningMessage += "\n" + item.@sampleNumber + " is completed or terminated and does not have a QC Type specified.";
 					} else {
 						if (parentApplication.applicationHasChipTypes(item.@qualCodeApplication)) {
 							if (item.@qualCodeBioanalyzerChipType == null || item.@qualCodeBioanalyzerChipType == '') {
-								message += "\nPlease enter a QC Assay before completing or terminating an item";
+								warningMessage += "\n" + item.@sampleNumber + " is completed or terminated and does not have a QC Assay specified.";
 							} else {
 								var code:String = parentApplication.getCodeApplicationForBioanalyzerChipType(item.@qualCodeBioanalyzerChipType);
 								if (code != item.@qualCodeApplication.toString()) {
-									message += "\nQC Assay " 
+									errorMessage += "\nQC Assay " 
 										+ parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@qualCodeBioanalyzerChipType) 
 										+ " is not valid for QC Type " 
-										+ parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Application", item.@qualCodeApplication);
+										+ parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Application", item.@qualCodeApplication)
+										+ " on sample " + item.@sampleNumber + ".";
 								}
 							}
 						}
@@ -200,18 +207,30 @@
 				}
 			}
 	    	  	
-	    	if (message != "") {
-	    		Alert.show(message);
-	    		return false;
+	    	if (errorMessage != "") {
+	    		Alert.show(errorMessage);
+	    		return VALIDATION_ERROR;
+			} else if (warningMessage != "") {
+				warningMessage += "\nDo you wish to continue?";
+				Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
+				return VALIDATION_WARNING;
 	    	} else {
-	    		return true;
+	    		return VALIDATION_SUCCESS;
 	    	}
         }
         
-        private function save():void {
-        	if (validate() == false) {
-        		return;
-        	}
+		private function onPromptForWarning(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				saveForReal();
+			}
+		}
+		private function save():void {
+			if (validate() == "NoWarningsOrErrors") {
+				saveForReal();
+			}
+		}
+			
+        private function saveForReal():void {
         	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItemQC.send();
