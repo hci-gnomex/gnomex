@@ -459,6 +459,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             
             peNode.setAttribute("idProperty", prop.getIdProperty().toString());
             peNode.setAttribute("name", prop.getName());
+            peNode.setAttribute("description", prop.getDescription() != null ? prop.getDescription() : "");
             peNode.setAttribute("value", entry != null && entry.getValue() != null ? entry.getValue() : "");
             peNode.setAttribute("codePropertyType", prop.getCodePropertyType());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
