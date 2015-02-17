@@ -123,6 +123,9 @@
 			[Bindable]
 			private var filteredCoreFacilityList:XMLListCollection;
 			
+			[Bindable]
+			private var appUserList:XMLListCollection;
+			
 			private var filteredAppListSorter:Sort;
 			
 			private var removePropertyClick:Point;
@@ -168,6 +171,17 @@
 				} else {
 					this.coreFacilityHBox.visible = true;
 					this.coreFacilityHBox.includeInLayout = true;
+				}
+				
+				appUserList = new XMLListCollection();
+				var emptyAppUser:XML = new XML();
+				emptyAppUser.@display="";
+				emptyAppUser.@value="";
+				appUserList.addItem(emptyAppUser);
+				for each (var a:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry) {
+					if (a.@value != "") {
+						appUserList.addItem(a.copy());
+					}
 				}
 			}	
 			
@@ -329,7 +343,7 @@
 			private function setOwnerCombo():void {
 				this.ownerCombo.selectedItem = null;
 				this.ownerCombo.enabled = true;
-				for each(var user:XML in parentApplication.promptedAppUserList) {
+				for each(var user:XML in this.ownerCombo.dataProvider) {
 					if (user.@idAppUser == property.@idAppUser) {
 						this.ownerCombo.selectedItem = user;
 						break;
@@ -571,11 +585,7 @@
 				params.mageOntologyDefinition = mageOntologyDefinition.text; 
 				params.description = description.text; 
 				params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
-				if (parentApplication.hasPermission("canWriteDictionaries")) {
-					params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
-				} else {
-					params.idAppUser = parentApplication.getIdAppUser();
-				}
+				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@value : "";			
 				params.codePropertyType = this.characteristicTypeRadioGroup.selectedValue;
 				params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
 				params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
@@ -630,7 +640,6 @@
 					parentApplication.getPropertyList.send();
 					dispatchEvent(new Event("updateProperties"));
 					getPropertyList.send();
-					this.reselectProperty();
 				} else {
 					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -854,7 +863,9 @@
 							</mx:HBox>
 							<mx:HBox width="100%">
 								<mx:Label text="Owner" width="90" styleName="formLabel"/>
-								<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
+								<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@display" 
+											 dataProvider="{appUserList}"
+								/>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalGap="0" height="100%" verticalAlign="top">
 								<mx:Label text="Type" width="90" styleName="formLabel"/>
