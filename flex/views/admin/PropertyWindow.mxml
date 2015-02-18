@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="969" height="600"
+				width="1029" height="600"
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
@@ -201,6 +201,7 @@
 			}
 			
 			private function filterByAnnotations(item:Object):Boolean{
+				
 				var coreMatch:Boolean = false;
 				if (idCoreFacilitySelected != null) {
 					if (idCoreFacilitySelected == item.@idCoreFacility) {
@@ -235,6 +236,9 @@
 					criteriaMatch = true;
 				}
 				else if(criteria == "dataTracks" && item.@forDataTrack == "Y"){
+					criteriaMatch = true;
+				}
+				else if(criteria == "experiments" && item.@forRequest == "Y"){
 					criteriaMatch = true;
 				}
 				else{
@@ -571,6 +575,13 @@
 					return;
 				}
 				
+				if (this.experiment.selected && this.platformApplications.length<1) {
+					Alert.show("Annotations for experiment requests require at least 1 experiment platform.");
+					theTab.selectedChild = appliesToTab;
+					this.platformCombo.setFocus();
+					return;
+				}
+				
 				var params:Object = new Object();
 				params.idProperty = property.@idProperty;
 				params.name = scName.text;
@@ -774,6 +785,7 @@
 			<mx:RadioButton label="Samples" value="samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Analysis" value="analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Data Tracks" value="dataTracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations"  fontSize="10"/>
+			<mx:RadioButton label="Experiments" value="experiments" group="{radioButtonGroupTarget}" id="showExperimentAnnotations"  fontSize="10"/>
 			<mx:Label text="Applies to Specific" fontSize="10" paddingLeft="20" styleName="formLabel"/>
 			<mx:ComboBox id="organismFilter" itemRenderer="mx.controls.Label"  width="140"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Organism..."/>
 			<mx:ComboBox id="experimentPlatformFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" prompt="Experiment Platform..." fontSize="10"/>
@@ -811,7 +823,7 @@
 			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
 				<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" backgroundColor="#FFFFFF" styleName="panelBox"/>		
 				<mx:VBox width="100%" height="100%" verticalGap="1" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" backgroundAlpha="0">		
-					<mx:TabNavigator tabWidth="140" width="100%" height="100%" styleName="form">
+					<mx:TabNavigator id="theTab" tabWidth="140" width="100%" height="100%" styleName="form">
 						<mx:VBox  label="Annotation" width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none">			 
 							<mx:HBox width="100%" verticalGap="0">
 								<mx:Label text="Name" width="90" styleName="formLabel"/>
@@ -895,7 +907,7 @@
 								</mx:HBox>
 							</mx:HBox> 
 						</mx:VBox>
-						<mx:VBox label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
+						<mx:VBox id="appliesToTab" label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
 								<mx:Text text="Only show for these platforms/experiment types" width="100%" styleName="formLabel"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
