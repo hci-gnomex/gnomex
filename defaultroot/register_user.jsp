@@ -110,6 +110,16 @@ if (department == null) {
   department = "";
 }
 
+String contactEmail = (String) ((request.getParameter("contactEmail") != null)?request.getParameter("contactEmail"):"");
+if (contactEmail == null) {
+	contactEmail = "";
+}
+
+String contactPhone = (String) ((request.getParameter("contactPhone") != null)?request.getParameter("contactPhone"):"");
+if (contactPhone == null) {
+  contactPhone = "";
+}
+
 String institute = (String) ((request.getParameter("institute") != null)?request.getParameter("institute"):"");
 if (institute == null) {
   institute = "";
@@ -237,6 +247,12 @@ try {
 
         <div class="col1"><div class="right">Department</div></div>
         <div class="col2"><input type="text" class="textWide"  name="department" value="<%=department%>"/></div>
+        
+        <div class="col1"><div class="right">PI Email</div></div>
+        <div class="col2"><input type="text" class="textWide" name="contactEmail" value="<%=contactEmail%>"/></div>
+        
+        <div class="col1"><div class="right">PI Phone</div></div>
+        <div class="col2"><input type="text" class="textWide" name="contactPhone" value="<%=contactPhone%>"/></div>
       </div>
 
       
