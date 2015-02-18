@@ -37,7 +37,6 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
   private String                         listKind = "RunList";
   private String						 message = "";
 
-  private int							 runCount = 0;
   private static final int				 DEFAULT_MAX_RUN_COUNT = 200;
 
   public void validate() {
@@ -77,6 +76,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           List runs = sess.createQuery( buf.toString() ).list();
           
           Integer maxRuns = getMaxRuns(sess);
+          int              runCount = 0;
 
           for( Iterator i = runs.iterator(); i.hasNext(); ) {
 

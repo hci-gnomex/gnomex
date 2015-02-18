@@ -39,7 +39,6 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
   private Element                     rootNode = null;
   private String                      message = "";
   
-  private int						  chromCount = 0;
   private static final int			  DEFAULT_MAX_CHROM_COUNT = 1000;
 
   public void validate() {
@@ -78,6 +77,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
       AppUser releaser = null;
       
       Integer maxChromatograms = getMaxChromatograms(sess);
+      int             chromCount = 0;
       
       for(Iterator i = chromats.iterator(); i.hasNext();) {
 

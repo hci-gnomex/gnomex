@@ -36,7 +36,6 @@ public class GetPlateList extends GNomExCommand implements Serializable {
   private Element              rootNode = null;
   private String               message = "";
   
-  private int				   plateCount = 0;
   private static final int	   DEFAULT_MAX_PLATE_COUNT = 200;
 
   public void validate() {
@@ -72,7 +71,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           List plates = sess.createQuery(buf.toString()).list();
           
           Integer maxPlates = getMaxPlates(sess);
-
+          int          plateCount = 0;
           for(Iterator i = plates.iterator(); i.hasNext();) {
 
             Object[] row = (Object[])i.next();
