@@ -853,7 +853,8 @@
 										<mx:CheckBox label="Analysis" id="analysis" click="setDirty()">
 											<mx:selected>{property.@forAnalysis == 'Y' ? true : false}</mx:selected>
 										</mx:CheckBox>
-										<mx:CheckBox label="Experiment" id="experiment" click="setDirty()">
+										<mx:CheckBox label="Experiment" id="experiment" click="setDirty()" 
+													 enabled="{parentApplication.isAdminState}">
 											<mx:selected>{property.@forRequest == 'Y' ? true : false}</mx:selected>
 										</mx:CheckBox>
 									</mx:HBox>
