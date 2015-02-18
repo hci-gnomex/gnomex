@@ -25,20 +25,22 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.TransactionException;
 
 public class HibernateSession {
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HibernateSession.class);
 
   private static final ThreadLocal session      = new ThreadLocal();
   private static final ThreadLocal transaction = new ThreadLocal();
-  
+
   public static final String SESSION_FACTORY_JNDI_NAME       = "sessions/GNOMEX_FACTORY";
-  
+
 
 
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
     if (s == null || !s.isOpen()) {
-      
+
       if (GNomExFrontController.isTomcat()) {
         s = HibernateUtil.getSessionFactory().openSession();
         if (GNomExFrontController.isTomcat()) {
@@ -52,13 +54,13 @@ public class HibernateSession {
       }
       session.set(s);
     }
-    
-    
+
+
     setAppName(s, username);
 
     return s;
   }
-  
+
 
 
   public static Session currentSession() throws NamingException, HibernateException, SQLException {
@@ -77,21 +79,21 @@ public class HibernateSession {
       transaction.set(null);
     }
   }
-  
+
   public static void closeSession() throws HibernateException, SQLException {
     // Ignore this close if tomcat.  Close (and commit) will happen from GnomExFrontController
     if (!GNomExFrontController.isTomcat()) {
       closeSessionForReal();
     }
   }
-  
+
   public static void closeTomcatSession() throws HibernateException, SQLException {
     // Only does something if tomcat.  Only called from GNomExFrontController
     if (GNomExFrontController.isTomcat()) {
       closeSessionForReal();
     }
   }
-  
+
   private static void closeSessionForReal() throws HibernateException, SQLException {
     // tx will be null if not tomcat or if transaction already rolled back.
     Session s = (Session) session.get();
@@ -101,8 +103,17 @@ public class HibernateSession {
       setAppName(s, null);
     }
     finally {
-      if (tx != null) {
-        tx.commit();
+      if (tx != null && !tx.wasCommitted() && !tx.wasRolledBack()) {
+        try {
+          tx.commit();
+        }catch(Exception e) {
+          log.error("Failed to commit Transaction, going to try and rollback");
+        }
+        try {
+          tx.rollback();
+        } catch(Exception e) {
+          log.error("Failed to rollback transaction");
+        }
       }
       if (s != null) {
         s.close();
@@ -111,11 +122,11 @@ public class HibernateSession {
       transaction.set(null);
     }
   }
-  
+
   public static boolean hasCurrentSession () {
     return (session.get() != null);
   }
-  
+
   public static void setAppName(Session s, String username) throws SQLException {
     if (s != null) {
       Connection con = s.connection();    
