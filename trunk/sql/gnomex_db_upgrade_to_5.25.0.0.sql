@@ -58,3 +58,9 @@ REFERENCES `gnomex`.`AppUser` (`idAppUser`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION;
 call ExecuteIfTableExists('gnomex','BillingAccount_Audit','alter table BillingAccount_Audit ADD idApprover int(10) NULL');
+
+alter table Property add column forRequest char(1) null;
+call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit add column forRequest char(1) null');
+
+
+
