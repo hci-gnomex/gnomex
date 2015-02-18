@@ -1909,4 +1909,32 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       System.out.println();      
     }
   }
+  
+  /**
+   * Until a better solution is found with dealing with searches containing apostrophes,
+   * this method truncates any word in the search with an apostrophe so that at least
+   * part of the word is used in the search. For example, the String "foo bar's" will be
+   * replaced with "foo bar" so that "bar" still contributes to the search. Returns the
+   * modified search.
+   */
+  public static String truncateSearchWithApostrophe(String search) {
+	  if (search == null) {
+		  return null;
+	  }
+	  
+	  String newSearch = search;
+	  if (search.indexOf("\u0027".charAt(0)) != -1) {
+		  newSearch = "";
+		  String[] searchElements = search.split(" ");
+		  for (int i = 0; i < searchElements.length; i++) {
+			  String currentString = searchElements[i];
+			  int indexOfApostrophe = currentString.indexOf("\u0027".charAt(0));
+			  if (indexOfApostrophe != -1) {
+				  currentString = currentString.substring(0, indexOfApostrophe);
+			  }
+			  newSearch += (i == searchElements.length - 1) ? currentString : currentString + " ";
+		  }
+	  }
+	  return newSearch;
+  }
 }
