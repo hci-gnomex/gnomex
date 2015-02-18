@@ -194,7 +194,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
 
-        if (validatePropertyScreen(sess)) {
+        if (validatePropertyScreen(sess)&&checkPermissionToEdit(sess)) {
         
           Property sc = null;
                 
@@ -435,7 +435,19 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     
     return true;
   }
-  
+
+  private Boolean checkPermissionToEdit(Session sess) {
+    if (propertyScreen.getForRequest()!=null && propertyScreen.getForRequest().equals( "Y" )) {
+      if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) ) {  
+        this.addInvalidField("Insufficient permissions", "Non-admins cannot edit annotations for experiment requests.");
+        setResponsePage(this.ERROR_JSP);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private void initializeProperty(Property prop) {
     prop.setName(propertyScreen.getName());
     prop.setMageOntologyCode(propertyScreen.getMageOntologyCode());
