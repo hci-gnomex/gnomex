@@ -133,7 +133,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
     this.SUCCESS_JSP_HTML = "/report.jsp";
     this.SUCCESS_JSP_CSV = "/report_csv.jsp";
     this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
-    this.SUCCESS_JSP_XLS = "/report_xls.jsp";
+    this.SUCCESS_JSP_XLS = "/report_xls_upgraded.jsp";
     this.ERROR_JSP = "/message.jsp";
 
 
