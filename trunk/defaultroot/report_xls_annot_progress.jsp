@@ -42,8 +42,8 @@ int     PALLETE_GREEN_INDEX = 48;
 
 
 // Column numbers of significance (requires special logic)
-int     FIRST_COL_FOR_ANNOTS = 7;
-int     VISIBILITY_LEGEND_COLUMN = 1;
+int     FIRST_COL_FOR_ANNOTS = 8;
+int     VISIBILITY_LEGEND_COLUMN = 4;
 int     SAMPLE_COUNT_COL = 2;
 int     LAB_COL = 0;
 
@@ -654,6 +654,16 @@ for (ReportTray tray : (java.util.ArrayList<ReportTray>)reportTrayList.getTrays(
 		     sheet.autoSizeColumn(columnIndex);
 		}
 	}
+	
+	// Create freeze panes
+	if (sheetIndex == MISSING_ANNOT_SHEET) {
+		sheet.createFreezePane(2, 9);
+	} else if (sheetIndex == FULLY_ANNOT_SHEET) {
+		sheet.createFreezePane(2, 4);
+	} else if (sheetIndex == SUMMARY_SHEET) {
+		sheet.createFreezePane(1, 4);
+	}
+	
 	sheetIndex++;
 	
 } // end of loop through trays
