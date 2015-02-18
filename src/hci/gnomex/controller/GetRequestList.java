@@ -40,7 +40,6 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
   
   private String			   message = "";
-  private int				   requestCount = 0;
   private static final int	   DEFAULT_MAX_REQUESTS_COUNT = 100;
 
   public void validate() {
@@ -73,7 +72,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
       
       Integer maxRequests = getMaxRequests(sess);
-
+      int          requestCount = 0;
+      
       Document doc = new Document(new Element("RequestList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
