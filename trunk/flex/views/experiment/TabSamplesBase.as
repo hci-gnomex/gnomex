@@ -632,6 +632,10 @@ package views.experiment
 			return "";
 		}
 		
+		public function getIsExternal():Boolean {
+			return (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+		}
+		
 		protected function getWellName(idx:int):String {
 			var wellName:String = "";
 			if (parentDocument.isFragAnalState()) {
