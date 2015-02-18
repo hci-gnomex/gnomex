@@ -56,6 +56,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private CoreFacility   facility = null;
   private String         idFacility = null;
   private String         department = null;
+  private String		 contactEmail = null;
+  private String		 contactPhone = null;
   private String         serverName;
   private List           activeFacilities;
 
@@ -96,6 +98,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       existingLab = false;
       requestedLabName = request.getParameter("newLab");
       department = request.getParameter( "department" );
+      contactEmail = request.getParameter("contactEmail");
+      contactPhone = request.getParameter("contactPhone");
       appUserScreen.setDepartment( department );
     }
 
@@ -109,8 +113,11 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     if ((appUserScreen.getFirstName() == null || appUserScreen.getFirstName().equals("")) ||
         (appUserScreen.getLastName() == null || appUserScreen.getLastName().equals("")) ||
         (appUserScreen.getEmail() == null || appUserScreen.getEmail().equals("")) ||
-        ((requestedLabName == null || requestedLabName.equals("")) && requestedLabId == null)) {
-      this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, lab)");
+        (appUserScreen.getPhone() == null || appUserScreen.getPhone().equals("")) ||
+        ((requestedLabName == null || requestedLabName.equals("")) && requestedLabId == null) ||
+        ((contactEmail == null || contactEmail.equals("")) && requestedLabId == null) ||
+        ((contactPhone == null || contactPhone.equals("")) && requestedLabId == null)) {
+      this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, phone, lab)");
     }
 
     if(appUserScreen.getFirstName() != null && appUserScreen.getLastName() != null){
@@ -311,10 +318,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     } else {
       if(isAdmin) {
         body.append("</td></tr><tr style=\"color:red\"><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+        body.append("</td></tr><tr style=\"color:red\"><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
+        body.append("</td></tr><tr style=\"color:red\"><td>PI Email:</td><td>" + this.getNonNullString(contactEmail));
+        body.append("</td></tr><tr style=\"color:red\"><td>PI Phone:</td><td>" + this.getNonNullString(contactPhone));
       } else {
         body.append("</td></tr><tr><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
+        body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
+        body.append("</td></tr><tr><td>PI Email:</td><td>" + this.getNonNullString(contactEmail));
+        body.append("</td></tr><tr><td>PI Phone:</td><td>" + this.getNonNullString(contactPhone));
       }
-      body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
       if (activeFacilities.size() > 1) {
         body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
       }
