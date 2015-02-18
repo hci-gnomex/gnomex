@@ -2,6 +2,7 @@
 
 
 import hci.framework.model.DetailObject;
+import hci.gnomex.controller.SearchIndex;
 
 import java.util.List;
 
@@ -72,6 +73,7 @@ public class ExperimentFilter extends DetailObject {
       // Search by text1
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
+    	text1 = SearchIndex.truncateSearchWithApostrophe(text1); // Kludge for dealing with apostrophes in search
         searchText.append(" " + ExperimentIndexHelper.TEXT + ":");
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;
