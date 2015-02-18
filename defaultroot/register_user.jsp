@@ -205,23 +205,23 @@ try {
   <div class="boxWide">
     <h3>Sign up for an account</h3>
 
-      <div class="col1"><div class="right">First name</div></div>
+      <div class="col1"><div class="right">*First name</div></div>
       <div class="col2"><input id="firstName" type="text" class="textWide" name="firstName" value="<%=firstName%>"  ></div>
 
-      <div class="col1"><div class="right">Last name</div></div>
+      <div class="col1"><div class="right">*Last name</div></div>
       <div class="col2"><input type="text" class="textWide" name="lastName" id="lastName" value="<%=lastName%>"  /></div>
 
-      <div class="col1"><div class="right">Email</div></div>
+      <div class="col1"><div class="right">*Email</div></div>
       <div class="col2"><input type="text" class="textWide"   name="email" id="email" value="<%=email%>"  /></div>
 
-      <div class="col1"><div class="right">Phone</div></div>
+      <div class="col1"><div class="right">*Phone</div></div>
       <div class="col2"><input type="text" class="textWide" name="phone" id="phone" value="<%=phone%>"  /></div>
       
       <div class="empty"></div>
       <br>
       
       <div id="labDiv">
-        <div class="col1"><div class="right">Choose Lab</div></div>
+        <div class="col1"><div class="right">*Choose Lab</div></div>
         <div class="col2"> 
             <select name="labDropdown" onchange="hideNewLab()" id="labDropdown" style="width:200" >
               <option value="0">  </option>
@@ -242,16 +242,16 @@ try {
       </div>
        
       <div id="newLabDiv" style="display:none;">   
-        <div class="col1"><div class="right">Lab Name</div></div>
+        <div class="col1"><div class="right">*Lab Name</div></div>
         <div class="col2"><input type="text" class="textWide"  name="newLab" value="<%=newLab%>" onkeypress="return checkAlphaNumeric(event)"/></div>
 
         <div class="col1"><div class="right">Department</div></div>
         <div class="col2"><input type="text" class="textWide"  name="department" value="<%=department%>"/></div>
         
-        <div class="col1"><div class="right">PI Email</div></div>
+        <div class="col1"><div class="right">*PI Email</div></div>
         <div class="col2"><input type="text" class="textWide" name="contactEmail" value="<%=contactEmail%>"/></div>
         
-        <div class="col1"><div class="right">PI Phone</div></div>
+        <div class="col1"><div class="right">*PI Phone</div></div>
         <div class="col2"><input type="text" class="textWide" name="contactPhone" value="<%=contactPhone%>"/></div>
       </div>
 
@@ -260,7 +260,7 @@ try {
 <% if (showUserNameChoice) { %>
     <div class="empty"></div>
     <div id="userChoiceDiv">
-      <div class="col1Wide" ><div class="right"> Are you affiliated with the University of Utah?</div></div>
+      <div class="col1Wide" ><div class="right"> *Are you affiliated with the University of Utah?</div></div>
       <div class="col2"><INPUT TYPE="radio" id="uofuAffiliate_y" NAME="uofuAffiliate" VALUE="y" onClick="showHideExternal();">Yes</div>
       <div class="col2"><INPUT TYPE="radio" id="uofuAffiliate_n" NAME="uofuAffiliate" VALUE="n" onClick="showHideExternal();">No</div>
     </div>
@@ -268,7 +268,7 @@ try {
       <div class="emptySmall"></div>
       
       <div id="UofUDiv" style="display:none;">
-        <div id="univUserNameArea1" class="col1"><div class="right">uNID</div></div>
+        <div id="univUserNameArea1" class="col1"><div class="right">*uNID</div></div>
         <div id="univUserNameArea2" class="col2"><input type="text" class="textWide" name="uNID" id="uNID" value="<%=uNID%>"></div>
         <div class="col1"></div> 
         <div class="col2"><note class="inline"><i>Format should be a "u" followed by 7 digits (u0000000)</i></note></div>
@@ -278,16 +278,16 @@ try {
         <div class="col1"><div class="right">Institute</div></div>
         <div class="col2"><input type="text" class="textWide" name="institute" id="institute" value="<%=institute%>"/></div>
         
-        <div id="externalUserNameArea1" class="col1"><div class="right">User name</div></div>
+        <div id="externalUserNameArea1" class="col1"><div class="right">*User name</div></div>
         <div id="externalUserNameArea2" class="col2"><input type="text" class="textWide" name="userNameExternal" id="userNameExternal" value="<%=userNameExternal%>"></div>
 
     
-        <div id="externalPasswordArea1" class="col1"><div class="right">Password</div></div>
+        <div id="externalPasswordArea1" class="col1"><div class="right">*Password</div></div>
         <div id="externalPasswordArea2" class="col2"><input type="password" name="passwordExternal" id="passwordExternal" class="textWide"></div>
       </div>
 
       <div class="emptySmall"></div>
-      <div style="display:block;" class="textWide"><div class="message"> <strong><%= message %></strong></div></div>
+      <div style="display:block;" class="errorWide"><div class="message"> <strong><%= message %></strong></div></div>
       <div>   
           <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
       </div>

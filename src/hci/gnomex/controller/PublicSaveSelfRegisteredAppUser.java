@@ -117,7 +117,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         ((requestedLabName == null || requestedLabName.equals("")) && requestedLabId == null) ||
         ((contactEmail == null || contactEmail.equals("")) && requestedLabId == null) ||
         ((contactPhone == null || contactPhone.equals("")) && requestedLabId == null)) {
-      this.addInvalidField("requiredField", "Please fill out all mandatory fields (First and last name, email, phone, lab)");
+      this.addInvalidField("requiredField", "Please fill out all mandatory fields.  Mandatory fields are marked with an asterisk(*).");
     }
 
     if(appUserScreen.getFirstName() != null && appUserScreen.getLastName() != null){

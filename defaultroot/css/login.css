@@ -284,6 +284,13 @@ input.text.textWide {
 	font-size: 10pt;
 }
 
+.errorWide {
+	float: left;
+	width: 400px;
+	height: 46px;
+	font-size: 10pt;
+}
+
 
 div.left {
 	float: left;
