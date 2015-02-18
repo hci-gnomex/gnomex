@@ -470,7 +470,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         billingPeriod, 
         lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
 
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -648,7 +649,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           billingPeriod, 
           lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
+          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
 
 
       Element center1 = new Element("CENTER");

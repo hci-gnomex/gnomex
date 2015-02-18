@@ -38,9 +38,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private String         invoiceNote2;
   private String         contactAddressCoreFacility;
   private String         contactRemitAddressCoreFacility;
+  private String         coreBillingOffice;
   BigDecimal             grandTotal = new BigDecimal(0);
 
-  public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNote2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap, String contactAddressCoreFacility, String contactRemitAddressCoreFacility) {
+  public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNote2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap, String contactAddressCoreFacility, String contactRemitAddressCoreFacility, String coreBillingOffice) {
     this.billingPeriod  = billingPeriod;
     this.lab            = lab;
     this.billingAccount = billingAccount;
@@ -55,11 +56,16 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.invoiceNote2 = invoiceNote2;
     this.contactAddressCoreFacility = contactAddressCoreFacility;
     this.contactRemitAddressCoreFacility = contactRemitAddressCoreFacility;
+    this.coreBillingOffice = coreBillingOffice;
 
   }
 
   public Element makeIntroNote() {
 
+    String introLine = "";
+    if(coreBillingOffice != null && !coreBillingOffice.equals("")) {
+      introLine = "<b>The following invoice will be prepared for electronic billing by the " + coreBillingOffice + "</b>";
+    }
 
     String line1 = "This report provides itemized documentation of services that were completed for your lab by the " + coreFacilityName + " during the month of " + billingPeriod.getBillingPeriod() + ".";
     String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
@@ -79,6 +85,9 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
     Element table = new Element("TABLE");   
     table.setAttribute("CELLPADDING", "0");
+    if(introLine.length() > 0) {
+      table.addContent(makeNoteRow(introLine));
+    }
     table.addContent(makeNoteRow(line1));
     if (line2.length() > 0) {
       table.addContent(makeNoteRow(line2));

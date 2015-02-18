@@ -63,4 +63,8 @@ alter table Property add column forRequest char(1) null;
 call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit add column forRequest char(1) null');
 
 
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+	VALUES('core_billing_office', '', 'Name of who handles billing for the core', 'Y', NULL, NULL);
+
+
 
