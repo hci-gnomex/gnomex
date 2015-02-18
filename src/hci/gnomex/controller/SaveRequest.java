@@ -2684,34 +2684,36 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       StringReader reader = new StringReader(propertiesXML);
       SAXBuilder sax = new SAXBuilder();
       Document propsDoc = sax.build(reader);
-      for(Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
-        PropertyEntry pe = PropertyEntry.class.cast(i.next());
-        boolean found = false;
-        for(Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
-          Element propNode = (Element)i1.next();
-          String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
-          if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
-            if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
-              found = true;
-              break;
-            }
-          }                   
-        }
-        if (!found) {
-          // delete property values
-          for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
-            PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
-            sess.delete(av);
-          }  
-          sess.flush();
-          pe.setValues(null);
-          sess.save(pe);
-          sess.flush();
-          // delete property
-          sess.delete(pe);
-        }
-      } 
-      sess.flush();
+      if (requestParser.getRequest().getPropertyEntries() != null) {
+        for(Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
+          PropertyEntry pe = PropertyEntry.class.cast(i.next());
+          boolean found = false;
+          for(Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
+            Element propNode = (Element)i1.next();
+            String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
+            if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
+              if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
+                found = true;
+                break;
+              }
+            }                   
+          }
+          if (!found) {
+            // delete property values
+            for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+              PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
+              sess.delete(av);
+            }  
+            sess.flush();
+            pe.setValues(null);
+            sess.save(pe);
+            sess.flush();
+            // delete property
+            sess.delete(pe);
+          }
+        } 
+        sess.flush();
+      }
       // Add properties
       for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
         Element node = (Element)i.next();
