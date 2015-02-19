@@ -446,17 +446,19 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     boolean existingManagingCore = false;
     
     // Look through the app user's current list of managing core facilities
-    for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
-      CoreFacility facility = (CoreFacility)i.next();
-      
-      if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
-        // If the core facility is already being managed by the user, 
-        // check to see if it has been changed to NOT being managed by the user any more.
-        existingManagingCore = true;
-        if (chk.selected.equals("N")) {
-          hasBeenEdited = true;
+    if (appUser != null && appUser.getManagingCoreFacilities() != null) {
+      for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
+        CoreFacility facility = (CoreFacility)i.next();
+        
+        if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
+          // If the core facility is already being managed by the user, 
+          // check to see if it has been changed to NOT being managed by the user any more.
+          existingManagingCore = true;
+          if (chk.selected.equals("N")) {
+            hasBeenEdited = true;
+          }
+          break;
         }
-        break;
       }
     }
     // If the core facility was not one that the user already manages, check to see if 
