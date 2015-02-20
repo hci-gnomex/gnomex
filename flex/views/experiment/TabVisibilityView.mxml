@@ -182,7 +182,7 @@
 				if (c.@canView == "Y") {
 					var c1:XML = XML("<ExperimentCollaborator></ExperimentCollaborator>");
 					c1.@idAppUser = c.@idAppUser;
-					c1.@displayName = c.@displayName;
+					c1.@displayName = c.@displayNameXMLSafe;
 					c1.@canUpdate = c.hasOwnProperty("@canUpdate") ? c.@canUpdate : "N";
 					c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
 					list.addItem(c1);
