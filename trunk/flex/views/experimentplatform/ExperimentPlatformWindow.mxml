@@ -254,16 +254,19 @@
 						sampleTypeIllumina.init(state);
 						experimentTypeIllumina.init(state);
 						illuminaSeq.init(state);
+						propertyIllumina.init(state);
 					} else if (state.isQC) {
 						tabStack.selectedIndex = 2;
 						experimentPlatformQC.init(state);
 						sampleTypeQC.init(state);
 						experimentTypeQC.init(state);
+						propertyQC.init(state);
 					} else {
 						tabStack.selectedIndex = 0;
 						experimentPlatform.init(state);
 						sampleType.init(state);
 						experimentType.init(state);
+						property.init(state);
 					}
 
 					// if event is not null it means this was called because they changed the experiment type.
@@ -276,6 +279,10 @@
 					codeRequestCategorySelected = null;
 					dirty.resetDirty();
 				}
+				
+				theTabs.selectedIndex = 0;
+				theTabsIllumina.selectedIndex = 0;
+				theTabsQC.selectedIndex = 0;
 			}
 			
 			private function disablePlatformSelection(data:Object):Boolean
@@ -356,20 +363,24 @@
 							<experimentplatform:TabExperimentPlatform id="experimentPlatform"/>
 							<experimentplatform:TabSampleType id="sampleType"/>
 							<experimentplatform:TabExperimentType id="experimentType"/>
+							<experimentplatform:TabProperty id="property"/>
 						</mx:TabNavigator>
 						<mx:TabNavigator  id="theTabsIllumina" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
 							<experimentplatform:TabExperimentPlatform id="experimentPlatformIllumina"/>
 							<experimentplatform:TabSampleType id="sampleTypeIllumina"/>
 							<experimentplatform:TabExperimentTypeIllumina id="experimentTypeIllumina"/>
 							<experimentplatform:TabIlluminaSeq id="illuminaSeq"/>
+							<experimentplatform:TabProperty id="propertyIllumina"/>
 						</mx:TabNavigator>
 						<mx:TabNavigator  id="theTabsQC" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
 							<experimentplatform:TabExperimentPlatform id="experimentPlatformQC"/>
 							<experimentplatform:TabSampleType id="sampleTypeQC"/>
 							<experimentplatform:TabExperimentTypeQC id="experimentTypeQC"/>
+							<experimentplatform:TabProperty id="propertyQC"/>
 						</mx:TabNavigator>
 					</mx:ViewStack>
-					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
+								   visible="{this.theTabs.selectedIndex != 3 &amp;&amp; this.theTabsIllumina.selectedIndex != 4 &amp;&amp; this.theTabsQC.selectedIndex != 3}">
 						<util:DirtyNote id="dirty" />
 						<mx:Button id="saveButton" label="Save"
 								   click="{save()}"
