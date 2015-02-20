@@ -1205,7 +1205,12 @@
 
 			} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
 				this.currentState = parentApplication.submitInternalExperiment() ? "GenericState" : 'GenericExternalState';
-				this.sampleSetupView.currentState = 'GenericState';
+				
+				if ( requestCategory.@codeRequestCategory == "DDPCR" ) {
+					this.sampleSetupView.currentState = 'DigitalPCRState';	
+				} else {
+					this.sampleSetupView.currentState = 'GenericState';
+				}
 							
 				this.samplesView.showHideColumns();						
 				this.samplesView.checkSamplesCompleteness();	
@@ -3268,6 +3273,14 @@
 				// charnges for this request.
 				var params:Object = new Object();
 				params.requestXMLString = request.toXMLString();
+				
+				if ( this.theTab.contains( this.propertiesView )  ){
+					// Annotations
+					propertiesView.initializePropertiesFromComponents();
+					params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
+					
+				}
+				
 				createBillingItems.send(params);
 			}
 			

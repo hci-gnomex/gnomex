@@ -12,6 +12,7 @@ import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -33,7 +34,8 @@ import org.hibernate.Session;
 public class SampleQualityPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
+      String billingStatus, Set<PropertyEntry> propertyEntries) {
     
     
     List billingItems = new ArrayList<BillingItem>();
