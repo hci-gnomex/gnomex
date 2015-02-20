@@ -778,7 +778,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<AnalysisCollaborator" +
 					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+					" displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
 					" canUploadData='N' " +
 					" canUpdate='N' " +
 					"/>");

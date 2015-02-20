@@ -51,7 +51,7 @@
 			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + memberCombo.selectedItem.@idAppUser + "'" +
-			    " displayName='" + memberCombo.selectedItem.@displayName + "'" +
+			    " displayName='" + memberCombo.selectedItem.@displayNameXMLSafe + "'" +
 				"/>");
 			members.addItem(node);
 		}
@@ -66,7 +66,7 @@
 			dirty.setDirty();
 			var node:XML = new XML("<AppUser " +
 			    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-			    " displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+			    " displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
 				"/>");
 			collaborators.addItem(node);
 		}

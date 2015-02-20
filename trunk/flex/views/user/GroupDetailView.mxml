@@ -472,7 +472,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
+					" displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
 					" isActive='Y'/>");
 				collaborators.addItem(node);
 				collaboratorCombo.selectedIndex = -1;
@@ -488,7 +488,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<AppUser " +
 					" idAppUser='" + managerCombo.selectedItem.@idAppUser + "'" +
-					" displayName='" + managerCombo.selectedItem.@displayName + "'" +
+					" displayName='" + managerCombo.selectedItem.@displayNameXMLSafe + "'" +
 					" isActive='Y'/>");
 				managers.addItem(node);
 				managerCombo.selectedIndex = -1;
