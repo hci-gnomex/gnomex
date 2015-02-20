@@ -7,7 +7,7 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -23,47 +23,58 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class SequenomRNAExtractPlugin implements BillingPlugin {
+public class CovarisShearPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
       String billingStatus, Set<PropertyEntry> propertyEntries) {
-    
+
+
     List billingItems = new ArrayList<BillingItem>();
-    
+
     if (samples == null || samples.size() == 0) {
       return billingItems;
     }
-    
-    // If core does not need to extract RNA, do not charge for it.
-    if (request.getCodeRNAPrepType()==null || request.getCodeRNAPrepType().equals("")) {
+
+    // If core does not need DNA Shearing, don't charge for it
+    StringBuffer queryBuf = new StringBuffer();
+    queryBuf.append("SELECT p from Property as p WHERE name like '%Covaris%' ");
+    Property property = (Property) sess.createQuery( queryBuf.toString() ).uniqueResult();
+    PropertyEntry pe = null;
+
+    if ( propertyEntries!=null ) {
+      for (Iterator i =  propertyEntries.iterator(); i.hasNext(); )
+      {
+        PropertyEntry pe2 = (PropertyEntry) i.next();
+        if ( pe2.getIdProperty().intValue() == property.getIdProperty().intValue() ) {
+          pe = pe2;
+          break;
+        }
+      }
+    }
+    if (pe==null || pe.getValue()==null || !pe.getValue().equals("Y")) {
       return billingItems;
     }
-    
+
     // Rate is determined by the number of samples
     int qty = samples.size();
-        
-    
+
+
     // Find the price
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
       if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
-        for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
-          PriceCriteria criteria = (PriceCriteria)i2.next();
-          if (criteria.getFilter1().equals(request.getCodeRNAPrepType())) {          
-            price = p;
-            break;            
-          }
-        }
+        price = p;
+        break;            
       }
     }
-    
+
 
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
       BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
-      
+
       BillingItem billingItem = new BillingItem();
       billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
       billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
@@ -85,13 +96,13 @@ public class SequenomRNAExtractPlugin implements BillingPlugin {
       billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
       billingItem.setCategory(priceCategory.getName());
       billingItem.setIdCoreFacility(request.getIdCoreFacility());
-    
+
       billingItems.add(billingItem);
-      
+
     }
-    
-    
+
+
     return billingItems;
   }
-  
+
 }

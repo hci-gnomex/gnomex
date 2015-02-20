@@ -1174,7 +1174,11 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = false;
 						applicationCol.visible = true;
-						
+						if ( this.selectedExperiment.@codeRequestCategory == 'DDPCR' ){
+							concentrationCol.visible = true; 
+							otherSamplePrepMethodCol.visible = true;
+							applicationCol.visible = false;
+						}
 					}  else {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;

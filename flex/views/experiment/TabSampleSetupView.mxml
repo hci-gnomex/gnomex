@@ -310,6 +310,9 @@
 							isComplete = false;
 						}
 					}
+					if ( currentState == 'DigitalPCRState' ) {
+						isComplete = isComplete && otherSamplePrepMethod.text.length > 0;
+					}
 				} else if (currentState == 'MicroarrayAmendState') {
 					if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
 						isComplete = true;
@@ -2244,7 +2247,7 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
-				<mx:HBox width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
+				<mx:HBox id="appListBox" width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
 					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
 									  label="(4) Select an experiment type." labelPlacement="left" id="labelApplication" width="340"/>
 					<mx:VBox verticalGap="2" id="appContainerVBox">
@@ -2275,6 +2278,11 @@
 			<mx:SetProperty target="{isPreppedContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePooledSamplesHBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePooledSamplesHBox}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="DigitalPCRState" basedOn="GenericState">
+			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="true"/>
+			<mx:SetProperty target="{labelApplication}" name="label" value="(5) Select an experiment type."/>
 		</mx:State>
 	</mx:states>
 	

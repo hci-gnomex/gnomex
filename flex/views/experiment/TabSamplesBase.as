@@ -39,6 +39,12 @@ package views.experiment
 					return existingTab;
 				} else {
 					return new TabSamplesMDMiSeq();
+				}requestCategory.@codeRequestCategory == "DDPCR"
+			} else if (requestCategory.@codeRequestCategory == "DDPCR") {
+				if (existingTab is TabSamplesDDPCR) {
+					return existingTab;
+				} else {
+					return new TabSamplesDDPCR();
 				}
 			} else if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
