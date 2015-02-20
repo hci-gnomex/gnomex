@@ -818,9 +818,9 @@
 			private function selectFilter():void{
 				requests = new XMLListCollection(requestsCopy.copy());
 				if(billingItemFilter.selectedValue != 'all'){
-					
+					var i:int = 0;
 					for each(var req:XML in requests){
-						filterNavTree(req, req.children(), 0);
+						filterNavTree(req);
 					}
 				}
 				
@@ -830,28 +830,33 @@
 				}
 			}
 		
-			private function filterNavTree(req:XML, children:XMLList, i:int):void{
-				if(req.name() == 'Request'){
-					if(billingItemFilter.selectedValue == 'po' && req.@type != 'Product Order'){
-						delete children[--i];
-					} else if(billingItemFilter.selectedValue == 'dsk' && req.@type != 'Disk Usage'){
-						delete children[--i];
-					} else if(billingItemFilter.selectedValue == 'exp' && (req.@type == 'Product Order' || req.@type == 'Disk Usage')){
-						delete children[--i];
-						
+			private function filterNavTree(parent:XML):void{
+				
+				if (parent.children().length() > 0) {
+					for (var i:int = 0; i < parent.children().length(); i++) {
+						var req:XML = parent.children()[i];
+						if(req.name() == 'Request'){
+							if(billingItemFilter.selectedValue == 'po' && req.@type != 'Product Order'){
+								deleteChild(parent.children(), i--);
+							} else if(billingItemFilter.selectedValue == 'dsk' && req.@type != 'Disk Usage'){
+								deleteChild(parent.children(), i--);
+							} else if(billingItemFilter.selectedValue == 'exp' && (req.@type == 'Product Order' || req.@type == 'Disk Usage')){
+								deleteChild(parent.children(), i--);
+							}
+						} else {
+							filterNavTree(req);
+							if (req.name() == 'Lab' && req.children().length() == 0) {
+								deleteChild(parent.children(), i--);
+							}
+						}
 					}
 				}
-				
-				for(var j:int = i; j < children.length(); j++){
-					if(children[j].children().length() > 0){
-						filterNavTree(children[j], children[j].children(), 0);	
-					} else{
-						filterNavTree(children[j], children, ++i);
-					}
-				}
-				
 			}
 			
+			private function deleteChild(children:XMLList, i:int):void {
+				delete children[i];
+			}
+		
 			private function onGetBillingInvoiceList(event:ResultEvent):void {
 				if (getBillingInvoiceList.lastResult.name() == "BillingInvoiceList") {
 					invoiceMap = new Dictionary();
