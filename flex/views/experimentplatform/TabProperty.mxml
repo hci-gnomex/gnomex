@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 xmlns:util="views.util.*"
-		 width="100%" height="100%"
+		 width="100%" height="100%" verticalGap="0" horizontalGap="0"
 		 paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0"
 		 label="Property"
 		 creationComplete="{this.startup()}">
@@ -412,7 +412,6 @@
 				removePropertyClick = new Point(event.localX, event.localY);
 				removePropertyClick = event.target.localToGlobal(removePropertyClick);
 				
-				
 				deletePropertyParams = new Object();
 				deletePropertyParams.idProperty = propertyList.selectedItem.@idProperty;
 				deletePropertyParams.deleteAll = deleteAll;
@@ -520,9 +519,7 @@
 			
 			private function setComponentsFromProperty(): void {
 				organismCombo.selectedItem = null;
-				
 				setOwnerCombo();
-				
 				dirty.resetDirty();
 			}
 			
@@ -657,101 +654,98 @@
 	<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PropertyPlatformApplication}" sort="{platformApplicationSorter}"/>
 	<mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>
 	
-	<mx:VBox width="100%" height="100%" verticalGap="0">
+	<mx:HBox width="100%" paddingBottom="2" verticalAlign="middle"  paddingLeft="2" paddingRight="2" paddingTop="2" fontSize="10">
+		<mx:LinkButton label="Add" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="11" textDecoration="underline"/>
+		<mx:LinkButton label="Remove" styleName="linkMenuButton" mouseUp="removeProperty(event, 'N')" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11" textDecoration="underline"/>
+		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Refresh Annotations" icon="@Embed(source='../../assets/refresh.png')" click="refresh(event)"/>
+	</mx:HBox>
+	
+	<mx:HDividedBox height="100%" width="100%"  horizontalGap="5" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
+		<mx:VBox height="100%" width="300">
+			<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelFunction="propertyListLabel" 
+								 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
+								 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
+								 iconFunction="getTreeIcon" fontSize="11">
+				<mx:dataProvider> 
+					<mx:HierarchicalData source="{properties}"/>
+				</mx:dataProvider>						  
+				<mx:columns>
+					<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
+						<mx:itemRenderer >
+							<mx:Component>
+								<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
+									<mx:Label text="{data.name() != 'Option' &amp;&amp; (data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '') ? '*' + data.@name : data.@name}" 
+											  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
+											  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
+											  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
+									</mx:Label>
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+						
+					</mx:AdvancedDataGridColumn>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+		</mx:VBox>	
 		
-		<mx:HBox width="100%" paddingBottom="2" verticalAlign="middle"  paddingLeft="2" paddingRight="2" paddingTop="2" fontSize="10">
-			<mx:LinkButton label="Add" click="addProperty()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')"  fontSize="11" textDecoration="underline"/>
-			<mx:LinkButton label="Remove" styleName="linkMenuButton" mouseUp="removeProperty(event, 'N')" enabled="{propertyList.selectedItem != null &amp;&amp; propertyList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11" textDecoration="underline"/>
-			<mx:Spacer width="100%"/>
-			<mx:LinkButton label="Refresh Annotations" icon="@Embed(source='../../assets/refresh.png')" click="refresh(event)"/>
-		</mx:HBox>
-		
-		<mx:HDividedBox height="100%" width="100%"  horizontalGap="6" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4">
-			<mx:VBox height="350" width="300">
-				<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelFunction="propertyListLabel" 
-									 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-									 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
-									 iconFunction="getTreeIcon" fontSize="11">
-					<mx:dataProvider> 
-						<mx:HierarchicalData source="{properties}"/>
-					</mx:dataProvider>						  
-					<mx:columns>
-						<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
-							<mx:itemRenderer >
-								<mx:Component>
-									<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
-										<mx:Label text="{data.name() != 'Option' &amp;&amp; (data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '') ? '*' + data.@name : data.@name}" 
-												  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
-												  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
-												  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
-										</mx:Label>
-									</mx:HBox>
-								</mx:Component>
-							</mx:itemRenderer>
-							
-						</mx:AdvancedDataGridColumn>
-					</mx:columns>
-				</mx:AdvancedDataGrid>
-			</mx:VBox>	
-			
-			<mx:VBox width="100%" height="350" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none" includeInLayout="true" visible="{propertyList.selectedItem != null}">			 
-				<mx:HBox width="100%" verticalGap="0">
-					<mx:Label text="Name" width="90" styleName="formLabel"/>
-					<mx:TextInput text="{property.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50" focusIn="{scName.text == NAME_FIELD_DEFAULT ? scName.text = '' : scName.text = scName.text}"
-								  focusOut="{scName.text == '' ? scName.text = NAME_FIELD_DEFAULT : scName.text = scName.text}"/>
-					<mx:HBox >
-						<mx:CheckBox label="Active" id="isActive"  click="setDirty()">
-							<mx:selected>{property.@isActive == 'Y' ? true : false}</mx:selected>
-						</mx:CheckBox>
-						<mx:Spacer width="80"/>
-					</mx:HBox>
-				</mx:HBox>
-				<mx:HBox width="100%"  verticalAlign="middle">
-					<mx:Label text="Required" width="90" styleName="formLabel"/>
-					<mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
-						<mx:selected>{property.@isRequired == 'Y' ? true : false}</mx:selected>
+		<mx:VBox width="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="5" borderStyle="solid" includeInLayout="true" visible="{propertyList.selectedItem != null}" height="100%">			 
+			<mx:HBox width="100%" verticalGap="0">
+				<mx:Label text="Name" width="75" styleName="formLabel"/>
+				<mx:TextInput text="{property.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50" focusIn="{scName.text == NAME_FIELD_DEFAULT ? scName.text = '' : scName.text = scName.text}"
+							  focusOut="{scName.text == '' ? scName.text = NAME_FIELD_DEFAULT : scName.text = scName.text}"/>
+				<mx:HBox >
+					<mx:CheckBox label="Active" id="isActive"  click="setDirty()">
+						<mx:selected>{property.@isActive == 'Y' ? true : false}</mx:selected>
 					</mx:CheckBox>
+					<mx:Spacer width="80"/>
 				</mx:HBox>
-				<mx:HBox width="100%"  verticalAlign="middle">
-					<mx:Label text="Sort Order" width="90" styleName="formLabel"/>
-					<mx:TextInput text="{property.@sortOrder}" change="{setDirty()}" width="75" id="scSortOrder"  maxChars="4" restrict="0-9" />
-				</mx:HBox>
-				<mx:HBox width="100%" verticalGap="0" height="45">
-					<mx:Text text="Description" width="90" styleName="formLabel"/>
-					<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="100%" id="description"  maxChars="2000" fontSize="10"/>
-				</mx:HBox>
-				<mx:HBox width="100%">
-					<mx:Label text="Owner" width="90" styleName="formLabel"/>
-					<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
-				</mx:HBox>
-				<mx:HBox width="100%" verticalGap="0" height="100%" verticalAlign="top">
-					<mx:Label text="Type" width="90" styleName="formLabel"/>
-					<mx:VBox verticalGap="0" height="100%" paddingTop="0">
-						<mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{property.@codePropertyType}">
-						</mx:RadioButtonGroup>
-						<mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
-						<mx:RadioButton label="URL"  groupName="characteristicTypeRadioGroup" value="URL" paddingBottom="0" paddingTop="0"  click="setDirty()" />
-						<mx:RadioButton label="Checkbox"  groupName="characteristicTypeRadioGroup" value="CHECK" paddingTop="0" paddingBottom="0"  click="setDirty()" />
-						<mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="addBlank();setDirty()" />
-						<mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
+			</mx:HBox>
+			<mx:HBox width="100%"  verticalAlign="middle">
+				<mx:Label text="Required" width="75" styleName="formLabel"/>
+				<mx:CheckBox label="(Annotation must be filled in)" id="isRequired"  click="setDirty()">
+					<mx:selected>{property.@isRequired == 'Y' ? true : false}</mx:selected>
+				</mx:CheckBox>
+				<mx:Label text="Sort Order" width="75" styleName="formLabel"/>
+				<mx:TextInput text="{property.@sortOrder}" change="{setDirty()}" width="50" id="scSortOrder"  maxChars="4" restrict="0-9" />
+			</mx:HBox>
+			<mx:HBox width="100%" verticalGap="0" height="45">
+				<mx:Text text="Description" width="75" styleName="formLabel"/>
+				<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="100%" id="description"  maxChars="2000" fontSize="10"/>
+			</mx:HBox>
+			<mx:HBox width="100%">
+				<mx:Label text="Owner" width="75" styleName="formLabel"/>
+				<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
+			</mx:HBox>
+			<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
+				<mx:Label text="Type" width="75" styleName="formLabel"/>
+				<mx:VBox verticalGap="0" height="100%" paddingTop="0">
+					<mx:RadioButtonGroup id="characteristicTypeRadioGroup"  selectedValue="{property.@codePropertyType}">
+					</mx:RadioButtonGroup>
+					<mx:RadioButton label="Text"  groupName="characteristicTypeRadioGroup" value="TEXT" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+					<mx:RadioButton label="URL"  groupName="characteristicTypeRadioGroup" value="URL" paddingBottom="0" paddingTop="0"  click="setDirty()" />
+					<mx:RadioButton label="Checkbox"  groupName="characteristicTypeRadioGroup" value="CHECK" paddingTop="0" paddingBottom="0"  click="setDirty()" />
+					<mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="addBlank();setDirty()" />
+					<mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
+				</mx:VBox>
+				<mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
+					<mx:VBox verticalGap="0" height="100%" width="100%">
+						<mx:HBox>
+							<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{property.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
+							<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{property.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
+						</mx:HBox>
+						<mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{property.@canUpdate == 'Y' ? true : false}" width="100%" showHeaders="true"  height="90">
+							<mx:columns>
+								<mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
+								<mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
+								<mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
+							</mx:columns>
+						</mx:DataGrid>
 					</mx:VBox>
-					<mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
-						<mx:VBox verticalGap="0" height="100%" width="100%">
-							<mx:HBox>
-								<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{property.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
-								<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{property.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
-							</mx:HBox>
-							<mx:DataGrid id="optionGrid" dataProvider="{options}" editable="{property.@canUpdate == 'Y' ? true : false}" width="100%" showHeaders="true"  height="100%">
-								<mx:columns>
-									<mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
-									<mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
-									<mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
-								</mx:columns>
-							</mx:DataGrid>
-						</mx:VBox>
-					</mx:HBox>
 				</mx:HBox>
-				<mx:VBox   verticalGap="1" height="100%"  width="100%" verticalScrollPolicy="off">
+			</mx:HBox>
+			<mx:HBox width="100%" height="100%" >
+				<mx:VBox   verticalGap="1" width="50%" verticalScrollPolicy="off" height="100%" visible="{filteredAppList.length>1}" includeInLayout="{filteredAppList.length>1}">
 					<mx:Text text="Only show for these experiment types" width="100%" styleName="formLabel"/>
 					<mx:HBox horizontalAlign="left" horizontalGap="2">
 						<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Experiment Type (optional)"  fontSize="10">			       	
@@ -769,38 +763,37 @@
 						</mx:columns>
 					</mx:DataGrid>			   	
 				</mx:VBox>
-				<mx:VBox width="100%" height="100%" verticalGap="0" verticalScrollPolicy="off">
-						<mx:Text text="Only show for these organisms" width="100%" styleName="formLabel"/>
-						<mx:HBox horizontalAlign="left" horizontalGap="2">
-							<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display"  fontSize="10">			       	
-							</mx:ComboBox>
-							<mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-								<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-							</mx:Button>
-							<mx:Button click="removeOrganism()" icon="@Embed(source='../../assets/delete.png')" 
-									   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-									   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismsGrid.selectedItem != null}" width="25"/>
-						</mx:HBox>
-						<mx:DataGrid id="organismsGrid" showHeaders="false" dataProvider="{organisms}" width="100%" height="80">
-							<mx:columns>
-								<mx:DataGridColumn dataField="@display" headerText="Name"/>
-							</mx:columns>
-						</mx:DataGrid>			   	
+				<mx:VBox verticalGap="1" verticalScrollPolicy="off" width="50%" height="100%">
+					<mx:Text text="Only show for these organisms" styleName="formLabel"/>
+					<mx:HBox horizontalAlign="left" horizontalGap="2">
+						<mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display"  fontSize="10">			       	
+						</mx:ComboBox>
+						<mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+							<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+						</mx:Button>
+						<mx:Button click="removeOrganism()" icon="@Embed(source='../../assets/delete.png')" 
+								   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+								   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismsGrid.selectedItem != null}" width="25"/>
+					</mx:HBox>
+					<mx:DataGrid id="organismsGrid" showHeaders="false" dataProvider="{organisms}" width="100%" height="80">
+						<mx:columns>
+							<mx:DataGridColumn dataField="@display" headerText="Name"/>
+						</mx:columns>
+					</mx:DataGrid>			   	
 				</mx:VBox>
-			</mx:VBox>
-			
-		</mx:HDividedBox>
-	
-		<mx:HBox width="100%">
-			<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" backgroundAlpha="0">
-				<util:DirtyNote id="dirty" />
-				<mx:Button id="saveButton" label="Save"  enabled="{property.@canUpdate == 'Y' ? true : false}"
-					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
-				</mx:Button>
-			
-			</mx:ControlBar>
-		</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
 		
-	</mx:VBox>	
-
+	</mx:HDividedBox>
+	
+	<mx:HBox width="100%">
+		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" backgroundAlpha="0">
+			<util:DirtyNote id="dirty" />
+			<mx:Button id="saveButton" label="Save"  enabled="{property.@canUpdate == 'Y' ? true : false}"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			
+		</mx:ControlBar>
+	</mx:HBox>
+	
 </mx:VBox>
