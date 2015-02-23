@@ -124,6 +124,9 @@
 			private var filteredCoreFacilityList:XMLListCollection;
 			
 			[Bindable]
+			private var filteredExperimentPlatforms:XMLListCollection;
+			
+			[Bindable]
 			private var appUserList:XMLListCollection;
 			
 			private var filteredAppListSorter:Sort;
@@ -172,6 +175,13 @@
 					this.coreFacilityHBox.visible = true;
 					this.coreFacilityHBox.includeInLayout = true;
 				}
+				
+				filteredExperimentPlatforms = new XMLListCollection();
+				for each(var r:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry) {
+					filteredExperimentPlatforms.addItem(r.copy());
+				}
+				filteredExperimentPlatforms.filterFunction = filterExperimentPlatforms;
+				filteredExperimentPlatforms.refresh();
 				
 				appUserList = new XMLListCollection();
 				var emptyAppUser:XML = new XML();
@@ -403,7 +413,7 @@
 			
 			
 			private function addPlatform():void {
-				if (platformCombo.selectedItem != null && platformCombo.selectedIndex > 0) {
+				if (platformCombo.selectedItem != null && platformCombo.selectedIndex > -1) {
 					var codeRequestCategory:String = platformCombo.selectedItem.@codeRequestCategory;
 					var codeApplication:String = "";
 					var applicationDisplay:String = "";
@@ -642,6 +652,8 @@
 				} else {
 					saveButton.enabled = true;
 				}
+				
+				filteredExperimentPlatforms.refresh();
 			}
 			
 			private function onSaveProperty(event:ResultEvent): void {
@@ -761,6 +773,21 @@
 				}
 			}
 			
+			private function filterExperimentPlatforms(item:Object):Boolean {
+				if (item != null) {
+					if (item.@idCoreFacility != null || item.@idCoreFacility != "") {
+						if (item.@idCoreFacility.toString() == coreFacilityCombo.selectedItem.@value) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			
+			private function onCoreFacilityChange():void {
+				setDirty();
+				filteredExperimentPlatforms.refresh();
+			}
 			
 		]]>
 	</mx:Script>
@@ -838,7 +865,7 @@
 							</mx:HBox>
 							<mx:HBox width="100%"  verticalAlign="middle" id="coreFacilityHBox">
 								<mx:Label text="Core Facility" width="90" styleName="formLabel"/>
-								<mx:ComboBox width="300" id="coreFacilityCombo" change="{setDirty()}" labelField="@display" dataProvider="{filteredCoreFacilityList}" ></mx:ComboBox>
+								<mx:ComboBox width="300" id="coreFacilityCombo" change="{onCoreFacilityChange()}" labelField="@display" dataProvider="{filteredCoreFacilityList}" ></mx:ComboBox>
 							</mx:HBox>
 							<mx:HBox height="20" width="100%"  verticalAlign="middle">
 								<mx:HBox verticalAlign="middle">
@@ -912,12 +939,12 @@
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
 								<mx:Text text="Only show for these platforms/experiment types" width="100%" styleName="formLabel"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
-									<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
+									<mx:ComboBox width="225" dataProvider="{filteredExperimentPlatforms}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
 									</mx:ComboBox>
 									<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Experiment Type (optional)"  fontSize="10">			       	
 									</mx:ComboBox>
 									<mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+										<mx:enabled>{(propertyList.selectedItem != null ? propertyList.selectedItem.@canUpdate == 'Y' : true) &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > -1 ? true : false}</mx:enabled>
 									</mx:Button>
 									<mx:Button click="removePlatform()" icon="@Embed(source='../../assets/delete.png')" 
 											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
