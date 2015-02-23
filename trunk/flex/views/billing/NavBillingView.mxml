@@ -2343,7 +2343,7 @@
 			}
 			
 			private function collapseLabNodes():void {
-				for each(var lab:Object in getBillingRequestList.lastResult.Status..Lab) {
+				for each(var lab:Object in requests.source..Lab) {
 					requestTree.expandItem(lab, false);
 				}
 				requestTree.validateNow();
@@ -2352,10 +2352,11 @@
 			
 			public function expandAllNodes():void
 			{
-				for each(var lab:Object in getBillingRequestList.lastResult..Lab) {
+				//getBillingRequestList.lastResult..Lab
+				for each(var lab:Object in requests.source..Lab) {
 					requestTree.expandItem(lab, true);
 				}
-				for each(var status:Object in getBillingRequestList.lastResult.Status) {
+				for each(var status:Object in requests.source.Status) {
 					requestTree.expandItem(status, true);
 				}
 				requestTree.validateNow();
