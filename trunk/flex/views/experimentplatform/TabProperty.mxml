@@ -141,6 +141,7 @@
 				if (filteredAppList != null) {
 					refreshApplicationFilter();
 				}
+				editPane.visible = false;
 			}
 			
 			private function setDirty():void {
@@ -164,6 +165,8 @@
 				filteredAppList.sort = filteredAppListSorter;	
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
+				
+				editPane.visible = false;
 			}	
 			
 			private function onGetPropertyList(event:ResultEvent):void {
@@ -249,6 +252,7 @@
 						params.idProperty = propertyList.selectedItem.@idProperty;
 						getProperty.send(params);
 					}
+					editPane.visible = true;
 				}
 			}
 			
@@ -401,6 +405,8 @@
 				setComponentsFromProperty();
 				propertyList.selectedItem = null;
 				dirty.setDirty();
+				
+				editPane.visible = true;
 			}
 			
 			public function removeProperty(event:MouseEvent, deleteAll:String):void {
@@ -438,6 +444,7 @@
 				if (deleteProperty.lastResult.name() == "SUCCESS") {
 					parentApplication.getPropertyList.send();
 					getPropertyList.send();
+					editPane.visible = false;
 					
 				} else if (deleteProperty.lastResult.name() == "NONBLANKVALUES") {
 					idProperty = deleteProperty.lastResult.@idProperty;
@@ -689,7 +696,7 @@
 			</mx:AdvancedDataGrid>
 		</mx:VBox>	
 		
-		<mx:VBox width="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="5" borderStyle="solid" includeInLayout="true" visible="{propertyList.selectedItem != null}" height="100%">			 
+		<mx:VBox id="editPane" width="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="5" borderStyle="solid" includeInLayout="true" visible="false" height="100%">			 
 			<mx:HBox width="100%" verticalGap="0">
 				<mx:Label text="Name" width="75" styleName="formLabel"/>
 				<mx:TextInput text="{property.@name}" change="{setDirty()}" width="100%" id="scName"  maxChars="50" focusIn="{scName.text == NAME_FIELD_DEFAULT ? scName.text = '' : scName.text = scName.text}"
