@@ -140,6 +140,7 @@
 					" concentration=''" +
 					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +	
+					" canChangeSampleConcentration='Y'" +
 					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
 					" idPlate='" + (parentDocument.request.@containerType == 'PLATE' ? idPlate : '') + "'" +
 					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
