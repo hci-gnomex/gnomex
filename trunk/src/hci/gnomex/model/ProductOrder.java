@@ -126,7 +126,7 @@ public class ProductOrder extends DictionaryEntry implements Serializable {
       if ( li.getCodeProductOrderStatus() == null || !li.getCodeProductOrderStatus().equals( ProductOrderStatus.COMPLETED ) ) {
         isComplete = false;
       }
-      if ( !li.getCodeProductOrderStatus().equals( ProductOrderStatus.NEW ) ) {
+      if ( li.getCodeProductOrderStatus() != null && !li.getCodeProductOrderStatus().equals( ProductOrderStatus.NEW ) ) {
         isNew = false;
       }
     }

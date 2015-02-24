@@ -4058,6 +4058,8 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`custom1`  varchar(50)  NULL DEFAULT NULL
  ,`custom2`  varchar(50)  NULL DEFAULT NULL
  ,`custom3`  varchar(50)  NULL DEFAULT NULL
+ ,`approverEmail`  varchar(200)  NULL DEFAULT NULL
+ ,`idApprover`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -4103,7 +4105,9 @@ INSERT INTO BillingAccount_Audit
   , idCoreFacility
   , custom1
   , custom2
-  , custom3 )
+  , custom3
+  , approverEmail
+  , idApprover )
   SELECT
   'No Context'
   , 'L'
@@ -4142,6 +4146,8 @@ INSERT INTO BillingAccount_Audit
   , custom1
   , custom2
   , custom3
+  , approverEmail
+  , idApprover
   FROM BillingAccount
   WHERE NOT EXISTS(SELECT * FROM BillingAccount_Audit)
 $$
@@ -4190,7 +4196,9 @@ BEGIN
   , idCoreFacility
   , custom1
   , custom2
-  , custom3 )
+  , custom3
+  , approverEmail
+  , idApprover )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -4228,7 +4236,9 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.custom1
   , NEW.custom2
-  , NEW.custom3 );
+  , NEW.custom3
+  , NEW.approverEmail
+  , NEW.idApprover );
 END;
 $$
 
@@ -4272,7 +4282,9 @@ BEGIN
   , idCoreFacility
   , custom1
   , custom2
-  , custom3 )
+  , custom3
+  , approverEmail
+  , idApprover )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -4310,7 +4322,9 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.custom1
   , NEW.custom2
-  , NEW.custom3 );
+  , NEW.custom3
+  , NEW.approverEmail
+  , NEW.idApprover );
 END;
 $$
 
@@ -4354,7 +4368,9 @@ BEGIN
   , idCoreFacility
   , custom1
   , custom2
-  , custom3 )
+  , custom3
+  , approverEmail
+  , idApprover )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -4392,7 +4408,9 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.custom1
   , OLD.custom2
-  , OLD.custom3 );
+  , OLD.custom3
+  , OLD.approverEmail
+  , OLD.idApprover );
 END;
 $$
 
@@ -4538,7 +4556,6 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
- ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idProductLineItem`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -4574,7 +4591,6 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductOrder
   , idProductLineItem )
   SELECT
   'No Context'
@@ -4602,7 +4618,6 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductOrder
   , idProductLineItem
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
@@ -4641,7 +4656,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductOrder
   , idProductLineItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4669,7 +4683,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductOrder
   , NEW.idProductLineItem );
 END;
 $$
@@ -4703,7 +4716,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductOrder
   , idProductLineItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4731,7 +4743,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductOrder
   , NEW.idProductLineItem );
 END;
 $$
@@ -4765,7 +4776,6 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductOrder
   , idProductLineItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4793,7 +4803,6 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
-  , OLD.idProductOrder
   , OLD.idProductLineItem );
 END;
 $$
@@ -17577,6 +17586,8 @@ CREATE TABLE IF NOT EXISTS `Property_Audit` (
  ,`forDataTrack`  char(1)  NULL DEFAULT NULL
  ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`forRequest`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -17602,7 +17613,9 @@ INSERT INTO Property_Audit
   , forAnalysis
   , forDataTrack
   , codePropertyType
-  , sortOrder )
+  , sortOrder
+  , idCoreFacility
+  , forRequest )
   SELECT
   'No Context'
   , 'L'
@@ -17621,6 +17634,8 @@ INSERT INTO Property_Audit
   , forDataTrack
   , codePropertyType
   , sortOrder
+  , idCoreFacility
+  , forRequest
   FROM Property
   WHERE NOT EXISTS(SELECT * FROM Property_Audit)
 $$
@@ -17649,7 +17664,9 @@ BEGIN
   , forAnalysis
   , forDataTrack
   , codePropertyType
-  , sortOrder )
+  , sortOrder
+  , idCoreFacility
+  , forRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -17667,7 +17684,9 @@ BEGIN
   , NEW.forAnalysis
   , NEW.forDataTrack
   , NEW.codePropertyType
-  , NEW.sortOrder );
+  , NEW.sortOrder
+  , NEW.idCoreFacility
+  , NEW.forRequest );
 END;
 $$
 
@@ -17691,7 +17710,9 @@ BEGIN
   , forAnalysis
   , forDataTrack
   , codePropertyType
-  , sortOrder )
+  , sortOrder
+  , idCoreFacility
+  , forRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -17709,7 +17730,9 @@ BEGIN
   , NEW.forAnalysis
   , NEW.forDataTrack
   , NEW.codePropertyType
-  , NEW.sortOrder );
+  , NEW.sortOrder
+  , NEW.idCoreFacility
+  , NEW.forRequest );
 END;
 $$
 
@@ -17733,7 +17756,9 @@ BEGIN
   , forAnalysis
   , forDataTrack
   , codePropertyType
-  , sortOrder )
+  , sortOrder
+  , idCoreFacility
+  , forRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -17751,7 +17776,9 @@ BEGIN
   , OLD.forAnalysis
   , OLD.forDataTrack
   , OLD.codePropertyType
-  , OLD.sortOrder );
+  , OLD.sortOrder
+  , OLD.idCoreFacility
+  , OLD.forRequest );
 END;
 $$
 
@@ -18528,6 +18555,7 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`refrainFromAutoDelete`  char(1)  NULL DEFAULT NULL
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
  ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
+ ,`sampleBatchSize`  int(11)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -18556,7 +18584,8 @@ INSERT INTO RequestCategory_Audit
   , isExternal
   , refrainFromAutoDelete
   , isClinicalResearch
-  , isOwnerOnly )
+  , isOwnerOnly
+  , sampleBatchSize )
   SELECT
   'No Context'
   , 'L'
@@ -18578,6 +18607,7 @@ INSERT INTO RequestCategory_Audit
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
+  , sampleBatchSize
   FROM RequestCategory
   WHERE NOT EXISTS(SELECT * FROM RequestCategory_Audit)
 $$
@@ -18609,7 +18639,8 @@ BEGIN
   , isExternal
   , refrainFromAutoDelete
   , isClinicalResearch
-  , isOwnerOnly )
+  , isOwnerOnly
+  , sampleBatchSize )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -18630,7 +18661,8 @@ BEGIN
   , NEW.isExternal
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
-  , NEW.isOwnerOnly );
+  , NEW.isOwnerOnly
+  , NEW.sampleBatchSize );
 END;
 $$
 
@@ -18657,7 +18689,8 @@ BEGIN
   , isExternal
   , refrainFromAutoDelete
   , isClinicalResearch
-  , isOwnerOnly )
+  , isOwnerOnly
+  , sampleBatchSize )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -18678,7 +18711,8 @@ BEGIN
   , NEW.isExternal
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
-  , NEW.isOwnerOnly );
+  , NEW.isOwnerOnly
+  , NEW.sampleBatchSize );
 END;
 $$
 
@@ -18705,7 +18739,8 @@ BEGIN
   , isExternal
   , refrainFromAutoDelete
   , isClinicalResearch
-  , isOwnerOnly )
+  , isOwnerOnly
+  , sampleBatchSize )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -18726,7 +18761,8 @@ BEGIN
   , OLD.isExternal
   , OLD.refrainFromAutoDelete
   , OLD.isClinicalResearch
-  , OLD.isOwnerOnly );
+  , OLD.isOwnerOnly
+  , OLD.sampleBatchSize );
 END;
 $$
 
@@ -20602,6 +20638,7 @@ CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`codeNucleotideType`  varchar(50)  NULL DEFAULT NULL
+ ,`notes`  varchar(5000)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -20619,7 +20656,8 @@ INSERT INTO SampleType_Audit
   , sampleType
   , sortOrder
   , isActive
-  , codeNucleotideType )
+  , codeNucleotideType
+  , notes )
   SELECT
   'No Context'
   , 'L'
@@ -20630,6 +20668,7 @@ INSERT INTO SampleType_Audit
   , sortOrder
   , isActive
   , codeNucleotideType
+  , notes
   FROM SampleType
   WHERE NOT EXISTS(SELECT * FROM SampleType_Audit)
 $$
@@ -20650,7 +20689,8 @@ BEGIN
   , sampleType
   , sortOrder
   , isActive
-  , codeNucleotideType )
+  , codeNucleotideType
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -20660,7 +20700,8 @@ BEGIN
   , NEW.sampleType
   , NEW.sortOrder
   , NEW.isActive
-  , NEW.codeNucleotideType );
+  , NEW.codeNucleotideType
+  , NEW.notes );
 END;
 $$
 
@@ -20676,7 +20717,8 @@ BEGIN
   , sampleType
   , sortOrder
   , isActive
-  , codeNucleotideType )
+  , codeNucleotideType
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -20686,7 +20728,8 @@ BEGIN
   , NEW.sampleType
   , NEW.sortOrder
   , NEW.isActive
-  , NEW.codeNucleotideType );
+  , NEW.codeNucleotideType
+  , NEW.notes );
 END;
 $$
 
@@ -20702,7 +20745,8 @@ BEGIN
   , sampleType
   , sortOrder
   , isActive
-  , codeNucleotideType )
+  , codeNucleotideType
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -20712,7 +20756,8 @@ BEGIN
   , OLD.sampleType
   , OLD.sortOrder
   , OLD.isActive
-  , OLD.codeNucleotideType );
+  , OLD.codeNucleotideType
+  , OLD.notes );
 END;
 $$
 
