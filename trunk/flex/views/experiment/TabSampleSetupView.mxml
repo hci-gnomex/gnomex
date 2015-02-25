@@ -570,7 +570,7 @@
 				
 				//Check if we have a sample batch size restriction.  If so warn user.
 				sampleBatchSizeWarning.text = "";
-				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.coreFacility.@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
 				
 				if(hasBatchSampleSize != null && hasBatchSampleSize == 'Y'){
 					var sampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
