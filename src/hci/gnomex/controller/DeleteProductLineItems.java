@@ -7,11 +7,13 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ProductLineItemComparator;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -37,7 +39,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
   private String productLineItemsToDeleteXMLString;
   private Document productLineItemsToDeleteDoc;
   private String resultMessage = "";
-  
+
   public void validate() {
   }
 
@@ -73,7 +75,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if ( productOrdersToDeleteDoc != null ) {
         for(Iterator i = this.productOrdersToDeleteDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element node = (Element)i.next();
@@ -87,8 +89,20 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
               resultMessage += po.getDisplay() + " deleted.\r\n";
               sess.delete(po);
             } else {
-              for (ProductLineItem li : (Set<ProductLineItem>)po.getProductLineItems()) {
-                this.deleteProductLineItem( li, sess );
+              Set <ProductLineItem> plis = po.getProductLineItems();
+              // Remove all line items from product order
+              po.setProductLineItems( new TreeSet(new ProductLineItemComparator()) );
+              for (ProductLineItem li : plis) {
+                po.getProductLineItems().remove( li );
+                if ( !this.deleteProductLineItem( li, sess ) ) {
+                  // Add line item back to product order if it can't be deleted.
+                  po.getProductLineItems().add( li );
+                }
+              }
+              // Delete product order if all the line items have been deleted.
+              if ( po != null && po.getProductLineItems().size()==0 ) {
+                resultMessage += po.getDisplay() + " deleted.\r\n";
+                sess.delete(po);
               }
             }
           } else {
@@ -108,12 +122,19 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
 
             this.deleteProductLineItem( pli, sess );
 
+            // Delete product order if all the line items have been deleted.
+            if ( po != null && po.getProductLineItems().size()==0 ) {
+              resultMessage += po.getDisplay() + " deleted.\r\n";
+              sess.delete(po);
+            }
           } else {
             this.addInvalidField("Insufficient permissions", "Insufficient permissions to delete product order id:" + po.getIdProductOrder() + ".");
             setResponsePage(this.ERROR_JSP);
           } 
         }
       }
+      
+      
 
       this.xmlResult = "<SUCCESS message=\"" + resultMessage + "\"/>";
       sess.flush();
@@ -136,27 +157,19 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
     return this;
   }
 
-  private void deleteProductLineItem(ProductLineItem pli, Session sess) {
-
-    ProductOrder po = (ProductOrder) sess.load( ProductOrder.class, pli.getIdProductOrder() );
+  private boolean deleteProductLineItem(ProductLineItem pli, Session sess) {
 
     if ( pli.getCodeProductOrderStatus() != null &&  pli.getCodeProductOrderStatus().equals( ProductOrderStatus.COMPLETED )) {
       resultMessage += "Cannot delete completed product line item: " + pli.getDisplay() + ".\r\n";
       this.addInvalidField("Cannot delete line item", "Cannot delete completed product line item: " + pli.getDisplay() + ".");
-    } else {
-      po.getProductLineItems().remove( pli );
-      sess.update( po );
-      sess.delete(pli);
-      sess.flush();
-      resultMessage += "Product line item: " + pli.getDisplay() + " deleted.\r\n";
-    }
+      return false;
+    } 
 
-    if ( po != null && po.getProductLineItems().size()==0 ) {
-      resultMessage += po.getDisplay() + " deleted.\r\n";
-      sess.delete(po);
-    }
+    sess.delete(pli);
+    resultMessage += "Product line item: " + pli.getDisplay() + " deleted.\r\n";
 
     sess.flush();
+    return true;
   }
 
 }
