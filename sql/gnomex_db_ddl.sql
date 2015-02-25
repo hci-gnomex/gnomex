@@ -2109,9 +2109,10 @@ CREATE TABLE `gnomex`.`Property` (
   `forSample` CHAR(1) NULL default 'Y',
   `forAnalysis` CHAR(1) NULL default 'N',
   `forDataTrack` CHAR(1) NULL default 'N',
-  `forRequest` CHAR(1) NULL default 'N',
   codePropertyType VARCHAR(10) not null,
   `sortOrder` INT(10) NULL,
+  `idCoreFacility` INT(10) NULL,
+  `forRequest` CHAR(1) NULL default 'N',
   PRIMARY KEY (`idProperty`),
   CONSTRAINT `FK_Property_AppUser` FOREIGN KEY `FK_Property_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -2154,21 +2155,6 @@ CREATE TABLE gnomex.PropertyOrganism (
     ON UPDATE NO ACTION,
     CONSTRAINT FK_PropertyOrganism_Organism FOREIGN KEY FK_PropertyOrganism_Organism (idOrganism)
     REFERENCES gnomex.Organism (idOrganism)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-) ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`PropertyPlatform`;
-CREATE TABLE gnomex.PropertyPlatform ( 
-     idProperty	INT(10),
-     codeRequestCategory    VARCHAR(10),
-     PRIMARY KEY (idProperty, codeRequestCategory),
-    CONSTRAINT FK_PropertyPlatform_Property FOREIGN KEY FK_PropertyPlatform_Property (idProperty)
-    REFERENCES gnomex.Property (idProperty)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-    CONSTRAINT FK_PropertyPlatform_RequestCategory FOREIGN KEY FK_PropertyPlatform_RequestCategory (codeRequestCategory)
-    REFERENCES gnomex.RequestCategory (codeRequestCategory)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
@@ -2235,11 +2221,11 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
   CONSTRAINT `FK_PropertyEntry_Property` FOREIGN KEY `FK_PropertyEntry_Property` (`idProperty`)
     REFERENCES `gnomex`.`Property` (`idProperty`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT `FK_PropertyEntry_Request` FOREIGN KEY `FK_PropertyEntry_Request`(`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION;
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
