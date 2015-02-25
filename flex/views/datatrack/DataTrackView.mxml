@@ -783,7 +783,7 @@
 			sizeTxt = size + " KB";
 		} else {
 			// Round bytes to nearest 100th place
-			size = Math.round(theFileSize / 100) * 100;
+			size = Math.round(theFileSize);
 			if (size == 0) {
 				size = 1;
 			}
