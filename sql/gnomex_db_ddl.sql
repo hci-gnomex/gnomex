@@ -773,7 +773,7 @@ CREATE TABLE `gnomex`.`ProductLedger` (
   `comment` VARCHAR(5000) NULL,
   `timeStame` DATETIME NULL,
   `idProductOrder` INT(10) NULL,
-  `requestNumber` INT(10) NULL,
+  `idRequest` INT(10) NULL,
   PRIMARY KEY (`idProductLedger`),
   CONSTRAINT `FK_ProductLedger_Lab` FOREIGN KEY `FK_ProductLedger_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -2109,6 +2109,7 @@ CREATE TABLE `gnomex`.`Property` (
   `forSample` CHAR(1) NULL default 'Y',
   `forAnalysis` CHAR(1) NULL default 'N',
   `forDataTrack` CHAR(1) NULL default 'N',
+  `forRequest` CHAR(1) NULL default 'N',
   codePropertyType VARCHAR(10) not null,
   `sortOrder` INT(10) NULL,
   PRIMARY KEY (`idProperty`),
@@ -2217,6 +2218,7 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
   `otherLabel` VARCHAR(100) NULL,
   idDataTrack INT(10) NULL,
   idAnalysis INT(10) NULL,
+  idRequest INT(10) NULL,
   PRIMARY KEY (`idPropertyEntry`),
   CONSTRAINT `FK_PropertyEntry_Sample` FOREIGN KEY `FK_PropertyEntry_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
@@ -2234,6 +2236,10 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
     REFERENCES `gnomex`.`Property` (`idProperty`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
+  CONSTRAINT `FK_PropertyEntry_Request` FOREIGN KEY `FK_PropertyEntry_Request`(`idRequest`)
+    REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
 )
 ENGINE = INNODB;
 
