@@ -934,7 +934,7 @@ Test City, UT 12345',
  (121,'billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y'),
  (122,'billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y'),
  (123,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
- (124,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y');
+ (124,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y'),
  (125,'core_billing_office', '', 'Name of who handles billing for the core', 'Y');
 
  
