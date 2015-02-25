@@ -40,7 +40,7 @@ alter table Property add column forRequest char(1) null;
 call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit add column forRequest char(1) null');
 
 -- add column to PropertyEntry for annotations for requests
-alter table PropertyEntry add column idRequest int null;
+alter table PropertyEntry add column idRequest int null,
 ADD CONSTRAINT `FK_PropertyEntry_Request` FOREIGN KEY `FK_PropertyEntry_Request`(`idRequest`)
 REFERENCES `gnomex`.`Request` (`idRequest`)
 ON DELETE NO ACTION
@@ -56,6 +56,10 @@ call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_
 -- Remove requestNumber column from ProductLedger table and audit table
 alter table ProductLedger Drop column requestNumber;
 call ExecuteIfTableExists('gnomex','ProductLedger_Audit','alter table ProductLedger_Audit DROP COLUMN requestNumber');
+
+-- Add idRequest
+alter table ProductLedger Add column idRequest INT(10) null;
+call ExecuteIfTableExists('gnomex','ProductLedger_Audit','alter table ProductLedger_Audit Add column idRequest INT(10) null');
 
 -- Remove materialQuoteNumber column from Request table and audit table
 alter table Request Drop column materialQuoteNumber;

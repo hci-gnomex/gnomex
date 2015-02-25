@@ -15360,7 +15360,7 @@ CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
  ,`comment`  varchar(5000)  NULL DEFAULT NULL
  ,`timeStame`  datetime  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
- ,`requestNumber`  int(10)  NULL DEFAULT NULL
+ ,`idRequest`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -15381,7 +15381,7 @@ INSERT INTO ProductLedger_Audit
   , comment
   , timeStame
   , idProductOrder
-  , requestNumber )
+  , idRequest )
   SELECT
   'No Context'
   , 'L'
@@ -15394,7 +15394,7 @@ INSERT INTO ProductLedger_Audit
   , comment
   , timeStame
   , idProductOrder
-  , requestNumber
+  , idRequest
   FROM ProductLedger
   WHERE NOT EXISTS(SELECT * FROM ProductLedger_Audit)
 $$
@@ -15418,7 +15418,7 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , requestNumber )
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -15431,7 +15431,7 @@ BEGIN
   , NEW.comment
   , NEW.timeStame
   , NEW.idProductOrder
-  , NEW.requestNumber );
+  , NEW.idRequest );
 END;
 $$
 
@@ -15450,7 +15450,7 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , requestNumber )
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -15463,7 +15463,7 @@ BEGIN
   , NEW.comment
   , NEW.timeStame
   , NEW.idProductOrder
-  , NEW.requestNumber );
+  , NEW.idRequest );
 END;
 $$
 
@@ -15482,7 +15482,7 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , requestNumber )
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -15495,7 +15495,7 @@ BEGIN
   , OLD.comment
   , OLD.timeStame
   , OLD.idProductOrder
-  , OLD.requestNumber );
+  , OLD.idRequest );
 END;
 $$
 
@@ -16971,6 +16971,7 @@ CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
+ ,`idRequest`  int(11)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16990,7 +16991,8 @@ INSERT INTO PropertyEntry_Audit
   , valueString
   , otherLabel
   , idDataTrack
-  , idAnalysis )
+  , idAnalysis
+  , idRequest )
   SELECT
   'No Context'
   , 'L'
@@ -17003,6 +17005,7 @@ INSERT INTO PropertyEntry_Audit
   , otherLabel
   , idDataTrack
   , idAnalysis
+  , idRequest
   FROM PropertyEntry
   WHERE NOT EXISTS(SELECT * FROM PropertyEntry_Audit)
 $$
@@ -17025,7 +17028,8 @@ BEGIN
   , valueString
   , otherLabel
   , idDataTrack
-  , idAnalysis )
+  , idAnalysis
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -17037,7 +17041,8 @@ BEGIN
   , NEW.valueString
   , NEW.otherLabel
   , NEW.idDataTrack
-  , NEW.idAnalysis );
+  , NEW.idAnalysis
+  , NEW.idRequest );
 END;
 $$
 
@@ -17055,7 +17060,8 @@ BEGIN
   , valueString
   , otherLabel
   , idDataTrack
-  , idAnalysis )
+  , idAnalysis
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -17067,7 +17073,8 @@ BEGIN
   , NEW.valueString
   , NEW.otherLabel
   , NEW.idDataTrack
-  , NEW.idAnalysis );
+  , NEW.idAnalysis
+  , NEW.idRequest );
 END;
 $$
 
@@ -17085,7 +17092,8 @@ BEGIN
   , valueString
   , otherLabel
   , idDataTrack
-  , idAnalysis )
+  , idAnalysis
+  , idRequest )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -17097,7 +17105,8 @@ BEGIN
   , OLD.valueString
   , OLD.otherLabel
   , OLD.idDataTrack
-  , OLD.idAnalysis );
+  , OLD.idAnalysis
+  , OLD.idRequest );
 END;
 $$
 
