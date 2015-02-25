@@ -1,4 +1,21 @@
 use gnomex;
+-- Procedure to drop column only if it exists
+delimiter '//'
+drop procedure if exists DropColumnIfExists//
+create procedure DropColumnIfExists(
+  IN dbName tinytext,
+  IN tableName tinytext,
+  IN columnName tinyText)
+begin
+  IF EXISTS (SELECT * FROM information_schema.COLUMNS WHERE table_name=tableName and table_schema=dbName and column_name=columnName)
+  THEN
+    set @ddl=concat('alter table ', tableName, ' drop column ', columnName);
+    prepare stmt from @ddl;
+    execute stmt;
+  END IF;
+end;
+//
+delimiter ';'
 
 -- COLUMN ADDS -- 
 -- add sample batch size column to request category
@@ -62,8 +79,8 @@ alter table ProductLedger Add column idRequest INT(10) null;
 call ExecuteIfTableExists('gnomex','ProductLedger_Audit','alter table ProductLedger_Audit Add column idRequest INT(10) null');
 
 -- Remove materialQuoteNumber column from Request table and audit table
-alter table Request Drop column materialQuoteNumber;
-call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN materialQuoteNumber');
+call DropColumnIfExists('gnomex','Request','materialQuoteNumber');
+call DropColumnIfExists('gnomex','Request_Audit','materialQuoteNumber');
 
 -- Remove quoteReceivedDate column from Request table and audit table
 alter table Request Drop column quoteReceivedDate;
@@ -74,8 +91,8 @@ alter table Request Drop column uuid;
 call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN uuid');
 
 -- Remove isSampleBarcodingOptional column from RequestCategory table and audit table
-alter table RequestCategory Drop column isSampleBarcodingOptional;
-call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit DROP COLUMN isSampleBarcodingOptional');
+call DropColumnIfExists('gnomex','RequestCategory','isSampleBarcodingOptional');
+call DropColumnIfExists('gnomex','RequestCategory_Audit','isSampleBarcodingOptional');
 
 -- TABLE DROPS -- 
 -- unused table

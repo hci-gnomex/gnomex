@@ -3334,6 +3334,22 @@ begin
 end;
 //
 
+-- Procedure to drop column only if it exists
+drop procedure if exists DropColumnIfExists//
+create procedure DropColumnIfExists(
+  IN dbName tinytext,
+  IN tableName tinytext,
+  IN columnName tinyText)
+begin
+  IF EXISTS (SELECT * FROM information_schema.COLUMNS WHERE table_name=tableName and table_schema=dbName and column_name=columnName)
+  THEN
+    set @ddl=concat('alter table ', tableName, ' drop column ', columnName);
+    prepare stmt from @ddl;
+    execute stmt;
+  END IF;
+end;
+//
+
 -- Procuedure to save current application user for connection
 drop procedure if exists SetAppUser//
 CREATE PROCEDURE setAppUser( IN userName text)
