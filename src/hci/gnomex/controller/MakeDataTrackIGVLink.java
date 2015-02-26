@@ -292,7 +292,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
-				boolean success = this.makeSoftLinkViaUNIXCommandLine("/"" + dir.toString() + "/"");  // deal with embedded spaces
+				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());  // deal with embedded spaces
 				
 				
 				if (success) {
