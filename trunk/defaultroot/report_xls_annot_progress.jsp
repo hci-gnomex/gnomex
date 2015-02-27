@@ -42,8 +42,8 @@ int     PALLETE_GREEN_INDEX = 48;
 
 
 // Column numbers of significance (requires special logic)
-int     FIRST_COL_FOR_ANNOTS = 8;
-int     VISIBILITY_LEGEND_COLUMN = 4;
+int     FIRST_COL_FOR_ANNOTS = 7;
+int     VISIBILITY_LEGEND_COLUMN = 3;
 int     SAMPLE_COUNT_COL = 2;
 int     LAB_COL = 0;
 
