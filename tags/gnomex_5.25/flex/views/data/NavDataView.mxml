@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:views="views.*"
+		   xmlns:data="views.data.*"
+		   xmlns:util="views.util.*"
+		   showEffect="{parentApplication.fadeIn}"
+		   hideEffect="{parentApplication.fadeOut}"
+		   creationPolicy="all"
+		   label="Data"
+		   width="100%"
+		   height="100%"
+		   backgroundAlpha="0"  cornerRadius="10"  >
+
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import views.util.DataGridAlternatingGroup;
+			import views.util.FillButtonClickEvent;
+			
+			
+			[Bindable]
+			public var selectedChromat:Object;
+			[Bindable]
+			public var selectedIdChromatogram:int;
+			
+		]]>
+	</mx:Script>
+		<mx:ViewStack id="chromatViews"
+					  visible="true"
+					  height="100%"
+					  width="100%">
+
+			<data:ChromatBrowseView label="Chromat List"
+									id="chromatBrowseView"
+									icon="@Embed('../../assets/tv_chart_review.png')"
+									parentView="{this}" />
+			<data:ChromatDetailView id="chromatDetailView"
+									selectedChromat="{selectedChromat}"
+									selectedIdChromatogram="{selectedIdChromatogram}"
+									label="Chromat Detail"
+									icon="@Embed(source='../../assets/tv_chart.png')" />
+
+		</mx:ViewStack>
+
+
+</mx:Canvas>
