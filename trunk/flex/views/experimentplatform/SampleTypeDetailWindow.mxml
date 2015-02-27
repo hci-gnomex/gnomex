@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
 				layout="vertical" 
-				title="Edit Sample Type" width="650" height="600" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				title="Edit Sample Type" width="650" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	
 	<mx:Script>
