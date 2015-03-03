@@ -365,10 +365,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
               include = false;
             }
-            if (requestCategory != null && prop.getIdCoreFacility() != null && !requestCategory.getIdCoreFacility().equals(prop.getIdCoreFacility())) {
-              include = false;
-            }
-            if (include && prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
+            if (prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
               include = false;
               for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
@@ -386,6 +383,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 }   
               }
 
+            }
+            if (requestCategory != null && prop.getIdCoreFacility() != null && !requestCategory.getIdCoreFacility().equals(prop.getIdCoreFacility())) {
+              include = false;
             }
             if ( !include ) {
               continue;
