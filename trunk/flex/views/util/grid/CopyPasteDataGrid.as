@@ -617,8 +617,8 @@ package views.util.grid
 				_rowNumberColumn = new AdvancedDataGridColumn("");
 				_rowNumberColumn.editable = false;
 				_rowNumberColumn.labelFunction = getGridRowNumber;
-				_rowNumberColumn.width = 25;
-				_rowNumberColumn.resizable = false;
+				_rowNumberColumn.width = 35;
+				_rowNumberColumn.resizable = true;
 				_rowNumberColumn.sortable = false
 			}
 			
